@@ -1,0 +1,30 @@
+:root {
+  /* Bảng màu mới: tím điện, hồng san hô và kem ấm. */
+  --ink: #221a39;
+  --ink-deep: #150e2b;
+  --muted: #686078;
+  --muted-light: #817992;
+  --paper: #ffffff;
+  --cream: #fff7f6;
+  --cream-deep: #f7edff;
+  --purple: #6136df;
+  --purple-deep: #4924ac;
+  --lavender: #d9c8ff;
+  --peach: #ffcfb7;
+  --coral: #f45278;
+  --line: #eae5f0;
+  --white: #ffffff;
+  --success: #167957;
+  --error: #ba3053;
+  --radius-sm: 10px;
+  --radius-md: 18px;
+  --radius-lg: 26px;
+  --radius-xl: 34px;
+  --shadow-soft: 0 14px 40px rgba(52, 26, 115, 0.09);
+  --shadow-elevated: 0 26px 70px rgba(52, 26, 115, 0.18);
+  --font-display: "Plus Jakarta Sans", "Inter", system-ui, -apple-system, sans-serif;
+  --font-body: "Inter", system-ui, -apple-system, sans-serif;
+  --font-serif: "Lora", Georgia, serif;
+  --container: 1190px;
+  --ease: cubic-bezier(.2, .8, .2, 1);
+}

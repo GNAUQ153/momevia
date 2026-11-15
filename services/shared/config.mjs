@@ -1,0 +1,36 @@
+import fs from 'node:fs';
+import path from 'node:path';
+
+// Tải biến môi trường từ tệp .env ở thư mục gốc mà không cần thư viện ngoài.
+export function loadEnvironment() {
+  const source = path.resolve(process.cwd(), '.env');
+  if (!fs.existsSync(source)) return;
+  for (const line of fs.readFileSync(source, 'utf8').split(/\r?\n/)) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith('#')) continue;
+    const index = trimmed.indexOf('=');
+    if (index === -1) continue;
+    const key = trimmed.slice(0, index).trim();
+    let value = trimmed.slice(index + 1).trim();
+    if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) value = value.slice(1, -1);
+    if (!(key in process.env)) process.env[key] = value;
+  }
+}
+
+export function environment() {
+  loadEnvironment();
+  return {
+    baseUrl: process.env.PUBLIC_BASE_URL || 'http://localhost:4100',
+    jwtSecret: process.env.JWT_SECRET || 'unsafe-local-secret-only',
+    internalKey: process.env.INTERNAL_SERVICE_KEY || 'unsafe-internal-only',
+    demoEnabled: process.env.DEMO_AUTH_ENABLED !== 'false' && process.env.NODE_ENV !== 'production',
+    adminCode: process.env.DEMO_ADMIN_CODE || '',
+    giftTtlDays: Math.max(1, Number(process.env.GIFT_TTL_DAYS || 365)),
+    googleId: process.env.GOOGLE_CLIENT_ID || '',
+    googleSecret: process.env.GOOGLE_CLIENT_SECRET || '',
+    googleCallback: process.env.GOOGLE_CALLBACK_URL || 'http://localhost:4100/api/auth/google/callback',
+    zaloId: process.env.ZALO_APP_ID || '',
+    zaloSecret: process.env.ZALO_APP_SECRET || '',
+    zaloCallback: process.env.ZALO_CALLBACK_URL || 'http://localhost:4100/api/auth/zalo/callback',
+  };
+}

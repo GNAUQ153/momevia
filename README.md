@@ -59,7 +59,7 @@ Momevia là tên thương hiệu **đề xuất** cho giai đoạn phát triển
 5. Mở **http://localhost:4100**.
 6. Bấm **Đăng nhập** trên header, chuyển tab **Đăng ký** để tạo tài khoản email. Sau đó vào **Khám phá mẫu**, bấm nút hình trái tim và kiểm tra trang **Mẫu yêu thích** trong menu tài khoản.
 
-Không cần Docker, XAMPP hoặc `npm install`. Dùng `Ctrl+C` để dừng các dịch vụ. **Không đưa file `.env` lên GitHub**.
+Cần chạy `npm ci` và `npm run build` trước khi khởi động. Không cần Docker hoặc XAMPP. Dùng `Ctrl+C` để dừng các dịch vụ. **Không đưa file `.env` lên GitHub**.
 
 ## 2. Các thay đổi phiên bản 0.3.0
 
@@ -166,3 +166,7 @@ momevia-mvp/
 ## Gift photo protection
 
 Install locked dependencies with `npm ci`. New PNG/JPEG/WebP uploads are decoded and re-encoded, stripped of EXIF, and limited to 2 MB / 16 million pixels / 8192 pixels per side. Image processing concurrency is bounded. Existing photos and business data are preserved.
+
+## Local QR privacy
+
+Gift QR codes are generated in the browser with a locally built module; secret gift links are no longer sent to an external QR service. Run `npm run build` before tests or startup.

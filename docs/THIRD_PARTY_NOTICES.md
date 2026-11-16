@@ -4,7 +4,7 @@
 2. **Node.js** — runtime JavaScript (MIT và nhiều giấy phép thành phần), người dùng tự tải tại https://nodejs.org/ . Không đóng gói Node trong ZIP.
 3. **Google OAuth 2.0** — API đăng nhập bên ngoài, phụ thuộc điều khoản của Google; https://developers.google.com/identity/protocols/oauth2/web-server . Không phải thư viện mã nguồn mở đóng gói.
 4. **Zalo Social API v4** — API đăng nhập ngoài, phụ thuộc điều khoản của Zalo; https://docs.zaloplatforms.com/docs/Social/social-api/tham-khao/user-access-token-v4 . Không phải thư viện mã nguồn mở đóng gói.
-5. **QR Server API (goQR.me)** — dịch vụ sinh ảnh QR tùy chọn. Chỉ sử dụng sau khi người dùng xác nhận chia sẻ URL quà; https://goqr.me/api/ . Đây là external service; không có mã thư viện được sao chép vào project.
+5. **qrcode-generator 2.0.4** — tạo QR cục bộ, MIT, Copyright (c) 2009 Kazuhiko Arase; https://github.com/kazuhikoarase/qrcode-generator . Build sao chép module từ package đã khóa phiên bản vào `web/js/vendor/qrcode.js`, giữ nguyên phần ghi nhận bản quyền. Không sử dụng QR Server API nữa.
 
 UI, nền artwork, CSS animation và source code còn lại được tạo riêng cho MVP. Không sử dụng ảnh stock hoặc emoji trong giao diện.
 
@@ -20,6 +20,8 @@ UI, nền artwork, CSS animation và source code còn lại được tạo riên
 
 Logo 3D của Momevia là hình tạo mới bằng AI theo yêu cầu người dùng, được dùng trong `web/assets`. Không sử dụng font bên thứ ba đóng gói trong ZIP.
 
-## Photo processing
+## Dependency xử lý và kiểm thử
 
-sharp 0.35.5, Apache-2.0: https://sharp.pixelplumbing.com/ . Installed through npm; third-party native components retain their licenses.
+- **sharp 0.35.5** — Apache-2.0, https://sharp.pixelplumbing.com/ ; giải mã, giới hạn pixel và encode lại ảnh để bỏ metadata. Binary đi kèm có libvips và giấy phép thành phần riêng, được cài qua npm thay vì chép vào gói nguồn.
+- **js-yaml 5.5.0** — MIT, https://github.com/nodeca/js-yaml ; chỉ dùng để kiểm tra YAML trong môi trường phát triển/CI.
+- **jsQR 1.4.0** — Apache-2.0, https://github.com/cozmo/jsQR ; chỉ dùng trong kiểm thử để giải mã QR và đối chiếu link gốc.

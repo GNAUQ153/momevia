@@ -49,6 +49,11 @@ jobs:
               node --check "$file"
             done
 
+      - name: Install locked dependencies and build local QR
+        run: |
+          npm ci
+          npm run build
+
       - name: Chạy unit tests
         run: npm test
 

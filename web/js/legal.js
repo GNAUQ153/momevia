@@ -66,7 +66,7 @@ export const legalPages = {
       },
       {
         title: '3. Chia sẻ và truy cập',
-        text: 'Người có link quà hợp lệ có thể xem nội dung mà người gửi đã xuất bản. Người gửi cần cân nhắc thông tin và ảnh đưa vào món quà trước khi chia sẻ. Một số tính năng tùy chọn như tạo QR hoặc đăng nhập qua nhà cung cấp khác có thể kết nối với dịch vụ bên thứ ba.'
+        text: 'Người có link quà hợp lệ có thể xem nội dung mà người gửi đã xuất bản. Người gửi cần cân nhắc thông tin và ảnh đưa vào món quà trước khi chia sẻ. Mã QR được tạo ngay trên thiết bị, không gửi link quà đến dịch vụ tạo QR bên ngoài. Đăng nhập qua Google hoặc Zalo có thể kết nối với nhà cung cấp tương ứng.'
       },
       {
         title: '4. Lưu trữ và bảo mật',

@@ -15,9 +15,15 @@
     "smoke:upgrade": "node scripts/smoke-upgrade.mjs",
     "smoke:legacy": "node scripts/smoke.mjs",
     "seed:test-user": "node scripts/seed-test-user.mjs",
-    "smoke:ui": "node scripts/smoke-ui.mjs"
+    "smoke:ui": "node scripts/smoke-ui.mjs",
+    "build": "node scripts/build-web.mjs"
   },
   "dependencies": {
-    "sharp": "0.35.5"
+    "sharp": "0.35.5",
+    "qrcode-generator": "2.0.4"
+  },
+  "devDependencies": {
+    "js-yaml": "5.5.0",
+    "jsqr": "1.4.0"
   }
 }

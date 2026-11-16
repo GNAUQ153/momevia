@@ -2,6 +2,7 @@ import { api, ApiError, escapeHtml as e, formatPrice } from './api.js';
 import { icon } from './icons.js';
 import { filterTemplates, styleOptions, countLabel, paginateTemplates } from './catalog-filter.js';
 import { legalPages, legalPage } from './legal.js';
+import { giftQrDataUrl } from './qr.js';
 
 const state = {
   user: null,
@@ -735,12 +736,7 @@ async function handleAction(action, element) {
   }
   if (action === 'qr') {
     const link = element.dataset.value;
-    openModal(`<div class="qr-modal">${icon('qr-code',36)}<h2>Tạo mã QR cho món quà</h2><p>Momevia sử dụng dịch vụ QR bên thứ ba để tạo mã. Nếu tiếp tục, đường link quà sẽ được gửi đến api.qrserver.com.</p><button class="btn btn--dark btn--wide" data-action="show-qr" data-value="${e(link)}">Tôi đồng ý, tạo mã QR</button></div>`);
-    return;
-  }
-  if (action === 'show-qr') {
-    const link = element.dataset.value;
-    const url = `https://api.qrserver.com/v1/create-qr-code/?size=260x260&margin=15&data=${encodeURIComponent(link)}`;
+    const url = giftQrDataUrl(link);
     openModal(`<div class="qr-modal"><h2>Mã QR của món quà</h2><p>Người nhận chỉ cần quét mã để mở thiệp.</p><img class="qr-image" src="${e(url)}" alt="Mã QR mở món quà"/><button class="btn btn--outline btn--wide" data-action="copy-link" data-value="${e(link)}">${icon('copy',17)} Sao chép link</button></div>`);
     return;
   }

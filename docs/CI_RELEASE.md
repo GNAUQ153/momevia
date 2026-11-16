@@ -6,7 +6,7 @@ Phạm vi thống nhất ngày 16/11/2026: CI và gói phát hành, chưa deploy
 
 `.github/workflows/ci.yml` chạy khi mở/cập nhật PR vào `main`, push vào `main`, hoặc chạy thủ công trong Actions.
 
-1. Ma trận Windows/Linux, Node 22/24: `npm ci` → build QR cục bộ → kiểm tra cú pháp/YAML → audit dependency runtime → unit tests → HTTP regression và bốn smoke suite trên dữ liệu/cổng cô lập.
+1. Ma trận Windows/Linux, Node 22/24: `npm ci` → build QR cục bộ → kiểm tra cú pháp/ESLint/YAML → audit dependency runtime → unit tests → HTTP regression và bốn smoke suite trên dữ liệu/cổng cô lập. Ô Linux/Node 24 cài Chromium và chạy thêm browser regression trên fixture.
 2. Khi toàn bộ ma trận đạt, push hoặc chạy thủ công trên `main` mới được đóng gói.
 3. Gói nguồn được cài dependency và kiểm thử lại ngay trong `dist/release` để bắt lỗi thiếu file.
 4. Upload `momevia-<commit>.tar.gz` thành artifact của workflow, lưu 14 ngày. Không tạo GitHub Release, không đưa dữ liệu lên hosting và không cần secret production.
@@ -28,6 +28,10 @@ tar --exclude=node_modules -czf dist/momevia-local.tar.gz -C dist/release .
 ```
 
 `npm run package` tạo mới riêng thư mục đầu ra `dist/release`. Script dùng danh sách thư mục/file cho phép, bỏ `.env` thật, `.env.*` khác `.env.example`, mọi thư mục `data`, `node_modules`, log, file tạm và từ chối symbolic link. Không đọc/ghi lại dữ liệu nghiệp vụ nguồn. Chỉ cài dependency sau khi giải nén, trên đúng hệ điều hành đích vì sharp có binary riêng theo nền tảng.
+
+Gói gồm `src/`, các entrypoint tương thích, cấu trúc `web/js/`, `tests/`, `scripts/` mới và `eslint.config.mjs`; không đóng gói snapshot/đồ thị/browser artifact trong `local/`. Công cụ hỗ trợ Node 22.13+ trong nhánh 22 hoặc 24+.
+
+Ignore của Git và bộ lọc phát hành là hai lớp riêng. `scripts/release/policy.mjs` loại rõ ba tài liệu lịch sử đã chuyển local cùng output/cache công cụ, kể cả khi chúng vô tình được chép trở lại thư mục source. Các hướng dẫn hiện hành và giấy phép vẫn nằm trong gói.
 
 `release-manifest.json` ghi phiên bản, commit nền, trạng thái working tree dirty và SHA-256 của từng file trong gói. Gói tạo từ WIP có `dirty: true`; không được coi commit nền là bằng chứng toàn bộ nội dung đã commit. File manifest không tự checksum chính nó. Khi cài dependency trong gói, danh sách file bổ sung trong `node_modules` không nằm trong manifest nguồn.
 

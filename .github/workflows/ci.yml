@@ -39,6 +39,12 @@ jobs:
       - run: npm test
       # Includes HTTP regressions and all four smoke suites on isolated data/ports.
       - run: npm run test:architecture
+      - name: Install Chromium for browser regression
+        if: matrix.os == 'ubuntu-latest' && matrix.node == '24'
+        run: npx playwright install --with-deps chromium
+      - name: Browser regression on isolated fixture
+        if: matrix.os == 'ubuntu-latest' && matrix.node == '24'
+        run: npm run test:browser
 
   package:
     name: Verified release package

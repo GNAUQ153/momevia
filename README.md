@@ -52,13 +52,13 @@ npm run smoke:ui
 ---
 
 
-**Phiên bản:** 0.3.0 · **Kiến trúc:** Microservices + OOP (Node.js ES Modules) · **Ngôn ngữ giao diện:** Tiếng Việt.
+**Phiên bản:** 0.5.0 + refactor chưa phát hành · **Cấu trúc mã:** Module nghiệp vụ, Node.js ES Modules · **Mô hình chạy hiện tại:** Gateway và năm service · **Ngôn ngữ giao diện:** Tiếng Việt.
 
 Momevia là tên thương hiệu **đề xuất** cho giai đoạn phát triển; cần kiểm tra quyền sử dụng tên, nhãn hiệu và tên miền trước khi phát hành chính thức.
 
 ## 1. Bắt đầu trên Windows / VS Code
 
-1. Cài **Node.js 22 trở lên**.
+1. Cài **Node.js 22.13+ (nhánh 22) hoặc 24+**.
 2. Giải nén `Momevia_MVP_v0.3_UI_Favorites_Support.zip` và mở thư mục `momevia-mvp` trong VS Code.
 3. Mở Terminal PowerShell tại thư mục `momevia-mvp`.
 4. Chạy lệnh sau:
@@ -153,32 +153,19 @@ Mỗi tài khoản có một role; Sender/Creator không tự đổi role. Chỉ
 - **Lucide:** SVG icon (MIT) — <https://lucide.dev/license>.
 - **Google Fonts:** Plus Jakarta Sans, Inter, Lora (SIL Open Font License); tải qua Google Fonts. Không phân phối kèm tệp font.
 - **Logo Momevia:** Hình 3D tạo riêng bằng công cụ tạo ảnh AI theo yêu cầu, đặt trong `web/assets/`. Không sao chép logo của thương hiệu khác.
-- **Google/Zalo:** Biểu tượng nhà cung cấp ở form xác thực tải từ nguồn mạng và chịu quy định thương hiệu tương ứng. Đường dẫn nguồn nằm trong `web/js/app.js`.
+- **Google/Zalo:** Biểu tượng nhà cung cấp ở form xác thực tải từ nguồn mạng và chịu quy định thương hiệu tương ứng. Đường dẫn nguồn nằm trong `web/js/pages/auth.js`.
 
 ## 9. Cấu trúc thư mục chính
 
+Xem [cây thư mục và trách nhiệm từng lớp](docs/PROJECT_STRUCTURE.md), [đánh giá kiến trúc và DB](docs/ARCHITECTURE_OPTIONS.md), hoặc [mục lục tài liệu](docs/README.md).
+
 ```text
-momevia-mvp/
-  web/
-    assets/                 logo 3D và icon
-    css/                    CSS tách riêng từng vùng
-      tokens.css            màu sắc, font và biến thiết kế
-      auth.css              đăng nhập/đăng ký
-      upgrade.css           nhận diện, active nav, favorite, support, back-to-top
-    js/
-      app.js                điều hướng và hành vi UI
-      icons.js              Lucide SVG
-      api.js                HTTP client
-  services/
-    identity/               tài khoản + OAuth
-    catalog/                mẫu + yêu thích
-    gifts/                  trải nghiệm quà
-    checkout/               luồng giả lập thanh toán
-    support/                liên hệ và ghi nhận phiếu
-    shared/                 HTTP, lưu trữ, bảo mật
-  scripts/                  smoke tests
-  tests/                    unit tests
-  gateway.mjs               API gateway
-  dev.mjs                   khởi động các dịch vụ
-  .env.example              cấu hình mẫu
+src/             bootstrap, gateway, modules nghiệp vụ, shared
+web/js/          app, core, pages, ui, features và vendor build
+tests/           unit, integration, browser, smoke
+scripts/         build, quality, release, dev
+services/*/data/ dữ liệu JSON local hiện hữu (ignored)
+docs/            hướng dẫn, quyết định, bằng chứng và lịch sử
 ```
+
+Các file server cũ chỉ chuyển tiếp đến nguồn mới; URL API và cổng hiện tại được giữ. Ứng dụng hiện dùng JSON file storage, chưa dùng MySQL/PostgreSQL/SQLite. Không bắt buộc dùng microservices; modular monolith là đề xuất kiến trúc tiếp theo, chưa được chuyển trong bản này.

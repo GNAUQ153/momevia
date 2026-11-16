@@ -8,7 +8,7 @@
 
 Đối chiếu toàn bộ nhận định SEC-01 đến SEC-08 trong báo cáo ban đầu với mã nguồn hiện tại trên nhánh `fix/architecture-review`. Bản gốc được giữ ngoài Git tại `local/archive/docs/` trên máy phát triển, không phân phối cùng source/gói phát hành. Các kết luận và code mẫu cũ không phải hướng dẫn áp dụng cho hiện tại; báo cáo này ghi lại nhận định đã hiệu chỉnh.
 
-Các nguồn chính: `gateway.mjs`, `dev.mjs`, `services/shared/*`, Identity/Catalog/Checkout/Gifts/Support, frontend QR/privacy, unit tests và `scripts/check-architecture.mjs`. Không đọc hoặc thay đổi dữ liệu nghiệp vụ/.env thực để chạy kiểm thử.
+Các nguồn chính: `src/gateway/`, `src/bootstrap/`, `src/shared/`, `src/modules/{identity,catalog,checkout,gifts,support}/`, frontend QR/privacy, `tests/unit/` và `tests/integration/architecture.mjs`. Không đưa nội dung dữ liệu nghiệp vụ/.env thực vào fixture kiểm thử. Kiểm tra tính toàn vẹn dữ liệu local chỉ đọc bytes để tính hash, không ghi lại dữ liệu.
 
 Không gán điểm CVSS khi chưa có vector và giả định môi trường đầy đủ. Không coi việc tham chiếu OWASP/ASVS là đã kiểm định đầy đủ các tiêu chuẩn đó. Các mã bên dưới dùng để theo dõi phát hiện, không phải điểm CVSS được chứng nhận.
 
@@ -78,7 +78,7 @@ Mỗi limiter dùng số shard hữu hạn; các danh tính va chạm có thể 
 - HTTP xác minh login/register/demo-admin bị giới hạn; đổi X-Forwarded-For không vượt quota.
 - Sau logout, replay token bị từ chối ở Gifts/Catalog/Checkout/Support; sau restart Identity vẫn bị từ chối; Identity tắt thì API cần kiểm tra phiên trả 503.
 
-Các kiểm tra này chưa chứng minh an toàn nhiều writer, crash consistency, DDoS resistance, trải nghiệm trên browser thật, OAuth thật hoặc khả năng vận hành production.
+Các kiểm tra này chưa chứng minh an toàn nhiều writer, crash consistency, DDoS resistance, OAuth thật hoặc khả năng vận hành production. Browser regression có phạm vi riêng bên dưới; không suy rộng thành QA toàn bộ trình duyệt/màn hình.
 
 ### CI và gói phát hành
 
@@ -90,11 +90,21 @@ Chỉ gọi GitHub CI/nhánh bảo vệ/hosting là đã hoạt động sau khi 
 
 ### Bằng chứng local ngày 16/11/2026
 
-- Windows / Node 24.14.0: 43/43 unit tests PASS; HTTP regression và bốn smoke suite PASS, gồm các trường hợp Admin-only đổi role và quyền cũ trên JWT sau hạ role.
-- Windows / Node 22.23.5: 43/43 unit tests PASS, HTTP regression và bốn smoke suite PASS, gồm bản sửa role; không đại diện cho runner Linux.
+- Windows / Node 24.14.0: 46/46 unit tests PASS; HTTP regression và bốn smoke suite PASS sau refactor, gồm Admin-only đổi role, JWT cũ sau hạ role, view modules và OAuth state/PKCE nội bộ.
+- Windows / Node 22.23.5: 46/46 unit tests PASS, HTTP regression và bốn smoke suite PASS sau refactor; không đại diện cho runner Linux.
 - Bản đóng gói: cài mới bằng npm ci, kiểm tra cú pháp/YAML, unit tests và HTTP regression trước khi nén.
 - actionlint 1.7.12 kiểm tra workflow, không có lỗi; npm audit runtime không phát hiện lỗ hổng tại thời điểm kiểm tra.
-- GitHub Actions/runner Linux/upload artifact: chưa chạy trên GitHub. Browser QA/OAuth thật/load test: chưa chạy.
+- Browser thật: Playwright/Edge trên Windows, đăng ký/đăng nhập, thư viện/yêu thích, Sender không có form Creator, xuất bản quà và QR cục bộ PASS trên fixture; không có lỗi JavaScript/tài nguyên HTTP nội bộ. Có kiểm tra screenshot QR ở viewport 390px. Không kiểm chứng OAuth, font/logo mạng ngoài hoặc toàn bộ responsive.
+- GitHub Actions/runner Linux/upload artifact: chưa chạy trên GitHub. Linux/Node 24 đã cấu hình browser gate, chưa có bằng chứng chạy từ GitHub. OAuth thật/load test: chưa chạy.
+- Bảy file dữ liệu local trước/sau refactor có cùng SHA-256. Không di chuyển hoặc ghi lại dữ liệu.
+
+### Phạm vi sắp xếp mã và đồ thị
+
+Đã chuyển logic vào `src/modules`, tách route/service/repository/app/client và adapter media. Gateway và phần dùng chung tách riêng. Frontend tách app/core/pages/ui/features; test và script phân nhóm. Entry point/URL cũ giữ tương thích. Xem [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md).
+
+Đồ thị AST code-only được xây trước/sau tại `local/graphify-before` và `local/graphify-after`, không dùng LLM semantic (0 token), bỏ data/.env/dependency/assets/vendor. Graphify có cảnh báo một cạnh dangling, self-loop và cạnh cùng endpoint bị gộp, cùng một số file không có symbol được mô hình hóa; đồ thị chỉ dùng điều hướng. Nhận định được đối chiếu trực tiếp source và kiểm thử, không dùng graph làm bằng chứng độc lập.
+
+Mô hình chạy vẫn sáu process; JSON storage vẫn giữ. [ARCHITECTURE_OPTIONS.md](ARCHITECTURE_OPTIONS.md) đề xuất modular monolith và đánh giá DB, chưa phải thay topology/migrate đã thực hiện.
 
 ### Hạng mục còn lại
 

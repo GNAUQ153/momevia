@@ -25,3 +25,5 @@ Logo 3D của Momevia là hình tạo mới bằng AI theo yêu cầu người d
 - **sharp 0.35.5** — Apache-2.0, https://sharp.pixelplumbing.com/ ; giải mã, giới hạn pixel và encode lại ảnh để bỏ metadata. Binary đi kèm có libvips và giấy phép thành phần riêng, được cài qua npm thay vì chép vào gói nguồn.
 - **js-yaml 5.5.0** — MIT, https://github.com/nodeca/js-yaml ; chỉ dùng để kiểm tra YAML trong môi trường phát triển/CI.
 - **jsQR 1.4.0** — Apache-2.0, https://github.com/cozmo/jsQR ; chỉ dùng trong kiểm thử để giải mã QR và đối chiếu link gốc.
+- **ESLint 10.15.0** và **globals 17.14.0** — MIT, https://eslint.org/ và https://github.com/sindresorhus/globals ; chỉ dùng trong quality check để kiểm tra định danh/import và môi trường Node/browser.
+- **Playwright 1.65.1** — Apache-2.0, https://playwright.dev/ ; chỉ dùng trong browser regression trên fixture. Browser binary được cài riêng hoặc dùng Edge có sẵn, không đóng gói trong gói nguồn.

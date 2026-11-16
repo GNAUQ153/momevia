@@ -1,5 +1,45 @@
 # Momevia — Nền tảng quà tặng số tương tác
 
+## Cập nhật v0.5.0 — Authentication Routes, Catalog Filters & Policies
+
+- **Đăng nhập:** `/login` là một trang riêng; có email, mật khẩu, hai nút Google/Zalo cùng độ rộng, liên kết **Đăng ký ngay**.
+- **Đăng ký:** `/register` là một trang riêng; có họ tên, email, mật khẩu, xác nhận mật khẩu và liên kết **Đăng nhập ngay**.
+- **Google/Zalo:** Luồng OAuth vẫn giữ nguyên; nếu chưa điền Client ID/Secret trong `.env`, nút được vô hiệu hóa và có chú thích.
+- **Thư viện:** Dropdown phong cách lấy động từ mẫu đã phát hành; checkbox **Chỉ mẫu miễn phí** độc lập; số `... mẫu phù hợp` cập nhật khi tìm kiếm hoặc lọc.
+- **Chính sách:** `/policies/general`, `/policies/payment`, `/policies/privacy`, `/policies/content`, liên kết tại footer. Nội dung là bản dự thảo cần duyệt trước khi công bố chính thức.
+- **Tài khoản QA:** Không đưa mật khẩu mặc định vào source. Có thể tự đăng ký tài khoản hoặc tạo tài khoản thử ngẫu nhiên qua script riêng.
+
+### Tạo tài khoản QA (tùy chọn)
+
+Trước khi chạy script, tắt ứng dụng để tránh ghi đồng thời vào JSON storage:
+
+```powershell
+npm run seed:test-user
+```
+
+Terminal in ra email và mật khẩu ngẫu nhiên. Ghi lại thông tin đó để đăng nhập trên `/login`, sau đó chạy `npm run dev`.
+**Không chia sẻ thông tin tài khoản, không đưa các tệp `services/**/data/` hoặc `.env` lên GitHub.**
+
+### Kiểm thử
+
+```powershell
+npm test
+npm run dev
+```
+
+Mở Terminal thứ hai:
+
+```powershell
+npm run smoke:auth
+npm run smoke
+npm run smoke:ui
+```
+
+`smoke:ui` chỉ kiểm tra tải route/tài nguyên HTTP; **không thay thế kiểm thử thao tác và bố cục trên trình duyệt thật**.
+
+---
+
+
 **Phiên bản:** 0.3.0 · **Kiến trúc:** Microservices + OOP (Node.js ES Modules) · **Ngôn ngữ giao diện:** Tiếng Việt.
 
 Momevia là tên thương hiệu **đề xuất** cho giai đoạn phát triển; cần kiểm tra quyền sử dụng tên, nhãn hiệu và tên miền trước khi phát hành chính thức.

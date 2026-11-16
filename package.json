@@ -1,7 +1,7 @@
 {
   "name": "momevia-mvp",
   "private": true,
-  "version": "0.3.0",
+  "version": "0.5.0",
   "type": "module",
   "engines": {
     "node": ">=22"
@@ -13,6 +13,8 @@
     "smoke": "node scripts/smoke-upgrade.mjs",
     "smoke:auth": "node scripts/smoke-auth.mjs",
     "smoke:upgrade": "node scripts/smoke-upgrade.mjs",
-    "smoke:legacy": "node scripts/smoke.mjs"
+    "smoke:legacy": "node scripts/smoke.mjs",
+    "seed:test-user": "node scripts/seed-test-user.mjs",
+    "smoke:ui": "node scripts/smoke-ui.mjs"
   }
 }

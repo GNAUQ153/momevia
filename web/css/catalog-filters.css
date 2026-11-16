@@ -1,0 +1,110 @@
+/* Bộ lọc phong cách dùng select, không sinh thêm chip khi số lượng tăng. */
+.catalog-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 15px;
+  margin: 27px 0 34px;
+  padding: 17px 19px;
+  border: 1px solid #e9e2f2;
+  border-radius: 17px;
+  background: #fbf9ff;
+}
+.catalog-style-select {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 0 1 385px;
+  min-width: 0;
+}
+.catalog-style-select > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  flex: none;
+  color: #574b70;
+  font-size: 12px;
+  font-weight: 750;
+}
+.catalog-style-select select {
+  min-width: 0;
+  width: 100%;
+  min-height: 45px;
+  padding: 10px 40px 10px 14px;
+  appearance: none;
+  border: 1px solid #dcd1eb;
+  border-radius: 11px;
+  background: white;
+  color: #291b45;
+  font-size: 13px;
+  font-weight: 650;
+  cursor: pointer;
+}
+.catalog-style-select > .icon {
+  position: absolute;
+  right: 12px;
+  pointer-events: none;
+  color: #7d6a9d;
+}
+.catalog-style-select select:focus-visible,
+.catalog-free-filter input:focus-visible,
+.catalog-reset:focus-visible {
+  outline: 3px solid #d9c5fb;
+  outline-offset: 2px;
+}
+.catalog-free-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #4e4261;
+  font-size: 13px;
+  font-weight: 650;
+  cursor: pointer;
+}
+.catalog-free-filter input {
+  width: 18px;
+  height: 18px;
+  accent-color: #6136df;
+  cursor: pointer;
+}
+.catalog-reset {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: auto;
+  padding: 8px;
+  border: none;
+  background: transparent;
+  color: #6041a1;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.catalog-reset:hover {
+  text-decoration: underline;
+}
+@media (max-width: 700px) {
+  .catalog-filters {
+    padding: 15px;
+    gap: 12px;
+  }
+  .catalog-style-select {
+    flex: 1 1 100%;
+  }
+  .catalog-reset {
+    margin-left: auto;
+  }
+}
+@media (max-width: 410px) {
+  .catalog-style-select {
+    flex-wrap: wrap;
+    row-gap: 6px;
+  }
+  .catalog-style-select > span {
+    width: 100%;
+  }
+  .catalog-style-select > .icon {
+    top: 40px;
+  }
+}

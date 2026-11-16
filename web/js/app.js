@@ -1,12 +1,17 @@
 import { api, ApiError, escapeHtml as e, formatPrice } from './api.js';
 import { icon } from './icons.js';
+import { filterTemplates, styleOptions, countLabel, paginateTemplates } from './catalog-filter.js';
+import { legalPages, legalPage } from './legal.js';
 
 const state = {
   user: null,
   providers: { demo: true, google: false, zalo: false },
   templates: [],
   filter: 'Tất cả',
+  freeOnly: false,
   search: '',
+  catalogPage: 1,
+  favoritePage: 1,
   photoDataUrl: null,
   giftOpened: false,
   afterLogin: null,
@@ -40,7 +45,7 @@ function toast(message, type = 'success') {
 function requireLogin(path) {
   if (state.user) return true;
   state.afterLogin = path;
-  openAuth();
+  navigate('/login');
   return false;
 }
 function activeLink(path, label, section = '') {
@@ -74,7 +79,7 @@ function refreshNav() {
         ${signedIn ? `
           <a class="nav-studio ${studioActive ? 'is-current' : ''}" href="/studio" data-link ${studioActive ? 'aria-current="page"' : ''}>${icon('layers', 17)} Không gian của tôi</a>
           <button type="button" class="avatar-button" data-action="account-menu" aria-label="Tài khoản ${e(state.user.name)}" title="Tài khoản">${e(state.user.name.charAt(0).toUpperCase())}</button>
-        ` : `<button type="button" class="btn btn--dark login-trigger" data-action="login">Đăng nhập</button>`}
+        ` : `<a class="btn btn--dark login-trigger" href="/login" data-link>Đăng nhập</a>`}
         <button type="button" class="icon-button nav-toggle" data-action="toggle-menu" aria-label="Mở menu" aria-expanded="false">${icon('menu', 22)}</button>
       </div>
     </div>
@@ -88,7 +93,7 @@ function refreshNav() {
     </div>` : ''}
     <div class="mobile-nav" id="mobile-nav" hidden>
       ${links.join('')}
-      ${signedIn ? '<a href="/studio" data-link>Không gian của tôi</a><a href="/favorites" data-link>Mẫu yêu thích</a>' : '<button type="button" data-action="login">Đăng nhập</button>'}
+      ${signedIn ? '<a href="/studio" data-link>Không gian của tôi</a><a href="/favorites" data-link>Mẫu yêu thích</a>' : '<a href="/login" data-link>Đăng nhập</a>'}
     </div>
   `;
   footer.innerHTML = `
@@ -98,6 +103,7 @@ function refreshNav() {
       <span class="footnote">Gửi điều thương, giữ kỷ niệm.</span></div>
       <div class="footer-column"><h4>Khám phá</h4><a href="/explore" data-link>Thư viện mẫu</a><a href="/creator" data-link>Trở thành Creator</a></div>
       <div class="footer-column"><h4>Thông tin</h4><a href="/about" data-link>Về chúng tôi</a><a href="/favorites" data-link>Mẫu yêu thích</a><button class="footer-contact" data-action="support">Liên hệ hỗ trợ</button></div>
+      <div class="footer-column"><h4>Chính sách</h4><a href="/policies/general" data-link>Chính sách & Quy định chung</a><a href="/policies/payment" data-link>Chính sách thanh toán</a><a href="/policies/privacy" data-link>Chính sách bảo mật</a><a href="/policies/content" data-link>Nội dung & Bản quyền</a></div>
       <div class="footer-news"><span class="footer-bloom">${icon('sparkles', 22)}</span><h3>Một bất ngờ nhỏ, một niềm vui lớn.</h3><a href="/explore" data-link>Khám phá ngay ${icon('arrow', 17)}</a></div>
     </div><div class="container footer-bottom"><span>© 2026 Momevia. Bảo lưu mọi quyền.</span><span>Thiết kế với sự quan tâm đến từng chi tiết.</span></div>
   `;
@@ -185,21 +191,65 @@ function home() {
       <div class="story-content"><span class="eyebrow">HƠN CẢ MỘT TẤM THIỆP</span><h2>Món quà kết thúc,<br><em>kỷ niệm ở lại.</em></h2><p>Ở Momevia, người nhận không chỉ xem lời chúc. Họ có thể mở từng bất ngờ, gửi lại lời nhắn và cùng bạn lưu giữ khoảnh khắc ấy.</p><ul class="feature-list"><li>${icon('check-circle',18)} Trải nghiệm tương tác trên điện thoại</li><li>${icon('check-circle',18)} Lời hồi đáp chỉ dành cho người có link</li><li>${icon('check-circle',18)} Dễ chia sẻ, không cần cài ứng dụng</li></ul>${buttonLink('/explore','Bắt đầu tạo quà')}</div></div></section>
     <section class="section creator-band"><div class="container creator-band__inner"><div><span class="eyebrow">DÀNH CHO NHÀ SÁNG TẠO</span><h2>Thiết kế của bạn.<br><em>Cảm xúc của ai đó.</em></h2><p>Biến ý tưởng đẹp thành những món quà có thể cá nhân hóa. Đăng mẫu miễn phí và bắt đầu xây dựng gian hàng riêng.</p>${buttonLink('/creator','Khám phá Creator Studio','btn--light')}</div><div class="creator-band__art">${icon('sparkles', 105)}</div></div></section>`;
 }
-function exploreCards() {
-  const q = state.search.toLocaleLowerCase('vi');
-  const filtered = state.templates.filter(item => (state.filter === 'Tất cả' || item.style === state.filter || (state.filter === 'Miễn phí' && !item.price)) && `${item.title} ${item.subtitle} ${item.creator}`.toLocaleLowerCase('vi').includes(q));
-  return filtered.length
-    ? filtered.map(templateCard).join('')
+function matchingTemplates() {
+  return filterTemplates(state.templates, { style: state.filter, search: state.search, freeOnly: state.freeOnly });
+}
+// Điều hướng trang dùng chung cho danh sách mẫu và danh sách yêu thích.
+function paginationMarkup(result, listName) {
+  if (result.totalPages <= 1) return '';
+  const pageButton = (number) => `<button type="button" class="pagination__number ${number === result.page ? 'is-current' : ''}"
+    data-action="set-page" data-list="${listName}" data-page="${number}" aria-label="Trang ${number}"
+    ${number === result.page ? 'aria-current="page"' : ''}>${number}</button>`;
+  // Chỉ hiển thị tối đa 5 số trang để không tràn ngang trên điện thoại.
+  let first = Math.max(1, result.page - 2);
+  const last = Math.min(result.totalPages, first + 4);
+  first = Math.max(1, last - 4);
+  const numbers = Array.from({length: last - first + 1}, (_, i) => pageButton(first + i)).join('');
+  return `<nav class="pagination" aria-label="Phân trang ${listName === 'favorites' ? 'mẫu yêu thích' : 'thư viện mẫu'}">
+    <button type="button" class="pagination__arrow" data-action="set-page" data-list="${listName}" data-page="${result.page - 1}"
+      ${result.page === 1 ? 'disabled' : ''} aria-label="Trang trước">${icon('arrow-left', 17)} <span>Trước</span></button>
+    <div class="pagination__pages">${numbers}</div>
+    <button type="button" class="pagination__arrow" data-action="set-page" data-list="${listName}" data-page="${result.page + 1}"
+      ${result.page === result.totalPages ? 'disabled' : ''} aria-label="Trang tiếp theo"><span>Tiếp</span> ${icon('arrow', 17)}</button>
+  </nav>`;
+}
+function catalogResultMarkup() {
+  const result = paginateTemplates(matchingTemplates(), state.catalogPage);
+  state.catalogPage = result.page;
+  const cards = result.total
+    ? result.items.map(templateCard).join('')
     : `<div class="empty-state">${icon('search',32)}<h3>Chưa tìm thấy mẫu phù hợp</h3><p>Thử một từ khóa hoặc phong cách khác nhé.</p><button class="btn btn--outline" data-action="clear-filters">Xóa bộ lọc</button></div>`;
+  return { result, cards };
+}
+function syncCatalogResults() {
+  const grid = document.getElementById('catalog-grid');
+  const count = document.getElementById('catalog-count');
+  const navigation = document.getElementById('catalog-pagination');
+  const range = document.getElementById('catalog-range');
+  const { result, cards } = catalogResultMarkup();
+  if (grid) grid.innerHTML = cards;
+  if (count) count.textContent = countLabel(result.total);
+  if (range) range.textContent = result.total ? `Hiển thị ${result.from}–${result.to} / ${result.total} mẫu` : 'Không có mẫu phù hợp';
+  if (navigation) navigation.innerHTML = paginationMarkup(result, 'catalog');
 }
 function explore() {
-  const filters = ['Tất cả','Lãng mạn','Tươi vui','Tối giản','Kỳ ảo','Thiên nhiên','Hoài niệm','Miễn phí'];
+  // Tùy chọn phong cách lấy từ dữ liệu, không tạo hàng chip có thể tràn ngang.
+  const styles = styleOptions(state.templates);
   return `<section class="page-banner"><div class="container page-banner__inner"><span class="eyebrow">BỘ SƯU TẬP MOMEVIA</span><h1>Chọn một món quà <em>thật bạn.</em></h1><p>Mỗi mẫu là một cách kể chuyện. Chọn phong cách bạn yêu thích và biến nó thành lời chúc của riêng mình.</p></div></section>
   <section class="section catalog-section"><div class="container">
-    <div class="catalog-toolbar"><div class="catalog-title"><h2>Thư viện quà tặng</h2><span>${state.templates.length} mẫu dành cho bạn</span></div>
-      <label class="search-field">${icon('search',19)}<span class="visually-hidden">Tìm kiếm mẫu</span><input type="search" id="template-search" placeholder="Tìm mẫu, phong cách..." value="${e(state.search)}"/></label></div>
-    <div class="filter-bar" aria-label="Lọc phong cách">${filters.map(f => `<button class="filter-chip ${state.filter === f ? 'is-selected' : ''}" data-action="filter" data-filter="${e(f)}">${e(f)}</button>`).join('')}</div>
-    <div class="template-grid catalog-grid" id="catalog-grid">${exploreCards()}</div>
+    <div class="catalog-toolbar"><div class="catalog-title"><h2>Thư viện quà tặng</h2><span id="catalog-count" aria-live="polite" aria-atomic="true">${countLabel(matchingTemplates().length)}</span></div>
+      <label class="search-field">${icon('search',19)}<span class="visually-hidden">Tìm kiếm mẫu</span><input type="search" id="template-search" placeholder="Tìm tên mẫu, phong cách..." value="${e(state.search)}"/></label></div>
+    <div class="catalog-filters" role="group" aria-label="Bộ lọc thư viện">
+      <label class="catalog-style-select"><span>${icon('filter',17)} Phong cách</span><select id="style-filter" aria-label="Lọc theo phong cách">
+        <option value="Tất cả" ${state.filter === 'Tất cả' ? 'selected' : ''}>Tất cả phong cách (${state.templates.length})</option>
+        ${styles.map(item => `<option value="${e(item.style)}" ${state.filter === item.style ? 'selected' : ''}>${e(item.style)} (${item.count})</option>`).join('')}
+      </select>${icon('chevron-down',18)}</label>
+      <label class="catalog-free-filter"><input id="free-filter" type="checkbox" ${state.freeOnly ? 'checked' : ''}/><span>Chỉ mẫu miễn phí</span></label>
+      <button type="button" class="catalog-reset" data-action="clear-filters">${icon('close',15)} Đặt lại</button>
+    </div>
+    <div class="catalog-range" id="catalog-range" aria-live="polite">${(() => { const p = paginateTemplates(matchingTemplates(), state.catalogPage); return p.total ? `Hiển thị ${p.from}–${p.to} / ${p.total} mẫu` : 'Không có mẫu phù hợp'; })()}</div>
+    <div class="template-grid catalog-grid" id="catalog-grid">${catalogResultMarkup().cards}</div>
+    <div id="catalog-pagination">${paginationMarkup(paginateTemplates(matchingTemplates(), state.catalogPage), 'catalog')}</div>
   </div></section>`;
 }
 function templateDetail(template) {
@@ -347,12 +397,15 @@ function aboutPage() {
 }
 function favoritesPage() {
   const templates = state.templates.filter(item => state.favorites.has(item.id));
+  const pageData = paginateTemplates(templates, state.favoritePage);
+  state.favoritePage = pageData.page;
   return `<section class="page-banner"><div class="container page-banner__inner">
     <span class="eyebrow">DANH SÁCH CỦA BẠN</span><h1>Mẫu quà <em>yêu thích.</em></h1>
     <p>Lưu những thiết kế bạn thích và quay lại bất cứ lúc nào.</p>
   </div></section><section class="section"><div class="container">
     <div class="dashboard-heading"><h2>Đã lưu ${templates.length} mẫu</h2>${buttonLink('/explore', 'Khám phá thêm')}</div>
-    ${templates.length ? `<div class="template-grid">${templates.map(templateCard).join('')}</div>`
+    ${templates.length ? `<p class="catalog-range">Hiển thị ${pageData.from}–${pageData.to} / ${pageData.total} mẫu</p>
+      <div class="template-grid">${pageData.items.map(templateCard).join('')}</div>${paginationMarkup(pageData, 'favorites')}`
     : `<div class="empty-state empty-state--panel">${icon('heart',36)}<h3>Chưa có mẫu yêu thích</h3>
       <p>Nhấn biểu tượng trái tim trên mẫu bạn thích để lưu vào đây.</p>${buttonLink('/explore','Xem kho mẫu')}</div>`}
   </div></section>`;
@@ -416,10 +469,12 @@ async function render() {
       }
     }
     else if (route === 'about') main.innerHTML = aboutPage();
+    else if (route === 'login' || route === 'register') main.innerHTML = authPage(route);
+    else if (route === 'policies' && legalPages[id]) main.innerHTML = legalPage(id);
     else main.innerHTML = errorPage('Trang bạn yêu cầu không tồn tại.');
     const anchor = location.hash.slice(1);
     if (anchor) setTimeout(() => document.getElementById(anchor)?.scrollIntoView({behavior:'smooth'}), 30);
-    document.title = route === 'explore' ? 'Thư viện quà tặng — Momevia' : route === 'favorites' ? 'Mẫu yêu thích — Momevia' : route === 'creator' ? 'Creator Studio — Momevia' : 'Momevia — Gửi một điều đáng nhớ';
+    document.title = route === 'explore' ? 'Thư viện quà tặng — Momevia' : route === 'favorites' ? 'Mẫu yêu thích — Momevia' : route === 'creator' ? 'Creator Studio — Momevia' : route === 'login' ? 'Đăng nhập — Momevia' : route === 'register' ? 'Đăng ký — Momevia' : route === 'policies' && legalPages[id] ? `${legalPages[id].title} — Momevia` : 'Momevia — Gửi một điều đáng nhớ';
   } catch(error) {
     main.innerHTML = errorPage(error.message || 'Lỗi không xác định.');
   }
@@ -461,44 +516,59 @@ function openModal(content) {
   document.body.classList.add('no-scroll');
   modal.querySelector('input:not([disabled])')?.focus();
 }
-function openAuth(mode = 'login') {
+function authPage(mode = 'login') {
   const registering = mode === 'register';
-  const socialAction = registering ? 'Đăng ký' : 'Tiếp tục';
+  if (state.user) return `<section class="auth-page"><div class="container auth-signed-in"><div class="auth-signed-in__icon">${icon('check-circle', 30)}</div><h1>Bạn đã đăng nhập</h1><p>Tiếp tục khám phá và tạo món quà theo cách riêng của bạn.</p>${buttonLink('/studio', 'Về không gian của tôi')}</div></section>`;
   const googleLogo = 'https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg';
   const zaloLogo = 'https://upload.wikimedia.org/wikipedia/commons/9/91/Icon_of_Zalo.svg';
   const social = (provider, enabled, label, logo) => enabled
-    ? `<a class="auth-social" href="/api/auth/${provider}"><img class="provider-logo" src="${logo}" alt=""/> ${socialAction} với ${label}</a>`
-    : `<button type="button" class="auth-social" disabled title="Đăng nhập ${label} đang được cấu hình"><img class="provider-logo" src="${logo}" alt=""/> ${label} · Sắp ra mắt</button>`;
-  const passwordField = (name, title, autocomplete) => `<label class="field"><span>${title}</span><div class="auth-input auth-password">
-    <span class="auth-field-icon" aria-hidden="true">${icon('lock',18)}</span>
-    <input name="${name}" type="password" autocomplete="${autocomplete}" minlength="10" maxlength="128" required placeholder="Ít nhất 10 ký tự"/>
-    <button type="button" class="auth-toggle-password" data-action="toggle-password" aria-label="Hiện mật khẩu" aria-pressed="false">${icon('eye',19)}</button>
-  </div></label>`;
-  openModal(`<div class="auth-modal">
-    <div class="auth-brand"><img src="/assets/momevia-icon-128.png" alt="" width="32" height="32"/> momevia.</div>
-    <h2>${registering ? 'Tạo tài khoản Momevia' : 'Rất vui được gặp lại bạn'}</h2>
-    <p>${registering ? 'Lưu các mẫu yêu thích và tạo món quà mang dấu ấn của riêng mình.' : 'Đăng nhập để tiếp tục lưu mẫu và gửi những điều đặc biệt.'}</p>
-    <div class="auth-tabs" role="tablist" aria-label="Hình thức xác thực">
-      <button type="button" class="auth-tab" role="tab" aria-selected="${!registering}" data-action="login">Đăng nhập</button>
-      <button type="button" class="auth-tab" role="tab" aria-selected="${registering}" data-action="register">Đăng ký</button>
+    ? `<a class="auth-social" href="/api/auth/${provider}" aria-label="${registering ? 'Đăng ký' : 'Đăng nhập'} bằng ${label}"><img class="provider-logo" src="${logo}" alt=""/><span>${label}</span></a>`
+    : `<button type="button" class="auth-social" disabled title="${label} chưa được kết nối" aria-label="${label} chưa được kích hoạt"><img class="provider-logo" src="${logo}" alt=""/><span>${label}</span></button>`;
+  const passwordField = (name, label, autocomplete) => `<label class="auth-field"><span class="auth-field__label">${label} <span class="auth-required" aria-hidden="true">*</span></span>
+    <span class="auth-input"><span class="auth-field-icon" aria-hidden="true">${icon('lock', 19)}</span>
+      <input name="${name}" type="password" autocomplete="${autocomplete}" minlength="${registering ? 10 : 1}" maxlength="128" required placeholder="${registering ? 'Tối thiểu 10 ký tự' : 'Nhập mật khẩu'}"/>
+      <button type="button" class="auth-toggle-password" data-action="toggle-password" aria-label="Hiện mật khẩu" aria-pressed="false">${icon('eye',20)}</button>
+    </span></label>`;
+  return `<section class="auth-page auth-page--${mode}"><div class="container auth-layout">
+    <aside class="auth-showcase" aria-label="Giới thiệu Momevia">
+      <div class="auth-showcase__top"><img src="/assets/momevia-icon-128.png" width="43" height="43" alt=""/><span>momevia<span class="auth-showcase__dot">.</span></span></div>
+      <div class="auth-showcase__art" aria-hidden="true">
+        <div class="auth-showcase__halo auth-showcase__halo--outer"></div>
+        <div class="auth-showcase__halo auth-showcase__halo--inner"></div>
+        <span class="auth-showcase__spark auth-showcase__spark--one">${icon('sparkles', 31)}</span>
+        <span class="auth-showcase__spark auth-showcase__spark--two">${icon('heart', 28)}</span>
+        <img src="/assets/momevia-logo-3d.png" alt="" loading="eager" width="330" height="330"/>
+      </div>
+      <div class="auth-showcase__story">
+        <span class="auth-showcase__eyebrow">MỘT ĐIỀU NHỎ THẬT ĐÁNG NHỚ</span>
+        <h2>Gửi điều thương.<br/><em>Giữ kỷ niệm.</em></h2>
+        <p>Chọn một thiết kế bạn yêu, thêm lời nhắn riêng và trao đi khoảnh khắc khiến ai đó mỉm cười.</p>
+        <div class="auth-showcase__benefits"><span>${icon('check-circle',17)} Quà tặng mang dấu ấn riêng</span><span>${icon('check-circle',17)} Lưu lại những mẫu yêu thích</span></div>
+      </div>
+    </aside>
+    <div class="auth-panel">
+      <div class="auth-panel__top"><a href="/" data-link class="auth-back">${icon('arrow-left',17)} Trang chủ</a>
+        <span class="auth-panel__welcome">${registering ? 'THAM GIA MOMEVIA' : 'TÀI KHOẢN MOMEVIA'}</span></div>
+      <div class="auth-panel__intro"><h1>${registering ? 'Tạo tài khoản của bạn' : 'Rất vui khi bạn quay lại!'}</h1>
+        <p class="auth-lead">${registering ? 'Chỉ vài bước để bắt đầu lưu mẫu, tạo quà và lưu giữ những kỷ niệm đẹp.' : 'Đăng nhập để tiếp tục tạo quà và xem lại những mẫu bạn đã lưu.'}</p></div>
+      <form id="${registering ? 'register-form' : 'email-login-form'}" class="auth-form" aria-label="${registering ? 'Đăng ký tài khoản' : 'Đăng nhập tài khoản'}">
+        ${registering ? `<label class="auth-field"><span class="auth-field__label">Họ và tên <span class="auth-required" aria-hidden="true">*</span></span>
+          <span class="auth-input"><span class="auth-field-icon" aria-hidden="true">${icon('user',19)}</span><input name="name" autocomplete="name" minlength="2" maxlength="50" required placeholder="Tên hiển thị của bạn"/></span></label>` : ''}
+        <label class="auth-field"><span class="auth-field__label">Email <span class="auth-required" aria-hidden="true">*</span></span>
+          <span class="auth-input"><span class="auth-field-icon" aria-hidden="true">${icon('mail',19)}</span><input name="email" type="email" autocomplete="email" inputmode="email" maxlength="254" required placeholder="tenban@example.com"/></span></label>
+        ${passwordField('password', 'Mật khẩu', registering ? 'new-password' : 'current-password')}
+        ${registering ? passwordField('confirmPassword', 'Xác nhận mật khẩu', 'new-password') : ''}
+        ${registering ? `<p class="auth-password-hint">${icon('shield',16)} Mật khẩu ít nhất 10 ký tự, có chữ cái và số.</p>` : ''}
+        <p class="auth-inline-error" role="alert" hidden></p>
+        <button class="btn btn--dark btn--wide auth-submit" type="submit"><span>${registering ? 'Tạo tài khoản' : 'Đăng nhập'}</span>${icon('arrow',18)}</button>
+      </form>
+      <div class="auth-divider" role="separator"><span>Hoặc ${registering ? 'đăng ký' : 'đăng nhập'} bằng</span></div>
+      <div class="auth-buttons">${social('google', state.providers.google, 'Google', googleLogo)}${social('zalo', state.providers.zalo, 'Zalo', zaloLogo)}</div>
+      ${!state.providers.google || !state.providers.zalo ? '<p class="auth-provider-note">Phương thức chưa kết nối sẽ được kích hoạt khi hệ thống hỗ trợ.</p>' : ''}
+      <p class="auth-switch">${registering ? 'Bạn đã có tài khoản?' : 'Bạn chưa có tài khoản?'} <a href="${registering ? '/login' : '/register'}" data-link>${registering ? 'Đăng nhập ngay' : 'Đăng ký ngay'}</a></p>
+      <p class="auth-policy-note">Bằng việc tiếp tục, bạn đồng ý với <a href="/policies/general" data-link>Quy định chung</a> và <a href="/policies/privacy" data-link>Chính sách bảo mật</a>.</p>
     </div>
-    <form id="${registering ? 'register-form' : 'email-login-form'}" class="auth-form">
-      ${registering ? `<label class="field"><span>Họ và tên hiển thị</span><div class="auth-input"><span class="auth-field-icon" aria-hidden="true">${icon('user',18)}</span>
-        <input name="name" autocomplete="name" minlength="2" maxlength="50" required placeholder="Ví dụ: Nguyễn Minh Anh"/></div></label>` : ''}
-      <label class="field"><span>Email</span><div class="auth-input"><span class="auth-field-icon" aria-hidden="true">${icon('mail',18)}</span>
-        <input name="email" type="email" autocomplete="email" maxlength="254" required placeholder="ban@example.com"/></div></label>
-      ${passwordField('password', 'Mật khẩu', registering ? 'new-password' : 'current-password')}
-      ${registering ? passwordField('confirmPassword', 'Xác nhận mật khẩu', 'new-password') : ''}
-      ${registering ? '<p class="auth-hint">Mật khẩu từ 10 ký tự, có chữ cái và chữ số.</p>' : ''}
-      <button class="btn btn--dark btn--wide" type="submit">${registering ? 'Tạo tài khoản' : 'Đăng nhập'} ${icon('arrow', 17)}</button>
-    </form>
-    <div class="auth-divider"><span>HOẶC TIẾP TỤC VỚI</span></div>
-    <div class="auth-buttons">
-      ${social('google', state.providers.google, 'Google', googleLogo)}
-      ${social('zalo', state.providers.zalo, 'Zalo', zaloLogo)}
-    </div>
-    <div class="auth-security">${icon('shield', 16)} Phiên đăng nhập dùng cookie HttpOnly. Giữ kín thông tin tài khoản của bạn.</div>
-  </div>`);
+  </div></section>`;
 }
 function openSupport() {
   const displayName = state.user?.name || '';
@@ -544,8 +614,8 @@ async function copyText(value) {
   }
 }
 async function handleAction(action, element) {
-  if (action === 'login') return openAuth('login');
-  if (action === 'register') return openAuth('register');
+  if (action === 'login') return navigate('/login');
+  if (action === 'register') return navigate('/register');
   if (action === 'support') return openSupport();
   if (action === 'back-to-top') { window.scrollTo({top:0,behavior:'smooth'}); return; }
   if (action === 'toggle-favorite') {
@@ -553,7 +623,7 @@ async function handleAction(action, element) {
     if (!state.user) {
       state.pendingFavoriteId = templateId;
       state.afterLogin = location.pathname + location.hash;
-      openAuth('login');
+      navigate('/login');
       return;
     }
     element.disabled = true;
@@ -596,17 +666,36 @@ async function handleAction(action, element) {
     navigate('/');
     return;
   }
-  if (action === 'filter') {
-    state.filter = element.dataset.filter;
-    document.querySelectorAll('.filter-chip').forEach(button => button.classList.toggle('is-selected', button.dataset.filter === state.filter));
-    document.getElementById('catalog-grid').innerHTML = exploreCards();
+  if (action === 'clear-filters') {
+    state.catalogPage = 1;
+    state.filter = 'Tất cả';
+    state.search = '';
+    state.freeOnly = false;
+    const search = document.getElementById('template-search');
+    const style = document.getElementById('style-filter');
+    const free = document.getElementById('free-filter');
+    if (search) search.value = '';
+    if (style) style.value = 'Tất cả';
+    if (free) free.checked = false;
+    syncCatalogResults();
     return;
   }
-  if (action === 'clear-filters') {
-    state.filter = 'Tất cả'; state.search = '';
-    document.getElementById('template-search').value = '';
-    document.querySelectorAll('.filter-chip').forEach(button => button.classList.toggle('is-selected', button.dataset.filter === state.filter));
-    document.getElementById('catalog-grid').innerHTML = exploreCards();
+  if (action === 'set-page') {
+    const page = Number(element.dataset.page);
+    const list = element.dataset.list;
+    if (list === 'catalog' && Number.isInteger(page)) {
+      const result = paginateTemplates(matchingTemplates(), page);
+      if (state.catalogPage === result.page) return;
+      state.catalogPage = result.page;
+      syncCatalogResults();
+      document.getElementById('catalog-range')?.scrollIntoView({behavior:'smooth', block:'start'});
+    } else if (list === 'favorites' && Number.isInteger(page)) {
+      const templates = state.templates.filter(item => state.favorites.has(item.id));
+      const result = paginateTemplates(templates, page);
+      if (state.favoritePage === result.page) return;
+      state.favoritePage = result.page;
+      render().then(() => document.querySelector('.dashboard-heading')?.scrollIntoView({behavior:'smooth', block:'start'}));
+    }
     return;
   }
   if (action === 'demo-buy') {
@@ -686,11 +775,24 @@ document.addEventListener('click', async event => {
 document.addEventListener('input', event => {
   if (event.target.id === 'template-search') {
     state.search = event.target.value;
-    document.getElementById('catalog-grid').innerHTML = exploreCards();
+    state.catalogPage = 1;
+    syncCatalogResults();
   }
   if (['recipientName','senderName','gift-message'].includes(event.target.id)) updatePreview();
 });
 document.addEventListener('change', async event => {
+  if (event.target.id === 'style-filter') {
+    state.filter = event.target.value;
+    state.catalogPage = 1;
+    syncCatalogResults();
+    return;
+  }
+  if (event.target.id === 'free-filter') {
+    state.freeOnly = event.target.checked;
+    state.catalogPage = 1;
+    syncCatalogResults();
+    return;
+  }
   if (event.target.id !== 'gift-photo') return;
   const file = event.target.files?.[0];
   if (!file) return;
@@ -720,6 +822,8 @@ document.addEventListener('submit', async event => {
   if (!['demo-login-form','email-login-form','register-form','create-gift-form','reply-form','creator-template-form','admin-login-form','reject-form','support-form'].includes(form.id)) return;
   event.preventDefault();
   const submit = form.querySelector('[type=submit]');
+  const inlineError = form.querySelector('.auth-inline-error');
+  if (inlineError) { inlineError.hidden = true; inlineError.textContent = ''; }
   if (submit) submit.disabled = true;
   try {
     const data = Object.fromEntries(new FormData(form));
@@ -735,7 +839,6 @@ document.addEventListener('submit', async event => {
         await saveFavorite(state.pendingFavoriteId, true);
         state.pendingFavoriteId = null;
       }
-      closeModal();
       toast(form.id === 'register-form' ? 'Tạo tài khoản thành công.' : 'Đăng nhập thành công.');
       const target = state.afterLogin || '/studio';
       state.afterLogin = null;
@@ -788,7 +891,11 @@ document.addEventListener('submit', async event => {
       render();
     }
   } catch(error) {
-    toast(error.message || 'Không xử lý được yêu cầu.', 'error');
+    if (inlineError) {
+      inlineError.textContent = error.message || 'Không thể xử lý yêu cầu. Vui lòng thử lại.';
+      inlineError.hidden = false;
+      inlineError.scrollIntoView({behavior:'smooth', block:'nearest'});
+    } else toast(error.message || 'Không xử lý được yêu cầu.', 'error');
   } finally {
     if (submit) submit.disabled = false;
   }

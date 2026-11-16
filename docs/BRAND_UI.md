@@ -1,4 +1,4 @@
-# Hướng dẫn UI/UX và thương hiệu Momevia v0.3
+# Hướng dẫn UI/UX và thương hiệu Momevia v0.5
 
 ## Nhận diện
 
@@ -15,7 +15,7 @@
 - “Khám phá mẫu” active ở danh mục, chi tiết mẫu, cá nhân hóa mẫu.
 - “Cho nhà sáng tạo” active ở `/creator`.
 - “Về chúng tôi” active ở `/about`.
-- Người chưa đăng nhập thấy **một nút Đăng nhập**, tab đăng ký ở trong modal.
+- Người chưa đăng nhập thấy **một nút Đăng nhập** dẫn đến `/login`; đăng ký dùng trang `/register` riêng, có liên kết chuyển giữa hai trang.
 - Người đã đăng nhập thấy khu vực cá nhân và menu avatar.
 
 ## Yêu thích
@@ -29,7 +29,9 @@ Nút liên hệ cố định góc phải dưới, mở biểu mẫu có xác th�
 ## Kiểm thử trực quan cần thực hiện trước phát hành
 
 - Header active ở desktop 1440, 1280, 1024, mobile 390/375/320 px.
-- Modal đăng nhập/đăng ký cuộn được trên màn hình thấp, nhưng không hiện thanh cuộn.
+- Trang `/login` và `/register` dùng bố cục responsive và cuộn trang trên màn hình thấp; tránh cuộn lồng nhau làm che trường nhập hoặc nút gửi.
 - Nút yêu thích không che nút Xem mẫu; không bị mất trạng thái sau đăng xuất/đăng nhập.
 - Nút hỗ trợ và back-to-top không che CTA chính ở mobile.
 - Font tiếng Việt không mất dấu trên Chrome, Edge, Safari.
+
+Nguồn giao diện hiện tại: `web/js/ui/layout.js` cho header/footer, `web/js/pages/auth.js` cho đăng nhập/đăng ký và các file CSS theo vùng trong `web/css/`.

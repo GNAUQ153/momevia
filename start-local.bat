@@ -12,5 +12,11 @@ if errorlevel 1 (
   exit /b 1
 )
 echo Mo trinh duyet tai http://localhost:4100
+if not exist node_modules\sharp (
+  call npm ci
+  if errorlevel 1 exit /b 1
+)
+call npm run build
+if errorlevel 1 exit /b 1
 call npm run dev
 pause

@@ -1,16 +1,12 @@
-name: Momevia CI
+﻿name: Momevia CI
 
-# Kiểm thử khi mở/cập nhật Pull Request hoặc có thay đổi trên main.
 on:
   pull_request:
-    branches:
-      - main
+    branches: [main]
   push:
-    branches:
-      - main
+    branches: [main]
   workflow_dispatch:
 
-# Chỉ cấp quyền đọc source cho workflow kiểm thử.
 permissions:
   contents: read
 
@@ -20,94 +16,66 @@ concurrency:
 
 jobs:
   test:
-    name: Node.js 22 / Unit & API smoke tests
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-
+    name: ${{ matrix.os }} / Node ${{ matrix.node }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        node: ['22', '24']
     steps:
-      - name: Lấy source
-        uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npm run check
+      - run: npm audit --omit=dev --audit-level=high
+      - run: npm test
+      # Includes HTTP regressions and all four smoke suites on isolated data/ports.
+      - run: npm run test:architecture
+      - name: Install Chromium for browser regression
+        if: matrix.os == 'ubuntu-latest' && matrix.node == '24'
+        run: npx playwright install --with-deps chromium
+      - name: Browser regression on isolated fixture
+        if: matrix.os == 'ubuntu-latest' && matrix.node == '24'
+        run: npm run test:browser
 
-      - name: Cài Node.js
-        uses: actions/setup-node@v7
+  package:
+    name: Verified release package
+    needs: test
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version: '22'
-          package-manager-cache: false
-
-      # MVP hiện dùng các module có sẵn của Node.js, chưa có dependency npm.
-      - name: Kiểm tra phiên bản và cú pháp JavaScript
-        shell: bash
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npm run package
+      - name: Verify packaged installation and regressions
+        working-directory: dist/release
         run: |
-          node --version
-          npm --version
-          node --check dev.mjs
-          node --check gateway.mjs
-          find services scripts tests web/js -type f \( -name '*.mjs' -o -name '*.js' \) \
-            -print0 | while IFS= read -r -d '' file; do
-              node --check "$file"
-            done
-
-      - name: Chạy unit tests
-        run: npm test
-
-      # Sinh khóa riêng cho phiên CI, không sử dụng OAuth/secret production.
-      - name: Tạo cấu hình kiểm thử
-        shell: bash
-        run: |
-          jwt_secret="$(openssl rand -hex 32)"
-          internal_key="$(openssl rand -hex 32)"
-          echo "::add-mask::${jwt_secret}"
-          echo "::add-mask::${internal_key}"
-          {
-            echo "JWT_SECRET=${jwt_secret}"
-            echo "INTERNAL_SERVICE_KEY=${internal_key}"
-            echo 'PUBLIC_BASE_URL=http://localhost:4100'
-            echo 'DEMO_AUTH_ENABLED=false'
-          } >> "$GITHUB_ENV"
-
-      - name: Khởi động các microservices và API Gateway
-        shell: bash
-        run: |
-          nohup npm run dev > "$RUNNER_TEMP/momevia-server.log" 2>&1 &
-          echo "MOMEVIA_PID=$!" >> "$GITHUB_ENV"
-
-          ready=false
-          for attempt in $(seq 1 45); do
-            if curl --silent --show-error --fail \
-              'http://localhost:4100/api/catalog/templates' > /dev/null 2>&1; then
-              ready=true
-              break
-            fi
-            sleep 1
-          done
-
-          if [ "$ready" != true ]; then
-            echo 'Không thể kết nối API Gateway sau 45 lần thử.'
-            cat "$RUNNER_TEMP/momevia-server.log"
-            exit 1
-          fi
-          echo 'Các microservices đã sẵn sàng.'
-
-      - name: Kiểm thử đăng ký và đăng nhập
-        run: npm run smoke:auth
-
-      - name: Kiểm thử luồng MVP mở rộng
-        run: npm run smoke:upgrade
-
-      - name: Xem log nếu kiểm thử thất bại
-        if: failure()
-        shell: bash
-        run: |
-          if [ -f "$RUNNER_TEMP/momevia-server.log" ]; then
-            tail -n 150 "$RUNNER_TEMP/momevia-server.log"
-          fi
-
-      - name: Dừng tiến trình server
-        if: always()
-        shell: bash
-        run: |
-          if [ -n "${MOMEVIA_PID:-}" ]; then
-            kill "$MOMEVIA_PID" 2>/dev/null || true
-          fi
+          npm ci
+          npm run check
+          npm test
+          npm run test:architecture
+      - run: npm run verify:package
+      - name: Archive source package
+        run: tar --exclude=node_modules -czf dist/momevia-${{ github.sha }}.tar.gz -C dist/release .
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: momevia-${{ github.sha }}
+          path: dist/momevia-*.tar.gz
+          if-no-files-found: error
+          retention-days: 14

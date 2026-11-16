@@ -8,4 +8,22 @@ services/**/data/
 *.tmp
 *.log
 node_modules/
+dist/
+web/js/vendor/
 .DS_Store
+/local/
+
+# Báo cáo công cụ và cache phát sinh.
+/playwright-report/
+/test-results/
+/blob-report/
+/coverage/
+/.nyc_output/
+/.eslintcache
+Thumbs.db
+Desktop.ini
+
+# Tài liệu lịch sử đã chuyển về local/archive/docs/.
+/docs/UPDATE_V04.md
+/docs/UPDATE_V05.md
+/docs/archive/CODE_REVIEW_ARCHITECTURE_2026-11-16_initial.md

@@ -1,0 +1,16 @@
+export const state = {
+  user: null,
+  providers: { demo: true, google: false, zalo: false },
+  templates: [],
+  filter: 'Tất cả',
+  freeOnly: false,
+  search: '',
+  catalogPage: 1,
+  favoritePage: 1,
+  photoDataUrl: null,
+  giftOpened: false,
+  afterLogin: null,
+  purchased: new Set(),
+  favorites: new Set(),
+  pendingFavoriteId: null,
+};

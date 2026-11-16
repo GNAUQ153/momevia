@@ -1,53 +1,55 @@
-# Kiến trúc kỹ thuật — Momevia MVP
+﻿# Kiến trúc đang chạy — Momevia MVP
 
-## Phân rã microservices
+## Trạng thái sau sắp xếp mã
+
+Mã đã chia module và lớp trách nhiệm; mô hình triển khai vẫn là Gateway và năm service Node chạy thành sáu process, cổng 4100–4105, bind loopback. Chưa chuyển sang modular monolith và chưa thay JSON bằng DB server.
 
 ```mermaid
 flowchart TB
-    A["Browser / Sender / Creator / Guest"] --> G["API Gateway :4100"]
-    G --> I["Identity :4101"]
-    G --> C["Catalog :4102"]
-    G --> O["Checkout :4104"]
-    G --> F["Gifts :4103"]
-    F --> C
-    F --> O
-    O --> C
-    I --> DI[("Identity JSON")]
-    C --> DC[("Catalog JSON")]
-    O --> DO[("Orders JSON")]
-    F --> DF[("Gifts and Replies JSON")]
+    Browser[Browser] --> Gateway[Gateway 4100]
+    Gateway --> Identity[Identity 4101]
+    Gateway --> Catalog[Catalog 4102]
+    Gateway --> Gifts[Gifts 4103]
+    Gateway --> Checkout[Checkout 4104]
+    Gateway --> Support[Support 4105]
+    Gifts --> Catalog
+    Gifts --> Checkout
+    Checkout --> Catalog
+    Catalog --> Identity
+    Gifts --> Identity
+    Checkout --> Identity
+    Support --> Identity
 ```
 
-- **Gateway:** reverse proxy, static assets và kiểm tra origin cơ bản.
-- **Identity:** OAuth Google/Zalo, login demo, quản lý người dùng, JWT session.
-- **Catalog:** thư viện template, Creator, kiểm duyệt.
-- **Checkout:** mua mẫu demo, phân bổ hoa hồng, chứng thực quyền mẫu.
-- **Gifts:** lưu thiệp, ảnh, phát hành link, phản hồi.
-- **Shared:** lớp `Router`, `JsonRepository`, `HttpError`, `IdentityService` và bảo mật chung; chia sẻ thư viện dùng chung ở giai đoạn MVP nhưng không dùng chung tệp dữ liệu.
+Các mũi tên về Identity là kiểm tra phiên nội bộ. HTTP nội bộ vẫn tồn tại; việc chuyển class sang module không tự bỏ phụ thuộc runtime đó.
 
-## Lý do sử dụng OOP
+## Tổ chức nguồn
 
-- Mỗi dịch vụ đóng gói xử lý chính trong class tương ứng (`IdentityService`, `CatalogService`, `CheckoutService`, `GiftService`).
-- Lớp `JsonRepository` chịu trách nhiệm truy xuất và lưu dữ liệu.
-- `Router` điều phối endpoint độc lập với lớp nghiệp vụ.
-- Lớp HTTP/security cung cấp cơ chế lỗi, xác thực, kiểm soát dữ liệu chung.
+- `src/bootstrap/start.mjs`: khởi động các process.
+- `src/gateway/`: dispatch request, proxy và phục vụ static assets.
+- `src/modules/{identity,catalog,checkout,gifts,support}/`: mỗi nhóm nghiệp vụ có app composition, route, service và repository riêng.
+- `src/shared/`: config, HTTP, session verification, limiter, IP/proxy và JSON storage.
+- `web/js/app/main.js`: điều hướng và sự kiện; `pages`, `ui`, `features`, `core` chứa các phần tách riêng.
+- `services/*/server.mjs`, `dev.mjs`, `gateway.mjs`: entrypoint tương thích, không chứa nghiệp vụ.
 
-## Hệ thống production mục tiêu (chưa triển khai)
+Luồng phụ thuộc: **server → app → routes → service → repository/client**. App lắp ráp các phụ thuộc; service nhận repository/client qua constructor. HTTP route không trực tiếp đọc/ghi JSON. Adapter media của Gifts sở hữu đọc/ghi file ảnh; route chỉ stream response.
 
-- PostgreSQL riêng cho từng microservice; migration và transaction ACID.
-- Message broker/event bus để đồng bộ `PaymentSucceeded`, `LicenseGranted`, `GiftPublished`.
-- Redis/cache/rate limit phân tán, idempotency keys cho payment webhook.
-- S3-compatible storage cho media với presigned URLs và chính sách bảo vệ PII.
-- API Gateway HTTPS, WAF, MFA Admin, logging/monitoring và backups.
-- Infrastructure-as-Code, tự động kiểm thử/trải nghiệm mobile, CI/CD.
-- Phân tích quyền pháp lý, bản quyền nội dung và trách nhiệm merchant of record.
+Xem [cây thư mục và hướng dẫn thêm logic](PROJECT_STRUCTURE.md).
 
-**Chú ý:** Dịch vụ đang chạy độc lập trong các tiến trình nhưng chưa có HA, scaling, service discovery hay giải quyết distributed transactions. Đây là MVP microservices để phát triển và nghiên cứu kiến trúc, không phải kiến trúc vận hành thương mại hoàn chỉnh.
+## Quyền, phiên và dữ liệu
 
+- Một tài khoản có một role. Chỉ Admin đổi role qua API; Sender/Creator không tự nâng quyền. Không tự hạ role của dữ liệu đã có.
+- Identity sở hữu users và sessions JSON. Mỗi API cần đăng nhập xác minh chữ ký rồi hỏi Identity về phiên/role hiện tại. Logout thu hồi phiên hiện tại, tồn tại qua restart Identity; lỗi kiểm tra phiên trả 503.
+- Gateway chặn namespace nội bộ, bỏ header khóa dịch vụ do client gửi và thiết lập IP từ socket. Nếu thêm reverse proxy, cần xác định lại trust chain.
+- Limiter theo process dùng bộ nhớ shard hữu hạn, không dùng LRU xóa quota còn hiệu lực. Chưa có rate limit phân tán hoặc WAF.
+- Dữ liệu vẫn ở `services/*/data/`; `src/shared/paths.mjs` giữ đường dẫn cũ. I/O JSON đồng bộ; mỗi file chỉ được có một writer. Không chạy seed cùng ứng dụng đang ghi dữ liệu.
+- Ảnh mới qua sharp, giới hạn bytes/pixel và bỏ metadata; không sửa ảnh cũ. QR được tạo tại trình duyệt.
+- Quà/reply/order/role/slug/password hash và giấy phép cũ không được migrate trong đợt refactor.
 
-## Phiên bản 0.3 — Favorites và Support
+## Giới hạn và hướng tiếp theo
 
-- `Catalog Service` sở hữu danh sách yêu thích theo `userId` qua `/favorites`, yêu cầu cookie phiên hợp lệ.
-- `Support Service` chạy cổng 4105, ghi nhận phiếu liên hệ với mã tra cứu; chỉ tài khoản Admin được xem toàn bộ.
-- `API Gateway` chuyển tiếp `/api/support/*` đến cổng 4105.
-- Mỗi dịch vụ giữ data JSON riêng cho môi trường phát triển, không phải hạ tầng production.
+Chưa có database ACID, transaction nhiều file, nhiều writer, HA, service discovery, thanh toán thật hoặc đo tải production. Tách process hiện tại phục vụ MVP/nghiên cứu, chưa phải một hệ microservices vận hành đầy đủ.
+
+**Không bắt buộc dùng microservices.** Đề xuất cho giai đoạn tiếp theo là modular monolith; lựa chọn DB là quyết định riêng. Xem [so sánh và lộ trình](ARCHITECTURE_OPTIONS.md). Chưa triển khai phương án đó trong đợt này.
+
+Kiểm thử, phạm vi bảo mật và trạng thái CI nằm tại [CODE_REVIEW_ARCHITECTURE.md](CODE_REVIEW_ARCHITECTURE.md) và [CI_RELEASE.md](CI_RELEASE.md).

@@ -6,7 +6,7 @@ Phạm vi thống nhất ngày 16/11/2026: CI và gói phát hành, chưa deploy
 
 `.github/workflows/ci.yml` chạy khi mở/cập nhật PR vào `main`, push vào `main`, hoặc chạy thủ công trong Actions.
 
-1. Ma trận Windows/Linux, Node 22/24: `npm ci` → build QR cục bộ → kiểm tra cú pháp/ESLint/YAML → audit dependency runtime → unit tests → HTTP regression và bốn smoke suite trên dữ liệu/cổng cô lập. Ô Linux/Node 24 cài Chromium và chạy thêm browser regression trên fixture.
+1. Ma trận Windows/Linux, Node 22/24: `npm ci` → build QR cục bộ → kiểm tra cú pháp/ESLint/YAML → audit dependency runtime → unit tests → HTTP regression một backend process và bốn smoke suite trên dữ liệu/cổng cô lập. Ô Linux/Node 24 cài Chromium và chạy thêm browser regression trên fixture.
 2. Khi toàn bộ ma trận đạt, push hoặc chạy thủ công trên `main` mới được đóng gói.
 3. Gói nguồn được cài dependency và kiểm thử lại ngay trong `dist/release` để bắt lỗi thiếu file.
 4. Upload `momevia-<commit>.tar.gz` thành artifact của workflow, lưu 14 ngày. Không tạo GitHub Release, không đưa dữ liệu lên hosting và không cần secret production.
@@ -49,7 +49,7 @@ npm run test:architecture
 Copy-Item .env.example .env
 ```
 
-Thay hai khóa ví dụ bằng hai khóa ngẫu nhiên riêng, mỗi khóa ít nhất 32 ký tự. Không dán giá trị khóa vào issue, log hoặc chat. Cấu hình OAuth nếu sử dụng. Để chạy local: `npm start`; mọi service hiện bind loopback.
+Thay hai khóa ví dụ bằng hai khóa ngẫu nhiên riêng, mỗi khóa ít nhất 32 ký tự. Không dán giá trị khóa vào issue, log hoặc chat. Cấu hình OAuth nếu sử dụng. Để chạy: `npm start`; runtime mặc định là **một backend server** trên `127.0.0.1:4100` (hoặc `HOST`/`PORT` đã cấu hình).
 
 Không dùng gói này làm bằng chứng sẵn sàng production: JSON chưa có transaction nhiều file, backup hay nhiều writer; chưa có cổng thanh toán thật, HA hoặc rate limit phân tán. Sau cập nhật phiên đăng nhập, người dùng cần đăng nhập lại; dữ liệu tài khoản/quà/đơn hàng cũ được giữ nguyên.
 

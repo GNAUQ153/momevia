@@ -62,21 +62,24 @@ export class Router {
     this.handlers.push({ method, regex: new RegExp(`^${pattern}/?$`), fields, fn });
     return this;
   }
+  async handle(req, res, { pathname, url } = {}) {
+    // Có thể gắn Router vào server chung mà không đổi route nghiệp vụ.
+    res.setHeader('x-content-type-options', 'nosniff');
+    res.setHeader('referrer-policy', 'no-referrer');
+    try {
+      const parsedUrl = url ?? new URL(req.url, 'http://localhost');
+      const routePath = pathname ?? parsedUrl.pathname;
+      const entry = this.handlers.find(handler => handler.method === req.method && handler.regex.test(routePath));
+      if (!entry) return sendJson(res, 404, { error: 'Không tìm thấy tài nguyên.' });
+      const match = routePath.match(entry.regex);
+      const params = Object.fromEntries(entry.fields.map((field, i) => [field, decodeURIComponent(match[i + 1])]));
+      return await entry.fn({ req, res, url: parsedUrl, params });
+    } catch (error) {
+      sendError(res, error);
+    }
+  }
   listen(port) {
-    const server = http.createServer(serverTimeouts, async (req, res) => {
-      res.setHeader('x-content-type-options', 'nosniff');
-      res.setHeader('referrer-policy', 'no-referrer');
-      try {
-        const url = new URL(req.url, 'http://localhost');
-        const entry = this.handlers.find(handler => handler.method === req.method && handler.regex.test(url.pathname));
-        if (!entry) return sendJson(res, 404, { error: 'Không tìm thấy tài nguyên.' });
-        const match = url.pathname.match(entry.regex);
-        const params = Object.fromEntries(entry.fields.map((field, i) => [field, decodeURIComponent(match[i + 1])]));
-        return await entry.fn({ req, res, url, params });
-      } catch (error) {
-        sendError(res, error);
-      }
-    });
+    const server = http.createServer(serverTimeouts, (req, res) => this.handle(req, res));
     server.listen(port, '127.0.0.1', () => console.log(`[service] http://127.0.0.1:${port}`));
     return server;
   }

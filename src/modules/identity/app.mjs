@@ -17,5 +17,5 @@ export function createApp(config = environment()) {
   const service = new IdentityService({ users: repo, sessions, config });
   const router = new Router();
   registerRoutes(router, { config, credentials, sessions, authLimits, roles, service });
-  return { router, close: () => authLimits.close() };
+  return { router, sessions, service, close: () => authLimits.close() };
 }

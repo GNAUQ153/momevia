@@ -1,3 +1,12 @@
+## v0.6.0 — Modular Monolith (kiến trúc, chưa migrate DB)
+
+- Gộp Gateway và năm module vào **một backend Node.js process**; vẫn dùng cổng public 4100.
+- Giữ đường dẫn API và cấu trúc OOP, thay HTTP service-to-service bằng giao tiếp module qua dependency injection.
+- Kiểm tra phiên/role bằng Identity module trong process; logout và thay đổi role có hiệu lực ngay.
+- Duy trì proxy/service cũ dưới `dev:legacy` phục vụ so sánh hồi quy.
+- Đổi `test:architecture` sang fixture một process; giữ bài test topology cũ riêng.
+- Chưa thay JSON Storage, chưa tích hợp thanh toán thật/worker.
+
 ## Chưa phát hành — Sửa lỗi sau đối chiếu kiến trúc (16/11/2026)
 
 - Chuyển nguyên bản ba tài liệu lịch sử về local, gỡ khỏi cây Git hiện hành; cập nhật ignore cho output/cache và đồng bộ chính sách loại trừ khi đóng gói/xác minh release.

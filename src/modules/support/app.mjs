@@ -5,12 +5,12 @@ import { registerRoutes } from './routes.mjs';
 import { SupportService } from './support.service.mjs';
 import { RateLimiter } from '../../shared/rate-limit.mjs';
 
-export function createApp(config = environment()) {
+export function createApp(config = environment(), { resolveUser } = {}) {
   const { requests: repo } = createRepositories();
   const attempts = new RateLimiter({ limit: 5, windowMs: 600_000 });
   const globalAttempts = new RateLimiter({ limit: 60, windowMs: 60_000, maxKeys: 1 });
   const service = new SupportService({ repository: repo, attempts });
   const router = new Router();
-  registerRoutes(router, { config, globalAttempts, service });
-  return { router, close: () => [attempts, globalAttempts].forEach(limiter => limiter.close()) };
+  registerRoutes(router, { config, globalAttempts, service, resolveUser });
+  return { router, service, close: () => [attempts, globalAttempts].forEach(limiter => limiter.close()) };
 }

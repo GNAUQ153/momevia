@@ -1,3 +1,5 @@
+> **Lưu trữ lịch sử (16/11/2026):** Báo cáo này mô tả baseline sáu process **trước chuyển đổi v0.6.0**. Kiến trúc hiện tại là một backend process; xem [ARCHITECTURE.md](ARCHITECTURE.md).
+
 ﻿# Báo cáo đối chiếu bảo mật và kiến trúc Momevia
 
 > Ngày cập nhật: 16/11/2026 · Phiên bản: v0.5.0 + thay đổi chưa phát hành.

@@ -3,7 +3,7 @@
 .env.*
 !.env.example
 
-# Dữ liệu phát sinh khi chạy các microservice.
+# Dữ liệu phát sinh (JSON storage vẫn ở vị trí cũ để bảo toàn dữ liệu).
 services/**/data/
 *.tmp
 *.log

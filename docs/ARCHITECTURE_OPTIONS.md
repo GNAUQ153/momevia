@@ -1,6 +1,6 @@
 # Đánh giá mô hình triển khai và lưu trữ
 
-Ngày đối chiếu: 16/11/2026. Trạng thái: đề xuất kiến trúc, chưa chuyển mô hình triển khai hoặc migrate DB.
+Bản phân tích trước chuyển đổi ngày 16/11/2026. **Cập nhật:** runtime mặc định đã chuyển thành Modular Monolith ở v0.6.0; các đoạn mô tả topology 6 process dưới đây chỉ còn tính lịch sử. **PostgreSQL vẫn chưa migrate.** Xem [ARCHITECTURE.md](ARCHITECTURE.md) để biết kiến trúc hiện tại.
 
 ## Kết luận
 

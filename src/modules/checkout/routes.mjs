@@ -1,14 +1,14 @@
 import { parseJson, sendJson, requireInternal } from '../../shared/http.mjs';
 import { currentUser, sanitizeText } from '../../shared/security.mjs';
 
-export function registerRoutes(router, { config, service }) {
+export function registerRoutes(router, { config, service, resolveUser = currentUser }) {
   router.on('GET', '/health', ({res}) => sendJson(res, 200, {name:'checkout', ok:true}));
   router.on('GET', '/orders', async ({req,res}) => {
-    const user = await currentUser(req, config.jwtSecret);
+    const user = await resolveUser(req, config.jwtSecret);
     sendJson(res, 200, { orders: service.orders(user) });
   });
   router.on('POST', '/orders/demo-purchase', async ({req,res}) => {
-    const user = await currentUser(req, config.jwtSecret);
+    const user = await resolveUser(req, config.jwtSecret);
     const data = await parseJson(req, 4096);
     const templateId = sanitizeText(data.templateId, 100);
     const order = await service.purchase(user, templateId);

@@ -5,11 +5,11 @@ import { registerRoutes } from './routes.mjs';
 import { CatalogService } from './catalog.service.mjs';
 import { FavoritesService } from './favorites.service.mjs';
 
-export function createApp(config = environment()) {
+export function createApp(config = environment(), { resolveUser } = {}) {
   const { templates: repo, favorites: favoritesRepo } = createRepositories();
   const favorites = new FavoritesService(favoritesRepo);
   const service = new CatalogService(repo, favorites);
   const router = new Router();
-  registerRoutes(router, { config, service });
-  return { router };
+  registerRoutes(router, { config, service, resolveUser });
+  return { router, service };
 }

@@ -1,3 +1,5 @@
+> **v0.6.0:** Các route API dưới đây giữ nguyên và hiện chạy trong một backend process; các cổng service 4101–4105 chỉ còn ở chế độ legacy.
+
 # Danh sách API MVP (qua Gateway `http://localhost:4100/api`)
 
 | Method | Endpoint | Quyền | Mô tả |

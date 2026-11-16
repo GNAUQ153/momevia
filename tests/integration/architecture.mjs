@@ -11,94 +11,77 @@ import { fileURLToPath } from 'node:url';
 import { setTimeout as delay } from 'node:timers/promises';
 import sharp from 'sharp';
 
-// Chạy service thật trên bản sao nguồn sạch, không đọc .env/data của workspace.
-// Chỉ thay các hằng cổng 4100–4105 trong bản sao để không đụng service đang chạy.
+// Khởi chạy Modular Monolith trong thư mục dữ liệu tạm, không đụng workspace.
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const tempRoot = fs.realpathSync(os.tmpdir());
-const fixture = fs.mkdtempSync(path.join(tempRoot, 'momevia-architecture-'));
-const reservations = [];
+const fixture = fs.mkdtempSync(path.join(tempRoot, 'momevia-modular-'));
 const children = [];
 let logs = '';
 
 async function reservePort() {
-  const server = net.createServer();
-  reservations.push(server);
-  server.listen(0, '127.0.0.1');
-  await once(server, 'listening');
-  return server.address().port;
+  const service = net.createServer();
+  service.listen(0, '127.0.0.1');
+  await once(service, 'listening');
+  const port = service.address().port;
+  await new Promise(resolve => service.close(resolve));
+  return port;
 }
-
-function remapPorts(directory, ports) {
-  for (const entry of fs.readdirSync(directory, {withFileTypes:true})) {
-    const filename = path.join(directory, entry.name);
-    if (entry.isDirectory()) remapPorts(filename, ports);
-    else if (entry.name.endsWith('.mjs')) {
-      const source = fs.readFileSync(filename, 'utf8');
-      fs.writeFileSync(filename, source.replace(/\b410[0-5]\b/g, port => ports[Number(port) - 4100]));
-    }
-  }
-}
-
 function launch(file, env) {
   const child = spawn(process.execPath, [file], {cwd:fixture,env,stdio:['ignore','pipe','pipe'],windowsHide:true});
   children.push(child);
-  child.stdout.on('data', chunk => { logs = (logs + chunk).slice(-20_000); });
-  child.stderr.on('data', chunk => { logs = (logs + chunk).slice(-20_000); });
-  child.on('error', error => { logs += error.message; });
+  child.stdout.on('data',chunk => { logs = (logs + chunk).slice(-20_000); });
+  child.stderr.on('data',chunk => { logs = (logs + chunk).slice(-20_000); });
+  child.on('error',error => { logs += error.message; });
   return child;
 }
-
 function request(base, pathname, {method='GET',body,cookie,headers={},localAddress} = {}) {
   return new Promise((resolve, reject) => {
     const req = http.request(new URL(pathname, base), {
       method,localAddress,
       headers:{...(body ? {'content-type':'application/json'} : {}),...(cookie ? {cookie} : {}),...headers},
-    }, res => {
-      const chunks = [];
-      res.on('data', chunk => chunks.push(chunk));
-      res.on('end', () => {
-        const bytes = Buffer.concat(chunks);
+    },res => {
+      const chunks=[];
+      res.on('data',chunk => chunks.push(chunk));
+      res.on('end',() => {
+        const bytes=Buffer.concat(chunks);
         let data;
-        try { data = JSON.parse(bytes.toString()); } catch { data = null; }
+        try {data=JSON.parse(bytes.toString());} catch {data=null;}
         resolve({status:res.statusCode,headers:res.headers,bytes,data});
       });
-      res.on('error', reject);
+      res.on('error',reject);
     });
-    req.on('error', reject);
+    req.on('error',reject);
     req.setTimeout(10_000, () => req.destroy(new Error('API timeout')));
     req.end(body ? JSON.stringify(body) : undefined);
   });
 }
 
 try {
-  const ports = await Promise.all(Array.from({length:6}, () => reservePort()));
-  fs.cpSync(path.join(root, 'services'), path.join(fixture, 'services'), {
-    recursive:true,filter:source => path.basename(source) !== 'data',
-  });
-  fs.cpSync(path.join(root, 'src'), path.join(fixture, 'src'), {recursive:true});
-  fs.cpSync(path.join(root, 'web'), path.join(fixture, 'web'), {recursive:true});
-  fs.copyFileSync(path.join(root, 'gateway.mjs'), path.join(fixture, 'gateway.mjs'));
-  fs.symlinkSync(path.join(root, 'node_modules'), path.join(fixture, 'node_modules'), 'junction');
-  remapPorts(fixture, ports);
-  const base = `http://127.0.0.1:${ports[0]}`;
-  const env = {...process.env,NODE_ENV:'test',PUBLIC_BASE_URL:base,
+  const port = await reservePort();
+  for (const directory of ['src','services','web']) {
+    fs.cpSync(path.join(root,directory),path.join(fixture,directory),{
+      recursive:true,filter:source => path.basename(source) !== 'data',
+    });
+  }
+  fs.copyFileSync(path.join(root,'dev.mjs'),path.join(fixture,'dev.mjs'));
+  fs.symlinkSync(path.join(root,'node_modules'),path.join(fixture,'node_modules'),'junction');
+  const base=`http://127.0.0.1:${port}`;
+  const env={...process.env, NODE_ENV:'test', PORT:String(port), PUBLIC_BASE_URL:base,
     JWT_SECRET:randomBytes(32).toString('hex'),INTERNAL_SERVICE_KEY:randomBytes(32).toString('hex'),
     DEMO_AUTH_ENABLED:'true',DEMO_ADMIN_CODE:randomBytes(24).toString('hex'),GIFT_TTL_DAYS:'365'};
-  await Promise.all(reservations.map(server => new Promise(resolve => server.close(resolve))));
-  for (const file of ['identity','catalog','checkout','gifts','support'].map(name => `services/${name}/server.mjs`).concat('gateway.mjs')) {
-    launch(file, env);
-  }
-  const health = ['/api/auth/health','/api/catalog/health','/api/checkout/health','/api/gifts/health','/api/support/health'];
-  let ready = false;
-  for (let i = 0; i < 100; i++) {
-    if (children.some(child => child.exitCode !== null || child.signalCode !== null)) throw new Error('Service fixture kết thúc sớm.');
-    const results = await Promise.all(health.map(route => request(base,route).catch(() => null)));
-    if (results.every(result => result?.status === 200 && result.data?.ok === true)) { ready = true; break; }
+  const app=launch('dev.mjs',env);
+  const health=['/api/auth/health','/api/catalog/health','/api/checkout/health','/api/gifts/health','/api/support/health'];
+  let ready=false;
+  for(let i=0;i<100;i++) {
+    if(app.exitCode!==null || app.signalCode!==null) throw new Error('Backend fixture kết thúc sớm.');
+    const results=await Promise.all(health.map(route=>request(base,route).catch(()=>null)));
+    if(results.every(result=>result?.status===200&&result.data?.ok===true)){ready=true;break;}
     await delay(100);
   }
-  assert(ready, 'Fixture không khởi động đủ service.');
-  if (process.argv.includes('--browser')) {
-    const { runBrowserSmoke } = await import('../browser/smoke.mjs');
+  assert(ready,'Backend fixture không khởi động các module.');
+  assert.equal(children.length,1,'Momevia phải chạy đúng một HTTP server process.');
+  if(process.argv.includes('--browser')) {
+    const {runBrowserSmoke}=await import('../browser/smoke.mjs');
     await runBrowserSmoke(base);
   }
 
@@ -164,10 +147,7 @@ try {
     const result = await request(base,route,{headers:{'x-service-key':env.INTERNAL_SERVICE_KEY}});
     assert.equal(result.status, 403, route);
   }
-  const internalUrl = `http://127.0.0.1:${ports[2]}`;
-  assert.equal((await request(internalUrl,`/internal/templates/${templateId}`)).status, 403);
-  assert.equal((await request(internalUrl,`/internal/templates/${templateId}`,{headers:{'x-service-key':env.INTERNAL_SERVICE_KEY}})).status, 200);
-  console.log('PASS  Gateway chặn nội bộ ngay cả khi biết khóa; service vẫn kiểm tra khóa');
+  console.log('PASS  Public API không lộ endpoint /internal khi chuyển sang một server');
 
   const photo = await sharp({create:{width:2,height:2,channels:3,background:'red'}}).png().toBuffer();
   const created = await request(base,'/api/gifts/gifts',{method:'POST',cookie,body:{templateId,recipientName:'Mai',senderName:'An',message:'Quà kiểm thử cô lập',photoDataUrl:`data:image/png;base64,${photo.toString('base64')}`}});
@@ -246,51 +226,21 @@ try {
   assert.equal((await request(base,'/api/auth/me',{cookie})).data.user,null);
   const protectedRoutes=['/api/gifts/gifts/mine','/api/catalog/favorites','/api/checkout/orders','/api/support/admin/requests'];
   for (const route of protectedRoutes) assert.equal((await request(base,route,{cookie})).status,401,route);
-  const identity=children[0];
-  const identityExited=once(identity,'exit');
-  identity.kill();
-  await identityExited;
-  assert.equal((await request(base,'/api/gifts/gifts/mine',{cookie})).status,503);
-  const restarted=launch('services/identity/server.mjs',{...env,NODE_ENV:'production'});
-  let identityReady=false;
-  for(let i=0;i<100;i++) {
-    if(restarted.exitCode!==null) throw new Error('Identity restart failed');
-    if((await request(base,'/api/auth/health').catch(()=>null))?.status===200) {identityReady=true;break;}
-    await delay(100);
-  }
-  assert(identityReady);
-  for (const route of protectedRoutes) assert.equal((await request(base,route,{cookie})).status,401,route);
-  console.log('PASS  Logout revokes replay on all services across Identity restart; outage fails closed');
-  assert.equal((await request(base,'/api/auth/providers')).data.demo,false);
-  assert.equal((await request(base,'/api/auth/demo-admin',{method:'POST',body:{code:env.DEMO_ADMIN_CODE}})).status,403);
-  assert.equal((await request(base,'/api/auth/creator',{method:'POST',cookie:roleCookie,body:{userId:roleId}})).status,403);
-  assert.equal((await request(base,rolePath,{method:'POST',cookie:creatorCookie,body:{role:'admin'}})).status,403);
-  assert.equal((await request(base,rolePath,{method:'POST',cookie:adminCookie,body:{role:'creator'}})).status,200);
-  assert.equal((await request(base,'/api/catalog/creator/templates',{cookie:roleCookie})).status,200);
-  const identityEnd=process.hrtime.bigint();
-  const introspection=await request(`http://127.0.0.1:${ports[1]}`,'/internal/session',{
-    method:'POST',headers:{'x-service-key':env.INTERNAL_SERVICE_KEY},body:{token:roleCookie.slice('session='.length)},
-  });
-  const sampleMs=Number(process.hrtime.bigint()-identityEnd)/1e6;
-  assert.equal(introspection.status,200);
-  assert.equal(introspection.data.user.role,'creator');
-  console.log(`OBSERVATION Internal session HTTP round trip: ${sampleMs.toFixed(2)} ms (one local sample, not a benchmark)`);
   assert.equal((await request(base,`/api/auth/admin/users/${adminId}/role`,{method:'POST',cookie:adminCookie,body:{role:'sender'}})).status,200);
   assert.equal((await request(base,rolePath,{method:'POST',cookie:adminCookie,body:{role:'admin'}})).status,403);
   assert.equal((await request(base,'/api/catalog/admin/pending',{cookie:adminCookie})).status,403);
   assert.equal((await request(base,'/api/support/admin/requests',{cookie:adminCookie})).status,403);
-  console.log('PASS  Production role guards stay active; demoted Admin token loses Admin permissions across services');
-  console.log('Hoàn tất kiểm thử HTTP cô lập; không dùng dữ liệu hay service đang chạy của workspace.');
-} catch (error) {
+  console.log('PASS  Mất quyền Admin làm vô hiệu hóa quyền truy cập trên mọi module');
+  console.log('PASS  Tất cả module chia một HTTP process, bảo toàn public API và truy cập dữ liệu tách biệt');
+} catch(error) {
   console.error(logs);
   throw error;
 } finally {
-  await Promise.all(reservations.filter(server => server.listening).map(server => new Promise(resolve => server.close(resolve))));
-  await Promise.all(children.filter(child => child.exitCode === null && child.signalCode === null).map(async child => {
-    const exited = once(child,'exit');
+  await Promise.all(children.filter(child=>child.exitCode===null&&child.signalCode===null).map(async child=>{
+    const exited=once(child,'exit');
     child.kill();
     await exited;
   }));
-  if (path.dirname(path.resolve(fixture)) !== tempRoot) throw new Error('Từ chối dọn thư mục ngoài vùng fixture.');
-  fs.rmSync(fixture, {recursive:true,force:true});
+  if(path.dirname(path.resolve(fixture))!==tempRoot) throw new Error('Từ chối xóa ngoài thư mục fixture.');
+  fs.rmSync(fixture,{recursive:true,force:true});
 }

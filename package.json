@@ -1,7 +1,7 @@
 {
   "name": "momevia-mvp",
   "private": true,
-  "version": "0.5.0",
+  "version": "0.6.0",
   "type": "module",
   "engines": {
     "node": "^22.13.0 || >=24.0.0"
@@ -21,7 +21,9 @@
     "smoke:upgrade": "node tests/smoke/smoke-upgrade.mjs",
     "smoke:legacy": "node tests/smoke/smoke.mjs",
     "seed:test-user": "node scripts/dev/seed-test-user.mjs",
-    "smoke:ui": "node tests/smoke/smoke-ui.mjs"
+    "smoke:ui": "node tests/smoke/smoke-ui.mjs",
+    "dev:legacy": "node src/bootstrap/legacy.mjs",
+    "test:architecture:legacy": "node tests/integration/architecture-legacy.mjs"
   },
   "dependencies": {
     "qrcode-generator": "2.0.4",

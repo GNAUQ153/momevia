@@ -3,14 +3,14 @@ import { HttpError, parseJson, sendJson } from '../../shared/http.mjs';
 import { currentUser } from '../../shared/security.mjs';
 import { clientIp } from '../../shared/proxy.mjs';
 
-export function registerRoutes(router, { config, creationLimit, globalReplies, service }) {
+export function registerRoutes(router, { config, creationLimit, globalReplies, service, resolveUser = currentUser }) {
   router.on('GET', '/health', ({res}) => sendJson(res, 200, {name:'gifts', ok:true}));
   router.on('GET', '/gifts/mine', async ({req,res}) => {
-    const user = await currentUser(req, config.jwtSecret);
+    const user = await resolveUser(req, config.jwtSecret);
     sendJson(res, 200, { gifts: service.mine(user) });
   });
   router.on('POST', '/gifts', async ({req,res}) => {
-    const user = await currentUser(req, config.jwtSecret);
+    const user = await resolveUser(req, config.jwtSecret);
     if (!creationLimit.consume(user.sub)) throw new HttpError(429, 'Bạn đã tạo nhiều món quà. Vui lòng thử lại sau.');
     const gift = await service.create(user, await parseJson(req));
     sendJson(res, 201, { gift: { ...gift, imageFile: undefined, userId: undefined, url: `${config.baseUrl}/g/${gift.slug}` } });

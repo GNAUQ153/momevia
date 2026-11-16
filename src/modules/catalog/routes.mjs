@@ -1,7 +1,7 @@
 import { parseJson, sendJson, requireInternal } from '../../shared/http.mjs';
 import { currentUser } from '../../shared/security.mjs';
 
-export function registerRoutes(router, { config, service }) {
+export function registerRoutes(router, { config, service, resolveUser = currentUser }) {
   router.on('GET', '/health', ({ res }) => sendJson(res, 200, { name: 'catalog', ok: true }));
   router.on('GET', '/templates', ({ res, url }) => {
     const templates = service.search({ q: url.searchParams.get('q') || '', style: url.searchParams.get('style') || '' });
@@ -10,34 +10,34 @@ export function registerRoutes(router, { config, service }) {
   router.on('GET', '/templates/:id', ({ res, params }) => sendJson(res, 200, { template: service.publicOne(params.id) }));
   // Mỗi tài khoản chỉ đọc/ghi danh sách yêu thích của chính mình.
   router.on('GET', '/favorites', async ({ req, res }) => {
-    const user = await currentUser(req, config.jwtSecret);
+    const user = await resolveUser(req, config.jwtSecret);
     sendJson(res, 200, { templateIds: service.favoriteIds(user) });
   });
   router.on('POST', '/favorites', async ({ req, res }) => {
-    const user = await currentUser(req, config.jwtSecret);
+    const user = await resolveUser(req, config.jwtSecret);
     const data = await parseJson(req);
     const favorite = service.saveFavorite(user, data);
     sendJson(res, 200, { favorite });
   });
   router.on('GET', '/creator/templates', async ({ req, res }) => {
-    const user = await currentUser(req, config.jwtSecret);
+    const user = await resolveUser(req, config.jwtSecret);
     sendJson(res, 200, { templates: service.mine(user) });
   });
   router.on('POST', '/creator/templates', async ({ req, res }) => {
-    const user = await currentUser(req, config.jwtSecret);
+    const user = await resolveUser(req, config.jwtSecret);
     const result = service.createDraft(user, await parseJson(req));
     sendJson(res, 201, { template: result });
   });
   router.on('GET', '/admin/pending', async ({ req, res }) => {
-    const user = await currentUser(req, config.jwtSecret);
+    const user = await resolveUser(req, config.jwtSecret);
     sendJson(res, 200, { templates: service.pending(user) });
   });
   router.on('POST', '/admin/templates/:id/approve', async ({ req, res, params }) => {
-    const user = await currentUser(req, config.jwtSecret);
+    const user = await resolveUser(req, config.jwtSecret);
     sendJson(res, 200, { template: service.approve(user, params.id) });
   });
   router.on('POST', '/admin/templates/:id/reject', async ({ req, res, params }) => {
-    const user = await currentUser(req, config.jwtSecret);
+    const user = await resolveUser(req, config.jwtSecret);
     service.requireAdmin(user, 'Chỉ quản trị viên được kiểm duyệt.');
     sendJson(res, 200, { template: service.reject(user, params.id, await parseJson(req)) });
   });

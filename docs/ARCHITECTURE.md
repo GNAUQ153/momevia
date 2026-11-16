@@ -1,55 +1,65 @@
-﻿# Kiến trúc đang chạy — Momevia MVP
+# Kiến trúc đang chạy — Momevia Modular Monolith (v0.6.0)
 
-## Trạng thái sau sắp xếp mã
-
-Mã đã chia module và lớp trách nhiệm; mô hình triển khai vẫn là Gateway và năm service Node chạy thành sáu process, cổng 4100–4105, bind loopback. Chưa chuyển sang modular monolith và chưa thay JSON bằng DB server.
+**Trạng thái:** Đã chuyển runtime mặc định từ 6 process sang **1 backend process**. Đây là bước thay đổi topology, **chưa phải migration PostgreSQL hoặc triển khai production**.
 
 ```mermaid
 flowchart TB
-    Browser[Browser] --> Gateway[Gateway 4100]
-    Gateway --> Identity[Identity 4101]
-    Gateway --> Catalog[Catalog 4102]
-    Gateway --> Gifts[Gifts 4103]
-    Gateway --> Checkout[Checkout 4104]
-    Gateway --> Support[Support 4105]
-    Gifts --> Catalog
-    Gifts --> Checkout
-    Checkout --> Catalog
-    Catalog --> Identity
-    Gifts --> Identity
-    Checkout --> Identity
-    Support --> Identity
+    B[Browser / Web client] --> H[HTTP Server :4100]
+    subgraph Backend[Modular Monolith - một Node.js process]
+        H --> I[Identity Module]
+        H --> C[Catalog Module]
+        H --> O[Checkout Module]
+        H --> G[Gifts Module]
+        H --> S[Support Module]
+        O -->|Port getTemplate| C
+        G -->|Port getTemplate| C
+        G -->|Port hasLicense| O
+        C -->|Xác minh phiên trong process| I
+        O -->|Xác minh phiên trong process| I
+        G -->|Xác minh phiên trong process| I
+        S -->|Xác minh phiên trong process| I
+    end
+    I --> DI[(identity JSON)]
+    C --> DC[(catalog JSON)]
+    O --> DO[(checkout JSON)]
+    G --> DG[(gifts JSON / media)]
+    S --> DS[(support JSON)]
 ```
 
-Các mũi tên về Identity là kiểm tra phiên nội bộ. HTTP nội bộ vẫn tồn tại; việc chuyển class sang module không tự bỏ phụ thuộc runtime đó.
+## Entry points
 
-## Tổ chức nguồn
+- `npm run dev` và `npm start` → `dev.mjs` → `src/bootstrap/start.mjs` → `src/server/app.mjs`, mặc định một HTTP listener `127.0.0.1:4100`.
+- `PORT`/`HOST` hỗ trợ thay đổi điểm lắng nghe. Khi triển khai qua reverse proxy phải cấu hình `PUBLIC_BASE_URL`, HTTPS và trust boundary đúng.
+- `npm run dev:legacy` khởi động topology 6 process **chỉ để kiểm tra tương thích**. Các entrypoint `services/*/server.mjs` và `src/gateway/*` giữ cho trường hợp này, không nên vận hành hai topology đồng thời trên cùng dữ liệu JSON.
 
-- `src/bootstrap/start.mjs`: khởi động các process.
-- `src/gateway/`: dispatch request, proxy và phục vụ static assets.
-- `src/modules/{identity,catalog,checkout,gifts,support}/`: mỗi nhóm nghiệp vụ có app composition, route, service và repository riêng.
-- `src/shared/`: config, HTTP, session verification, limiter, IP/proxy và JSON storage.
-- `web/js/app/main.js`: điều hướng và sự kiện; `pages`, `ui`, `features`, `core` chứa các phần tách riêng.
-- `services/*/server.mjs`, `dev.mjs`, `gateway.mjs`: entrypoint tương thích, không chứa nghiệp vụ.
+## Composition root và ranh giới module
 
-Luồng phụ thuộc: **server → app → routes → service → repository/client**. App lắp ráp các phụ thuộc; service nhận repository/client qua constructor. HTTP route không trực tiếp đọc/ghi JSON. Adapter media của Gifts sở hữu đọc/ghi file ảnh; route chỉ stream response.
+`src/server/app.mjs` tạo từng module rồi inject phụ thuộc theo hướng một chiều:
 
-Xem [cây thư mục và hướng dẫn thêm logic](PROJECT_STRUCTURE.md).
+1. Identity cung cấp phương thức truy xuất phiên hiện hành (`SessionStore.find`). Các route có bảo vệ nhận `resolveUser` từ composition root.
+2. Catalog cung cấp `getTemplate` cho Checkout và Gifts; không còn gọi HTTP `4102` trong runtime mới.
+3. Checkout cung cấp `hasLicense` cho Gifts; không còn gọi HTTP `4104` trong runtime mới.
+4. Các lớp `Service`, `Repository` và API contract của frontend vẫn giữ nguyên.
 
-## Quyền, phiên và dữ liệu
+`src/shared/http.mjs` có `Router.handle` để ghép nhiều router vào một HTTP server. Server gốc nhận đúng tiền tố `/api/auth`, `/api/catalog`, `/api/checkout`, `/api/gifts`, `/api/support`. Server chỉ chấp nhận các HTTP method cũ và tiếp tục chặn namespace `/internal`, request POST cross-origin và các forwarded headers do client tự khai.
 
-- Một tài khoản có một role. Chỉ Admin đổi role qua API; Sender/Creator không tự nâng quyền. Không tự hạ role của dữ liệu đã có.
-- Identity sở hữu users và sessions JSON. Mỗi API cần đăng nhập xác minh chữ ký rồi hỏi Identity về phiên/role hiện tại. Logout thu hồi phiên hiện tại, tồn tại qua restart Identity; lỗi kiểm tra phiên trả 503.
-- Gateway chặn namespace nội bộ, bỏ header khóa dịch vụ do client gửi và thiết lập IP từ socket. Nếu thêm reverse proxy, cần xác định lại trust chain.
-- Limiter theo process dùng bộ nhớ shard hữu hạn, không dùng LRU xóa quota còn hiệu lực. Chưa có rate limit phân tán hoặc WAF.
-- Dữ liệu vẫn ở `services/*/data/`; `src/shared/paths.mjs` giữ đường dẫn cũ. I/O JSON đồng bộ; mỗi file chỉ được có một writer. Không chạy seed cùng ứng dụng đang ghi dữ liệu.
-- Ảnh mới qua sharp, giới hạn bytes/pixel và bỏ metadata; không sửa ảnh cũ. QR được tạo tại trình duyệt.
-- Quà/reply/order/role/slug/password hash và giấy phép cũ không được migrate trong đợt refactor.
+## Bảo mật và nhất quán
 
-## Giới hạn và hướng tiếp theo
+- Mỗi request cần đăng nhập đều truy vấn `SessionStore.find` trong tiến trình để kiểm tra chữ ký, JTI đã thu hồi, hạn sử dụng và role **mới nhất**, thay vì tin role nằm sẵn trong JWT.
+- Không còn HTTP session introspection nội bộ ở runtime mặc định, nhưng legacy adapter vẫn tồn tại. Điều này không làm mất chức năng logout/revoke.
+- Tốc độ tăng, khả năng chịu tải và độ an toàn dữ liệu **chưa được benchmark**. Dữ liệu vẫn lưu ở `services/*/data/` với JSON đồng bộ; chưa có transaction nhiều file hoặc nhiều instance an toàn.
+- Không chạy server legacy và modular cùng lúc trên cùng tập file dữ liệu.
 
-Chưa có database ACID, transaction nhiều file, nhiều writer, HA, service discovery, thanh toán thật hoặc đo tải production. Tách process hiện tại phục vụ MVP/nghiên cứu, chưa phải một hệ microservices vận hành đầy đủ.
+## Kiểm thử và tiếp tục phát triển
 
-**Không bắt buộc dùng microservices.** Đề xuất cho giai đoạn tiếp theo là modular monolith; lựa chọn DB là quyết định riêng. Xem [so sánh và lộ trình](ARCHITECTURE_OPTIONS.md). Chưa triển khai phương án đó trong đợt này.
+```bash
+npm ci
+npm run build
+npm run check
+npm test
+npm run test:architecture
+```
 
-Kiểm thử, phạm vi bảo mật và trạng thái CI nằm tại [CODE_REVIEW_ARCHITECTURE.md](CODE_REVIEW_ARCHITECTURE.md) và [CI_RELEASE.md](CI_RELEASE.md).
+`test:architecture` chạy **một backend process** trên port ngẫu nhiên với dữ liệu riêng trong thư mục tạm, kiểm tra API, phân quyền, phiên và nhiều luồng nghiệp vụ. `test:architecture:legacy` dành cho topology cũ. Browser tests dùng `npm run test:browser` khi Playwright/browser đã được cài.
+
+**Bước tiếp theo:** Migration dữ liệu JSON sang PostgreSQL với migration có rollback/backup, transaction cho đơn hàng và quyền sử dụng; sau đó mới bổ sung thanh toán thật, webhook idempotent và worker gửi lời mời.

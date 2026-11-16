@@ -8,6 +8,7 @@ const scrypt = promisify(scryptCallback);
 export class CredentialsService {
   constructor(repository) {
     this.repository = repository;
+    this.activeHashes = 0;
   }
 
   normalizeEmail(value) {
@@ -30,19 +31,27 @@ export class CredentialsService {
 
   async hashPassword(password) {
     const salt = randomBytes(16);
-    const hash = await scrypt(password, salt, 64);
+    const hash = await this.derivePassword(password, salt, 64);
     return `${salt.toString('hex')}:${hash.toString('hex')}`;
   }
 
+  async derivePassword(password, salt, length) {
+    if (this.activeHashes >= 4) throw new HttpError(503, 'Xác thực đang bận. Vui lòng thử lại sau.');
+    this.activeHashes++;
+    try { return await scrypt(password, salt, length); }
+    finally { this.activeHashes--; }
+  }
+
   async verifyPassword(password, stored) {
-    if (!stored || typeof password !== 'string') return false;
+    if (!stored || typeof password !== 'string' || password.length > 128) return false;
     const [saltHex, hashHex] = stored.split(':');
     if (!saltHex || !hashHex || saltHex.length !== 32 || hashHex.length !== 128) return false;
     try {
       const expected = Buffer.from(hashHex, 'hex');
-      const actual = await scrypt(password, Buffer.from(saltHex, 'hex'), expected.length);
+      const actual = await this.derivePassword(password, Buffer.from(saltHex, 'hex'), expected.length);
       return timingSafeEqual(expected, actual);
-    } catch {
+    } catch (error) {
+      if (error instanceof HttpError) throw error;
       return false;
     }
   }
@@ -56,13 +65,19 @@ export class CredentialsService {
     if (this.repository.all().some(u => u.provider === 'email' && u.email === normalizedEmail)) {
       throw new HttpError(409, 'Email này đã được đăng ký. Vui lòng đăng nhập.');
     }
+    const passwordHash = await this.hashPassword(password);
+    // Một đăng ký khác có thể hoàn tất trong lúc scrypt chạy bất đồng bộ.
+    // Kiểm tra lại và insert đồng bộ trong cùng tiến trình sở hữu repository.
+    if (this.repository.all().some(u => u.provider === 'email' && u.email === normalizedEmail)) {
+      throw new HttpError(409, 'Email này đã được đăng ký. Vui lòng đăng nhập.');
+    }
     return this.repository.insert({
       id: cryptoRandomId(),
       provider: 'email',
       providerId: normalizedEmail,
       name: name.trim(),
       email: normalizedEmail,
-      passwordHash: await this.hashPassword(password),
+      passwordHash,
       avatar: null,
       role: 'sender',
       createdAt: new Date().toISOString(),

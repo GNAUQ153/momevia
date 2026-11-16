@@ -56,40 +56,41 @@ router.on('GET', '/templates', ({ res, url }) => {
 });
 router.on('GET', '/templates/:id', ({ res, params }) => sendJson(res, 200, { template: service.publicOne(params.id) }));
 // Mỗi tài khoản chỉ đọc/ghi danh sách yêu thích của chính mình.
-router.on('GET', '/favorites', ({ req, res }) => {
-  const user = currentUser(req, config.jwtSecret);
+router.on('GET', '/favorites', async ({ req, res }) => {
+  const user = await currentUser(req, config.jwtSecret);
   sendJson(res, 200, { templateIds: favorites.list(user.sub, publishedIds()) });
 });
 router.on('POST', '/favorites', async ({ req, res }) => {
-  const user = currentUser(req, config.jwtSecret);
+  const user = await currentUser(req, config.jwtSecret);
   const data = await parseJson(req);
   const templateId = sanitizeText(data.templateId, 90);
   const favorite = favorites.set(user.sub, templateId, data.saved, publishedIds());
   sendJson(res, 200, { favorite });
 });
-router.on('GET', '/creator/templates', ({ req, res }) => {
-  const user = currentUser(req, config.jwtSecret);
+router.on('GET', '/creator/templates', async ({ req, res }) => {
+  const user = await currentUser(req, config.jwtSecret);
+  if (!['creator', 'admin'].includes(user.role)) throw new HttpError(403, 'Bạn cần quyền Creator để xem danh sách mẫu.');
   sendJson(res, 200, { templates: repo.all().filter(item => item.creatorId === user.sub) });
 });
 router.on('POST', '/creator/templates', async ({ req, res }) => {
-  const user = currentUser(req, config.jwtSecret);
+  const user = await currentUser(req, config.jwtSecret);
   const result = service.createDraft(user, await parseJson(req));
   sendJson(res, 201, { template: result });
 });
-router.on('GET', '/admin/pending', ({ req, res }) => {
-  const user = currentUser(req, config.jwtSecret);
+router.on('GET', '/admin/pending', async ({ req, res }) => {
+  const user = await currentUser(req, config.jwtSecret);
   if (user.role !== 'admin') throw new HttpError(403, 'Chỉ quản trị viên được truy cập.');
   sendJson(res, 200, { templates: repo.all().filter(item => item.status === 'pending') });
 });
-router.on('POST', '/admin/templates/:id/approve', ({ req, res, params }) => {
-  const user = currentUser(req, config.jwtSecret);
+router.on('POST', '/admin/templates/:id/approve', async ({ req, res, params }) => {
+  const user = await currentUser(req, config.jwtSecret);
   if (user.role !== 'admin') throw new HttpError(403, 'Chỉ quản trị viên được duyệt mẫu.');
   const template = repo.get(params.id);
   if (!template) throw new HttpError(404, 'Không tìm thấy mẫu.');
   sendJson(res, 200, { template: repo.update(params.id, { status: 'published' }) });
 });
 router.on('POST', '/admin/templates/:id/reject', async ({ req, res, params }) => {
-  const user = currentUser(req, config.jwtSecret);
+  const user = await currentUser(req, config.jwtSecret);
   if (user.role !== 'admin') throw new HttpError(403, 'Chỉ quản trị viên được kiểm duyệt.');
   const reason = sanitizeOptionalText((await parseJson(req)).reason, 250);
   const template = repo.get(params.id);

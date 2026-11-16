@@ -38,13 +38,13 @@ class CheckoutService {
 }
 const service = new CheckoutService();
 router.on('GET', '/health', ({res}) => sendJson(res, 200, {name:'checkout', ok:true}));
-router.on('GET', '/orders', ({req,res}) => {
-  const user = currentUser(req, config.jwtSecret);
+router.on('GET', '/orders', async ({req,res}) => {
+  const user = await currentUser(req, config.jwtSecret);
   sendJson(res, 200, { orders: repository.all().filter(order => order.userId === user.sub).reverse() });
 });
 router.on('POST', '/orders/demo-purchase', async ({req,res}) => {
-  const user = currentUser(req, config.jwtSecret);
-  const data = await parseJson(req);
+  const user = await currentUser(req, config.jwtSecret);
+  const data = await parseJson(req, 4096);
   const templateId = sanitizeText(data.templateId, 100);
   const order = await service.purchase(user, templateId);
   sendJson(res, 201, { order, notice: 'Chỉ là đơn hàng mô phỏng. Không thu tiền thật.' });

@@ -349,7 +349,7 @@ function dashboard(gifts, orders) {
 function creatorPage(templates = []) {
   const creator = state.user && ['creator','admin'].includes(state.user.role);
   return `<section class="creator-hero"><div class="container creator-hero__inner"><div><span class="eyebrow">MOMEVIA FOR CREATORS</span><h1>Biến sự sáng tạo<br><em>thành những món quà.</em></h1><p>Mỗi thiết kế độc đáo xứng đáng đến được với đúng người. Đăng mẫu, quản lý gian hàng và để ý tưởng của bạn được yêu mến.</p>
-      ${creator ? `<a href="#creator-form" class="btn btn--light">Đăng mẫu mới ${icon('arrow',18)}</a>` : `<button class="btn btn--light" data-action="become-creator">Bắt đầu với Creator Studio ${icon('arrow',18)}</button>`}
+      ${creator ? `<a href="#creator-form" class="btn btn--light">Đăng mẫu mới ${icon('arrow',18)}</a>` : `<p class="helper-text">${state.user ? 'Liên hệ quản trị viên để được cấp quyền Creator.' : 'Đăng nhập bằng tài khoản được quản trị viên cấp quyền Creator để đăng mẫu.'}</p>`}
       <div class="creator-perks"><span>${icon('check-circle',17)} Đăng mẫu miễn phí</span><span>${icon('check-circle',17)} Kiểm duyệt minh bạch</span><span>${icon('check-circle',17)} Quản lý riêng</span></div>
     </div><div class="creator-art">${icon('pencil',120)}<span>${icon('sparkles',62)}</span></div></div></section>
     ${creator ? `<section class="section" id="creator-form"><div class="container creator-grid"><div><span class="eyebrow">ĐĂNG MẪU SÁNG TẠO</span><h2>Thiết kế tiếp theo<br><em>của bạn.</em></h2><p class="section-intro">Hiện tại, bạn có thể gửi mẫu dựa trên các bố cục tương tác có sẵn. Công cụ thiết kế tự do đang được phát triển.</p>
@@ -721,14 +721,6 @@ async function handleAction(action, element) {
     return;
   }
   if (action === 'copy-link') return copyText(element.dataset.value);
-  if (action === 'become-creator') {
-    if (!requireLogin('/creator')) return;
-    const {user} = await api.post('/auth/creator');
-    state.user = user;
-    toast('Bạn đã mở quyền Creator.');
-    render();
-    return;
-  }
   if (action === 'approve-template' || action === 'reject-template') {
     const id = encodeURIComponent(element.dataset.id);
     if (action === 'approve-template') {

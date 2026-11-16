@@ -69,10 +69,18 @@ try {
   log('Cấp quyền mẫu sau khi mua demo');
 
   result = await request('/auth/creator','POST',{});
+  assert.equal(result.response.status,403);
+  const me = await request('/auth/me');
+  const adminCode = process.env.DEMO_ADMIN_CODE;
+  assert(adminCode, 'Cần DEMO_ADMIN_CODE riêng trong môi trường kiểm thử');
+  result = await request('/auth/demo-admin','POST',{code:adminCode});
   assert.equal(result.response.status,200);
-  cookie = result.response.headers.get('set-cookie').split(';')[0];
+  adminCookie = result.response.headers.get('set-cookie').split(';')[0];
+  result = await request(`/auth/admin/users/${encodeURIComponent(me.data.user.id)}/role`,'POST',{role:'creator'},true);
+  assert.equal(result.response.status,200);
+  assert.equal(result.response.headers.get('set-cookie'),null);
   assert.equal(result.data.user.role,'creator');
-  log('Nâng vai trò thành Creator');
+  log('Sender không tự đổi role; Admin cấp quyền Creator cho đúng tài khoản');
 
   const createdTitle = `Mẫu kiểm thử ${randomUUID().slice(0,6)}`;
   result = await request('/catalog/creator/templates','POST',{title:createdTitle,subtitle:'Mẫu mô phỏng do Creator đăng.',theme:'rose',price:39000});
@@ -85,10 +93,6 @@ try {
   assert.equal(result.response.status,404);
   log('Không công khai mẫu chưa được duyệt');
 
-  const adminCode = process.env.DEMO_ADMIN_CODE || 'local-admin-2026';
-  result = await request('/auth/demo-admin','POST',{code:adminCode});
-  assert.equal(result.response.status,200);
-  adminCookie = result.response.headers.get('set-cookie').split(';')[0];
   result = await request(`/catalog/admin/templates/${newTemplate.id}/approve`,'POST',{},true);
   assert.equal(result.response.status,200);
   log('Admin duyệt mẫu qua quyền riêng');

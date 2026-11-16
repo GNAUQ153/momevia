@@ -35,3 +35,30 @@ test('Kiểm tra dữ liệu đầu vào', async () => {
   await assert.rejects(() => service.register({name:'Nguyen', email:'sai-email', password:'Password2026'}), {status:400});
   await assert.rejects(() => service.register({name:'Nguyen', email:'test@example.com', password:'passwordonly'}), {status:400});
 });
+
+test('Đăng ký đồng thời cùng email chỉ tạo một tài khoản', async () => {
+  const repo = repository();
+  const service = new CredentialsService(repo);
+  const data = {name:'Kiểm thử đồng thời',email:'race@example.test',password:'ConcurrentPass123'};
+  const results = await Promise.allSettled([
+    service.register(data),
+    service.register({...data,email:'RACE@example.test'}),
+  ]);
+  assert.equal(results.filter(result => result.status === 'fulfilled').length, 1);
+  assert.equal(results.filter(result => result.status === 'rejected' && result.reason.status === 409).length, 1);
+  assert.equal(repo.all().length, 1);
+  const user = await service.login({email:data.email,password:data.password});
+  assert.equal(user.id, repo.all()[0].id);
+});
+
+test('Quá bốn scrypt đồng thời trả 503, không xếp hàng hash không giới hạn', async () => {
+  const repo=repository();
+  const service=new CredentialsService(repo);
+  const results=await Promise.allSettled(Array.from({length:8},(_,i)=>service.register({
+    name:'Concurrent QA',email:`capacity-${i}@example.test`,password:'CapacityTest123',
+  })));
+  assert.equal(results.filter(result=>result.status==='fulfilled').length,4);
+  assert.equal(results.filter(result=>result.status==='rejected'&&result.reason.status===503).length,4);
+  assert.equal(repo.all().length,4);
+  assert.equal(service.activeHashes,0);
+});

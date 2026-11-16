@@ -162,3 +162,7 @@ momevia-mvp/
   dev.mjs                   khởi động các dịch vụ
   .env.example              cấu hình mẫu
 ```
+
+## Gift photo protection
+
+Install locked dependencies with `npm ci`. New PNG/JPEG/WebP uploads are decoded and re-encoded, stripped of EXIF, and limited to 2 MB / 16 million pixels / 8192 pixels per side. Image processing concurrency is bounded. Existing photos and business data are preserved.

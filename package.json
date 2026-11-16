@@ -16,5 +16,8 @@
     "smoke:legacy": "node scripts/smoke.mjs",
     "seed:test-user": "node scripts/seed-test-user.mjs",
     "smoke:ui": "node scripts/smoke-ui.mjs"
+  },
+  "dependencies": {
+    "sharp": "0.35.5"
   }
 }

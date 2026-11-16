@@ -7,6 +7,7 @@ import { Router, HttpError, parseJson, sendJson, internalFetch } from '../shared
 import { currentUser, randomId, sanitizeText, sanitizeOptionalText } from '../shared/security.mjs';
 import { clientIp } from '../shared/proxy.mjs';
 import { RateLimiter } from '../shared/rate-limit.mjs';
+import { decodePhoto } from './photo.mjs';
 
 const config = environment();
 const giftsRepo = new JsonRepository(path.resolve('services/gifts/data/gifts.json'));
@@ -27,20 +28,6 @@ function validateSlug(slug) {
 function ensureActive(gift) {
   if (new Date(gift.expiresAt) < new Date()) throw new HttpError(410, 'Món quà đã hết thời gian hoạt động.');
 }
-function decodePhoto(raw) {
-  if (!raw) return null;
-  if (typeof raw !== 'string') throw new HttpError(400, 'Hình ảnh không hợp lệ.');
-  const match = raw.match(/^data:image\/(png|jpeg|webp);base64,([A-Za-z0-9+/=]+)$/);
-  if (!match) throw new HttpError(400, 'Chỉ hỗ trợ ảnh PNG, JPG hoặc WebP.');
-  const bytes = Buffer.from(match[2], 'base64');
-  if (bytes.length < 16 || bytes.length > 2 * 1024 * 1024) throw new HttpError(413, 'Ảnh phải nhỏ hơn 2 MB.');
-  const isPng = bytes.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10]));
-  const isJpeg = bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff;
-  const isWebp = bytes.toString('ascii', 0, 4) === 'RIFF' && bytes.toString('ascii', 8, 12) === 'WEBP';
-  if ((match[1] === 'png' && !isPng) || (match[1] === 'jpeg' && !isJpeg) || (match[1] === 'webp' && !isWebp)) throw new HttpError(400, 'Định dạng ảnh không khớp nội dung.');
-  return { bytes, ext: match[1] === 'jpeg' ? 'jpg' : match[1] };
-}
-
 class GiftService {
   async create(user, input) {
     const templateId = sanitizeText(input.templateId, 100);
@@ -52,7 +39,7 @@ class GiftService {
     const recipientName = sanitizeText(input.recipientName, 60);
     const senderName = sanitizeText(input.senderName, 60);
     const message = sanitizeText(input.message, 1000);
-    const photo = decodePhoto(input.photoDataUrl);
+    const photo = await decodePhoto(input.photoDataUrl);
     const slug = randomId(24);
     let imageFile = null;
     if (photo) {

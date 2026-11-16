@@ -19,3 +19,7 @@ UI, nền artwork, CSS animation và source code còn lại được tạo riên
 ## Momevia 3D Brand Asset
 
 Logo 3D của Momevia là hình tạo mới bằng AI theo yêu cầu người dùng, được dùng trong `web/assets`. Không sử dụng font bên thứ ba đóng gói trong ZIP.
+
+## Photo processing
+
+sharp 0.35.5, Apache-2.0: https://sharp.pixelplumbing.com/ . Installed through npm; third-party native components retain their licenses.

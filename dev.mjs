@@ -1,14 +1,18 @@
 import { spawn } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { loadEnvironment } from './services/shared/config.mjs';
+import { randomBytes } from 'node:crypto';
+import { loadEnvironment, validateSecrets } from './services/shared/config.mjs';
 
 const root = path.dirname(fileURLToPath(import.meta.url));
 process.chdir(root);
 loadEnvironment();
-if (process.env.NODE_ENV === 'production' && (!process.env.JWT_SECRET || !process.env.INTERNAL_SERVICE_KEY || process.env.JWT_SECRET.length < 32)) {
-  throw new Error('Production yêu cầu JWT_SECRET và INTERNAL_SERVICE_KEY mạnh.');
+if (process.env.NODE_ENV !== 'production') {
+  for (const key of ['JWT_SECRET', 'INTERNAL_SERVICE_KEY']) {
+    process.env[key] ||= randomBytes(32).toString('hex');
+  }
 }
+validateSecrets(process.env);
 const services = [
   ['identity', 'services/identity/server.mjs'],
   ['catalog', 'services/catalog/server.mjs'],

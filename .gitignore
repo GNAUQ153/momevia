@@ -8,4 +8,7 @@ services/**/data/
 *.tmp
 *.log
 node_modules/
+dist/
+web/js/vendor/
 .DS_Store
+/local/

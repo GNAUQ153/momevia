@@ -5,6 +5,8 @@ import { environment } from '../shared/config.mjs';
 import { JsonRepository } from '../shared/storage.mjs';
 import { Router, HttpError, parseJson, sendJson, internalFetch } from '../shared/http.mjs';
 import { currentUser, randomId, sanitizeText, sanitizeOptionalText } from '../shared/security.mjs';
+import { clientIp } from '../shared/proxy.mjs';
+import { RateLimiter } from '../shared/rate-limit.mjs';
 
 const config = environment();
 const giftsRepo = new JsonRepository(path.resolve('services/gifts/data/gifts.json'));
@@ -12,7 +14,9 @@ const repliesRepo = new JsonRepository(path.resolve('services/gifts/data/replies
 const imagesDir = path.resolve('services/gifts/data/images');
 fs.mkdirSync(imagesDir, { recursive: true });
 const router = new Router();
-const repliesLimit = new Map();
+const repliesLimit = new RateLimiter({ limit: 3, windowMs: 60_000 });
+const globalReplies = new RateLimiter({ limit: 300, windowMs: 60_000, maxKeys: 1 });
+const creationLimit = new RateLimiter({ limit: 10, windowMs: 600_000 });
 
 function validateSlug(slug) {
   if (!/^[A-Za-z0-9_-]{18,48}$/.test(slug)) throw new HttpError(404, 'Không tìm thấy món quà.');
@@ -70,17 +74,13 @@ class GiftService {
     ensureActive(gift);
     // Chỉ trả dữ liệu đủ cho người sở hữu link xem quà.
     const { userId, imageFile, ...view } = gift;
-    return { ...view, photoUrl: imageFile ? `/api/gifts/${slug}/photo` : null };
+    return { ...view, photoUrl: imageFile ? `/api/gifts/gifts/${slug}/photo` : null };
   }
   reply(slug, body, ip) {
     const gift = validateSlug(slug);
     ensureActive(gift);
-    const now = Date.now();
     const key = `${slug}:${ip}`;
-    const recent = (repliesLimit.get(key) || []).filter(time => now - time < 60_000);
-    if (recent.length >= 3) throw new HttpError(429, 'Bạn đã gửi nhiều phản hồi. Vui lòng thử lại sau.');
-    recent.push(now);
-    repliesLimit.set(key, recent);
+    if (!repliesLimit.consume(key)) throw new HttpError(429, 'Bạn đã gửi nhiều phản hồi. Vui lòng thử lại sau.');
     const reply = {
       id: randomUUID(), giftId: gift.id,
       name: sanitizeOptionalText(body.name, 50) || 'Người nhận',
@@ -94,16 +94,17 @@ class GiftService {
 }
 const service = new GiftService();
 router.on('GET', '/health', ({res}) => sendJson(res, 200, {name:'gifts', ok:true}));
-router.on('GET', '/gifts/mine', ({req,res}) => {
-  const user = currentUser(req, config.jwtSecret);
+router.on('GET', '/gifts/mine', async ({req,res}) => {
+  const user = await currentUser(req, config.jwtSecret);
   const gifts = giftsRepo.all().filter(item => item.userId === user.sub).reverse().map(({userId, imageFile, ...gift}) => ({
     ...gift,
-    photoUrl: imageFile ? `/api/gifts/${gift.slug}/photo` : null,
+    photoUrl: imageFile ? `/api/gifts/gifts/${gift.slug}/photo` : null,
   }));
   sendJson(res, 200, { gifts });
 });
 router.on('POST', '/gifts', async ({req,res}) => {
-  const user = currentUser(req, config.jwtSecret);
+  const user = await currentUser(req, config.jwtSecret);
+  if (!creationLimit.consume(user.sub)) throw new HttpError(429, 'Bạn đã tạo nhiều món quà. Vui lòng thử lại sau.');
   const gift = await service.create(user, await parseJson(req));
   sendJson(res, 201, { gift: { ...gift, imageFile: undefined, userId: undefined, url: `${config.baseUrl}/g/${gift.slug}` } });
 });
@@ -128,8 +129,9 @@ router.on('GET', '/gifts/:slug/replies', ({res,params}) => {
   sendJson(res, 200, { replies: repliesRepo.all().filter(item => item.giftId === gift.id) });
 });
 router.on('POST', '/gifts/:slug/replies', async ({req,res,params}) => {
-  const body = await parseJson(req);
-  const reply = service.reply(params.slug, body, req.socket.remoteAddress || 'unknown');
+  if (!globalReplies.consume('all')) throw new HttpError(429, 'Hệ thống đang nhận nhiều phản hồi. Vui lòng thử lại sau.');
+  const body = await parseJson(req, 8192);
+  const reply = service.reply(params.slug, body, clientIp(req));
   sendJson(res, 201, {reply});
 });
 router.listen(4103);

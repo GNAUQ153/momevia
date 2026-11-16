@@ -19,10 +19,11 @@ export function loadEnvironment() {
 
 export function environment() {
   loadEnvironment();
+  validateSecrets(process.env);
   return {
     baseUrl: process.env.PUBLIC_BASE_URL || 'http://localhost:4100',
-    jwtSecret: process.env.JWT_SECRET || 'unsafe-local-secret-only',
-    internalKey: process.env.INTERNAL_SERVICE_KEY || 'unsafe-internal-only',
+    jwtSecret: process.env.JWT_SECRET,
+    internalKey: process.env.INTERNAL_SERVICE_KEY,
     demoEnabled: process.env.DEMO_AUTH_ENABLED !== 'false' && process.env.NODE_ENV !== 'production',
     adminCode: process.env.DEMO_ADMIN_CODE || '',
     giftTtlDays: Math.max(1, Number(process.env.GIFT_TTL_DAYS || 365)),
@@ -33,4 +34,15 @@ export function environment() {
     zaloSecret: process.env.ZALO_APP_SECRET || '',
     zaloCallback: process.env.ZALO_CALLBACK_URL || 'http://localhost:4100/api/auth/zalo/callback',
   };
+}
+
+export function validateSecrets(env) {
+  for (const name of ['JWT_SECRET', 'INTERNAL_SERVICE_KEY']) {
+    const value = env[name];
+    if (!value || value.length < 32) throw new Error(`${name} phải có ít nhất 32 ký tự; cấu hình trước khi chạy service.`);
+    if (env.NODE_ENV === 'production' && /unsafe|dev.only|dev.internal|change.this|change.to|example|placeholder/i.test(value)) {
+      throw new Error(`${name} production không được dùng khóa mẫu.`);
+    }
+  }
+  if (env.JWT_SECRET === env.INTERNAL_SERVICE_KEY) throw new Error('JWT_SECRET và INTERNAL_SERVICE_KEY phải khác nhau.');
 }

@@ -33,3 +33,11 @@
 - Endpoint `/internal/...` chỉ được gọi từ service cùng máy kèm header `x-service-key`, không được proxy từ Gateway.
 - Mặc định mọi POST yêu cầu `application/json` và kiểm tra Origin nếu browser gửi Origin.
 - Trạng thái của đơn demo có tên `demo_paid` nhằm ngăn nhầm lẫn với một giao dịch thật.
+
+## Gateway and request protection
+
+- Block internal API namespaces and strip client service-key headers.
+- Establish client IP at the Gateway; do not trust caller-supplied forwarded headers.
+- Configure header/body/upstream timeouts and bounded JSON parsing.
+- Use bounded keyed-hash rate-limit shards and global Support/reply quotas.
+- Validate distinct service/JWT secrets at every service entrypoint.

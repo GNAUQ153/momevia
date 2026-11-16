@@ -1,5 +1,10 @@
 import http from 'node:http';
 
+export const serverTimeouts = Object.freeze({
+  headersTimeout: 10_000, requestTimeout: 30_000, keepAliveTimeout: 5_000,
+  connectionsCheckingInterval: 1_000,
+});
+
 export class HttpError extends Error {
   constructor(status, message) {
     super(message);
@@ -9,6 +14,7 @@ export class HttpError extends Error {
 
 export async function parseJson(request, maxBytes = 3_500_000) {
   if (!request.headers['content-type']?.startsWith('application/json')) throw new HttpError(415, 'Yêu cầu phải dùng application/json.');
+  if (Number(request.headers['content-length']) > maxBytes) throw new HttpError(413, 'Dữ liệu gửi lên vượt quá giới hạn.');
   const chunks = [];
   let size = 0;
   for await (const part of request) {
@@ -17,7 +23,9 @@ export async function parseJson(request, maxBytes = 3_500_000) {
     chunks.push(part);
   }
   try {
-    return JSON.parse(Buffer.concat(chunks).toString('utf8'));
+    const value = JSON.parse(Buffer.concat(chunks).toString('utf8'));
+    if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('Expected object');
+    return value;
   } catch {
     throw new HttpError(400, 'Dữ liệu JSON không hợp lệ.');
   }
@@ -55,7 +63,7 @@ export class Router {
     return this;
   }
   listen(port) {
-    const server = http.createServer(async (req, res) => {
+    const server = http.createServer(serverTimeouts, async (req, res) => {
       res.setHeader('x-content-type-options', 'nosniff');
       res.setHeader('referrer-policy', 'no-referrer');
       try {

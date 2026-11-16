@@ -3,6 +3,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { environment } from './services/shared/config.mjs';
+import { isInternalRoute, upstreamHeaders } from './services/shared/proxy.mjs';
+import { serverTimeouts } from './services/shared/http.mjs';
 
 const root = path.dirname(fileURLToPath(import.meta.url));
 const config = environment();
@@ -21,17 +23,20 @@ function proxy(req, res, target, route) {
   const options = {
     hostname: '127.0.0.1', port: target,
     path: route, method: req.method,
-    headers: { ...req.headers, host: `127.0.0.1:${target}` },
+    headers: upstreamHeaders(req, target),
   };
   const upstream = http.request(options, response => {
     res.writeHead(response.statusCode || 502, response.headers);
     response.pipe(res);
   });
+  upstream.setTimeout(30_000, () => upstream.destroy(new Error('Upstream timeout')));
+  req.on('aborted', () => upstream.destroy());
+  res.on('close', () => { if (!res.writableEnded) upstream.destroy(); });
   upstream.on('error', () => {
     if (!res.headersSent) {
       res.writeHead(502, { 'content-type': 'application/json; charset=utf-8' });
       res.end(JSON.stringify({error:'Dịch vụ đang khởi động hoặc tạm thời không khả dụng.'}));
-    }
+    } else res.destroy();
   });
   req.pipe(upstream);
 }
@@ -64,11 +69,16 @@ const routes = [
   ['/api/gifts', 4103],
   ['/api/support', 4105],
 ];
-http.createServer((req, res) => {
+http.createServer(serverTimeouts, (req, res) => {
   try {
     const url = new URL(req.url, config.baseUrl);
     const service = routes.find(([prefix]) => url.pathname === prefix || url.pathname.startsWith(prefix + '/'));
     if (service) {
+      const route = url.pathname.slice(service[0].length) || '/';
+      if (isInternalRoute(route)) {
+        res.writeHead(403, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' });
+        return res.end(JSON.stringify({ error: 'Không có quyền truy cập nội bộ qua Gateway.' }));
+      }
       if (!['GET', 'HEAD', 'POST'].includes(req.method)) {
         res.writeHead(405); return res.end();
       }
@@ -76,7 +86,6 @@ http.createServer((req, res) => {
       if (req.method === 'POST' && req.headers.origin && req.headers.origin !== config.baseUrl) {
         res.writeHead(403); return res.end('Cross-origin request blocked');
       }
-      const route = url.pathname.slice(service[0].length) || '/';
       return proxy(req, res, service[1], route + url.search);
     }
     if (!['GET', 'HEAD'].includes(req.method)) {

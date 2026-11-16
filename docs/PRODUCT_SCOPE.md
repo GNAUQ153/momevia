@@ -9,6 +9,7 @@
 - Luồng: Chọn mẫu → Cá nhân hóa → Mua demo nếu cần → Xuất bản → Mở quà 3 cảnh → Gửi lời đáp → Xem lại.
 - Mức giá thử: 0/39.000/59.000/79.000 VND, commission giả định 20%; không có thanh toán thật.
 - Không dùng gói subscription Creator Pro/người gửi trong MVP.
+- Mỗi tài khoản có một role; chỉ quản trị viên được thay đổi role. Không có luồng tự nâng Sender thành Creator. Quản lý role hiện qua API Admin, chưa có màn hình quản lý tài khoản.
 
 ## Các điểm chưa chốt
 
@@ -17,6 +18,7 @@
 - Chính sách lưu kỷ niệm sau khi hết hạn (mặc định bản demo 365 ngày).
 - Nhà cung cấp thanh toán, merchant of record, payout, hoàn tiền và điều kiện pháp lý.
 - Công cụ thiết kế nâng cao bao gồm code sandbox, thư viện element, animation tùy chỉnh.
+- Loại mẫu cá nhân riêng tư cho Customer, TTL theo từng mẫu và giấy phép theo lượt phát hành là định hướng cần đặc tả; chưa được triển khai. Không đồng nhất mẫu giá 0đ với mẫu riêng tư và không tự thay đổi quyền/thời hạn của dữ liệu cũ.
 
 ## Phân kỳ đề xuất
 

@@ -1,0 +1,27 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import { spawnSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
+import { load } from 'js-yaml';
+
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+function walk(directory) {
+  return fs.readdirSync(directory, { withFileTypes: true }).filter(entry => entry.name !== 'data').flatMap(entry => {
+    const filename = path.join(directory, entry.name);
+    return entry.isDirectory() ? walk(filename) : [filename];
+  });
+}
+const files = ['dev.mjs', 'gateway.mjs', ...['services', 'scripts', 'tests', 'web/js'].flatMap(dir => walk(path.join(root, dir)))];
+for (const file of files.filter(file => /\.(mjs|js)$/.test(file))) {
+  const result = spawnSync(process.execPath, ['--check', file], { cwd: root, encoding: 'utf8' });
+  if (result.status !== 0) throw new Error(`Syntax error: ${file}\n${result.stderr}`);
+}
+for (const file of walk(path.join(root, '.github/workflows')).filter(file => /\.ya?ml$/.test(file))) {
+  const workflow = load(fs.readFileSync(file, 'utf8'));
+  if (!workflow.on || !workflow.jobs) throw new Error(`Invalid workflow structure: ${file}`);
+}
+const vendor = fs.readFileSync(path.join(root, 'web/js/vendor/qrcode.js'));
+if (!vendor.equals(fs.readFileSync(path.join(root, 'node_modules/qrcode-generator/dist/qrcode.mjs')))) {
+  throw new Error('QR module is out of date. Run npm run build.');
+}
+console.log('PASS JavaScript syntax, workflow YAML and local QR module.');

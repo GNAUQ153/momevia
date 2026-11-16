@@ -22,8 +22,20 @@ Terminal in ra email và mật khẩu ngẫu nhiên. Ghi lại thông tin đó �
 
 ### Kiểm thử
 
+Kiểm thử tự động trên dữ liệu và service cô lập, không cần dừng phiên local đang chạy:
+
 ```powershell
 npm test
+npm run test:architecture
+```
+
+`test:architecture` tạo bản sao nguồn sạch trong thư mục tạm, bỏ `.env` và dữ liệu local, dùng cổng riêng rồi tự dọn sau khi chạy HTTP regression và các smoke test. Không kiểm chứng thao tác hoặc bố cục trình duyệt. Xem [báo cáo kiến trúc](docs/CODE_REVIEW_ARCHITECTURE.md) để biết phạm vi và giới hạn. Cài dependency và tạo QR module bằng `npm ci`, `npm run build` trước khi kiểm thử.
+
+CI kiểm tra Node 22/24 trên Windows/Linux. Sau khi toàn bộ kiểm tra đạt trên `main`, pipeline kiểm tra lại bản đóng gói và xuất artifact nguồn kèm SHA-256 từng file. Theo phạm vi hiện tại, chưa tự động deploy hosting. Xem [hướng dẫn CI và phát hành](docs/CI_RELEASE.md).
+
+Để chạy smoke thủ công trên phiên local (các script sẽ tạo dữ liệu kiểm thử trên phiên đó):
+
+```powershell
 npm run dev
 ```
 
@@ -53,13 +65,15 @@ Momevia là tên thương hiệu **đề xuất** cho giai đoạn phát triển
 
    ```powershell
    Copy-Item .env.example .env
+    npm ci
+    npm run build
    npm run dev
    ```
 
 5. Mở **http://localhost:4100**.
 6. Bấm **Đăng nhập** trên header, chuyển tab **Đăng ký** để tạo tài khoản email. Sau đó vào **Khám phá mẫu**, bấm nút hình trái tim và kiểm tra trang **Mẫu yêu thích** trong menu tài khoản.
 
-Cần chạy `npm ci` và `npm run build` trước khi khởi động. Không cần Docker hoặc XAMPP. Dùng `Ctrl+C` để dừng các dịch vụ. **Không đưa file `.env` lên GitHub**.
+Không cần Docker hoặc XAMPP. Cần `npm ci` để cài dependency theo lockfile và `npm run build` để tạo module QR cục bộ trước khi chạy. Dùng `Ctrl+C` để dừng các dịch vụ. **Không đưa file `.env` lên GitHub**.
 
 ## 2. Các thay đổi phiên bản 0.3.0
 
@@ -124,9 +138,15 @@ Google callback phải nằm trong danh sách được phép; Zalo có thể yê
 
 - Giao dịch mua mẫu hiện là **trải nghiệm giả lập**, không thu tiền thật. Phải tích hợp cổng thanh toán và webhook trước khi mở bán.
 - Dữ liệu hiện lưu JSON, không dùng cơ sở dữ liệu transaction-safe và không có backup production.
-- Chưa xác minh email, chưa có quên mật khẩu, giới hạn số lần đăng nhập, chống bot và xử lý xóa dữ liệu đầy đủ.
+- Chưa xác minh email, chưa có quên mật khẩu, chống bot và xử lý xóa dữ liệu đầy đủ. Đã có giới hạn xác thực theo tiến trình; chưa có rate limit phân tán/WAF.
 - Cần triển khai HTTPS, CSP chặt chẽ, giám sát, nhật ký, kiểm thử bảo mật và quyền truy cập theo vai trò.
 - **Không coi bản này là đã sẵn sàng production.** Cần QA giao diện trên Chrome, Edge, Safari và các màn hình di động thật.
+
+Sau cập nhật bảo mật, các phiên JWT cũ cần đăng nhập lại. Phiên mới được Identity ghi nhận và kiểm tra ở mọi service; logout thu hồi phiên hiện tại kể cả khi token bị phát lại. Nếu Identity không khả dụng, API cần kiểm tra phiên trả `503`. Hai khóa `JWT_SECRET` và `INTERNAL_SERVICE_KEY` phải khác nhau, tối thiểu 32 ký tự; production từ chối khóa ví dụ. Chạy từng service trực tiếp cũng kiểm tra các điều kiện này.
+
+Mỗi tài khoản có một role; Sender/Creator không tự đổi role. Chỉ Admin cấp hoặc đổi quyền qua API quản trị tài khoản. Giao diện Creator không còn nút tự mở quyền. Thay đổi role được áp dụng khi request tiếp theo kiểm tra phiên, kể cả khi JWT còn chứa role cũ. Các tài khoản Creator có sẵn không tự bị hạ quyền trong bản cập nhật này.
+
+Ảnh mới tải lên được kiểm tra định dạng thực, giới hạn 16 triệu điểm ảnh và encode lại để bỏ metadata. Ảnh đã lưu trước cập nhật không được tự động thay đổi. QR được tạo hoàn toàn tại trình duyệt.
 
 ## 8. Ghi nhận công nghệ, thư viện và tài nguyên
 
@@ -162,11 +182,3 @@ momevia-mvp/
   dev.mjs                   khởi động các dịch vụ
   .env.example              cấu hình mẫu
 ```
-
-## Gift photo protection
-
-Install locked dependencies with `npm ci`. New PNG/JPEG/WebP uploads are decoded and re-encoded, stripped of EXIF, and limited to 2 MB / 16 million pixels / 8192 pixels per side. Image processing concurrency is bounded. Existing photos and business data are preserved.
-
-## Local QR privacy
-
-Gift QR codes are generated in the browser with a locally built module; secret gift links are no longer sent to an external QR service. Run `npm run build` before tests or startup.

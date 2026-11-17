@@ -1,3 +1,11 @@
+## v0.7.0 — PostgreSQL foundation (chưa chuyển runtime)
+
+- Bổ sung lược đồ PostgreSQL cho Identity, Catalog, Gifts, Checkout, Support.
+- Thêm constraints, index, bảng dự kiến payment events, entitlements, ledger và outbox.
+- Thêm công cụ kiểm tra JSON và chuẩn bị snapshot SQL an toàn theo transaction (không tự import).
+- Thêm Docker Compose cho DB thử nghiệm và hướng dẫn cài đặt trên Windows.
+- Giữ nguyên ứng dụng chạy JSON Storage; chưa kích hoạt thanh toán hoặc PostgreSQL runtime.
+
 ## v0.6.0 — Modular Monolith (kiến trúc, chưa migrate DB)
 
 - Gộp Gateway và năm module vào **một backend Node.js process**; vẫn dùng cổng public 4100.

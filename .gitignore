@@ -27,3 +27,6 @@ Desktop.ini
 /docs/UPDATE_V04.md
 /docs/UPDATE_V05.md
 /docs/archive/CODE_REVIEW_ARCHITECTURE_2026-11-16_initial.md
+
+# SQL snapshot có thể chứa email, nội dung thiệp và hash mật khẩu.
+/database/private/

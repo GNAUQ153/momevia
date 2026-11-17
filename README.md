@@ -1,8 +1,18 @@
 # Momevia — Nền tảng quà tặng số tương tác
 
-**Phiên bản phát triển:** 0.6.0 — Client–Server + Modular Monolith + OOP (Node.js). Ứng dụng chưa đủ điều kiện triển khai thương mại có thu tiền thật.
+**Phiên bản phát triển:** 0.7.0 — Client–Server + Modular Monolith + OOP (Node.js). Ứng dụng chưa đủ điều kiện triển khai thương mại có thu tiền thật.
 
 Momevia cho phép người dùng chọn mẫu, cá nhân hóa, xuất bản quà qua link/QR, mở quà và gửi phản hồi. Hỗ trợ tài khoản email/mật khẩu, vai trò Creator/Admin, yêu thích và biểu mẫu hỗ trợ. Google/Zalo OAuth cần cấu hình ứng dụng nhà cung cấp. Checkout hiện chỉ tạo **đơn hàng mô phỏng**, chưa xử lý tiền thật.
+
+
+## PostgreSQL foundation (v0.7)
+
+Đã thêm migration SQL, ràng buộc dữ liệu, công cụ tạo snapshot từ JSON Storage, bảng tiền đề cho payment/outbox và Docker Compose thử nghiệm. **Runtime vẫn sử dụng JSON Storage**; chưa có PostgreSQL Repository hoặc thanh toán thật.
+
+- Hướng dẫn đầy đủ: [`docs/POSTGRESQL_SETUP.md`](docs/POSTGRESQL_SETUP.md)
+- Kiểm tra dữ liệu và tạo import SQL riêng tư: `npm run db:prepare`
+- Migration: `database/migrations/001_initial.sql`
+- Không commit `database/private/`, `.env`, `services/*/data/`.
 
 ## Khởi chạy bằng VS Code trên Windows
 

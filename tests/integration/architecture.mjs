@@ -66,9 +66,15 @@ try {
   fs.copyFileSync(path.join(root,'dev.mjs'),path.join(fixture,'dev.mjs'));
   fs.symlinkSync(path.join(root,'node_modules'),path.join(fixture,'node_modules'),'junction');
   const base=`http://127.0.0.1:${port}`;
+  fs.writeFileSync(path.join(fixture, '.env'), [
+    'TEST_ACCOUNT_ENABLED=true', 'TEST_ACCOUNT_NAME="Tài khoản mẫu QA"',
+    'TEST_ACCOUNT_EMAIL=env-qa@example.test', 'TEST_ACCOUNT_PASSWORD=EnvFixturePass123',
+    'TEST_ACCOUNT_ROLE=creator',
+  ].join('\n'));
   const env={...process.env, NODE_ENV:'test', PORT:String(port), PUBLIC_BASE_URL:base,
     JWT_SECRET:randomBytes(32).toString('hex'),INTERNAL_SERVICE_KEY:randomBytes(32).toString('hex'),
     DEMO_AUTH_ENABLED:'true',DEMO_ADMIN_CODE:randomBytes(24).toString('hex'),GIFT_TTL_DAYS:'365'};
+  for (const key of Object.keys(env).filter(key => key.startsWith('TEST_ACCOUNT_'))) delete env[key];
   const app=launch('dev.mjs',env);
   const health=['/api/auth/health','/api/catalog/health','/api/checkout/health','/api/gifts/health','/api/support/health'];
   let ready=false;
@@ -80,6 +86,13 @@ try {
   }
   assert(ready,'Backend fixture không khởi động các module.');
   assert.equal(children.length,1,'Momevia phải chạy đúng một HTTP server process.');
+  const seededLogin = await request(base, '/api/auth/login', { method: 'POST', body: {
+    email: 'ENV-QA@example.test', password: 'EnvFixturePass123',
+  } });
+  assert.equal(seededLogin.status, 200, 'Tài khoản từ .env phải đăng nhập được ngay sau khởi động');
+  assert.equal(seededLogin.data.user.role, 'creator');
+  assert(!('passwordHash' in seededLogin.data.user));
+  assert(!('testAccount' in seededLogin.data.user));
   if(process.argv.includes('--browser')) {
     const {runBrowserSmoke}=await import('../browser/smoke.mjs');
     await runBrowserSmoke(base);

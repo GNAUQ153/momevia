@@ -84,6 +84,8 @@ try {
   const env = {...process.env,NODE_ENV:'test',PUBLIC_BASE_URL:base,
     JWT_SECRET:randomBytes(32).toString('hex'),INTERNAL_SERVICE_KEY:randomBytes(32).toString('hex'),
     DEMO_AUTH_ENABLED:'true',DEMO_ADMIN_CODE:randomBytes(24).toString('hex'),GIFT_TTL_DAYS:'365'};
+  Object.assign(env, { TEST_ACCOUNT_ENABLED: 'true', TEST_ACCOUNT_NAME: 'Legacy QA',
+    TEST_ACCOUNT_EMAIL: 'legacy-env@example.test', TEST_ACCOUNT_PASSWORD: 'LegacyFixture123', TEST_ACCOUNT_ROLE: 'sender' });
   await Promise.all(reservations.map(server => new Promise(resolve => server.close(resolve))));
   for (const file of ['identity','catalog','checkout','gifts','support'].map(name => `services/${name}/server.mjs`).concat('gateway.mjs')) {
     launch(file, env);
@@ -97,6 +99,11 @@ try {
     await delay(100);
   }
   assert(ready, 'Fixture không khởi động đủ service.');
+  const seededLogin = await request(base, '/api/auth/login', { method: 'POST', body: {
+    email: 'legacy-env@example.test', password: 'LegacyFixture123',
+  } });
+  assert.equal(seededLogin.status, 200, 'Identity legacy phải tạo tài khoản từ env trước khi nhận request');
+  assert.equal(seededLogin.data.user.role, 'sender');
   if (process.argv.includes('--browser')) {
     const { runBrowserSmoke } = await import('../browser/smoke.mjs');
     await runBrowserSmoke(base);
@@ -251,7 +258,7 @@ try {
   identity.kill();
   await identityExited;
   assert.equal((await request(base,'/api/gifts/gifts/mine',{cookie})).status,503);
-  const restarted=launch('services/identity/server.mjs',{...env,NODE_ENV:'production'});
+  const restarted=launch('services/identity/server.mjs',{...env,NODE_ENV:'production',TEST_ACCOUNT_ENABLED:'false'});
   let identityReady=false;
   for(let i=0;i<100;i++) {
     if(restarted.exitCode!==null) throw new Error('Identity restart failed');

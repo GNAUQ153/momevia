@@ -15,7 +15,7 @@ if (process.env.NODE_ENV !== 'production') {
 validateSecrets(process.env);
 
 const { createHttpApp } = await import('../server/app.mjs');
-const app = createHttpApp();
+const app = await createHttpApp();
 const port = Number(process.env.PORT || 4100);
 const host = process.env.HOST || '127.0.0.1';
 const server = app.listen(port, host);

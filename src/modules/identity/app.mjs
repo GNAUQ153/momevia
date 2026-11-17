@@ -7,11 +7,13 @@ import { CredentialsService } from './credentials.service.mjs';
 import { SessionStore } from './sessions.service.mjs';
 import { RoleService } from './roles.service.mjs';
 import { AuthLimits } from './auth-limits.mjs';
+import { provisionTestAccount } from './test-account.service.mjs';
 
-export function createApp(config = environment()) {
+export async function createApp(config = environment()) {
   const { users: repo, sessions: sessionsRepo } = createRepositories();
   const sessions = new SessionStore(sessionsRepo, repo, config.jwtSecret);
   const credentials = new CredentialsService(repo);
+  await provisionTestAccount(credentials, config.testAccount);
   const roles = new RoleService(repo);
   const authLimits = new AuthLimits();
   const service = new IdentityService({ users: repo, sessions, config });

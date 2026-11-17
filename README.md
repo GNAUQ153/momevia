@@ -72,6 +72,22 @@ ZALO_APP_SECRET=
 
 Cấu hình `JWT_SECRET`, `INTERNAL_SERVICE_KEY` và OAuth callback xem `.env.example`. `INTERNAL_SERVICE_KEY` tiếp tục tồn tại để kiểm thử topology cũ; không được dùng như bằng chứng phân quyền người dùng.
 
+### Tài khoản mẫu qua `.env`
+
+Điền các biến sau vào `.env` để tự tạo một tài khoản khi khởi động bằng `npm run dev` (cũng áp dụng cho Identity ở chế độ legacy):
+
+```env
+TEST_ACCOUNT_ENABLED=true
+TEST_ACCOUNT_NAME="Tài khoản kiểm thử"
+TEST_ACCOUNT_EMAIL=your-tester@example.test
+TEST_ACCOUNT_PASSWORD=<mật khẩu riêng từ 10 đến 128 ký tự, có chữ và số>
+TEST_ACCOUNT_ROLE=sender
+```
+
+Thay giá trị mật khẩu trước khi chạy. Vai trò nhận `sender`, `creator` hoặc `admin`; nếu bỏ trống thì dùng `sender`. Đăng nhập tại `/login` bằng email/mật khẩu đã khai báo, không cần bật `DEMO_AUTH_ENABLED`. Thiếu email/mật khẩu hợp lệ sẽ dừng khởi động khi tính năng được bật. Production từ chối bật tính năng này.
+
+Tài khoản dùng cấu trúc hiện có trong `services/identity/data/users.json`, lưu `passwordHash` và thêm `testAccount: { "source": "env" }` để ghi nhận nguồn tạo. API không trả mật khẩu, hash hoặc metadata này. Khởi động lại không tạo trùng hay thay đổi ID, tên, mật khẩu, vai trò của tài khoản mẫu đã lưu; thay `.env` không cập nhật các trường đó. Email trùng tài khoản khác sẽ báo lỗi và không ghi đè. Đặt `TEST_ACCOUNT_ENABLED=false` chỉ tắt việc tạo mẫu, tài khoản đã lưu vẫn tồn tại và đăng nhập được. Không commit `.env` hoặc dữ liệu tài khoản.
+
 ## Trạng thái và rủi ro trước production
 
 - **Chưa có PostgreSQL:** Cần migration có kiểm tra dữ liệu và backup/rollback; xây unique constraints, transaction, idempotency.

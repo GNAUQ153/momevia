@@ -18,8 +18,8 @@ const prefixes = [
   ['/api/support', 'support'],
 ];
 
-export function createHttpApp(config = environment()) {
-  const identity = identityApp(config);
+export async function createHttpApp(config = environment()) {
+  const identity = await identityApp(config);
   // Phiên và role được xác nhận từ Identity module tại mỗi request, kể cả sau khi logout.
   const resolveUser = async (req, _secret, required = true) => {
     const user = identity.sessions.find(sessionToken(req));

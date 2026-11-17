@@ -51,7 +51,18 @@ Copy-Item .env.example .env
 
 Thay hai khóa ví dụ bằng hai khóa ngẫu nhiên riêng, mỗi khóa ít nhất 32 ký tự. Không dán giá trị khóa vào issue, log hoặc chat. Cấu hình OAuth nếu sử dụng. Để chạy: `npm start`; runtime mặc định là **một backend server** trên `127.0.0.1:4100` (hoặc `HOST`/`PORT` đã cấu hình).
 
-Không dùng gói này làm bằng chứng sẵn sàng production: JSON chưa có transaction nhiều file, backup hay nhiều writer; chưa có cổng thanh toán thật, HA hoặc rate limit phân tán. Sau cập nhật phiên đăng nhập, người dùng cần đăng nhập lại; dữ liệu tài khoản/quà/đơn hàng cũ được giữ nguyên.
+Không dùng gói này làm bằng chứng sẵn sàng production. Canvas JSON có aggregate rename/recovery/backup cho một process; không có transaction chung với dữ liệu legacy hay nhiều writer. Payment có provider/webhook/receipt foundation, chưa nghiệm thu merchant live, HA hoặc rate limit phân tán. Giữ dữ liệu tài khoản/quà/đơn hàng cũ; không ghi đè `.env` có sẵn.
+
+Canvas schema thuần nằm trong `web/js/shared/canvas`, được Node import trực tiếp và static server phục vụ cùng source. Release allowlist `web`, `src`, `scripts`, `tests`, `docs`, `database/migrations` bao gồm registry/runtime/editor/Designs/migration006; không cần generated schema copy hoặc engine lớn. `local/`, DB dump, media dữ liệu thật, `.env`, node_modules không được đóng gói. Xem [hướng dẫn rollback/backup](CANVAS_SENDER_GUIDE.md) và [gate matrix](CANVAS_QA_REPORT.md).
+
+Các lệnh canvas JSON dùng fixture riêng và ép storage/payment flags trong child process:
+
+```powershell
+npm run test:canvas
+npm run test:canvas:browser
+```
+
+`test:canvas:mysql` và `test:canvas:mysql:api` yêu cầu `CANVAS_QA_MYSQL_ISOLATED=true`, target schema `momevia_canvas_qa_*` mới, loopback port và credentials tổng hợp được truyền riêng; không lấy target từ `.env`/không dùng DB người dùng. MySQL mock/static `test:database` vẫn không thay gate thật. Chưa chạy pipeline Linux/Node22 hoặc deploy trong lần canvas này.
 
 ## Trạng thái bằng chứng
 

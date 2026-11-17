@@ -9,6 +9,9 @@ import { createApp as catalogApp } from '../modules/catalog/app.mjs';
 import { createApp as checkoutApp } from '../modules/checkout/app.mjs';
 import { createApp as giftsApp } from '../modules/gifts/app.mjs';
 import { createApp as supportApp } from '../modules/support/app.mjs';
+import { createApp as designsApp } from '../modules/designs/app.mjs';
+import { registerPublicationRoutes, registerContextRoutes, streamAsset } from '../modules/designs/routes.mjs';
+import { canvasError } from '../modules/designs/errors.mjs';
 
 const prefixes = [
   ['/api/auth', 'identity'],
@@ -16,9 +19,10 @@ const prefixes = [
   ['/api/checkout', 'checkout'],
   ['/api/gifts', 'gifts'],
   ['/api/support', 'support'],
+  ['/api/designs', 'designs'],
 ];
 
-export async function createHttpApp(config = environment()) {
+export async function createHttpApp(config = environment(), { paymentProviders, paymentEnv } = {}) {
   const identity = await identityApp(config);
   // Phiên và role được xác nhận từ Identity module tại mỗi request, kể cả sau khi logout.
   const resolveUser = async (req, _secret, required = true) => {
@@ -29,15 +33,32 @@ export async function createHttpApp(config = environment()) {
   const catalog = await catalogApp(config, { resolveUser });
   const checkout = await checkoutApp(config, {
     resolveUser,
+    paymentProviders, paymentEnv,
     catalog: { getTemplate: async id => catalog.service.publicOne(id) },
+  });
+  const designs = await designsApp(config, {
+    resolveUser,
+    catalog: { getTemplate: id => catalog.service.publicOne(id) },
+    checkout: { hasLicense: (userId, templateId) => checkout.service.hasLicense(userId, templateId) },
+    orders: user => checkout.service.orders(user),
   });
   const gifts = await giftsApp(config, {
     resolveUser,
+    canvas: designs,
     catalog: { getTemplate: async id => catalog.service.publicOne(id) },
     checkout: { hasLicense: async (userId, templateId) => checkout.service.hasLicense(userId, templateId) },
   });
   const support = supportApp(config, { resolveUser });
-  const modules = { identity, catalog, checkout, gifts, support };
+  registerPublicationRoutes(gifts.router, { service: designs.service, resolveUser, config, writeLimit: designs.writeLimit });
+  registerContextRoutes(checkout.router, { service: designs.service, resolveUser, config });
+  gifts.router.on('GET', '/gifts/:slug/assets/:assetId', async ({ res, params }) => {
+    const gift = await gifts.service.validateSlug(params.slug); gifts.service.ensureActive(gift);
+    if (!designs.flags.read || !gift.documentSnapshot || !gift.assetIds?.includes(params.assetId)) throw canvasError(404, 'ASSET_NOT_FOUND', 'Không tìm thấy ảnh.');
+    const asset = designs.profile.mode === 'mysql' ? await designs.publication.pinnedAsset(params.slug, params.assetId) : await designs.repository.getAsset(gift.userId, params.assetId);
+    if (!asset || asset.status !== 'ready' || !designs.service.assetExists(asset)) throw canvasError(404, 'ASSET_NOT_FOUND', 'Không tìm thấy ảnh.');
+    streamAsset(res, { filePath: designs.service.assetPath(asset), contentType: asset.mime });
+  });
+  const modules = { identity, catalog, checkout, gifts, support, designs };
 
   const server = http.createServer(serverTimeouts, (req, res) => {
     try {

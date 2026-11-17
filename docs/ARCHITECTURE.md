@@ -1,6 +1,6 @@
-# Kiến trúc đang chạy — Momevia Modular Monolith (v1.0.0)
+# Kiến trúc đang chạy — Momevia v1.1 + Sender canvas
 
-**Trạng thái:** Một Node.js backend process; mặc định lưu JSON để giữ dữ liệu cũ. MySQL 8.4 có adapter tùy chọn cho **Support (v0.8), Identity/Catalog (v0.9), Gifts/Checkout demo (v1.0)** qua biến `.env`. **Chưa có thanh toán thật, object storage hoặc production readiness.**
+**Trạng thái source:** Một Node.js backend process, các service/repository async. JSON mặc định; MySQL 8.4 cho Identity/Catalog/Gifts/Checkout/Support/Designs. Payment v1.1 có provider/webhook/settlement/receipt foundation, mặc định tắt. Canvas Sender có draft CAS/assets/publication UnitOfWork; merchant live, object storage và multi-instance production chưa nghiệm thu.
 
 ```mermaid
 flowchart TB
@@ -54,7 +54,7 @@ Factory `createApp` của Identity, Catalog, Checkout, Gifts và `createHttpApp`
 
 - Mỗi request cần đăng nhập đều truy vấn `SessionStore.find` trong tiến trình để kiểm tra chữ ký, JTI đã thu hồi, hạn sử dụng và role **mới nhất**, thay vì tin role nằm sẵn trong JWT.
 - Không còn HTTP session introspection nội bộ ở runtime mặc định, nhưng legacy adapter vẫn tồn tại. Điều này không làm mất chức năng logout/revoke.
-- Hiệu năng và đa instance **chưa được benchmark**. Mỗi module có thể lưu JSON hoặc MySQL theo cờ riêng; cần import và đối chiếu trước khi chuyển. v1.0 dùng transaction MySQL cho đơn demo + quyền sử dụng và ghi reply + tăng bộ đếm, nhưng **chưa có transaction xuyên module/real-payment settlement**. Ảnh quà vẫn ở local filesystem và cần object storage trước production.
+- Hiệu năng chỉ đo fixture ghi tại [QA canvas](CANVAS_QA_REPORT.md), chưa là benchmark production/đa instance. Các mixed mode legacy còn nguyên; canvas publication yêu cầu profile đồng nhất. MySQL UnitOfWork dùng cùng connection cho design/version/gift/pins/key và kiểm entitlement. Payment settlement v1.1 ghi order/right/receipt cùng transaction. DB và filesystem vẫn cần backup/recovery phối hợp.
 - Không chạy server legacy và modular cùng lúc trên cùng tập file dữ liệu.
 
 ## Kiểm thử và tiếp tục phát triển
@@ -69,4 +69,14 @@ npm run test:architecture
 
 `test:architecture` chạy **một backend process** trên port ngẫu nhiên với dữ liệu riêng trong thư mục tạm, kiểm tra API, phân quyền, phiên và nhiều luồng nghiệp vụ. `test:architecture:legacy` dành cho topology cũ. Browser tests dùng `npm run test:browser` khi Playwright/browser đã được cài.
 
-**Bước tiếp theo:** Chạy migration 004 và kiểm thử end-to-end MySQL cho Gifts/Checkout tại máy local (xem [hướng dẫn v1.0](MYSQL_V10_GIFTS_CHECKOUT.md)). Sau đó xây payment gateway/webhook đã xác thực, creator payout ledger thực, object storage và background worker; CI unit test không thể thay thế kiểm thử tích hợp DB thật.
+**Vận hành tiếp theo:** Chỉ áp dụng migration mới lên dữ liệu thật sau backup/restore và phê duyệt riêng. Canvas QA đã chạy MySQL 8.4 cô lập và provider inject; không biến kết quả đó thành nghiệm thu merchant. Payout, đối soát, object storage và production rollout là công việc riêng.
+
+## Designs và publication
+
+`src/modules/designs` sở hữu private drafts, create/save mutation ACK, asset metadata và checkout resume contexts; Gifts giữ public gift/reply/TTL. Composition root inject Catalog/Checkout qua port. `web/js/shared/canvas` là một nguồn schema/validator/registry/preset thuần cho Node và browser, được ship nguyên trong `web/`, không cần engine hoặc framework mới.
+
+JSON lưu aggregate version 1 tại `services/designs/data/canvas.json`: một rename commit document+ACK hoặc version+gift+pins+publication result. Critical section theo đường dẫn trong một process; tmp chưa commit không được đọc. Snapshot self-contained, không dual-write sang gifts.json. Gifts adapter gộp canvas publications khi đọc mine/public/reply. Không chạy nhiều process chung JSON.
+
+MySQL dùng migration 006 cộng thêm; giữ 001–005. UnitOfWork inject một MySqlClient/connection, khóa owner → publication key → design → template/entitlement/order → assets theo ID. Quyền revoke/publish do thứ tự nhận khóa entitlement quyết định; snapshot đã commit tiếp tục đọc đến TTL. Không gọi provider/upload/decode trong transaction. Checksum ảnh được xác lập khi re-encode, public media kiểm pin+TTL; chưa bật destructive GC.
+
+Editor dynamic import trên `/create/:id` và `/design/:id`; player public không import editor. Router có generation/dispose/abort, bảo vệ draft với navigate/popstate/beforeunload. Runtime dùng chung preview/public, preview mô phỏng reply. Rollback writer giữ `CANVAS_READ_ENABLED=true`; không rollback binary không hiểu snapshot. Hướng dẫn backup và giới hạn nằm ở [CANVAS_SENDER_GUIDE](CANVAS_SENDER_GUIDE.md).

@@ -1,0 +1,114 @@
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import assert from 'node:assert/strict';
+import { fileURLToPath } from 'node:url';
+import { randomBytes, randomUUID } from 'node:crypto';
+import { spawn } from 'node:child_process';
+import { once } from 'node:events';
+import { setTimeout as delay } from 'node:timers/promises';
+import sharp from 'sharp';
+
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
+const fixture = fs.mkdtempSync(path.join(fs.realpathSync(os.tmpdir()), 'momevia-canvas-'));
+let child, base, logs = ''; const cases = [];
+async function launch(extra = {}) {
+  const env = { ...process.env, NODE_ENV: 'test', PORT: '0', PUBLIC_BASE_URL: 'http://localhost',
+    JWT_SECRET: randomBytes(32).toString('hex'), INTERNAL_SERVICE_KEY: randomBytes(32).toString('hex'), DEMO_AUTH_ENABLED: 'false',
+    IDENTITY_STORAGE: 'json', CATALOG_STORAGE: 'json', CHECKOUT_STORAGE: 'json', GIFTS_STORAGE: 'json', SUPPORT_STORAGE: 'json', DESIGNS_STORAGE: 'json',
+    PAYMENT_ENABLED: 'false', PAYMENT_LIVE_ENABLED: 'false', CANVAS_READ_ENABLED: 'true', CANVAS_EDIT_ENABLED: 'true', CANVAS_PUBLISH_ENABLED: 'true',
+    TEST_ACCOUNT_ENABLED: 'false', ...extra };
+  // Session keys stay fixed across restart so the replay caller is the same owner.
+  if (launch.secrets) Object.assign(env, launch.secrets); else launch.secrets = { JWT_SECRET: env.JWT_SECRET, INTERNAL_SERVICE_KEY: env.INTERNAL_SERVICE_KEY };
+  child = spawn(process.execPath, ['fixture.mjs'], { cwd: fixture, env, windowsHide: true, stdio: ['ignore', 'pipe', 'pipe'] });
+  child.stdout.on('data', bytes => { logs += bytes; const match = logs.match(/CANVAS_BASE=(http:\/\/127\.0\.0\.1:\d+)/g)?.at(-1); if (match) base = match.slice('CANVAS_BASE='.length); });
+  child.stderr.on('data', bytes => { logs += bytes; });
+  for (let i = 0; i < 100; i++) { if (child.exitCode !== null) throw new Error(logs); if (base) return; await delay(50); }
+  throw new Error(`Fixture startup timeout: ${logs}`);
+}
+async function stop() { if (child && child.exitCode === null) { const exited = once(child, 'exit'); child.kill(); await exited; } child = null; base = null; logs = ''; }
+async function request(url, { cookie, body, method, headers = {}, bytes } = {}) {
+  const response = await fetch(base + '/api' + url, { method: method || (body || bytes ? 'POST' : 'GET'), headers: { ...(cookie ? { cookie } : {}), ...(body ? { 'content-type': 'application/json' } : {}), ...headers }, body: body ? JSON.stringify(body) : bytes });
+  const data = await response.json().catch(() => null); return { status: response.status, data, headers: response.headers };
+}
+async function register(name) {
+  const result = await request('/auth/register', { body: { name, email: `${randomUUID()}@example.test`, password: 'SyntheticOnly123', confirmPassword: 'SyntheticOnly123' } });
+  assert.equal(result.status, 201, JSON.stringify(result.data)); return { user: result.data.user, cookie: result.headers.get('set-cookie').split(';')[0] };
+}
+async function post(owner, url, body, status = 200) { const r = await request(url, { cookie: owner.cookie, body }); assert.equal(r.status, status, JSON.stringify(r.data)); return r.data; }
+const check = (name, fn) => Promise.resolve().then(fn).then(() => { cases.push(name); console.log(`PASS ${name}`); });
+try {
+  for (const dir of ['src', 'services', 'web']) fs.cpSync(path.join(root, dir), path.join(fixture, dir), { recursive: true, filter: p => path.basename(p) !== 'data' });
+  fs.copyFileSync(path.join(root, 'package.json'), path.join(fixture, 'package.json'));
+  fs.symlinkSync(path.join(root, 'node_modules'), path.join(fixture, 'node_modules'), 'junction');
+  fs.writeFileSync(path.join(fixture, 'fixture.mjs'), `import {createHttpApp} from './src/server/app.mjs'; import {environment} from './src/shared/config.mjs'; const config=environment();const app=await createHttpApp(config); app.server.listen(0,'127.0.0.1',()=>{config.baseUrl='http://127.0.0.1:'+app.server.address().port;console.log('CANVAS_BASE='+config.baseUrl);});`);
+  await launch();
+  const owner = await register('Người gửi thử nghiệm'), other = await register('Người gửi khác');
+  let design, saved, publishBody, published, asset;
+  await check('C01/C06 create idempotency and persisted Unicode blank', async () => {
+    const input = { source: { kind: 'blank' }, presetId: 'envelope-basic', mutationId: randomUUID() };
+    design = (await post(owner, '/designs/designs', input, 201)).design;
+    const replay = await post(owner, '/designs/designs', input, 201); assert.equal(replay.design.id, design.id); assert.equal(replay.replayed, true);
+    await post(owner, '/designs/designs', { ...input, presetId: 'blank' }, 409);
+    design.document.bindings.recipientName.value = 'Trần Ánh Mai'; design.document.bindings.senderName.value = 'Đặng An'; design.document.bindings.message.value = 'Chúc mừng sinh nhật! <script> không phải HTML';
+    const inputSave = { expectedRevision: design.revision, mutationId: randomUUID(), title: 'Quà tiếng Việt', document: design.document };
+    saved = await post(owner, `/designs/designs/${design.id}/save`, inputSave);
+    assert.equal(saved.savedRevision, 2); assert.equal((await post(owner, `/designs/designs/${design.id}/save`, inputSave)).replayed, true);
+    const loaded = await request(`/designs/designs/${design.id}`, { cookie: owner.cookie }); assert.deepEqual(loaded.data.design.document, design.document);
+  });
+  await check('C05/C08 CAS conflict and owner/provenance boundary', async () => {
+    await post(owner, `/designs/designs/${design.id}/save`, { expectedRevision: 1, mutationId: randomUUID(), title: 'stale', document: design.document }, 409);
+    assert.equal((await request(`/designs/designs/${design.id}`, { cookie: other.cookie })).status, 404);
+    await post(other, `/designs/designs/${design.id}/save`, { expectedRevision: 2, mutationId: randomUUID(), title: 'steal', document: design.document }, 404);
+    await post(owner, `/designs/designs/${design.id}/save`, { expectedRevision: 2, mutationId: randomUUID(), title: 'bypass', document: design.document, source: { kind: 'blank' } }, 422);
+    assert.equal((await request(`/designs/designs/${design.id}`)).status, 401);
+  });
+  await check('C09 private binary image validation/replay and ready refs', async () => {
+    const bytes = await sharp({ create: { width: 40, height: 30, channels: 3, background: '#b98adc' } }).png().toBuffer();
+    const mutation = randomUUID();
+    const upload = () => request(`/designs/designs/${design.id}/assets`, { cookie: owner.cookie, bytes, headers: { 'content-type': 'image/png', 'x-mutation-id': mutation } });
+    const result = await upload(); assert.equal(result.status, 201, JSON.stringify(result.data)); asset = result.data.asset; assert.equal(asset.status, 'ready'); assert.equal((await upload()).data.asset.id, asset.id);
+    assert.equal((await request(`/designs/designs/${design.id}/assets/${asset.id}`, { cookie: other.cookie })).status, 404);
+    assert.equal((await request(`/designs/designs/${design.id}/assets/${asset.id}`)).status, 401);
+    const bad = await request(`/designs/designs/${design.id}/assets`, { cookie: owner.cookie, bytes: Buffer.from('not a png image'), headers: { 'content-type': 'image/png', 'x-mutation-id': randomUUID() } }); assert.equal(bad.status, 413);
+    const { createElement } = await import('../../web/js/shared/canvas/index.js');
+    const image = createElement('image', { id: 'photo-test', props: { assetId: asset.id }, accessibility: { alt: 'Ảnh thử nghiệm' } });
+    design.document.assets.push({ assetId: asset.id, kind: 'image' }); design.document.elements.push(image); design.document.scenes[1].elementIds.push(image.id);
+    saved = await post(owner, `/designs/designs/${design.id}/save`, { expectedRevision: saved.savedRevision, mutationId: randomUUID(), title: 'Quà tiếng Việt', document: design.document });
+  });
+  await check('C11/C17/C19 immutable publication/idempotency/allowlist', async () => {
+    const preflight = await post(owner, `/designs/designs/${design.id}/preflight`, { expectedRevision: saved.savedRevision }); assert.equal(preflight.authorization.status, 'allowed'); assert.equal(preflight.canPublish, true, JSON.stringify(preflight));
+    publishBody = { designId: design.id, expectedRevision: saved.savedRevision, expectedDocumentHash: preflight.documentHash, idempotencyKey: randomUUID() };
+    const result = await Promise.all([request('/gifts/gifts/from-design', { cookie: owner.cookie, body: publishBody }), request('/gifts/gifts/from-design', { cookie: owner.cookie, body: publishBody })]);
+    assert.deepEqual(result.map(r => r.status).sort(), [200, 201]); assert.equal(result[0].data.gift.slug, result[1].data.gift.slug); published = result[0].data.gift;
+    await post(owner, '/gifts/gifts/from-design', { ...publishBody, expectedDocumentHash: 'sha256:' + '0'.repeat(64) }, 409);
+    const view = (await request(`/gifts/gifts/${published.slug}`)).data.gift; assert.equal(view.documentSnapshot.bindings.recipientName.value, 'Trần Ánh Mai');
+    for (const privateKey of ['ownerId', 'userId', 'source', 'policy', 'provenance', 'designId', 'assetIds', 'storageKey', 'idempotencyKey']) assert.equal(Object.hasOwn(view, privateKey), false);
+    const media = await fetch(`${base}/api/gifts/gifts/${published.slug}/assets/${asset.id}`); assert.equal(media.status, 200); assert.equal(media.headers.get('content-type'), 'image/png');
+    design.document.bindings.recipientName.value = 'Bản nháp mới';
+    saved = await post(owner, `/designs/designs/${design.id}/save`, { expectedRevision: saved.savedRevision, mutationId: randomUUID(), title: 'Đã đổi', document: design.document });
+    assert.equal((await request(`/gifts/gifts/${published.slug}`)).data.gift.recipientName, 'Trần Ánh Mai');
+    const list = (await request('/gifts/gifts/mine', { cookie: owner.cookie })).data.gifts; assert.equal(Object.hasOwn(list[0], 'documentSnapshot'), false);
+    await post(owner, `/designs/designs/${design.id}/archive`, {});
+    assert.equal((await request(`/gifts/gifts/${published.slug}`)).status, 200);
+    assert.equal((await request(`/gifts/gifts/${published.slug}/assets/${asset.id}`)).status, 200);
+  });
+  await check('C21 anonymous reply contract and count', async () => {
+    const replies = await Promise.all([request(`/gifts/gifts/${published.slug}/replies`, { body: { name: 'Mai', message: 'Cảm ơn bạn!' } }), request(`/gifts/gifts/${published.slug}/replies`, { body: { message: 'Rất vui!' } })]);
+    assert(replies.every(r => r.status === 201)); assert.equal((await request(`/gifts/gifts/${published.slug}/replies`)).data.replies.length, 2); assert.equal((await request(`/gifts/gifts/${published.slug}`)).data.gift.replyCount, 2);
+  });
+  await check('C18/C27 restart replay and writer-off reader preserved', async () => {
+    await stop(); await launch({ CANVAS_EDIT_ENABLED: 'false', CANVAS_PUBLISH_ENABLED: 'false' });
+    assert.equal((await request(`/gifts/gifts/${published.slug}`)).status, 200); assert.equal((await fetch(`${base}/api/gifts/gifts/${published.slug}/assets/${asset.id}`)).status, 200);
+    await post(owner, '/designs/designs', { source: { kind: 'blank' }, mutationId: randomUUID() }, 503);
+    await post(owner, '/gifts/gifts/from-design', publishBody, 503);
+    await stop(); await launch();
+    const replay = await post(owner, '/gifts/gifts/from-design', publishBody); assert.equal(replay.replayed, true); assert.equal(replay.gift.slug, published.slug);
+  });
+  if (process.argv.includes('--browser')) {
+    const { runCanvasBrowser } = await import('../browser/canvas.mjs'); await runCanvasBrowser(base);
+    const { runCanvasResilience } = await import('../browser/canvas-resilience.mjs'); await runCanvasResilience(base);
+  }
+  console.log(JSON.stringify({ gate: 'JSON API', cases, fixture: 'synthetic isolated single process', result: 'PASS' }));
+} catch (error) { console.error(logs); throw error; }
+finally { await stop(); fs.rmSync(fixture, { recursive: true, force: true }); }

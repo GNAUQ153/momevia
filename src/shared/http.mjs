@@ -43,9 +43,11 @@ export function sendJson(res, status, data, headers = {}) {
 
 export function sendError(res, error) {
   if (res.headersSent) return res.end();
-  const status = error instanceof HttpError ? error.status : 500;
+  const status = error instanceof HttpError || (error.name === 'CanvasValidationError' && error.status === 422) ? error.status : 500;
   if (status === 500) console.error(error);
-  sendJson(res, status, { error: status === 500 ? 'Máy chủ gặp lỗi. Vui lòng thử lại.' : error.message });
+  sendJson(res, status, { error: status === 500 ? 'Máy chủ gặp lỗi. Vui lòng thử lại.' : error.message,
+    ...(status !== 500 && error.code ? { code: error.code, message: error.message, details: error.details || [] } : {}),
+    ...(error.code === 'AUTHORIZATION_UNAVAILABLE' ? { authorization: { status: 'unavailable', reasonCodes: ['AUTHORIZATION_UNAVAILABLE'] } } : {}) });
 }
 
 export class Router {

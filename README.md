@@ -2,7 +2,11 @@
 
 **Phiên bản phát triển:** 1.1.0 — Client–Server + Modular Monolith + OOP (Node.js). Ứng dụng chưa đủ điều kiện triển khai thương mại có thu tiền thật.
 
-Momevia cho phép người dùng chọn mẫu, cá nhân hóa, xuất bản quà qua link/QR, mở quà và gửi phản hồi. Hỗ trợ tài khoản email/mật khẩu, vai trò Creator/Admin, yêu thích và biểu mẫu hỗ trợ. Google/Zalo OAuth cần cấu hình ứng dụng nhà cung cấp. Checkout hiện chỉ tạo **đơn hàng mô phỏng**, chưa xử lý tiền thật.
+Momevia cho phép Sender thiết kế từ trang trống hoặc cá nhân hóa mẫu, lưu nháp, mở lại, xem trước và xuất bản snapshot qua link/QR. Người nhận mở quà và gửi phản hồi miễn phí, không đăng nhập. Giữ tài khoản email, Creator/Admin, yêu thích và hỗ trợ. Google/Zalo OAuth cần cấu hình. v1.1 có nền tích hợp payOS/MoMo, webhook và biên nhận; payment mặc định tắt, chưa nghiệm thu merchant live.
+
+Canvas Sender: [Cách dùng và vận hành](docs/CANVAS_SENDER_GUIDE.md), [phạm vi kiểm thử và giới hạn](docs/CANVAS_QA_REPORT.md). Creator canvas chuyên sâu thuộc W12–W15, chưa triển khai.
+
+Thư viện đã có [12 bố cục canvas cơ bản dùng chung](docs/BASIC_TEMPLATE_LIBRARY.md), thumbnail và preview tương tác; tài khoản Sender có thể tiếp tục cá nhân hóa bằng element thật.
 
 
 ## MySQL 8.4 Foundation & Support Adapter (v0.8)
@@ -14,7 +18,7 @@ MySQL 8.4 LTS với InnoDB/utf8mb4 là database được chọn. Đã chuyển s
 - Kiểm tra MySQL thật: `npm run db:ping`, `npm run db:verify`
 - **Mặc định vẫn dùng JSON**; chỉ `SUPPORT_STORAGE=mysql` mới bật MySQL cho Support.
 - Driver `mysql2` phải có trong `package-lock.json` trước khi chạy `npm ci`; dùng `npm install mysql2@3.24.6 --save-exact` khi tích hợp patch v0.9.
-- Từ v0.9 có MySQL Identity/Catalog; v1.0 thêm Gifts/Checkout demo sau migration 004 và import dữ liệu. JSON vẫn mặc định để bảo toàn dữ liệu. Chưa có thanh toán thật hoặc multi-instance production.
+- Từ v0.9 có MySQL Identity/Catalog; v1.0 thêm Gifts/Checkout, v1.1 thêm payment foundation. Canvas có migration 006/Designs/UnitOfWork. JSON vẫn mặc định, không đồng bộ dữ liệu khi đổi storage flag. Chưa nghiệm thu merchant hoặc multi-instance production.
 - Tuyệt đối không commit `.env`, `database/private/` hoặc `services/*/data/`.
 
 ## Khởi chạy bằng VS Code trên Windows
@@ -106,7 +110,7 @@ Tài khoản dùng cấu trúc hiện có trong `services/identity/data/users.js
 ## Trạng thái và rủi ro trước production
 
 - **MySQL tùy chọn cho từng module:** Sau migration/import, có thể bật Identity, Catalog, Support, Gifts, Checkout demo; JSON vẫn mặc định. Cần kiểm thử MySQL thật, backup, và media vẫn ở local.
-- **Thanh toán mới là mô phỏng:** Chưa nhận tiền thật, chưa có webhook, đối soát hoặc payout creator.
+- **Payment có điều kiện:** Đã có provider/webhook/receipt foundation và đơn demo độc lập. Chưa nghiệm thu merchant live, chưa có đối soát thất lạc webhook hoặc payout Creator. Canvas QA dùng provider inject, không thu tiền.
 - **Gửi thiệp hiện chia sẻ link/QR:** Chưa có background queue gửi email/SMS tự động và chính sách chống spam hoàn chỉnh.
 - **OAuth Google/Zalo:** Cần xác thực end-to-end bằng credentials thật, HTTPS và callback được nhà cung cấp cho phép.
 - **Vận hành:** Cần object storage, sao lưu, giám sát lỗi, chính sách dữ liệu, E2E và kiểm tra bảo mật trước khi phát hành.

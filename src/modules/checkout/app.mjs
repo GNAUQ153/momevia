@@ -8,14 +8,14 @@ import { MySqlPaymentRepository } from '../payments/mysql.repository.mjs';
 import { PaymentService } from '../payments/payment.service.mjs';
 import { registerPaymentRoutes } from '../payments/routes.mjs';
 
-export async function createApp(config = environment(), { catalog = createCatalogClient(config.internalKey), resolveUser } = {}) {
+export async function createApp(config = environment(), { catalog = createCatalogClient(config.internalKey), resolveUser, paymentProviders, paymentEnv } = {}) {
   const { orders: repository, client, mode } = createRepositories();
   if (mode === 'mysql') await client.execute('SELECT order_id FROM demo_purchases LIMIT 0');
   const service = new CheckoutService({ repository, config, catalog });
   const router = new Router();
   registerRoutes(router, { config, service, resolveUser });
   const paymentRepository = new MySqlPaymentRepository();
-  const paymentService = new PaymentService({ repository: paymentRepository, catalog, checkout: service });
+  const paymentService = new PaymentService({ repository: paymentRepository, catalog, checkout: service, providers: paymentProviders, ...(paymentEnv ? { env: paymentEnv } : {}) });
   registerPaymentRoutes(router, { config, service: paymentService, resolveUser });
   return { router, service, paymentService, close: async () => { await Promise.all([client?.close(), paymentRepository.close()]); } };
 }

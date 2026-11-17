@@ -2,10 +2,15 @@ import { randomUUID } from 'node:crypto';
 import { HttpError } from '../../shared/http.mjs';
 import { sanitizeText, sanitizeOptionalText } from '../../shared/security.mjs';
 
+const publicFields = ['id', 'title', 'subtitle', 'theme', 'style', 'price', 'scenes', 'effect', 'creator', 'featured', 'category', 'status', 'createdAt'];
+export function publicTemplate(template) {
+  return Object.fromEntries(publicFields.filter(key => Object.hasOwn(template, key)).map(key => [key, template[key]]));
+}
+
 export class CatalogService {
   constructor(repository, favorites) { this.repo = repository; this.favorites = favorites; }
 
-  async publicList() { return (await this.repo.all()).filter(t => t.status === 'published'); }
+  async publicList() { return (await this.repo.all()).filter(t => t.status === 'published').map(publicTemplate); }
   async search({ q = '', style = '' }) {
     let items = await this.publicList();
     q = q.toLocaleLowerCase('vi');
@@ -43,7 +48,7 @@ export class CatalogService {
   async publicOne(id) {
     const item = await this.repo.get(id);
     if (!item || item.status !== 'published') throw new HttpError(404, 'Mẫu quà không tồn tại.');
-    return item;
+    return publicTemplate(item);
   }
   async createDraft(user, data) {
     if (!['creator', 'admin'].includes(user.role)) throw new HttpError(403, 'Bạn cần đăng ký Creator trước.');

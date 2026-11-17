@@ -27,11 +27,11 @@ export async function createHttpApp(config = environment()) {
     return user;
   };
   const catalog = await catalogApp(config, { resolveUser });
-  const checkout = checkoutApp(config, {
+  const checkout = await checkoutApp(config, {
     resolveUser,
     catalog: { getTemplate: async id => catalog.service.publicOne(id) },
   });
-  const gifts = giftsApp(config, {
+  const gifts = await giftsApp(config, {
     resolveUser,
     catalog: { getTemplate: async id => catalog.service.publicOne(id) },
     checkout: { hasLicense: async (userId, templateId) => checkout.service.hasLicense(userId, templateId) },

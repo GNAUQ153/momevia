@@ -1,6 +1,6 @@
 # Momevia — Nền tảng quà tặng số tương tác
 
-**Phiên bản phát triển:** 0.9.0 — Client–Server + Modular Monolith + OOP (Node.js). Ứng dụng chưa đủ điều kiện triển khai thương mại có thu tiền thật.
+**Phiên bản phát triển:** 1.0.0 — Client–Server + Modular Monolith + OOP (Node.js). Ứng dụng chưa đủ điều kiện triển khai thương mại có thu tiền thật.
 
 Momevia cho phép người dùng chọn mẫu, cá nhân hóa, xuất bản quà qua link/QR, mở quà và gửi phản hồi. Hỗ trợ tài khoản email/mật khẩu, vai trò Creator/Admin, yêu thích và biểu mẫu hỗ trợ. Google/Zalo OAuth cần cấu hình ứng dụng nhà cung cấp. Checkout hiện chỉ tạo **đơn hàng mô phỏng**, chưa xử lý tiền thật.
 
@@ -14,7 +14,7 @@ MySQL 8.4 LTS với InnoDB/utf8mb4 là database được chọn. Đã chuyển s
 - Kiểm tra MySQL thật: `npm run db:ping`, `npm run db:verify`
 - **Mặc định vẫn dùng JSON**; chỉ `SUPPORT_STORAGE=mysql` mới bật MySQL cho Support.
 - Driver `mysql2` phải có trong `package-lock.json` trước khi chạy `npm ci`; dùng `npm install mysql2@3.24.6 --save-exact` khi tích hợp patch v0.9.
-- Từ v0.9, có thể bật MySQL cho **Identity và Catalog** sau khi import dữ liệu; Gifts/Checkout vẫn JSON. Chưa có thanh toán thật hoặc multi-instance production.
+- Từ v0.9 có MySQL Identity/Catalog; v1.0 thêm Gifts/Checkout demo sau migration 004 và import dữ liệu. JSON vẫn mặc định để bảo toàn dữ liệu. Chưa có thanh toán thật hoặc multi-instance production.
 - Tuyệt đối không commit `.env`, `database/private/` hoặc `services/*/data/`.
 
 ## Khởi chạy bằng VS Code trên Windows
@@ -66,7 +66,7 @@ Browser → HTTP Server :4100
 
 - **OOP:** Controller/route, Service, Repository được tách theo trách nhiệm.
 - **Xác thực:** Session được kiểm tra trực tiếp từ Identity trên mỗi request cần đăng nhập, bảo toàn tính năng logout/revoke và role hiện tại.
-- **Dữ liệu:** Vẫn là file JSON tại `services/*/data/` để không làm mất dữ liệu hiện có. **Chưa an toàn cho nhiều instance/production.**
+- **Dữ liệu:** JSON mặc định; MySQL tùy chọn theo module sau import dữ liệu. Ảnh quà vẫn local. **Chưa bảo đảm production multi-instance.**
 - **Bảo mật:** Chặn endpoint `/internal` công khai, loại bỏ header forwarding do client tự gửi, giới hạn tốc độ và không cấp quyền chỉ dựa vào role trong JWT.
 
 Xem [tài liệu kiến trúc](docs/ARCHITECTURE.md), [cấu trúc source](docs/PROJECT_STRUCTURE.md), [API](docs/ENDPOINTS.md) và [giới hạn sản phẩm](docs/PRODUCT_SCOPE.md).
@@ -105,7 +105,7 @@ Tài khoản dùng cấu trúc hiện có trong `services/identity/data/users.js
 
 ## Trạng thái và rủi ro trước production
 
-- **MySQL mới là foundation + Support (tùy chọn):** Chưa cutover Identity, Catalog, Gifts và Checkout; cần migration dữ liệu có kiểm chứng, backup và transaction nghiệp vụ.
+- **MySQL tùy chọn cho từng module:** Sau migration/import, có thể bật Identity, Catalog, Support, Gifts, Checkout demo; JSON vẫn mặc định. Cần kiểm thử MySQL thật, backup, và media vẫn ở local.
 - **Thanh toán mới là mô phỏng:** Chưa nhận tiền thật, chưa có webhook, đối soát hoặc payout creator.
 - **Gửi thiệp hiện chia sẻ link/QR:** Chưa có background queue gửi email/SMS tự động và chính sách chống spam hoàn chỉnh.
 - **OAuth Google/Zalo:** Cần xác thực end-to-end bằng credentials thật, HTTPS và callback được nhà cung cấp cho phép.
@@ -118,3 +118,9 @@ Mỗi thay đổi nên thực hiện trên branch riêng và mở Pull Request; 
 
 Bổ sung các adapter MySQL cho Users/Sessions/Templates/Favorites và lệnh import JSON an toàn.
 Theo mặc định Identity/Catalog vẫn dùng JSON; sau migration/import, đọc [hướng dẫn v0.9](docs/MYSQL_V09_IDENTITY_CATALOG.md).
+
+## v1.0 MySQL Gifts & Checkout (DEMO)
+
+Bổ sung `CHECKOUT_STORAGE=mysql`, `GIFTS_STORAGE=mysql` sau migration `004_gifts_checkout` và công cụ dry-run/import JSON an toàn. Transaction MySQL giúp một đơn demo tạo một entitlement, chống mua trùng cùng user/template và ghi phản hồi quà kèm tăng bộ đếm nguyên tử. **Không tích hợp thanh toán thật** và ảnh vẫn lưu tại local.
+
+Đọc [`docs/MYSQL_V10_GIFTS_CHECKOUT.md`](docs/MYSQL_V10_GIFTS_CHECKOUT.md). Hai cờ mặc định vẫn là `json`, không chuyển nguồn dữ liệu tự động.

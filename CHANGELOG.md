@@ -1,3 +1,14 @@
+# Changelog
+
+## 1.0.0 (MySQL Gifts & Checkout demo)
+
+- MySQL adapters cho quà, phản hồi, đơn hàng demo và quyền sử dụng mẫu.
+- Migration 004 tạo khóa duy nhất demo purchases và FK; transaction cấp entitlement không lặp, rollback khi lỗi.
+- Reply SQL transaction ghi phản hồi và tăng `reply_count` nguyên tử; bảo toàn API public.
+- Công cụ dry-run/import JSON Gifts & Checkout theo transaction và từ chối overwrite.
+- Hai cờ `GIFTS_STORAGE` / `CHECKOUT_STORAGE` mặc định JSON để bảo toàn dữ liệu; ảnh vẫn local.
+- Đây KHÔNG phải tích hợp thanh toán thật, không ghi nhận doanh thu/payout Creator.
+
 ## 0.9.0 — MySQL Identity & Catalog (candidate)
 
 - MySQL repositories cho Users, Sessions, Templates và Favorites; async HTTP routing, JWT jti được tra từ MySQL, role lấy từ database.

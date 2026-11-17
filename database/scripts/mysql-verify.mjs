@@ -3,7 +3,7 @@ import { MySqlClient } from '../../src/infrastructure/mysql/client.mjs';
 
 const requiredTables = [
   'users', 'sessions', 'templates', 'favorites', 'gifts', 'gift_replies',
-  'orders', 'support_requests', 'payment_transactions', 'payment_events',
+  'orders', 'demo_purchases', 'support_requests', 'payment_transactions', 'payment_events',
   'template_entitlements', 'creator_ledger', 'outbox_events',
 ];
 
@@ -26,8 +26,8 @@ try {
   }
   const [migrations] = await client.execute('SELECT version FROM schema_migrations ORDER BY version');
   const versions = migrations.map(row => row.version);
-  if (!versions.includes('001_initial') || !versions.includes('002_support_user_bridge') || !versions.includes('003_identity_catalog')) {
-    throw new Error('Thiếu migration 001, 002 hoặc 003.');
+  if (!versions.includes('001_initial') || !versions.includes('002_support_user_bridge') || !versions.includes('003_identity_catalog') || !versions.includes('004_gifts_checkout')) {
+    throw new Error('Thiếu migration 001, 002, 003 hoặc 004.');
   }
   const [bridge] = await client.execute(`
     SELECT column_name AS name FROM information_schema.columns
@@ -38,7 +38,11 @@ try {
     SELECT (SELECT COUNT(*) FROM users) AS users_count,
            (SELECT COUNT(*) FROM templates) AS templates_count,
            (SELECT COUNT(*) FROM support_requests) AS support_count,
-           (SELECT COUNT(*) FROM template_entitlements) AS paid_rights_count
+           (SELECT COUNT(*) FROM template_entitlements) AS paid_rights_count,
+           (SELECT COUNT(*) FROM gifts) AS gifts_count,
+           (SELECT COUNT(*) FROM gift_replies) AS replies_count,
+           (SELECT COUNT(*) FROM orders) AS orders_count,
+           (SELECT COUNT(*) FROM demo_purchases) AS demo_purchases_count
   `);
   console.log('PASS — MySQL Schema', versions);
   console.log('Số bản ghi:', counts[0]);

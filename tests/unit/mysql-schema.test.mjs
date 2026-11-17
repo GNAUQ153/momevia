@@ -14,3 +14,11 @@ test('lược đồ MySQL sử dụng InnoDB, UTF8, khóa ngoài và chống dou
   assert.match(sql, /UNIQUE KEY payment_event_uk/);
   assert.doesNotMatch(sql, /TIMESTAMPTZ|JSONB|CREATE SCHEMA|ON CONFLICT|GENERATED ALWAYS AS IDENTITY/i);
 });
+
+test('v1.0 demo purchase idempotency uses InnoDB with unique user/template and order FK', () => {
+  const sql = fs.readFileSync(new URL('../../database/migrations/004_gifts_checkout.sql', import.meta.url),'utf8');
+  assert.match(sql, /CREATE TABLE IF NOT EXISTS demo_purchases/);
+  assert.match(sql, /PRIMARY KEY \(user_id, template_id\)/);
+  assert.match(sql, /FOREIGN KEY \(order_id\) REFERENCES orders\(id\)/);
+  assert.match(sql, /ENGINE=InnoDB/);
+});

@@ -12,5 +12,8 @@ export function createApp(config = environment(), { resolveUser } = {}) {
   const service = new SupportService({ repository: repo, attempts });
   const router = new Router();
   registerRoutes(router, { config, globalAttempts, service, resolveUser });
-  return { router, service, close: () => [attempts, globalAttempts].forEach(limiter => limiter.close()) };
+  return { router, service, close: () => {
+    [attempts, globalAttempts].forEach(limiter => limiter.close());
+    void repo.close?.();
+  } };
 }

@@ -5,7 +5,7 @@ export function registerRoutes(router, { config, service, resolveUser = currentU
   router.on('GET', '/health', ({res}) => sendJson(res, 200, {name:'checkout', ok:true}));
   router.on('GET', '/orders', async ({req,res}) => {
     const user = await resolveUser(req, config.jwtSecret);
-    sendJson(res, 200, { orders: service.orders(user) });
+    sendJson(res, 200, { orders: await service.orders(user) });
   });
   router.on('POST', '/orders/demo-purchase', async ({req,res}) => {
     const user = await resolveUser(req, config.jwtSecret);
@@ -14,8 +14,8 @@ export function registerRoutes(router, { config, service, resolveUser = currentU
     const order = await service.purchase(user, templateId);
     sendJson(res, 201, { order, notice: 'Chỉ là đơn hàng mô phỏng. Không thu tiền thật.' });
   });
-  router.on('GET', '/internal/license/:userId/:templateId', ({req,res,params}) => {
+  router.on('GET', '/internal/license/:userId/:templateId', async ({req,res,params}) => {
     requireInternal(req, config.internalKey);
-    sendJson(res, 200, { licensed: service.hasLicense(params.userId, params.templateId) });
+    sendJson(res, 200, { licensed: await service.hasLicense(params.userId, params.templateId) });
   });
 }

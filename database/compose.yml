@@ -1,0 +1,28 @@
+# MySQL 8.4 LTS chỉ phục vụ máy phát triển; không công khai cổng ra Internet.
+services:
+  db:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-momevia_dev}
+      MYSQL_USER: ${MYSQL_USER:-momevia}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Đặt MYSQL_PASSWORD trong .env}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Đặt MYSQL_ROOT_PASSWORD trong .env}
+      TZ: UTC
+    ports:
+      - '127.0.0.1:${MYSQL_PORT:-3306}:3306'
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_0900_ai_ci
+      - --default-time-zone=+00:00
+    volumes:
+      - momevia_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ['CMD-SHELL', 'mysqladmin ping -h 127.0.0.1 --silent']
+      interval: 5s
+      timeout: 3s
+      retries: 30
+      start_period: 30s
+
+volumes:
+  momevia_mysql_data:

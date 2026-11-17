@@ -7,7 +7,7 @@ export function registerRoutes(router, { config, creationLimit, globalReplies, s
   router.on('GET', '/health', ({res}) => sendJson(res, 200, {name:'gifts', ok:true}));
   router.on('GET', '/gifts/mine', async ({req,res}) => {
     const user = await resolveUser(req, config.jwtSecret);
-    sendJson(res, 200, { gifts: service.mine(user) });
+    sendJson(res, 200, { gifts: await service.mine(user) });
   });
   router.on('POST', '/gifts', async ({req,res}) => {
     const user = await resolveUser(req, config.jwtSecret);
@@ -15,9 +15,9 @@ export function registerRoutes(router, { config, creationLimit, globalReplies, s
     const gift = await service.create(user, await parseJson(req));
     sendJson(res, 201, { gift: { ...gift, imageFile: undefined, userId: undefined, url: `${config.baseUrl}/g/${gift.slug}` } });
   });
-  router.on('GET', '/gifts/:slug', ({res,params}) => sendJson(res, 200, {gift: service.publicGift(params.slug)}));
-  router.on('GET', '/gifts/:slug/photo', ({res,params}) => {
-    const { filePath, contentType } = service.photo(params.slug);
+  router.on('GET', '/gifts/:slug', async ({res,params}) => sendJson(res, 200, {gift: await service.publicGift(params.slug)}));
+  router.on('GET', '/gifts/:slug/photo', async ({res,params}) => {
+    const { filePath, contentType } = await service.photo(params.slug);
     res.writeHead(200, {
       'content-type': contentType,
       'cache-control': 'private, max-age=3600',
@@ -25,13 +25,13 @@ export function registerRoutes(router, { config, creationLimit, globalReplies, s
     });
     fs.createReadStream(filePath).pipe(res);
   });
-  router.on('GET', '/gifts/:slug/replies', ({res,params}) => {
-    sendJson(res, 200, { replies: service.replies(params.slug) });
+  router.on('GET', '/gifts/:slug/replies', async ({res,params}) => {
+    sendJson(res, 200, { replies: await service.replies(params.slug) });
   });
   router.on('POST', '/gifts/:slug/replies', async ({req,res,params}) => {
     if (!globalReplies.consume('all')) throw new HttpError(429, 'Hệ thống đang nhận nhiều phản hồi. Vui lòng thử lại sau.');
     const body = await parseJson(req, 8192);
-    const reply = service.reply(params.slug, body, clientIp(req));
+    const reply = await service.reply(params.slug, body, clientIp(req));
     sendJson(res, 201, {reply});
   });
 }

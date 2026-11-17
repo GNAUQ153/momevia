@@ -4,12 +4,12 @@ import { sanitizeText } from '../../shared/security.mjs';
 
 export class SupportService {
   constructor({ repository, attempts }) { this.repo = repository; this.attempts = attempts; }
-  requests(user) {
+  async requests(user) {
     if (user.role !== 'admin') throw new HttpError(403, 'Chỉ quản trị viên được xem yêu cầu hỗ trợ.');
-    return this.repo.all().sort((a,b) => b.createdAt.localeCompare(a.createdAt));
+    return (await this.repo.all()).sort((a,b) => b.createdAt.localeCompare(a.createdAt));
   }
 
-  create(data, user, ip) {
+  async create(data, user, ip) {
     const name = sanitizeText(data.name, 60);
     const email = sanitizeText(data.email, 254).toLowerCase();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new HttpError(400, 'Email không hợp lệ.');
@@ -28,7 +28,7 @@ export class SupportService {
       createdAt: new Date().toISOString(),
     };
     if (!this.attempts.consume(ip)) throw new HttpError(429, 'Bạn đã gửi quá nhiều yêu cầu. Hãy thử lại sau.');
-    this.repo.insert(ticket);
+    await this.repo.insert(ticket);
     return { code: ticket.code, status: ticket.status };
   }
 }

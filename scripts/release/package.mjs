@@ -21,18 +21,47 @@ for (const directory of [path.dirname(output), output]) {
 fs.rmSync(output, { recursive: true, force: true });
 fs.mkdirSync(output, { recursive: true });
 // Allowlist roots; never package local settings, generated business data or dependencies.
-const roots = ['src', 'services', 'web', 'scripts', 'tests', 'docs', '.github',
-  'gateway.mjs', 'dev.mjs', 'start-local.bat', 'package.json', 'package-lock.json',
-  'README.md', 'CHANGELOG.md', '.env.example', '.gitignore', 'eslint.config.mjs'];
+const roots = [
+  'src', 'services', 'web', 'scripts', 'tests', 'docs',
+  '.github',
+  'database/compose.yml',
+  'database/migrations',
+  'database/scripts',
+  'database/verify.sql',
+  'gateway.mjs',
+  'dev.mjs',
+  'start-local.bat',
+  'package.json',
+  'package-lock.json',
+  'README.md',
+  'CHANGELOG.md',
+  '.env.example',
+  '.gitignore',
+  'eslint.config.mjs'
+];
+
 function copy(source, target) {
   if (isExcludedSourcePath(path.relative(root, source))) return;
+
   const stat = fs.lstatSync(source);
-  if (stat.isSymbolicLink()) throw new Error(`Refusing symlink: ${source}`);
+
+  if (stat.isSymbolicLink()) {
+    throw new Error(`Refusing symlink: ${source}`);
+  }
+
   if (stat.isDirectory()) {
     fs.mkdirSync(target, { recursive: true });
-    for (const entry of fs.readdirSync(source)) copy(path.join(source, entry), path.join(target, entry));
-  } else fs.copyFileSync(source, target);
+
+    for (const entry of fs.readdirSync(source)) {
+      copy(path.join(source, entry), path.join(target, entry));
+    }
+  } else {
+    // Tạo thư mục đích trước khi sao chép file.
+    fs.mkdirSync(path.dirname(target), { recursive: true });
+    fs.copyFileSync(source, target);
+  }
 }
+
 for (const entry of roots) copy(path.join(root, entry), path.join(output, entry));
 function entries(directory) {
   return fs.readdirSync(directory, { withFileTypes: true }).flatMap(entry => {

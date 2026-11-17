@@ -1,7 +1,7 @@
 {
   "name": "momevia-mvp",
   "private": true,
-  "version": "0.6.0",
+  "version": "1.1.0",
   "type": "module",
   "engines": {
     "node": "^22.13.0 || >=24.0.0"
@@ -23,9 +23,17 @@
     "seed:test-user": "node scripts/dev/seed-test-user.mjs",
     "smoke:ui": "node tests/smoke/smoke-ui.mjs",
     "dev:legacy": "node src/bootstrap/legacy.mjs",
-    "test:architecture:legacy": "node tests/integration/architecture-legacy.mjs"
+    "test:architecture:legacy": "node tests/integration/architecture-legacy.mjs",
+    "db:prepare": "node database/scripts/prepare-import.mjs",
+    "db:ping": "node database/scripts/mysql-ping.mjs",
+    "db:verify": "node database/scripts/mysql-verify.mjs",
+    "test:database": "node --test tests/unit/mysql-*.test.mjs",
+    "db:import:identity-catalog": "node database/scripts/import-identity-catalog.mjs",
+    "db:import:gifts-checkout": "node database/scripts/import-gifts-checkout.mjs"
   },
   "dependencies": {
+    "@payos/node": "2.0.6",
+    "mysql2": "3.24.6",
     "qrcode-generator": "2.0.4",
     "sharp": "0.35.5"
   },

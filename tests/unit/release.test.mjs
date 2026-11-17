@@ -20,6 +20,16 @@ test('Gói nguồn loại secret/data/dependency và phát hiện file bị sử
     for(const file of ['gateway.mjs','dev.mjs','start-local.bat','package-lock.json','README.md','CHANGELOG.md','.env.example','.gitignore','eslint.config.mjs']) write(file);
     write('package.json',JSON.stringify({version:'test'}));
     write('web/js/vendor/qrcode.js');
+    // The release allowlist also includes MySQL schema and tooling.
+    write('database/compose.yml', 'services: {}\n');
+    write('database/verify.sql', 'SELECT 1;\n');
+    write('database/migrations/001_initial.sql', '-- schema fixture\n');
+    write('database/migrations/003_identity_catalog.sql', '-- v0.9 fixture\n');
+    write('database/migrations/004_gifts_checkout.sql', '-- v1.0 fixture\n');
+    write('database/migrations/005_payment_receipts.sql', '-- v1.1 fixture\n');
+    write('database/scripts/import-gifts-checkout.mjs', '// v1.0 import fixture\n');
+    write('database/scripts/import-identity-catalog.mjs', '// v0.9 import fixture\n');
+    write('database/scripts/prepare-import.mjs', '// import fixture\n');
     const excludedFiles=['.env','.env.production','services/identity/data/users.json','services/identity/.env',
       'web/debug.log','web/cache.tmp','node_modules/example/index.js',
       'docs/UPDATE_V04.md','docs/UPDATE_V05.md','docs/archive/CODE_REVIEW_ARCHITECTURE_2026-11-16_initial.md',
@@ -42,6 +52,14 @@ test('Gói nguồn loại secret/data/dependency và phát hiện file bị sử
     assert(fs.existsSync(path.join(release,'docs/ARCHITECTURE.md')));
     assert(fs.existsSync(path.join(release,'docs/licenses/example-MIT.txt')));
     assert(fs.existsSync(path.join(release,'web/js/vendor/qrcode.js')));
+    assert(fs.existsSync(path.join(release,'database/compose.yml')));
+    assert(fs.existsSync(path.join(release,'database/migrations/001_initial.sql')));
+    assert(fs.existsSync(path.join(release,'database/migrations/003_identity_catalog.sql')));
+    assert(fs.existsSync(path.join(release,'database/migrations/004_gifts_checkout.sql')));
+    assert(fs.existsSync(path.join(release,'database/migrations/005_payment_receipts.sql')));
+    assert(fs.existsSync(path.join(release,'database/scripts/import-gifts-checkout.mjs')));
+    assert(fs.existsSync(path.join(release,'database/scripts/import-identity-catalog.mjs')));
+    assert(fs.existsSync(path.join(release,'database/scripts/prepare-import.mjs')));
     const verify=fileURLToPath(new URL('../../scripts/release/verify.mjs',import.meta.url));
     const run=()=>spawnSync(process.execPath,[verify,release],{cwd:fixture,encoding:'utf8'});
     assert.equal(run().status,0);

@@ -1,3 +1,47 @@
+# 1.1.0 — Payment Gateway & Receipt Foundation
+
+- Credential-gated payOS VietQR (chuyển khoản ngân hàng) và MoMo sandbox/live.
+- Webhook được xác thực chữ ký SDK/IPN, đối chiếu amount/provider/order, replay-safe MySQL transaction.
+- Chỉ cấp quyền khi webhook hợp lệ; không tin redirect/click client hoặc ảnh chụp chuyển khoản.
+- Biên nhận thanh toán có quyền truy cập theo người mua, không tự nhận là hóa đơn VAT.
+- Bật bằng PAYMENT_ENABLED; mặc định tắt. Cần merchant account, HTTPS và kiểm thử provider thật.
+
+# Changelog
+
+## 1.0.0 (MySQL Gifts & Checkout demo)
+
+- MySQL adapters cho quà, phản hồi, đơn hàng demo và quyền sử dụng mẫu.
+- Migration 004 tạo khóa duy nhất demo purchases và FK; transaction cấp entitlement không lặp, rollback khi lỗi.
+- Reply SQL transaction ghi phản hồi và tăng `reply_count` nguyên tử; bảo toàn API public.
+- Công cụ dry-run/import JSON Gifts & Checkout theo transaction và từ chối overwrite.
+- Hai cờ `GIFTS_STORAGE` / `CHECKOUT_STORAGE` mặc định JSON để bảo toàn dữ liệu; ảnh vẫn local.
+- Đây KHÔNG phải tích hợp thanh toán thật, không ghi nhận doanh thu/payout Creator.
+
+## 0.9.0 — MySQL Identity & Catalog (candidate)
+
+- MySQL repositories cho Users, Sessions, Templates và Favorites; async HTTP routing, JWT jti được tra từ MySQL, role lấy từ database.
+- Migration 003 đặt provider_id case-sensitive, giảm xung đột ID demo/OAuth.
+- Công cụ import JSON Identity/Catalog theo transaction: dry-run mặc định, từ chối ghi đè bảng có dữ liệu, bảo toàn JSON.
+- Giữ nguyên API, tiếp tục hỗ trợ JSON qua IDENTITY_STORAGE và CATALOG_STORAGE.
+- Lưu ý chưa xác minh E2E trên MySQL server trong môi trường phát triển patch; chạy checklist local trước khi deploy.
+
+## v0.8.0 — MySQL 8.4 LTS foundation + Support adapter
+
+- Thay migration/schema PostgreSQL bằng MySQL 8.4 LTS sử dụng InnoDB và utf8mb4.
+- Bổ sung Docker Compose, công cụ chuẩn bị SQL snapshot JSON cho MySQL và bước xác minh schema/migrations.
+- Thêm MySqlClient kết nối pool/transaction bằng mysql2/promise và adapter Support tùy chọn qua `SUPPORT_STORAGE=mysql`.
+- Giữ JSON mặc định, thêm bridge ID Identity để không mất tham chiếu khi chuyển riêng Support.
+- Chưa có MySQL runtime cho các module khác; chưa bật thanh toán thật.
+- Cần chạy `npm install mysql2@3 --save-exact` để cập nhật lockfile trước khi commit và kiểm thử MySQL thực tế.
+
+## v0.7.0 — PostgreSQL foundation (chưa chuyển runtime)
+
+- Bổ sung lược đồ PostgreSQL cho Identity, Catalog, Gifts, Checkout, Support.
+- Thêm constraints, index, bảng dự kiến payment events, entitlements, ledger và outbox.
+- Thêm công cụ kiểm tra JSON và chuẩn bị snapshot SQL an toàn theo transaction (không tự import).
+- Thêm Docker Compose cho DB thử nghiệm và hướng dẫn cài đặt trên Windows.
+- Giữ nguyên ứng dụng chạy JSON Storage; chưa kích hoạt thanh toán hoặc PostgreSQL runtime.
+
 ## v0.6.0 — Modular Monolith (kiến trúc, chưa migrate DB)
 
 - Gộp Gateway và năm module vào **một backend Node.js process**; vẫn dùng cổng public 4100.

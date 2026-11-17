@@ -10,8 +10,8 @@ export function registerRoutes(router, { config, credentials, sessions, authLimi
     google: Boolean(config.googleId && config.googleSecret),
     zalo: Boolean(config.zaloId && config.zaloSecret),
   }));
-  router.on('GET', '/me', ({req, res}) => {
-    const user = service.findCurrent(req);
+  router.on('GET', '/me', async ({req, res}) => {
+    const user = await service.findCurrent(req);
     return sendJson(res, 200, { user: publicUser(user) });
   });
   // Đăng ký/đăng nhập bằng email. Mật khẩu được băm với scrypt + salt riêng.
@@ -20,14 +20,14 @@ export function registerRoutes(router, { config, credentials, sessions, authLimi
     const body = await parseJson(req, 16_384);
     if (body.confirmPassword !== body.password) throw new HttpError(400, 'Xác nhận mật khẩu không khớp.');
     const user = await credentials.register(body);
-    service.issueSession(res, user);
+    await service.issueSession(res, user);
     sendJson(res, 201, { user: publicUser(user) });
   });
   router.on('POST', '/login', async ({req, res}) => {
     const body = await parseJson(req, 16_384);
     authLimits.consume('login', req, res, body.email);
     const user = await credentials.login(body);
-    service.issueSession(res, user);
+    await service.issueSession(res, user);
     sendJson(res, 200, { user: publicUser(user) });
   });
 
@@ -37,8 +37,8 @@ export function registerRoutes(router, { config, credentials, sessions, authLimi
     const body = await parseJson(req, 16_384);
     const name = sanitizeText(body.name, 50);
     const providerId = sanitizeText(body.deviceId || randomId(12), 128);
-    const user = service.findOrCreate('demo', providerId, { name });
-    service.issueSession(res, user);
+    const user = await service.findOrCreate('demo', providerId, { name });
+    await service.issueSession(res, user);
     sendJson(res, 200, { user: publicUser(user) });
   });
   router.on('POST', '/demo-admin', async ({req, res}) => {
@@ -46,37 +46,37 @@ export function registerRoutes(router, { config, credentials, sessions, authLimi
     authLimits.consume('admin', req, res);
     const body = await parseJson(req, 4096);
     if (body.code !== config.adminCode) throw new HttpError(403, 'Mã quản trị không chính xác.');
-    const admin = service.demoAdmin();
-    service.issueSession(res, admin);
+    const admin = await service.demoAdmin();
+    await service.issueSession(res, admin);
     sendJson(res, 200, { user: publicUser(admin) });
   });
   // Compatibility route: không còn tự nâng quyền; Admin phải chỉ định userId.
   router.on('POST', '/creator', async ({req, res}) => {
-    const session = sessions.find(sessionToken(req));
+    const session = await sessions.find(sessionToken(req));
     if (!session) throw new HttpError(401, 'Vui lòng đăng nhập để tiếp tục.');
-    roles.requireAdmin(session.sub);
+    await roles.requireAdmin(session.sub);
     const body = await parseJson(req, 4096);
-    const updated = roles.change(session.sub, body.userId, 'creator');
+    const updated = await roles.change(session.sub, body.userId, 'creator');
     // Không cấp cookie của tài khoản đích cho Admin đang thực hiện thao tác.
     sendJson(res, 200, { user: publicUser(updated) });
   });
 
-  router.on('GET', '/admin/users', ({req, res}) => {
-    const session = sessions.find(sessionToken(req));
+  router.on('GET', '/admin/users', async ({req, res}) => {
+    const session = await sessions.find(sessionToken(req));
     if (!session) throw new HttpError(401, 'Vui lòng đăng nhập để tiếp tục.');
-    sendJson(res, 200, { users: roles.list(session.sub).map(publicUser) });
+    sendJson(res, 200, { users: (await roles.list(session.sub)).map(publicUser) });
   });
 
   router.on('POST', '/admin/users/:id/role', async ({req, res, params}) => {
-    const session = sessions.find(sessionToken(req));
+    const session = await sessions.find(sessionToken(req));
     if (!session) throw new HttpError(401, 'Vui lòng đăng nhập để tiếp tục.');
-    roles.requireAdmin(session.sub);
+    await roles.requireAdmin(session.sub);
     const body = await parseJson(req, 4096);
-    const updated = roles.change(session.sub, params.id, body.role);
+    const updated = await roles.change(session.sub, params.id, body.role);
     sendJson(res, 200, { user: publicUser(updated) });
   });
-  router.on('POST', '/logout', ({req,res}) => {
-    sessions.revoke(sessionToken(req));
+  router.on('POST', '/logout', async ({req,res}) => {
+    await sessions.revoke(sessionToken(req));
     res.setHeader('set-cookie', cookie('session', '', 0));
     sendJson(res, 200, { ok: true });
   });
@@ -84,7 +84,7 @@ export function registerRoutes(router, { config, credentials, sessions, authLimi
   router.on('POST', '/internal/session', async ({req,res}) => {
     requireInternal(req, config.internalKey);
     const body = await parseJson(req, 8192);
-    sendJson(res, 200, { user: sessions.find(body.token) });
+    sendJson(res, 200, { user: await sessions.find(body.token) });
   });
 
   router.on('GET', '/google', ({res}) => {
@@ -121,7 +121,7 @@ export function registerRoutes(router, { config, credentials, sessions, authLimi
     });
     const info = await infoResponse.json();
     if (!infoResponse.ok || !info.sub) throw new HttpError(401, 'Không đọc được hồ sơ Google.');
-    service.finishOAuth(res, 'google', { id: info.sub, name: info.name || info.email || 'Người dùng Google', email: info.email, avatar: info.picture });
+    await service.finishOAuth(res, 'google', { id: info.sub, name: info.name || info.email || 'Người dùng Google', email: info.email, avatar: info.picture });
   });
   router.on('GET', '/zalo', ({res}) => {
     if (!config.zaloId || !config.zaloSecret) throw new HttpError(503, 'Chưa cấu hình đăng nhập Zalo.');
@@ -152,7 +152,7 @@ export function registerRoutes(router, { config, credentials, sessions, authLimi
     });
     const info = await infoResponse.json();
     if (!infoResponse.ok || !info.id || info.error) throw new HttpError(401, 'Không đọc được hồ sơ Zalo.');
-    service.finishOAuth(res, 'zalo', { id: info.id, name: info.name || 'Người dùng Zalo', avatar: info.picture?.data?.url });
+    await service.finishOAuth(res, 'zalo', { id: info.id, name: info.name || 'Người dùng Zalo', avatar: info.picture?.data?.url });
   });
 
 }

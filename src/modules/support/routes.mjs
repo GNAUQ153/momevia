@@ -8,11 +8,11 @@ export function registerRoutes(router, { config, globalAttempts, service, resolv
     if (!globalAttempts.consume('all')) throw new HttpError(429, 'Hệ thống đang nhận nhiều yêu cầu. Vui lòng thử lại sau.');
     const user = await resolveUser(req, config.jwtSecret, false);
     const data = await parseJson(req, 8192);
-    const result = service.create(data, user, clientIp(req));
+    const result = await service.create(data, user, clientIp(req));
     sendJson(res, 201, { ticket: result });
   });
   router.on('GET', '/admin/requests', async ({req, res}) => {
     const user = await resolveUser(req, config.jwtSecret);
-    sendJson(res, 200, { requests: service.requests(user) });
+    sendJson(res, 200, { requests: await service.requests(user) });
   });
 }

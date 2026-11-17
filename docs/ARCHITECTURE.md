@@ -1,6 +1,6 @@
-# Kiến trúc đang chạy — Momevia Modular Monolith (v0.6.0)
+# Kiến trúc đang chạy — Momevia Modular Monolith (v1.0.0)
 
-**Trạng thái:** Đã chuyển runtime mặc định từ 6 process sang **1 backend process**. Đây là bước thay đổi topology, **chưa phải migration PostgreSQL hoặc triển khai production**.
+**Trạng thái:** Một Node.js backend process; mặc định lưu JSON để giữ dữ liệu cũ. MySQL 8.4 có adapter tùy chọn cho **Support (v0.8), Identity/Catalog (v0.9), Gifts/Checkout demo (v1.0)** qua biến `.env`. **Chưa có thanh toán thật, object storage hoặc production readiness.**
 
 ```mermaid
 flowchart TB
@@ -23,7 +23,12 @@ flowchart TB
     C --> DC[(catalog JSON)]
     O --> DO[(checkout JSON)]
     G --> DG[(gifts JSON / media)]
-    S --> DS[(support JSON)]
+    S --> DS[(support JSON - mặc định)]
+    I -. IDENTITY_STORAGE=mysql .-> MY[(MySQL 8.4 InnoDB)]
+    C -. CATALOG_STORAGE=mysql .-> MY
+    O -. CHECKOUT_STORAGE=mysql .-> MY
+    G -. GIFTS_STORAGE=mysql .-> MY
+    S -. SUPPORT_STORAGE=mysql .-> MY
 ```
 
 ## Entry points
@@ -41,7 +46,7 @@ flowchart TB
 3. Checkout cung cấp `hasLicense` cho Gifts; không còn gọi HTTP `4104` trong runtime mới.
 4. Các lớp `Service`, `Repository` và API contract của frontend vẫn giữ nguyên.
 
-Factory `createApp` của Identity và `createHttpApp` trả Promise; entrypoint phải `await` để hoàn tất việc tạo tài khoản mẫu từ `TEST_ACCOUNT_*` trước khi mở HTTP listener. Tài khoản được lưu trong `users.json` hiện có với `passwordHash` và metadata `testAccount.source = "env"`; không có kho tài khoản riêng. Xem [cấu hình tài khoản mẫu](../README.md#tài-khoản-mẫu-qua-env).
+Factory `createApp` của Identity, Catalog, Checkout, Gifts và `createHttpApp` trả Promise; entrypoint phải `await` để hoàn tất việc tạo tài khoản mẫu từ `TEST_ACCOUNT_*` trước khi mở HTTP listener. Tài khoản nằm trong `users.json` hoặc bảng `users` của MySQL theo `IDENTITY_STORAGE`, giữ `passwordHash` và metadata `testAccount.source = "env"`. Xem [cấu hình tài khoản mẫu](../README.md#tài-khoản-mẫu-qua-env).
 
 `src/shared/http.mjs` có `Router.handle` để ghép nhiều router vào một HTTP server. Server gốc nhận đúng tiền tố `/api/auth`, `/api/catalog`, `/api/checkout`, `/api/gifts`, `/api/support`. Server chỉ chấp nhận các HTTP method cũ và tiếp tục chặn namespace `/internal`, request POST cross-origin và các forwarded headers do client tự khai.
 
@@ -49,7 +54,7 @@ Factory `createApp` của Identity và `createHttpApp` trả Promise; entrypoint
 
 - Mỗi request cần đăng nhập đều truy vấn `SessionStore.find` trong tiến trình để kiểm tra chữ ký, JTI đã thu hồi, hạn sử dụng và role **mới nhất**, thay vì tin role nằm sẵn trong JWT.
 - Không còn HTTP session introspection nội bộ ở runtime mặc định, nhưng legacy adapter vẫn tồn tại. Điều này không làm mất chức năng logout/revoke.
-- Tốc độ tăng, khả năng chịu tải và độ an toàn dữ liệu **chưa được benchmark**. Dữ liệu vẫn lưu ở `services/*/data/` với JSON đồng bộ; chưa có transaction nhiều file hoặc nhiều instance an toàn.
+- Hiệu năng và đa instance **chưa được benchmark**. Mỗi module có thể lưu JSON hoặc MySQL theo cờ riêng; cần import và đối chiếu trước khi chuyển. v1.0 dùng transaction MySQL cho đơn demo + quyền sử dụng và ghi reply + tăng bộ đếm, nhưng **chưa có transaction xuyên module/real-payment settlement**. Ảnh quà vẫn ở local filesystem và cần object storage trước production.
 - Không chạy server legacy và modular cùng lúc trên cùng tập file dữ liệu.
 
 ## Kiểm thử và tiếp tục phát triển
@@ -64,4 +69,4 @@ npm run test:architecture
 
 `test:architecture` chạy **một backend process** trên port ngẫu nhiên với dữ liệu riêng trong thư mục tạm, kiểm tra API, phân quyền, phiên và nhiều luồng nghiệp vụ. `test:architecture:legacy` dành cho topology cũ. Browser tests dùng `npm run test:browser` khi Playwright/browser đã được cài.
 
-**Bước tiếp theo:** Migration dữ liệu JSON sang PostgreSQL với migration có rollback/backup, transaction cho đơn hàng và quyền sử dụng; sau đó mới bổ sung thanh toán thật, webhook idempotent và worker gửi lời mời.
+**Bước tiếp theo:** Chạy migration 004 và kiểm thử end-to-end MySQL cho Gifts/Checkout tại máy local (xem [hướng dẫn v1.0](MYSQL_V10_GIFTS_CHECKOUT.md)). Sau đó xây payment gateway/webhook đã xác thực, creator payout ledger thực, object storage và background worker; CI unit test không thể thay thế kiểm thử tích hợp DB thật.

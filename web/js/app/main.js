@@ -76,6 +76,20 @@ async function render() {
       const [giftResponse, replyResponse] = await Promise.all([api.get(`/gifts/gifts/${id}`), api.get(`/gifts/gifts/${id}/replies`)]);
       main.innerHTML = giftPage(giftResponse.gift, replyResponse.replies);
     }
+    else if (route === 'payment-result' && id) {
+      if (!state.user) { main.innerHTML = errorPage('Đăng nhập để xem giao dịch.'); }
+      else {
+        const {payment} = await api.get(`/checkout/payments/orders/${encodeURIComponent(id)}`);
+        const receipt = payment.status === 'paid'
+          ? (await api.get(`/checkout/payments/orders/${encodeURIComponent(id)}/receipt`)).receipt : null;
+        main.innerHTML = `<section class="section"><div class="container"><div class="success-card">
+          <h1>${payment.status === 'paid' ? 'Thanh toán thành công' : 'Đang xác nhận thanh toán'}</h1>
+          <p>${payment.status === 'paid' ? 'Quyền sử dụng mẫu đã được cấp.' : 'Không dựa vào trang chuyển hướng để xác nhận. Nếu bạn đã chuyển tiền, hãy tải lại trang sau khi hệ thống nhận webhook.'}</p>
+          ${receipt ? `<div id="payment-receipt"><h2>Biên nhận ${e(receipt.receiptNo)}</h2><p>Mẫu: ${e(receipt.templateTitle)}</p><p>Số tiền: ${Number(receipt.amountVnd).toLocaleString('vi-VN')} VND</p><p>Phương thức: ${e(receipt.provider)}</p><p>Mã giao dịch: ${e(receipt.transactionReference)}</p><p>${e(receipt.testPayment ? 'Thanh toán thử nghiệm — không thu tiền thật' : receipt.note)}</p></div><button class="btn btn--outline" data-action="print-receipt">In / Lưu PDF</button>` : `<p>Trạng thái: ${e(payment.status)}</p><button class="btn btn--outline" data-action="refresh-payment">Kiểm tra lại</button>`}
+          <p>${buttonLink('/studio','Về không gian của tôi')}</p>
+        </div></div></section>`;
+      }
+    }
     else if (route === 'success' && id) {
       const result = await api.get(`/gifts/gifts/${id}`);
       main.innerHTML = successPage(result.gift);
@@ -281,6 +295,42 @@ async function handleAction(action, element) {
       state.favoritePage = result.page;
       render().then(() => document.querySelector('.dashboard-heading')?.scrollIntoView({behavior:'smooth', block:'start'}));
     }
+    return;
+  }
+  if (action === 'print-receipt') { window.print(); return; }
+  if (action === 'payment-status') { closeModal(); navigate(`/payment-result/${encodeURIComponent(element.dataset.id)}`); return; }
+  if (action === 'refresh-payment') { await render(); return; }
+  if (action === 'payment-options') {
+    if (!requireLogin(location.pathname)) return;
+    const {methods} = await api.get('/checkout/payments/methods');
+    if (!methods.length) throw new Error('Phương thức thanh toán chưa được kích hoạt.');
+    openModal(`<div class="support-modal"><h2>Chọn hình thức thanh toán</h2>
+      <p>Số tiền được xác định bởi máy chủ. Không xác nhận bằng ảnh chụp chuyển khoản.</p>
+      ${methods.map(m => `<button class="btn btn--outline btn--wide" type="button" data-action="start-payment" data-id="${e(element.dataset.id)}" data-method="${e(m.id)}">${e(m.label)}</button>`).join('')}
+    </div>`);
+    return;
+  }
+  if (action === 'start-payment') {
+    element.disabled = true;
+    try {
+      const {payment} = await api.post('/checkout/payments/create', {templateId:element.dataset.id, method:element.dataset.method});
+      if (payment.status === 'paid') { closeModal(); navigate(`/payment-result/${encodeURIComponent(payment.orderId)}`); return; }
+      if (!payment.checkoutUrl) throw new Error('Chưa tạo được đường dẫn thanh toán. Hãy thử lại.');
+      const destination = new URL(payment.checkoutUrl);
+      if (destination.protocol !== 'https:') throw new Error('Đường dẫn thanh toán không an toàn.');
+      if (element.dataset.method === 'payos' && payment.qrPayload) {
+        const qr = giftQrDataUrl(payment.qrPayload);
+        openModal(`<div class="qr-modal"><h2>Quét VietQR để thanh toán</h2>
+          <p>Dùng ứng dụng ngân hàng quét mã QR, giữ đúng số tiền và nội dung chuyển khoản.</p>
+          <img class="qr-image" src="${e(qr)}" alt="Mã VietQR thanh toán"/>
+          <p><a class="btn btn--outline btn--wide" href="${e(destination.href)}" target="_blank" rel="noopener noreferrer">Mở cổng payOS</a></p>
+          <button class="btn btn--dark btn--wide" data-action="payment-status" data-id="${e(payment.orderId)}">Kiểm tra trạng thái đơn</button>
+          <p>Chỉ xác nhận khi máy chủ nhận được webhook hợp lệ.</p>
+        </div>`);
+        return;
+      }
+      window.location.assign(destination.href);
+    } finally { element.disabled = false; }
     return;
   }
   if (action === 'demo-buy') {

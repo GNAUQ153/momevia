@@ -22,16 +22,16 @@ export async function createHttpApp(config = environment()) {
   const identity = await identityApp(config);
   // Phiên và role được xác nhận từ Identity module tại mỗi request, kể cả sau khi logout.
   const resolveUser = async (req, _secret, required = true) => {
-    const user = identity.sessions.find(sessionToken(req));
+    const user = await identity.sessions.find(sessionToken(req));
     if (!user && required) throw new HttpError(401, 'Vui lòng đăng nhập để tiếp tục.');
     return user;
   };
-  const catalog = catalogApp(config, { resolveUser });
-  const checkout = checkoutApp(config, {
+  const catalog = await catalogApp(config, { resolveUser });
+  const checkout = await checkoutApp(config, {
     resolveUser,
     catalog: { getTemplate: async id => catalog.service.publicOne(id) },
   });
-  const gifts = giftsApp(config, {
+  const gifts = await giftsApp(config, {
     resolveUser,
     catalog: { getTemplate: async id => catalog.service.publicOne(id) },
     checkout: { hasLicense: async (userId, templateId) => checkout.service.hasLicense(userId, templateId) },
@@ -78,6 +78,6 @@ export async function createHttpApp(config = environment()) {
       server.listen(port, host, () => console.log(`[Momevia] http://${host}:${port} — một backend process`));
       return server;
     },
-    close() { Object.values(modules).forEach(module => module.close?.()); },
+    async close() { await Promise.all(Object.values(modules).map(module => module.close?.())); },
   };
 }

@@ -41,6 +41,8 @@ flowchart TB
 3. Checkout cung cấp `hasLicense` cho Gifts; không còn gọi HTTP `4104` trong runtime mới.
 4. Các lớp `Service`, `Repository` và API contract của frontend vẫn giữ nguyên.
 
+Factory `createApp` của Identity và `createHttpApp` trả Promise; entrypoint phải `await` để hoàn tất việc tạo tài khoản mẫu từ `TEST_ACCOUNT_*` trước khi mở HTTP listener. Tài khoản được lưu trong `users.json` hiện có với `passwordHash` và metadata `testAccount.source = "env"`; không có kho tài khoản riêng. Xem [cấu hình tài khoản mẫu](../README.md#tài-khoản-mẫu-qua-env).
+
 `src/shared/http.mjs` có `Router.handle` để ghép nhiều router vào một HTTP server. Server gốc nhận đúng tiền tố `/api/auth`, `/api/catalog`, `/api/checkout`, `/api/gifts`, `/api/support`. Server chỉ chấp nhận các HTTP method cũ và tiếp tục chặn namespace `/internal`, request POST cross-origin và các forwarded headers do client tự khai.
 
 ## Bảo mật và nhất quán

@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { CredentialsService } from '../modules/identity/credentials.service.mjs';
 
 // Tải biến môi trường từ tệp .env ở thư mục gốc mà không cần thư viện ngoài.
 export function loadEnvironment() {
@@ -26,6 +27,7 @@ export function environment() {
     internalKey: process.env.INTERNAL_SERVICE_KEY,
     demoEnabled: process.env.DEMO_AUTH_ENABLED !== 'false' && process.env.NODE_ENV !== 'production',
     adminCode: process.env.DEMO_ADMIN_CODE || '',
+    testAccount: testAccountConfig(process.env),
     giftTtlDays: Math.max(1, Number(process.env.GIFT_TTL_DAYS || 365)),
     googleId: process.env.GOOGLE_CLIENT_ID || '',
     googleSecret: process.env.GOOGLE_CLIENT_SECRET || '',
@@ -34,6 +36,22 @@ export function environment() {
     zaloSecret: process.env.ZALO_APP_SECRET || '',
     zaloCallback: process.env.ZALO_CALLBACK_URL || 'http://localhost:4100/api/auth/zalo/callback',
   };
+}
+
+export function testAccountConfig(env) {
+  if (env.TEST_ACCOUNT_ENABLED !== 'true') return null;
+  if (env.NODE_ENV === 'production') throw new Error('TEST_ACCOUNT_ENABLED không được bật trong production.');
+  const credentials = new CredentialsService();
+  const name = env.TEST_ACCOUNT_NAME?.trim() || 'Tài khoản kiểm thử';
+  if (name.length < 2 || name.length > 50) throw new Error('TEST_ACCOUNT_NAME phải từ 2 đến 50 ký tự.');
+  let email;
+  try { email = credentials.normalizeEmail(env.TEST_ACCOUNT_EMAIL); }
+  catch { throw new Error('TEST_ACCOUNT_EMAIL phải là địa chỉ email hợp lệ.'); }
+  try { credentials.validatePassword(env.TEST_ACCOUNT_PASSWORD); }
+  catch { throw new Error('TEST_ACCOUNT_PASSWORD phải từ 10 đến 128 ký tự, gồm chữ cái và chữ số.'); }
+  const role = env.TEST_ACCOUNT_ROLE || 'sender';
+  if (!['sender', 'creator', 'admin'].includes(role)) throw new Error('TEST_ACCOUNT_ROLE phải là sender, creator hoặc admin.');
+  return { name, email, password: env.TEST_ACCOUNT_PASSWORD, role };
 }
 
 export function validateSecrets(env) {

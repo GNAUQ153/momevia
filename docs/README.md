@@ -2,6 +2,7 @@
 
 - [Cấu trúc thư mục và trách nhiệm từng lớp](PROJECT_STRUCTURE.md)
 - [Kiến trúc đang chạy](ARCHITECTURE.md)
+- [Thiết lập MySQL 8.4 LTS trên Windows / Docker](MYSQL_SETUP.md)
 - [Đánh giá microservices, modular monolith và DB](ARCHITECTURE_OPTIONS.md)
 - [Báo cáo bảo mật và bằng chứng kiểm thử](CODE_REVIEW_ARCHITECTURE.md)
 - [Danh sách API và quyền truy cập](ENDPOINTS.md)

@@ -1,6 +1,6 @@
-# Kiến trúc đang chạy — Momevia Modular Monolith (v0.6.0)
+# Kiến trúc đang chạy — Momevia Modular Monolith (v0.8.0)
 
-**Trạng thái:** Đã chuyển runtime mặc định từ 6 process sang **1 backend process**. Đây là bước thay đổi topology, **chưa phải migration PostgreSQL hoặc triển khai production**.
+**Trạng thái:** Runtime mặc định sử dụng **1 backend process**. Từ v0.8 có **MySQL Foundation** và adapter MySQL **tùy chọn cho Support**; Identity, Catalog, Gifts, Checkout vẫn dùng JSON. **Chưa đủ điều kiện triển khai production**.
 
 ```mermaid
 flowchart TB
@@ -23,7 +23,8 @@ flowchart TB
     C --> DC[(catalog JSON)]
     O --> DO[(checkout JSON)]
     G --> DG[(gifts JSON / media)]
-    S --> DS[(support JSON)]
+    S --> DS[(support JSON - mặc định)]
+    S -. SUPPORT_STORAGE=mysql .-> MY[(MySQL 8.4 - Support)]
 ```
 
 ## Entry points
@@ -49,7 +50,7 @@ Factory `createApp` của Identity và `createHttpApp` trả Promise; entrypoint
 
 - Mỗi request cần đăng nhập đều truy vấn `SessionStore.find` trong tiến trình để kiểm tra chữ ký, JTI đã thu hồi, hạn sử dụng và role **mới nhất**, thay vì tin role nằm sẵn trong JWT.
 - Không còn HTTP session introspection nội bộ ở runtime mặc định, nhưng legacy adapter vẫn tồn tại. Điều này không làm mất chức năng logout/revoke.
-- Tốc độ tăng, khả năng chịu tải và độ an toàn dữ liệu **chưa được benchmark**. Dữ liệu vẫn lưu ở `services/*/data/` với JSON đồng bộ; chưa có transaction nhiều file hoặc nhiều instance an toàn.
+- Tốc độ tăng, khả năng chịu tải và độ an toàn dữ liệu **chưa được benchmark**. Identity/Catalog/Gifts/Checkout vẫn lưu JSON ở `services/*/data/`; riêng Support có thể dùng MySQL qua `SUPPORT_STORAGE=mysql`. Chưa có transaction nghiệp vụ xuyên module hoặc nhiều instance an toàn.
 - Không chạy server legacy và modular cùng lúc trên cùng tập file dữ liệu.
 
 ## Kiểm thử và tiếp tục phát triển
@@ -64,4 +65,4 @@ npm run test:architecture
 
 `test:architecture` chạy **một backend process** trên port ngẫu nhiên với dữ liệu riêng trong thư mục tạm, kiểm tra API, phân quyền, phiên và nhiều luồng nghiệp vụ. `test:architecture:legacy` dành cho topology cũ. Browser tests dùng `npm run test:browser` khi Playwright/browser đã được cài.
 
-**Bước tiếp theo:** Migration dữ liệu JSON sang PostgreSQL với migration có rollback/backup, transaction cho đơn hàng và quyền sử dụng; sau đó mới bổ sung thanh toán thật, webhook idempotent và worker gửi lời mời.
+**Bước tiếp theo:** Xác minh migration và adapter trên MySQL 8.4 thật (xem [hướng dẫn setup](MYSQL_SETUP.md)), sau đó chuyển Identity/Catalog/Gifts/Checkout từ JSON sang MySQL theo từng module, có backup và kiểm thử transaction; chỉ sau đó mới tích hợp thanh toán thật, webhook idempotent và worker gửi lời mời.

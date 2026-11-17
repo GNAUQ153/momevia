@@ -1,18 +1,21 @@
 # Momevia — Nền tảng quà tặng số tương tác
 
-**Phiên bản phát triển:** 0.7.0 — Client–Server + Modular Monolith + OOP (Node.js). Ứng dụng chưa đủ điều kiện triển khai thương mại có thu tiền thật.
+**Phiên bản phát triển:** 0.8.0 — Client–Server + Modular Monolith + OOP (Node.js). Ứng dụng chưa đủ điều kiện triển khai thương mại có thu tiền thật.
 
 Momevia cho phép người dùng chọn mẫu, cá nhân hóa, xuất bản quà qua link/QR, mở quà và gửi phản hồi. Hỗ trợ tài khoản email/mật khẩu, vai trò Creator/Admin, yêu thích và biểu mẫu hỗ trợ. Google/Zalo OAuth cần cấu hình ứng dụng nhà cung cấp. Checkout hiện chỉ tạo **đơn hàng mô phỏng**, chưa xử lý tiền thật.
 
 
-## PostgreSQL foundation (v0.7)
+## MySQL 8.4 Foundation & Support Adapter (v0.8)
 
-Đã thêm migration SQL, ràng buộc dữ liệu, công cụ tạo snapshot từ JSON Storage, bảng tiền đề cho payment/outbox và Docker Compose thử nghiệm. **Runtime vẫn sử dụng JSON Storage**; chưa có PostgreSQL Repository hoặc thanh toán thật.
+MySQL 8.4 LTS với InnoDB/utf8mb4 là database được chọn. Đã chuyển schema, công cụ chuẩn bị snapshot JSON, Docker Compose, connection pool và adapter MySQL cho module **Support**.
 
-- Hướng dẫn đầy đủ: [`docs/POSTGRESQL_SETUP.md`](docs/POSTGRESQL_SETUP.md)
-- Kiểm tra dữ liệu và tạo import SQL riêng tư: `npm run db:prepare`
-- Migration: `database/migrations/001_initial.sql`
-- Không commit `database/private/`, `.env`, `services/*/data/`.
+- Hướng dẫn: [`docs/MYSQL_SETUP.md`](docs/MYSQL_SETUP.md)
+- Tạo snapshot JSON riêng tư: `npm run db:prepare`
+- Kiểm tra MySQL thật: `npm run db:ping`, `npm run db:verify`
+- **Mặc định vẫn dùng JSON**; chỉ `SUPPORT_STORAGE=mysql` mới bật MySQL cho Support.
+- Cài thêm driver `npm install mysql2@3 --save-exact` trước khi bật MySQL. Commit `package-lock.json` được cập nhật trên máy dev.
+- **Identity, Catalog, Gifts, Checkout vẫn JSON**; chưa có thanh toán thật và chưa chạy được nhiều instance production.
+- Tuyệt đối không commit `.env`, `database/private/` hoặc `services/*/data/`.
 
 ## Khởi chạy bằng VS Code trên Windows
 
@@ -34,6 +37,8 @@ Mở `http://localhost:4100`. Nếu đã có `.env` riêng thì **không ghi đ�
 
 | Lệnh | Tác dụng |
 |---|---|
+| `npm run db:ping` | Kiểm tra kết nối MySQL với `.env` (cần mysql2) |
+| `npm run db:verify` | Kiểm tra schema + migration trên MySQL thật (cần mysql2) |
 | `npm run dev` | Khởi động **một** backend HTTP process, mặc định cổng 4100 |
 | `npm run build` | Tạo module QR của frontend từ dependency đã cài |
 | `npm run check` | Kiểm tra cú pháp, ESLint, workflow và file QR |
@@ -100,7 +105,7 @@ Tài khoản dùng cấu trúc hiện có trong `services/identity/data/users.js
 
 ## Trạng thái và rủi ro trước production
 
-- **Chưa có PostgreSQL:** Cần migration có kiểm tra dữ liệu và backup/rollback; xây unique constraints, transaction, idempotency.
+- **MySQL mới là foundation + Support (tùy chọn):** Chưa cutover Identity, Catalog, Gifts và Checkout; cần migration dữ liệu có kiểm chứng, backup và transaction nghiệp vụ.
 - **Thanh toán mới là mô phỏng:** Chưa nhận tiền thật, chưa có webhook, đối soát hoặc payout creator.
 - **Gửi thiệp hiện chia sẻ link/QR:** Chưa có background queue gửi email/SMS tự động và chính sách chống spam hoàn chỉnh.
 - **OAuth Google/Zalo:** Cần xác thực end-to-end bằng credentials thật, HTTPS và callback được nhà cung cấp cho phép.

@@ -28,22 +28,23 @@ test('snapshot đầy đủ có thể chuẩn bị thành SQL transaction', () =
   const counts = validateSnapshot(data);
   assert.equal(Object.values(counts).reduce((a, b) => a + b, 0), 8);
   const sql = generateImportSql(data);
-  assert.match(sql, /^-- Momevia v0\.7\./);
-  assert.match(sql, /BEGIN;/);
+  assert.match(sql, /^-- Momevia v0\.8/);
+  assert.match(sql, /START TRANSACTION;/);
   assert.match(sql, /COMMIT;/);
   assert.match(sql, /database đã có dữ liệu|Database đã có dữ liệu/);
-  assert.match(sql, /INSERT INTO app\.users/);
-  assert.match(sql, /INSERT INTO app\.orders/);
-  assert.match(sql, /TRUE, .*::timestamptz/);
+  assert.match(sql, /INSERT INTO users/);
+  assert.match(sql, /INSERT INTO orders/);
+  assert.match(sql, /TRUE, CONVERT\(0x[a-f0-9]+ USING utf8mb4\)/);
   assert.doesNotMatch(sql, /O'Brien|Chúc mừng nhé!|a@example\.com/);
   assert.doesNotMatch(sql, /template_entitlements.*VALUES/);
 });
 
 test('SQL UTF-8 không đưa văn bản nhập trực tiếp vào câu lệnh', () => {
   const encoded = sqlText("'); DROP TABLE users; -- / Chúc mừng");
-  assert.match(encoded, /^convert_from\(decode\('[a-f0-9]+', 'hex'\), 'UTF8'\)$/);
+  assert.match(encoded, /^CONVERT\(0x[a-f0-9]+ USING utf8mb4\)$/);
   assert.doesNotMatch(encoded, /DROP TABLE|Chúc/);
   assert.equal(sqlText(null), 'NULL');
+  assert.equal(sqlText(''), "''");
 });
 
 test('không import favorite mồ côi', () => {

@@ -41,7 +41,7 @@ function validDate(value, label) {
 }
 
 function vnd(value, label) {
-  assert(Number.isSafeInteger(value) && value >= 0 && value <= 2147483647, `${label} phải là số VND nguyên không âm trong giới hạn PostgreSQL INTEGER.`);
+  assert(Number.isSafeInteger(value) && value >= 0 && value <= 2147483647, `${label} phải là số VND nguyên không âm trong giới hạn MySQL INT.`);
   return value;
 }
 
@@ -58,20 +58,23 @@ function ensureUnique(values, key, label) {
 export function sqlText(value) {
   if (value == null) return 'NULL';
   assert(typeof value === 'string' && !value.includes('\0'), 'Giá trị SQL không hợp lệ.');
-  return `convert_from(decode('${Buffer.from(value, 'utf8').toString('hex')}', 'hex'), 'UTF8')`;
+  if (value === '') return "''";
+  return `CONVERT(0x${Buffer.from(value, 'utf8').toString('hex')} USING utf8mb4)`;
 }
 
 function sqlUuid(value) {
-  if (value == null) return 'NULL::uuid';
-  return `${sqlText(validUuid(value, 'uuid'))}::uuid`;
+  if (value == null) return 'NULL';
+  return sqlText(validUuid(value, 'uuid'));
 }
 
 function sqlJson(value) {
-  return `${sqlText(JSON.stringify(value))}::jsonb`;
+  // MySQL kiểm tra tính hợp lệ khi nhập vào cột JSON.
+  return sqlText(JSON.stringify(value));
 }
 
 function sqlDate(value, label) {
-  return `${sqlText(validDate(value, label))}::timestamptz`;
+  // Giữ mili-giây, chuẩn hóa tất cả ISO date về UTC khi lưu DATETIME(3).
+  return sqlText(validDate(value, label).replace('T', ' ').replace('Z', ''));
 }
 
 function sqlNumber(value) {
@@ -201,19 +204,29 @@ export function validateSnapshot(snapshot) {
 export function generateImportSql(snapshot) {
   validateSnapshot(snapshot);
   const output = [
-    '-- Momevia v0.7. File chứa dữ liệu cá nhân: KHÔNG commit hoặc chia sẻ công khai.',
-    '-- Yêu cầu chạy migration 001_initial.sql trước khi import.',
-    'BEGIN;',
-    `DO $guard$ BEGIN IF EXISTS (
-      SELECT 1 FROM app.users UNION ALL SELECT 1 FROM app.sessions UNION ALL
-      SELECT 1 FROM app.templates UNION ALL SELECT 1 FROM app.favorites UNION ALL
-      SELECT 1 FROM app.gifts UNION ALL SELECT 1 FROM app.gift_replies UNION ALL
-      SELECT 1 FROM app.orders UNION ALL SELECT 1 FROM app.support_requests
-    ) THEN RAISE EXCEPTION 'Database đã có dữ liệu, từ chối import snapshot.'; END IF; END $guard$;`,
+    '-- Momevia v0.8 (MySQL). Dữ liệu cá nhân: KHÔNG commit hoặc chia sẻ.',
+    '-- Chỉ dùng database DEV trống đã chạy migration 001 và 002.',
+    'SET NAMES utf8mb4;',
+    "SET time_zone = '+00:00';",
+    'DELIMITER $$',
+    'DROP PROCEDURE IF EXISTS momevia_import_guard$$',
+    `CREATE PROCEDURE momevia_import_guard()
+    BEGIN
+      IF ((SELECT COUNT(*) FROM users) + (SELECT COUNT(*) FROM sessions) +
+          (SELECT COUNT(*) FROM templates) + (SELECT COUNT(*) FROM favorites) +
+          (SELECT COUNT(*) FROM gifts) + (SELECT COUNT(*) FROM gift_replies) +
+          (SELECT COUNT(*) FROM orders) + (SELECT COUNT(*) FROM support_requests)) > 0 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Database đã có dữ liệu, từ chối import snapshot.';
+      END IF;
+    END$$`,
+    'DELIMITER ;',
+    'CALL momevia_import_guard();',
+    'DROP PROCEDURE momevia_import_guard;',
+    'START TRANSACTION;',
   ];
 
   function insert(table, columns, values) {
-    output.push(`INSERT INTO app.${table} (${columns.join(', ')}) VALUES (${values.join(', ')});`);
+    output.push(`INSERT INTO ${table} (${columns.join(', ')}) VALUES (${values.join(', ')});`);
   }
 
   for (const u of snapshot.users) insert('users',
@@ -225,7 +238,7 @@ export function generateImportSql(snapshot) {
     [sqlText(t.id), sqlUuid(t.creatorId && t.creatorId !== 'system' ? t.creatorId : null), sqlText(t.title), sqlText(t.style), sqlText(t.theme), sqlNumber(t.price), sqlText(t.status), sqlDate(t.createdAt, 'templates.createdAt'), sqlJson(t)]);
 
   for (const s of snapshot.sessions) insert('sessions', ['id', 'user_id', 'expires_at'],
-    [sqlText(s.id), sqlUuid(s.userId), `to_timestamp(${sqlNumber(s.exp)})`]);
+    [sqlText(s.id), sqlUuid(s.userId), `FROM_UNIXTIME(${sqlNumber(s.exp)})`]);
   for (const f of snapshot.favorites) insert('favorites', ['user_id', 'template_id', 'created_at'],
     [sqlUuid(f.userId), sqlText(f.templateId), sqlDate(f.createdAt, 'favorites.createdAt')]);
 
@@ -240,8 +253,8 @@ export function generateImportSql(snapshot) {
     [sqlUuid(o.id), sqlUuid(o.userId), sqlText(o.templateId), sqlNumber(o.grossAmount), sqlNumber(o.platformFee), sqlNumber(o.creatorAmount), sqlText(o.currency), sqlText(o.status), sqlText(o.paymentProvider), sqlBoolean(true), sqlDate(o.createdAt, 'orders.createdAt'), sqlJson(o)]);
 
   for (const r of snapshot.requests) insert('support_requests',
-    ['id', 'code', 'user_id', 'name', 'email', 'topic', 'message', 'status', 'created_at'],
-    [sqlUuid(r.id), sqlText(r.code), sqlUuid(r.userId), sqlText(r.name), sqlText(r.email), sqlText(r.topic), sqlText(r.message), sqlText(r.status), sqlDate(r.createdAt, 'requests.createdAt')]);
+    ['id', 'code', 'user_id', 'legacy_user_id', 'name', 'email', 'topic', 'message', 'status', 'created_at'],
+    [sqlUuid(r.id), sqlText(r.code), 'NULL', sqlUuid(r.userId), sqlText(r.name), sqlText(r.email), sqlText(r.topic), sqlText(r.message), sqlText(r.status), sqlDate(r.createdAt, 'requests.createdAt')]);
 
   output.push('COMMIT;', '');
   return output.join('\n');

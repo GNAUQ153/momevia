@@ -1,3 +1,12 @@
+## v0.8.0 — MySQL 8.4 LTS foundation + Support adapter
+
+- Thay migration/schema PostgreSQL bằng MySQL 8.4 LTS sử dụng InnoDB và utf8mb4.
+- Bổ sung Docker Compose, công cụ chuẩn bị SQL snapshot JSON cho MySQL và bước xác minh schema/migrations.
+- Thêm MySqlClient kết nối pool/transaction bằng mysql2/promise và adapter Support tùy chọn qua `SUPPORT_STORAGE=mysql`.
+- Giữ JSON mặc định, thêm bridge ID Identity để không mất tham chiếu khi chuyển riêng Support.
+- Chưa có MySQL runtime cho các module khác; chưa bật thanh toán thật.
+- Cần chạy `npm install mysql2@3 --save-exact` để cập nhật lockfile trước khi commit và kiểm thử MySQL thực tế.
+
 ## v0.7.0 — PostgreSQL foundation (chưa chuyển runtime)
 
 - Bổ sung lược đồ PostgreSQL cho Identity, Catalog, Gifts, Checkout, Support.

@@ -3,6 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { projectRoot } from '../../src/shared/paths.mjs';
 import { templates as systemTemplates } from '../../src/modules/catalog/seed.mjs';
+import { rejectCanvasAggregate, rejectCanvasGifts } from './canvas-import-guard.mjs';
 
 const collections = Object.freeze([
   ['users', 'identity', 'users.json'],
@@ -86,6 +87,7 @@ function sqlBoolean(value) {
 }
 
 export function collectSnapshot(root = projectRoot) {
+  rejectCanvasAggregate(root);
   const result = {};
   for (const [key, service, filename] of collections) {
     const absolutePath = path.join(root, 'services', service, 'data', filename);
@@ -98,6 +100,7 @@ export function collectSnapshot(root = projectRoot) {
 }
 
 export function validateSnapshot(snapshot) {
+  rejectCanvasGifts(snapshot?.gifts);
   for (const [key] of collections) assert(Array.isArray(snapshot[key]), `Thiếu collection ${key}.`);
   const users = snapshot.users;
   const templates = snapshot.templates;

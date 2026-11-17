@@ -2,16 +2,18 @@ import { randomUUID } from 'node:crypto';
 import { HttpError } from '../../shared/http.mjs';
 import { randomId, sanitizeText, sanitizeOptionalText } from '../../shared/security.mjs';
 import { decodePhoto } from './photo.mjs';
+import { publicGiftView, giftSummary } from '../designs/designs.service.mjs';
 
 export class GiftService {
-  constructor({ giftsRepo, repliesRepo, media, config, repliesLimit, catalog, checkout }) {
-    Object.assign(this, { giftsRepo, repliesRepo, media, config, repliesLimit, catalog, checkout });
+  constructor({ giftsRepo, repliesRepo, media, config, repliesLimit, catalog, checkout, canvas }) {
+    Object.assign(this, { giftsRepo, repliesRepo, media, config, repliesLimit, catalog, checkout, canvas });
   }
   async validateSlug(slug) {
     if (!/^[A-Za-z0-9_-]{18,48}$/.test(slug)) throw new HttpError(404, 'Không tìm thấy món quà.');
-    const gift = this.giftsRepo.getBySlug
+    let gift = this.giftsRepo.getBySlug
       ? await this.giftsRepo.getBySlug(slug)
       : this.giftsRepo.all().find(item => item.slug === slug);
+    if (!gift && this.canvas?.profile.mode === 'json') gift = await this.canvas.repository.findBySlug(slug);
     if (!gift) throw new HttpError(404, 'Không tìm thấy món quà.');
     return gift;
   }
@@ -22,9 +24,8 @@ export class GiftService {
     const items = this.giftsRepo.allForUser
       ? await this.giftsRepo.allForUser(user.sub)
       : this.giftsRepo.all().filter(item => item.userId === user.sub).reverse();
-    return items.map(({ userId, imageFile, ...gift }) => ({
-      ...gift, photoUrl: imageFile ? `/api/gifts/gifts/${gift.slug}/photo` : null,
-    }));
+    if (this.canvas?.profile.mode === 'json') items.push(...await this.canvas.repository.listForUser(user.sub));
+    return items.sort((a, b) => b.createdAt.localeCompare(a.createdAt)).map(gift => ({ ...giftSummary(gift), photoUrl: gift.imageFile ? `/api/gifts/gifts/${gift.slug}/photo` : null }));
   }
   async photo(slug) {
     const gift = await this.validateSlug(slug);
@@ -35,6 +36,7 @@ export class GiftService {
   async replies(slug) {
     const gift = await this.validateSlug(slug);
     this.ensureActive(gift);
+    if (gift.documentSnapshot && this.canvas?.profile.mode === 'json') return this.canvas.repository.repliesForGift(gift.id);
     return this.repliesRepo.allForGift
       ? this.repliesRepo.allForGift(gift.id)
       : this.repliesRepo.all().filter(item => item.giftId === gift.id);
@@ -70,8 +72,8 @@ export class GiftService {
   async publicGift(slug) {
     const gift = await this.validateSlug(slug);
     this.ensureActive(gift);
-    const { userId, imageFile, ...view } = gift;
-    return { ...view, photoUrl: imageFile ? `/api/gifts/gifts/${slug}/photo` : null };
+    if (gift.documentSnapshot && this.canvas && !this.canvas.flags.read) throw new HttpError(503, 'Đọc quà canvas đang tạm tắt.');
+    return publicGiftView(gift);
   }
   async reply(slug, body, ip) {
     const gift = await this.validateSlug(slug);
@@ -83,6 +85,7 @@ export class GiftService {
       name: sanitizeOptionalText(body.name, 50) || 'Người nhận',
       message: sanitizeText(body.message, 1000), createdAt: new Date().toISOString(),
     };
+    if (gift.documentSnapshot && this.canvas?.profile.mode === 'json') return this.canvas.repository.addReply(gift.id, reply);
     if (this.giftsRepo.addReply) return this.giftsRepo.addReply(gift.id, reply);
     this.repliesRepo.insert(reply);
     this.giftsRepo.update(gift.id, { replyCount: gift.replyCount + 1 });

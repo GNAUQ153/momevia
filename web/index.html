@@ -1,47 +1,104 @@
 <!doctype html>
 <html lang="vi">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#fff8f7" />
-  <meta name="description" content="Momevia — Nền tảng tạo và gửi quà tặng số tương tác, cá nhân hóa theo cách riêng của bạn." />
-  <title>Momevia — Gửi một điều đáng nhớ</title>
-  <link rel="icon" type="image/png" href="/assets/momevia-icon-128.png" />
-  <!-- Font tiếng Việt từ Google Fonts: Plus Jakarta Sans, Inter và Lora (SIL OFL). -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/css/tokens.css" />
-  <link rel="stylesheet" href="/css/base.css" />
-  <link rel="stylesheet" href="/css/layout.css" />
-  <link rel="stylesheet" href="/css/components.css" />
-  <link rel="stylesheet" href="/css/artwork.css" />
-  <link rel="stylesheet" href="/css/gift.css" />
-  <link rel="stylesheet" href="/css/auth.css" />
-  <link rel="stylesheet" href="/css/about.css" />
-  <link rel="stylesheet" href="/css/responsive.css" />
-  <link rel="stylesheet" href="/css/upgrade.css" />
-  <link rel="stylesheet" href="/css/catalog-filters.css" />
-  <link rel="stylesheet" href="/css/auth-pages.css" />
-  <link rel="stylesheet" href="/css/legal.css" />
-  <link rel="stylesheet" href="/css/pagination.css" />
-</head>
-<body>
-  <a class="skip-link" href="#main">Đi tới nội dung chính</a>
-  <div class="announcement" id="announcement">Khám phá những lời chúc trở thành kỷ niệm sống động</div>
-  <header class="site-header" id="site-header"></header>
-  <main id="main" tabindex="-1" aria-live="polite"></main>
-  <footer class="site-footer" id="site-footer"></footer>
-  <div class="site-tools" aria-label="Công cụ hỗ trợ">
-    <button type="button" class="floating-tool floating-tool--support" data-action="support" aria-label="Liên hệ hỗ trợ" title="Liên hệ hỗ trợ">
-      <svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 14v-3a8 8 0 0 1 16 0v3"/><rect x="2" y="12" width="4" height="7" rx="2"/><rect x="18" y="12" width="4" height="7" rx="2"/><path d="M20 19c0 2-2 3-6 3h-2"/></svg>
-    </button>
-    <button type="button" class="floating-tool floating-tool--top" id="back-to-top" data-action="back-to-top" aria-label="Lên đầu trang" title="Lên đầu trang" hidden>
-      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
-    </button>
-  </div>
-  <div id="modal-root"></div>
-  <div class="toast-host" id="toast-host" role="status" aria-live="polite"></div>
-  <script type="module" src="/js/app.js"></script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#fff8f7" />
+    <meta
+      name="description"
+      content="Momevia — Nền tảng tạo và gửi quà tặng số tương tác, cá nhân hóa theo cách riêng của bạn."
+    />
+    <title>Momevia — Gửi một điều đáng nhớ</title>
+    <link rel="icon" type="image/png" href="/assets/momevia-icon-128.png" />
+    <!-- Font tiếng Việt từ Google Fonts: Plus Jakarta Sans, Inter và Lora (SIL OFL). -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/css/tokens.css" />
+    <link rel="stylesheet" href="/css/base.css" />
+    <link rel="stylesheet" href="/css/layout.css" />
+    <link rel="stylesheet" href="/css/components.css" />
+    <link rel="stylesheet" href="/css/artwork.css" />
+    <link rel="stylesheet" href="/css/gift.css" />
+    <link rel="stylesheet" href="/css/auth.css" />
+    <link rel="stylesheet" href="/css/about.css" />
+    <link rel="stylesheet" href="/css/responsive.css" />
+    <link rel="stylesheet" href="/css/upgrade.css" />
+    <link rel="stylesheet" href="/css/catalog-filters.css" />
+    <link rel="stylesheet" href="/css/auth-pages.css" />
+    <link rel="stylesheet" href="/css/legal.css" />
+    <link rel="stylesheet" href="/css/pagination.css" />
+    <link rel="stylesheet" href="/css/gift-runtime.css" />
+    <link rel="stylesheet" href="/css/editor.css" />
+    <link rel="stylesheet" href="/css/template-library.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Đi tới nội dung chính</a>
+    <div class="announcement" id="announcement">
+      Khám phá những lời chúc trở thành kỷ niệm sống động
+    </div>
+    <header class="site-header" id="site-header"></header>
+    <main id="main" tabindex="-1"></main>
+    <footer class="site-footer" id="site-footer"></footer>
+    <div class="site-tools" aria-label="Công cụ hỗ trợ">
+      <button
+        type="button"
+        class="floating-tool floating-tool--support"
+        data-action="support"
+        aria-label="Liên hệ hỗ trợ"
+        title="Liên hệ hỗ trợ"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          width="23"
+          height="23"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M4 14v-3a8 8 0 0 1 16 0v3" />
+          <rect x="2" y="12" width="4" height="7" rx="2" />
+          <rect x="18" y="12" width="4" height="7" rx="2" />
+          <path d="M20 19c0 2-2 3-6 3h-2" />
+        </svg>
+      </button>
+      <button
+        type="button"
+        class="floating-tool floating-tool--top"
+        id="back-to-top"
+        data-action="back-to-top"
+        aria-label="Lên đầu trang"
+        title="Lên đầu trang"
+        hidden
+      >
+        <svg
+          viewBox="0 0 24 24"
+          width="22"
+          height="22"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M12 19V5M5 12l7-7 7 7" />
+        </svg>
+      </button>
+    </div>
+    <div id="modal-root"></div>
+    <div
+      class="toast-host"
+      id="toast-host"
+      role="status"
+      aria-live="polite"
+    ></div>
+    <script type="module" src="/js/app.js"></script>
+  </body>
 </html>

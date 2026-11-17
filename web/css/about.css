@@ -3,7 +3,13 @@
   position: relative;
   overflow: hidden;
   padding: 96px 0;
-  background: radial-gradient(circle at 82% 30%, rgba(255, 183, 205, .34), transparent 37%), linear-gradient(125deg, #f5ebff 0%, #fff7f4 65%);
+  background:
+    radial-gradient(
+      circle at 82% 30%,
+      rgba(255, 183, 205, 0.34),
+      transparent 37%
+    ),
+    linear-gradient(125deg, #f5ebff 0%, #fff7f4 65%);
 }
 .about-hero__inner {
   max-width: 860px;
@@ -13,7 +19,7 @@
   color: var(--ink-deep);
   font-size: clamp(42px, 5.3vw, 70px);
   font-weight: 800;
-  letter-spacing: -.05em;
+  letter-spacing: -0.05em;
 }
 .about-hero h1 em {
   color: var(--purple);
@@ -68,7 +74,7 @@
 }
 .about-story {
   display: grid;
-  grid-template-columns: 1.1fr .9fr;
+  grid-template-columns: 1.1fr 0.9fr;
   align-items: center;
   gap: 60px;
 }
@@ -85,7 +91,7 @@
   border-radius: 28px;
   background: linear-gradient(145deg, #5129bf, #8355ef);
   color: white;
-  box-shadow: 0 25px 52px rgba(81, 41, 191, .20);
+  box-shadow: 0 25px 52px rgba(81, 41, 191, 0.2);
 }
 .about-story__card strong {
   display: block;

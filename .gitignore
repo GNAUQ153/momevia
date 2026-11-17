@@ -12,6 +12,7 @@ dist/
 web/js/vendor/
 .DS_Store
 /local/
+/graphify-out
 
 # Báo cáo công cụ và cache phát sinh.
 /playwright-report/

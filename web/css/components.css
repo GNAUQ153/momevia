@@ -10,7 +10,10 @@
   font-size: 13px;
   font-weight: 750;
   white-space: nowrap;
-  transition: transform .2s var(--ease), background .2s ease, box-shadow .2s ease;
+  transition:
+    transform 0.2s var(--ease),
+    background 0.2s ease,
+    box-shadow 0.2s ease;
 }
 .btn:not(:disabled):hover {
   transform: translateY(-2px);
@@ -18,11 +21,11 @@
 .btn--dark {
   background: var(--purple);
   color: white;
-  box-shadow: 0 10px 23px rgba(97, 54, 223, .23);
+  box-shadow: 0 10px 23px rgba(97, 54, 223, 0.23);
 }
 .btn--dark:hover {
   background: var(--purple-deep);
-  box-shadow: 0 14px 30px rgba(97, 54, 223, .28);
+  box-shadow: 0 14px 30px rgba(97, 54, 223, 0.28);
 }
 .btn--outline {
   border-color: #d8d0d9;
@@ -57,7 +60,7 @@
   transform: translateX(4px);
 }
 .inline-link .icon {
-  transition: transform .2s ease;
+  transition: transform 0.2s ease;
 }
 .icon-button {
   display: inline-flex;
@@ -81,22 +84,22 @@
   color: #7144b9;
   font-size: 11px;
   font-weight: 800;
-  letter-spacing: .19em;
+  letter-spacing: 0.19em;
   text-transform: uppercase;
 }
 .eyebrow--outlined {
   padding: 8px 12px;
   border: 1px solid #e7d6e5;
   border-radius: 50px;
-  background: rgba(255,255,255,.65);
+  background: rgba(255, 255, 255, 0.65);
   color: #5b2ebc;
   font-size: 10px;
-  letter-spacing: .09em;
+  letter-spacing: 0.09em;
 }
 .template-card {
   position: relative;
   min-width: 0;
-  animation: rise-in .6s var(--ease) both;
+  animation: rise-in 0.6s var(--ease) both;
   animation-delay: var(--delay, 0ms);
 }
 .template-card__visual {
@@ -110,7 +113,7 @@
 .template-card__visual .artwork {
   width: 100%;
   height: 100%;
-  transition: transform .55s var(--ease);
+  transition: transform 0.55s var(--ease);
 }
 .template-card:hover .artwork {
   transform: scale(1.04);
@@ -124,13 +127,15 @@
   gap: 7px;
   padding: 9px 13px;
   border-radius: 8px;
-  background: rgba(255,255,255,.91);
+  background: rgba(255, 255, 255, 0.91);
   color: #322b39;
   font-size: 11px;
   font-weight: 750;
   opacity: 0;
   transform: translateY(7px);
-  transition: opacity .2s ease, transform .2s ease;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
 }
 .template-card:hover .template-card__view,
 .template-card__visual:focus-visible .template-card__view {
@@ -148,7 +153,7 @@
   color: #978c9b;
   font-size: 10px;
   font-weight: 800;
-  letter-spacing: .09em;
+  letter-spacing: 0.09em;
   text-transform: uppercase;
 }
 .dot-separator {
@@ -163,7 +168,7 @@
   font-size: 25px;
   font-weight: 500;
   line-height: 1.25;
-  letter-spacing: -.025em;
+  letter-spacing: -0.025em;
 }
 .template-card__title:hover {
   color: #886594;
@@ -195,7 +200,9 @@
   position: relative;
   overflow: hidden;
   padding-block: 81px 74px;
-  background: radial-gradient(circle at 88% 15%, #dfccff 0, transparent 38%), linear-gradient(135deg, #fff2f2, #f8f0ff);
+  background:
+    radial-gradient(circle at 88% 15%, #dfccff 0, transparent 38%),
+    linear-gradient(135deg, #fff2f2, #f8f0ff);
 }
 .page-banner::after {
   position: absolute;
@@ -203,7 +210,7 @@
   right: -70px;
   width: 400px;
   height: 400px;
-  border: 1px solid rgba(169,139,168,.2);
+  border: 1px solid rgba(169, 139, 168, 0.2);
   border-radius: 50%;
   content: "";
 }
@@ -281,7 +288,7 @@
   background: white;
   color: #746b78;
   font-size: 12px;
-  transition: background .2s ease;
+  transition: background 0.2s ease;
 }
 .filter-chip:hover {
   border-color: #bdaac8;
@@ -315,7 +322,7 @@
 }
 .detail-grid {
   display: grid;
-  grid-template-columns: 1.08fr .92fr;
+  grid-template-columns: 1.08fr 0.92fr;
   gap: 78px;
   align-items: start;
 }
@@ -324,7 +331,7 @@
 }
 .detail-art > .artwork {
   border-radius: 28px;
-  aspect-ratio: .95;
+  aspect-ratio: 0.95;
 }
 .detail-preview-label {
   position: absolute;
@@ -335,7 +342,7 @@
   gap: 7px;
   padding: 10px 12px;
   border-radius: 10px;
-  background: rgba(255,255,255,.9);
+  background: rgba(255, 255, 255, 0.9);
   font-size: 12px;
 }
 .detail-info {
@@ -475,7 +482,9 @@
   margin-top: 8px;
 }
 @keyframes rotate {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 @keyframes rise-in {
   from {
@@ -489,7 +498,7 @@
 }
 
 .template-card__visual {
-  box-shadow: 0 12px 28px rgba(64, 40, 96, 0.10);
+  box-shadow: 0 12px 28px rgba(64, 40, 96, 0.1);
 }
 .template-card__title {
   font-weight: 700;

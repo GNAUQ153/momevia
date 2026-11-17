@@ -1,4 +1,4 @@
-# Cấu trúc dự án Momevia v0.6.0
+# Cấu trúc dự án Momevia v1.1 + Sender canvas
 
 ```text
 momevia/
@@ -14,11 +14,16 @@ momevia/
 │   │   ├── catalog/                 # mẫu, favorites, creator
 │   │   ├── checkout/                # đơn mô phỏng, kiểm tra quyền mẫu
 │   │   ├── gifts/                   # thiệp, ảnh, replies
+│   │   ├── designs/                 # drafts/CAS/assets/contexts/publication UoW
 │   │   └── support/                 # yêu cầu liên hệ
 │   ├── shared/                      # HTTP router, auth, storage, limiter
 │   └── gateway/                     # gateway cũ / static file helper
 ├── services/*/                     # legacy entrypoint + data JSON hiện tại
 ├── web/                            # frontend, CSS, assets và JS
+│   ├── js/shared/canvas/            # schema/registry/presets dùng chung Node/browser
+│   ├── js/features/canvas-editor/   # store/history/session/stage/DOM helpers
+│   ├── js/features/gift-runtime/    # renderer/player; không import editor
+│   └── js/pages/designer.js         # Sender editor mount/dispose
 ├── tests/
 │   ├── unit/                       # test đơn vị
 │   ├── integration/                # modular và legacy fixture

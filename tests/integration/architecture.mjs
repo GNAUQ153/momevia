@@ -72,6 +72,8 @@ try {
     'TEST_ACCOUNT_ROLE=creator',
   ].join('\n'));
   const env={...process.env, NODE_ENV:'test', PORT:String(port), PUBLIC_BASE_URL:base,
+    IDENTITY_STORAGE:'json', CATALOG_STORAGE:'json', CHECKOUT_STORAGE:'json', GIFTS_STORAGE:'json', SUPPORT_STORAGE:'json', DESIGNS_STORAGE:'json',
+    PAYMENT_ENABLED:'false', PAYMENT_LIVE_ENABLED:'false', CANVAS_READ_ENABLED:'true', CANVAS_EDIT_ENABLED:'true', CANVAS_PUBLISH_ENABLED:'true',
     JWT_SECRET:randomBytes(32).toString('hex'),INTERNAL_SERVICE_KEY:randomBytes(32).toString('hex'),
     DEMO_AUTH_ENABLED:'true',DEMO_ADMIN_CODE:randomBytes(24).toString('hex'),GIFT_TTL_DAYS:'365'};
   for (const key of Object.keys(env).filter(key => key.startsWith('TEST_ACCOUNT_'))) delete env[key];

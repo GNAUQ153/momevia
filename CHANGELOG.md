@@ -1,3 +1,14 @@
+# Unreleased — Canvas Sender W00–W11
+
+- Thiết kế 12 built-in template theo chủ đề riêng, thumbnail SVG và preview tương tác; khung polaroid nhận ảnh ready, giữ crop khi thay ảnh/nhân bản. Khởi tạo layout mới qua CAS khi client mới hơn cached server; giữ draft/gift/quyền và giá cũ.
+
+- DOM editor cho blank/template: draft CAS, save/reload/edit, asset IDs/crop, history/scenes/layers, preview dùng chung player.
+- Source/policy/provenance server-owned, registry/schema v1 strict, immutable publication/revision/hash/idempotency, link/QR và recipient anonymous/reply.
+- JSON authoritative aggregate/recovery; MySQL migration006 + cùng-connection UnitOfWork, asset pins, entitlement/revoke và many-context checkout resume.
+- Giữ payment/webhook/receipt v1.1; methods/pending/receipt-error riêng, không tự publish/thu lại khi retry.
+- Backup JSON versioned và legacy importer fail rõ; MySQL/JSON/browser QA tách riêng. [Báo cáo](docs/CANVAS_QA_REPORT.md).
+- Không triển khai W12–W15, không bật merchant live hoặc migrate/deploy dữ liệu thật.
+
 # 1.1.0 — Payment Gateway & Receipt Foundation
 
 - Credential-gated payOS VietQR (chuyển khoản ngân hàng) và MoMo sandbox/live.

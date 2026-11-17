@@ -6,6 +6,7 @@ import { projectRoot } from '../../src/shared/paths.mjs';
 import { MySqlClient } from '../../src/infrastructure/mysql/client.mjs';
 import { mysqlDate } from '../../src/modules/identity/mysql.repositories.mjs';
 import { readIdentityCatalogSnapshot } from './import-identity-catalog.mjs';
+import { rejectCanvasAggregate, rejectCanvasGifts } from './canvas-import-guard.mjs';
 
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const slugPattern = /^[A-Za-z0-9_-]{18,48}$/;
@@ -36,6 +37,7 @@ function rows(root, service, file) {
 }
 
 export function readGiftsCheckoutSnapshot(root = projectRoot) {
+  rejectCanvasAggregate(root);
   return {
     gifts: rows(root, 'gifts', 'gifts.json'),
     replies: rows(root, 'gifts', 'replies.json'),
@@ -44,6 +46,7 @@ export function readGiftsCheckoutSnapshot(root = projectRoot) {
 }
 
 export function prepareGiftsCheckout(snapshot, identityCatalog, { root = projectRoot } = {}) {
+  rejectCanvasGifts(snapshot?.gifts);
   check(identityCatalog && Array.isArray(identityCatalog.users) && Array.isArray(identityCatalog.templates),
     'thiếu danh sách Users/Templates dùng để kiểm tra khóa ngoại');
   for (const type of ['gifts','replies','orders']) check(Array.isArray(snapshot[type]), `thiếu mảng ${type}`);
@@ -113,6 +116,7 @@ export function prepareGiftsCheckout(snapshot, identityCatalog, { root = project
 }
 
 export async function applyGiftsCheckout(plan, client = new MySqlClient()) {
+  rejectCanvasGifts(plan?.gifts);
   return client.withTransaction(async tx => {
     for (const table of ['orders', 'demo_purchases', 'template_entitlements', 'gifts', 'gift_replies']) {
       const [rows] = await tx.execute(`SELECT COUNT(*) AS total FROM ${table}`);

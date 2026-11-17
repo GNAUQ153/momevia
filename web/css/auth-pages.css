@@ -10,8 +10,16 @@
   border: 0;
   border-radius: 0;
   background:
-    radial-gradient(circle at 12% 3%, rgba(242, 217, 252, 0.75), transparent 37%),
-    radial-gradient(circle at 93% 85%, rgba(255, 222, 223, 0.66), transparent 36%),
+    radial-gradient(
+      circle at 12% 3%,
+      rgba(242, 217, 252, 0.75),
+      transparent 37%
+    ),
+    radial-gradient(
+      circle at 93% 85%,
+      rgba(255, 222, 223, 0.66),
+      transparent 36%
+    ),
     #fcf9ff;
 }
 
@@ -52,7 +60,11 @@
   width: 420px;
   height: 420px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 198, 218, 0.4), transparent 71%);
+  background: radial-gradient(
+    circle,
+    rgba(255, 198, 218, 0.4),
+    transparent 71%
+  );
   content: "";
 }
 
@@ -64,7 +76,11 @@
   width: 460px;
   height: 460px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(216, 171, 255, 0.28), transparent 70%);
+  background: radial-gradient(
+    circle,
+    rgba(216, 171, 255, 0.28),
+    transparent 70%
+  );
   content: "";
 }
 
@@ -298,7 +314,9 @@
   color: #231631;
   font-family: var(--font-body);
   font-size: 14px;
-  transition: border-color 0.16s ease, box-shadow 0.16s ease;
+  transition:
+    border-color 0.16s ease,
+    box-shadow 0.16s ease;
 }
 
 .auth-panel .auth-input input::placeholder {
@@ -435,7 +453,9 @@
   color: #35283f;
   font-size: 13px;
   font-weight: 750;
-  transition: border-color 0.16s ease, background 0.16s ease;
+  transition:
+    border-color 0.16s ease,
+    background 0.16s ease;
 }
 
 .auth-panel .auth-social:hover:not(:disabled) {

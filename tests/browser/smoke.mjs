@@ -25,7 +25,7 @@ export async function runBrowserSmoke(base) {
     await page.locator('#register-form input[name="confirmPassword"]').fill(password);
     await page.locator('#register-form button[type="submit"]').click();
     await page.waitForURL('**/studio');
-    await page.locator('.dashboard-heading').waitFor();
+    await page.locator('.dashboard-heading').first().waitFor();
     await page.goto(base + '/creator');
     await page.locator('#main').getByText('Liên hệ quản trị viên để được cấp quyền Creator.').waitFor();
     assert.equal(await page.locator('#creator-template-form').count(), 0);
@@ -39,10 +39,12 @@ export async function runBrowserSmoke(base) {
     const catalog = await (await page.request.get(base + '/api/catalog/templates')).json();
     const free = catalog.templates.find(template => template.price === 0);
     await page.goto(base + `/create/${free.id}`);
-    await page.locator('#recipientName').fill('Mai');
-    await page.locator('#senderName').fill('Browser QA');
-    await page.locator('#gift-message').fill('Browser refactor regression');
-    await page.locator('#create-gift-form button[type="submit"]').click();
+    await page.locator('[data-editor-field="binding.recipientName"]').fill('Mai');
+    await page.locator('[data-editor-field="binding.senderName"]').fill('Browser QA');
+    await page.locator('[data-editor-field="binding.message"]').fill('Browser refactor regression');
+    await page.locator('[data-editor-action="save"]').click();
+    await page.locator('.editor-save-status').filter({hasText:'Đã lưu'}).waitFor();
+    await page.locator('[data-editor-action="publish"]').click();
     await page.waitForURL('**/success/*');
     await page.locator('[data-action="qr"]').click();
     await page.locator('.qr-image').waitFor();

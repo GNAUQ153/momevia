@@ -6,8 +6,8 @@
 - Đối tượng ưu tiên: người trẻ gửi quà sinh nhật, người nhận mở quà không cần đăng nhập.
 - Sản phẩm chính: **quà tương tác qua link**, thay vì chỉ tải PNG/PDF.
 - Marketplace: 12 mẫu minh họa có sẵn; Creator tạo mẫu theo cấu trúc chuẩn hóa, có duyệt.
-- Luồng: Chọn mẫu → Cá nhân hóa → Mua demo nếu cần → Xuất bản → Mở quà 3 cảnh → Gửi lời đáp → Xem lại.
-- Mức giá thử: 0/39.000/59.000/79.000 VND, commission giả định 20%; không có thanh toán thật.
+- Luồng Sender: Blank/mẫu → draft → lưu/mở lại/chỉnh → preview → server preflight/quyền mẫu/checkout nếu cần → publish snapshot → link/QR → recipient miễn phí không đăng nhập.
+- Giữ giá quyền mẫu v1.1; chưa thu phí theo cảnh/element/lần phát hành. Payment foundation payOS/MoMo mặc định tắt; provider inject QA không chứng minh merchant live.
 - Không dùng gói subscription Creator Pro/người gửi trong MVP.
 - Mỗi tài khoản có một role; chỉ quản trị viên được thay đổi role. Không có luồng tự nâng Sender thành Creator. Quản lý role hiện qua API Admin, chưa có màn hình quản lý tài khoản.
 
@@ -24,8 +24,10 @@
 
 | Giai đoạn | Phạm vi |
 | --- | --- |
-| MVP hiện tại | Các chức năng sender/recipient/creator/admin căn bản, demo checkout, 3 cảnh và reply |
-| Giai đoạn kế | Visual editor kéo thả, schema template JSON versioned, PostgreSQL riêng cho dịch vụ, thanh toán thật |
+| Sender canvas hiện tại | DOM editor, schema/registry version 1, draft CAS, ảnh private, preview, immutable publish, link/QR, reply; JSON một process và MySQL 8.4 cô lập đã kiểm thử |
+| Giai đoạn kế | W12–W15: media/animation nâng cao, Creator version/review, thư viện mẫu cá nhân có version/community, sandbox; có đặc tả riêng trước khi mở |
 | Mở rộng | Nhiều gói creator/member, analytics sâu, media, công cụ code sandbox an toàn, orchestration thanh toán/chi trả |
 
 Các mã 80 chức năng trong PDF gốc là backlog toàn bộ hệ thống, không phải tất cả đã được lập trình ở MVP.
+
+Ba cảnh là preset legacy; schema có budget kỹ thuật 32 cảnh/400 node/256 KiB, không là phân hạng giá. Stack vẫn ES modules/HTML/CSS và modular monolith async; MySQL 8.4 là adapter SQL hiện hành, JSON mặc định. Xem [hướng dẫn canvas](CANVAS_SENDER_GUIDE.md) và [gate matrix](CANVAS_QA_REPORT.md) để phân biệt source, cấu hình và bằng chứng đã chạy.

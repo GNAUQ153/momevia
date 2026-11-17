@@ -12,6 +12,7 @@ import { createGiftViews } from '../pages/gifts.js';
 import { createCreatorViews } from '../pages/creator.js';
 import { createAdminViews } from '../pages/admin.js';
 import { createAuthViews } from '../pages/auth.js';
+import { pricingPage } from '../pages/pricing.js';
 import { createSystemViews } from '../pages/system.js';
 
 const main = document.getElementById('main');
@@ -122,12 +123,13 @@ async function render() {
       }
     }
     else if (route === 'about') main.innerHTML = aboutPage();
+    else if (route === 'pricing') main.innerHTML = pricingPage();
     else if (route === 'login' || route === 'register') main.innerHTML = authPage(route);
     else if (route === 'policies' && legalPages[id]) main.innerHTML = legalPage(id);
     else main.innerHTML = errorPage('Trang bạn yêu cầu không tồn tại.');
     const anchor = location.hash.slice(1);
     if (anchor) setTimeout(() => document.getElementById(anchor)?.scrollIntoView({behavior:'smooth'}), 30);
-    document.title = route === 'explore' ? 'Thư viện quà tặng — Momevia' : route === 'favorites' ? 'Mẫu yêu thích — Momevia' : route === 'creator' ? 'Creator Studio — Momevia' : route === 'login' ? 'Đăng nhập — Momevia' : route === 'register' ? 'Đăng ký — Momevia' : route === 'policies' && legalPages[id] ? `${legalPages[id].title} — Momevia` : 'Momevia — Gửi một điều đáng nhớ';
+    document.title = route === 'explore' ? 'Thư viện quà tặng — Momevia' : route === 'favorites' ? 'Mẫu yêu thích — Momevia' : route === 'creator' ? 'Creator Studio — Momevia' : route === 'login' ? 'Đăng nhập — Momevia' : route === 'register' ? 'Đăng ký — Momevia' : route === 'pricing' ? 'Bảng giá — Momevia' : route === 'policies' && legalPages[id] ? `${legalPages[id].title} — Momevia` : 'Momevia — Gửi một điều đáng nhớ';
   } catch(error) {
     main.innerHTML = errorPage(error.message || 'Lỗi không xác định.');
   }

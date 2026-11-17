@@ -21,6 +21,7 @@ export function createLayout({ state, header, footer }) {
       activeLink('/explore', 'Khám phá mẫu'),
       activeLink('/#how-it-works', 'Cách hoạt động', 'how-it-works'),
       activeLink('/creator', 'Cho nhà sáng tạo'),
+      activeLink('/pricing', 'Bảng giá'),
       activeLink('/about', 'Về chúng tôi'),
     ];
     const studioActive = location.pathname === '/studio' || location.pathname === '/favorites';
@@ -57,7 +58,7 @@ export function createLayout({ state, header, footer }) {
         <div class="footer-about"><div class="footer-logo">momevia<span>.</span></div>
         <p>Mỗi lời chúc đều xứng đáng trở thành một trải nghiệm đáng nhớ.</p>
         <span class="footnote">Gửi điều thương, giữ kỷ niệm.</span></div>
-        <div class="footer-column"><h4>Khám phá</h4><a href="/explore" data-link>Thư viện mẫu</a><a href="/creator" data-link>Trở thành Creator</a></div>
+        <div class="footer-column"><h4>Khám phá</h4><a href="/explore" data-link>Thư viện mẫu</a><a href="/creator" data-link>Trở thành Creator</a><a href="/pricing" data-link>Bảng giá & gói dự kiến</a></div>
         <div class="footer-column"><h4>Thông tin</h4><a href="/about" data-link>Về chúng tôi</a><a href="/favorites" data-link>Mẫu yêu thích</a><button class="footer-contact" data-action="support">Liên hệ hỗ trợ</button></div>
         <div class="footer-column"><h4>Chính sách</h4><a href="/policies/general" data-link>Chính sách & Quy định chung</a><a href="/policies/payment" data-link>Chính sách thanh toán</a><a href="/policies/privacy" data-link>Chính sách bảo mật</a><a href="/policies/content" data-link>Nội dung & Bản quyền</a></div>
         <div class="footer-news"><span class="footer-bloom">${icon('sparkles', 22)}</span><h3>Một bất ngờ nhỏ, một niềm vui lớn.</h3><a href="/explore" data-link>Khám phá ngay ${icon('arrow', 17)}</a></div>

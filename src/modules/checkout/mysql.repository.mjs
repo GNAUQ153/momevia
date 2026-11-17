@@ -28,7 +28,8 @@ export class MySqlCheckoutRepository {
     const [rows] = await this.client.execute(`SELECT 1 AS licensed FROM template_entitlements e
       INNER JOIN orders o ON o.id=e.order_id
       WHERE e.user_id=? AND e.template_id=? AND e.revoked_at IS NULL
-        AND o.status='demo_paid' AND o.is_test=1 AND o.user_id=e.user_id AND o.template_id=e.template_id
+        AND (o.status='paid' OR (o.status='demo_paid' AND o.is_test=1))
+        AND o.user_id=e.user_id AND o.template_id=e.template_id
       LIMIT 1`, [userId, templateId]);
     return rows.length > 0;
   }

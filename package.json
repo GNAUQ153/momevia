@@ -1,7 +1,7 @@
 {
   "name": "momevia-mvp",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.1.0",
   "type": "module",
   "engines": {
     "node": "^22.13.0 || >=24.0.0"
@@ -32,6 +32,7 @@
     "db:import:gifts-checkout": "node database/scripts/import-gifts-checkout.mjs"
   },
   "dependencies": {
+    "@payos/node": "2.0.6",
     "mysql2": "3.24.6",
     "qrcode-generator": "2.0.4",
     "sharp": "0.35.5"

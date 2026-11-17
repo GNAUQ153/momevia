@@ -19,7 +19,7 @@ export class CheckoutService {
       userId: user.sub, templateId, templateTitle: template.title, grossAmount: template.price,
     });
     const previous = this.repository.all().find(order =>
-      order.userId === user.sub && order.templateId === templateId && order.status === 'demo_paid');
+      order.userId === user.sub && order.templateId === templateId && ['demo_paid','paid'].includes(order.status));
     if (previous) return previous;
     const order = {
       id: randomUUID(), userId: user.sub, templateId, templateTitle: template.title,
@@ -33,6 +33,6 @@ export class CheckoutService {
   async hasLicense(userId, templateId) {
     if (this.repository.hasLicense) return this.repository.hasLicense(userId, templateId);
     return this.repository.all().some(order =>
-      order.userId === userId && order.templateId === templateId && order.status === 'demo_paid');
+      order.userId === userId && order.templateId === templateId && ['demo_paid','paid'].includes(order.status));
   }
 }

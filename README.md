@@ -1,6 +1,6 @@
 # Momevia — Nền tảng quà tặng số tương tác
 
-**Phiên bản phát triển:** 1.0.0 — Client–Server + Modular Monolith + OOP (Node.js). Ứng dụng chưa đủ điều kiện triển khai thương mại có thu tiền thật.
+**Phiên bản phát triển:** 1.1.0 — Client–Server + Modular Monolith + OOP (Node.js). Ứng dụng chưa đủ điều kiện triển khai thương mại có thu tiền thật.
 
 Momevia cho phép người dùng chọn mẫu, cá nhân hóa, xuất bản quà qua link/QR, mở quà và gửi phản hồi. Hỗ trợ tài khoản email/mật khẩu, vai trò Creator/Admin, yêu thích và biểu mẫu hỗ trợ. Google/Zalo OAuth cần cấu hình ứng dụng nhà cung cấp. Checkout hiện chỉ tạo **đơn hàng mô phỏng**, chưa xử lý tiền thật.
 
@@ -124,3 +124,9 @@ Theo mặc định Identity/Catalog vẫn dùng JSON; sau migration/import, đ�
 Bổ sung `CHECKOUT_STORAGE=mysql`, `GIFTS_STORAGE=mysql` sau migration `004_gifts_checkout` và công cụ dry-run/import JSON an toàn. Transaction MySQL giúp một đơn demo tạo một entitlement, chống mua trùng cùng user/template và ghi phản hồi quà kèm tăng bộ đếm nguyên tử. **Không tích hợp thanh toán thật** và ảnh vẫn lưu tại local.
 
 Đọc [`docs/MYSQL_V10_GIFTS_CHECKOUT.md`](docs/MYSQL_V10_GIFTS_CHECKOUT.md). Hai cờ mặc định vẫn là `json`, không chuyển nguồn dữ liệu tự động.
+
+## v1.1 — Payment Gateway & Receipt Foundation (tắt mặc định)
+
+Xem `docs/PAYMENTS_V11.md`. Ngân hàng/VietQR qua payOS và ví MoMo qua provider adapter.
+Chỉ ghi `paid` sau webhook hợp lệ; biên nhận giao dịch không phải hóa đơn thuế.
+Để bảo mật, cần cấu hình merchant, HTTPS webhook, đối soát và QA trước khi nhận tiền thực.

@@ -18,9 +18,13 @@ export function createGiftViews({ state, buttonLink, requireLogin, location = gl
       setTimeout(() => requireLogin(`/create/${template.id}`), 50);
       return `<section class="section"><div class="container"><div class="centered-loading">${icon('lock',25)} Vui lòng đăng nhập để tiếp tục cá nhân hóa.</div></div></section>`;
     }
-    const orders = await api.get('/checkout/orders').catch(() => ({orders:[]}));
-    const licensed = template.price === 0 || orders.orders.some(o => o.templateId === template.id && o.status === 'demo_paid');
-    state.purchased = new Set(orders.orders.filter(o => o.status === 'demo_paid').map(o => o.templateId));
+    const [orders, paymentOptions] = await Promise.all([
+      api.get('/checkout/orders').catch(() => ({orders:[]})),
+      api.get('/checkout/payments/methods').catch(() => ({methods:[]})),
+    ]);
+    const licensed = template.price === 0 || orders.orders.some(o => o.templateId === template.id && ['demo_paid','paid'].includes(o.status));
+    state.purchased = new Set(orders.orders.filter(o => ['demo_paid','paid'].includes(o.status)).map(o => o.templateId));
+    const paymentAvailable = paymentOptions.methods.length > 0;
     return `<section class="builder-section"><div class="container"><div class="breadcrumb"><a href="/template/${encodeURIComponent(template.id)}" data-link>${icon('arrow-left',17)} Quay lại mẫu</a><span>/</span><span>Cá nhân hóa</span></div>
       <div class="builder-header"><div><span class="eyebrow">MỘT CHÚT RIÊNG, MỘT CHÚT THƯƠNG</span><h1>Biến mẫu thành <em>món quà của bạn.</em></h1><p>Thêm những điều bạn muốn nói. Chúng mình đã chuẩn bị phần còn lại.</p></div><span class="builder-template-pill">${icon('layers',17)} ${e(template.title)}</span></div>
       <div class="builder-grid"><div class="builder-form-wrap"><form id="create-gift-form" data-template-id="${e(template.id)}">
@@ -30,8 +34,8 @@ export function createGiftViews({ state, buttonLink, requireLogin, location = gl
         <label class="field"><span>Lời chúc từ trái tim <sup>*</sup></span><textarea id="gift-message" name="message" required maxlength="1000" rows="5" placeholder="Hãy viết điều mà bạn muốn người ấy nhớ mãi..."></textarea><small>Tối đa 1.000 ký tự</small></label>
         <div class="form-step-head form-step-head--separated"><span>02</span><div><h2>Thêm một bức ảnh</h2><p>Không bắt buộc, nhưng sẽ làm món quà thật riêng.</p></div></div>
         <label class="photo-drop" for="gift-photo"><span>${icon('upload-cloud',25)}</span><strong>Chọn ảnh từ thiết bị</strong><small>JPG, PNG hoặc WebP · Tối đa 2 MB</small><input type="file" id="gift-photo" class="visually-hidden" accept="image/png,image/jpeg,image/webp"/></label>
-        <div class="form-bottom"><div class="demo-notice">${icon('shield',20)}<p>Bạn có thể trải nghiệm mẫu miễn phí; thanh toán trực tuyến đang được hoàn thiện.</p></div>
-        ${licensed ? `<button type="submit" class="btn btn--dark btn--wide">Xuất bản món quà ${icon('arrow',19)}</button>` : `<button type="button" class="btn btn--dark btn--wide" data-action="demo-buy" data-id="${e(template.id)}">Dùng thử mẫu này ${icon('arrow',18)}</button><p class="helper-text">Bạn có thể dùng thử mẫu này mà không phải thanh toán. Tính năng mua mẫu sẽ được bổ sung sau.</p>`}</div>
+        <div class="form-bottom"><div class="demo-notice">${icon('shield',20)}<p>${paymentAvailable ? 'Thanh toán qua cổng được xác thực. Chỉ cấp quyền sau khi nhận xác nhận từ nhà cung cấp.' : 'Thanh toán trực tuyến chưa được kích hoạt; chế độ dùng thử tùy cấu hình.'}</p></div>
+        ${licensed ? `<button type="submit" class="btn btn--dark btn--wide">Xuất bản món quà ${icon('arrow',19)}</button>` : paymentAvailable ? `<button type="button" class="btn btn--dark btn--wide" data-action="payment-options" data-id="${e(template.id)}">Thanh toán mẫu ${icon('arrow',18)}</button>` : `<button type="button" class="btn btn--dark btn--wide" data-action="demo-buy" data-id="${e(template.id)}">Dùng thử (mô phỏng) ${icon('arrow',18)}</button><p class="helper-text">Đây không phải giao dịch thật.</p>`}</div>
       </form></div>${livePreview(template)}</div>
     </div></section>`;
   }
@@ -81,8 +85,9 @@ export function createGiftViews({ state, buttonLink, requireLogin, location = gl
     <section class="section dashboard-section"><div class="container"><div class="dashboard-stats">
       <article class="stat-card">${icon('gift',23)}<strong>${gifts.length}</strong><span>Món quà đã tạo</span></article>
       <article class="stat-card">${icon('message-circle',23)}<strong>${gifts.reduce((n,g)=>n+g.replyCount,0)}</strong><span>Lời hồi đáp</span></article>
-      <article class="stat-card">${icon('layers',23)}<strong>${orders.length}</strong><span>Mẫu đã dùng thử</span></article>
+      <article class="stat-card">${icon('layers',23)}<strong>${orders.length}</strong><span>Mẫu đã sử dụng</span></article>
     </div><div class="dashboard-heading"><div><span class="eyebrow">BỘ SƯU TẬP CỦA TÔI</span><h2>Những điều bạn đã gửi.</h2></div><div class="dashboard-heading__actions"><a class="btn btn--outline" href="/favorites" data-link>${icon('heart',17)} Mẫu yêu thích (${state.favorites.size})</a>${buttonLink('/explore','Tạo quà mới')}</div></div>
+      ${orders.some(o=>o.status === 'paid') ? `<div class="dashboard-heading"><h2>Biên nhận thanh toán</h2></div><div class="my-gifts">${orders.filter(o=>o.status === 'paid').map(o=>`<article class="my-gift"><div class="my-gift-detail"><strong>${e(o.templateTitle)}</strong><p>${Number(o.grossAmount).toLocaleString('vi-VN')} VND</p></div><a class="btn btn--outline" href="/payment-result/${e(o.id)}" data-link>Xem biên nhận</a></article>`).join('')}</div>` : ''}
       ${gifts.length ? `<div class="my-gifts">${gifts.map(g => `<article class="my-gift"><div class="my-gift-art artwork artwork--${e(g.theme)}">${icon('gift',40)}</div><div class="my-gift-detail"><span>GỬI TỚI ${e(g.recipientName).toLocaleUpperCase('vi')}</span><h3>${e(g.templateTitle)}</h3><p>${new Date(g.createdAt).toLocaleDateString('vi-VN')} · ${g.replyCount} lời hồi đáp</p></div><div class="my-gift-actions"><a href="/g/${e(g.slug)}" data-link class="btn btn--outline">Mở quà ${icon('arrow-up-right',16)}</a><button class="icon-button" aria-label="Sao chép link" data-action="copy-link" data-value="${e(`${location.origin}/g/${g.slug}`)}">${icon('copy',18)}</button></div></article>`).join('')}</div>`
       : `<div class="empty-state empty-state--panel">${icon('gift',38)}<h3>Chưa có món quà nào</h3><p>Mọi kỷ niệm đẹp đều bắt đầu từ một hành động nhỏ.</p>${buttonLink('/explore','Khám phá mẫu đầu tiên')}</div>`}
     </div></section>`;

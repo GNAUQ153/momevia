@@ -1,3 +1,11 @@
+# 1.1.0 — Payment Gateway & Receipt Foundation
+
+- Credential-gated payOS VietQR (chuyển khoản ngân hàng) và MoMo sandbox/live.
+- Webhook được xác thực chữ ký SDK/IPN, đối chiếu amount/provider/order, replay-safe MySQL transaction.
+- Chỉ cấp quyền khi webhook hợp lệ; không tin redirect/click client hoặc ảnh chụp chuyển khoản.
+- Biên nhận thanh toán có quyền truy cập theo người mua, không tự nhận là hóa đơn VAT.
+- Bật bằng PAYMENT_ENABLED; mặc định tắt. Cần merchant account, HTTPS và kiểm thử provider thật.
+
 # Changelog
 
 ## 1.0.0 (MySQL Gifts & Checkout demo)

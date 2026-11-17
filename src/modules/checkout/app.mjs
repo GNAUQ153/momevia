@@ -4,6 +4,9 @@ import { createRepositories } from './repositories.mjs';
 import { registerRoutes } from './routes.mjs';
 import { CheckoutService } from './checkout.service.mjs';
 import { createCatalogClient } from '../catalog/client.mjs';
+import { MySqlPaymentRepository } from '../payments/mysql.repository.mjs';
+import { PaymentService } from '../payments/payment.service.mjs';
+import { registerPaymentRoutes } from '../payments/routes.mjs';
 
 export async function createApp(config = environment(), { catalog = createCatalogClient(config.internalKey), resolveUser } = {}) {
   const { orders: repository, client, mode } = createRepositories();
@@ -11,5 +14,8 @@ export async function createApp(config = environment(), { catalog = createCatalo
   const service = new CheckoutService({ repository, config, catalog });
   const router = new Router();
   registerRoutes(router, { config, service, resolveUser });
-  return { router, service, close: async () => { await client?.close(); } };
+  const paymentRepository = new MySqlPaymentRepository();
+  const paymentService = new PaymentService({ repository: paymentRepository, catalog, checkout: service });
+  registerPaymentRoutes(router, { config, service: paymentService, resolveUser });
+  return { router, service, paymentService, close: async () => { await Promise.all([client?.close(), paymentRepository.close()]); } };
 }

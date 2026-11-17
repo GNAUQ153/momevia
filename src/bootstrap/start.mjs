@@ -23,9 +23,9 @@ let stopping = false;
 function stop() {
   if (stopping) return;
   stopping = true;
-  server.close(() => {
-    app.close();
-    process.exit(0);
+  server.close(async () => {
+    try { await app.close(); process.exit(0); }
+    catch (error) { console.error(error); process.exit(1); }
   });
   // Không giữ tiến trình vô hạn nếu có kết nối treo khi tắt.
   setTimeout(() => process.exit(1), 10_000).unref();

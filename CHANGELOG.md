@@ -1,3 +1,11 @@
+## 0.9.0 — MySQL Identity & Catalog (candidate)
+
+- MySQL repositories cho Users, Sessions, Templates và Favorites; async HTTP routing, JWT jti được tra từ MySQL, role lấy từ database.
+- Migration 003 đặt provider_id case-sensitive, giảm xung đột ID demo/OAuth.
+- Công cụ import JSON Identity/Catalog theo transaction: dry-run mặc định, từ chối ghi đè bảng có dữ liệu, bảo toàn JSON.
+- Giữ nguyên API, tiếp tục hỗ trợ JSON qua IDENTITY_STORAGE và CATALOG_STORAGE.
+- Lưu ý chưa xác minh E2E trên MySQL server trong môi trường phát triển patch; chạy checklist local trước khi deploy.
+
 ## v0.8.0 — MySQL 8.4 LTS foundation + Support adapter
 
 - Thay migration/schema PostgreSQL bằng MySQL 8.4 LTS sử dụng InnoDB và utf8mb4.

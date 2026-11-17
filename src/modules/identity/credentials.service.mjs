@@ -62,13 +62,15 @@ export class CredentialsService {
     }
     const normalizedEmail = this.normalizeEmail(email);
     this.validatePassword(password);
-    if (this.repository.all().some(u => u.provider === 'email' && u.email === normalizedEmail)) {
+    if ((this.repository.findByEmail ? await this.repository.findByEmail(normalizedEmail)
+      : this.repository.all().some(u => u.provider === 'email' && u.email === normalizedEmail))) {
       throw new HttpError(409, 'Email này đã được đăng ký. Vui lòng đăng nhập.');
     }
     const passwordHash = await this.hashPassword(password);
     // Một đăng ký khác có thể hoàn tất trong lúc scrypt chạy bất đồng bộ.
     // Kiểm tra lại và insert đồng bộ trong cùng tiến trình sở hữu repository.
-    if (this.repository.all().some(u => u.provider === 'email' && u.email === normalizedEmail)) {
+    if ((this.repository.findByEmail ? await this.repository.findByEmail(normalizedEmail)
+      : this.repository.all().some(u => u.provider === 'email' && u.email === normalizedEmail))) {
       throw new HttpError(409, 'Email này đã được đăng ký. Vui lòng đăng nhập.');
     }
     return this.repository.insert({
@@ -86,7 +88,9 @@ export class CredentialsService {
 
   async login({ email, password }) {
     const normalizedEmail = this.normalizeEmail(email);
-    const user = this.repository.all().find(u => u.provider === 'email' && u.email === normalizedEmail);
+    const user = this.repository.findByEmail
+      ? await this.repository.findByEmail(normalizedEmail)
+      : this.repository.all().find(u => u.provider === 'email' && u.email === normalizedEmail);
     if (!user || !(await this.verifyPassword(password, user.passwordHash))) {
       throw new HttpError(401, 'Email hoặc mật khẩu không chính xác.');
     }

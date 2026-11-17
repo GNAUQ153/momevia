@@ -19,12 +19,15 @@ export class MySqlSupportRepository {
   }
 
   async insert(ticket) {
-    // Identity vẫn ở JSON: không tạo FK giả. Giữ nguyên mã nguồn trong cột bridge.
+    // Identity on MySQL: enforce the actual user FK. Legacy JSON: keep the ID
+    // in the bridge column rather than inventing a user row.
+    const identityMysql = process.env.IDENTITY_STORAGE === 'mysql';
     const utcDate = ticket.createdAt.replace('T', ' ').replace('Z', '');
+    const values = identityMysql ? '?, ?, ?, NULL, ?, ?, ?, ?, ?, ?' : '?, ?, NULL, ?, ?, ?, ?, ?, ?, ?';
     await this.client.execute(`
       INSERT INTO support_requests
         (id, code, user_id, legacy_user_id, name, email, topic, message, status, created_at)
-      VALUES (?, ?, NULL, ?, ?, ?, ?, ?, ?, ?)
+      VALUES (${values})
     `, [ticket.id, ticket.code, ticket.userId, ticket.name,
       ticket.email, ticket.topic, ticket.message, ticket.status, utcDate]);
     return ticket;

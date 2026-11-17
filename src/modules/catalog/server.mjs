@@ -1,3 +1,3 @@
 import { createApp } from './app.mjs';
 
-createApp().router.listen(4102);
+(await createApp()).router.listen(4102);

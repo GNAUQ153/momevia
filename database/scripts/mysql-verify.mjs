@@ -26,8 +26,8 @@ try {
   }
   const [migrations] = await client.execute('SELECT version FROM schema_migrations ORDER BY version');
   const versions = migrations.map(row => row.version);
-  if (!versions.includes('001_initial') || !versions.includes('002_support_user_bridge')) {
-    throw new Error('Thiếu migration 001 hoặc 002.');
+  if (!versions.includes('001_initial') || !versions.includes('002_support_user_bridge') || !versions.includes('003_identity_catalog')) {
+    throw new Error('Thiếu migration 001, 002 hoặc 003.');
   }
   const [bridge] = await client.execute(`
     SELECT column_name AS name FROM information_schema.columns

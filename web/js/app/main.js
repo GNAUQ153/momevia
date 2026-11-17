@@ -12,6 +12,7 @@ import { createGiftViews } from "../pages/gifts.js";
 import { createCreatorViews } from "../pages/creator.js";
 import { createAdminViews } from "../pages/admin.js";
 import { createAuthViews } from "../pages/auth.js";
+import { pricingPage } from '../pages/pricing.js';
 import { createSystemViews } from "../pages/system.js";
 
 const main = document.getElementById("main");
@@ -307,6 +308,7 @@ async function render() {
         main.innerHTML = adminPage(pending.templates, tickets.requests);
       }
     } else if (route === "about") main.innerHTML = aboutPage();
+    else if (route === 'pricing') main.innerHTML = pricingPage();
     else if (route === "login" || route === "register")
       main.innerHTML = authPage(route);
     else if (route === "policies" && legalPages[id])
@@ -332,7 +334,7 @@ async function render() {
               ? "Đăng nhập — Momevia"
               : route === "register"
                 ? "Đăng ký — Momevia"
-                : route === "policies" && legalPages[id]
+                : route === 'pricing' ? 'Bảng giá — Momevia' : route === "policies" && legalPages[id]
                   ? `${legalPages[id].title} — Momevia`
                   : "Momevia — Gửi một điều đáng nhớ";
   } catch (error) {

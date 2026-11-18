@@ -229,7 +229,22 @@ export async function runCreatorJourney(base) {
     await receiver.getByText('Chỉ người gửi quà đọc được lời đáp.').waitFor();
     await capture(receiver, 'recipient-390');
     await receiver.getByLabel('Lời đáp', { exact: true }).fill('Cảm ơn Linh vì tấm ảnh!');
+    let originalIntent;
+    await receiver.route(`**/api${recipientEndpoint}/replies?*`, async route => {
+      if (route.request().method() !== 'POST') return route.continue();
+      originalIntent = route.request().postDataJSON().intentId;
+      assert.equal((await route.fetch()).status(), 201);
+      await route.abort('failed');
+    }, { times: 1 });
+    const lostAck = receiver.waitForEvent('requestfailed', request => request.method() === 'POST' && request.url().includes('/replies'));
     await receiver.getByRole('button', { name: 'Gửi lời đáp' }).click();
+    await lostAck;
+    await receiver.reload();
+    await receiver.getByRole('button', { name: /Lời chúc/ }).click();
+    await receiver.getByLabel('Lời đáp', { exact: true }).fill('Cảm ơn Linh vì tấm ảnh!');
+    const retryReply = receiver.waitForRequest(request => request.method() === 'POST' && request.url().includes('/replies'));
+    await receiver.getByRole('button', { name: 'Gửi lời đáp' }).click();
+    assert.equal((await retryReply).postDataJSON().intentId, originalIntent);
     await receiver.getByText('Đã gửi lời đáp.').waitFor();
     await guest.call(recipientEndpoint + '/replies' + inviteQuery, undefined, 403);
     const before = (await guest.call(recipientEndpoint + inviteQuery)).gift;
@@ -344,6 +359,29 @@ export async function runCreatorJourney(base) {
     await sender.call(`/designs/designs/${senderId}/preflight`, { expectedRevision: senderDesign.revision });
     assert.deepEqual((await guest.call(recipientEndpoint + inviteQuery)).gift.documentSnapshot, before.documentSnapshot);
     assert.deepEqual(await (await guest.ask(`${recipientEndpoint}/assets/${uploaded.asset.id}${inviteQuery}`)).body(), originalPhoto);
+    const regiftEndpoint = `/gifts/gifts/mine/${slug}/regift`;
+    const regiftInput = { mutationId: randomUUID() };
+    await other.call(regiftEndpoint, regiftInput, 404);
+    const { design: clean } = await sender.call(regiftEndpoint, regiftInput, 201);
+    assert.equal((await sender.call(regiftEndpoint, regiftInput)).design.id, clean.id);
+    assert.equal(clean.source.templateVersionId, v1);
+    assert.deepEqual(Object.values(clean.document.bindings).map(item => item.value), ['', '', '']);
+    assert(!JSON.stringify(clean).includes(uploaded.asset.id));
+    const cleanEndpoint = `/designs/designs/${clean.id}`;
+    clean.document.bindings.recipientName.value = 'Người nhận mới';
+    clean.document.bindings.senderName.value = 'Người gửi cũ';
+    clean.document.bindings.message.value = 'Lời chúc của quà mới.';
+    const cleanAck = await sender.call(cleanEndpoint + '/save', {
+      expectedRevision: clean.revision, mutationId: randomUUID(), title: clean.title, document: clean.document,
+    });
+    const newGift = (await sender.call('/gifts/gifts/from-design', {
+      designId: clean.id, expectedRevision: cleanAck.savedRevision, expectedDocumentHash: cleanAck.documentHash, idempotencyKey: randomUUID(),
+      access: { open: 'invite', send: 'disabled', read: 'sender' },
+    }, 201)).gift;
+    assert.notEqual(newGift.slug, slug);
+    assert.notEqual(new URL(newGift.inviteUrl).search, inviteQuery);
+    assert.deepEqual((await sender.call(`/gifts/gifts/mine/${newGift.slug}/replies`)).replies, []);
+    assert.equal((await sender.call(`/gifts/gifts/mine/${slug}/replies`)).replies.length, 1);
     const { gift: restoreGift } = await sender.call('/gifts/gifts/from-design', {
       designId: senderId, expectedRevision: senderDesign.revision, expectedDocumentHash: senderDesign.documentHash,
       idempotencyKey: randomUUID(), access: { open: 'invite', send: 'disabled', read: 'invite' },
@@ -388,6 +426,7 @@ export async function runCreatorJourney(base) {
     await giftCard.getByText(/Đang hoạt động · Hết hạn ngày/).waitFor();
     await giftCard.getByRole('button', { name: /Hồi đáp/ }).click();
     await phone.getByRole('dialog').getByText('Cảm ơn Linh vì tấm ảnh!').waitFor();
+    await phone.getByRole('dialog').getByRole('checkbox', { name: 'Chưa đọc' }).waitFor();
     await phone.getByRole('dialog').getByRole('button', { name: 'Đóng' }).click();
     phone.once('dialog', dialog => dialog.accept());
     await giftCard.getByRole('button', { name: 'Ngừng chia sẻ món quà' }).click();

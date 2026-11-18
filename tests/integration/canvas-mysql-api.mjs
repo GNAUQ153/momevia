@@ -9,6 +9,7 @@ import { createHmac, randomBytes, randomUUID } from 'node:crypto';
 import { createRequire } from 'node:module';
 import { pathToFileURL, fileURLToPath } from 'node:url';
 import { confirmGiftAccess } from '../browser/gift-access.mjs';
+import { runReplyIntents } from './reply-intents.mjs';
 
 const require = createRequire(import.meta.url), driver = require('mysql2/promise'), sharp = require('sharp');
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
@@ -255,6 +256,14 @@ try{
   if (process.argv.includes('--browser')) await check('Creator template identity is isolated from preview data on MySQL', async () => {
     const { runSenderIdentity } = await import('../browser/sender-identity.mjs');
     await runSenderIdentity(base);
+  });
+  await check('Real MySQL reply replay keeps one row, distinct intents and exact owner read state', async () => {
+    const { gift } = await post('/api/gifts/gifts', cookie, {
+      templateId: 'sunny-wishes', recipientName: 'Mai', senderName: 'An', message: 'Hộp thư SQL QA.',
+    }, 201);
+    await runReplyIntents(base, gift.slug, cookie, otherCookie);
+    const [rows] = await admin.execute('SELECT read_status FROM gift_replies WHERE gift_id=? ORDER BY created_at,id', [gift.id]);
+    assert.deepEqual(rows.map(row => row.read_status).sort(), ['read', 'unread']);
   });
   if (process.argv.includes('--browser')) await check('Creator birthday template V1/V2, real UI and MySQL', async () => {
     const { runCreatorJourney } = await import('../browser/creator-journey.mjs');

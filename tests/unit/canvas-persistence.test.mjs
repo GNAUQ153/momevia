@@ -76,6 +76,31 @@ test('old Creator draft provenance clears locked demo values while keeping Sende
   assert.equal(old.documentSnapshot.bindings.recipientName.value, 'Tên minh họa bất kỳ');
 });
 
+test('tặng lại từ bố cục riêng strips text, descriptions, IDs, photos and private title', async t => {
+  const f = fixture(t);
+  const draft = await create(f);
+  const asset = await f.assets.upload(user, draft.id, randomUUID(), await image());
+  const input = saveInput(draft, 'Lời chúc riêng từ quà cũ');
+  const document = input.document;
+  const photo = createElement('image', { id: 'private-photo-id', props: { assetId: asset.id }, accessibility: { alt: 'Riêng tư caption' } });
+  document.assets.push({ kind: 'image', assetId: asset.id });
+  document.elements.push(photo);
+  document.scenes[0].elementIds.push(photo.id);
+  document.scenes[0].name = 'Riêng tư cảnh';
+  document.elements.find(element => element.props.text).props.text = 'Riêng tư chữ';
+  await f.service.save(user, draft.id, input);
+  const current = designView(await f.service.get(user, draft.id));
+  const { gift } = await f.service.publish(user, publicationInput(current, { access: { open: 'invite', send: 'invite', read: 'sender' } }));
+  const intent = { mutationId: randomUUID() };
+  const { design: clean } = await f.service.regift(user, gift, intent);
+  assert.deepEqual(clean.document.assets, []);
+  assert.equal(clean.document.entrySceneId !== gift.documentSnapshot.entrySceneId, true);
+  for (const privateValue of ['private-photo-id', 'Riêng tư', 'Lời chúc riêng', gift.inviteToken, gift.title])
+    assert(!JSON.stringify(clean).includes(privateValue));
+  assert.equal((await f.service.regift(user, gift, intent)).design.id, clean.id);
+  assert.equal((await f.repository.findBySlug(gift.slug)).recipientName, 'Nguyễn Mai');
+});
+
 test('create replay recovers committed result while source catalog is unavailable; duplicate replay after source archive', async t => {
   const f = fixture(t), input = { source: { kind: 'template', templateId: templates[0].id }, mutationId: randomUUID() };
   const first = await f.service.create(user, input); f.control.unavailable = true;
@@ -215,7 +240,7 @@ test('canvas reader still projects empty gift snapshots published before the con
   const draft = await create(f, { kind: 'blank' }, { presetId: 'blank' });
   const { document: documentSnapshot } = saveInput(draft);
   const gift = { slug: 'historic-empty-canvas-gift', runtimeVersion: 1, documentSnapshot, expiresAt: '2099-01-01T00:00:00Z' };
-  const reader = new GiftService({ giftsRepo: { all: () => [gift] }, config: f.config });
+  const reader = new GiftService({ giftsRepo: { all: () => [gift] }, repliesRepo: { all: () => [] }, config: f.config });
   assert.deepEqual((await reader.publicGift(gift.slug)).documentSnapshot, documentSnapshot);
 });
 

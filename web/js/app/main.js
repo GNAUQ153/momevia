@@ -3,6 +3,8 @@ import { icon } from "../ui/icons.js";
 import { paginateTemplates } from "../features/catalog/filter.js";
 import { legalPages, legalPage } from "../pages/policies.js";
 import { giftQrDataUrl } from "../features/gifts/qr.js";
+import { submitReplyIntent } from "../features/gifts/reply-intent.js";
+import { mountInbox } from "../features/gifts/inbox.js";
 import { state } from "../core/state.js";
 import { createComponents } from "../ui/components.js";
 import { createLayout } from "../ui/layout.js";
@@ -22,7 +24,8 @@ const footer = document.getElementById("site-footer");
 let routeController = null,
   renderGeneration = 0,
   canvasCheckout = null,
-  favoritesLoad = null;
+  favoritesLoad = null,
+  disposeInbox = null;
 let historyIndex = 0,
   activeUrl = location.pathname + location.search + location.hash,
   restoringHistory = false;
@@ -229,12 +232,12 @@ async function render() {
               `/api/gifts/gifts/${encodeURIComponent(id)}/assets/${encodeURIComponent(assetId)}${query}`,
             replyAdapter: {
               ...gift.replyPermissions,
-              send: gift.replyPermissions.canSend ? async (body) =>
-                (
+              send: gift.replyPermissions.canSend ? async (reply) =>
+                submitReplyIntent(id, reply, async body => (
                   await api.post(repliesEndpoint, body, {
                     signal: lifetime.signal,
                   }).catch(error => { closed(error); throw error; })
-                ).reply : null,
+                ).reply) : null,
               list: gift.replyPermissions.canRead ? async () =>
                 (
                   await api.get(repliesEndpoint, {
@@ -470,6 +473,8 @@ async function saveFavorite(templateId, saved) {
 }
 let modalReturnFocus = null;
 function closeModal() {
+  disposeInbox?.();
+  disposeInbox = null;
   const wasOpen = modal.hasChildNodes();
   modal.replaceChildren();
   document.body.classList.remove("no-scroll");
@@ -481,6 +486,8 @@ function closeModal() {
   modalReturnFocus = null;
 }
 function openModal(content) {
+  disposeInbox?.();
+  disposeInbox = null;
   if (!modal.hasChildNodes()) modalReturnFocus = document.activeElement;
   modal.innerHTML = `<div class="modal-backdrop" data-action="close-modal"><div class="dialog" role="dialog" aria-modal="true" aria-label="Hộp thoại"><button class="icon-button dialog-close" data-action="close-modal" aria-label="Đóng">${icon("close", 21)}</button>${content}</div></div>`;
   document.body.classList.add("no-scroll");
@@ -704,8 +711,29 @@ async function handleAction(action, element) {
     return;
   }
   if (action === "gift-inbox") {
-    const { replies } = await api.get(`/gifts/gifts/mine/${encodeURIComponent(element.dataset.id)}/replies`);
-    if (element.isConnected) openModal(`<h2>Hồi đáp của món quà</h2><div class="reply-list">${renderReplies(replies)}</div>`);
+    const endpoint = `/gifts/gifts/mine/${encodeURIComponent(element.dataset.id)}/replies`;
+    const { replies } = await api.get(endpoint);
+    if (!element.isConnected) return;
+    openModal(`<h2>Hồi đáp của món quà</h2><label class="inbox-filter"><input type="checkbox"/> Chưa đọc</label>
+      <p class="inbox-status" role="status"></p><div class="reply-list"></div>`);
+    disposeInbox = mountInbox(modal.querySelector(".dialog"), {
+      replies, renderReplies,
+      markRead: ids => api.post(endpoint + "/read", { ids }),
+      onUnreadCount: count => {
+        if (element.isConnected) element.querySelector("[data-unread-count]").textContent = count ? ` · ${count} chưa đọc` : "";
+      },
+    });
+    return;
+  }
+  if (action === "regift") {
+    element.disabled = true;
+    try {
+      const mutationId = element.dataset.mutation || (element.dataset.mutation = crypto.randomUUID());
+      const { design } = await api.post(`/gifts/gifts/mine/${encodeURIComponent(element.dataset.id)}/regift`, { mutationId });
+      if (element.isConnected) navigate(`/design/${encodeURIComponent(design.id)}${design.source.kind === "template" ? "?mode=quick" : ""}`);
+    } finally {
+      if (element.isConnected) element.disabled = false;
+    }
     return;
   }
   if (action === "duplicate-design") {
@@ -1053,7 +1081,7 @@ document.addEventListener("submit", async (event) => {
       </div>`);
     } else if (form.id === "reply-form") {
       try {
-        await api.post(form.dataset.endpoint, data);
+        await submitReplyIntent(form.dataset.slug, data, body => api.post(form.dataset.endpoint, body));
         const list = form.isConnected ? main.querySelector("#reply-list") : null;
         if (list) updateLegacyReplies(list, (await api.get(form.dataset.endpoint)).replies);
       } catch (error) {

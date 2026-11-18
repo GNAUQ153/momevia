@@ -42,7 +42,8 @@ export async function createHttpApp(config = environment(), { paymentProviders, 
   const designs = await designsApp(config, {
     resolveUser,
     catalog: { getTemplate: id => catalog.service.publicOne(id),
-      approvedVersion: (id, version) => catalog.service.creatorTemplates.approved(id, version) },
+      approvedVersion: (id, version) => catalog.service.creatorTemplates.approved(id, version),
+      reusableVersion: (id, version) => catalog.service.creatorTemplates.reusable(id, version) },
     checkout: { hasLicense: (userId, templateId) => checkout.service.hasLicense(userId, templateId) },
     orders: user => checkout.service.orders(user),
   });

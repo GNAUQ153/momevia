@@ -104,12 +104,12 @@ export function createGiftViews({
     </section>`;
   }
 
-  function renderReplies(replies) {
+  function renderReplies(replies, owner = false) {
     return replies.length
       ? replies
           .map(
             (r) =>
-              `<article class="reply-item"><div class="reply-avatar">${e(r.name.charAt(0).toUpperCase())}</div><div><strong>${e(r.name)}</strong><span>${new Date(r.createdAt).toLocaleDateString("vi-VN")}</span><p>${e(r.message)}</p></div></article>`,
+              `<article class="reply-item"${owner && r.unread ? ` data-unread-reply="${e(r.id)}"` : ''}><div class="reply-avatar">${e(r.name.charAt(0).toUpperCase())}</div><div><strong>${e(r.name)}</strong><span>${new Date(r.createdAt).toLocaleDateString("vi-VN")}</span><p>${e(r.message)}</p></div></article>`,
           )
           .join("")
       : '<p class="no-replies">Chưa có lời hồi đáp. Hãy là người đầu tiên viết một điều dễ thương.</p>';
@@ -158,7 +158,8 @@ export function createGiftViews({
     const slug = e(gift.slug);
     const opens = active ? `<a href="${e(new URL(url).pathname + new URL(url).search)}" data-link class="btn btn--outline">Mở quà ${icon("arrow-up-right", 16)}</a><a class="btn btn--outline" href="/success/${slug}" data-link>Chia sẻ và QR</a><button class="icon-button" aria-label="Sao chép link" data-action="copy-link" data-value="${e(url)}">${icon("copy", 18)}</button><button class="btn btn--outline" data-action="revoke-gift" data-id="${slug}">Ngừng chia sẻ món quà</button>` : '';
     const recipient = gift.recipientName ? `GỬI TỚI ${e(gift.recipientName).toLocaleUpperCase("vi")}` : 'QUÀ KHÔNG GHI TÊN NGƯỜI NHẬN';
-    return `<article class="my-gift"><div class="my-gift-art artwork artwork--${e(gift.theme)}">${icon("gift", 40)}</div><div class="my-gift-detail"><span>${recipient}</span><h3>${e(gift.templateTitle)}</h3><p>${e(status)} · Hết hạn ngày ${new Date(gift.expiresAt).toLocaleDateString("vi-VN")}</p></div><div class="my-gift-actions">${opens}<button class="btn btn--outline" data-action="gift-inbox" data-id="${slug}">Hồi đáp (${Number(gift.replyCount)})</button></div></article>`;
+    const regift = gift.canRegift ? `<button class="btn btn--outline" data-action="regift" data-id="${slug}">Tặng người khác từ bố cục này</button>` : "";
+    return `<article class="my-gift"><div class="my-gift-art artwork artwork--${e(gift.theme)}">${icon("gift", 40)}</div><div class="my-gift-detail"><span>${recipient}</span><h3>${e(gift.templateTitle)}</h3><p>${e(status)} · Hết hạn ngày ${new Date(gift.expiresAt).toLocaleDateString("vi-VN")}</p></div><div class="my-gift-actions">${opens}<button class="btn btn--outline" data-action="gift-inbox" data-id="${slug}">Hồi đáp (${Number(gift.replyCount)})<span data-unread-count>${gift.unreadCount ? ` · ${Number(gift.unreadCount)} chưa đọc` : ""}</span></button>${regift}</div></article>`;
   }
 
   return {

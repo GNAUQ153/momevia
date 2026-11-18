@@ -173,4 +173,13 @@ export class CreatorTemplates {
     if (versionId !== template.versionId) throw new HttpError(409, 'Mẫu đã đổi phiên bản. Mở lại chi tiết mẫu.');
     return this.findVersion(template, versionId);
   }
+  async reusable(id, versionId) {
+    const template = await this.repository.get(id);
+    if (!template?.creatorDesignId) return null;
+    if (!await this.canCreate(template.creatorId)) throw new HttpError(403, 'Quyền dùng lại mẫu của Creator không còn hiệu lực.');
+    const version = this.findVersion(template, versionId);
+    if (version.status !== 'approved' || (Object.keys(version.assets).length && !version.rightsConfirmed))
+      throw new HttpError(403, 'Phiên bản này chưa đủ quyền để tạo lượt tặng mới.');
+    return { template: { id, title: version.title, price: template.price }, version };
+  }
 }

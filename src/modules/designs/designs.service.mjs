@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { validateDocument, canonicalStringify, createDocument, duplicateDocument, assetIds, publicDocument } from '../../../web/js/shared/canvas/index.js';
 import { bindingLabels, clearTemplateBindingDefaults, lockedVisibleNames } from '../../../web/js/shared/canvas/personalization.js';
+import { cleanGiftLayout } from '../../../web/js/shared/canvas/clean-layout.js';
 import { randomId } from '../../shared/security.mjs';
 import { canvasError, fields, owned, revision, uuid } from './errors.mjs';
 import { createGiftAccess, giftStatus } from '../gifts/access.mjs';
@@ -63,15 +64,15 @@ export class DesignsService {
     if (input.templateVersionId && input.templateVersionId !== templateVersionId) throw canvasError(409, 'TEMPLATE_VERSION_CONFLICT', 'Mẫu đã thay đổi. Mở lại mẫu để tiếp tục.');
     return { source: { kind: 'template', templateId: template.id, templateVersionId }, provenance: { adapter: 'legacy-v1', templateHash }, template };
   }
-  async create(user, input) {
+  async create(user, input, { sourceFor = () => this.source(input.source), requestHash = hash(input) } = {}) {
     this.requireEdit(); fields(input, ['source', 'presetId', 'mutationId', 'title', 'purpose']); uuid(input.mutationId);
     if (input.purpose !== undefined && (input.purpose !== 'creator' || input.source?.kind !== 'blank' || !['creator','admin'].includes(user.role)))
       throw canvasError(403, 'CREATOR_REQUIRED', 'Chỉ Creator được tạo nháp mẫu.');
-    const previous = await this.repository.findCreate(user.sub, input.mutationId, hash(input));
+    const previous = await this.repository.findCreate(user.sub, input.mutationId, requestHash);
     if (previous) return { ...previous, design: designView(previous.design) };
     if (input.presetId !== undefined && !['blank', 'envelope-basic', 'celebration'].includes(input.presetId)) throw canvasError(422, 'INVALID_PRESET', 'Bố cục chưa được hỗ trợ.');
-    const resolved = await this.source(input.source);
-    const document = validateDocument(resolved.version?.document || createDocument({ presetId: input.presetId || (resolved.template ? 'envelope-basic' : 'blank'), template: resolved.template }));
+    const resolved = await sourceFor();
+    const document = validateDocument(resolved.document || resolved.version?.document || createDocument({ presetId: input.presetId || (resolved.template ? 'envelope-basic' : 'blank'), template: resolved.template }));
     const now = new Date().toISOString();
     const id = randomUUID();
     const assets = [];
@@ -93,12 +94,30 @@ export class DesignsService {
       policy = { kind: 'creator-template', editableBindings: resolved.version.bindings, photoId,
         lockedElements: Object.fromEntries(document.elements.map(element => [element.id, { editableProps: element.id === photoId ? ['assetId'] : [] }])) };
     }
-    const record = { id, ownerId: user.sub, title: title(input.title || (resolved.template ? `Quà từ ${resolved.template.title}` : 'Món quà của tôi')),
+    const record = { id, ownerId: user.sub, title: title(input.title || (resolved.template ? `Quà từ ${resolved.template.title}`.slice(0, 120) : 'Món quà của tôi')),
       source: resolved.source, provenance: { ...resolved.provenance, ...(input.purpose ? { purpose: input.purpose } : {}) }, policy, revision: 1, schemaVersion: 1,
       document, documentHash: hash(document), createdAt: now, updatedAt: now, archivedAt: null };
     validateDocument(document);
-    const result = await this.repository.create(user.sub, input.mutationId, hash(input), record, assets);
+    const result = await this.repository.create(user.sub, input.mutationId, requestHash, record, assets);
     return { ...result, design: designView(result.design) };
+  }
+  async regift(user, gift, input) {
+    fields(input, ['mutationId']);
+    const source = gift.templateId ? { kind: 'template', templateId: gift.templateId, ...(gift.templateVersionId ? { templateVersionId: gift.templateVersionId } : {}) } : { kind: 'blank' };
+    return this.create(user, { source, mutationId: input.mutationId }, {
+      requestHash: hash({ regift: gift.id, ...input }),
+      sourceFor: async () => {
+        if (source.kind === 'blank') {
+          if (!gift.documentSnapshot) throw canvasError(422, 'LAYOUT_UNAVAILABLE', 'Hãy chọn lại mẫu cho lượt tặng mới.');
+          return { source, provenance: { adapter: 'blank' }, document: cleanGiftLayout(gift.documentSnapshot) };
+        }
+        const previous = source.templateVersionId && await this.catalog.reusableVersion(source.templateId, source.templateVersionId);
+        const resolved = previous ? { source, ...previous, provenance: { adapter: 'creator-v1', price: previous.template.price } } : await this.source(source);
+        if (resolved.template.price > 0 && !await this.checkout.hasLicense(user.sub, source.templateId))
+          throw canvasError(402, 'TEMPLATE_LICENSE_REQUIRED', 'Cần quyền dùng mẫu còn hiệu lực để tạo lượt tặng mới.');
+        return resolved;
+      },
+    });
   }
   enforcePolicy(current, document) {
     if (current.policy?.kind === 'creator-template') {

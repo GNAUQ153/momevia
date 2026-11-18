@@ -11,6 +11,7 @@
 .editor-greeting-starters { display: grid; gap: .35rem; margin-block: .75rem; }
 .editor-greeting-starters button { text-align: left; }
 .share-option { text-align: left; margin-block: 1.5rem; }
+.inbox-filter { display: inline-flex; align-items: center; gap: .5rem; min-height: 44px; }
 .template-card__info p.template-card__capabilities { white-space: normal; overflow-wrap: anywhere; line-height: 1.4; }
 .page-banner.page-banner--dashboard { padding-block: clamp(1.25rem, 4vw, 3rem); }
 .template-preview-dialog { width:min(94vw,760px);max-height:94dvh;border:1px solid var(--line);border-radius:20px;padding:20px;background:var(--paper);color:var(--ink);overflow:auto; }

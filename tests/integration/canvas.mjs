@@ -8,6 +8,7 @@ import { spawn } from 'node:child_process';
 import { once } from 'node:events';
 import { setTimeout as delay } from 'node:timers/promises';
 import sharp from 'sharp';
+import { runReplyIntents } from './reply-intents.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const fixture = fs.mkdtempSync(path.join(fs.realpathSync(os.tmpdir()), 'momevia-canvas-'));
@@ -157,6 +158,18 @@ try {
   await check('C21 anonymous reply contract and count', async () => {
     const replies = await Promise.all([request(`/gifts/gifts/${published.slug}/replies`, { body: { name: 'Mai', message: 'Cảm ơn bạn!' } }), request(`/gifts/gifts/${published.slug}/replies`, { body: { message: 'Rất vui!' } })]);
     assert(replies.every(r => r.status === 201)); assert.equal((await request(`/gifts/gifts/${published.slug}/replies`)).data.replies.length, 2); assert.equal((await request(`/gifts/gifts/${published.slug}`)).data.gift.replyCount, 2);
+  });
+  await check('JSON legacy and canvas: reply replay, distinct identical replies, owner-only read IDs and late arrivals', async () => {
+    const { design: draft } = await post(owner, '/designs/designs', { source: { kind: 'blank' }, presetId: 'envelope-basic', mutationId: randomUUID() }, 201);
+    for (const binding of Object.values(draft.document.bindings)) binding.value = 'Quà hộp thư QA';
+    const ack = await post(owner, `/designs/designs/${draft.id}/save`, {
+      expectedRevision: draft.revision, mutationId: randomUUID(), title: draft.title, document: draft.document,
+    });
+    const { gift } = await post(owner, '/gifts/gifts/from-design', {
+      designId: draft.id, expectedRevision: ack.savedRevision, expectedDocumentHash: ack.documentHash, idempotencyKey: randomUUID(),
+    }, 201);
+    const { gift: legacy } = await post(owner, '/gifts/gifts', { templateId: 'sunny-wishes', recipientName: 'Mai', senderName: 'An', message: 'Lời chúc' }, 201);
+    for (const item of [gift, legacy]) await runReplyIntents(base, item.slug, owner.cookie, other.cookie);
   });
   await check('C18/C27 restart replay and writer-off reader preserved', async () => {
     await stop(); await launch({ CANVAS_EDIT_ENABLED: 'false', CANVAS_PUBLISH_ENABLED: 'false' });

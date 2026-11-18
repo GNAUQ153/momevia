@@ -25,7 +25,7 @@ Sao lưu phối hợp Identity, Catalog, Checkout, Gifts legacy, Support và cá
 
 ### Nâng schema MySQL từ terminal
 
-Chạy từ thư mục gốc repo. Nếu các module của môi trường đang dùng JSON thì bỏ qua migration MySQL. Với môi trường dùng MySQL, repo áp dụng các file SQL trong [database/migrations](../database/migrations/) theo thứ tự số. Migration `006_canvas` bổ sung canvas, snapshot và pin. Migration `007_support_reports` bổ sung đối tượng báo cáo, người xử lý và kết quả Support.
+Chạy từ thư mục gốc repo. Nếu các module của môi trường đang dùng JSON thì bỏ qua migration MySQL. Với môi trường dùng MySQL, repo áp dụng các file SQL trong [database/migrations](../database/migrations/) theo thứ tự số. Migration `006_canvas` bổ sung canvas, snapshot và pin. Migration `007_support_reports` bổ sung đối tượng báo cáo, người xử lý và kết quả Support. Migration `008_gift_reply_read_state` thêm trạng thái đọc cho lời đáp mới. Lời đáp cũ tiếp tục hiện trong toàn bộ hộp thư.
 
 **1. Xác nhận máy chủ, schema và migration đã áp dụng.** Chạy `npm run db:ping` để kiểm tra tài khoản ứng dụng. Nếu gặp `ER_ACCESS_DENIED_ERROR`, đối chiếu `MYSQL_HOST`, `MYSQL_PORT` và tài khoản trên đúng máy chủ. Khi chạy Docker Compose, dùng `docker compose --env-file .env -f database/compose.yml ps` để xem cổng host của dịch vụ `db`. Mỗi máy chủ quản lý tài khoản riêng.
 
@@ -49,7 +49,7 @@ Nếu bảng `schema_migrations` chưa có, chạy `SHOW TABLES` trên cùng sch
 
 Nếu thiếu nhiều file, thay tên file trong lệnh trên và chạy từng file theo thứ tự tăng dần. Dừng khi terminal báo lỗi hoặc `$LASTEXITCODE` khác `0`. MySQL DDL có implicit commit. Khi migration dừng giữa chừng, đối chiếu cột, constraint và ledger trước khi chạy lại.
 
-Khi Catalog khởi động, ứng dụng bổ sung hai mẫu hệ thống mới còn thiếu theo ID và bảo toàn bản ghi đã có.
+Với schema đã có `001`–`007`, dùng file `database/migrations/008_gift_reply_read_state.sql` trước khi khởi động bản có hộp thư mới. Khi Catalog khởi động, ứng dụng bổ sung hai mẫu hệ thống mới còn thiếu theo ID và bảo toàn bản ghi đã có.
 
 **3. Xác minh sau khi chạy.** Lặp lại truy vấn ledger ở bước 1. Với `007`, kiểm tra ledger có `007_support_reports` và bảng `support_requests` có đủ bốn cột mới:
 
@@ -58,7 +58,7 @@ Khi Catalog khởi động, ứng dụng bổ sung hai mẫu hệ thống mới 
 npm run db:verify
 ```
 
-`npm run db:verify` dùng cấu hình ứng dụng và kiểm tra bắt buộc đến `005`. Dùng truy vấn ledger để xác nhận `006` và `007`. Dữ liệu từ kho JSON chuyển sang MySQL qua các lệnh import ở trên.
+`npm run db:verify` dùng cấu hình ứng dụng và kiểm tra bắt buộc đến `005`. Dùng truy vấn ledger để xác nhận `006`–`008`. Sau `008`, kiểm tra `gift_replies.read_status` và index `gift_replies_unread_idx`. Dữ liệu từ kho JSON chuyển sang MySQL qua các lệnh import ở trên.
 
 ## CI và phát hành
 

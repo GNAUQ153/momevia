@@ -3,6 +3,7 @@ import path from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { canvasError, owned } from './errors.mjs';
 import { requireGiftPermission } from '../gifts/access.mjs';
+import { checkReplyReplay } from '../gifts/replies.mjs';
 
 const empty = () => ({ formatVersion: 1, designs: {}, creates: {}, mutations: {}, assets: {}, contexts: {}, publications: {}, versions: {}, replies: {} });
 const clone = value => structuredClone(value);
@@ -101,7 +102,12 @@ export class JsonDesignRepository {
     });
   }
   async findBySlug(slug) { const p = Object.values(this.read().publications).find(p => p.result.gift.slug === slug); return p ? clone(p.result.gift) : null; }
-  async listForUser(ownerId) { return Object.values(this.read().publications).filter(p => p.ownerId === ownerId).map(p => clone(p.result.gift)); }
+  async listForUser(ownerId) {
+    const state = this.read();
+    return Object.values(state.publications).filter(p => p.ownerId === ownerId).map(({ result: { gift } }) => ({
+      ...gift, unreadCount: (state.replies[gift.id] || []).filter(reply => reply.readStatus === 'unread').length,
+    }));
+  }
   async repliesForGift(giftId) { return clone(this.read().replies[giftId] || []); }
   async revoke(ownerId, giftId, revokedAt) {
     return this.change(state => {
@@ -111,12 +117,26 @@ export class JsonDesignRepository {
       return clone(publication.result.gift);
     });
   }
-  async addReply(giftId, reply, invite) {
+  async addReply(giftId, reply, invite, acceptNew = () => {}) {
     return this.change(state => {
       const p = Object.values(state.publications).find(p => p.result.gift.id === giftId);
       if (!p) throw canvasError(404, 'GIFT_NOT_FOUND', 'Không tìm thấy quà.');
       requireGiftPermission(p.result.gift, invite, 'canSend');
-      (state.replies[giftId] ||= []).push(clone(reply)); p.result.gift.replyCount = state.replies[giftId].length; return reply;
+      const replies = state.replies[giftId] ||= [];
+      const existing = replies.find(item => item.id === reply.id);
+      if (existing) return checkReplyReplay(existing, reply);
+      acceptNew();
+      replies.push(clone(reply));
+      p.result.gift.replyCount = replies.length;
+      return reply;
+    });
+  }
+  async markRepliesRead(giftId, ids) {
+    return this.change(state => {
+      const replies = state.replies[giftId] || [];
+      for (const reply of replies)
+        if (reply.readStatus === 'unread' && ids.has(reply.id)) reply.readStatus = 'read';
+      return replies.filter(reply => reply.readStatus === 'unread').length;
     });
   }
 }

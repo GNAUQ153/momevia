@@ -3,6 +3,7 @@ import { HttpError, parseJson, sendJson } from '../../shared/http.mjs';
 import { currentUser } from '../../shared/security.mjs';
 import { clientIp } from '../../shared/proxy.mjs';
 import { giftOwnerLinks, giftShareUrl } from './links.mjs';
+import { readRequestIds, replyView } from './replies.mjs';
 
 export function registerRoutes(router, { config, creationLimit, globalReplies, service, resolveUser = currentUser }) {
   const withShareUrl = gift => ({ ...gift, url: giftShareUrl(config.baseUrl, gift.slug) });
@@ -21,11 +22,23 @@ export function registerRoutes(router, { config, creationLimit, globalReplies, s
   });
   router.on('GET', '/gifts/mine/:slug/replies', async ({req,res,params}) => {
     const user = await resolveUser(req, config.jwtSecret);
-    sendJson(res, 200, { replies: await service.giftReplies(await service.ownGift(user, params.slug)) });
+    const replies = await service.giftReplies(await service.ownGift(user, params.slug));
+    sendJson(res, 200, { replies: replies.map(reply => replyView(reply, true)) });
+  });
+  router.on('POST', '/gifts/mine/:slug/replies/read', async ({req,res,params}) => {
+    const user = await resolveUser(req, config.jwtSecret);
+    const gift = await service.ownGift(user, params.slug);
+    const ids = readRequestIds(await parseJson(req, 8192));
+    sendJson(res, 200, { unreadCount: await service.markRepliesRead(gift, ids) });
   });
   router.on('POST', '/gifts/mine/:slug/revoke', async ({req,res,params}) => {
     const user = await resolveUser(req, config.jwtSecret);
     sendJson(res, 200, { gift: ownerShare(await service.revoke(user, params.slug)) });
+  });
+  router.on('POST', '/gifts/mine/:slug/regift', async ({req,res,params}) => {
+    const user = await resolveUser(req, config.jwtSecret);
+    const result = await service.regift(user, params.slug, await parseJson(req, 4096));
+    sendJson(res, result.replayed ? 200 : 201, result);
   });
   router.on('POST', '/gifts', async ({req,res}) => {
     const user = await resolveUser(req, config.jwtSecret);
@@ -54,6 +67,6 @@ export function registerRoutes(router, { config, creationLimit, globalReplies, s
     if (!globalReplies.consume('all')) throw new HttpError(429, 'Hệ thống đang nhận nhiều phản hồi. Vui lòng thử lại sau.');
     const body = await parseJson(req, 8192);
     const reply = await service.reply(params.slug, body, clientIp(req), url.searchParams.get('invite'));
-    sendJson(res, 201, {reply});
+    sendJson(res, 201, { reply: replyView(reply) });
   });
 }

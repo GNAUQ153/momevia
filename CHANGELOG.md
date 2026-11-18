@@ -1,4 +1,4 @@
-# Unreleased — Canvas Sender W00–W11
+# Unreleased — Sender, Creator và web demo
 
 - Thiết kế 12 built-in template theo chủ đề riêng, thumbnail SVG và preview tương tác; khung polaroid nhận ảnh ready, giữ crop khi thay ảnh/nhân bản. Khởi tạo layout mới qua CAS khi client mới hơn cached server; giữ draft/gift/quyền và giá cũ.
 
@@ -6,8 +6,10 @@
 - Source/policy/provenance server-owned, registry/schema v1 strict, immutable publication/revision/hash/idempotency, link/QR và recipient anonymous/reply.
 - JSON authoritative aggregate/recovery; MySQL migration006 + cùng-connection UnitOfWork, asset pins, entitlement/revoke và many-context checkout resume.
 - Giữ payment/webhook/receipt v1.1; methods/pending/receipt-error riêng, không tự publish/thu lại khi retry.
-- Backup JSON versioned và legacy importer fail rõ; MySQL/JSON/browser QA tách riêng. [Báo cáo](docs/CANVAS_QA_REPORT.md).
-- Không triển khai W12–W15, không bật merchant live hoặc migrate/deploy dữ liệu thật.
+- Cá nhân hóa nhanh, chia sẻ qua thiết bị, QR tải xuống, quyền link mời, hộp thư hồi đáp và thu hồi quà.
+- Creator Studio thiết kế canvas, submit/duyệt phiên bản cố định, cấp ảnh demo, giữ nguồn cho nháp Sender và snapshot cho quà.
+- Backup JSON và khôi phục MySQL/ảnh trong QA. Báo cáo Support theo đối tượng, người xử lý và kết quả. [Vận hành](docs/OPERATIONS.md)
+- Bộ khởi tạo demo nhiều vai trò, hướng dẫn pilot ghi tay và GitHub Release theo tag sau các gate kiểm thử. [Web demo](docs/DEMO_WEB.md)
 
 # 1.1.0 — Payment Gateway & Receipt Foundation
 

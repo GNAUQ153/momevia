@@ -1,3 +1,10 @@
+## Unreleased — Payment Lifecycle Phase 2: Admin reconciliation review (2026-11-18)
+
+- Thêm migration `009_payment_reconciliation_audit` để lưu metadata lần truy vấn provider (không lưu token/chữ ký/response body).
+- Admin có API **chỉ đọc** để xem giao dịch chờ trên 30 phút và lịch sử đối soát; không có API tự đánh dấu paid hoặc mở khóa retry.
+- Ghi nhận kết quả đối soát pending/paid/terminal/invalid/provider error; tăng regression tests xác thực quyền Admin và truy vấn có giới hạn.
+- Chưa bật cancellation/retry tự động hoặc hoàn tiền. Phải kiểm thử MySQL thực tế và sandbox trước triển khai thanh toán thật.
+
 ## Unreleased — Payment reconciliation phase 1 (2026-11-18)
 
 - Bổ sung server-side payment status inquiry cho MoMo và payOS; không tin return URL.

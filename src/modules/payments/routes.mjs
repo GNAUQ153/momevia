@@ -24,6 +24,15 @@ export function registerPaymentRoutes(router, { service, config, resolveUser = c
     const user = await resolveUser(req, config.jwtSecret);
     sendJson(res, 200, { receipt: await service.receipt(user, params.orderId) });
   });
+  // Admin-only inspection endpoints: no manual paid status, cancellation or retry unlock.
+  router.on('GET', '/payments/admin/review', async ({ req, res, url }) => {
+    const admin = await resolveUser(req, config.jwtSecret);
+    sendJson(res, 200, { orders: await service.pendingReview(admin, url.searchParams.get('limit')) });
+  });
+  router.on('GET', '/payments/admin/orders/:orderId/audit', async ({ req, res, url, params }) => {
+    const admin = await resolveUser(req, config.jwtSecret);
+    sendJson(res, 200, { attempts: await service.reconciliationHistory(admin, params.orderId, url.searchParams.get('limit')) });
+  });
   router.on('POST', '/payments/webhooks/:provider', async ({ req, res, params }) => {
     if (!['momo', 'payos'].includes(params.provider)) throw new HttpError(404, 'Không hỗ trợ provider.');
     const body = await parseJson(req, 30_000);

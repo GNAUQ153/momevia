@@ -102,6 +102,27 @@ export class PaymentService {
       ...(needsReview ? { notice: 'Giao dịch chờ xác nhận lâu. Nếu đã thanh toán, không thanh toán lại; liên hệ hỗ trợ kèm mã đơn để đối soát.' } : {})
     };
   }
+  // Administrative payment review is read-only. Authorization uses the session
+  // resolved by Identity; never accept a role supplied by the browser.
+  requireAdmin(user) {
+    if (user?.role !== 'admin') throw new HttpError(403, 'Chỉ quản trị viên được xem đối soát thanh toán.');
+  }
+  reviewLimit(value) {
+    if (value === undefined || value === null || value === '') return 50;
+    if (!/^[1-9][0-9]{0,2}$/.test(String(value)) || Number(value) > 100)
+      throw new HttpError(400, 'Giới hạn kết quả cần là số từ 1 đến 100.');
+    return Number(value);
+  }
+  async pendingReview(admin, limit) {
+    this.requireAdmin(admin);
+    return this.repository.pendingReview(this.reviewLimit(limit));
+  }
+  async reconciliationHistory(admin, orderId, limit) {
+    this.requireAdmin(admin);
+    if (typeof orderId !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(orderId))
+      throw new HttpError(400, 'Mã đơn không hợp lệ.');
+    return this.repository.reconciliationHistory(orderId, this.reviewLimit(limit));
+  }
   async reconcile(user, orderId) {
     // Ownership MUST be checked before any provider request or rate-limit consumption.
     const intent = await this.repository.forUser(orderId, user.sub);
@@ -121,18 +142,40 @@ export class PaymentService {
     const adapter = this.provider(intent.provider);
     if (!adapter || typeof adapter.queryStatus !== 'function')
       throw new HttpError(503, 'Nhà cung cấp chưa hỗ trợ truy vấn trạng thái.');
-    const result = await adapter.queryStatus({
-      code: intent.code, amount: intent.amount,
-      providerPaymentId: intent.providerPaymentId
-    });
-    if (!result || !['paid', 'pending', 'terminal_review'].includes(result.state))
+    // Record only safe audit metadata, never the provider response body, tokens or signatures.
+    const audit = async outcome => {
+      if (typeof this.repository.recordReconciliation === 'function') {
+        await this.repository.recordReconciliation({ intentId: intent.id, actorId: user.sub, outcome });
+      }
+    };
+    let result;
+    try {
+      result = await adapter.queryStatus({
+        code: intent.code, amount: intent.amount,
+        providerPaymentId: intent.providerPaymentId
+      });
+    } catch (error) {
+      await audit('provider_error');
+      throw error;
+    }
+    if (!result || !['paid', 'pending', 'terminal_review'].includes(result.state)) {
+      await audit('invalid_response');
       throw new HttpError(502, 'Kết quả đối soát từ nhà cung cấp không hợp lệ.');
+    }
     if (result.state === 'paid') {
       if (result.provider !== intent.provider || result.code !== intent.code
-        || result.amount !== intent.amount || result.currency !== 'VND' || !result.reference)
+        || result.amount !== intent.amount || result.currency !== 'VND' || !result.reference) {
+        await audit('mismatch');
         throw new HttpError(502, 'Giao dịch trả về không khớp dữ liệu thanh toán.');
-      await this.repository.settleVerified({ ...result, success: true });
+      }
+      try {
+        await this.repository.settleVerified({ ...result, success: true });
+      } catch (error) {
+        await audit('settlement_error');
+        throw error;
+      }
     }
+    await audit(result.state);
     const payment = await this.status(user, orderId);
     // Failed/cancelled results remain under operator review until a safe
     // provider-specific cancellation/retry workflow is implemented.

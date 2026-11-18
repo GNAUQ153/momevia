@@ -84,6 +84,41 @@ export class MySqlPaymentRepository {
     };
   }
 
+  // Read-only operator queue. Never expose merchant credentials, QR payloads, or payment URLs.
+  async pendingReview(limit = 50) {
+    const [rows] = await this.client.execute(`SELECT p.id AS intent_id, p.order_id,
+      p.provider, p.amount_vnd, p.created_at, o.is_test,
+      (SELECT a.outcome FROM payment_reconciliation_attempts a
+        WHERE a.intent_id=p.id ORDER BY a.id DESC LIMIT 1) AS last_inquiry_outcome,
+      (SELECT MAX(a.checked_at) FROM payment_reconciliation_attempts a
+        WHERE a.intent_id=p.id) AS last_inquiry_at
+      FROM payment_intents p JOIN orders o ON o.id=p.order_id
+      WHERE p.status='pending' AND o.status='pending_payment'
+        AND p.created_at <= UTC_TIMESTAMP(3) - INTERVAL 30 MINUTE
+      ORDER BY p.created_at ASC LIMIT ?`, [limit]);
+    return rows.map(row => ({ orderId: row.order_id, intentId: row.intent_id,
+      provider: row.provider, amountVnd: Number(row.amount_vnd),
+      pendingSince: row.created_at, sandbox: Boolean(row.is_test),
+      lastInquiryOutcome: row.last_inquiry_outcome || null,
+      lastInquiryAt: row.last_inquiry_at || null }));
+  }
+
+  async reconciliationHistory(orderId, limit = 50) {
+    const [rows] = await this.client.execute(`SELECT a.id, a.outcome, a.checked_at
+      FROM payment_reconciliation_attempts a
+      JOIN payment_intents p ON p.id=a.intent_id
+      WHERE p.order_id=? ORDER BY a.id DESC LIMIT ?`, [orderId, limit]);
+    return rows.map(row => ({ id: String(row.id), outcome: row.outcome, checkedAt: row.checked_at }));
+  }
+
+  // Store metadata only, never provider response bodies, tokens or signatures.
+  async recordReconciliation({ intentId, actorId, outcome }) {
+    const allowed = ['pending','paid','terminal_review','provider_error','invalid_response','mismatch','settlement_error'];
+    if (!allowed.includes(outcome)) throw new Error('Invalid reconciliation audit outcome');
+    await this.client.execute(`INSERT INTO payment_reconciliation_attempts (intent_id,actor_id,outcome)
+      VALUES (?,?,?)`, [intentId, actorId, outcome]);
+  }
+
   async settleVerified(event) {
     const { provider, code, reference, amount, currency, success } = event;
     if (!success) return { settled: false, reason: 'not-paid' };

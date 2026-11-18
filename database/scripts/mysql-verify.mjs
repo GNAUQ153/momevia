@@ -6,6 +6,7 @@ const requiredTables = [
   'orders', 'demo_purchases', 'support_requests', 'payment_transactions', 'payment_events',
   'template_entitlements', 'creator_ledger', 'outbox_events',
   'payment_intents', 'payment_checkout_keys', 'payment_receipts',
+  'payment_reconciliation_attempts',
 ];
 
 loadEnvironment();
@@ -27,8 +28,8 @@ try {
   }
   const [migrations] = await client.execute('SELECT version FROM schema_migrations ORDER BY version');
   const versions = migrations.map(row => row.version);
-  if (!versions.includes('001_initial') || !versions.includes('002_support_user_bridge') || !versions.includes('003_identity_catalog') || !versions.includes('004_gifts_checkout') || !versions.includes('005_payment_receipts')) {
-    throw new Error('Thiếu migration 001, 002, 003, 004 hoặc 005.');
+  if (!versions.includes('009_payment_reconciliation_audit') || !versions.includes('001_initial') || !versions.includes('002_support_user_bridge') || !versions.includes('003_identity_catalog') || !versions.includes('004_gifts_checkout') || !versions.includes('005_payment_receipts')) {
+    throw new Error('Thiếu migration Payment Lifecycle 009 hoặc một trong các migration nền tảng 001–005.');
   }
   const [bridge] = await client.execute(`
     SELECT column_name AS name FROM information_schema.columns

@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { BASIC_TEMPLATES, templatePreviewDocument } from '../../web/js/shared/canvas/basic-templates.js';
+import { BASIC_TEMPLATES, templatePreviewDocument } from '../../web/js/shared/canvas/index.js';
 import { STICKERS } from '../../web/js/shared/canvas/registry.js';
 import { validateDocument } from '../../web/js/shared/canvas/schema.js';
 

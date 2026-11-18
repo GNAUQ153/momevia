@@ -8,10 +8,12 @@ import { once } from 'node:events';
 import { createHmac, randomBytes, randomUUID } from 'node:crypto';
 import { createRequire } from 'node:module';
 import { pathToFileURL, fileURLToPath } from 'node:url';
+import { confirmGiftAccess } from '../browser/gift-access.mjs';
 
 const require = createRequire(import.meta.url), driver = require('mysql2/promise'), sharp = require('sharp');
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-fs.mkdirSync(path.join(root,'local/canvas-implementation-20261117'),{recursive:true});
+const artifacts = process.env.BROWSER_ARTIFACT_DIR && path.resolve(process.env.BROWSER_ARTIFACT_DIR);
+if (artifacts) fs.mkdirSync(artifacts, { recursive: true });
 const database = process.env.CANVAS_QA_MYSQL_DATABASE, port = Number(process.env.CANVAS_QA_MYSQL_PORT);
 assert.equal(process.env.CANVAS_QA_MYSQL_ISOLATED, 'true');
 assert.match(database || '', /^momevia_canvas_qa_[a-z0-9_]+$/);
@@ -25,13 +27,19 @@ const [[exists]] = await admin.execute('SELECT COUNT(*) AS count FROM informatio
 assert.equal(exists.count,0,'Refuses existing schema; select a NEW isolated QA database.');
 await admin.query(`CREATE DATABASE \`${database}\` CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci`);
 await admin.changeUser({ database });
-for(const name of fs.readdirSync(path.join(root,'database/migrations')).filter(n=>/^\d+.*\.sql$/.test(n)).sort())
+for(const name of fs.readdirSync(path.join(root,'database/migrations')).filter(n=>/^\d+.*\.sql$/.test(n)).sort()) {
+  if (name === '007_support_reports.sql') await admin.execute(`INSERT INTO support_requests
+    (id,code,name,email,topic,message,status,created_at)
+    VALUES (UUID(),'QA-OLD-SUPPORT','QA cũ','old@example.test','Hỗ trợ','Bản ghi trước migration 007','new',UTC_TIMESTAMP(3))`);
   await admin.query(fs.readFileSync(path.join(root,'database/migrations',name),'utf8'));
+}
+const [[oldTicket]] = await admin.execute("SELECT message, report_kind, assigned_to FROM support_requests WHERE code='QA-OLD-SUPPORT'");
+assert.deepEqual({ ...oldTicket }, { message: 'Bản ghi trước migration 007', report_kind: null, assigned_to: null });
 const fixture = fs.mkdtempSync(path.join(fs.realpathSync(os.tmpdir()),'momevia-canvas-mysql-api-'));
 for(const name of ['src','web']) fs.cpSync(path.join(root,name),path.join(fixture,name),{recursive:true});
 fs.cpSync(path.join(root,'tests/browser'),path.join(fixture,'tests/browser'),{recursive:true});
 fs.copyFileSync(path.join(root,'package.json'),path.join(fixture,'package.json'));
-const qaModules = process.env.CANVAS_QA_NODE_MODULES || path.join(root,'local/canvas-replan-20261117/qa/node_modules');
+const qaModules = process.env.CANVAS_QA_NODE_MODULES || path.join(root,'node_modules');
 assert(fs.existsSync(path.join(qaModules,'mysql2')) && fs.existsSync(path.join(qaModules,'sharp')),'Locked QA dependency installation required.');
 fs.symlinkSync(qaModules,path.join(fixture,'node_modules'),'junction');
 const previousCwd=process.cwd(), previousEnv={...process.env};
@@ -64,8 +72,9 @@ function publishBody(d,key=uuid()){return {designId:d.id,expectedRevision:d.revi
 function fill(d){d.document.bindings.recipientName.value='Mai';d.document.bindings.senderName.value='An';d.document.bindings.message.value='Chúc mừng sinh nhật! Tiếng Việt: ă â ê ô ơ ư đ.';return d.document;}
 try{
   Object.assign(process.env,{NODE_ENV:'test',MYSQL_HOST:'127.0.0.1',MYSQL_PORT:String(port),MYSQL_DATABASE:database,MYSQL_USER:dbOptions.user,MYSQL_PASSWORD:dbOptions.password,
-    IDENTITY_STORAGE:'mysql',CATALOG_STORAGE:'mysql',CHECKOUT_STORAGE:'mysql',GIFTS_STORAGE:'mysql',DESIGNS_STORAGE:'mysql',SUPPORT_STORAGE:'json',
-    PAYMENT_ENABLED:'false',PAYMENT_LIVE_ENABLED:'false',CANVAS_READ_ENABLED:'true',CANVAS_EDIT_ENABLED:'true',CANVAS_PUBLISH_ENABLED:'true'});
+    IDENTITY_STORAGE:'mysql',CATALOG_STORAGE:'mysql',CHECKOUT_STORAGE:'mysql',GIFTS_STORAGE:'mysql',DESIGNS_STORAGE:'mysql',SUPPORT_STORAGE:'mysql',
+    PAYMENT_ENABLED:'false',PAYMENT_LIVE_ENABLED:'false',CANVAS_READ_ENABLED:'true',CANVAS_EDIT_ENABLED:'true',CANVAS_PUBLISH_ENABLED:'true',
+    PUBLIC_BASE_URL:'http://127.0.0.1',TEST_ACCOUNT_ENABLED:'false'});
   process.chdir(fixture);
   const {templates}=await import(pathToFileURL(path.join(fixture,'src/modules/catalog/seed.mjs')).href);
   for(const t of templates)await admin.execute(`INSERT INTO templates(id,title,style,theme,price_vnd,status,created_at,payload) VALUES (?,?,?,?,?,'published',UTC_TIMESTAMP(3),?)`,[t.id,t.title,t.style,t.theme,t.price,JSON.stringify({...t,status:'published',creatorId:'system'})]);
@@ -81,6 +90,17 @@ try{
     const first=await request('/api/auth/demo',{method:'POST',body:{name:'Người gửi QA',deviceId:uuid()}});assert.equal(first.status,200);owner=first.data.user.id;cookie=first.headers.get('set-cookie').split(';')[0];assert.equal(first.data.user.role,'sender');
     const second=await request('/api/auth/demo',{method:'POST',body:{name:'Người khác QA',deviceId:uuid()}});assert.equal(second.status,200);otherCookie=second.headers.get('set-cookie').split(';')[0];
     assert.equal((await request('/api/designs/designs')).status,401);
+  });
+  await check('MySQL saves empty drafts and rejects publication with the preflight blocker', async () => {
+    const empty = await create({ kind: 'blank' }, 'blank');
+    const saved = await save(empty, fill(empty));
+    assert.equal(saved.document.elements.length, 0);
+    const checked = await preflight(saved);
+    assert.equal(checked.canPublish, false);
+    assert.deepEqual(checked.blockers.map(({ code }) => code), ['EMPTY_DESIGN']);
+    const rejected = await post('/api/gifts/gifts/from-design', cookie, publishBody(saved), 422);
+    assert.deepEqual(rejected.details, checked.blockers);
+    assert.deepEqual((await json('/api/gifts/gifts/mine', { cookie })).gifts, []);
   });
   await check('C01/C05/C06 blank create/save/reload/CAS/lost ACK through HTTP MySQL',async()=>{
     const mutationId=uuid(),body={source:{kind:'blank'},presetId:'envelope-basic',mutationId};
@@ -110,6 +130,10 @@ try{
     const body=publishBody(blank),[a,b]=await Promise.all([request('/api/gifts/gifts/from-design',{method:'POST',cookie,body}),request('/api/gifts/gifts/from-design',{method:'POST',cookie,body})]);
     assert.deepEqual([a.status,b.status].sort(),[200,201]);assert.equal(a.data.gift.id,b.data.gift.id);blankGift=a.data.gift;
     const publicGift=(await json(`/api/gifts/gifts/${blankGift.slug}`)).gift;assert(publicGift.documentSnapshot);assert(!('ownerId'in publicGift));assert(!('policy'in publicGift));assert(!('designId'in publicGift));assert(!('source'in publicGift));
+    const { gifts } = await json('/api/gifts/gifts/mine', { cookie });
+    assert.equal(publicGift.url, `${base}/g/${blankGift.slug}`);
+    assert.equal(publicGift.url, blankGift.url);
+    assert.equal(gifts.find(gift => gift.slug === blankGift.slug).url, blankGift.url);
     const media=await request(`/api/gifts/gifts/${blankGift.slug}/assets/${imageAsset.id}`);assert.equal(media.status,200);assert.equal(media.headers.get('content-type'),'image/png');assert(media.bytes.length>0);
     await post(`/api/gifts/gifts/${blankGift.slug}/replies`,null,{name:'Người nhận',message:'Cảm ơn bạn!'},201);
     assert.equal((await json(`/api/gifts/gifts/${blankGift.slug}/replies`)).replies.length,1);
@@ -187,9 +211,9 @@ try{
         const id=page.url().split('/').at(-1);let persisted=await getDesign(id);assert.equal(persisted.source.kind,'blank');assert(persisted.document.elements.some(e=>e.type==='text'&&e.props.text==='Tiếng Việt được lưu: ă â ê ô ơ ư đ'&&e.layout.x===72));
         await page.reload();await page.locator('.editor-workspace').waitFor();assert.equal(await page.locator('[data-editor-field="binding.message"]').inputValue(),'Lời chúc MySQL từ trang trống');
         await page.locator('[data-editor-action="preview"]').click();const dialog=page.locator('dialog.editor-preview-dialog');await dialog.locator('.gift-runtime-envelope').click();await dialog.getByRole('button',{name:'Đọc lời nhắn',exact:true}).click();await dialog.getByLabel('Lời đáp',{exact:true}).fill('Mô phỏng không ghi');await dialog.getByRole('button',{name:'Gửi lời đáp',exact:true}).click();await dialog.locator('.gift-runtime-replies').getByText('Mô phỏng không ghi').waitFor();assert.equal(previewWrites,0);
-        await dialog.locator('[data-editor-action="preview-close"]').click();await page.locator('[data-editor-action="publish"]').click();await page.waitForURL('**/success/*');await page.locator('#share-link').waitFor();
+        await dialog.locator('[data-editor-action="preview-close"]').click();await page.locator('[data-editor-action="publish"]').click();await confirmGiftAccess(page);await page.waitForURL('**/success/*');await page.locator('#share-link').waitFor();
         persisted=await getDesign(id);assert.equal(persisted.document.bindings.message.value,'Lời chúc MySQL từ trang trống');
-        await page.screenshot({path:path.join(root,'local/canvas-implementation-20261117/mysql-blank-success-1440.png'),fullPage:true});
+        if (artifacts) await page.screenshot({path:path.join(artifacts,'mysql-blank-success-1440.png'),fullPage:true});
       }finally{await browser.close();}
     });
     await check('Browser MySQL recipient: anonymous, keyboard/reduced motion, six viewports, reply and no editor bundle',async()=>{
@@ -209,7 +233,7 @@ try{
         }
         assert(!scripts.some(url=>/pages\/designer\.js|features\/canvas-editor/.test(url)),'Public player must not load editor');
         assert.deepEqual(errors,[]);assert.deepEqual(await page.evaluate(()=>globalThis.__canvasCsp),[]);
-        await page.screenshot({path:path.join(root,'local/canvas-implementation-20261117/mysql-recipient-1440.png'),fullPage:true});
+        if (artifacts) await page.screenshot({path:path.join(artifacts,'mysql-recipient-1440.png'),fullPage:true});
         await guest.close();
       }finally{await browser.close();}
     });
@@ -226,6 +250,11 @@ try{
       }finally{await browser.close();}
     });
   }
+  let restoreGift;
+  if (process.argv.includes('--browser')) await check('Creator birthday template V1/V2, real UI and MySQL', async () => {
+    const { runCreatorJourney } = await import('../browser/creator-journey.mjs');
+    restoreGift = await runCreatorJourney(base);
+  });
   await check('C27 writer disabled keeps reader/media; C22 TTL guards public/reply/assets',async()=>{
     app.modules.designs.flags.edit=false;app.modules.designs.flags.publish=false;
     assert.equal((await request('/api/designs/designs',{method:'POST',cookie,body:{source:{kind:'blank'},mutationId:uuid()}})).status,503);
@@ -233,6 +262,14 @@ try{
     await admin.execute('UPDATE gifts SET created_at=DATE_SUB(UTC_TIMESTAMP(3),INTERVAL 3 DAY),expires_at=DATE_SUB(UTC_TIMESTAMP(3),INTERVAL 1 DAY) WHERE slug=?',[blankGift.slug]);
     for(const route of [`/api/gifts/gifts/${blankGift.slug}`,`/api/gifts/gifts/${blankGift.slug}/replies`,`/api/gifts/gifts/${blankGift.slug}/assets/${imageAsset.id}`])assert.equal((await request(route)).status,410);
     assert.equal(externalRequests,0);
+  });
+  if (process.env.MOMEVIA_QA_RESTORE_CONTAINER && restoreGift) await check('DB and media restore to a clean MySQL schema and fresh app', async () => {
+    const { runMysqlRestore } = await import('./mysql-restore.mjs');
+    await runMysqlRestore({ root, sourceFixture: fixture, database, container: process.env.MOMEVIA_QA_RESTORE_CONTAINER, config, gift: restoreGift, stopSource: async () => {
+      await new Promise(resolve => app.server.close(resolve));
+      await app.close();
+      app = null;
+    } });
   });
   console.log(`RESULT PASS ${count} real MySQL HTTP/provider-injected cases. External requests=${externalRequests}; merchant E2E NOT RUN.`);
 }finally{

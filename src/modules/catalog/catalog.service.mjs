@@ -4,13 +4,27 @@ import { sanitizeText, sanitizeOptionalText } from '../../shared/security.mjs';
 
 const publicFields = ['id', 'title', 'subtitle', 'theme', 'style', 'price', 'scenes', 'effect', 'creator', 'featured', 'category', 'status', 'createdAt'];
 export function publicTemplate(template) {
-  return Object.fromEntries(publicFields.filter(key => Object.hasOwn(template, key)).map(key => [key, template[key]]));
+  const view = Object.fromEntries(publicFields.filter(key => Object.hasOwn(template, key)).map(key => [key, template[key]]));
+  if (template.versionId) {
+    view.versionId = template.versionId;
+    const version = template.versions.find(item => item.id === template.versionId);
+    const thumbnail = version?.document.elements.find(item => item.type === 'image' && item.props.assetId && item.visible !== false);
+    if (thumbnail) view.thumbnail = `/api/catalog/templates/${template.id}/versions/${template.versionId}/assets/${thumbnail.props.assetId}`;
+  }
+  return view;
 }
 
 export class CatalogService {
   constructor(repository, favorites) { this.repo = repository; this.favorites = favorites; }
 
-  async publicList() { return (await this.repo.all()).filter(t => t.status === 'published').map(publicTemplate); }
+  async isPublic(template) {
+    return template?.status === 'published' && (!template.creatorDesignId || Boolean(template.versionId && await this.creatorTemplates.canCreate(template.creatorId)));
+  }
+  async publicList() {
+    const items = (await this.repo.all()).filter(item => item.status === 'published');
+    const visible = await Promise.all(items.map(item => this.isPublic(item)));
+    return items.filter((_, index) => visible[index]).map(publicTemplate);
+  }
   async search({ q = '', style = '' }) {
     let items = await this.publicList();
     q = q.toLocaleLowerCase('vi');
@@ -25,29 +39,33 @@ export class CatalogService {
   }
   async mine(user) {
     if (!['creator', 'admin'].includes(user.role)) throw new HttpError(403, 'Bạn cần quyền Creator để xem danh sách mẫu.');
-    return (await this.repo.all()).filter(item => item.creatorId === user.sub);
+    return (await this.repo.all()).filter(item => item.creatorId === user.sub && !item.creatorDesignId);
   }
   requireAdmin(user, message) {
     if (user.role !== 'admin') throw new HttpError(403, message);
   }
   async pending(user) {
     this.requireAdmin(user, 'Chỉ quản trị viên được truy cập.');
-    return (await this.repo.all()).filter(item => item.status === 'pending');
+    return (await this.repo.all()).filter(item => item.status === 'pending' && !item.creatorDesignId);
   }
   async approve(user, id) {
     this.requireAdmin(user, 'Chỉ quản trị viên được duyệt mẫu.');
-    if (!(await this.repo.get(id))) throw new HttpError(404, 'Không tìm thấy mẫu.');
-    return this.repo.update(id, { status: 'published' });
+    return this.reviewLegacy(id, { status: 'published' });
   }
   async reject(user, id, body) {
     this.requireAdmin(user, 'Chỉ quản trị viên được kiểm duyệt.');
     const reason = sanitizeOptionalText(body.reason, 250);
-    if (!(await this.repo.get(id))) throw new HttpError(404, 'Không tìm thấy mẫu.');
-    return this.repo.update(id, { status: 'rejected', rejectionReason: reason });
+    return this.reviewLegacy(id, { status: 'rejected', rejectionReason: reason });
+  }
+  async reviewLegacy(id, patch) {
+    const current = await this.repo.get(id);
+    if (!current) throw new HttpError(404, 'Không tìm thấy mẫu.');
+    if (current.creatorDesignId) throw new HttpError(404, 'Hãy duyệt phiên bản mẫu trong hàng đợi.');
+    return this.repo.update(id, patch);
   }
   async publicOne(id) {
     const item = await this.repo.get(id);
-    if (!item || item.status !== 'published') throw new HttpError(404, 'Mẫu quà không tồn tại.');
+    if (!await this.isPublic(item)) throw new HttpError(404, 'Mẫu quà không tồn tại.');
     return publicTemplate(item);
   }
   async createDraft(user, data) {

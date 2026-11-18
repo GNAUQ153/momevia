@@ -11,7 +11,8 @@ export class MySqlSupportRepository {
   async all() {
     const [rows] = await this.client.execute(`
       SELECT id, code, COALESCE(user_id, legacy_user_id) AS userId,
-             name, email, topic, message, status, created_at AS createdAt
+             name, email, topic, message, status, created_at AS createdAt,
+             report_kind AS reportKind, report_target AS reportTarget, assigned_to AS assignedTo, resolution
       FROM support_requests
       ORDER BY created_at DESC
     `);
@@ -24,13 +25,23 @@ export class MySqlSupportRepository {
     const identityMysql = process.env.IDENTITY_STORAGE === 'mysql';
     const utcDate = ticket.createdAt.replace('T', ' ').replace('Z', '');
     const values = identityMysql ? '?, ?, ?, NULL, ?, ?, ?, ?, ?, ?' : '?, ?, NULL, ?, ?, ?, ?, ?, ?, ?';
+    const reportColumns = ticket.reportKind ? ', report_kind, report_target' : '';
+    const reportParameters = ticket.reportKind ? ', ?, ?' : '';
     await this.client.execute(`
       INSERT INTO support_requests
-        (id, code, user_id, legacy_user_id, name, email, topic, message, status, created_at)
-      VALUES (${values})
+        (id, code, user_id, legacy_user_id, name, email, topic, message, status, created_at${reportColumns})
+      VALUES (${values}${reportParameters})
     `, [ticket.id, ticket.code, ticket.userId, ticket.name,
-      ticket.email, ticket.topic, ticket.message, ticket.status, utcDate]);
+      ticket.email, ticket.topic, ticket.message, ticket.status, utcDate,
+      ...(ticket.reportKind ? [ticket.reportKind, ticket.reportTarget] : [])]);
     return ticket;
+  }
+
+  async updateReport(id, patch, expected) {
+    const [result] = await this.client.execute(`UPDATE support_requests SET status=?, assigned_to=?, resolution=?
+      WHERE id=? AND report_kind IS NOT NULL AND status=? AND assigned_to <=> ?`,
+    [patch.status, patch.assignedTo, patch.resolution, id, expected.status, expected.assignedTo || null]);
+    return result.affectedRows === 1;
   }
 
   async close() { await this.client.close(); }

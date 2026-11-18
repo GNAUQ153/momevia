@@ -6,12 +6,12 @@ function element(tag, className, text) {
   if (text !== undefined) node.textContent = text;
   return node;
 }
-function imageUrl(value) {
-  return typeof value === "string" &&
-    /^\/api\/(?:designs|gifts)\//.test(value) &&
-    !value.includes("\\")
-    ? value
-    : null;
+function imageUrl(value, mode) {
+  if (typeof value !== "string" || value.includes("\\")) return null;
+  if (/^\/api\/(?:designs|gifts)\//.test(value)) return value;
+  if (mode === "preview" && (/^\/api\/catalog\/(?:admin\/)?templates\/[\w-]+\/versions\/[\w-]+\/assets\/[\w-]+$/.test(value)
+    || /^data:image\/(?:png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/.test(value))) return value;
+  return null;
 }
 export function resolveText(node, document) {
   return node.props.textBinding
@@ -74,7 +74,7 @@ export function renderElement(
     node.style.color = p.color || "#32243B";
   } else if (type === "image") {
     node = element("div", "gift-runtime-image");
-    const url = p.assetId ? imageUrl(assetUrl(p.assetId)) : null;
+    const url = p.assetId ? imageUrl(assetUrl(p.assetId), mode) : null;
     if (url) {
       const img = element("img");
       img.src = url;
@@ -153,7 +153,11 @@ export function renderElement(
       element(
         "p",
         "gift-runtime-reply-privacy",
-        "Người có đường dẫn quà có thể đọc lời đáp.",
+        mode === "public" ? ({
+          link: "Người gửi và ai có link quà đều đọc được lời đáp.",
+          invite: "Chỉ người gửi và người có link mời đọc được lời đáp.",
+          sender: "Chỉ người gửi quà đọc được lời đáp.",
+        }[replyAdapter?.replyAudience] || "") : "Lời đáp trong bản xem trước được mô phỏng.",
       ),
     );
     const form = element("form"),
@@ -180,8 +184,14 @@ export function renderElement(
     messageLabel.append(message);
     form.append(nameLabel, messageLabel, submit, status);
     node.append(form);
+    if (mode === "public" && !replyAdapter?.canSend) {
+      form.hidden = true;
+      node.append(element("p", "", replyAdapter?.repliesDisabled
+        ? "Người gửi đã tắt hồi đáp." : "Cần link mời để gửi hồi đáp."));
+    }
     const replies = element("div", "gift-runtime-replies");
     node.append(replies);
+    replies.hidden = mode === "public" && !replyAdapter?.canRead;
     const appendReply = (reply) => {
       const item = element("blockquote");
       item.append(
@@ -241,7 +251,7 @@ export function renderElement(
         .catch(() => {
           if (!signal?.aborted)
             status.textContent =
-              "Chưa tải được lời đáp. Bạn vẫn có thể gửi lời đáp.";
+              "Chưa tải được lời đáp.";
         });
   } else throw new Error("Phiên bản element chưa được hỗ trợ.");
   node.dataset.runtimeElement = model.id;

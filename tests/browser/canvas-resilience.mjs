@@ -11,7 +11,8 @@ async function bounded(promise,label){let timer;try{return await Promise.race([p
 // Drafts and authentication use the real JSON HTTP app. Only gateway responses are
 // browser-injected; this gate does not prove MySQL settlement or merchant/provider E2E.
 export async function runCanvasResilience(base){
-  const browser=await chromium.launch({headless:true,channel:process.env.BROWSER_CHANNEL || 'msedge'});
+  const channel=process.env.BROWSER_CHANNEL || (process.platform === 'win32' ? 'msedge' : undefined);
+  const browser=await chromium.launch({headless:true,channel});
   const context=await browser.newContext({viewport:{width:1440,height:1000},reducedMotion:'reduce'});
   const completed=[],errors=[],csp=[],external=[],paymentTraffic=[],mockErrors=[],gates=[],artifacts=process.env.BROWSER_ARTIFACT_DIR;
   const gate=()=>{const item=deferred();gates.push(item);return item;};
@@ -140,15 +141,15 @@ export async function runCanvasResilience(base){
     assert.equal(await page.locator(`a.btn--outline[href="/design/${paidA.id}"]`).count(),1);assert.equal(await page.locator(`a.btn--dark[href="/design/${paidA.id}"]`).count(),1);assert(!(await page.locator('.success-card').innerText()).includes('bản đã thanh toán'));
     completed.push('C14 attach lost ACK retries identical context mutation; server intent amount displayed; pending return never publishes');
 
-    await open(paidB);await control('publish').click();await page.locator('[data-action="start-payment"]').click();await page.getByRole('heading',{name:'Quét VietQR để thanh toán'}).waitFor();
+    await open(paidB);await control('toggle-mode').click();await control('preview').click();await control('preview-send').click();await page.locator('[data-action="start-payment"]').click();await page.getByRole('heading',{name:'Quét VietQR để thanh toán'}).waitFor();
     await page.locator('[data-action="payment-status"]').click();await page.getByRole('heading',{name:'Đang xác nhận thanh toán'}).waitFor();
-    assert.equal(contexts.length,2);assert.deepEqual(new Set(contexts.map(context=>context.designId)),new Set([paidA.id,paidB.id]));assert.equal(await page.locator(`a.btn--outline[href="/design/${paidA.id}"]`).count(),1);assert.equal(await page.locator(`a.btn--outline[href="/design/${paidB.id}"]`).count(),1);assert.equal(await page.locator(`a.btn--dark[href="/design/${paidB.id}"]`).count(),1);
+    assert.equal(contexts.length,2);assert.deepEqual(new Set(contexts.map(context=>context.designId)),new Set([paidA.id,paidB.id]));assert.equal(await page.locator(`a.btn--outline[href="/design/${paidA.id}"]`).count(),1);assert.equal(await page.locator(`a.btn--outline[href="/design/${paidB.id}?mode=quick"]`).count(),1);assert.equal(await page.locator(`a.btn--dark[href="/design/${paidB.id}?mode=quick"]`).count(),1);
     const changedB=(await api(`/designs/designs/${paidB.id}`)).design;expectedPaidBMessage='Draft B vừa chỉnh ở tab khác trước khi quay lại';changedB.document.bindings.message.value=expectedPaidBMessage;
     await api(`/designs/designs/${paidB.id}/save`,{expectedRevision:changedB.revision,mutationId:randomUUID(),title:changedB.title,document:changedB.document});
     const createsBeforeReturn=createRequests.length;paymentStatus='paid';await page.locator('[data-action="refresh-payment"]').click();await page.getByRole('heading',{name:'Thanh toán thành công'}).waitFor();await page.getByRole('alert').filter({hasText:'Biên nhận chưa tải được'}).waitFor();await page.getByText('Nháp đã được chỉnh sửa ở phiên khác. Mở bản mới để xem trước và kiểm tra lại quyền.').waitFor();
     assert.equal(giftPosts,0);assert.equal(createRequests.length,createsBeforeReturn);assert.equal(await page.locator('[data-action="print-receipt"]').count(),0);
     receiptError=false;await page.getByRole('button',{name:'Thử tải biên nhận'}).click();await page.locator('#payment-receipt').waitFor();assert.equal(await page.locator('[data-action="print-receipt"]').count(),1);assert.equal(giftPosts,0);assert.equal(createRequests.length,createsBeforeReturn);
-    await page.getByRole('link',{name:'Tiếp tục nháp vừa liên kết'}).click();await field('binding.message').waitFor();assert.equal(await field('binding.message').inputValue(),expectedPaidBMessage);assert.equal(giftPosts,0);
+    await page.getByRole('link',{name:'Tiếp tục nháp vừa liên kết'}).click();await field('binding.message').waitFor();assert.equal(await field('binding.message').inputValue(),expectedPaidBMessage);assert.equal(new URL(page.url()).searchParams.get('mode'),'quick');assert.equal(giftPosts,0);
     completed.push('C14/C15 same order keeps two explicit draft choices; paid and receipt-error distinct, receipt retry never charges/publishes');
 
     // A pending provider response arriving after modal close/route change must

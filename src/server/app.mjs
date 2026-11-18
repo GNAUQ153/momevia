@@ -12,6 +12,9 @@ import { createApp as supportApp } from '../modules/support/app.mjs';
 import { createApp as designsApp } from '../modules/designs/app.mjs';
 import { registerPublicationRoutes, registerContextRoutes, streamAsset } from '../modules/designs/routes.mjs';
 import { canvasError } from '../modules/designs/errors.mjs';
+import { requireGiftPermission } from '../modules/gifts/access.mjs';
+import { CreatorTemplates } from '../modules/catalog/creator-templates.mjs';
+import { registerCreatorRoutes } from '../modules/catalog/creator-routes.mjs';
 
 const prefixes = [
   ['/api/auth', 'identity'],
@@ -38,21 +41,47 @@ export async function createHttpApp(config = environment(), { paymentProviders, 
   });
   const designs = await designsApp(config, {
     resolveUser,
-    catalog: { getTemplate: id => catalog.service.publicOne(id) },
+    catalog: { getTemplate: id => catalog.service.publicOne(id),
+      approvedVersion: (id, version) => catalog.service.creatorTemplates.approved(id, version) },
     checkout: { hasLicense: (userId, templateId) => checkout.service.hasLicense(userId, templateId) },
     orders: user => checkout.service.orders(user),
   });
+  const creatorTemplates = new CreatorTemplates(catalog.service.repo, {
+    async getDraft(user, id) {
+      const draft = await designs.service.get(user, id);
+      if (draft.provenance?.purpose !== 'creator') throw new HttpError(404, 'Không tìm thấy nháp mẫu.');
+      return draft;
+    },
+    async getAsset(user, id) {
+      const asset = await designs.repository.getAsset(user.sub, id);
+      const source = asset && await designs.repository.get(user.sub, asset.designId);
+      if (source?.provenance?.purpose !== 'creator' || asset.status !== 'ready' || !designs.service.assetExists(asset))
+        throw new HttpError(422, 'Ảnh demo phải được tải từ Creator Studio và sẵn sàng.');
+      return asset;
+    },
+    async canCreate(ownerId) {
+      return ['creator', 'admin'].includes((await identity.service.users.get(ownerId))?.role);
+    },
+  });
+  catalog.service.creatorTemplates = creatorTemplates;
+  registerCreatorRoutes(catalog.router, { service: creatorTemplates, user: req => resolveUser(req), designs: designs.service, streamAsset });
   const gifts = await giftsApp(config, {
     resolveUser,
     canvas: designs,
     catalog: { getTemplate: async id => catalog.service.publicOne(id) },
     checkout: { hasLicense: async (userId, templateId) => checkout.service.hasLicense(userId, templateId) },
   });
-  const support = supportApp(config, { resolveUser });
+  const support = supportApp(config, { resolveUser, async resolveReport(kind, id, invite) {
+    if (kind === 'template') return (await catalog.service.publicOne(id)).id;
+    const gift = await gifts.service.validateSlug(id);
+    requireGiftPermission(gift, invite);
+    return gift.id;
+  } });
   registerPublicationRoutes(gifts.router, { service: designs.service, resolveUser, config, writeLimit: designs.writeLimit });
   registerContextRoutes(checkout.router, { service: designs.service, resolveUser, config });
-  gifts.router.on('GET', '/gifts/:slug/assets/:assetId', async ({ res, params }) => {
-    const gift = await gifts.service.validateSlug(params.slug); gifts.service.ensureActive(gift);
+  gifts.router.on('GET', '/gifts/:slug/assets/:assetId', async ({ res, params, url }) => {
+    const gift = await gifts.service.validateSlug(params.slug);
+    requireGiftPermission(gift, url.searchParams.get('invite'));
     if (!designs.flags.read || !gift.documentSnapshot || !gift.assetIds?.includes(params.assetId)) throw canvasError(404, 'ASSET_NOT_FOUND', 'Không tìm thấy ảnh.');
     const asset = designs.profile.mode === 'mysql' ? await designs.publication.pinnedAsset(params.slug, params.assetId) : await designs.repository.getAsset(gift.userId, params.assetId);
     if (!asset || asset.status !== 'ready' || !designs.service.assetExists(asset)) throw canvasError(404, 'ASSET_NOT_FOUND', 'Không tìm thấy ảnh.');

@@ -1,6 +1,7 @@
 import { MySqlClient } from '../../infrastructure/mysql/client.mjs';
 import { HttpError } from '../../shared/http.mjs';
 import { mysqlDate } from '../identity/mysql.repositories.mjs';
+import { requireGiftPermission } from './access.mjs';
 
 function iso(value) {
   if (value instanceof Date) return value.toISOString();
@@ -38,12 +39,24 @@ export class MySqlGiftsRepository {
       gift.message, gift.imageFile, 0, mysqlDate(gift.createdAt), mysqlDate(gift.expiresAt), JSON.stringify(gift)]);
     return gift;
   }
-  async addReply(giftId, reply) {
+  async revoke(ownerId, giftId, revokedAt) {
     return this.client.withTransaction(async tx => {
-      const [rows] = await tx.execute('SELECT expires_at FROM gifts WHERE id=? FOR UPDATE', [giftId]);
+      const [rows] = await tx.execute('SELECT * FROM gifts WHERE id=? AND user_id=? FOR UPDATE', [giftId, ownerId]);
       if (!rows.length) throw new HttpError(404, 'Không tìm thấy món quà.');
-      if (new Date(iso(rows[0].expires_at)) < new Date())
-        throw new HttpError(410, 'Món quà đã hết thời gian hoạt động.');
+      const gift = asGift(rows[0]);
+      if (!gift.revokedAt) {
+        gift.revokedAt = revokedAt;
+        await tx.execute("UPDATE gifts SET payload=JSON_SET(payload,'$.revokedAt',?) WHERE id=?", [revokedAt, giftId]);
+      }
+      return gift;
+    });
+  }
+  async addReply(giftId, reply, invite) {
+    return this.client.withTransaction(async tx => {
+      const [rows] = await tx.execute('SELECT expires_at,payload FROM gifts WHERE id=? FOR UPDATE', [giftId]);
+      if (!rows.length) throw new HttpError(404, 'Không tìm thấy món quà.');
+      const { expires_at, payload } = rows[0];
+      requireGiftPermission({ ...(typeof payload === 'string' ? JSON.parse(payload) : payload), expiresAt: iso(expires_at) }, invite, 'canSend');
       await tx.execute(`INSERT INTO gift_replies(id, gift_id, name, message, created_at)
         VALUES (?, ?, ?, ?, ?)`,
       [reply.id, giftId, reply.name, reply.message, mysqlDate(reply.createdAt)]);

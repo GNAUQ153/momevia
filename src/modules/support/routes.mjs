@@ -15,4 +15,8 @@ export function registerRoutes(router, { config, globalAttempts, service, resolv
     const user = await resolveUser(req, config.jwtSecret);
     sendJson(res, 200, { requests: await service.requests(user) });
   });
+  router.on('POST', '/admin/requests/:id/resolve', async ({req, res, params}) => {
+    const user = await resolveUser(req, config.jwtSecret);
+    sendJson(res, 200, await service.updateReport(user, params.id, await parseJson(req, 4096)));
+  });
 }

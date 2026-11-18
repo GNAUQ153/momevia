@@ -10,6 +10,7 @@ import { randomBytes, randomUUID } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { setTimeout as delay } from 'node:timers/promises';
 import sharp from 'sharp';
+import { runHttpSmoke } from '../smoke/http.mjs';
 
 // Khởi chạy Modular Monolith trong thư mục dữ liệu tạm, không đụng workspace.
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
@@ -197,12 +198,7 @@ try {
   }
   console.log('PASS  Đổi X-Forwarded-For không vượt được hạn mức Support');
 
-  for (const script of ['smoke-auth.mjs','smoke-upgrade.mjs','smoke.mjs','smoke-ui.mjs']) {
-    const child = launch(path.join(root,'tests','smoke',script), env);
-    const [code] = await once(child, 'exit');
-    assert.equal(code, 0, script);
-    console.log(`PASS  ${script}`);
-  }
+  await runHttpSmoke(base, { adminCode: env.DEMO_ADMIN_CODE });
 
   const extraGift = await request(base,'/api/gifts/gifts',{method:'POST',cookie,body:{templateId,recipientName:'QA',senderName:'QA',message:'Concurrent reply regression'}});
   assert.equal(extraGift.status,201);

@@ -8,7 +8,6 @@ export const state = {
   catalogPage: 1,
   favoritePage: 1,
   photoDataUrl: null,
-  giftOpened: false,
   afterLogin: null,
   purchased: new Set(),
   favorites: new Set(),

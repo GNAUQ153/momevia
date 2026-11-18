@@ -209,12 +209,8 @@ try {
   }
   console.log('PASS  Đổi X-Forwarded-For không vượt được hạn mức Support');
 
-  for (const script of ['smoke-auth.mjs','smoke-upgrade.mjs','smoke.mjs','smoke-ui.mjs']) {
-    const child = launch(path.join(root,'tests','smoke',script), env);
-    const [code] = await once(child, 'exit');
-    assert.equal(code, 0, script);
-    console.log(`PASS  ${script}`);
-  }
+  const { runHttpSmoke } = await import('../smoke/http.mjs');
+  await runHttpSmoke(base, { adminCode: env.DEMO_ADMIN_CODE });
 
   const extraGift = await request(base,'/api/gifts/gifts',{method:'POST',cookie,body:{templateId,recipientName:'QA',senderName:'QA',message:'Concurrent reply regression'}});
   assert.equal(extraGift.status,201);

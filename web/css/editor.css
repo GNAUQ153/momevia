@@ -76,6 +76,10 @@ body.is-designing #main {
   gap: 7px;
   flex-wrap: wrap;
 }
+.editor-mode {
+  grid-column: 2;
+  justify-self: start;
+}
 .editor-workspace button,
 .editor-start button,
 .editor-preview-dialog button {
@@ -99,12 +103,12 @@ body.is-designing #main {
   opacity: 0.45;
   cursor: default;
 }
-.editor-workspace button.editor-primary {
+:is(.editor-workspace, .editor-preview-dialog) button.editor-primary {
   background: var(--purple);
   border-color: var(--purple);
   color: white;
 }
-.editor-workspace button.editor-primary:hover {
+:is(.editor-workspace, .editor-preview-dialog) button.editor-primary:hover {
   background: var(--purple-deep);
 }
 .editor-workspace :focus-visible,
@@ -497,8 +501,28 @@ body.is-designing #main {
   background: #221a3977;
   backdrop-filter: blur(3px);
 }
+.editor-preview-dialog > form {
+  max-width: 540px;
+  margin-inline: auto;
+}
+.editor-preview-dialog > form > :is(button, p) {
+  margin-block: 8px;
+}
+.editor-preview-dialog > form > button {
+  margin-inline-end: 8px;
+}
+.editor-preview-dialog .editor-field:has(> input[type="checkbox"]) {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+}
+.editor-preview-dialog .editor-field > input[type="checkbox"] {
+  order: -1;
+}
 .editor-preview-heading {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 12px;
   margin-bottom: 14px;
@@ -516,6 +540,48 @@ body.is-designing #main {
 .editor-preview-player {
   max-width: 720px;
   margin: auto;
+}
+.editor-quick-only {
+  display: none;
+}
+.editor-workspace.is-quick {
+  max-width: 960px;
+}
+.is-quick .editor-quick-only {
+  display: block;
+}
+.is-quick .editor-layout-only {
+  display: none;
+}
+.is-quick .editor-grid {
+  grid-template-columns: minmax(240px, 1fr) minmax(0, 1.15fr);
+}
+.is-quick .editor-library {
+  display: block;
+  max-height: none;
+  padding: clamp(16px, 4vw, 28px);
+  background: var(--paper);
+}
+.is-quick .editor-library h2 {
+  font: 700 clamp(1.25rem, 3vw, 1.55rem) var(--font-serif);
+  margin-bottom: 18px;
+}
+.is-quick .editor-field :is(input, textarea) {
+  min-height: 44px;
+  font-size: 16px;
+}
+.is-quick .editor-quick-photo .editor-help {
+  margin-bottom: 0;
+}
+.is-quick .editor-stage-element {
+  cursor: auto;
+  touch-action: auto;
+}
+.is-quick .editor-stage-column h2 {
+  margin: 8px 0 10px;
+}
+.is-quick .editor-scene-bar {
+  margin: 0 0 8px;
 }
 @media (min-width: 1600px) {
   .editor-grid {
@@ -624,6 +690,16 @@ body.is-designing #main {
     flex: 1;
     min-height: 43px;
     font-size: 12px;
+  }
+  .editor-workspace.is-quick {
+    padding-bottom: 16px;
+  }
+  .is-quick .editor-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .is-quick .editor-mobile-dock {
+    display: none !important;
   }
   .editor-library.editor-sheet-open,
   .editor-inspector.editor-sheet-open {

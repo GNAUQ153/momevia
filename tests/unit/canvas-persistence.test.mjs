@@ -182,6 +182,15 @@ test('canvas publication authoritative binding summaries match the immutable doc
   for (const name of ['recipientName', 'senderName', 'message']) assert.equal(result.gift[name], result.gift.documentSnapshot.bindings[name].value, name);
 });
 
+test('canvas reader still projects empty gift snapshots published before the content check', async t => {
+  const f = fixture(t);
+  const draft = await create(f, { kind: 'blank' }, { presetId: 'blank' });
+  const { document: documentSnapshot } = saveInput(draft);
+  const gift = { slug: 'historic-empty-canvas-gift', runtimeVersion: 1, documentSnapshot, expiresAt: '2099-01-01T00:00:00Z' };
+  const reader = new GiftService({ giftsRepo: { all: () => [gift] }, config: f.config });
+  assert.deepEqual((await reader.publicGift(gift.slug)).documentSnapshot, documentSnapshot);
+});
+
 test('canvas edit/publish off keeps immutable publication reader and pinned asset bytes available after draft archive', async t => {
   const f = fixture(t), d = await complete(f), asset = await f.assets.upload(user, d.id, randomUUID(), await image());
   const input = saveInput(d); const photo = createElement('image', { id: 'pinned-photo', props: { assetId: asset.id } }); input.document.elements.push(photo); input.document.scenes[0].elementIds.push(photo.id); input.document.assets.push({ assetId: asset.id, kind: 'image' });

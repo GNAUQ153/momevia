@@ -13,6 +13,7 @@ export function createStage(
     onGesture,
     signal: parentSignal,
     isLayoutLocked = () => false,
+    isReadOnly = () => false,
     getSnap = () => true,
   },
 ) {
@@ -45,8 +46,12 @@ export function createStage(
         doc.scenes.find((item) => item.id === getSceneId()) || doc.scenes[0];
     artboard.replaceChildren();
     artboard.style.backgroundColor = scene.background.color;
+    const readOnly = isReadOnly();
+    artboard.setAttribute("aria-label", readOnly ? scene.name : "Vùng thiết kế. Chọn phần tử hoặc dùng bảng lớp.");
     for (const element of doc.elements.filter((item) => scene.elementIds.includes(item.id))) {
+      if (readOnly && element.visible === false) continue;
       const id = element.id;
+      const selected = !readOnly && id === getSelection();
       const item = renderElement(element, {
         document: doc,
         assetUrl,
@@ -54,13 +59,13 @@ export function createStage(
         signal,
       });
       applyLayout(item, element, doc.artboard.baseSize, { responsive: false });
-      item.style.zIndex = String(id === getSelection() ? scene.elementIds.length + 1 : scene.elementIds.indexOf(id));
+      item.style.zIndex = String(selected ? scene.elementIds.length + 1 : scene.elementIds.indexOf(id));
       item.dataset.elementId = id;
       item.classList.add("editor-stage-element");
       item.setAttribute("tabindex", "-1");
       if (element.visible === false)
         item.classList.add("editor-element-hidden");
-      if (id === getSelection()) {
+      if (selected) {
         item.classList.add("editor-selected");
         item.append(
           node("span", {
@@ -90,7 +95,7 @@ export function createStage(
   artboard.addEventListener(
     "pointerdown",
     (event) => {
-      if (event.button !== 0) return;
+      if (isReadOnly() || event.button !== 0) return;
       const target = event.target.closest("[data-element-id]");
       if (!target) {
         select(null);

@@ -96,12 +96,12 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các commit gần nhất trên `main`:**
 
+- `7e3e9c3` — docs: automate README updates after successful CI (2026-11-18)
+- `cbfa560` — feat: add safe payment reconciliation for MoMo and payOS (2026-11-18)
 - `80bb899` — test: align creator regift journey with withdrawal policy (2026-11-18)
 - `16b2484` — fix: harden payment, creator reuse and admin support (2026-11-18)
 - `e34d12c` — feat: add initial business plan document for Momevia (2026-11-18)
 - `48f4819` — Merge pull request #7 from GNAUQ153/feat/canvas-design-plan (2026-11-18)
-- `6314ec8` — Merge pull request #6 from GNAUQ153/feat/canvas-design-plan (2026-11-18)
-- `9d954ea` — Merge pull request #5 from GNAUQ153/feat/canvas-design-plan (2026-11-17)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

@@ -52,8 +52,17 @@ export class IdentityService {
     if (!stored || !state || state !== stored.state) throw new HttpError(403, 'Phiên xác thực OAuth không hợp lệ hoặc đã hết hạn.');
     return stored.verifier;
   }
-  async finishOAuth(res, provider, profile) {
-    const user = await this.findOrCreate(provider, profile.id, profile);
+  async finishOAuth(res, provider, profile, recovery = false) {
+    const user = recovery
+      ? (this.users.findByProvider ? await this.users.findByProvider(provider, profile.id)
+        : this.users.all().find(item => item.provider === provider && item.providerId === profile.id))
+      : await this.findOrCreate(provider, profile.id, profile);
+    if (!user) {
+      res.setHeader('set-cookie', cookie(`oauth_${provider}`, '', 0));
+      res.writeHead(302, { location: `${this.config.baseUrl}/recover?google=unlinked`, 'cache-control': 'no-store' });
+      res.end();
+      return;
+    }
     await this.issueSession(res, user, [cookie(`oauth_${provider}`, '', 0)]);
     res.writeHead(302, { location: `${this.config.baseUrl}/studio?login=success`, 'cache-control': 'no-store' });
     res.end();

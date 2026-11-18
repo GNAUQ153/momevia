@@ -75,3 +75,9 @@ Dùng `npm run package` và `npm run verify:package` để kiểm bản dựng t
 ## Thanh toán và beta
 
 Demo cấp quyền bằng đơn `demo_paid`. Merchant cần profile MySQL, xác thực webhook, HTTPS, thử sandbox và đối soát. `PAYMENT_ENABLED` và `PAYMENT_LIVE_ENABLED` mặc định tắt. Server xác nhận trạng thái trước khi cấp quyền. [Kịch bản beta](SENDER_CREATOR_BETA.md)
+
+## Khôi phục tài khoản
+
+Email khôi phục chỉ được bật khi cấu hình cả `RECOVERY_MAIL_URL` và `RECOVERY_MAIL_TOKEN`. Relay HTTPS nhận POST JSON gồm `to`, `subject` và `text`, dùng Bearer token và trả 2xx khi nhận gửi. Tài khoản email đang đăng nhập có thể xác minh địa chỉ trong Studio. Mã có hạn 15 phút và dùng một lần. Sau khi đặt mật khẩu mới, ứng dụng vô hiệu hóa các phiên trước của tài khoản đó.
+
+Tài khoản Google khôi phục qua đúng danh tính đã liên kết bằng cấu hình Google hiện tại. Tài khoản thiếu kênh đã xác minh dùng luồng hỗ trợ. Khi thử QA, dùng hộp thư và Google giả lập của bộ kiểm thử canvas API.

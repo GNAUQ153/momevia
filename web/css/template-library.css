@@ -10,6 +10,8 @@
 .template-review-cover { display: block; max-width: min(100%, 240px); max-height: 480px; object-fit: contain; }
 .editor-greeting-starters { display: grid; gap: .35rem; margin-block: .75rem; }
 .editor-greeting-starters button { text-align: left; }
+.recovery-panel { max-width: 40rem; margin-inline: auto; }
+.recovery-panel form[hidden] { display: none; }
 .share-option { text-align: left; margin-block: 1.5rem; }
 .inbox-filter { display: inline-flex; align-items: center; gap: .5rem; min-height: 44px; }
 .template-card__info p.template-card__capabilities { white-space: normal; overflow-wrap: anywhere; line-height: 1.4; }

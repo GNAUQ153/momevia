@@ -34,6 +34,8 @@ export function environment() {
     googleId: process.env.GOOGLE_CLIENT_ID || '',
     googleSecret: process.env.GOOGLE_CLIENT_SECRET || '',
     googleCallback: process.env.GOOGLE_CALLBACK_URL || 'http://localhost:4100/api/auth/google/callback',
+    recoveryMailUrl: process.env.RECOVERY_MAIL_URL || '',
+    recoveryMailToken: process.env.RECOVERY_MAIL_TOKEN || '',
     zaloId: process.env.ZALO_APP_ID || '',
     zaloSecret: process.env.ZALO_APP_SECRET || '',
     zaloCallback: process.env.ZALO_CALLBACK_URL || 'http://localhost:4100/api/auth/zalo/callback',

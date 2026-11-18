@@ -20,7 +20,7 @@ export class SessionStore {
     if (!claims) return null;
     if (!this.repository.all().some(row => row.id === claims.jti && row.userId === claims.sub && row.exp > Date.now() / 1000)) return null;
     const user = this.users.get(claims.sub);
-    return user ? { ...claims, role: user.role, name: user.name } : null;
+    return user && (user.credentialVersion || 0) === (claims.cv || 0) ? { ...claims, role: user.role, name: user.name } : null;
   }
   revoke(token) {
     const claims = verifySession(token, this.secret);

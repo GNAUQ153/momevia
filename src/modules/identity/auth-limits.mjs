@@ -9,6 +9,7 @@ export class AuthLimits {
       login: new RateLimiter({ limit: 20, windowMs: 900_000 }),
       account: new RateLimiter({ limit: 10, windowMs: 900_000 }),
       register: new RateLimiter({ limit: 10, windowMs: 600_000 }),
+      recovery: new RateLimiter({ limit: 20, windowMs: 900_000 }),
       admin: new RateLimiter({ limit: 3, windowMs: 900_000 }),
       demo: new RateLimiter({ limit: 20, windowMs: 600_000 }),
       global: new RateLimiter({ limit: 300, windowMs: 60_000, maxKeys: 1 }),

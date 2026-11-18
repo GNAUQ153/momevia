@@ -11,6 +11,7 @@ import sharp from 'sharp';
 import { runReplyIntents } from './reply-intents.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
+const { runRecovery } = await import('./recovery-journey.mjs');
 const fixture = fs.mkdtempSync(path.join(fs.realpathSync(os.tmpdir()), 'momevia-canvas-'));
 let child, base, logs = ''; const cases = [];
 async function launch(extra = {}) {
@@ -42,7 +43,21 @@ try {
   for (const dir of ['src', 'services', 'web']) fs.cpSync(path.join(root, dir), path.join(fixture, dir), { recursive: true, filter: p => path.basename(p) !== 'data' });
   fs.copyFileSync(path.join(root, 'package.json'), path.join(fixture, 'package.json'));
   fs.symlinkSync(path.join(root, 'node_modules'), path.join(fixture, 'node_modules'), 'junction');
-  fs.writeFileSync(path.join(fixture, 'fixture.mjs'), `import {createHttpApp} from './src/server/app.mjs'; import {environment} from './src/shared/config.mjs'; const config=environment();const app=await createHttpApp(config); app.server.listen(0,'127.0.0.1',()=>{const url=new URL(config.baseUrl);url.port=app.server.address().port;config.baseUrl=url.origin;console.log('CANVAS_BASE='+config.baseUrl);});`);
+  fs.copyFileSync(path.join(root, 'tests/integration/recovery-journey.mjs'), path.join(fixture, 'recovery-journey.mjs'));
+  fs.writeFileSync(path.join(fixture, 'fixture.mjs'), `
+    import fs from 'node:fs';
+    import { createHttpApp } from './src/server/app.mjs';
+    import { environment } from './src/shared/config.mjs';
+    import { simulatedGoogle } from './recovery-journey.mjs';
+    const nativeFetch = globalThis.fetch;
+    globalThis.fetch = (input, options) => simulatedGoogle(input, options) || nativeFetch(input, options);
+    const config = { ...environment(), googleId: 'synthetic', googleSecret: 'synthetic' };
+    const app = await createHttpApp(config, {
+      sendRecoveryMail: async mail => fs.appendFileSync('mailbox.ndjson', JSON.stringify(mail) + '\\n'),
+      recoveryNow: () => fs.existsSync('recovery-now.txt') ? Number(fs.readFileSync('recovery-now.txt','utf8')) : Date.now(),
+    });
+    app.server.listen(0,'127.0.0.1',() => { const url = new URL(config.baseUrl); url.port = app.server.address().port; config.baseUrl = url.origin; console.log('CANVAS_BASE=' + config.baseUrl); });
+  `);
   await launch();
   const owner = await register('Người gửi thử nghiệm'), other = await register('Người gửi khác');
   await check('Empty canvas saves but cannot publish, even with all bindings filled', async () => {
@@ -178,6 +193,15 @@ try {
     await post(owner, '/gifts/gifts/from-design', publishBody, 503);
     await stop(); await launch();
     const replay = await post(owner, '/gifts/gifts/from-design', publishBody); assert.equal(replay.replayed, true); assert.equal(replay.gift.slug, published.slug);
+  });
+  await check('Account recovery fake inbox: verified email code expires, consumes once and restores owner; Google provider ID stays linked', async () => {
+    const mailbox = path.join(fixture, 'mailbox.ndjson'), clock = path.join(fixture, 'recovery-now.txt');
+    let now = Date.now();
+    fs.writeFileSync(clock, String(now));
+    await runRecovery(base, {
+      messageFor: email => fs.existsSync(mailbox) ? fs.readFileSync(mailbox, 'utf8').trim().split('\n').map(line => JSON.parse(line)).findLast(item => item.to === email)?.text : undefined,
+      advance: ms => { now += ms; fs.writeFileSync(clock, String(now)); },
+    });
   });
   if (process.argv.includes('--browser')) {
     const { runSenderIdentity } = await import('../browser/sender-identity.mjs');

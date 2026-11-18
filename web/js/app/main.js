@@ -50,7 +50,7 @@ const { successPage, giftPage, renderReplies, dashboard, draftCards, studioDraft
   createGiftViews(viewContext);
 const { creatorPage } = createCreatorViews(viewContext);
 const { adminPage } = createAdminViews(viewContext);
-const { authPage } = createAuthViews(viewContext);
+const { authPage, recoveryPage } = createAuthViews(viewContext);
 const { errorPage, loadingPage } = createSystemViews(viewContext);
 
 function buttonLink(path, label, style = "btn--dark", trailing = true) {
@@ -379,6 +379,8 @@ async function render() {
       }
     } else if (route === "about") main.innerHTML = aboutPage();
     else if (route === 'pricing') main.innerHTML = pricingPage();
+    else if (route === "recover" || route === "verify-email")
+      main.innerHTML = recoveryPage({ verify: route === "verify-email", googleUnlinked: new URLSearchParams(location.search).get("google") === "unlinked" });
     else if (route === "login" || route === "register")
       main.innerHTML = authPage(route);
     else if (route === "policies" && legalPages[id])
@@ -1003,6 +1005,8 @@ document.addEventListener("submit", async (event) => {
       "admin-login-form",
       "reject-form",
       "support-form",
+      "recovery-request-form",
+      "recovery-confirm-form",
     ].includes(form.id)
   )
     return;
@@ -1016,7 +1020,24 @@ document.addEventListener("submit", async (event) => {
   if (submit) submit.disabled = true;
   try {
     const data = Object.fromEntries(new FormData(form));
-    if (form.id === "register-form" || form.id === "email-login-form") {
+    if (form.id === "recovery-request-form" || form.id === "recovery-confirm-form") {
+      const verify = form.dataset.verify === "true";
+      const requestCode = form.id === "recovery-request-form";
+      const result = await api.post(`/auth/${verify ? "verify-email" : "recover"}/${requestCode ? "request" : "confirm"}`, data);
+      if (!form.isConnected) return;
+      if (requestCode) {
+        const confirm = document.getElementById("recovery-confirm-form");
+        if (!verify) confirm.elements.email.value = data.email.trim();
+        confirm.hidden = false;
+        document.getElementById("recovery-notice").textContent = verify ? "Hãy nhập mã trong hộp thư của bạn."
+          : "Nếu email đã xác minh, bạn sẽ nhận được mã trong hộp thư.";
+        confirm.elements.code.focus();
+      } else {
+        setUser(result.user);
+        toast(verify ? "Đã xác minh email." : "Đã đặt mật khẩu mới.");
+        navigate("/studio");
+      }
+    } else if (form.id === "register-form" || form.id === "email-login-form") {
       if (
         form.id === "register-form" &&
         data.password !== data.confirmPassword
@@ -1180,7 +1201,7 @@ function loadPageData(route) {
   const loads = [identity];
   if (catalogRoutes.has(route)) loads.push(state.user && route === "explore" ? loadTemplates() : loadCatalog());
   if (favoriteRoutes.has(route)) loads.push(identity.then(loadFavorites, () => {}));
-  if (route === "login" || route === "register") loads.push(loadProviders());
+  if (["login", "register", "recover", "verify-email", "studio"].includes(route)) loads.push(loadProviders());
   return Promise.allSettled(loads);
 }
 render();

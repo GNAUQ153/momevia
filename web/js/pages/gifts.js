@@ -122,7 +122,8 @@ export function createGiftViews({
     }).join('');
   }
   function dashboard() {
-    return `<section class="page-banner page-banner--dashboard"><div class="container"><h1>Xin chào, <em>${e(state.user.name)}.</em></h1></div></section>
+    return `<section class="page-banner page-banner--dashboard"><div class="container"><h1>Xin chào, <em>${e(state.user.name)}.</em></h1>
+      ${state.providers?.recoveryEmail && state.user.provider === "email" && !state.user.emailVerified ? '<a href="/verify-email" data-link>Xác minh email để khôi phục tài khoản</a>' : ''}</div></section>
     <section class="section dashboard-section"><div class="container">
       <section><div class="dashboard-heading"><h2>Nháp của bạn</h2>${buttonLink("/design/new", "Tự thiết kế")}</div><div id="studio-drafts-section"></div></section>
       <section><div class="dashboard-heading"><div><h2>Những điều bạn đã gửi</h2></div><div class="dashboard-heading__actions"><a class="btn btn--outline" href="/favorites" data-link>${icon("heart", 17)} Mẫu yêu thích (${state.favorites.size})</a>${buttonLink("/explore", "Tạo quà từ mẫu")}</div></div><div id="studio-gifts-section"></div></section>

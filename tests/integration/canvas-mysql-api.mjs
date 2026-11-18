@@ -9,6 +9,7 @@ import { createHmac, randomBytes, randomUUID } from 'node:crypto';
 import { createRequire } from 'node:module';
 import { pathToFileURL, fileURLToPath } from 'node:url';
 import { confirmGiftAccess } from '../browser/gift-access.mjs';
+import { runRecovery, simulatedGoogle } from './recovery-journey.mjs';
 import { runReplyIntents } from './reply-intents.mjs';
 
 const require = createRequire(import.meta.url), driver = require('mysql2/promise'), sharp = require('sharp');
@@ -54,7 +55,7 @@ const fakeProvider={
   async verifyWebhook(body){if(body.signature!==sign(body))throw new FixtureHttpError(400,'Synthetic signature rejected');
     return {provider:'momo',code:body.code,amount:body.amount,reference:body.reference,success:body.success,currency:'VND'};},
 };
-globalThis.fetch=(input,options)=>{const url=new URL(typeof input==='string'||input instanceof URL?input:input.url);if(!base||url.origin!==base){externalRequests++;throw new Error(`External network blocked in QA: ${url.origin}`);}return originalFetch(input,options);};
+globalThis.fetch=(input,options)=>{const url=new URL(typeof input==='string'||input instanceof URL?input:input.url);const mock=simulatedGoogle(url,options);if(mock)return mock;if(!base||url.origin!==base){externalRequests++;throw new Error(`External network blocked in QA: ${url.origin}`);}return originalFetch(input,options);};
 const uuid=randomUUID;
 async function request(route,{method='GET',cookie,body,bytes,headers={}}={}) {
   const res=await fetch(`${base}${route}`,{method,headers:{...(cookie?{cookie}:{}),...(body?{'content-type':'application/json'}:{}),...headers},body:bytes|| (body?JSON.stringify(body):undefined)});
@@ -82,9 +83,11 @@ try{
   const {createHttpApp}=await import(pathToFileURL(path.join(fixture,'src/server/app.mjs')).href);
   ({HttpError:FixtureHttpError}=await import(pathToFileURL(path.join(fixture,'src/shared/http.mjs')).href));
   const {createElement}=await import(pathToFileURL(path.join(fixture,'web/js/shared/canvas/index.js')).href);
-  const config={baseUrl:'http://127.0.0.1',jwtSecret:randomBytes(32).toString('hex'),internalKey:randomBytes(32).toString('hex'),demoEnabled:true,adminCode:'synthetic-admin',giftTtlDays:365,googleId:'',googleSecret:'',zaloId:'',zaloSecret:'',testAccount:null};
+  const config={baseUrl:'http://127.0.0.1',jwtSecret:randomBytes(32).toString('hex'),internalKey:randomBytes(32).toString('hex'),demoEnabled:true,adminCode:'synthetic-admin',giftTtlDays:365,googleId:'synthetic',googleSecret:'synthetic',zaloId:'',zaloSecret:'',testAccount:null};
   const paymentEnv={NODE_ENV:'test',IDENTITY_STORAGE:'mysql',CATALOG_STORAGE:'mysql',CHECKOUT_STORAGE:'mysql',PAYMENT_ENABLED:'true',PAYMENT_ENV:'sandbox',PAYMENT_LIVE_ENABLED:'false',PUBLIC_BASE_URL:'https://qa.example.test',MOMO_PARTNER_CODE:'synthetic',MOMO_ACCESS_KEY:'synthetic',MOMO_SECRET_KEY:'synthetic'};
-  app=await createHttpApp(config,{paymentProviders:{momo:fakeProvider},paymentEnv});app.server.listen(0,'127.0.0.1');await once(app.server,'listening');base=`http://127.0.0.1:${app.server.address().port}`;config.baseUrl=base;
+  let recoveryNow = Date.now();
+  const mailbox = [];
+  app=await createHttpApp(config,{paymentProviders:{momo:fakeProvider},paymentEnv, sendRecoveryMail: async mail => mailbox.push(mail), recoveryNow: () => recoveryNow});app.server.listen(0,'127.0.0.1');await once(app.server,'listening');base=`http://127.0.0.1:${app.server.address().port}`;config.baseUrl=base;
   console.log(`TARGET MySQL ${server.version}; NEW synthetic schema=${database}; temp copy, provider injected, all external fetch denied.`);
   await check('MySQL composition readiness and sender sessions via actual Identity API',async()=>{
     const health=await json('/api/designs/health');assert.equal(health.profile.mode,'mysql');assert.equal(health.profile.supported,true);
@@ -257,6 +260,10 @@ try{
     const { runSenderIdentity } = await import('../browser/sender-identity.mjs');
     await runSenderIdentity(base);
   });
+  await check('Account recovery on MySQL with mock inbox and Google, same account/draft/gift', () => runRecovery(base, {
+    messageFor: email => mailbox.findLast(item => item.to === email)?.text,
+    advance: ms => { recoveryNow += ms; },
+  }));
   await check('Real MySQL reply replay keeps one row, distinct intents and exact owner read state', async () => {
     const { gift } = await post('/api/gifts/gifts', cookie, {
       templateId: 'sunny-wishes', recipientName: 'Mai', senderName: 'An', message: 'Hộp thư SQL QA.',

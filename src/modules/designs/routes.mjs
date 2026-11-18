@@ -3,6 +3,7 @@ import { parseJson, sendJson } from '../../shared/http.mjs';
 import { canvasError } from './errors.mjs';
 import { designView, giftSummary } from './designs.service.mjs';
 import { imageBody } from './assets.service.mjs';
+import { giftOwnerLinks } from '../gifts/links.mjs';
 
 export function streamAsset(res, file) {
   res.writeHead(200, { 'content-type': file.contentType, 'cache-control': 'private, no-store', 'x-content-type-options': 'nosniff' });
@@ -38,7 +39,7 @@ export function registerPublicationRoutes(router, { service, resolveUser, config
     const user = await resolveUser(req, config.jwtSecret);
     if (!writeLimit.consume(user.sub)) throw canvasError(429, 'CANVAS_RATE_LIMIT', 'Bạn thao tác quá nhanh. Thử lại sau.');
     const result = await service.publish(user, await parseJson(req, 4096));
-    sendJson(res, result.replayed ? 200 : 201, { ...result, gift: { ...giftSummary(result.gift), url: `${config.baseUrl}/g/${result.gift.slug}` } });
+    sendJson(res, result.replayed ? 200 : 201, { ...result, gift: { ...giftSummary(result.gift), ...giftOwnerLinks(config.baseUrl, result.gift) } });
   });
 }
 export function registerContextRoutes(router, { service, resolveUser, config }) {

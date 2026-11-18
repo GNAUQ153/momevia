@@ -184,7 +184,7 @@ export class MySqlDesignsRepository {
   }
   async list(ownerId, { offset = 0, limit = 50 } = {}) {
     const [rows] = await this.client.execute(
-      "SELECT id,title,source_kind,revision,created_at,updated_at FROM designs WHERE owner_id=? AND archived_at IS NULL ORDER BY updated_at DESC,id DESC LIMIT ? OFFSET ?",
+      "SELECT id,title,source_kind,revision,created_at,updated_at FROM designs WHERE owner_id=? AND archived_at IS NULL AND NOT (JSON_UNQUOTE(JSON_EXTRACT(provenance,'$.purpose')) <=> 'creator') ORDER BY updated_at DESC,id DESC LIMIT ? OFFSET ?",
       [ownerId, limit, offset],
     );
     return rows.map(row => ({ id: row.id, title: row.title, source: { kind: row.source_kind }, revision: Number(row.revision), createdAt: iso(row.created_at), updatedAt: iso(row.updated_at) }));
@@ -196,7 +196,7 @@ export class MySqlDesignsRepository {
     );
     return designFromRow(rows[0]);
   }
-  async create(ownerId, mutationId, requestHash, design) {
+  async create(ownerId, mutationId, requestHash, design, assets = []) {
     return canvasTransaction(this.client, async (tx) => {
       await lockOwner(tx, ownerId);
       const [requests] = await tx.execute(
@@ -232,6 +232,7 @@ export class MySqlDesignsRepository {
           mysqlDate(design.updatedAt),
         ],
       );
+      for (const asset of assets) await insertAssetRow(tx, ownerId, design.id, asset);
       await ensureAssets(
         tx,
         ownerId,
@@ -324,23 +325,7 @@ export class MySqlDesignsRepository {
   async insertAsset(ownerId, designId, asset) {
     return canvasTransaction(this.client, async (tx) => {
       await lockedDesign(tx, ownerId, designId);
-      await tx.execute(
-        `INSERT INTO design_assets(id,owner_id,design_id,status,mime,bytes,width,height,content_hash,storage_key,created_at)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?)`,
-        [
-          asset.id,
-          ownerId,
-          designId,
-          asset.status,
-          asset.mime,
-          asset.bytes,
-          asset.width,
-          asset.height,
-          asset.contentHash,
-          asset.storageKey,
-          mysqlDate(asset.createdAt),
-        ],
-      );
+      await insertAssetRow(tx, ownerId, designId, asset);
       return asset;
     });
   }
@@ -420,4 +405,10 @@ export class MySqlDesignsRepository {
   async close() {
     await this.client.close();
   }
+}
+
+async function insertAssetRow(tx, ownerId, designId, asset) {
+  await tx.execute(`INSERT INTO design_assets(id,owner_id,design_id,status,mime,bytes,width,height,content_hash,storage_key,created_at)
+    VALUES (?,?,?,?,?,?,?,?,?,?,?)`, [asset.id, ownerId, designId, asset.status, asset.mime, asset.bytes,
+    asset.width, asset.height, asset.contentHash, asset.storageKey, mysqlDate(asset.createdAt)]);
 }

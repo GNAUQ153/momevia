@@ -21,10 +21,19 @@ export class JsonRepository {
   all() { return this.read(); }
   get(id) { return this.read().find(item => item.id === id); }
   insert(item) { const rows = this.read(); rows.push(item); this.write(rows); return item; }
+  insertUnique(item) {
+    const previous = this.get(item.id);
+    return previous || this.insert(item);
+  }
   update(id, patch) {
+    return this.mutate(id, () => patch);
+  }
+  mutate(id, update) {
     const rows = this.read();
     const index = rows.findIndex(row => row.id === id);
     if (index < 0) return null;
+    const patch = update(rows[index]);
+    if (!patch) return rows[index];
     rows[index] = { ...rows[index], ...patch };
     this.write(rows);
     return rows[index];

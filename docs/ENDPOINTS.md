@@ -1,6 +1,6 @@
-> **v0.6.0:** Các route API dưới đây giữ nguyên và hiện chạy trong một backend process; các cổng service 4101–4105 chỉ còn ở chế độ legacy.
+# API Momevia
 
-# Danh sách API MVP (qua Gateway `http://localhost:4100/api`)
+Các đường dẫn dưới đây tương đối với `/api` trên cùng origin với ứng dụng. Các cổng service riêng chỉ dùng cho topology legacy.
 
 | Method | Endpoint | Quyền | Mô tả |
 | --- | --- | --- | --- |
@@ -61,15 +61,35 @@ Các path dưới đây tương đối với `/api`. Methods vẫn GET/POST; err
 | POST | `/designs/designs/:id/assets` | Owner; raw binary image + X-Mutation-Id; asset DTO ready, không path/base64 |
 | GET | `/designs/designs/:id/assets/:assetId` | Owner private bytes; guest/B trả401/404 |
 | POST | `/designs/designs/:id/preflight` | Owner; expectedRevision; allowed/needs_template_license/denied hoặc unavailable503, node blockers/hash; không charge/publish |
-| POST | `/gifts/gifts/from-design` | Owner; designId/expectedRevision/expectedDocumentHash/idempotencyKey; 201 mới/200 replay, cùng key khác request409 |
+| POST | `/gifts/gifts/from-design` | Owner; designId/expectedRevision/expectedDocumentHash/idempotencyKey và access.open/send/read; 201 mới/200 replay, request khác cùng key trả 409 |
 | GET | `/gifts/gifts/:slug/assets/:assetId` | Public gift pin + TTL; không login; không phải endpoint owner library |
 | POST | `/checkout/payments/orders/:orderId/design-contexts` | Owner order/design; designId/expectedRevision/expectedDocumentHash/mutationId |
 | GET | `/checkout/payments/orders/:orderId/design-contexts` | Owner list metadata, offset pagination; một order nhiều context |
 | GET | `/checkout/payments/orders/:orderId/design-contexts/:contextId` | Owner context verified, resumePath nội bộ/currentRevision/changed |
-| GET | `/checkout/payments/methods` | Public provider availability; [] khác error |
+| GET | `/checkout/payments/methods` | Public provider availability; profile demo có thể trả demoPurchaseAvailable |
 | POST | `/checkout/payments/create` | Login, templateId/method; amount server; provider có điều kiện cấu hình |
 | GET | `/checkout/payments/orders/:orderId` | Owner status server; không tin return/cancel URL |
 | GET | `/checkout/payments/orders/:orderId/receipt` | Owner paid receipt; lỗi receipt không đổi paid status |
 | POST | `/checkout/payments/webhooks/payos` hoặc `/momo` | Provider signature, giữ settlement/receipt foundation |
 
 Document/schema v1 và canonical hash giữ array order, sắp xếp object keys; `sha256:` digest UTF-8. `expectedDocumentHash` chỉ là điều kiện so khớp, không cấp quyền. Quy tắc data/source/budget và rollout tại [CANVAS_SENDER_GUIDE](CANVAS_SENDER_GUIDE.md).
+
+## Creator, Admin và quản lý quà
+
+| Method | Endpoint | Quyền / mô tả |
+| --- | --- | --- |
+| GET/POST | `/catalog/creator/workspaces` | Creator; danh sách mẫu của mình hoặc tạo nháp với title, subtitle, mutationId |
+| POST | `/catalog/creator/workspaces/:id/duplicate` | Creator sở hữu; mutationId |
+| POST | `/catalog/creator/workspaces/:id/submit` | Creator sở hữu; expectedRevision, bindings, photoId, rights |
+| POST | `/catalog/creator/workspaces/:id/withdraw` | Chủ mẫu hoặc Admin; dừng lượt dùng mới |
+| GET | `/catalog/admin/version-queue` | Admin; danh sách phiên bản đang chờ |
+| GET/POST | `/catalog/admin/templates/:id/versions/:version` | Admin; mở bản cố định hoặc gửi action approve/revise, reason và rightsConfirmed |
+| GET | `/catalog/templates/:id/versions/:version` | Preview phiên bản đang được công khai |
+| GET | `/gifts/gifts/:slug/status` | Người có quyền mở quà; 410 khi hết hạn hoặc thu hồi |
+| GET | `/gifts/gifts/mine/:slug` và `/replies` | Chủ quà; link và hộp thư |
+| POST | `/gifts/gifts/mine/:slug/revoke` | Chủ quà; thu hồi link, gọi lặp ổn định |
+| POST | `/support/requests` | Báo cáo qua reportKind, reportId và invite nếu cần |
+| GET | `/support/admin/requests` | Admin; xem trạng thái và người xử lý |
+| POST | `/support/admin/requests/:id/resolve` | Admin; action claim hoặc resolve cùng resolution |
+
+Quyền link mời được áp dụng cho quà, ảnh và hồi đáp. Creator/Admin xem ảnh demo theo phiên bản. Ảnh cá nhân của Sender dùng endpoint nháp riêng và chỉ xuất hiện trong quà được pin.

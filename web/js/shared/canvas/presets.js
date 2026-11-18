@@ -37,3 +37,11 @@ export function createDocument({ presetId = 'blank', template } = {}) {
   add('scene-message', 'button', 'replay-gift', { x: 105, y: 745, width: 180, height: 55 }, { label: 'Xem lại', color: ink }, { actions: [{ on: 'activate', type: 'replay' }] });
   return validateDocument(document);
 }
+
+export function templatePreviewDocument(template) {
+  const doc = createDocument({ template });
+  doc.bindings.recipientName.value = 'Người bạn thương';
+  doc.bindings.senderName.value = 'Một người luôn nhớ bạn';
+  doc.bindings.message.value = 'Chúc bạn một ngày thật vui, một tuổi mới thật dịu dàng. Mong những điều bạn yêu sẽ luôn ở gần, và những điều bạn ước sẽ dần thành hiện thực.';
+  return validateDocument(doc, { mode: 'publish' });
+}

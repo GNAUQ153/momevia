@@ -21,7 +21,8 @@ const header = document.getElementById("site-header");
 const footer = document.getElementById("site-footer");
 let routeController = null,
   renderGeneration = 0,
-  canvasCheckout = null;
+  canvasCheckout = null,
+  favoritesLoad = null;
 let historyIndex = 0,
   activeUrl = location.pathname + location.search + location.hash,
   restoringHistory = false;
@@ -60,7 +61,6 @@ function navigate(path, { replace = false } = {}) {
   activeUrl = location.pathname + location.search + location.hash;
   window.scrollTo({ top: 0, behavior: "instant" });
   state.photoDataUrl = null;
-  state.giftOpened = false;
   render();
 }
 function toast(message, type = "success") {
@@ -74,6 +74,7 @@ function toast(message, type = "success") {
   }, 4800);
 }
 async function openCanvasCheckout(context) {
+  try { sessionStorage.setItem(checkoutDraftModeKey(context.design.id), context.mode); } catch { /* Optional cache. */ }
   const generation = renderGeneration;
   canvasCheckout = context;
   await context.flushSave();
@@ -82,15 +83,17 @@ async function openCanvasCheckout(context) {
     '<div class="support-modal"><h2>Quyền sử dụng mẫu</h2><p role="status">Đang tải phương thức thanh toán…</p></div>',
   );
   try {
-    const { methods } = await api.get("/checkout/payments/methods");
+    const { methods, demoPurchaseAvailable } = await api.get("/checkout/payments/methods");
     if (generation !== renderGeneration || canvasCheckout !== context) return;
+    const templateId = context.design.source.templateId;
     if (!methods.length) {
       openModal(
-        '<div class="support-modal"><h2>Chưa có phương thức thanh toán</h2><p>Nháp đã lưu. Bạn có thể tiếp tục chỉnh sửa hoặc quay lại Studio. Chưa có giao dịch nào được tạo.</p></div>',
+        demoPurchaseAvailable
+          ? `<div class="support-modal"><h2>Dùng thử mẫu có giá</h2><p>Đây là đơn mô phỏng. Nháp hiện tại được giữ và bạn sẽ tự chọn xuất bản sau khi quay lại.</p><button class="btn btn--dark btn--wide" data-action="demo-buy" data-id="${e(templateId)}">Cấp quyền dùng thử</button></div>`
+          : '<div class="support-modal"><h2>Chưa có phương thức thanh toán</h2><p>Nháp đã lưu. Bạn có thể tiếp tục chỉnh sửa hoặc quay lại Studio. Chưa có giao dịch nào được tạo.</p></div>',
       );
       return;
     }
-    const templateId = context.design.source.templateId;
     openModal(`<div class="support-modal"><h2>Mua quyền sử dụng mẫu</h2><p>${e(context.preflight.template?.title || templateId)} · Giá mẫu hiện tại: ${Number(context.preflight.template?.price || 0).toLocaleString("vi-VN")} VND.</p>
       <p>Giao dịch đang mở có thể giữ giá tại lúc tạo. Số tiền xác nhận lấy từ intent của máy chủ. Bạn sẽ quay lại xem nháp trước khi tự xuất bản.</p>
       ${methods.map((method) => `<button class="btn btn--outline btn--wide" data-action="start-payment" data-id="${e(templateId)}" data-method="${e(method.id)}">${e(method.label)}</button>`).join("")}</div>`);
@@ -119,17 +122,25 @@ async function render() {
   try {
     const segments = location.pathname.split("/").filter(Boolean);
     const [route, id] = segments;
+    if (route !== "g") {
+      const results = await loadPageData(route);
+      if (generation !== renderGeneration) return;
+      refreshNav();
+      const failure = results.find(result => result.status === "rejected");
+      if (failure) toast(failure.reason.message, "error");
+    }
     if (!route) main.innerHTML = home();
     else if (route === "explore") main.innerHTML = explore();
     else if (route === "template") {
-      const template = state.templates.find((t) => t.id === id);
+      const { template } = await api.get(`/catalog/templates/${encodeURIComponent(id)}`);
+      if (generation !== renderGeneration) return;
       main.innerHTML = template
         ? templateDetail(template)
         : errorPage("Mẫu quà không tồn tại hoặc chưa được duyệt.");
       if (template && main.querySelector('[data-template-preview]')) {
         const { mountTemplatePreview } = await import('../features/catalog/template-preview.js');
         if (generation !== renderGeneration) return;
-        routeController = mountTemplatePreview(main, template);
+        routeController = mountTemplatePreview(main, template, { api, onError: error => toast(error.message, "error") });
       }
     } else if (
       (route === "create" || route === "design") &&
@@ -137,11 +148,7 @@ async function render() {
       segments.length === 2
     ) {
       if (!state.user) {
-        requireLogin(location.pathname);
-        return;
-      }
-      if (route === "create" && !state.templates.some((t) => t.id === id)) {
-        main.innerHTML = errorPage("Mẫu quà không tồn tại.");
+        requireLogin(location.pathname + location.search);
         return;
       }
       const { mountDesigner } = await import("../pages/designer.js");
@@ -150,12 +157,14 @@ async function render() {
       routeController = mountDesigner(main, {
         id: route === "design" && id !== "new" ? id : null,
         templateId: route === "create" ? id : null,
+        templateVersionId: new URLSearchParams(location.search).get("version"),
+        mode: new URLSearchParams(location.search).get("mode"),
         user: state.user,
         api,
         navigate,
         toast,
         onCheckout: openCanvasCheckout,
-        onCreated: () => {
+        onRouteReplace: () => {
           activeUrl = location.pathname + location.search + location.hash;
           history.replaceState(
             { momeviaIndex: historyIndex },
@@ -167,36 +176,56 @@ async function render() {
       await routeController.ready;
       if (generation !== renderGeneration) return;
     } else if (route === "g" && id) {
-      const giftResponse = await api.get(`/gifts/gifts/${id}`);
+      const lifetime = new AbortController();
+      const giftEndpoint = `/gifts/gifts/${encodeURIComponent(id)}`;
+      const invite = new URLSearchParams(location.search).get("invite");
+      const query = invite ? `?invite=${encodeURIComponent(invite)}` : "";
+      const repliesEndpoint = `${giftEndpoint}/replies${query}`;
+      routeController = { dispose: () => lifetime.abort() };
+      const closed = error => {
+        if (error.status !== 410 || lifetime.signal.aborted) return;
+        routeController?.dispose();
+        document.body.classList.remove("is-playing-gift");
+        closeModal();
+        main.innerHTML = errorPage(error.message);
+      };
+      const { gift } = await api.get(giftEndpoint + query, { signal: lifetime.signal });
       if (generation !== renderGeneration) return;
-      if (giftResponse.gift.documentSnapshot) {
+      const recheck = () => {
+        if (document.visibilityState === "visible")
+          api.get(`${giftEndpoint}/status${query}`, { signal: lifetime.signal }).catch(closed);
+      };
+      document.addEventListener("visibilitychange", recheck, { signal: lifetime.signal });
+      const poll = setInterval(recheck, 15000);
+      lifetime.signal.addEventListener("abort", () => clearInterval(poll), { once: true });
+      if (gift.documentSnapshot) {
         document.body.classList.add("is-playing-gift");
         const { mountPlayer } =
           await import("../features/gift-runtime/index.js");
         if (generation !== renderGeneration) return;
-        main.innerHTML = `<section class="section"><div class="container"><div id="canvas-public-player"></div><p class="recipient-disclaimer">Đường link có thể được chuyển tiếp. Mọi người có link đều xem được lời hồi đáp.</p><a href="/" data-link>Created with momevia.</a></div></section>`;
-        const lifetime = new AbortController();
+        main.innerHTML = `<section class="section"><div class="container"><div id="canvas-public-player"></div><p class="recipient-disclaimer">Đường link có thể được chuyển tiếp.</p><button class="btn btn--outline" data-action="report-content" data-kind="gift" data-id="${e(id)}">Báo cáo món quà</button> <a href="/" data-link>Created with momevia.</a></div></section>`;
         const player = mountPlayer(
           document.getElementById("canvas-public-player"),
           {
-            document: giftResponse.gift.documentSnapshot,
-            runtimeVersion: giftResponse.gift.runtimeVersion,
+            document: gift.documentSnapshot,
+            runtimeVersion: gift.runtimeVersion,
             mode: "public",
             assetUrl: (assetId) =>
-              `/api/gifts/gifts/${encodeURIComponent(id)}/assets/${encodeURIComponent(assetId)}`,
+              `/api/gifts/gifts/${encodeURIComponent(id)}/assets/${encodeURIComponent(assetId)}${query}`,
             replyAdapter: {
-              send: async (body) =>
+              ...gift.replyPermissions,
+              send: gift.replyPermissions.canSend ? async (body) =>
                 (
-                  await api.post(`/gifts/gifts/${id}/replies`, body, {
+                  await api.post(repliesEndpoint, body, {
                     signal: lifetime.signal,
-                  })
-                ).reply,
-              list: async () =>
+                  }).catch(error => { closed(error); throw error; })
+                ).reply : null,
+              list: gift.replyPermissions.canRead ? async () =>
                 (
-                  await api.get(`/gifts/gifts/${id}/replies`, {
+                  await api.get(repliesEndpoint, {
                     signal: lifetime.signal,
-                  })
-                ).replies,
+                  }).catch(error => { closed(error); throw error; })
+                ).replies : null,
             },
           },
         );
@@ -207,9 +236,19 @@ async function render() {
           },
         };
       } else {
-        const replyResponse = await api.get(`/gifts/gifts/${id}/replies`);
-        if (generation !== renderGeneration) return;
-        main.innerHTML = giftPage(giftResponse.gift, replyResponse.replies);
+        main.innerHTML = giftPage(gift);
+        const replyForm = main.querySelector("#reply-form");
+        const replyList = main.querySelector("#reply-list");
+        if (replyForm) replyForm.dataset.endpoint = repliesEndpoint;
+        if (replyList) api.get(repliesEndpoint, { signal: lifetime.signal })
+          .then(({ replies }) => {
+            if (!replyList.dataset.loaded) updateLegacyReplies(replyList, replies);
+          })
+          .catch(error => {
+            closed(error);
+            if (replyList.isConnected && !replyList.dataset.loaded)
+              replyList.textContent = "Chưa tải được lời hồi đáp.";
+          });
       }
     } else if (route === "payment-result" && id) {
       if (!state.user) {
@@ -252,14 +291,14 @@ async function render() {
           <p>${payment.status === "paid" ? "Thanh toán đã được xác nhận. Quyền mẫu được kiểm tra lại khi xuất bản." : "Không dựa vào trang chuyển hướng để xác nhận. Nếu bạn đã chuyển tiền, hãy tải lại trang sau khi hệ thống nhận webhook."}</p>
           ${receipt ? `<div id="payment-receipt"><h2>Biên nhận ${e(receipt.receiptNo)}</h2><p>Mẫu: ${e(receipt.templateTitle)}</p><p>Số tiền: ${Number(receipt.amountVnd).toLocaleString("vi-VN")} VND</p><p>Phương thức: ${e(receipt.provider)}</p><p>Mã giao dịch: ${e(receipt.transactionReference)}</p><p>${e(receipt.testPayment ? "Thanh toán thử nghiệm — không thu tiền thật" : receipt.note)}</p></div><button class="btn btn--outline" data-action="print-receipt">In / Lưu PDF</button>` : `<p>Trạng thái: ${e(payment.status)}</p><button class="btn btn--outline" data-action="refresh-payment">Kiểm tra lại</button>`}
           ${receiptError ? `<p role="alert">Biên nhận chưa tải được: ${e(receiptError)}</p><button class="btn btn--outline" data-action="refresh-payment">Thử tải biên nhận</button>` : ""}
-          ${resumeContext ? `<p><a class="btn btn--dark" href="${e(resumeContext.resumePath)}" data-link>Tiếp tục nháp vừa liên kết</a></p>${resumeContext.changed ? '<p>Nháp đã được chỉnh sửa ở phiên khác. Mở bản mới để xem trước và kiểm tra lại quyền.</p>' : ''}` : ''}
+          ${resumeContext ? `<p><a class="btn btn--dark" href="${e(checkoutDraftPath(resumeContext))}" data-link>Tiếp tục nháp vừa liên kết</a></p>${resumeContext.changed ? '<p>Nháp đã được chỉnh sửa ở phiên khác. Mở bản mới để xem trước và kiểm tra lại quyền.</p>' : ''}` : ''}
           ${
             contexts.length
               ? `<h2>Tiếp tục thiết kế</h2><p>Mở lại nháp để xem và kiểm tra quyền. Thanh toán không tự xuất bản.</p>${contexts
                   .filter((c) => c.available)
                   .map(
                     (c) =>
-                      `<p><a class="btn btn--outline" href="${e(c.resumePath)}" data-link>${e(c.title)} · bản đã lưu r${Number(c.designRevision)}</a></p>`,
+                      `<p><a class="btn btn--outline" href="${e(checkoutDraftPath(c))}" data-link>${e(c.title)} · bản đã lưu r${Number(c.designRevision)}</a></p>`,
                   )
                   .join("")}`
               : ""
@@ -269,7 +308,8 @@ async function render() {
         </div></div></section>`;
       }
     } else if (route === "success" && id) {
-      const result = await api.get(`/gifts/gifts/${id}`);
+      if (!requireLogin(location.pathname)) return;
+      const result = await api.get(`/gifts/gifts/mine/${encodeURIComponent(id)}`);
       if (generation !== renderGeneration) return;
       main.innerHTML = successPage(result.gift);
     } else if (route === "studio") {
@@ -292,20 +332,30 @@ async function render() {
       } else main.innerHTML = favoritesPage();
     } else if (route === "creator") {
       let templates = [];
-      if (state.user && ["creator", "admin"].includes(state.user.role))
-        templates = (await api.get("/catalog/creator/templates")).templates;
+      let legacy = [];
+      if (state.user && ["creator", "admin"].includes(state.user.role)) {
+        const [current, previous] = await Promise.all([api.get("/catalog/creator/workspaces"), api.get("/catalog/creator/templates")]);
+        templates = current.templates;
+        legacy = previous.templates;
+      }
       if (generation !== renderGeneration) return;
-      main.innerHTML = creatorPage(templates);
+      main.innerHTML = creatorPage(templates, legacy);
     } else if (route === "admin") {
       if (state.user?.role !== "admin")
         main.innerHTML = errorPage("Bạn cần quyền quản trị viên để truy cập.");
-      else {
-        const [pending, tickets] = await Promise.all([
+      else if (id === "review" && segments.length === 4) {
+        const endpoint = `/catalog/admin/templates/${encodeURIComponent(segments[2])}/versions/${encodeURIComponent(segments[3])}`;
+        const [{ version }, { mountReview }] = await Promise.all([api.get(endpoint), import("../features/catalog/review.js")]);
+        if (generation !== renderGeneration) return;
+        routeController = mountReview(main, { version, endpoint, api, navigate });
+      } else {
+        const [pending, tickets, versions] = await Promise.all([
           api.get("/catalog/admin/pending"),
           api.get("/support/admin/requests"),
+          api.get("/catalog/admin/version-queue"),
         ]);
         if (generation !== renderGeneration) return;
-        main.innerHTML = adminPage(pending.templates, tickets.requests);
+        main.innerHTML = adminPage(pending.templates, tickets.requests, state.user, versions.queue);
       }
     } else if (route === "about") main.innerHTML = aboutPage();
     else if (route === 'pricing') main.innerHTML = pricingPage();
@@ -356,13 +406,30 @@ function updatePreview() {
     document.getElementById("preview-message").textContent =
       message.value || "Điều đẹp nhất là có bạn trong cuộc đời này.";
 }
-async function loadFavorites() {
-  if (!state.user) {
+function setUser(user) {
+  if (state.user !== user) {
     state.favorites = new Set();
-    return;
+    favoritesLoad = null;
   }
-  const result = await api.get("/catalog/favorites");
-  state.favorites = new Set(result.templateIds || []);
+  state.user = user;
+}
+function loadFavorites() {
+  const user = state.user;
+  if (!user) return;
+  return favoritesLoad ??= api.get("/catalog/favorites")
+    .then(result => {
+      if (state.user === user) state.favorites = new Set(result.templateIds || []);
+    })
+    .catch(error => {
+      if (state.user === user) favoritesLoad = null;
+      throw error;
+    });
+}
+function updateLegacyReplies(list, replies) {
+  if (!list?.isConnected) return;
+  list.innerHTML = renderReplies(replies);
+  list.dataset.loaded = "true";
+  main.querySelector(".memory-container h3 span").textContent = `(${replies.length})`;
 }
 function syncFavoriteButtons() {
   document
@@ -408,23 +475,24 @@ function openModal(content) {
     modal.querySelector("button")
   )?.focus();
 }
-function openSupport() {
+function openSupport(report) {
   const displayName = state.user?.name || "";
   const displayEmail = state.user?.email || "";
   openModal(`<div class="support-modal">
     <span class="eyebrow">TRUNG TÂM HỖ TRỢ</span>
-    <h2>Chúng mình có thể giúp gì?</h2>
+    <h2>${report ? (report.kind === "gift" ? "Báo cáo món quà" : "Báo cáo mẫu") : "Chúng mình có thể giúp gì?"}</h2>
     <p>Gửi câu hỏi hoặc mô tả vấn đề bạn gặp phải. Yêu cầu sẽ được ghi nhận trong hệ thống.</p>
     <form id="support-form" class="support-form">
+      ${report ? `<input type="hidden" name="reportKind" value="${e(report.kind)}"/><input type="hidden" name="reportId" value="${e(report.id)}"/><input type="hidden" name="invite" value="${e(report.kind === "gift" ? new URLSearchParams(location.search).get("invite") || "" : "")}"/>` : ''}
       <label class="field"><span>Họ tên</span><input name="name" required maxlength="60" value="${e(displayName)}" placeholder="Tên của bạn"/></label>
       <label class="field"><span>Email liên hệ</span><input type="email" name="email" required maxlength="254" value="${e(displayEmail)}" placeholder="ban@example.com"/></label>
-      <label class="field"><span>Vấn đề cần hỗ trợ</span><select name="topic" required>
+      ${report ? '<input type="hidden" name="topic" value="Báo cáo nội dung"/>' : `<label class="field"><span>Vấn đề cần hỗ trợ</span><select name="topic" required>
         <option value="Tài khoản">Tài khoản</option>
         <option value="Tạo và chia sẻ quà">Tạo và chia sẻ quà</option>
         <option value="Kho mẫu">Kho mẫu</option>
         <option value="Báo lỗi">Báo lỗi</option>
         <option value="Khác">Khác</option>
-      </select></label>
+      </select></label>`}
       <label class="field"><span>Nội dung</span><textarea name="message" required minlength="15" maxlength="2000" rows="4" placeholder="Mô tả cụ thể để chúng mình hỗ trợ..."></textarea></label>
       <button type="submit" class="btn btn--dark btn--wide">Gửi yêu cầu ${icon("send", 17)}</button>
     </form>
@@ -435,23 +503,57 @@ function openAccountMenu() {
   const menu = document.getElementById("account-menu");
   if (menu) menu.hidden = !menu.hidden;
 }
-async function copyText(value) {
+function checkoutDraftModeKey(designId) {
+  return `momevia:checkout-mode:${state.user.id || state.user.sub}:${designId}`;
+}
+function checkoutDraftPath(context) {
+  try {
+    if (sessionStorage.getItem(checkoutDraftModeKey(context.designId)) === "quick") return `${context.resumePath}?mode=quick`;
+  } catch { /* The saved draft is still available. */ }
+  return context.resumePath;
+}
+async function copyText(trigger) {
+  const { value } = trigger.dataset;
   try {
     await navigator.clipboard.writeText(value);
-    toast("Đã sao chép đường link vào bộ nhớ tạm.");
+    toast("Đã sao chép.");
   } catch {
-    const input = document.createElement("textarea");
-    input.value = value;
-    input.style.position = "fixed";
-    input.style.opacity = "0";
-    document.body.appendChild(input);
+    if (!trigger.isConnected) return;
+    const instruction = "Hãy sao chép thủ công nội dung đã chọn.";
+    let input = trigger.closest("[data-copy-container]")?.querySelector("[data-copy-value]");
+    if (!input) {
+      openModal(`<h2>Sao chép thủ công</h2><p>${instruction}</p><label class="field"><span>Nội dung sao chép</span><input data-copy-value readonly value="${e(value)}"/></label>`);
+      input = modal.querySelector("[data-copy-value]");
+    } else {
+      input.closest("[data-copy-fallback]")?.removeAttribute("hidden");
+      toast(instruction, "error");
+    }
+    input.focus();
     input.select();
-    document.execCommand("copy");
-    input.remove();
-    toast("Đã sao chép đường link.");
   }
 }
 async function handleAction(action, element) {
+  if (action === "duplicate-template" || action === "withdraw-template") {
+    const withdraw = action === "withdraw-template";
+    if (withdraw && !window.confirm("Rút mẫu khỏi thư viện? Người mới sẽ không thể chọn mẫu. Nháp đã tạo và quà đã gửi vẫn dùng được.")) return;
+    element.disabled = true;
+    try {
+      const body = withdraw ? {} : { mutationId: element.dataset.mutation || (element.dataset.mutation = crypto.randomUUID()) };
+      const result = await api.post(`/catalog/creator/workspaces/${encodeURIComponent(element.dataset.id)}/${withdraw ? "withdraw" : "duplicate"}`, body);
+      if (withdraw) return render();
+      navigate(`/design/${encodeURIComponent(result.id)}`);
+    } finally { element.disabled = false; }
+    return;
+  }
+  if (action === "report-content") return openSupport({ kind: element.dataset.kind, id: element.dataset.id });
+  if (action === "claim-report" || action === "resolve-report") {
+    const claim = action === "claim-report";
+    const resolution = claim ? null : window.prompt("Ghi kết quả xử lý báo cáo (tối đa 500 ký tự).");
+    if (!claim && !resolution?.trim()) return;
+    await api.post(`/support/admin/requests/${encodeURIComponent(element.dataset.id)}/resolve`, { action: claim ? "claim" : "resolve", resolution });
+    await render();
+    return;
+  }
   if (action === "login") return navigate("/login");
   if (action === "register") return navigate("/register");
   if (action === "support") return openSupport();
@@ -512,8 +614,7 @@ async function handleAction(action, element) {
     routeController?.dispose?.();
     routeController = null;
     await api.post("/auth/logout");
-    state.user = null;
-    state.favorites = new Set();
+    setUser(null);
     toast("Bạn đã đăng xuất.");
     navigate("/");
     return;
@@ -573,6 +674,22 @@ async function handleAction(action, element) {
   }
   if (action === "retry-canvas-payment" && canvasCheckout)
     return openCanvasCheckout(canvasCheckout);
+  if (action === "archive-design" || action === "revoke-gift") {
+    const archive = action === "archive-design";
+    const confirmed = window.confirm(archive
+      ? "Lưu trữ bản nháp này? Link của các món quà đã gửi từ bản nháp vẫn hoạt động."
+      : "Ngừng chia sẻ vĩnh viễn? Mọi link của quà sẽ ngừng mở, xem ảnh và gửi hoặc đọc hồi đáp. Các bản sao người nhận đã lưu vẫn nằm trên thiết bị của họ.");
+    if (!confirmed) return;
+    const id = encodeURIComponent(element.dataset.id);
+    await api.post(archive ? `/designs/designs/${id}/archive` : `/gifts/gifts/mine/${id}/revoke`);
+    await render();
+    return;
+  }
+  if (action === "gift-inbox") {
+    const { replies } = await api.get(`/gifts/gifts/mine/${encodeURIComponent(element.dataset.id)}/replies`);
+    if (element.isConnected) openModal(`<h2>Hồi đáp của món quà</h2><div class="reply-list">${renderReplies(replies)}</div>`);
+    return;
+  }
   if (action === "duplicate-design") {
     element.disabled = true;
     try {
@@ -683,18 +800,24 @@ async function handleAction(action, element) {
     return;
   }
   if (action === "demo-buy") {
-    if (!requireLogin(location.pathname)) return;
+    if (!requireLogin(location.pathname + location.search)) return;
+    const context = canvasCheckout;
     const id = element.dataset.id;
     element.disabled = true;
     element.textContent = "Đang chuẩn bị bản dùng thử...";
     try {
+      if (context) await context.flushSave();
+      if (!element.isConnected || canvasCheckout !== context) return;
       await api.post("/checkout/orders/demo-purchase", { templateId: id });
+      if (!element.isConnected || canvasCheckout !== context) return;
       toast("Đã kích hoạt mẫu dùng thử, không phát sinh thanh toán.");
-      render();
+      if (context) closeModal();
+      else await render();
     } catch (error) {
+      if (!element.isConnected) return;
       element.disabled = false;
+      element.textContent = "Cấp quyền dùng thử";
       toast(error.message, "error");
-      render();
     }
     return;
   }
@@ -703,12 +826,19 @@ async function handleAction(action, element) {
     return;
   }
   if (action === "reveal-gift") {
-    state.giftOpened = true;
     document.getElementById("recipient-card")?.classList.remove("is-surprise");
     document.getElementById("recipient-card")?.classList.add("is-open");
     return;
   }
-  if (action === "copy-link") return copyText(element.dataset.value);
+  if (action === "copy-link") return copyText(element);
+  if (action === "share-gift") {
+    try {
+      await navigator.share({ url: element.dataset.value });
+    } catch (error) {
+      if (error.name !== "AbortError") await copyText(element);
+    }
+    return;
+  }
   if (action === "approve-template" || action === "reject-template") {
     const id = encodeURIComponent(element.dataset.id);
     if (action === "approve-template") {
@@ -727,7 +857,7 @@ async function handleAction(action, element) {
     const link = element.dataset.value;
     const url = giftQrDataUrl(link);
     openModal(
-      `<div class="qr-modal"><h2>Mã QR của món quà</h2><p>Người nhận chỉ cần quét mã để mở thiệp.</p><img class="qr-image" src="${e(url)}" alt="Mã QR mở món quà"/><button class="btn btn--outline btn--wide" data-action="copy-link" data-value="${e(link)}">${icon("copy", 17)} Sao chép link</button></div>`,
+      `<div class="qr-modal" data-copy-container><h2>Mã QR của món quà</h2><p>Người nhận chỉ cần quét mã để mở thiệp.</p><img class="qr-image" src="${e(url)}" alt="Mã QR mở món quà"/><a class="btn btn--dark btn--wide" href="${e(url)}" download="momevia-qr.gif">Tải mã QR</a><button class="btn btn--outline btn--wide" data-action="copy-link" data-value="${e(link)}">${icon("copy", 17)} Sao chép link</button><label class="field" data-copy-fallback hidden><span>Đường link quà tặng</span><input data-copy-value readonly value="${e(link)}"/></label></div>`,
     );
     return;
   }
@@ -761,8 +891,8 @@ document.addEventListener("click", async (event) => {
     )
       return;
     event.preventDefault();
-    const path = new URL(link.href).pathname + new URL(link.href).hash;
-    navigate(path);
+    const url = new URL(link.href);
+    navigate(url.pathname + url.search + url.hash);
   }
 });
 document.addEventListener("input", (event) => {
@@ -850,7 +980,7 @@ document.addEventListener("submit", async (event) => {
       const endpoint =
         form.id === "register-form" ? "/auth/register" : "/auth/login";
       const result = await api.post(endpoint, data);
-      state.user = result.user;
+      setUser(result.user);
       await loadFavorites();
       if (state.pendingFavoriteId) {
         await saveFavorite(state.pendingFavoriteId, true);
@@ -874,7 +1004,7 @@ document.addEventListener("submit", async (event) => {
         name: data.name,
         deviceId,
       });
-      state.user = result.user;
+      setUser(result.user);
       closeModal();
       toast(`Xin chào ${result.user.name}.`);
       const target = state.afterLogin || "/studio";
@@ -882,7 +1012,7 @@ document.addEventListener("submit", async (event) => {
       navigate(target);
     } else if (form.id === "admin-login-form") {
       const result = await api.post("/auth/demo-admin", { code: data.code });
-      state.user = result.user;
+      setUser(result.user);
       toast("Đã đăng nhập quyền quản trị demo.");
       navigate("/admin");
     } else if (form.id === "create-gift-form") {
@@ -904,24 +1034,20 @@ document.addEventListener("submit", async (event) => {
         <p class="support-note">Yêu cầu đã được lưu vào hệ thống. Thời gian phản hồi chưa được xác định.</p>
       </div>`);
     } else if (form.id === "reply-form") {
-      await api.post(`/gifts/gifts/${form.dataset.slug}/replies`, data);
+      try {
+        await api.post(form.dataset.endpoint, data);
+        const list = form.isConnected ? main.querySelector("#reply-list") : null;
+        if (list) updateLegacyReplies(list, (await api.get(form.dataset.endpoint)).replies);
+      } catch (error) {
+        if (error.status === 410 && form.isConnected) await render();
+        throw error;
+      }
       toast("Lời hồi đáp đã được gửi.");
-      const response = await api.get(
-        `/gifts/gifts/${form.dataset.slug}/replies`,
-      );
-      document.getElementById("reply-list").innerHTML = renderReplies(
-        response.replies,
-      );
-      document.querySelector(".memory-container h3 span").textContent =
-        `(${response.replies.length})`;
       form.querySelector("textarea").value = "";
     } else if (form.id === "creator-template-form") {
-      await api.post("/catalog/creator/templates", {
-        ...data,
-        price: Number(data.price),
-      });
-      toast("Đã gửi mẫu cho quản trị viên kiểm duyệt.");
-      render();
+      const mutation = form.dataset.mutation || (form.dataset.mutation = crypto.randomUUID());
+      const result = await api.post("/catalog/creator/workspaces", { ...data, mutationId: mutation });
+      navigate(`/design/${encodeURIComponent(result.id)}`);
     } else if (form.id === "reject-form") {
       await api.post(
         `/catalog/admin/templates/${encodeURIComponent(form.dataset.templateId)}/reject`,
@@ -991,19 +1117,24 @@ async function loadTemplates() {
   const data = await api.get("/catalog/templates");
   state.templates = data.templates;
 }
-async function boot() {
-  try {
-    const [identity, providers] = await Promise.all([
-      api.get("/auth/me"),
-      api.get("/auth/providers"),
-    ]);
-    state.user = identity.user;
-    state.providers = providers;
-    await loadTemplates();
-    await loadFavorites();
-  } catch (error) {
-    toast(error.message, "error");
-  }
-  await render();
+function loadOnce(load) {
+  let pending;
+  return () => pending ??= load().catch(error => {
+    pending = null;
+    throw error;
+  });
 }
-boot();
+const loadIdentity = loadOnce(async () => setUser((await api.get("/auth/me")).user));
+const loadProviders = loadOnce(async () => { state.providers = await api.get("/auth/providers"); });
+const loadCatalog = loadOnce(loadTemplates);
+const catalogRoutes = new Set([undefined, "explore", "favorites"]);
+const favoriteRoutes = new Set([undefined, "explore", "template", "favorites", "studio"]);
+function loadPageData(route) {
+  const identity = loadIdentity();
+  const loads = [identity];
+  if (catalogRoutes.has(route)) loads.push(state.user && route === "explore" ? loadTemplates() : loadCatalog());
+  if (favoriteRoutes.has(route)) loads.push(identity.then(loadFavorites, () => {}));
+  if (route === "login" || route === "register") loads.push(loadProviders());
+  return Promise.allSettled(loads);
+}
+render();

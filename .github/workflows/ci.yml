@@ -1,10 +1,11 @@
-﻿name: Momevia CI
+name: Momevia CI/CD
 
 on:
   pull_request:
     branches: [main]
   push:
     branches: [main]
+    tags: ['v*']
   workflow_dispatch:
 
 permissions:
@@ -12,7 +13,7 @@ permissions:
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.ref_type != 'tag' }}
 
 jobs:
   test:
@@ -37,29 +38,90 @@ jobs:
       - run: npm run check
       - run: npm audit --omit=dev --audit-level=high
       - run: npm test
-      # Includes HTTP regressions and all four smoke suites on isolated data/ports.
-      - run: npm run test:architecture
+      - run: npm run test:templates
       - name: Install Chromium for browser regression
         if: matrix.os == 'ubuntu-latest' && matrix.node == '24'
         run: npx playwright install --with-deps chromium
       - name: Browser regression on isolated fixture
         if: matrix.os == 'ubuntu-latest' && matrix.node == '24'
         run: npm run test:browser
+      - name: Canvas browser regression on isolated fixture
+        if: matrix.os == 'ubuntu-latest' && matrix.node == '24'
+        run: npm run test:canvas:browser
+      - name: HTTP architecture regression on the other matrix entries
+        if: matrix.os != 'ubuntu-latest' || matrix.node != '24'
+        run: npm run test:architecture
+      - name: HTTP canvas regression on the other matrix entries
+        if: matrix.os != 'ubuntu-latest' || matrix.node != '24'
+        run: npm run test:canvas
+      - name: Legacy topology and fresh web demo
+        if: matrix.os == 'ubuntu-latest' && matrix.node == '24'
+        run: |
+          npm run test:architecture:legacy
+          npm run demo:web -- --port 4111 --prepare
 
-  package:
-    name: Verified release package
-    needs: test
-    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+  canvas-mysql:
+    name: Canvas / MySQL 8.4
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: momevia-ci-fixture
+          MYSQL_ROOT_HOST: '%'
+          MYSQL_DATABASE: momevia_canvas_qa_adapters
+        ports:
+          - 3306/tcp
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 --silent"
+          --health-interval=5s --health-timeout=3s --health-retries=20
+    env:
+      CANVAS_QA_MYSQL_ISOLATED: 'true'
+      CANVAS_QA_MYSQL_USER: root
+      CANVAS_QA_MYSQL_PASSWORD: momevia-ci-fixture
+      PAYMENT_LIVE_ENABLED: 'false'
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:canvas:mysql
+        env:
+          CANVAS_QA_MYSQL_DATABASE: momevia_canvas_qa_adapters
+          CANVAS_QA_MYSQL_PORT: ${{ job.services.mysql.ports['3306'] }}
+      - run: npm run test:canvas:mysql:api
+        env:
+          CANVAS_QA_MYSQL_DATABASE: momevia_canvas_qa_api
+          CANVAS_QA_MYSQL_PORT: ${{ job.services.mysql.ports['3306'] }}
+
+  package:
+    name: Verified release package
+    needs: [test, canvas-mysql]
+    if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/main' || github.ref_type == 'tag')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
           node-version: '22'
           cache: npm
+      - name: Validate version tag and main ancestry
+        if: github.ref_type == 'tag'
+        run: |
+          [[ "$GITHUB_REF_NAME" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]
+          test "$GITHUB_REF_NAME" = "v$(node -p 'require("./package.json").version')"
+          git merge-base --is-ancestor "$GITHUB_SHA" origin/main
       - run: npm ci
       - run: npm run build
       - run: npm run package
@@ -70,12 +132,39 @@ jobs:
           npm run check
           npm test
           npm run test:architecture
+          npm run test:templates
+          npm run test:canvas
       - run: npm run verify:package
       - name: Archive source package
-        run: tar --exclude=node_modules -czf dist/momevia-${{ github.sha }}.tar.gz -C dist/release .
+        run: |
+          archive="momevia-${GITHUB_SHA}.tar.gz"
+          tar --exclude=node_modules -czf "dist/$archive" -C dist/release .
+          (cd dist && sha256sum "$archive" > "$archive.sha256")
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: momevia-${{ github.sha }}
-          path: dist/momevia-*.tar.gz
+          path: |
+            dist/momevia-*.tar.gz
+            dist/momevia-*.tar.gz.sha256
           if-no-files-found: error
           retention-days: 14
+
+  release:
+    name: Publish verified GitHub Release
+    needs: package
+    if: github.event_name == 'push' && github.ref_type == 'tag'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      actions: read
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Download, verify and publish
+        run: |
+          archive="momevia-${GITHUB_SHA}.tar.gz"
+          gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --name "momevia-$GITHUB_SHA" --dir release-files
+          cd release-files
+          sha256sum -c "$archive.sha256"
+          gh release create "$GITHUB_REF_NAME" "$archive" "$archive.sha256" --repo "$GITHUB_REPOSITORY" --verify-tag --generate-notes

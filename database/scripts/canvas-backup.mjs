@@ -11,6 +11,7 @@ const args = process.argv.slice(2);
 function option(name) { const i = args.indexOf(name); return i < 0 ? null : args[i + 1]; }
 const container = option('--container'), schema = option('--schema'), restore = option('--restore-test');
 const media = path.resolve(option('--media-root') || '');
+const legacyMedia = option('--legacy-media-root') ? path.resolve(option('--legacy-media-root')) : null;
 const output = path.resolve(option('--output') || '');
 if (process.env.CANVAS_QA_MYSQL_ISOLATED !== 'true' || !/^momevia-canvas-qa-[\w-]+$/.test(container || '') ||
     !/^momevia_canvas_qa_[a-z0-9_]+$/.test(schema || '') ||
@@ -21,6 +22,7 @@ const password = process.env.CANVAS_QA_MYSQL_PASSWORD;
 if (!password) throw new Error('Explicit synthetic QA password required; .env is not read.');
 function insideLocal(value) { const relative = path.relative(path.join(root, 'local'), value); return relative && !relative.startsWith('..') && !path.isAbsolute(relative); }
 if (!option('--media-root') || !option('--output') || !insideLocal(media) || !insideLocal(output)) throw new Error('QA media/output must be explicitly inside this workspace local/.');
+if (legacyMedia && !insideLocal(legacyMedia)) throw new Error('QA legacy media must be inside this workspace local/.');
 if (fs.existsSync(output)) throw new Error('Backup output already exists; choose a new directory.');
 const inspect = JSON.parse(execFileSync('docker', ['inspect', container], { encoding: 'utf8' }))[0];
 if (inspect.Config.Labels?.['momevia.qa'] !== 'canvas-20261117' || inspect.State.Status !== 'running') throw new Error('Target is not the dedicated running canvas QA container.');
@@ -43,19 +45,38 @@ const assets = before ? before.split('\n').map(row => {
   if (sha(data) !== contentHash || data.length !== Number(bytes)) throw new Error(`Media checksum/length mismatch for synthetic asset ${id}.`);
   return { id, storageKey, contentHash, bytes: data.length };
 }) : [];
+const legacyQuery = "SELECT DISTINCT image_file FROM gifts WHERE image_file IS NOT NULL AND image_file <> '' ORDER BY image_file";
+const beforeLegacy = sql(schema, legacyQuery);
+if (beforeLegacy && !legacyMedia) throw new Error('Legacy photos exist: specify --legacy-media-root.');
+const legacyPhotos = beforeLegacy ? beforeLegacy.split('\n').map(storageKey => {
+  if (!/^[\da-f-]{36}\.(png|jpg|webp)$/.test(storageKey)) throw new Error('Unexpected legacy media storage key.');
+  const file = path.join(legacyMedia, storageKey);
+  if (fs.lstatSync(file).isSymbolicLink()) throw new Error('Legacy media symlinks are not supported.');
+  const bytes = fs.readFileSync(file);
+  return { storageKey, contentHash: sha(bytes), bytes: bytes.length };
+}) : [];
 const dumpArgs = ['-uroot', '--single-transaction', '--set-gtid-purged=OFF', '--no-tablespaces', '--hex-blob', '--order-by-primary', '--skip-comments', '--skip-dump-date'];
 const dump = run('mysqldump', [...dumpArgs, schema]);
 if (!dump.length) throw new Error('Empty database dump.');
 fs.mkdirSync(path.join(output, 'media'), { recursive: true });
 fs.writeFileSync(path.join(output, 'database.sql'), dump, { flag: 'wx' });
-for (const asset of assets) {
-  const data = fs.readFileSync(path.join(media, asset.storageKey));
-  if (sha(data) !== asset.contentHash) throw new Error('Media changed during backup.');
-  fs.writeFileSync(path.join(output, 'media', asset.storageKey), data, { flag: 'wx' });
+// A reviewed demo can have separate asset IDs for multiple owners and one immutable file.
+const mediaFiles = [...new Map(assets.map(asset => [asset.storageKey, asset])).values()];
+function copyMedia(files, source, destination) {
+  fs.mkdirSync(destination, { recursive: true });
+  for (const asset of files) {
+    const data = fs.readFileSync(path.join(source, asset.storageKey));
+    if (sha(data) !== asset.contentHash) throw new Error('Media checksum differs.');
+    const destinationFile = path.join(destination, asset.storageKey);
+    fs.writeFileSync(destinationFile, data, { flag: 'wx' });
+    if (sha(fs.readFileSync(destinationFile)) !== asset.contentHash) throw new Error('Copied media checksum differs.');
+  }
 }
-if (sql(schema, assetQuery) !== before) throw new Error('Asset metadata changed during backup; retry with an idle fixture.');
+copyMedia(mediaFiles, media, path.join(output, 'media'));
+copyMedia(legacyPhotos, legacyMedia, path.join(output, 'legacy-media'));
+if (sql(schema, assetQuery) !== before || sql(schema, legacyQuery) !== beforeLegacy) throw new Error('Asset metadata changed during backup; retry with an idle fixture.');
 const manifest = { formatVersion: 1, storage: 'mysql', fixture: true, mysqlVersion: version,
-  createdAt: new Date().toISOString(), migrations, dumpHash: sha(dump), assets, restoreTest: null };
+  createdAt: new Date().toISOString(), migrations, dumpHash: sha(dump), assets, legacyPhotos, restoreTest: null };
 if (restore) {
   const exists = sql(schema, `SELECT COUNT(*) FROM information_schema.SCHEMATA WHERE SCHEMA_NAME='${restore}'`);
   if (exists !== '0') throw new Error('Restore-test schema already exists; no overwrite is allowed.');
@@ -65,14 +86,10 @@ if (restore) {
   const restoredData = run('mysqldump', [...dumpArgs, '--no-create-info', restore]);
   if (sha(originalData) !== sha(restoredData)) throw new Error('Restored table content differs from original fixture.');
   if (sql(restore, assetQuery) !== before) throw new Error('Restored asset metadata differs.');
-  const restoredMedia = path.join(output, 'restore-media'); fs.mkdirSync(restoredMedia);
-  for (const asset of assets) {
-    const data = fs.readFileSync(path.join(output, 'media', asset.storageKey));
-    fs.writeFileSync(path.join(restoredMedia, asset.storageKey), data, { flag: 'wx' });
-    if (sha(fs.readFileSync(path.join(restoredMedia, asset.storageKey))) !== asset.contentHash) throw new Error('Restored media checksum differs.');
-  }
-  manifest.restoreTest = { status: 'PASS', schema: restore, dataHash: sha(restoredData), mediaCount: assets.length };
+  copyMedia(mediaFiles, path.join(output, 'media'), path.join(output, 'restore-media'));
+  copyMedia(legacyPhotos, path.join(output, 'legacy-media'), path.join(output, 'restore-legacy-media'));
+  manifest.restoreTest = { status: 'PASS', schema: restore, dataHash: sha(restoredData), mediaCount: mediaFiles.length, legacyCount: legacyPhotos.length };
 }
 fs.writeFileSync(path.join(output, 'manifest.json'), JSON.stringify(manifest, null, 2) + '\n', { flag: 'wx' });
-console.log(`PASS synthetic MySQL canvas backup: migrations=${migrations.length}, media=${assets.length}, dump checksum verified.`);
+console.log(`PASS synthetic MySQL canvas backup: migrations=${migrations.length}, canvas refs=${assets.length}, legacy photos=${legacyPhotos.length}, dump checksum verified.`);
 if (restore) console.log('PASS separate-schema restore: full table data parity and media byte/hash parity.');

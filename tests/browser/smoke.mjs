@@ -44,7 +44,9 @@ export async function runBrowserSmoke(base) {
     await page.locator('[data-editor-field="binding.message"]').fill('Browser refactor regression');
     await page.locator('[data-editor-action="save"]').click();
     await page.locator('.editor-save-status').filter({hasText:'Đã lưu'}).waitFor();
-    await page.locator('[data-editor-action="publish"]').click();
+    await page.getByRole('button', { name: 'Xem như người nhận' }).click();
+    await page.getByRole('dialog').getByRole('button', { name: 'Gửi', exact: true }).click();
+    await confirmGiftAccess(page);
     await page.waitForURL('**/success/*');
     await page.locator('[data-action="qr"]').click();
     await page.locator('.qr-image').waitFor();
@@ -66,3 +68,4 @@ export async function runBrowserSmoke(base) {
     console.log('PASS Browser: register/login, pages, favorites, Creator guard, gift publication and local QR (isolated data)');
   } finally { await browser.close(); }
 }
+import { confirmGiftAccess } from './gift-access.mjs';

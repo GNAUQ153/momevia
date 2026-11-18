@@ -5,6 +5,7 @@ import { basicTemplateDefinition, BASIC_TEMPLATE_REVISION } from '../shared/canv
 export function createComponents({ state }) {
   function artwork(template, variant = "") {
     if (basicTemplateDefinition(template.id)) return `<div class="artwork artwork--${e(template.theme)} artwork--canvas ${variant}"><img src="/assets/basic-templates/${encodeURIComponent(template.id)}.svg?v=${BASIC_TEMPLATE_REVISION}" alt="Bố cục mẫu ${e(template.title)}" width="390" height="844" loading="lazy"/></div>`;
+    if (template.thumbnail) return `<div class="artwork artwork--${e(template.theme)} artwork--canvas ${variant}"><img src="${e(template.thumbnail)}" alt="Ảnh minh họa mẫu ${e(template.title)}" width="390" height="844" loading="lazy"/></div>`;
     const theme = e(template.theme || "violet");
     const title = e(template.title || "A little wish");
     const small = e(template.subtitle || "Made with love");

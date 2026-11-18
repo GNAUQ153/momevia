@@ -45,6 +45,16 @@ test('body/button contrast stays readable on the scene background, including lon
   }
 });
 
+test('metadata-only published templates preview the same layout as their drafts', () => {
+  const template = { id: 'creator-metadata-only', theme: 'sky' };
+  const draft = createDocument({ template });
+  const preview = templatePreviewDocument(template);
+  assert.deepEqual(preview.scenes, draft.scenes);
+  assert.deepEqual(preview.elements, draft.elements);
+  assert(Object.values(preview.bindings).every(binding => binding.value.trim()));
+  assert(Object.values(draft.bindings).every(binding => binding.value === ''));
+});
+
 test('an optional polaroid photo keeps frame layout, crop, reading IDs and caption stacking when replaced', () => {
   const original = templatePreviewDocument({ id: 'polaroid' }); const frame = original.elements.find(e => e.id === 'photo-window');
   const first = insertPhotoFrame(original, 'asset-one'); let photo = first.elements.find(e => e.id === 'photo-window-image');

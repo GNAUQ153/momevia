@@ -145,15 +145,6 @@ export function createBasicTemplate(template) {
   return validateDocument(doc);
 }
 
-export function templatePreviewDocument(template) {
-  const doc = createBasicTemplate(template);
-  if (!doc) return null;
-  doc.bindings.recipientName.value = 'Người bạn thương';
-  doc.bindings.senderName.value = 'Một người luôn nhớ bạn';
-  doc.bindings.message.value = 'Chúc bạn một ngày thật vui, một tuổi mới thật dịu dàng. Mong những điều bạn yêu sẽ luôn ở gần, và những điều bạn ước sẽ dần thành hiện thực.';
-  return validateDocument(doc, { mode: 'publish' });
-}
-
 export function isPhotoFrame(element) { return element?.type === 'shape' && (element.id === 'photo-window' || element.name === 'Khung ảnh kỷ niệm'); }
 
 export function insertPhotoFrame(document, assetId, frameId = 'photo-window') {

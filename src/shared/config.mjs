@@ -21,11 +21,13 @@ export function loadEnvironment() {
 export function environment() {
   loadEnvironment();
   validateSecrets(process.env);
+  const demoEnabled = process.env.DEMO_AUTH_ENABLED !== 'false' && process.env.NODE_ENV !== 'production';
   return {
     baseUrl: process.env.PUBLIC_BASE_URL || 'http://localhost:4100',
     jwtSecret: process.env.JWT_SECRET,
     internalKey: process.env.INTERNAL_SERVICE_KEY,
-    demoEnabled: process.env.DEMO_AUTH_ENABLED !== 'false' && process.env.NODE_ENV !== 'production',
+    demoEnabled,
+    demoTemplateCheckout: demoEnabled && process.env.DEMO_TEMPLATE_CHECKOUT_ENABLED === 'true',
     adminCode: process.env.DEMO_ADMIN_CODE || '',
     testAccount: testAccountConfig(process.env),
     giftTtlDays: Math.max(1, Number(process.env.GIFT_TTL_DAYS || 365)),

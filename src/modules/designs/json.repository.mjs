@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { canvasError, owned } from './errors.mjs';
+import { requireGiftPermission } from '../gifts/access.mjs';
 
 const empty = () => ({ formatVersion: 1, designs: {}, creates: {}, mutations: {}, assets: {}, contexts: {}, publications: {}, versions: {}, replies: {} });
 const clone = value => structuredClone(value);
@@ -44,17 +45,18 @@ export class JsonDesignRepository {
     if (record.requestHash !== hash) throw canvasError(409, 'IDEMPOTENCY_CONFLICT', 'Mã thao tác đã được dùng cho nội dung khác.');
     return { ...clone(record.result), replayed: true };
   }
-  async list(ownerId, { offset = 0, limit = 50 } = {}) { return Object.values(this.read().designs).filter(d => d.ownerId === ownerId && !d.archivedAt).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt) || b.id.localeCompare(a.id)).slice(offset, offset + limit); }
+  async list(ownerId, { offset = 0, limit = 50 } = {}) { return Object.values(this.read().designs).filter(d => d.ownerId === ownerId && !d.archivedAt && d.provenance?.purpose !== 'creator').sort((a, b) => b.updatedAt.localeCompare(a.updatedAt) || b.id.localeCompare(a.id)).slice(offset, offset + limit); }
   async get(ownerId, id) { const d = this.read().designs[id]; return d?.ownerId === ownerId && !d.archivedAt ? clone(d) : null; }
   async findCreate(ownerId, mutationId, requestHash) {
     const record = this.read().creates[`${ownerId}:${mutationId}`];
     return record ? this.replay(record, requestHash) : null;
   }
-  async create(ownerId, mutationId, requestHash, record) {
+  async create(ownerId, mutationId, requestHash, record, assets = []) {
     return this.change(state => {
       const key = `${ownerId}:${mutationId}`;
       if (state.creates[key]) return this.replay(state.creates[key], requestHash);
       const result = { design: record, replayed: false };
+      for (const asset of assets) state.assets[asset.id] = clone(asset);
       state.designs[record.id] = clone(record); state.creates[key] = { requestHash, result: clone(result) };
       return result;
     });
@@ -101,11 +103,19 @@ export class JsonDesignRepository {
   async findBySlug(slug) { const p = Object.values(this.read().publications).find(p => p.result.gift.slug === slug); return p ? clone(p.result.gift) : null; }
   async listForUser(ownerId) { return Object.values(this.read().publications).filter(p => p.ownerId === ownerId).map(p => clone(p.result.gift)); }
   async repliesForGift(giftId) { return clone(this.read().replies[giftId] || []); }
-  async addReply(giftId, reply) {
+  async revoke(ownerId, giftId, revokedAt) {
+    return this.change(state => {
+      const publication = Object.values(state.publications).find(p => p.ownerId === ownerId && p.result.gift.id === giftId);
+      if (!publication) throw canvasError(404, 'GIFT_NOT_FOUND', 'Không tìm thấy quà.');
+      publication.result.gift.revokedAt ||= revokedAt;
+      return clone(publication.result.gift);
+    });
+  }
+  async addReply(giftId, reply, invite) {
     return this.change(state => {
       const p = Object.values(state.publications).find(p => p.result.gift.id === giftId);
       if (!p) throw canvasError(404, 'GIFT_NOT_FOUND', 'Không tìm thấy quà.');
-      if (new Date(p.result.gift.expiresAt) < new Date()) throw canvasError(410, 'GIFT_EXPIRED', 'Món quà đã hết thời gian hoạt động.');
+      requireGiftPermission(p.result.gift, invite, 'canSend');
       (state.replies[giftId] ||= []).push(clone(reply)); p.result.gift.replyCount = state.replies[giftId].length; return reply;
     });
   }

@@ -29,11 +29,18 @@ export class MySqlTemplatesRepository {
       item.theme, item.price, item.status, mysqlDate(item.createdAt), JSON.stringify(item)]);
     return item;
   }
+  async insertUnique(item) { return this.insert(item); }
   async update(id, patch) {
+    return this.mutate(id, () => patch);
+  }
+  async mutate(id, update) {
     return this.client.withTransaction(async tx => {
       const [rows] = await tx.execute('SELECT * FROM templates WHERE id=? FOR UPDATE', [id]);
       if (!rows.length) return null;
-      const value = { ...fromRow(rows[0]), ...patch, id };
+      const current = fromRow(rows[0]);
+      const patch = update(current);
+      if (!patch) return current;
+      const value = { ...current, ...patch, id };
       await tx.execute(`UPDATE templates SET creator_id=?, title=?, style=?, theme=?, price_vnd=?, status=?, payload=?
         WHERE id=?`, [value.creatorId === 'system' ? null : (value.creatorId || null), value.title, value.style,
         value.theme, value.price, value.status, JSON.stringify(value), id]);

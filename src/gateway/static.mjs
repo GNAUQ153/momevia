@@ -28,7 +28,7 @@ export function staticFile(req, res, url) {
     'content-type': type,
     'cache-control': type.startsWith('text/html') ? 'no-store' : 'public, max-age=300',
     'x-content-type-options': 'nosniff',
-    'referrer-policy': 'strict-origin-when-cross-origin',
+    'referrer-policy': 'no-referrer',
     'x-frame-options': 'DENY',
     'content-security-policy': "default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://www.gstatic.com https://upload.wikimedia.org; connect-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'",
   });

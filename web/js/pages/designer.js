@@ -28,18 +28,29 @@ const bindingLabels = {
 const stopKeys = (target) =>
   target?.closest('input,textarea,select,[contenteditable="true"]');
 
+function readableInk(background) {
+  const [red, green, blue] = background.slice(1).match(/../g).map(hex => {
+    const value = parseInt(hex, 16) / 255;
+    return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
+  });
+  const luminance = 0.2126 * red + 0.7152 * green + 0.0722 * blue;
+  return luminance > 0.179 ? "#000000" : "#FFFFFF";
+}
+
 // Mounted only on Sender design routes. The public player never imports this module.
 export function mountDesigner(
   main,
   {
     id = null,
     templateId = null,
+    templateVersionId = null,
+    mode = null,
     user,
     api,
     navigate,
     toast = () => {},
     onCheckout,
-    onCreated,
+    onRouteReplace,
   } = {},
 ) {
   const lifecycle = new AbortController(),
@@ -62,6 +73,7 @@ export function mountDesigner(
     sheet = null,
     creating = false;
   const dialogs = new Set();
+  let quickMode = mode === "quick" || (Boolean(templateId) && mode !== "layout");
   const ownerId = user?.sub || user?.id;
   main.classList.add("editor-main");
   main.replaceChildren(
@@ -184,6 +196,43 @@ export function mountDesigner(
       "Đã lưu",
     );
 
+  function quickPhotoFrame() {
+    if (design.policy?.kind === "creator-template")
+      return store.get().document.elements.find(element => element.id === design.policy.photoId);
+    return store.get().document.elements.find(element =>
+      isPhotoFrame(element) && element.visible !== false && !element.locked &&
+      !design.policy?.lockedElements?.[element.id]
+    );
+  }
+
+  function syncDraftUrl() {
+    const query = quickMode ? "?mode=quick" : "";
+    history.replaceState(history.state, "", `/design/${encodeURIComponent(id)}${query}`);
+    onRouteReplace?.();
+  }
+
+  function showMode() {
+    const workspace = main.querySelector(".editor-workspace");
+    workspace.classList.toggle("is-quick", quickMode);
+    const mode = workspace.querySelector('[data-editor-action="toggle-mode"]');
+    if (mode) mode.textContent = quickMode ? "Chỉnh bố cục" : "Cá nhân hóa nhanh";
+    workspace.querySelector('[data-editor-action="preview"]').textContent = quickMode ? "Xem như người nhận" : "Xem trước";
+    workspace.querySelector(".editor-library").setAttribute("aria-label", quickMode ? "Cá nhân hóa món quà" : "Công cụ thiết kế");
+    const sceneBar = workspace.querySelector(".editor-scene-bar");
+    const next = workspace.querySelector(quickMode ? ".editor-stage-scroll" : ".editor-mobile-dock");
+    next.before(sceneBar);
+  }
+
+  function switchMode() {
+    closeSheet();
+    stage.cancel();
+    quickMode = !quickMode;
+    syncDraftUrl();
+    showMode();
+    renderAll();
+    fit();
+  }
+
   function shell() {
     const tools = node(
       "div",
@@ -192,12 +241,14 @@ export function mountDesigner(
       button("Làm lại", "redo", { "aria-label": "Làm lại (Ctrl Shift Z)" }),
       button("Lưu nháp", "save", { class: "editor-save" }),
       button("Xem trước", "preview"),
-      button("Xuất bản", "publish", { class: "editor-primary" }),
+      design.purpose === "creator"
+        ? button("Gửi phiên bản để duyệt", "submit-template", { class: "editor-primary" })
+        : button("Xuất bản", "publish", { class: "editor-primary editor-layout-only" }),
     );
     const heading = node(
       "div",
       { class: "editor-heading" },
-      button("← Studio", "studio"),
+      button(design.purpose === "creator" ? "← Mẫu của tôi" : "← Studio", "studio"),
       node("input", {
         class: "editor-title",
         "aria-label": "Tên thiết kế",
@@ -206,6 +257,7 @@ export function mountDesigner(
         maxlength: 120,
       }),
       statusNode(),
+      design.source?.kind === "template" ? button("", "toggle-mode", { class: "editor-mode" }) : null,
     );
     const top = node("header", { class: "editor-topbar" }, heading, tools);
     const sidebar = node(
@@ -213,24 +265,26 @@ export function mountDesigner(
       { class: "editor-library", "aria-label": "Công cụ thiết kế" },
       node(
         "div",
-        { class: "editor-panel-heading" },
+        { class: "editor-panel-heading editor-layout-only" },
         node("h2", {}, "Thêm vào món quà"),
         button("Đóng", "close-sheet", { class: "editor-sheet-close" }),
       ),
       node(
         "p",
-        { class: "editor-help" },
+        { class: "editor-help editor-layout-only" },
         "Chọn một khối, rồi chỉnh nội dung và vị trí.",
       ),
       node(
         "div",
-        { class: "editor-add-grid" },
+        { class: "editor-add-grid editor-layout-only" },
         ...Object.entries(registry).map(([type, value]) =>
           button(value.label, "add", { "data-type": type }),
         ),
       ),
-      node("h3", {}, "Nội dung cá nhân hóa"),
-      ...Object.entries(bindingLabels).map(([key, label]) =>
+      node("h2", { class: "editor-quick-only" }, "Điền nội dung"),
+      node("h3", { class: "editor-layout-only" }, "Nội dung cá nhân hóa"),
+      ...Object.entries(bindingLabels).filter(([key]) =>
+        design.policy?.kind !== "creator-template" || design.policy.editableBindings.includes(key)).map(([key, label]) =>
         key === "message"
           ? field(
               label,
@@ -252,15 +306,23 @@ export function mountDesigner(
               { maxlength: 60 },
             ),
       ),
-      node(
-        "p",
-        { class: "editor-help" },
+      node("div", { class: "editor-quick-only" },
+        node("div", { class: "editor-quick-photo", hidden: true },
+          field("Ảnh kỷ niệm", node("input", {
+            type: "file",
+            accept: "image/png,image/jpeg,image/webp",
+            "data-editor-field": "quick-photo",
+          })),
+          node("p", { class: "editor-help" }, "PNG, JPEG hoặc WebP · Tối đa 2 MB"),
+        ),
+      ),
+      node("p", { class: "editor-help editor-layout-only" },
         "Tên và lời chúc được dùng ở những khối có liên kết dữ liệu. Nhập đủ trước khi xuất bản.",
       ),
-      node("h3", {}, "Ảnh đã dùng"),
-      node("div", { class: "editor-assets" }),
-      node("h3", {}, "Các lớp"),
-      node("div", { class: "editor-layers" }),
+      node("h3", { class: "editor-layout-only" }, "Ảnh đã dùng"),
+      node("div", { class: "editor-assets editor-layout-only" }),
+      node("h3", { class: "editor-layout-only" }, "Các lớp"),
+      node("div", { class: "editor-layers editor-layout-only" }),
     );
     const zoomControl = node(
       "select",
@@ -273,9 +335,10 @@ export function mountDesigner(
     const stageArea = node(
       "section",
       { class: "editor-stage-column", "aria-label": "Bản thiết kế" },
+      node("h2", { class: "editor-quick-only" }, "Bố cục thiệp"),
       node(
         "div",
-        { class: "editor-stage-tools" },
+        { class: "editor-stage-tools editor-layout-only" },
         node("span", {}, "Khung thiết kế · 390 × 844"),
         zoomControl,
         button("Vừa khung", "fit"),
@@ -293,7 +356,7 @@ export function mountDesigner(
       node("div", { class: "editor-stage-scroll" }),
     );
     const inspector = node("aside", {
-      class: "editor-inspector",
+      class: "editor-inspector editor-layout-only",
       "aria-label": "Thuộc tính",
     });
     const sceneBar = node(
@@ -302,7 +365,7 @@ export function mountDesigner(
       node("div", { class: "editor-scenes" }),
       node(
         "div",
-        { class: "editor-scene-actions" },
+        { class: "editor-scene-actions editor-layout-only" },
         button("+ Cảnh", "scene-add"),
         button("Nhân bản cảnh", "scene-duplicate"),
         button("Cảnh lên", "scene-up"),
@@ -313,7 +376,7 @@ export function mountDesigner(
     );
     const dock = node(
       "nav",
-      { class: "editor-mobile-dock", "aria-label": "Bảng công cụ" },
+      { class: "editor-mobile-dock editor-layout-only", "aria-label": "Bảng công cụ" },
       button("Thêm / Nội dung", "sheet-library"),
       button("Các lớp", "sheet-layers"),
       button("Thuộc tính", "sheet-inspector"),
@@ -337,6 +400,11 @@ export function mountDesigner(
         dock,
       ),
     );
+    if (design.policy?.kind === "creator-template") {
+      for (const control of main.querySelectorAll('[data-editor-action="add"], .editor-scene-actions button, [data-editor-action="center"], [data-editor-action="inside"]'))
+        control.disabled = true;
+    }
+    showMode();
     stage = createStage(main.querySelector(".editor-stage-scroll"), {
       store,
       getSceneId: () => sceneId,
@@ -345,6 +413,7 @@ export function mountDesigner(
       assetUrl,
       signal,
       getSnap: () => snap,
+      isReadOnly: () => quickMode,
       isLayoutLocked: (idValue) =>
         Boolean(design.policy?.lockedElements?.[idValue]),
       onGesture: (active) => main.classList.toggle("editor-dragging", active),
@@ -361,7 +430,7 @@ export function mountDesigner(
           .get()
           .document.elements.find((element) => element.id === idValue);
         return button(
-          `${item.visible === false ? "◌ " : ""}${item.locked ? "🔒 " : ""}${item.name || registry[item.type].label}`,
+          `${item.visible === false ? "◌ " : ""}${item.locked || design.policy?.lockedElements?.[item.id] ? "🔒 " : ""}${item.name || registry[item.type].label}`,
           "select",
           {
             "data-id": idValue,
@@ -719,6 +788,8 @@ export function mountDesigner(
     }
     host.replaceChildren(...children);
     const policy = design.policy?.lockedElements?.[element?.id];
+    if (!element && design.policy?.kind === "creator-template")
+      host.querySelectorAll("[data-editor-field]").forEach(control => { control.disabled = true; });
     if (policy) {
       const permitted = policy.editableProps || [];
       host.insertBefore(
@@ -732,7 +803,8 @@ export function mountDesigner(
       for (const control of host.querySelectorAll("[data-editor-field]")) {
         const key = control.dataset.editorField;
         control.disabled = !(
-          key.startsWith("props.") && permitted.includes(key.slice(6))
+          (key.startsWith("props.") && permitted.includes(key.slice(6))) ||
+          (key === "upload" && permitted.includes("assetId"))
         );
       }
       for (const control of host.querySelectorAll("[data-editor-action]"))
@@ -750,6 +822,7 @@ export function mountDesigner(
     renderLayers();
     renderScenes();
     renderAssets();
+    main.querySelector(".editor-quick-photo").hidden = !quickPhotoFrame();
     if (
       !main.querySelector(".editor-inspector")?.contains(document.activeElement)
     )
@@ -775,6 +848,7 @@ export function mountDesigner(
     session?.dispose();
     stage?.dispose();
     design = loaded;
+    quickMode = quickMode && design.source?.kind === "template";
     sceneId = design.document.entrySceneId;
     selection = null;
     store = createEditorStore(design);
@@ -815,7 +889,7 @@ export function mountDesigner(
     for (const button of main.querySelectorAll(".editor-start-options button"))
       button.disabled = true;
     try {
-      const cacheKey = `momevia:canvas:create:${ownerId}:${source.kind}:${source.templateId || presetId}`;
+      const cacheKey = `momevia:canvas:create:${ownerId}:${source.kind}:${source.templateId || presetId}${source.templateVersionId ? `:${source.templateVersionId}` : ""}`;
       let mutationId;
       try {
         mutationId = sessionStorage.getItem(cacheKey);
@@ -833,18 +907,13 @@ export function mountDesigner(
         presetId,
         mutationId,
       });
-      id = result.design.id;
-      history.replaceState(
-        history.state,
-        "",
-        `/design/${encodeURIComponent(id)}`,
-      );
-      onCreated?.(result.design);
       let loaded = result.design;
-      if (source.kind === 'template') {
+      if (source.kind === 'template' && loaded.policy?.kind === 'sender-basic') {
         const { template } = await request(`/catalog/templates/${encodeURIComponent(source.templateId)}`);
         loaded = await materializeTemplateStart(loaded, { template, createMutationId: mutationId, request });
       }
+      id = loaded.id;
+      syncDraftUrl();
       try { sessionStorage.removeItem(cacheKey); } catch { /* Optional cache. */ }
       await initialize(loaded);
     } finally {
@@ -890,7 +959,7 @@ export function mountDesigner(
     const control = main.querySelector('[data-editor-field="zoom"]');
     if (control) control.value = String(zoom);
   }
-  async function upload(file) {
+  async function upload(file, elementId) {
     if (!file || assetPending) return;
     if (
       !["image/png", "image/jpeg", "image/webp"].includes(file.type) ||
@@ -899,8 +968,7 @@ export function mountDesigner(
       throw new Error(
         "Chọn ảnh PNG/JPEG/WebP tối đa 2 MB. Ảnh hiện tại được giữ nguyên.",
       );
-    const elementId = selection;
-    const frameUpload = isPhotoFrame(selected());
+    const frameUpload = isPhotoFrame(store.get().document.elements.find(element => element.id === elementId));
     assetPending = true;
     markStatus("Ảnh đang xử lý…");
     try {
@@ -931,8 +999,12 @@ export function mountDesigner(
             kind: "image",
           });
         image.props.assetId = result.asset.id;
+        if (design.policy?.kind === "creator-template") {
+          const used = new Set(value.document.elements.filter(item => item.type === "image").map(item => item.props.assetId));
+          value.document.assets = value.document.assets.filter(ref => used.has(ref.assetId));
+        }
       }, "Thay ảnh");
-      if (frameUpload) choose(store.get().document.elements.find(element => element.type === 'image' && element.props.assetId === result.asset.id)?.id || elementId);
+      if (frameUpload && !quickMode) choose(store.get().document.elements.find(element => element.type === 'image' && element.props.assetId === result.asset.id)?.id || elementId);
       renderInspector();
     } finally {
       assetPending = false;
@@ -940,15 +1012,17 @@ export function mountDesigner(
     }
   }
   function openPreview() {
+    if (assetPending) throw new Error("Chờ ảnh xử lý xong trước khi xem trước.");
     const dialog = node(
       "dialog",
       { class: "editor-preview-dialog", "aria-label": "Xem trước món quà" },
       node(
         "div",
         { class: "editor-preview-heading" },
-        node("h2", {}, "Xem trước · Lời đáp được mô phỏng"),
+        node("h2", {}, quickMode ? "Xem như người nhận" : "Xem trước món quà"),
         button("Phát lại", "preview-reset"),
-        button("Đóng", "preview-close"),
+        button(quickMode ? "Sửa nội dung" : "Đóng", "preview-close"),
+        quickMode ? button("Gửi", "preview-send", { class: "editor-primary" }) : null,
       ),
       node("div", { class: "editor-preview-player" }),
     );
@@ -977,6 +1051,10 @@ export function mountDesigner(
           .editorAction;
         if (action === "preview-close") closePreview?.();
         if (action === "preview-reset") preview?.reset();
+        if (action === "preview-send") {
+          closePreview?.();
+          void safe(publish)();
+        }
       },
       { signal },
     );
@@ -987,6 +1065,81 @@ export function mountDesigner(
     if (assetPending) throw new Error("Chờ ảnh xử lý xong trước khi tiếp tục.");
     if (!session) throw new Error("Thiết kế chưa sẵn sàng.");
     return session.save();
+  }
+  async function submitTemplate() {
+    const saved = await flushSave();
+    const { elements } = store.get().document;
+    const visible = elements.filter(element => element.visible !== false && element.opacity !== 0);
+    const bindings = Object.entries(bindingLabels).filter(([key]) => visible.some(element => element.type === "text" && element.props.textBinding === key));
+    const images = visible.filter(element => element.type === "image" && element.props.assetId);
+    const controls = bindings.map(([key, label]) => field(label, node("input", { type: "checkbox", value: key, checked: true, name: "binding" })));
+    const photo = select("Khung ảnh Sender được thay", "template-photo", "", [["", "Không có"], ...images.map((image, index) => [image.id, `${image.name || "Ảnh"} (${index + 1})`])]);
+    const rights = node("textarea", { name: "rights", required: elements.some(element => element.type === "image" && element.props.assetId), maxlength: 500 });
+    const form = node("form", {},
+      node("h2", {}, "Gửi phiên bản để duyệt"),
+      node("p", {}, "Chọn nội dung Sender được sửa. Bản gửi duyệt dùng tên và lời chúc minh họa."),
+      ...controls, photo,
+      rights.required ? field("Nguồn ảnh và quyền phân phối trong mẫu, quà", rights) : null,
+      node("p", { role: "alert" }),
+      node("button", { type: "submit", class: "editor-primary" }, "Gửi duyệt"),
+      node("button", { type: "button" }, "Quay lại"),
+    );
+    const dialog = node("dialog", { class: "editor-preview-dialog", "aria-label": "Gửi phiên bản để duyệt" }, form);
+    document.body.append(dialog);
+    dialogs.add(dialog);
+    const close = trapDialog(dialog, () => dialogs.delete(dialog));
+    form.querySelector('button[type="button"]').addEventListener("click", close);
+    form.addEventListener("submit", async event => {
+      event.preventDefault();
+      const submit = form.querySelector('button[type="submit"]');
+      submit.disabled = true;
+      try {
+        const inputs = new FormData(form);
+        await request(`/catalog/creator/workspaces/${encodeURIComponent(design.id)}/submit`, {
+          expectedRevision: saved.revision, bindings: inputs.getAll("binding"),
+          photoId: photo.querySelector("select").value || null, rights: rights.value,
+        });
+        close();
+        navigate("/creator");
+      } catch (error) {
+        form.querySelector('[role="alert"]').textContent = error.message;
+        submit.disabled = false;
+      }
+    }, { signal });
+  }
+  function chooseGiftAccess() {
+    const invite = ["invite", "Chỉ người có link mời"];
+    const link = ["link", "Ai có link quà"];
+    const choose = ["", "Chọn phạm vi"];
+    const form = node("form", {},
+      node("h2", {}, "Quyền truy cập món quà"),
+      node("p", {}, "Link mời có thể được chuyển tiếp. Bạn luôn xem được hồi đáp trong Studio."),
+      select("Ai được mở quà?", "open", "", [choose, link, invite]),
+      select("Ai được gửi hồi đáp?", "send", "", [choose, link, invite, ["disabled", "Tắt hồi đáp"]]),
+      select("Ai được đọc hồi đáp?", "read", "", [choose, link, invite, ["sender", "Chỉ người gửi"]]),
+      node("button", { type: "submit", class: "editor-primary" }, "Xuất bản và lấy link"),
+      node("button", { type: "button" }, "Quay lại"),
+    );
+    const controls = [...form.querySelectorAll("select")];
+    controls.forEach(control => { control.required = true; });
+    const dialog = node("dialog", { class: "editor-preview-dialog", "aria-label": "Quyền truy cập món quà" }, form);
+    return new Promise(resolve => {
+      let access;
+      document.body.append(dialog);
+      dialogs.add(dialog);
+      const close = trapDialog(dialog, () => {
+        dialogs.delete(dialog);
+        lifecycle.signal.removeEventListener("abort", close);
+        resolve(access);
+      });
+      lifecycle.signal.addEventListener("abort", close, { once: true });
+      form.querySelector('button[type="button"]').addEventListener("click", close);
+      form.addEventListener("submit", event => {
+        event.preventDefault();
+        access = Object.fromEntries(controls.map(control => [control.dataset.editorField, control.value]));
+        close();
+      });
+    });
   }
   async function publish() {
     if (publishing) return;
@@ -1004,12 +1157,16 @@ export function mountDesigner(
         throw new Error(
           "Thiết kế vừa thay đổi. Lưu và kiểm tra lại trước khi xuất bản.",
         );
+      if (preflight.blockers?.some(({ code }) => code === "EMPTY_DESIGN")) {
+        showBlockers(preflight.blockers);
+        return;
+      }
       if (preflight.authorization.status === "needs_template_license") {
         markStatus("Cần quyền sử dụng mẫu");
         if (!onCheckout)
           throw new Error("Cần mua quyền sử dụng mẫu trước khi xuất bản.");
         publishing = false;
-        await onCheckout({ design: designView(), preflight, flushSave });
+        await onCheckout({ design: designView(), preflight, flushSave, mode: quickMode ? "quick" : "layout" });
         return;
       }
       if (!preflight.canPublish) {
@@ -1021,7 +1178,12 @@ export function mountDesigner(
           messages || `Chưa thể xuất bản (${preflight.authorization.status}).`,
         );
       }
-      const key = `momevia:canvas:publish:${ownerId}:${design.id}:${saved.revision}:${preflight.documentHash}`;
+      const access = await chooseGiftAccess();
+      if (!access || disposed) return;
+      if (session.dirty || session.revision !== saved.revision)
+        throw new Error("Thiết kế vừa thay đổi. Lưu và kiểm tra lại trước khi xuất bản.");
+      const accessKey = [access.open, access.send, access.read].join("-");
+      const key = `momevia:canvas:publish:${ownerId}:${design.id}:${saved.revision}:${preflight.documentHash}:${accessKey}`;
       let intent;
       try {
         intent = sessionStorage.getItem(key);
@@ -1040,6 +1202,7 @@ export function mountDesigner(
         expectedRevision: saved.revision,
         expectedDocumentHash: preflight.documentHash,
         idempotencyKey: intent,
+        access,
       });
       try {
         sessionStorage.removeItem(key);
@@ -1049,6 +1212,9 @@ export function mountDesigner(
       publishing = false;
       toast("Đã xuất bản món quà.");
       await navigate(`/success/${encodeURIComponent(result.gift.slug)}`);
+    } catch (error) {
+      if (error.code !== "PUBLISH_BLOCKED" || !error.details?.some(({ code }) => code === "EMPTY_DESIGN")) throw error;
+      showBlockers(error.details);
     } finally {
       publishing = false;
       if (!disposed) {
@@ -1064,6 +1230,12 @@ export function mountDesigner(
     host.replaceChildren(
       node("strong", {}, "Cần hoàn thiện trước khi xuất bản"),
       ...blockers.map((blocker) => {
+        if (blocker.code === "EMPTY_DESIGN") {
+          return node("div", {},
+            node("p", { role: "alert" }, blocker.message),
+            button("Chèn lời chúc vào cảnh đang chọn", "insert-greeting"),
+          );
+        }
         const path = blocker.path || "",
           doc = store.get().document;
         const index = /^elements\.(\d+)/.exec(path)?.[1];
@@ -1124,7 +1296,7 @@ export function mountDesigner(
   }
   async function action(name, target) {
     if (name === "studio") {
-      await navigate("/studio");
+      await navigate(design?.purpose === "creator" ? "/creator" : "/studio");
       return;
     }
     if (name === "create-blank" || name === "create-starter") {
@@ -1154,8 +1326,13 @@ export function mountDesigner(
       return;
     }
     if (!store) return;
+    if (name === "toggle-mode") {
+      switchMode();
+      return;
+    }
     if (name === "focus-blocker") {
       if (target.dataset.id) {
+        if (quickMode) switchMode();
         selection = target.dataset.id;
         sceneId =
           store
@@ -1167,7 +1344,7 @@ export function mountDesigner(
         if (matchMedia("(max-width:800px)").matches) openSheet("inspector");
       }
       if (target.dataset.field) {
-        if (matchMedia("(max-width:800px)").matches) openSheet("library");
+        if (!quickMode && matchMedia("(max-width:800px)").matches) openSheet("library");
         main
           .querySelector(
             `[data-editor-field="${CSS.escape(target.dataset.field)}"]`,
@@ -1291,6 +1468,7 @@ export function mountDesigner(
       await publish();
       return;
     }
+    if (name === "submit-template") return submitTemplate();
     if (name.startsWith("sheet-")) {
       openSheet(name.slice(6));
       return;
@@ -1299,8 +1477,17 @@ export function mountDesigner(
       closeSheet();
       return;
     }
-    if (name === "add") {
-      const element = createElement(target.dataset.type, { id: newId() });
+    if (name === "add" || name === "insert-greeting") {
+      const scene = currentScene();
+      const insertingGreeting = name === "insert-greeting";
+      const { width, height } = store.get().document.artboard.baseSize;
+      const element = insertingGreeting
+        ? createElement("text", {
+          id: newId(),
+          layout: { x: width * 0.1, y: height * 0.18, width: width * 0.8, height: 120 },
+          props: { textBinding: "message", align: "center", color: readableInk(scene.background.color) },
+        })
+        : createElement(target.dataset.type, { id: newId() });
       if (element.type === "reply") {
         element.layout.height = 300;
         element.layout.rotation = 0;
@@ -1308,10 +1495,11 @@ export function mountDesigner(
       commit((value) => {
         value.document.elements.push(element);
         value.document.scenes
-          .find((item) => item.id === sceneId)
+          .find((item) => item.id === scene.id)
           .elementIds.push(element.id);
-      }, "Thêm phần tử");
+      }, insertingGreeting ? "Chèn lời chúc" : "Thêm phần tử");
       choose(element.id);
+      if (insertingGreeting) main.querySelector('[data-editor-action="preview"]').focus();
       return;
     }
     if (name === "scene-add") {
@@ -1500,9 +1688,13 @@ export function mountDesigner(
       snap = control.checked;
       return;
     }
-    if (key === "upload") {
-      await upload(control.files?.[0]);
-      control.value = "";
+    if (key === "upload" || key === "quick-photo") {
+      const target = key === "quick-photo" ? quickPhotoFrame()?.id : selection;
+      try {
+        if (target) await upload(control.files?.[0], target);
+      } finally {
+        control.value = "";
+      }
       return;
     }
     const value =
@@ -1701,6 +1893,7 @@ export function mountDesigner(
           event.key,
         ) &&
         selected() &&
+        !quickMode &&
         !selected().locked &&
         !design.policy?.lockedElements?.[selection]
       ) {
@@ -1744,7 +1937,7 @@ export function mountDesigner(
         (await request(`/designs/designs/${encodeURIComponent(id)}`)).design,
       );
     else if (templateId)
-      await create("envelope-basic", { kind: "template", templateId });
+      await create("envelope-basic", { kind: "template", templateId, ...(templateVersionId ? { templateVersionId } : {}) });
     else picker();
   })().catch((error) => {
     warn(error);

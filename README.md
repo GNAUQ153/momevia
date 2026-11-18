@@ -1,52 +1,116 @@
-# Momevia
+# Momevia — Interactive Digital Gift Platform
 
-Momevia là ứng dụng web tạo quà tương tác. Creator thiết kế mẫu và gửi duyệt. Sender chọn phiên bản đã duyệt, thay ảnh và lời chúc rồi gửi qua link hoặc QR. Người nhận mở quà và hồi đáp trên web. Thư viện có 12 mẫu tích hợp bên cạnh mẫu của Creator.
+**Momevia** là nền tảng web tạo và gửi quà tặng số tương tác. Người gửi (Sender) có thể chọn mẫu, tùy biến nội dung, phát hành và chia sẻ bằng liên kết/QR; người nhận xem và hồi đáp mà không cần tài khoản. Nhà sáng tạo (Creator) có thể thiết kế mẫu, gửi kiểm duyệt và quản lý phiên bản; Admin quản trị người dùng, nội dung và hỗ trợ.
 
-## Chạy ứng dụng
+> **Trạng thái:** MVP/Beta. Thanh toán live chưa được xác nhận sẵn sàng vận hành; không dùng giao dịch thật trước khi hoàn thành kiểm thử với merchant và đối soát.
 
-Dùng Node.js 22.13 trở lên trong nhánh 22 hoặc Node.js 24 trở lên.
+## Tech stack và kiến trúc
 
-```powershell
+| Thành phần | Công nghệ |
+| --- | --- |
+| Frontend | HTML5, CSS3, JavaScript ES Modules (responsive, Canvas Editor) |
+| Backend | Node.js 22.13+ hoặc 24+, JavaScript ESM, HTTP server, Modular Monolith |
+| Database | JSON storage mặc định; MySQL 8.4 LTS (InnoDB, UTF8MB4) qua `mysql2` khi được cấu hình |
+| Thanh toán | `@payos/node` (payOS/VietQR), MoMo API/IPN; mặc định vô hiệu hóa live |
+| Media / QR | `sharp` xử lý ảnh; `qrcode-generator` cho mã QR chạy nội bộ |
+| Kiểm thử | `node:test`, ESLint, Playwright, MySQL integration và GitHub Actions CI/CD |
+| Công cụ local | npm, Docker Desktop + Docker Compose (nếu sử dụng MySQL) |
+
+Ứng dụng chạy **một tiến trình backend**, chia module theo nghiệp vụ tại `src/modules/` (`identity`, `catalog`, `designs`, `gifts`, `checkout`, `payments`, `support`). Các adapter MySQL và JSON được cấu hình theo môi trường; **không chuyển storage bằng cách đổi cờ trước khi import dữ liệu**.
+
+## Chức năng hiện tại theo vai trò
+
+| Vai trò | Chức năng chính |
+| --- | --- |
+| **Sender** | Đăng nhập/đăng ký, khám phá mẫu, quản lý yêu thích, thiết kế/cá nhân hóa, lưu nháp, xuất bản và chia sẻ quà, xem phản hồi, thu hồi link/quà |
+| **Creator** | Thiết kế mẫu bằng Canvas, quản lý bản nháp và phiên bản, gửi Admin duyệt, sửa theo phản hồi và rút mẫu khỏi thư viện |
+| **Admin** | Quản lý vai trò, duyệt mẫu, tiếp nhận báo cáo vi phạm và ticket hỗ trợ |
+| **Recipient (khách)** | Xem quà qua link/QR và hồi đáp theo chính sách quyền của món quà |
+
+**Còn đang hoàn thiện:** vòng đời hủy/retry thanh toán an toàn, hoàn tiền/đối soát vận hành, định giá và chi trả Creator, tự động thu phí gói. Trang Pricing không đồng nghĩa đã có subscription thực tế.
+
+## Chạy localhost (mặc định JSON)
+
+**Yêu cầu:** Node.js 22.13+ (nhánh 22) hoặc Node.js 24+, npm. Mở Terminal tại thư mục gốc dự án.
+
+```bash
+cp .env.example .env
 npm ci
 npm run build
-npm start
+npm run dev
 ```
 
-Mở [localhost:4100](http://localhost:4100). JSON là mặc định. Xem [vận hành, MySQL và CI/CD](docs/OPERATIONS.md) khi cấu hình phiên, reverse proxy, kho dữ liệu hoặc migration.
+Trước khi khởi động, **thay `JWT_SECRET` và `INTERNAL_SERVICE_KEY` trong `.env`** bằng hai giá trị ngẫu nhiên, khác nhau, dài ít nhất 32 ký tự. Có thể tạo từng khóa bằng:
 
-## Tạo hoặc nâng schema MySQL
+```bash
+node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))"
+```
 
-Bỏ qua mục này nếu dùng JSON. Với MySQL 8.4, điền `MYSQL_HOST`, `MYSQL_PORT`, `MYSQL_DATABASE`, `MYSQL_USER` và `MYSQL_PASSWORD` trong `.env`. Từ thư mục gốc repo, dùng chung một lệnh cho cài mới và nâng cấp.
+Mở **http://localhost:4100**. Dừng server bằng `Ctrl+C`. Không commit `.env` hoặc thông tin mật. `npm start` cũng khởi động ứng dụng; cách chạy trên là dành cho phát triển local.
 
-```powershell
+## Chạy localhost với MySQL 8.4 (tùy chọn)
+
+1. Mở **Docker Desktop**. Trong `.env`, đặt `MYSQL_PASSWORD`, `MYSQL_ROOT_PASSWORD`, `MYSQL_HOST=127.0.0.1`, `MYSQL_DATABASE=momevia_dev` và `MYSQL_PORT` (ví dụ `3307` nếu cổng 3306 đang được sử dụng).
+2. Chạy các lệnh dưới đây tại thư mục gốc dự án:
+
+```bash
+docker compose --env-file .env -f database/compose.yml up -d
 npm run db:migrate
+npm run db:ping
+npm run db:verify
+npm run dev
 ```
 
-Lệnh tạo schema nếu chưa có và chỉ áp dụng các migration còn thiếu. Sao lưu trước khi nâng DB đang dùng. Nếu tài khoản ứng dụng thiếu quyền tạo schema hoặc chạy migration, điền thêm `MYSQL_MIGRATION_USER` và `MYSQL_MIGRATION_PASSWORD`. [Quyền, sao lưu và xác minh](docs/OPERATIONS.md#nâng-schema-mysql-từ-terminal)
+3. Chỉ bật các cờ storage MySQL (`IDENTITY_STORAGE`, `CATALOG_STORAGE`, `DESIGNS_STORAGE`, `GIFTS_STORAGE`, `CHECKOUT_STORAGE`, `SUPPORT_STORAGE`) sau khi hoàn tất migration và **import/đối chiếu dữ liệu hiện có**. Các module có ràng buộc phụ thuộc; xem [Vận hành MySQL](docs/OPERATIONS.md#nâng-schema-mysql-từ-terminal).
 
-## Thử toàn bộ hành trình
+Không chạy `docker compose down -v` đối với dữ liệu cần giữ lại. Không bật `PAYMENT_ENABLED`/`PAYMENT_LIVE_ENABLED` khi chưa có merchant sandbox/HTTPS webhook và kiểm thử an toàn.
 
-```powershell
-npm run demo:web
-```
+## Kiểm thử trước khi push
 
-Mở [web demo](http://127.0.0.1:4110). Bộ khởi tạo tạo ba tài khoản, mẫu chờ duyệt, mẫu V1/V2, nháp, quà, hồi đáp và báo cáo. Nếu cổng 4110 đang dùng, mở bản demo đang chạy hoặc chọn cổng khác bằng `npm run demo:web -- --port 4112`. [Tài khoản và các bước thử](docs/DEMO_WEB.md)
-
-## Kiểm tra thay đổi
-
-```powershell
+```bash
+npm run build
 npm run check
 npm test
-npm run test:templates
 npm run test:architecture
-npm run test:canvas
+npm run package
+npm run verify:package
 ```
 
-Với thay đổi UI, chạy `npm run test:browser` và `npm run test:canvas:browser`. Với thay đổi quyền, phiên bản, SQL hoặc xuất bản, chạy thêm hai gate MySQL cô lập. [Hướng dẫn kiểm thử](docs/OPERATIONS.md#ci-và-phát-hành)
+Các bài browser/Canvas/MySQL chuyên sâu và quy trình release có tại [docs/OPERATIONS.md](docs/OPERATIONS.md). Có thể chạy demo cho nhiều vai trò bằng `npm run demo:web` tại http://127.0.0.1:4110.
 
-## Tài liệu
+## Cập nhật tự động sau mỗi lần push lên `main`
 
-- [Dùng canvas, gửi và quản lý quà](docs/CANVAS_SENDER_GUIDE.md)
-- [Kiến trúc](docs/ARCHITECTURE.md) và [API](docs/ENDPOINTS.md)
-- [Kịch bản beta, ghi tay và đo lường](docs/SENDER_CREATOR_BETA.md)
-- [Mục lục tài liệu](docs/README.md)
+Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README Sync** sẽ cập nhật mục bên dưới dựa trên phiên bản `package.json`, các chức năng được ghi trong `CHANGELOG.md` và những commit gần nhất. Các phần tên dự án, tech stack, vai trò và hướng dẫn localhost **được giữ nguyên**. Nếu thay đổi công nghệ hay quy trình chạy, developer phải chỉnh mục tương ứng và ghi `CHANGELOG.md` cùng commit.
+
+<!-- MOMEVIA-AUTO-START -->
+### Phiên bản và cập nhật gần đây
+
+**Phiên bản trong package.json:** `1.1.0` (không đồng nghĩa đã phát hành production).
+
+**Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
+
+- Bổ sung server-side payment status inquiry cho MoMo và payOS; không tin return URL.
+- Chỉ chuyển `paid` khi provider xác nhận đúng mã, số tiền và môi trường; tái sử dụng transaction cấp quyền/biên nhận hiện có.
+- Giao diện payment-result có nút đối soát và giới hạn truy vấn; không tự mở khóa pending hoặc cho retry khi chưa có quy trình kiểm tra giao dịch muộn.
+- Thêm regression tests và tài liệu `docs/PAYMENT_RECONCILIATION_20261118.md`.
+
+**Các commit gần nhất trên `main`:**
+
+- `80bb899` — test: align creator regift journey with withdrawal policy (2026-11-18)
+- `16b2484` — fix: harden payment, creator reuse and admin support (2026-11-18)
+- `e34d12c` — feat: add initial business plan document for Momevia (2026-11-18)
+- `48f4819` — Merge pull request #7 from GNAUQ153/feat/canvas-design-plan (2026-11-18)
+- `6314ec8` — Merge pull request #6 from GNAUQ153/feat/canvas-design-plan (2026-11-18)
+- `9d954ea` — Merge pull request #5 from GNAUQ153/feat/canvas-design-plan (2026-11-17)
+
+> Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
+<!-- MOMEVIA-AUTO-END -->
+
+## Tài liệu dự án
+
+- [Danh mục tài liệu](docs/README.md)
+- [Kiến trúc](docs/ARCHITECTURE.md) · [HTTP API](docs/ENDPOINTS.md)
+- [Hướng dẫn Creator/Sender](docs/CANVAS_SENDER_GUIDE.md) · [Demo nhiều vai trò](docs/DEMO_WEB.md)
+- [Vận hành, backup, MySQL và CI/CD](docs/OPERATIONS.md)
+- [Lịch sử chức năng và sửa lỗi](CHANGELOG.md)
+- [GitHub Actions](https://github.com/GNAUQ153/momevia/actions)

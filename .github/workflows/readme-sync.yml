@@ -1,0 +1,55 @@
+name: Momevia README Sync
+
+# Update README only AFTER the existing CI/CD workflow succeeds on main.
+# GITHUB_TOKEN commits do not recursively start new GitHub Actions runs.
+on:
+  workflow_run:
+    workflows: ['Momevia CI/CD']
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: momevia-readme-sync-main
+  cancel-in-progress: false
+
+jobs:
+  sync-readme:
+    name: Sync README after successful CI
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.event == 'push' &&
+       github.event.workflow_run.head_repository.full_name == github.repository)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      # Never checkout or execute untrusted pull-request code with write permission.
+      - name: Checkout trusted main
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: main
+          fetch-depth: 40
+          persist-credentials: true
+      - name: Setup Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: '22'
+      - name: Generate version, features and update history
+        run: node scripts/docs/update-readme.mjs
+      - name: Commit README only when changed
+        shell: bash
+        run: |
+          if git diff --quiet -- README.md; then
+            echo "README is current; no commit needed."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add README.md
+          git diff --cached --check
+          git commit -m "docs(readme): sync version and recent changes [skip ci]"
+          git push origin HEAD:main

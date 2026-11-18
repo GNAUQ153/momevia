@@ -91,7 +91,7 @@ export function createAuthViews({ state, buttonLink }) {
         <button class="btn btn--dark" type="submit">${verify ? 'Xác minh email' : 'Đặt mật khẩu mới'}</button>
       </form>` : ''}
       ${!verify && state.providers.google ? '<p><a class="btn btn--outline" href="/api/auth/google?recover=1">Dùng tài khoản Google đã liên kết</a></p>' : ''}
-      ${verify ? `<p>${buttonLink("/studio", "Về Studio", "btn--outline")}</p>` : '<p>Nếu bạn chưa xác minh email hoặc mất quyền truy cập Google, hãy liên hệ hỗ trợ.</p>'}
+      ${verify ? `<p>${buttonLink("/studio", "Về Studio", "btn--outline")}</p>` : '<p>Mã reset cũng dùng được nếu bạn chưa xác minh email; việc nhập mã hợp lệ sẽ xác minh quyền sở hữu email. Nếu không còn quyền truy cập hộp thư, hãy liên hệ hỗ trợ.</p>'}
       <button type="button" class="btn btn--outline" data-action="support">Liên hệ hỗ trợ</button>
     </div></div></section>`;
   }

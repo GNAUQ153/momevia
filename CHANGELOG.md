@@ -1,3 +1,10 @@
+## Unreleased — Identity Recovery & Admin Payment Operations (2026-11-18)
+
+- Cho phép tài khoản email chưa xác minh yêu cầu đặt lại mật khẩu bằng mã 8 chữ số gửi đến chính hộp thư đăng ký; khi xác nhận hợp lệ, xác minh email, thay mật khẩu và vô hiệu hóa phiên cũ qua `credentialVersion`.
+- Giữ mã một lần, hạn 15 phút, giới hạn thử nhập sai, giới hạn gửi lại và thông báo yêu cầu reset không tiết lộ sự tồn tại tài khoản.
+- Thêm màn hình `/admin/payments` cho Admin để xem tối đa 100 đơn pending trên 30 phút, lọc/tìm mã đơn, xem nhật ký đối soát. Dùng các API read-only của Phase 2A; không thêm endpoint hủy/hoàn tiền/tự đánh dấu đã thanh toán.
+- Bổ sung các unit test và mở rộng recovery integration journey cho tài khoản chưa xác minh; không yêu cầu migration mới.
+
 ## Unreleased — Payment Lifecycle Phase 2: Admin reconciliation review (2026-11-18)
 
 - Thêm migration `009_payment_reconciliation_audit` để lưu metadata lần truy vấn provider (không lưu token/chữ ký/response body).

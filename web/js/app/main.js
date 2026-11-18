@@ -13,6 +13,7 @@ import { createCatalogViews } from "../pages/catalog.js";
 import { createGiftViews } from "../pages/gifts.js";
 import { createCreatorViews } from "../pages/creator.js";
 import { createAdminViews } from "../pages/admin.js";
+import { adminPaymentsPage, paymentReviewRows, paymentAuditRows, filterPendingReviews } from "../pages/admin-payments.js";
 import { createAuthViews } from "../pages/auth.js";
 import { pricingPage } from '../pages/pricing.js';
 import { createSystemViews } from "../pages/system.js";
@@ -26,6 +27,7 @@ let routeController = null,
   canvasCheckout = null,
   favoritesLoad = null,
   disposeInbox = null;
+let adminPaymentOrders = [];
 let historyIndex = 0,
   activeUrl = location.pathname + location.search + location.hash,
   restoringHistory = false;
@@ -368,6 +370,19 @@ async function render() {
         const [{ version }, { mountReview }] = await Promise.all([api.get(endpoint), import("../features/catalog/review.js")]);
         if (generation !== renderGeneration) return;
         routeController = mountReview(main, { version, endpoint, api, navigate });
+      } else if (id === "payments" && segments.length === 2) {
+        const lifetime = new AbortController();
+        routeController = { dispose: () => lifetime.abort() };
+        try {
+          const { orders } = await api.get("/checkout/payments/admin/review?limit=100", { signal: lifetime.signal });
+          if (generation !== renderGeneration) return;
+          adminPaymentOrders = Array.isArray(orders) ? orders : [];
+          main.innerHTML = adminPaymentsPage(adminPaymentOrders);
+        } catch (error) {
+          if (generation !== renderGeneration || error.name === "AbortError") return;
+          adminPaymentOrders = [];
+          main.innerHTML = adminPaymentsPage([], { error: "Không thể tải danh sách thanh toán. Vui lòng thử lại." });
+        }
       } else {
         const [pending, tickets, versions] = await Promise.allSettled([
           api.get("/catalog/admin/pending"),
@@ -402,7 +417,9 @@ async function render() {
           ? "Mẫu yêu thích — Momevia"
           : route === "creator"
             ? "Creator Studio — Momevia"
-            : route === "login"
+          : route === "admin" && id === "payments"
+            ? "Giám sát thanh toán — Momevia"
+          : route === "login"
               ? "Đăng nhập — Momevia"
               : route === "register"
                 ? "Đăng ký — Momevia"
@@ -559,6 +576,21 @@ async function copyText(trigger) {
   }
 }
 async function handleAction(action, element) {
+  if (action === "admin-payment-refresh") return render();
+  if (action === "admin-payment-audit") {
+    const panel = element.closest(".payment-review-card")?.querySelector("[data-payment-audit]");
+    if (!panel) return;
+    panel.hidden = false;
+    panel.innerHTML = '<p role="status">Đang tải lịch sử đối soát…</p>';
+    element.disabled = true;
+    try {
+      const { attempts } = await api.get(`/checkout/payments/admin/orders/${encodeURIComponent(element.dataset.orderId)}/audit?limit=50`);
+      if (panel.isConnected) panel.innerHTML = paymentAuditRows(attempts);
+    } catch {
+      if (panel.isConnected) panel.innerHTML = '<p role="alert">Không thể tải lịch sử. Vui lòng thử lại.</p>';
+    } finally { if (element.isConnected) element.disabled = false; }
+    return;
+  }
   if (action === "retry-admin-queues") return render();
   if (action === "duplicate-template" || action === "withdraw-template") {
     const withdraw = action === "withdraw-template";
@@ -955,7 +987,21 @@ document.addEventListener("click", async (event) => {
     navigate(url.pathname + url.search + url.hash);
   }
 });
+function updateAdminPaymentList() {
+  if (location.pathname !== "/admin/payments") return;
+  const host = document.getElementById("admin-payment-results");
+  if (!host) return;
+  const filters = {
+    search: document.getElementById("admin-payment-search")?.value || "",
+    provider: document.getElementById("admin-payment-provider")?.value || "all",
+    outcome: document.getElementById("admin-payment-outcome")?.value || "all",
+  };
+  host.innerHTML = paymentReviewRows(adminPaymentOrders, filters);
+  const count = document.getElementById("admin-payment-result-count");
+  if (count) count.textContent = `Hiển thị ${filterPendingReviews(adminPaymentOrders, filters).length} / ${adminPaymentOrders.length} đơn`;
+}
 document.addEventListener("input", (event) => {
+  if (event.target.id === "admin-payment-search") updateAdminPaymentList();
   if (event.target.id === "template-search") {
     state.search = event.target.value;
     state.catalogPage = 1;
@@ -965,6 +1011,10 @@ document.addEventListener("input", (event) => {
     updatePreview();
 });
 document.addEventListener("change", async (event) => {
+  if (["admin-payment-provider", "admin-payment-outcome"].includes(event.target.id)) {
+    updateAdminPaymentList();
+    return;
+  }
   if (event.target.id === "style-filter") {
     state.filter = event.target.value;
     state.catalogPage = 1;
@@ -1042,7 +1092,7 @@ document.addEventListener("submit", async (event) => {
         if (!verify) confirm.elements.email.value = data.email.trim();
         confirm.hidden = false;
         document.getElementById("recovery-notice").textContent = verify ? "Hãy nhập mã trong hộp thư của bạn."
-          : "Nếu email đã xác minh, bạn sẽ nhận được mã trong hộp thư.";
+          : "Nếu email có tài khoản đăng nhập bằng mật khẩu, bạn sẽ nhận được mã trong hộp thư.";
         confirm.elements.code.focus();
       } else {
         setUser(result.user);

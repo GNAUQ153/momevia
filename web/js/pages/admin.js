@@ -9,6 +9,7 @@ export function createAdminViews() {
       .sort((a, b) => (a.createdAt || '').localeCompare(b.createdAt || ''));
     const date = value => value ? ` · ${new Date(value).toLocaleString('vi-VN')}` : '';
     return `<section class="section"><div class="container"><h1>Kiểm duyệt mẫu thiết kế</h1>
+      <p><a class="btn btn--outline" href="/admin/payments" data-link>Giám sát thanh toán chờ &amp; đối soát</a></p>
       <h2 class="admin-title">Cần duyệt (${total}${complete ? '' : '+'})</h2>
       ${templates === null ? '<p role="alert">Chưa tải được hàng đợi mẫu cũ.</p>' : ''}
       ${queue === null ? '<p role="alert">Chưa tải được hàng đợi phiên bản Creator.</p>' : ''}

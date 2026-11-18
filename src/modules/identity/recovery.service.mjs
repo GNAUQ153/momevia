@@ -41,7 +41,7 @@ export class RecoveryService {
     const now = this.now();
     let challenge;
     await this.users.mutate(user.id, current => {
-      if (current.email !== user.email || (purpose === 'reset') !== Boolean(current.emailVerifiedAt)) return null;
+      if (current.email !== user.email || current.provider !== 'email' || (purpose === 'verify' && current.emailVerifiedAt)) return null;
       if (current.recoveryChallenge?.issuedAt + 60_000 > now) return null;
       challenge = { purpose, digest: this.digest(current, purpose, code), issuedAt: now, expiresAt: now + recoveryTtlMs, attempts: 0 };
       return { recoveryChallenge: challenge };
@@ -75,14 +75,15 @@ export class RecoveryService {
     const updated = await this.users.mutate(user.id, current => {
       const challenge = current.recoveryChallenge;
       const now = this.now();
-      if (current.email !== user.email || !challenge || purpose !== challenge.purpose || now >= challenge.expiresAt ||
-        (purpose === 'reset') !== Boolean(current.emailVerifiedAt)) return null;
+      if (current.email !== user.email || current.provider !== 'email' || !challenge || purpose !== challenge.purpose || now >= challenge.expiresAt ||
+        (purpose === 'verify' && current.emailVerifiedAt)) return null;
       if (!timingSafeEqual(Buffer.from(challenge.digest, 'hex'), Buffer.from(this.digest(current, purpose, code), 'hex'))) {
         return { recoveryChallenge: challenge.attempts >= 4 ? null : { ...challenge, attempts: challenge.attempts + 1 } };
       }
       changed = true;
       return purpose === 'reset'
-        ? { passwordHash, credentialVersion: (current.credentialVersion || 0) + 1, recoveryChallenge: null }
+        ? { passwordHash, credentialVersion: (current.credentialVersion || 0) + 1,
+            emailVerifiedAt: current.emailVerifiedAt || new Date(now).toISOString(), recoveryChallenge: null }
         : { emailVerifiedAt: new Date(now).toISOString(), recoveryChallenge: null };
     });
     if (!changed) throw codeInvalid();

@@ -26,14 +26,33 @@ export async function runRecovery(base, { messageFor, advance }) {
   };
   const email = `recovery-${randomUUID()}@example.test`, oldPassword = 'OldSynthetic123', password = 'NewSynthetic123';
   const matches = message => /\b\d{8}\b/.exec(message)?.[0];
+  // A newly registered email account can recover before the optional verify-email journey.
+  // Possession of the one-time code verifies ownership and invalidates old sessions.
+  const freshEmail = `fresh-${randomUUID()}@example.test`;
+  const fresh = await call('/auth/register', 201, { body: {
+    email: freshEmail, name: 'Tài khoản chưa xác minh', password: oldPassword, confirmPassword: oldPassword,
+  } });
+  assert.equal(fresh.data.user.emailVerified, false);
+  await call('/auth/recover/request', 202, { body: { email: freshEmail } });
+  const freshCode = matches(await messageFor(freshEmail));
+  assert.match(freshCode, /^\d{8}$/);
+  const freshReset = await call('/auth/recover/confirm', 200, { body: {
+    email: freshEmail, code: freshCode, password, confirmPassword: password,
+  } });
+  assert.equal(freshReset.data.user.id, fresh.data.user.id);
+  assert.equal(freshReset.data.user.emailVerified, true);
+  assert.equal((await call('/auth/me', 200, { cookie: fresh.cookie })).data.user, null);
+  await call('/auth/login', 401, { body: { email: freshEmail, password: oldPassword } });
+  await call('/auth/login', 200, { body: { email: freshEmail, password } });
+  await call('/auth/recover/confirm', 422, { body: {
+    email: freshEmail, code: freshCode, password, confirmPassword: password,
+  } });
   const owner = await call('/auth/register', 201, { body: { email, name: 'Tài khoản khôi phục QA', password: oldPassword, confirmPassword: oldPassword } });
   const gift = (await call('/gifts/gifts', 201, { cookie: owner.cookie, body: {
     templateId: 'sunny-wishes', recipientName: 'Mai', senderName: 'An', message: 'Quà có trước khôi phục.',
   } })).data.gift;
   const draft = (await call('/designs/designs', 201, { cookie: owner.cookie,
     body: { source: { kind: 'blank' }, mutationId: randomUUID() } })).data.design;
-  await call('/auth/recover/request', 202, { body: { email } });
-  assert.equal(await messageFor(email), undefined);
   await call('/auth/verify-email/request', 202, { cookie: owner.cookie, body: {} });
   const verify = await call('/auth/verify-email/confirm', 200, { cookie: owner.cookie, body: { code: matches(await messageFor(email)) } });
   assert.equal(verify.data.user.emailVerified, true);

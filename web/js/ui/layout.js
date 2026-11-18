@@ -56,7 +56,7 @@ export function createLayout({ state, header, footer }) {
         <a href="/studio" data-link>${icon("layers", 16)} Món quà của tôi</a>
         <a href="/favorites" data-link>${icon("heart", 16)} Mẫu yêu thích</a>
         <a href="/creator" data-link>${icon("pencil", 16)} Creator Studio</a>
-        ${state.user.role === "admin" ? `<a href="/admin" data-link>${icon("shield", 16)} Kiểm duyệt</a>` : ""}
+        ${state.user.role === "admin" ? `<a href="/admin" data-link>${icon("shield", 16)} Kiểm duyệt</a><a href="/admin/payments" data-link>${icon("shield", 16)} Giám sát thanh toán</a>` : ""}
         <button type="button" data-action="logout">${icon("log-out", 16)} Đăng xuất</button>
       </div>`
           : ""
@@ -64,6 +64,7 @@ export function createLayout({ state, header, footer }) {
       <div class="mobile-nav" id="mobile-nav" hidden>
         ${links.join("")}
         ${signedIn ? '<a href="/studio" data-link>Không gian của tôi</a><a href="/favorites" data-link>Mẫu yêu thích</a>' : '<a href="/login" data-link>Đăng nhập</a>'}
+        ${state.user?.role === 'admin' ? '<a href="/admin" data-link>Kiểm duyệt</a><a href="/admin/payments" data-link>Giám sát thanh toán</a>' : ''}
       </div>
     `;
     footer.innerHTML = `

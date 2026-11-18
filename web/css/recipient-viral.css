@@ -1,0 +1,137 @@
+/* Momevia: CTA chuyển đổi trên cả hai trang nhận quà (Legacy và Canvas). */
+.recipient-viral {
+  box-sizing: border-box;
+  width: min(100%, 690px);
+  margin: 28px auto;
+  padding: clamp(22px, 5vw, 38px);
+  border-radius: 28px;
+  border: 1px solid #eee1fa;
+  background: linear-gradient(145deg, #fcf7ff, #fffaf7 60%, #f1eafe);
+  box-shadow: 0 12px 40px rgba(66, 28, 102, 0.09);
+  color: #29183d;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.recipient-viral__spark {
+  display: inline-grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
+  background: #eee3ff;
+  color: #6945b4;
+}
+
+.recipient-viral h2 {
+  margin: 16px 0 10px;
+  font-family: var(--font-display);
+  font-size: clamp(24px, 4vw, 34px);
+  line-height: 1.25;
+  color: #2a193e;
+}
+
+.recipient-viral p {
+  max-width: 440px;
+  margin: 0 auto 22px;
+  color: #655675;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.recipient-viral__actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 26px;
+}
+
+.recipient-viral__actions .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  white-space: normal;
+  text-align: center;
+}
+
+.recipient-viral__suggestions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  max-width: 450px;
+  margin: 0 auto 18px;
+}
+
+.recipient-viral__suggestion {
+  display: grid;
+  gap: 8px;
+  color: #402e58;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  min-width: 0;
+}
+
+.recipient-viral__suggestion img {
+  width: 100%;
+  max-height: 175px;
+  aspect-ratio: 390 / 550;
+  object-fit: cover;
+  object-position: top;
+  border-radius: 12px;
+  background: #f2edf7;
+}
+
+.recipient-viral__suggestion span {
+  overflow-wrap: anywhere;
+}
+
+.recipient-viral__brand {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  color: #735d83;
+  font-size: 12px;
+  text-decoration: none;
+}
+
+.recipient-viral__brand strong {
+  color: #5035a0;
+}
+
+.recipient-viral a:focus-visible {
+  outline: 3px solid #6a43c8;
+  outline-offset: 4px;
+}
+
+@media (max-width: 560px) {
+  .recipient-viral {
+    border-radius: 20px;
+    margin-top: 22px;
+  }
+
+  .recipient-viral__actions {
+    flex-direction: column;
+  }
+
+  .recipient-viral__actions .btn {
+    width: 100%;
+  }
+
+  .recipient-viral__suggestion img {
+    max-height: 140px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .recipient-viral *,
+  .recipient-viral *::before,
+  .recipient-viral *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

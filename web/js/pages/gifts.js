@@ -1,5 +1,6 @@
 import { api, escapeHtml as e } from "../core/api.js";
 import { icon } from "../ui/icons.js";
+import { recipientViralCta } from "../ui/recipient-viral.js";
 import { giftLinkDescription } from "../shared/gift-permissions.js";
 
 export function createGiftViews({
@@ -99,7 +100,7 @@ export function createGiftViews({
         </div>
         <p class="recipient-disclaimer">Đường link có thể được chuyển tiếp.</p>
         <button class="btn btn--outline" data-action="report-content" data-kind="gift" data-id="${e(gift.slug)}">Báo cáo món quà</button>
-        <a class="recipient-footer-logo" href="/" data-link>Created with <strong>momevia.</strong></a>
+        ${recipientViralCta()}
       </div>
     </section>`;
   }

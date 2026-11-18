@@ -1,0 +1,2 @@
+# SVG xem trước tự sinh bằng Node dùng LF cố định trên mọi hệ điều hành.
+web/assets/basic-templates/*.svg text eol=lf

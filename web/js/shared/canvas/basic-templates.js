@@ -1,9 +1,10 @@
 import { createElement } from './registry.js';
 import { validateDocument } from './schema.js';
+import { COLLECTION_2027, paintCollectionCover } from './collection-2027.js';
 
 // Built-in editable compositions, not Creator-approved versions or new products.
 // Existing IDs, prices and provenance stay with Catalog; only new starting layouts change.
-export const BASIC_TEMPLATE_REVISION = 1;
+export const BASIC_TEMPLATE_REVISION = 2;
 export const BASIC_TEMPLATES = Object.freeze({
   'midnight-bloom': { motif: 'bloom', name: 'Khu vườn đêm', bg: '#211A38', paper: '#F4ECF8', ink: '#F9F0F5', accent: '#A987C9', detail: '#E8A5BC', button: '#77539B', headline: 'Một khu vườn\ndành riêng cho bạn.', note: 'Có những điều đẹp lên khi được sẻ chia.', font: 'serif' },
   'sunny-wishes': { motif: 'sun', name: 'Một ngày đầy nắng', bg: '#FFF4C9', paper: '#FFFDF0', ink: '#3D3524', accent: '#F6C94C', detail: '#E8A16E', button: '#67522B', headline: 'Ngày của bạn.\nNắng của bạn.', note: 'Gói một chút nắng, gửi đến người mình thương.', font: 'heading' },
@@ -19,6 +20,7 @@ export const BASIC_TEMPLATES = Object.freeze({
   'tiny-celebration': { motif: 'gift', name: 'Niềm vui bé xinh', bg: '#E0EFE7', paper: '#F7FAF2', ink: '#315D50', accent: '#82B29C', detail: '#C8DCC1', button: '#477B67', headline: 'Niềm vui nhỏ,\ndành riêng cho bạn.', note: 'Không cần lý do lớn để gửi một điều thương.', font: 'heading' },
   'mot-ky-niem': { motif: 'memory', name: 'Một kỷ niệm của hai mình', bg: '#F2EDE3', paper: '#FFF9EC', ink: '#273C40', accent: '#738E86', detail: '#C98461', button: '#355658', headline: 'Một kỷ niệm\ncủa hai mình', note: 'Mừng sinh nhật bạn.', font: 'serif' },
   'hai-phong-bi': { motif: 'two-letters', name: 'Hai phong bì', bg: '#EDE8F4', paper: '#FFF9F4', ink: '#38294B', accent: '#AA80B9', detail: '#C78672', button: '#664579', headline: 'Bạn muốn mở gì trước?', font: 'serif' },
+  ...COLLECTION_2027,
 });
 export const MEMORY_TEMPLATE_ID = 'mot-ky-niem';
 export const memoryGreetingStarters = ['Mình vẫn nhớ lần…', 'Cảm ơn bạn vì…', 'Tuổi mới, mình mong bạn…'];
@@ -111,7 +113,10 @@ export function createBasicTemplate(template) {
   }
 
   // Each cover has a recognizable silhouette before any personal text is filled.
-  if (p.motif === 'bloom') {
+  const collection = Object.hasOwn(COLLECTION_2027, template.id);
+  if (collection) {
+    paintCollectionCover(p.motif, { shape, line, text, flower, stem }, p);
+  } else if (p.motif === 'bloom') {
     flower(0, 'bloom-left', 15, 74, 70, p.accent); flower(0, 'bloom-right', 382, 420, 86, p.accent);
     flower(0, 'bloom-small', 315, 75, 38, p.detail);
   } else if (p.motif === 'sun') {
@@ -164,17 +169,17 @@ export function createBasicTemplate(template) {
   }
 
   const photo = p.motif === 'polaroid', sunset = p.motif === 'sunset', gift = p.motif === 'gift';
-  const headingY = photo ? 428 : sunset ? 250 : gift ? 232 : 155;
-  const headingSize = p.motif === 'sun' || p.motif === 'party' ? 43 : p.motif === 'cloud' ? 42 : photo ? 33 : gift ? 34 : 38;
-  text(0, 'cover-title', p.headline, [38, headingY, 314, photo ? 102 : 143], headingSize, p.ink, p.font, p.motif === 'letter' || p.motif === 'lavender' ? 'left' : 'center');
-  binding(0, 'text-recipient', 'recipientName', [43, photo ? 552 : headingY + 165, 304, 56], 23);
-  action(0, p.motif === 'party' || gift ? 'gift-box' : 'envelope', 'open-gift', 'Mở món quà', [55, photo ? 629 : 485, 280, photo ? 126 : 158], 'scene-surprise');
-  text(0, 'cover-note', p.note, [44, photo ? 775 : 690, 302, photo ? 48 : 75], 15, p.ink, 'body');
+  const headingY = collection ? 342 : photo ? 428 : sunset ? 250 : gift ? 232 : 155;
+  const headingSize = collection ? 31 : p.motif === 'sun' || p.motif === 'party' ? 43 : p.motif === 'cloud' ? 42 : photo ? 33 : gift ? 34 : 38;
+  text(0, 'cover-title', p.headline, [38, headingY, 314, collection ? 123 : photo ? 102 : 143], headingSize, p.ink, p.font, p.motif === 'letter' || p.motif === 'lavender' ? 'left' : 'center');
+  binding(0, 'text-recipient', 'recipientName', [43, collection ? 478 : photo ? 552 : headingY + 165, 304, 56], collection ? 21 : 23);
+  action(0, p.motif === 'party' || gift ? 'gift-box' : 'envelope', 'open-gift', 'Mở món quà', [55, collection ? 548 : photo ? 629 : 485, 280, collection ? 126 : photo ? 126 : 158], 'scene-surprise');
+  text(0, 'cover-note', p.note, [44, collection ? 705 : photo ? 775 : 690, 302, collection ? 62 : photo ? 48 : 75], 15, p.ink, 'body');
 
   // A real editable message panel with standard bindings, not a flattened cover image.
   doc.scenes[1].background.color = p.paper;
   shape(1, 'message-paper', [22, 34, 346, 723], p.paper, 'rectangle', { radius: p.motif === 'letter' || photo ? 3 : 24 });
-  const messageInk = ['bloom', 'stars'].includes(p.motif) ? '#4D4058' : p.ink;
+  const messageInk = collection ? '#42354A' : ['bloom', 'stars'].includes(p.motif) ? '#4D4058' : p.ink;
   text(1, 'message-heading', 'Một lời chúc dành riêng', [48, 70, 294, 54], 27, messageInk, p.font);
   binding(1, 'message-to', 'recipientName', [49, 145, 292, 56], 24, messageInk);
   line(1, 'message-rule', [150, 221, 90, 2], p.accent);

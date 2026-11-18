@@ -17,6 +17,7 @@ import { adminPaymentsPage, paymentReviewRows, paymentAuditRows, filterPendingRe
 import { createAuthViews } from "../pages/auth.js";
 import { pricingPage } from '../pages/pricing.js';
 import { paymentStatusPanel } from "../pages/payment-status.js";
+import { recipientViralCta } from "../ui/recipient-viral.js";
 import { createSystemViews } from "../pages/system.js";
 
 const main = document.getElementById("main");
@@ -60,6 +61,15 @@ function buttonLink(path, label, style = "btn--dark", trailing = true) {
   return `<a class="btn ${style}" href="${path}" data-link>${label} ${trailing ? icon("arrow-up-right", 17) : ""}</a>`;
 }
 function navigate(path, { replace = false } = {}) {
+  // Lượt truy cập từ trang nhận quà bắt đầu với thư viện chưa lọc để giảm ma sát.
+  const target = new URL(path, location.origin);
+  if (target.pathname === "/explore" && target.searchParams.get("source") === "recipient") {
+    state.search = "";
+    state.filter = "Tất cả";
+    state.freeOnly = false;
+    state.photoOnly = false;
+    state.catalogPage = 1;
+  }
   if (routeController?.beforeLeave && !routeController.beforeLeave())
     return false;
   if (replace) history.replaceState({ momeviaIndex: historyIndex }, "", path);
@@ -224,7 +234,7 @@ async function render() {
         const { mountPlayer } =
           await import("../features/gift-runtime/index.js");
         if (generation !== renderGeneration) return;
-        main.innerHTML = `<section class="section"><div class="container"><div id="canvas-public-player"></div><p class="recipient-disclaimer">Đường link có thể được chuyển tiếp.</p><button class="btn btn--outline" data-action="report-content" data-kind="gift" data-id="${e(id)}">Báo cáo món quà</button> <a href="/" data-link>Created with momevia.</a></div></section>`;
+        main.innerHTML = `<section class="section"><div class="container"><div id="canvas-public-player"></div><p class="recipient-disclaimer">Đường link có thể được chuyển tiếp.</p><button class="btn btn--outline" data-action="report-content" data-kind="gift" data-id="${e(id)}">Báo cáo món quà</button> ${recipientViralCta()}</div></section>`;
         const player = mountPlayer(
           document.getElementById("canvas-public-player"),
           {
@@ -675,6 +685,25 @@ async function handleAction(action, element) {
     setUser(null);
     toast("Bạn đã đăng xuất.");
     navigate("/");
+    return;
+  }
+  if (action === "filter-seasonal") {
+    // Chỉ thay đổi bộ lọc phía client; không đưa link mời riêng tư vào URL.
+    state.filter = "Lễ hội";
+    state.search = "";
+    state.catalogPage = 1;
+    state.freeOnly = false;
+    state.photoOnly = false;
+    const style = document.getElementById("style-filter");
+    if (style) style.value = state.filter;
+    const search = document.getElementById("template-search");
+    if (search) search.value = "";
+    const free = document.getElementById("free-filter");
+    if (free) free.checked = false;
+    const photo = document.getElementById("photo-filter");
+    if (photo) photo.checked = false;
+    syncCatalogResults();
+    document.getElementById("catalog-grid")?.scrollIntoView({ block: "start", behavior: "smooth" });
     return;
   }
   if (action === "clear-filters") {

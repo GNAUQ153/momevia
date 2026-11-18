@@ -1,3 +1,11 @@
+## Unreleased — Phase 4: Viral Templates & Recipient Conversion (2026-11-19)
+
+- Thêm 10 mẫu vector Momevia Originals miễn phí trong đợt marketing (4 mùa lễ 2026–2027, 6 mẫu cảm xúc), thành 24 mẫu tích hợp. Mỗi mẫu có 3 cảnh Canvas, tùy chỉnh tên người nhận/người gửi/lời nhắn; không dùng emoji hoặc ảnh stock.
+- Chèn các ID mẫu còn thiếu vào Catalog JSON/MySQL, không ghi đè mẫu đã tồn tại hoặc snapshot quà đã gửi. Không yêu cầu migration mới.
+- Thêm khu vực mẫu theo mùa trên /explore; mẫu vẫn tìm được quanh năm.
+- Gắn CTA “Tạo thiệp của riêng bạn”, “Khám phá thêm mẫu” và “Tạo bằng Momevia” trên cả Legacy Gift và Canvas Gift. Link không mang invite token.
+- Tách CSS thành seasonal-catalog.css và recipient-viral.css, thêm SVG preview và regression tests.
+
 ## Unreleased — Marketing UI & Payment Status (2026-11-18)
 
 - Nâng cấp trang chủ phục vụ marketing: lợi ích thật, mô tả tương tác, FAQ và CTA rõ ràng.

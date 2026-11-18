@@ -113,6 +113,11 @@ async function checkRecipientDependencies(browser, base, canvasGift, legacyGift,
     const stage = page.locator('.gift-runtime-stage').getByText(greeting, { exact: true });
     await page.goto(base + giftPath);
     await stage.waitFor({ timeout: 5000 });
+    // CTA lan truyền xuất hiện cả khi Auth/Catalog đang tạm mất kết nối.
+    const canvasCta = page.getByRole('link', { name: /Tạo thiệp của riêng bạn/ });
+    await canvasCta.waitFor();
+    assert.equal(await canvasCta.getAttribute('href'), '/explore?source=recipient');
+    assert.equal(await page.getByText('Tạo bằng Momevia', { exact: false }).count(), 1);
     assert.deepEqual(paths.filter(path => path.startsWith('/api/')), [`/api/gifts/gifts/${canvasGift.slug}`]);
     const catalogRequest = page.waitForRequest(request => request.url().endsWith('/api/catalog/templates'), { timeout: 5000 });
     await page.locator('#main a[href="/"]').click();
@@ -135,6 +140,10 @@ async function checkRecipientDependencies(browser, base, canvasGift, legacyGift,
     await page.locator('[data-action="open-gift"]').click();
     await page.locator('[data-action="reveal-gift"]').click();
     await page.getByText(legacyGift.message, { exact: true }).waitFor();
+    const legacyCta = page.getByRole('link', { name: /Tạo thiệp của riêng bạn/ });
+    await legacyCta.waitFor();
+    assert.equal(await legacyCta.getAttribute('href'), '/explore?source=recipient');
+    assert.equal(await page.getByText('Tạo bằng Momevia', { exact: false }).count(), 1);
     await page.getByText('Đang tải lời hồi đáp…').waitFor();
     releaseLegacyReplies.resolve();
     await page.locator('#reply-list .no-replies').waitFor();

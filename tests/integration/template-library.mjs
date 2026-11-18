@@ -53,7 +53,7 @@ async function fixture(name, legacy = false, existingTemplates) {
 try {
   const current = await fixture('current');
   const catalog = (await current.request('/catalog/templates', undefined, 200, false)).templates;
-  assert.equal(catalog.length, 14); let published = 0;
+  assert.equal(catalog.length, 24); let published = 0;
   for (const template of catalog) {
     const mutationId = randomUUID(); const created = await current.request('/designs/designs', { source: { kind: 'template', templateId: template.id }, presetId: 'envelope-basic', mutationId }, 201);
     let d = created.design; assert.deepEqual(d.document, createDocument({ template })); assert.equal(d.source.templateId, template.id); assert.equal(d.source.kind, 'template');
@@ -85,16 +85,16 @@ try {
     const image = await fetch(`${current.base}/assets/basic-templates/${template.id}.svg`); assert.equal(image.status, 200); assert.equal(image.headers.get('content-type'), 'image/svg+xml');
     assert.equal(await image.text(), fs.readFileSync(path.join(root, `web/assets/basic-templates/${template.id}.svg`), 'utf8'));
   }
-  assert.equal(published, 5); assert.deepEqual((await current.request('/checkout/orders')).orders, []);
+  assert.equal(published, templates.filter(template => template.price === 0).length); assert.deepEqual((await current.request('/checkout/orders')).orders, []);
   const page = await fetch(current.base + '/template/sunny-wishes'); const markup = await page.text(); assert(markup.includes('/css/template-library.css')); assert.doesNotMatch(page.headers.get('content-security-policy'), /unsafe-inline|unsafe-eval/);
-  console.log('PASS Current JSON API: 14 templates create/save/reload, 5 free publications, paid license gate, 14 SVG covers.');
+  console.log('PASS Current JSON API: 24 templates create/save/reload, free publications, paid license gate, 24 SVG covers.');
 
   const addedIds = new Set(addedSystemTemplates.map(template => template.id));
   const originals = templates.filter(template => !addedIds.has(template.id));
   const existing = await fixture('existing', false, originals);
   const updated = (await existing.request('/catalog/templates', undefined, 200, false)).templates;
   assert.deepEqual(updated, catalog);
-  console.log('PASS Existing JSON catalog: appended two templates and preserved all 12 originals.');
+  console.log('PASS Existing JSON catalog: appended 12 missing templates and preserved all 12 originals.');
 
   const legacy = await fixture('legacy-cached', true); const key = randomUUID(), template = catalog.find(t => t.id === 'sunny-wishes');
   const original = (await legacy.request('/designs/designs', { source: { kind: 'template', templateId: template.id }, presetId: 'envelope-basic', mutationId: key }, 201)).design;
@@ -110,7 +110,7 @@ try {
   recovered.document.bindings.message.value = 'Nội dung ở một tab khác';
   await legacy.request(`/designs/designs/${recovered.id}/save`, { expectedRevision: 2, mutationId: randomUUID(), title: recovered.title, document: recovered.document });
   const latest = await materializeTemplateStart(original, { template, createMutationId: key, request }); assert.equal(latest.revision, 3); assert.equal(latest.document.bindings.message.value, 'Nội dung ở một tab khác');
-  assert.equal(Object.keys(BASIC_TEMPLATES).length, 14);
+  assert.equal(Object.keys(BASIC_TEMPLATES).length, 24);
   console.log('PASS Cached-v1 fixture: updated client materializes template through real CAS; lost ACK retries identical key/body; latest draft edits/source/policy survive.');
 } finally {
   for (const app of apps) { await new Promise(resolve => app.server.close(resolve)); await app.close(); }

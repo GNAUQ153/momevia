@@ -5,7 +5,7 @@ import { createDocument, isPhotoFrame } from '../../../web/js/shared/canvas/inde
 import { visibleBindingKeys } from '../../../web/js/shared/canvas/personalization.js';
 import { searchText } from '../../../web/js/features/catalog/filter.js';
 
-const publicFields = ['id', 'title', 'subtitle', 'theme', 'style', 'price', 'scenes', 'effect', 'creator', 'featured', 'category', 'status', 'createdAt'];
+const publicFields = ['id', 'title', 'subtitle', 'theme', 'style', 'price', 'scenes', 'effect', 'creator', 'featured', 'category', 'status', 'createdAt', 'isSeasonal', 'season', 'availableFrom', 'availableTo'];
 export function publicTemplate(template) {
   const view = Object.fromEntries(publicFields.filter(key => Object.hasOwn(template, key)).map(key => [key, template[key]]));
   if (template.versionId) {

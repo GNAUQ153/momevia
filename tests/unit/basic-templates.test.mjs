@@ -15,7 +15,7 @@ function contrast(a, b) {
 
 test('all 12 shared template compositions are distinct, editable, deterministic and within v1 budgets', () => {
   const original = structuredClone(templates), signatures = new Set();
-  assert.equal(Object.keys(BASIC_TEMPLATES).length, 14);
+  assert.equal(Object.keys(BASIC_TEMPLATES).length, 24);
   const addedIds = new Set(addedSystemTemplates.map(template => template.id));
   for (const template of templates.filter(item => !addedIds.has(item.id))) {
     const d = createDocument({ template }); assert.equal(d.scenes.length, 3); assert(d.elements.length >= 18);

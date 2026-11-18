@@ -1,6 +1,7 @@
 import { escapeHtml as e, formatPrice } from "../core/api.js";
 import { icon } from "../ui/icons.js";
 import { personalizationLabels } from "../shared/canvas/personalization.js";
+import { featuredSeasons, isInSeason } from "../features/catalog/seasonal.js";
 import {
   filterTemplates,
   styleOptions,
@@ -50,10 +51,28 @@ export function createCatalogViews({
     if (navigation) navigation.innerHTML = paginationMarkup(result, "catalog");
   }
 
+  function seasonalShelf() {
+    const seasonal = featuredSeasons(state.templates);
+    if (!seasonal.length) return '';
+    return `<section class="seasonal-shelf" aria-labelledby="seasonal-shelf-title">
+      <div class="seasonal-shelf__heading">
+        <div><span class="seasonal-shelf__eyebrow">MOMEVIA SEASONAL COLLECTION</span>
+          <h2 id="seasonal-shelf-title">Lời chúc theo mùa</h2>
+          <p>Mỗi dịp đặc biệt đều xứng đáng có một món quà riêng.</p></div>
+        <button type="button" class="seasonal-shelf__hint" data-action="filter-seasonal">Xem mẫu lễ hội</button>
+      </div>
+      <div class="seasonal-shelf__grid">${seasonal.map(template => `<a class="seasonal-shelf__card" href="/template/${encodeURIComponent(template.id)}" data-link>
+        <img src="/assets/basic-templates/${encodeURIComponent(template.id)}.svg?v=2" width="390" height="844" loading="lazy" alt="Bìa mẫu ${e(template.title)}"/>
+        <div><span>${isInSeason(template) ? 'Đang vào mùa' : e(template.season || 'Bộ sưu tập')}</span><strong>${e(template.title)}</strong></div>
+      </a>`).join('')}</div>
+    </section>`;
+  }
+
   function explore() {
     // Tùy chọn phong cách lấy từ dữ liệu, không tạo hàng chip có thể tràn ngang.
     const styles = styleOptions(state.templates);
     return `<section class="section catalog-section catalog-compact"><div class="container">
+      ${seasonalShelf()}
       <div class="catalog-toolbar"><div class="catalog-title"><h1>Thư viện quà tặng</h1><span id="catalog-count" aria-live="polite" aria-atomic="true">${countLabel(matchingTemplates().length)}</span></div>
         <label class="search-field">${icon("search", 19)}<span class="visually-hidden">Tìm kiếm mẫu</span><input type="search" id="template-search" placeholder="Tìm tên mẫu, dịp, phong cách…" value="${e(state.search)}"/></label></div>
       <div class="catalog-filters" role="group" aria-label="Bộ lọc thư viện">

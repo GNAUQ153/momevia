@@ -26,5 +26,7 @@ export function mountTemplatePreview(host, template, { api, onError } = {}) {
   dialog.querySelector('[data-template-reset]').addEventListener('click', () => player?.reset(), { signal: lifecycle.signal });
   dialog.addEventListener('close', close, { signal: lifecycle.signal });
   dialog.addEventListener('submit', event => event.stopPropagation(), { signal: lifecycle.signal });
+  // Chỉ mở nút khi trình phát đã sẵn sàng, tránh click rơi vào khoảng tải module.
+  trigger.disabled = false;
   return { dispose() { lifecycle.abort(); player?.dispose(); player = null; if (dialog.open) dialog.close(); } };
 }

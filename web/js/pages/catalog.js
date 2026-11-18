@@ -96,6 +96,7 @@ export function createCatalogViews({
   }
 
   function templateDetail(template) {
+    // Nút xem thử chỉ hoạt động sau khi module trình phát gắn sự kiện.
     const version = template.versionId ? `&version=${encodeURIComponent(template.versionId)}` : "";
     return `<section class="detail-section"><div class="container">
       <div class="breadcrumb"><a href="/explore" data-link>${icon("arrow-left", 17)} Thư viện mẫu</a></div>
@@ -105,7 +106,7 @@ export function createCatalogViews({
         <p>${e(personalizationLabels(template.personalization).join(' · '))}</p>
         <div class="detail-start-actions">
           ${buttonLink(`/create/${encodeURIComponent(template.id)}?mode=quick${version}`, "Dùng mẫu", "btn--dark", false)}
-          <button class="btn btn--outline" type="button" data-template-preview>Xem thử ${icon('eye', 17)}</button>
+          <button class="btn btn--outline" type="button" data-template-preview disabled>Xem thử ${icon('eye', 17)}</button>
         </div>
         <p class="detail-subtitle">${e(template.subtitle)}</p>
         <p class="detail-meta">Thiết kế bởi ${e(template.creator)} · ${e(template.scenes)} cảnh</p>

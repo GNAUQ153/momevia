@@ -57,12 +57,17 @@ export async function runNewTemplates(base) {
 
     await page.goto(base + '/template/hai-phong-bi');
     await page.getByRole('button', { name: 'Xem thử' }).click();
+    // Dialog phải mở thực sự trước khi bắt đầu kiểm thử điều hướng bàn phím.
+    // Bắt đúng stage bên trong dialog để tránh trùng với trình phát quà cũ.
+    const preview = page.locator('dialog.template-preview-dialog[open]');
+    await preview.waitFor({ state: 'visible' });
+    const previewStage = preview.locator('.gift-runtime-stage');
     for (const branch of ['Một điều mình chúc bạn', 'Một kỷ niệm', 'Một kỷ niệm', 'Một điều mình chúc bạn']) {
-      const entry = stage.getByRole('button', { name: branch, exact: true });
+      const entry = previewStage.getByRole('button', { name: branch, exact: true });
       await entry.focus();
       await page.keyboard.press('Enter');
-      await stage.getByText(branch, { exact: true }).waitFor();
-      await stage.getByRole('button', { name: 'Về hai phong bì' }).click();
+      await previewStage.getByText(branch, { exact: true }).waitFor();
+      await previewStage.getByRole('button', { name: 'Về hai phong bì' }).click();
     }
     await capture('two-envelopes-390.png');
   } finally { await browser.close(); }

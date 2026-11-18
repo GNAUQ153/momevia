@@ -11,6 +11,16 @@ const field = (page, name) => page.locator(`[data-editor-field="${name}"]`);
 const action = (page, name) => page.locator(`[data-editor-action="${name}"]`);
 const giftPath = url => new URL(url).pathname + new URL(url).search;
 
+// Đo diện tích phần tử thực sự nằm trong viewport; Playwright Locator không có isInViewport().
+const visibleInViewport = async (page, locator, minRatio = 0.1) => {
+  const rect = await locator.boundingBox();
+  const viewport = page.viewportSize();
+  if (!rect || !viewport || rect.width <= 0 || rect.height <= 0) return false;
+  const width = Math.max(0, Math.min(rect.x + rect.width, viewport.width) - Math.max(rect.x, 0));
+  const height = Math.max(0, Math.min(rect.y + rect.height, viewport.height) - Math.max(rect.y, 0));
+  return width * height >= rect.width * rect.height * minRatio;
+};
+
 export async function runCreatorJourney(base) {
   const channel = process.env.BROWSER_CHANNEL || (process.platform === 'win32' ? 'msedge' : undefined);
   const browser = await chromium.launch({ headless: true, channel });
@@ -123,10 +133,17 @@ export async function runCreatorJourney(base) {
       Object.defineProperty(globalThis.navigator.clipboard, 'writeText', { value: async url => { globalThis.fixtureClipboard = url; } });
     });
     await phone.goto(base + '/explore');
+    // Phase 4 đặt bộ sưu tập mùa lễ trước danh sách mẫu chính.
+    // Kiểm tra nội dung đầu trang và khả năng cuộn tới thư viện thay vì cố định tọa độ Y.
+    const seasonalShelf = phone.locator('.seasonal-shelf');
+    await seasonalShelf.waitFor();
+    assert(await visibleInViewport(phone, seasonalShelf), 'Bộ sưu tập mùa lễ phải xuất hiện trong màn hình đầu');
+    await phone.locator('.seasonal-shelf__card').first().waitFor();
+    await capture(phone, 'catalog-390');
     const firstCard = phone.locator('#catalog-grid .template-card').first();
     await firstCard.waitFor();
-    assert((await firstCard.boundingBox()).y < 844);
-    await capture(phone, 'catalog-390');
+    await firstCard.scrollIntoViewIfNeeded();
+    assert(await visibleInViewport(phone, firstCard), 'Danh sách mẫu chính phải cuộn tới được trên mobile');
     const search = phone.getByRole('searchbox', { name: 'Tìm kiếm mẫu' });
     await search.fill('sinh nhat ben khung anh');
     await phone.getByRole('checkbox', { name: 'Miễn phí' }).check();

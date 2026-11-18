@@ -307,20 +307,19 @@ async function render() {
         main.innerHTML = `<section class="section"><div class="container"><div class="success-card">
           <h1>${payment.status === "paid" ? "Thanh toán thành công" : "Đang xác nhận thanh toán"}</h1>
           <p>${payment.status === "paid" ? "Thanh toán đã được xác nhận. Quyền mẫu được kiểm tra lại khi xuất bản." : "Không dựa vào trang chuyển hướng để xác nhận. Nếu bạn đã chuyển tiền, hãy tải lại trang sau khi hệ thống nhận webhook."}</p>
-          ${receipt ? `<div id="payment-receipt"><h2>Biên nhận ${e(receipt.receiptNo)}</h2><p>Mẫu: ${e(receipt.templateTitle)}</p><p>Số tiền: ${Number(receipt.amountVnd).toLocaleString("vi-VN")} VND</p><p>Phương thức: ${e(receipt.provider)}</p><p>Mã giao dịch: ${e(receipt.transactionReference)}</p><p>${e(receipt.testPayment ? "Thanh toán thử nghiệm — không thu tiền thật" : receipt.note)}</p></div><button class="btn btn--outline" data-action="print-receipt">In / Lưu PDF</button>` : `<p>Trạng thái: ${e(payment.status)}</p><button class="btn btn--outline" data-action="refresh-payment">Kiểm tra lại</button>`}
+          ${receipt ? `<div id="payment-receipt"><h2>Biên nhận ${e(receipt.receiptNo)}</h2><p>Mẫu: ${e(receipt.templateTitle)}</p><p>Số tiền: ${Number(receipt.amountVnd).toLocaleString("vi-VN")} VND</p><p>Phương thức: ${e(receipt.provider)}</p><p>Mã giao dịch: ${e(receipt.transactionReference)}</p><p>${e(receipt.testPayment ? "Thanh toán thử nghiệm — không thu tiền thật" : receipt.note)}</p></div><button class="btn btn--outline" data-action="print-receipt">In / Lưu PDF</button>` : `<p>Trạng thái: ${e(payment.status)}</p><button class="btn btn--outline" data-action="refresh-payment">Tải lại trạng thái</button>${payment.status === "pending" ? ' <button class="btn btn--outline" data-action="reconcile-payment">Đối soát với nhà cung cấp</button>' : ""}`}
           ${payment.needsReview && payment.notice ? `<p role="alert">${e(payment.notice)}</p><p>Mã đơn: ${e(payment.orderId)} · <button class="btn btn--outline" data-action="support">Liên hệ hỗ trợ</button></p>` : ""}
           ${receiptError ? `<p role="alert">Biên nhận chưa tải được: ${e(receiptError)}</p><button class="btn btn--outline" data-action="refresh-payment">Thử tải biên nhận</button>` : ""}
           ${resumeContext ? `<p><a class="btn btn--dark" href="${e(checkoutDraftPath(resumeContext))}" data-link>Tiếp tục nháp vừa liên kết</a></p>${resumeContext.changed ? '<p>Nháp đã được chỉnh sửa ở phiên khác. Mở bản mới để xem trước và kiểm tra lại quyền.</p>' : ''}` : ''}
-          ${
-            contexts.length
-              ? `<h2>Tiếp tục thiết kế</h2><p>Mở lại nháp để xem và kiểm tra quyền. Thanh toán không tự xuất bản.</p>${contexts
-                  .filter((c) => c.available)
-                  .map(
-                    (c) =>
-                      `<p><a class="btn btn--outline" href="${e(checkoutDraftPath(c))}" data-link>${e(c.title)} · bản đã lưu r${Number(c.designRevision)}</a></p>`,
-                  )
-                  .join("")}`
-              : ""
+          ${contexts.length
+            ? `<h2>Tiếp tục thiết kế</h2><p>Mở lại nháp để xem và kiểm tra quyền. Thanh toán không tự xuất bản.</p>${contexts
+              .filter((c) => c.available)
+              .map(
+                (c) =>
+                  `<p><a class="btn btn--outline" href="${e(checkoutDraftPath(c))}" data-link>${e(c.title)} · bản đã lưu r${Number(c.designRevision)}</a></p>`,
+              )
+              .join("")}`
+            : ""
           }
           ${contextError ? `<p role="alert">Chưa tải được thiết kế liên quan: ${e(contextError)}</p>` : ""}
           <p>${buttonLink("/studio", "Về không gian của tôi")}</p>
@@ -694,6 +693,18 @@ async function handleAction(action, element) {
   if (action === "payment-status") {
     closeModal();
     navigate(`/payment-result/${encodeURIComponent(element.dataset.id)}`);
+    return;
+  }
+  if (action === "reconcile-payment") {
+    const orderId = location.pathname.split('/').filter(Boolean).at(-1);
+    if (!orderId) return;
+    element.disabled = true;
+    try {
+      const result = await api.post(`/checkout/payments/orders/${encodeURIComponent(orderId)}/reconcile`);
+      if (result.providerState === 'terminal_review') toast(result.notice || 'Giao dịch cần đối soát thủ công.');
+      else toast(result.payment.status === 'paid' ? 'Đã xác nhận thanh toán.' : 'Nhà cung cấp chưa xác nhận thanh toán.');
+      await render();
+    } finally { element.disabled = false; }
     return;
   }
   if (action === "refresh-payment") {
@@ -1201,7 +1212,7 @@ function loadPageData(route) {
   const identity = loadIdentity();
   const loads = [identity];
   if (catalogRoutes.has(route)) loads.push(state.user && route === "explore" ? loadTemplates() : loadCatalog());
-  if (favoriteRoutes.has(route)) loads.push(identity.then(loadFavorites, () => {}));
+  if (favoriteRoutes.has(route)) loads.push(identity.then(loadFavorites, () => { }));
   if (["login", "register", "recover", "verify-email", "studio"].includes(route)) loads.push(loadProviders());
   return Promise.allSettled(loads);
 }

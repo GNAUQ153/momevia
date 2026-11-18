@@ -1,3 +1,10 @@
+## Unreleased — Payment reconciliation phase 1 (2026-11-18)
+
+- Bổ sung server-side payment status inquiry cho MoMo và payOS; không tin return URL.
+- Chỉ chuyển `paid` khi provider xác nhận đúng mã, số tiền và môi trường; tái sử dụng transaction cấp quyền/biên nhận hiện có.
+- Giao diện payment-result có nút đối soát và giới hạn truy vấn; không tự mở khóa pending hoặc cho retry khi chưa có quy trình kiểm tra giao dịch muộn.
+- Thêm regression tests và tài liệu `docs/PAYMENT_RECONCILIATION_20261118.md`.
+
 # Unreleased — Sender, Creator và web demo
 
 - Thiết kế 12 built-in template theo chủ đề riêng, thumbnail SVG và preview tương tác; khung polaroid nhận ảnh ready, giữ crop khi thay ảnh/nhân bản. Khởi tạo layout mới qua CAS khi client mới hơn cached server; giữ draft/gift/quyền và giá cũ.

@@ -1,4 +1,5 @@
 import { HttpError } from '../../shared/http.mjs';
+import { RateLimiter } from '../../shared/rate-limit.mjs';
 import { createMomoProvider, createPayOsProvider } from './providers.mjs';
 
 export function paymentMethods(env = process.env) {
@@ -20,9 +21,13 @@ export function paymentMethods(env = process.env) {
 }
 
 export class PaymentService {
-  constructor({ repository, catalog, checkout, env = process.env, providers = null }) {
+  constructor({ repository, catalog, checkout, env = process.env, providers = null, reconcileLimiter = null }) {
     Object.assign(this, { repository, catalog, checkout, env, providers });
+    // One lookup per buyer/order/30 seconds; limits provider API abuse in a single-process deployment.
+    this.reconcileLimiter = reconcileLimiter || new RateLimiter({ limit: 1, windowMs: 30_000, maxKeys: 5000 });
+    this.ownsReconcileLimiter = !reconcileLimiter;
   }
+  close() { if (this.ownsReconcileLimiter) this.reconcileLimiter.close(); }
   provider(name) {
     if (this.providers) return this.providers[name];
     if (name === 'payos') return createPayOsProvider(this.env);
@@ -65,8 +70,10 @@ export class PaymentService {
       cancelUrl: new URL(`/payment-result/${encodeURIComponent(intent.orderId)}`, base).href,
       ipnUrl: new URL(`/api/checkout/payments/webhooks/${method}`, base).href,
     };
-    const link = await provider.create({ code: intent.code, amount: intent.amount,
-      description: `MOMEVIA ${intent.code}`, ...urls });
+    const link = await provider.create({
+      code: intent.code, amount: intent.amount,
+      description: `MOMEVIA ${intent.code}`, ...urls
+    });
     await this.repository.setLink(intent.id, link);
     return { ...intent, ...link };
   }
@@ -88,10 +95,53 @@ export class PaymentService {
     const pendingSince = record.createdAt || null;
     const ageMs = pendingSince ? Date.now() - Date.parse(pendingSince) : 0;
     const needsReview = record.status === 'pending' && Number.isFinite(ageMs) && ageMs >= 30 * 60_000;
-    return { orderId: record.orderId, status: record.status, method: record.provider,
+    return {
+      orderId: record.orderId, status: record.status, method: record.provider,
       amountVnd: record.amount, checkoutUrl: record.checkoutUrl,
       pendingSince, needsReview,
-      ...(needsReview ? { notice: 'Giao dịch chờ xác nhận lâu. Nếu đã thanh toán, không thanh toán lại; liên hệ hỗ trợ kèm mã đơn để đối soát.' } : {}) };
+      ...(needsReview ? { notice: 'Giao dịch chờ xác nhận lâu. Nếu đã thanh toán, không thanh toán lại; liên hệ hỗ trợ kèm mã đơn để đối soát.' } : {})
+    };
+  }
+  async reconcile(user, orderId) {
+    // Ownership MUST be checked before any provider request or rate-limit consumption.
+    const intent = await this.repository.forUser(orderId, user.sub);
+    if (!intent) throw new HttpError(404, 'Không tìm thấy giao dịch.');
+    if (intent.status === 'paid') return { payment: await this.status(user, orderId), providerState: 'paid' };
+    if (intent.status !== 'pending' || !intent.checkoutUrl || !intent.code)
+      throw new HttpError(409, 'Giao dịch không ở trạng thái có thể đối soát tự động.');
+    if (!['momo', 'payos'].includes(intent.provider)) throw new HttpError(503, 'Nhà cung cấp không được hỗ trợ.');
+    // Queries of existing checkouts are allowed while NEW payments are disabled,
+    // but NEVER cross sandbox/live boundaries or ignore the original order mode.
+    if (intent.isTest == null || Boolean(intent.isTest) !== (this.env.PAYMENT_ENV === 'sandbox')
+      || !['sandbox', 'production'].includes(this.env.PAYMENT_ENV)
+      || (this.env.NODE_ENV === 'production' && intent.isTest))
+      throw new HttpError(503, 'Môi trường đối soát không khớp giao dịch ban đầu.');
+    if (!this.reconcileLimiter.consume(`${user.sub}:${orderId}`))
+      throw new HttpError(429, 'Vui lòng đợi 30 giây trước khi đối soát lại.');
+    const adapter = this.provider(intent.provider);
+    if (!adapter || typeof adapter.queryStatus !== 'function')
+      throw new HttpError(503, 'Nhà cung cấp chưa hỗ trợ truy vấn trạng thái.');
+    const result = await adapter.queryStatus({
+      code: intent.code, amount: intent.amount,
+      providerPaymentId: intent.providerPaymentId
+    });
+    if (!result || !['paid', 'pending', 'terminal_review'].includes(result.state))
+      throw new HttpError(502, 'Kết quả đối soát từ nhà cung cấp không hợp lệ.');
+    if (result.state === 'paid') {
+      if (result.provider !== intent.provider || result.code !== intent.code
+        || result.amount !== intent.amount || result.currency !== 'VND' || !result.reference)
+        throw new HttpError(502, 'Giao dịch trả về không khớp dữ liệu thanh toán.');
+      await this.repository.settleVerified({ ...result, success: true });
+    }
+    const payment = await this.status(user, orderId);
+    // Failed/cancelled results remain under operator review until a safe
+    // provider-specific cancellation/retry workflow is implemented.
+    return {
+      payment, providerState: result.state,
+      ...(result.state === 'terminal_review'
+        ? { notice: 'Nhà cung cấp báo giao dịch không hoàn tất. Vui lòng liên hệ hỗ trợ để kiểm tra trước khi thanh toán lại.' }
+        : {})
+    };
   }
   async receipt(user, orderId) {
     const result = await this.repository.receipt(orderId, user.sub);

@@ -89,19 +89,19 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Thêm migration `009_payment_reconciliation_audit` để lưu metadata lần truy vấn provider (không lưu token/chữ ký/response body).
-- Admin có API **chỉ đọc** để xem giao dịch chờ trên 30 phút và lịch sử đối soát; không có API tự đánh dấu paid hoặc mở khóa retry.
-- Ghi nhận kết quả đối soát pending/paid/terminal/invalid/provider error; tăng regression tests xác thực quyền Admin và truy vấn có giới hạn.
-- Chưa bật cancellation/retry tự động hoặc hoàn tiền. Phải kiểm thử MySQL thực tế và sandbox trước triển khai thanh toán thật.
+- Cho phép tài khoản email chưa xác minh yêu cầu đặt lại mật khẩu bằng mã 8 chữ số gửi đến chính hộp thư đăng ký; khi xác nhận hợp lệ, xác minh email, thay mật khẩu và vô hiệu hóa phiên cũ qua `credentialVersion`.
+- Giữ mã một lần, hạn 15 phút, giới hạn thử nhập sai, giới hạn gửi lại và thông báo yêu cầu reset không tiết lộ sự tồn tại tài khoản.
+- Thêm màn hình `/admin/payments` cho Admin để xem tối đa 100 đơn pending trên 30 phút, lọc/tìm mã đơn, xem nhật ký đối soát. Dùng các API read-only của Phase 2A; không thêm endpoint hủy/hoàn tiền/tự đánh dấu đã thanh toán.
+- Bổ sung các unit test và mở rộng recovery integration journey cho tài khoản chưa xác minh; không yêu cầu migration mới.
 
 **Các commit gần nhất trên `main`:**
 
+- `03dd978` — test: isolate creator browser journey from shared auth quotas (2026-11-18)
+- `35051d5` — feat: improve identity recovery and admin payment operations (2026-11-18)
 - `b19ae81` — feat: add admin payment review and reconciliation audit (2026-11-18)
 - `7e3e9c3` — docs: automate README updates after successful CI (2026-11-18)
 - `cbfa560` — feat: add safe payment reconciliation for MoMo and payOS (2026-11-18)
 - `80bb899` — test: align creator regift journey with withdrawal policy (2026-11-18)
-- `16b2484` — fix: harden payment, creator reuse and admin support (2026-11-18)
-- `e34d12c` — feat: add initial business plan document for Momevia (2026-11-18)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

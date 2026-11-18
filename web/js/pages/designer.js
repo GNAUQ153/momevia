@@ -48,7 +48,7 @@ export function mountDesigner(
     user,
     api,
     navigate,
-    toast = () => {},
+    toast = () => { },
     onCheckout,
     onRouteReplace,
   } = {},
@@ -92,9 +92,9 @@ export function mountDesigner(
       ...(body === undefined
         ? {}
         : {
-            headers: { "content-type": "application/json" },
-            body: JSON.stringify(body),
-          }),
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(body),
+        }),
       ...extra,
     });
     if (disposed) throw new DOMException("Editor đã đóng", "AbortError");
@@ -299,8 +299,8 @@ export function mountDesigner(
       node("h3", { class: "editor-layout-only" }, "Nội dung cá nhân hóa"),
       ...Object.entries(bindingLabels).filter(([key]) =>
         design.policy?.kind !== "creator-template" || design.policy.editableBindings.includes(key)).map(([key, label]) =>
-        key === "message"
-          ? field(
+          key === "message"
+            ? field(
               label,
               node(
                 "textarea",
@@ -313,13 +313,13 @@ export function mountDesigner(
                 store.get().document.bindings[key].value,
               ),
             )
-          : input(
+            : input(
               label,
               `binding.${key}`,
               store.get().document.bindings[key].value,
               { maxlength: 60 },
             ),
-      ),
+        ),
       node("div", { class: "editor-quick-only" },
         design.source.templateId === MEMORY_TEMPLATE_ID ? node("div", { class: "editor-greeting-starters" },
           node("p", { class: "editor-help" }, "Thêm câu mở đầu vào lời chúc"),
@@ -678,7 +678,7 @@ export function mountDesigner(
           children.push(
             input(
               { label: "Nhãn nút", title: "Tiêu đề", submitLabel: "Nhãn gửi" }[
-                key
+              key
               ] || key,
               `props.${key}`,
               props[key],
@@ -1151,8 +1151,10 @@ export function mountDesigner(
       node("button", { type: "button" }, "Quay lại"),
     );
     const dialog = node("dialog", { class: "editor-preview-dialog", "aria-label": "Gửi phiên bản để duyệt" }, form);
-    const current = () => ({ title: snapshot.title, bindings: new FormData(form).getAll("binding"),
-      photoId: photoSelect.value || null, rights: rights.value.trim(), assetIds: currentAssets, coverSceneId: coverSelect.value });
+    const current = () => ({
+      title: snapshot.title, bindings: new FormData(form).getAll("binding"),
+      photoId: photoSelect.value || null, rights: rights.value.trim(), assetIds: currentAssets, coverSceneId: coverSelect.value
+    });
     const updateChanges = () => {
       const selection = current();
       identityWarning.textContent = lockedVisibleNames(snapshot.document, selection.bindings).length
@@ -1709,16 +1711,16 @@ export function mountDesigner(
       commit(
         (value) => {
           const item = value.document.elements.find(
-              (item) => item.id === selection,
-            ),
+            (item) => item.id === selection,
+          ),
             size = value.document.artboard.baseSize;
           item.layout.x =
             name === "center"
               ? (size.width - item.layout.width) / 2
               : Math.max(
-                  0,
-                  Math.min(item.layout.x, size.width - item.layout.width),
-                );
+                0,
+                Math.min(item.layout.x, size.width - item.layout.width),
+              );
           if (name === "inside")
             item.layout.y = Math.max(
               0,
@@ -1773,8 +1775,8 @@ export function mountDesigner(
     if (name === "layer-up" || name === "layer-down") {
       commit((value) => {
         const list = value.document.scenes.find(
-            (item) => item.id === sceneId,
-          ).elementIds,
+          (item) => item.id === sceneId,
+        ).elementIds,
           index = list.indexOf(selection),
           next = index + (name === "layer-up" ? 1 : -1);
         if (next >= 0 && next < list.length)
@@ -1974,10 +1976,10 @@ export function mountDesigner(
       }
       if (sheet && event.key === "Tab") {
         const controls = [
-            ...sheet.target.querySelectorAll(
-              'button,input,textarea,select,[tabindex="0"]',
-            ),
-          ].filter((control) => !control.disabled && !control.hidden),
+          ...sheet.target.querySelectorAll(
+            'button,input,textarea,select,[tabindex="0"]',
+          ),
+        ].filter((control) => !control.disabled && !control.hidden),
           first = controls[0],
           last = controls.at(-1);
         if (event.shiftKey && document.activeElement === first) {

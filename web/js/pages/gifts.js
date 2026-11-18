@@ -107,11 +107,11 @@ export function createGiftViews({
   function renderReplies(replies, owner = false) {
     return replies.length
       ? replies
-          .map(
-            (r) =>
-              `<article class="reply-item"${owner && r.unread ? ` data-unread-reply="${e(r.id)}"` : ''}><div class="reply-avatar">${e(r.name.charAt(0).toUpperCase())}</div><div><strong>${e(r.name)}</strong><span>${new Date(r.createdAt).toLocaleDateString("vi-VN")}</span><p>${e(r.message)}</p></div></article>`,
-          )
-          .join("")
+        .map(
+          (r) =>
+            `<article class="reply-item"${owner && r.unread ? ` data-unread-reply="${e(r.id)}"` : ''}><div class="reply-avatar">${e(r.name.charAt(0).toUpperCase())}</div><div><strong>${e(r.name)}</strong><span>${new Date(r.createdAt).toLocaleDateString("vi-VN")}</span><p>${e(r.message)}</p></div></article>`,
+        )
+        .join("")
       : '<p class="no-replies">Chưa có lời hồi đáp. Hãy là người đầu tiên viết một điều dễ thương.</p>';
   }
 
@@ -140,10 +140,9 @@ export function createGiftViews({
       <article class="stat-card">${icon("gift", 23)}<strong>${gifts.length}</strong><span>Món quà đã tạo</span></article>
       <article class="stat-card">${icon("message-circle", 23)}<strong>${gifts.reduce((n, g) => n + g.replyCount, 0)}</strong><span>Lời hồi đáp</span></article>
       <article class="stat-card">${icon("layers", 23)}<strong>${usedTemplates}</strong><span>Mẫu đã sử dụng</span></article>
-      </div>${
-        gifts.length
-          ? `<div class="my-gifts">${gifts.map(giftCard).join("")}</div>`
-          : `<div class="empty-state empty-state--panel">${icon("gift", 38)}<h3>Chưa có món quà nào</h3><p>Mọi kỷ niệm đẹp đều bắt đầu từ một hành động nhỏ.</p>${buttonLink("/explore", "Khám phá mẫu đầu tiên")}</div>`
+      </div>${gifts.length
+        ? `<div class="my-gifts">${gifts.map(giftCard).join("")}</div>`
+        : `<div class="empty-state empty-state--panel">${icon("gift", 38)}<h3>Chưa có món quà nào</h3><p>Mọi kỷ niệm đẹp đều bắt đầu từ một hành động nhỏ.</p>${buttonLink("/explore", "Khám phá mẫu đầu tiên")}</div>`
       }`;
   }
   function studioOrders({ orders }) {

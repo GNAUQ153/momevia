@@ -45,12 +45,11 @@ export function createAuthViews({ state, buttonLink }) {
         <div class="auth-panel__intro"><h1>${registering ? "Tạo tài khoản của bạn" : "Rất vui khi bạn quay lại!"}</h1>
           <p class="auth-lead">${registering ? "Chỉ vài bước để bắt đầu lưu mẫu, tạo quà và lưu giữ những kỷ niệm đẹp." : "Đăng nhập để tiếp tục tạo quà và xem lại những mẫu bạn đã lưu."}</p></div>
         <form id="${registering ? "register-form" : "email-login-form"}" class="auth-form" aria-label="${registering ? "Đăng ký tài khoản" : "Đăng nhập tài khoản"}">
-          ${
-            registering
-              ? `<label class="auth-field"><span class="auth-field__label">Họ và tên <span class="auth-required" aria-hidden="true">*</span></span>
+          ${registering
+        ? `<label class="auth-field"><span class="auth-field__label">Họ và tên <span class="auth-required" aria-hidden="true">*</span></span>
             <span class="auth-input"><span class="auth-field-icon" aria-hidden="true">${icon("user", 19)}</span><input name="name" autocomplete="name" minlength="2" maxlength="50" required placeholder="Tên hiển thị của bạn"/></span></label>`
-              : ""
-          }
+        : ""
+      }
           <label class="auth-field"><span class="auth-field__label">Email <span class="auth-required" aria-hidden="true">*</span></span>
             <span class="auth-input"><span class="auth-field-icon" aria-hidden="true">${icon("mail", 19)}</span><input name="email" type="email" autocomplete="email" inputmode="email" maxlength="254" required placeholder="tenban@example.com"/></span></label>
           ${passwordField("password", "Mật khẩu", registering ? "new-password" : "current-password")}

@@ -1,4 +1,4 @@
-// Biểu tượng vector từ Lucide (MIT License): https://lucide.dev/license
+// Biểu tượng SVG từ Lucide (ISC); một số icon kế thừa Feather (MIT): https://lucide.dev/license
 const paths = {
   arrow: '<path d="M5 12h14m-6-6 6 6-6 6"/>',
   "arrow-left": '<path d="m12 19-7-7 7-7M5 12h14"/>',

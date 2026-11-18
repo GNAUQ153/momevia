@@ -16,6 +16,7 @@ import { createAdminViews } from "../pages/admin.js";
 import { adminPaymentsPage, paymentReviewRows, paymentAuditRows, filterPendingReviews } from "../pages/admin-payments.js";
 import { createAuthViews } from "../pages/auth.js";
 import { pricingPage } from '../pages/pricing.js';
+import { paymentStatusPanel } from "../pages/payment-status.js";
 import { createSystemViews } from "../pages/system.js";
 
 const main = document.getElementById("main");
@@ -307,10 +308,8 @@ async function render() {
         }
         if (generation !== renderGeneration) return;
         main.innerHTML = `<section class="section"><div class="container"><div class="success-card">
-          <h1>${payment.status === "paid" ? "Thanh toán thành công" : "Đang xác nhận thanh toán"}</h1>
-          <p>${payment.status === "paid" ? "Thanh toán đã được xác nhận. Quyền mẫu được kiểm tra lại khi xuất bản." : "Không dựa vào trang chuyển hướng để xác nhận. Nếu bạn đã chuyển tiền, hãy tải lại trang sau khi hệ thống nhận webhook."}</p>
-          ${receipt ? `<div id="payment-receipt"><h2>Biên nhận ${e(receipt.receiptNo)}</h2><p>Mẫu: ${e(receipt.templateTitle)}</p><p>Số tiền: ${Number(receipt.amountVnd).toLocaleString("vi-VN")} VND</p><p>Phương thức: ${e(receipt.provider)}</p><p>Mã giao dịch: ${e(receipt.transactionReference)}</p><p>${e(receipt.testPayment ? "Thanh toán thử nghiệm — không thu tiền thật" : receipt.note)}</p></div><button class="btn btn--outline" data-action="print-receipt">In / Lưu PDF</button>` : `<p>Trạng thái: ${e(payment.status)}</p><button class="btn btn--outline" data-action="refresh-payment">Tải lại trạng thái</button>${payment.status === "pending" ? ' <button class="btn btn--outline" data-action="reconcile-payment">Đối soát với nhà cung cấp</button>' : ""}`}
-          ${payment.needsReview && payment.notice ? `<p role="alert">${e(payment.notice)}</p><p>Mã đơn: ${e(payment.orderId)} · <button class="btn btn--outline" data-action="support">Liên hệ hỗ trợ</button></p>` : ""}
+          ${paymentStatusPanel(payment)}
+          ${receipt ? `<div id="payment-receipt"><h2>Biên nhận ${e(receipt.receiptNo)}</h2><p>Mẫu: ${e(receipt.templateTitle)}</p><p>Số tiền: ${Number(receipt.amountVnd).toLocaleString("vi-VN")} VND</p><p>Phương thức: ${e(receipt.provider)}</p><p>Mã giao dịch: ${e(receipt.transactionReference)}</p><p>${e(receipt.testPayment ? "Thanh toán thử nghiệm — không thu tiền thật" : receipt.note)}</p></div><button class="btn btn--outline" data-action="print-receipt">In / Lưu PDF</button>` : ""}
           ${receiptError ? `<p role="alert">Biên nhận chưa tải được: ${e(receiptError)}</p><button class="btn btn--outline" data-action="refresh-payment">Thử tải biên nhận</button>` : ""}
           ${resumeContext ? `<p><a class="btn btn--dark" href="${e(checkoutDraftPath(resumeContext))}" data-link>Tiếp tục nháp vừa liên kết</a></p>${resumeContext.changed ? '<p>Nháp đã được chỉnh sửa ở phiên khác. Mở bản mới để xem trước và kiểm tra lại quyền.</p>' : ''}` : ''}
           ${contexts.length

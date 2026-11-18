@@ -1,0 +1,160 @@
+/* Trang kết quả thanh toán: thông tin rõ ràng, không cho phép người dùng tự đổi trạng thái. */
+.payment-status {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 28px;
+}
+
+.payment-status__icon {
+  display: grid;
+  width: 55px;
+  height: 55px;
+  place-items: center;
+  margin-bottom: 17px;
+  border-radius: 18px;
+  background: #eee8ff;
+  color: #6238d1;
+}
+
+.payment-status--success .payment-status__icon {
+  background: #e7f5eb;
+  color: #176c4b;
+}
+
+.payment-status--review .payment-status__icon {
+  background: #fff2e5;
+  color: #98540e;
+}
+
+.payment-status__eyebrow {
+  color: #7052a6;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.11em;
+}
+
+.payment-status h1 {
+  margin: 9px 0 12px;
+  font-size: clamp(29px, 4vw, 43px);
+  line-height: 1.2;
+}
+
+.payment-status > p {
+  max-width: 640px;
+  margin: 0 0 25px;
+  color: #5d526e;
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.payment-status__facts {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(140px, 1fr);
+  width: 100%;
+  gap: 16px;
+  padding: 20px;
+  border: 1px solid #e8e1f4;
+  border-radius: 17px;
+  background: #faf8ff;
+}
+
+.payment-status__facts div {
+  min-width: 0;
+}
+
+.payment-status__facts span {
+  display: block;
+  margin-bottom: 5px;
+  color: #6d6579;
+  font-size: 12px;
+}
+
+.payment-status__facts strong {
+  display: block;
+  color: #281b42;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+.payment-status__notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  width: 100%;
+  margin-top: 20px;
+  padding: 15px;
+  border: 1px solid #f2dbb7;
+  border-radius: 13px;
+  background: #fffaf1;
+  color: #71470a;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.payment-status__notice svg {
+  flex: none;
+  margin-top: 2px;
+}
+
+.payment-status__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 23px;
+}
+
+.payment-status__actions .btn {
+  min-height: 48px;
+}
+
+.payment-status__review {
+  width: 100%;
+  margin-top: 18px;
+  padding: 19px;
+  border-left: 4px solid #ac6a22;
+  border-radius: 13px;
+  background: #fff7e9;
+}
+
+.payment-status__review strong {
+  color: #653c08;
+  font-size: 15px;
+}
+
+.payment-status__review p {
+  margin: 10px 0 16px;
+  color: #724c21;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.payment-status :is(button, a):focus-visible {
+  outline: 3px solid #e75ca4;
+  outline-offset: 4px;
+}
+
+@media (max-width: 520px) {
+  .payment-status__facts {
+    grid-template-columns: 1fr;
+    padding: 17px;
+  }
+
+  .payment-status__actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .payment-status__actions .btn {
+    justify-content: center;
+    width: 100%;
+  }
+}
+
+@media print {
+  .payment-status__actions,
+  .payment-status__notice,
+  .payment-status__review {
+    display: none;
+  }
+}

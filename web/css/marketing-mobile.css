@@ -1,0 +1,214 @@
+/*
+ * Momevia Marketing Responsive
+ * Breakpoints tách riêng để không dồn quá nhiều quy tắc vào marketing.css.
+ */
+
+@media (max-width: 1050px) {
+  .mkt-experience__grid {
+    gap: 34px;
+  }
+
+  .mkt-experience__visual {
+    min-height: 435px;
+  }
+
+  .mkt-experience__card {
+    width: min(260px, 75%);
+  }
+
+  .mkt-experience__bubble {
+    right: 8px;
+    bottom: 35px;
+  }
+}
+
+@media (max-width: 760px) {
+  .mkt-trust__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    padding-block: 20px;
+  }
+
+  .mkt-trust__item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 9px;
+  }
+
+  .mkt-trust__item + .mkt-trust__item {
+    padding-left: 12px;
+  }
+
+  .mkt-trust__icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 14px;
+  }
+
+  .mkt-trust__item strong {
+    font-size: 12px;
+  }
+
+  .mkt-trust__item div > span {
+    font-size: 11px;
+  }
+
+  .mkt-experience__grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .mkt-experience__visual {
+    min-height: 405px;
+  }
+
+  .mkt-experience__content h2,
+  .mkt-faq__intro h2 {
+    font-size: clamp(32px, 6vw, 43px);
+  }
+
+  .mkt-faq__grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .mkt-final {
+    padding: 48px 12px 64px;
+  }
+
+  .mkt-final__inner {
+    border-radius: 26px;
+  }
+}
+
+@media (max-width: 520px) {
+  .mkt-trust__grid {
+    grid-template-columns: 1fr;
+    gap: 0;
+    padding-block: 10px;
+  }
+
+  .mkt-trust__item,
+  .mkt-trust__item + .mkt-trust__item {
+    flex-direction: row;
+    align-items: center;
+    padding: 12px 0;
+    border: 0;
+  }
+
+  .mkt-trust__item + .mkt-trust__item {
+    border-top: 1px solid #f0eaf5;
+  }
+
+  .mkt-trust__item strong {
+    font-size: 13px;
+  }
+
+  .mkt-trust__item div > span {
+    font-size: 12px;
+  }
+
+  .mkt-experience__visual {
+    min-height: 350px;
+    margin-inline: -4px;
+  }
+
+  .mkt-experience__card {
+    width: min(225px, 68%);
+    border-radius: 22px;
+  }
+
+  .mkt-experience__card--back {
+    margin-left: -78px;
+  }
+
+  .mkt-experience__card--front {
+    margin-left: 70px;
+    padding: 22px 15px;
+  }
+
+  .mkt-experience__symbol {
+    width: 75px;
+    height: 75px;
+    border-radius: 22px;
+  }
+
+  .mkt-experience__symbol svg {
+    width: 42px;
+    height: 42px;
+  }
+
+  .mkt-experience__bubble {
+    right: 0;
+    bottom: 20px;
+    padding: 11px 13px;
+    font-size: 11px;
+  }
+
+  .mkt-experience__actions {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .mkt-experience__actions .btn {
+    justify-content: center;
+    min-height: 48px;
+  }
+
+  .mkt-faq__item summary {
+    min-height: 66px;
+    font-size: 14px;
+  }
+
+  .mkt-final__inner {
+    padding: 42px 18px;
+  }
+
+  .mkt-final__inner h2 {
+    font-size: clamp(29px, 7vw, 38px);
+  }
+
+  .mkt-final__inner > p {
+    font-size: 14px;
+  }
+
+  .mkt-final__actions {
+    align-items: stretch;
+    flex-direction: column;
+    width: 100%;
+    gap: 7px;
+  }
+
+  .mkt-final__actions .btn,
+  .mkt-final__secondary {
+    justify-content: center;
+    min-height: 48px;
+  }
+}
+
+@media (max-width: 360px) {
+  .mkt-experience__visual {
+    min-height: 300px;
+  }
+
+  .mkt-experience__card {
+    width: min(185px, 65%);
+  }
+
+  .mkt-experience__card--front strong {
+    font-size: 17px;
+  }
+
+  .mkt-experience__card--back {
+    margin-left: -68px;
+  }
+
+  .mkt-experience__card--front {
+    margin-left: 63px;
+  }
+
+  .mkt-experience__bubble {
+    bottom: 4px;
+  }
+}

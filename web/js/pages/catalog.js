@@ -110,11 +110,10 @@ export function createCatalogViews({
       <p>Lưu những thiết kế bạn thích và quay lại bất cứ lúc nào.</p>
     </div></section><section class="section"><div class="container">
       <div class="dashboard-heading"><h2>Đã lưu ${templates.length} mẫu</h2>${buttonLink("/explore", "Khám phá thêm")}</div>
-      ${
-        templates.length
-          ? `<p class="catalog-range">Hiển thị ${pageData.from}–${pageData.to} / ${pageData.total} mẫu</p>
+      ${templates.length
+        ? `<p class="catalog-range">Hiển thị ${pageData.from}–${pageData.to} / ${pageData.total} mẫu</p>
         <div class="template-grid">${pageData.items.map(templateCard).join("")}</div>${paginationMarkup(pageData, "favorites")}`
-          : `<div class="empty-state empty-state--panel">${icon("heart", 36)}<h3>Chưa có mẫu yêu thích</h3>
+        : `<div class="empty-state empty-state--panel">${icon("heart", 36)}<h3>Chưa có mẫu yêu thích</h3>
         <p>Nhấn biểu tượng trái tim trên mẫu bạn thích để lưu vào đây.</p>${buttonLink("/explore", "Xem kho mẫu")}</div>`
       }
     </div></section>`;

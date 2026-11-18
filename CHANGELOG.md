@@ -1,3 +1,11 @@
+## Unreleased — Marketing UI & Payment Status (2026-11-18)
+
+- Nâng cấp trang chủ phục vụ marketing: lợi ích thật, mô tả tương tác, FAQ và CTA rõ ràng.
+- Tách CSS mới theo thành phần, breakpoint và màn hình thanh toán; SVG Lucide (ISC/MIT), không dùng emoji.
+- Trình bày trạng thái đơn hàng pending/paid và cảnh báo không thanh toán lại khi chưa được provider xác nhận.
+- Bổ sung kiểm thử nội dung, chống tràn mobile, giảm chuyển động và tài liệu giấy phép open source.
+- Chưa mở API hủy/retry/refund tự động; yêu cầu kiểm thử merchant sandbox và quy trình đối soát tiền chuyển muộn.
+
 ## Unreleased — Identity Recovery & Admin Payment Operations (2026-11-18)
 
 - Cho phép tài khoản email chưa xác minh yêu cầu đặt lại mật khẩu bằng mã 8 chữ số gửi đến chính hộp thư đăng ký; khi xác nhận hợp lệ, xác minh email, thay mật khẩu và vô hiệu hóa phiên cũ qua `credentialVersion`.

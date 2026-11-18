@@ -89,19 +89,19 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Nâng cấp trang chủ phục vụ marketing: lợi ích thật, mô tả tương tác, FAQ và CTA rõ ràng.
-- Tách CSS mới theo thành phần, breakpoint và màn hình thanh toán; SVG Lucide (ISC/MIT), không dùng emoji.
-- Trình bày trạng thái đơn hàng pending/paid và cảnh báo không thanh toán lại khi chưa được provider xác nhận.
-- Bổ sung kiểm thử nội dung, chống tràn mobile, giảm chuyển động và tài liệu giấy phép open source.
+- Thêm 10 mẫu vector Momevia Originals miễn phí trong đợt marketing (4 mùa lễ 2026–2027, 6 mẫu cảm xúc), thành 24 mẫu tích hợp. Mỗi mẫu có 3 cảnh Canvas, tùy chỉnh tên người nhận/người gửi/lời nhắn; không dùng emoji hoặc ảnh stock.
+- Chèn các ID mẫu còn thiếu vào Catalog JSON/MySQL, không ghi đè mẫu đã tồn tại hoặc snapshot quà đã gửi. Không yêu cầu migration mới.
+- Thêm khu vực mẫu theo mùa trên /explore; mẫu vẫn tìm được quanh năm.
+- Gắn CTA “Tạo thiệp của riêng bạn”, “Khám phá thêm mẫu” và “Tạo bằng Momevia” trên cả Legacy Gift và Canvas Gift. Link không mang invite token.
 
 **Các commit gần nhất trên `main`:**
 
+- `55f42ec` — fix: stabilize seasonal template preview and browser tests (2026-11-19)
+- `0cb0afc` — feat: add seasonal templates and recipient viral conversion (2026-11-19)
 - `00a3528` — feat: enhance marketing UI and payment experience (2026-11-18)
 - `03dd978` — test: isolate creator browser journey from shared auth quotas (2026-11-18)
 - `35051d5` — feat: improve identity recovery and admin payment operations (2026-11-18)
 - `b19ae81` — feat: add admin payment review and reconciliation audit (2026-11-18)
-- `7e3e9c3` — docs: automate README updates after successful CI (2026-11-18)
-- `cbfa560` — feat: add safe payment reconciliation for MoMo and payOS (2026-11-18)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

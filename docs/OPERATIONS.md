@@ -27,38 +27,24 @@ Sao lưu phối hợp Identity, Catalog, Checkout, Gifts legacy, Support và cá
 
 Chạy từ thư mục gốc repo. Nếu các module của môi trường đang dùng JSON thì bỏ qua migration MySQL. Với môi trường dùng MySQL, repo áp dụng các file SQL trong [database/migrations](../database/migrations/) theo thứ tự số. Migration `006_canvas` bổ sung canvas, snapshot và pin. Migration `007_support_reports` bổ sung đối tượng báo cáo, người xử lý và kết quả Support. Migration `008_gift_reply_read_state` thêm trạng thái đọc cho lời đáp mới. Lời đáp cũ tiếp tục hiện trong toàn bộ hộp thư.
 
-**1. Xác nhận máy chủ, schema và migration đã áp dụng.** Chạy `npm run db:ping` để kiểm tra tài khoản ứng dụng. Nếu gặp `ER_ACCESS_DENIED_ERROR`, đối chiếu `MYSQL_HOST`, `MYSQL_PORT` và tài khoản trên đúng máy chủ. Khi chạy Docker Compose, dùng `docker compose --env-file .env -f database/compose.yml ps` để xem cổng host của dịch vụ `db`. Mỗi máy chủ quản lý tài khoản riêng.
+**1. Xác nhận DB đích và quyền.** Lệnh dùng `MYSQL_HOST`, `MYSQL_PORT` và `MYSQL_DATABASE` trong `.env` hoặc biến môi trường. Khi dùng tài khoản riêng để chạy migration, đặt cả `MYSQL_MIGRATION_USER` và `MYSQL_MIGRATION_PASSWORD`. Nếu để trống cả hai, lệnh dùng `MYSQL_USER` và `MYSQL_PASSWORD`. Tài khoản phải có quyền đọc lịch sử, thực thi các file SQL và tạo schema nếu schema chưa tồn tại. Khi dùng Docker Compose, chạy `docker compose --env-file .env -f database/compose.yml ps` để xem cổng host của `db`.
 
-Trong PowerShell, dùng `mysql.exe` trong `PATH` hoặc điền đường dẫn đầy đủ. Thay các giá trị ví dụ trong `$dbArgs` bằng cấu hình của DB đích và tài khoản có quyền migration. `--password` sẽ hỏi mật khẩu trong terminal.
+**2. Chạy lệnh cài mới hoặc nâng cấp.** Với DB đang dùng, sao lưu DB và ảnh cùng mốc rồi thử khôi phục trên đích riêng trước khi chạy.
 
 ```powershell
-$mysql = 'mysql.exe'
-# Ví dụ khi mysql.exe chưa có trong PATH
-# $mysql = 'C:/Program Files/MySQL/MySQL Server 8.0/bin/mysql.exe'
-$dbArgs = @('--no-defaults', '--protocol=TCP', '--host=127.0.0.1', '--port=3306', '--user=momevia', '--password', '--default-character-set=utf8mb4', '--database=momevia_dev')
-& $mysql @dbArgs --execute='SELECT @@hostname AS server_host, VERSION() AS server_version, DATABASE() AS schema_name, CURRENT_USER() AS db_account; SELECT version, applied_at FROM schema_migrations ORDER BY version;'
+npm run db:migrate
 ```
 
-Nếu bảng `schema_migrations` chưa có, chạy `SHOW TABLES` trên cùng schema. Chỉ bắt đầu từ `001` với schema mới, rỗng. Nếu schema đã có bảng ứng dụng hoặc ledger bị hổng số, kiểm tra trạng thái schema trước khi áp dụng tiếp.
+Lệnh tạo schema còn thiếu với `utf8mb4`, sau đó áp dụng các file chưa có trong `schema_migrations` theo thứ tự. Nếu DB đã ở phiên bản mới nhất, lệnh báo phiên bản hiện tại. Lệnh dừng nếu phát hiện schema có bảng mà thiếu lịch sử hoặc lịch sử bị hổng. MySQL DDL có implicit commit. Nếu migration dừng giữa chừng và còn bản ghi trong `schema_migration_pending`, đối chiếu trạng thái schema với file SQL và bản sao lưu trước khi tiếp tục. Có thể khôi phục bản sao lưu trước migration rồi chạy lại.
 
-**2. Sao lưu và áp dụng từng file còn thiếu.** Sao lưu DB và ảnh cùng mốc, rồi thử khôi phục trên đích riêng trước khi nâng schema đang dùng. Khi ledger đã có đầy đủ `001`–`006` và thiếu `007`, chạy:
-
-```powershell
-& $mysql @dbArgs --execute='source database/migrations/007_support_reports.sql'
-```
-
-Nếu thiếu nhiều file, thay tên file trong lệnh trên và chạy từng file theo thứ tự tăng dần. Dừng khi terminal báo lỗi hoặc `$LASTEXITCODE` khác `0`. MySQL DDL có implicit commit. Khi migration dừng giữa chừng, đối chiếu cột, constraint và ledger trước khi chạy lại.
-
-Với schema đã có `001`–`007`, dùng file `database/migrations/008_gift_reply_read_state.sql` trước khi khởi động bản có hộp thư mới. Khi Catalog khởi động, ứng dụng bổ sung hai mẫu hệ thống mới còn thiếu theo ID và bảo toàn bản ghi đã có.
-
-**3. Xác minh sau khi chạy.** Lặp lại truy vấn ledger ở bước 1. Với `007`, kiểm tra ledger có `007_support_reports` và bảng `support_requests` có đủ bốn cột mới:
+**3. Xác minh với tài khoản ứng dụng.**
 
 ```powershell
-& $mysql @dbArgs --execute="SELECT COLUMN_NAME FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'support_requests' AND COLUMN_NAME IN ('report_kind', 'report_target', 'assigned_to', 'resolution') ORDER BY COLUMN_NAME;"
+npm run db:ping
 npm run db:verify
 ```
 
-`npm run db:verify` dùng cấu hình ứng dụng và kiểm tra bắt buộc đến `005`. Dùng truy vấn ledger để xác nhận `006`–`008`. Sau `008`, kiểm tra `gift_replies.read_status` và index `gift_replies_unread_idx`. Dữ liệu từ kho JSON chuyển sang MySQL qua các lệnh import ở trên.
+`npm run db:verify` kiểm tra bắt buộc đến `005`. Dùng `SELECT version, applied_at FROM schema_migrations ORDER BY version` để đối chiếu mọi phiên bản. Sau `008`, kiểm tra `gift_replies.read_status` và index `gift_replies_unread_idx`. Khi Catalog khởi động, ứng dụng bổ sung hai mẫu hệ thống mới còn thiếu theo ID và bảo toàn bản ghi đã có. Dữ liệu từ kho JSON chuyển sang MySQL qua các lệnh import ở trên.
 
 ## CI và phát hành
 

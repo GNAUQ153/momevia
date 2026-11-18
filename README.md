@@ -14,6 +14,16 @@ npm start
 
 Mở [localhost:4100](http://localhost:4100). JSON là mặc định. Xem [vận hành, MySQL và CI/CD](docs/OPERATIONS.md) khi cấu hình phiên, reverse proxy, kho dữ liệu hoặc migration.
 
+## Tạo hoặc nâng schema MySQL
+
+Bỏ qua mục này nếu dùng JSON. Với MySQL 8.4, điền `MYSQL_HOST`, `MYSQL_PORT`, `MYSQL_DATABASE`, `MYSQL_USER` và `MYSQL_PASSWORD` trong `.env`. Từ thư mục gốc repo, dùng chung một lệnh cho cài mới và nâng cấp.
+
+```powershell
+npm run db:migrate
+```
+
+Lệnh tạo schema nếu chưa có và chỉ áp dụng các migration còn thiếu. Sao lưu trước khi nâng DB đang dùng. Nếu tài khoản ứng dụng thiếu quyền tạo schema hoặc chạy migration, điền thêm `MYSQL_MIGRATION_USER` và `MYSQL_MIGRATION_PASSWORD`. [Quyền, sao lưu và xác minh](docs/OPERATIONS.md#nâng-schema-mysql-từ-terminal)
+
 ## Thử toàn bộ hành trình
 
 ```powershell

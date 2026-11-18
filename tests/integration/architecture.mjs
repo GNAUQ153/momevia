@@ -12,20 +12,36 @@ import { setTimeout as delay } from 'node:timers/promises';
 import sharp from 'sharp';
 import { runHttpSmoke } from '../smoke/http.mjs';
 
-// Khởi chạy Modular Monolith trong thư mục dữ liệu tạm, không đụng workspace.
+// Cả hai topology chạy từ bản sao nguồn với dữ liệu và cổng loopback riêng.
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const tempRoot = fs.realpathSync(os.tmpdir());
-const fixture = fs.mkdtempSync(path.join(tempRoot, 'momevia-modular-'));
+const fixture = fs.mkdtempSync(path.join(tempRoot, 'momevia-architecture-'));
+const legacy = process.argv.includes('--legacy');
+const reservations = [];
 const children = [];
 let logs = '';
 
 async function reservePort() {
-  const service = net.createServer();
-  service.listen(0, '127.0.0.1');
-  await once(service, 'listening');
-  const port = service.address().port;
-  await new Promise(resolve => service.close(resolve));
-  return port;
+  const server = net.createServer();
+  reservations.push(server);
+  server.listen(0, '127.0.0.1');
+  await once(server, 'listening');
+  return server.address().port;
+}
+
+function remapLegacyPorts(directory, ports) {
+  for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+    const filename = path.join(directory, entry.name);
+    if (entry.isDirectory()) remapLegacyPorts(filename, ports);
+    else if (entry.isFile() && entry.name.endsWith('.mjs')) {
+      const source = fs.readFileSync(filename, 'utf8');
+      fs.writeFileSync(filename, source.replace(/\b410[0-5]\b/g, port => ports[Number(port) - 4100]));
+    }
+  }
+}
+
+async function releasePorts() {
+  await Promise.all(reservations.filter(server => server.listening).map(server => new Promise(resolve => server.close(resolve))));
 }
 function launch(file, env) {
   const child = spawn(process.execPath, [file], {cwd:fixture,env,stdio:['ignore','pipe','pipe'],windowsHide:true});
@@ -57,14 +73,17 @@ function request(base, pathname, {method='GET',body,cookie,headers={},localAddre
   });
 }
 
-try {
-  const port = await reservePort();
+async function startFixture() {
+  const ports = await Promise.all(Array.from({ length: legacy ? 6 : 1 }, reservePort));
+  const [port] = ports;
   for (const directory of ['src','services','web']) {
     fs.cpSync(path.join(root,directory),path.join(fixture,directory),{
       recursive:true,filter:source => path.basename(source) !== 'data',
     });
   }
-  fs.copyFileSync(path.join(root,'dev.mjs'),path.join(fixture,'dev.mjs'));
+  const entry = legacy ? 'gateway.mjs' : 'dev.mjs';
+  fs.copyFileSync(path.join(root, entry), path.join(fixture, entry));
+  if (legacy) remapLegacyPorts(fixture, ports);
   fs.symlinkSync(path.join(root,'node_modules'),path.join(fixture,'node_modules'),'junction');
   const base=`http://127.0.0.1:${port}`;
   fs.writeFileSync(path.join(fixture, '.env'), [
@@ -78,29 +97,150 @@ try {
     JWT_SECRET:randomBytes(32).toString('hex'),INTERNAL_SERVICE_KEY:randomBytes(32).toString('hex'),
     DEMO_AUTH_ENABLED:'true',DEMO_ADMIN_CODE:randomBytes(24).toString('hex'),GIFT_TTL_DAYS:'365'};
   for (const key of Object.keys(env).filter(key => key.startsWith('TEST_ACCOUNT_'))) delete env[key];
-  const app=launch('dev.mjs',env);
-  const health=['/api/auth/health','/api/catalog/health','/api/checkout/health','/api/gifts/health','/api/support/health'];
-  let ready=false;
-  for(let i=0;i<100;i++) {
-    if(app.exitCode!==null || app.signalCode!==null) throw new Error('Backend fixture kết thúc sớm.');
-    const results=await Promise.all(health.map(route=>request(base,route).catch(()=>null)));
-    if(results.every(result=>result?.status===200&&result.data?.ok===true)){ready=true;break;}
-    await delay(100);
+  if (legacy) {
+    Object.assign(env, { TEST_ACCOUNT_ENABLED: 'true', TEST_ACCOUNT_NAME: 'Legacy QA',
+      TEST_ACCOUNT_EMAIL: 'legacy-env@example.test', TEST_ACCOUNT_PASSWORD: 'LegacyFixture123', TEST_ACCOUNT_ROLE: 'sender' });
   }
-  assert(ready,'Backend fixture không khởi động các module.');
-  assert.equal(children.length,1,'Momevia phải chạy đúng một HTTP server process.');
+  await releasePorts();
+  if (legacy) {
+    for (const service of ['identity', 'catalog', 'checkout', 'gifts', 'support'])
+      launch(`services/${service}/server.mjs`, env);
+  }
+  launch(entry, env);
+  const health=['/api/auth/health','/api/catalog/health','/api/checkout/health','/api/gifts/health','/api/support/health'];
+  await waitForHealth(base, health, children);
+  assert.equal(children.length, legacy ? 6 : 1, 'Fixture phải khởi động đúng số process của topology.');
   const seededLogin = await request(base, '/api/auth/login', { method: 'POST', body: {
-    email: 'ENV-QA@example.test', password: 'EnvFixturePass123',
+    email: legacy ? env.TEST_ACCOUNT_EMAIL : 'ENV-QA@example.test',
+    password: legacy ? env.TEST_ACCOUNT_PASSWORD : 'EnvFixturePass123',
   } });
   assert.equal(seededLogin.status, 200, 'Tài khoản từ .env phải đăng nhập được ngay sau khởi động');
-  assert.equal(seededLogin.data.user.role, 'creator');
+  assert.equal(seededLogin.data.user.role, legacy ? 'sender' : 'creator');
   assert(!('passwordHash' in seededLogin.data.user));
   assert(!('testAccount' in seededLogin.data.user));
   if(process.argv.includes('--browser')) {
     const {runBrowserSmoke}=await import('../browser/smoke.mjs');
     await runBrowserSmoke(base);
   }
+  return { base, env, ports, seededLogin };
+}
 
+async function waitForHealth(base, routes, processes) {
+  for (let attempt = 0; attempt < 100; attempt++) {
+    if (processes.some(child => child.exitCode !== null || child.signalCode !== null)) throw new Error('Backend fixture kết thúc sớm.');
+    const results = await Promise.all(routes.map(route => request(base, route).catch(() => null)));
+    if (results.every(result => result?.status === 200 && result.data?.ok === true)) return;
+    await delay(100);
+  }
+  assert.fail('Backend fixture không khởi động các module.');
+}
+
+const sessionCookie = result => result.headers['set-cookie'][0].split(';')[0];
+const protectedRoutes = ['/api/gifts/gifts/mine', '/api/catalog/favorites', '/api/checkout/orders', '/api/support/admin/requests'];
+
+async function checkGiftTransport(base, env, cookie, email) {
+  const catalog = await request(base,'/api/catalog/templates');
+  assert.equal(catalog.status, 200);
+  const templateId = catalog.data.templates.find(template => template.price === 0).id;
+  for (const route of [`/api/catalog/internal/templates/${templateId}`, '/api/catalog/internal', '/api/catalog/%69nternal/templates/a', '/api/checkout/internal/license/a/b']) {
+    const result = await request(base,route,{headers:{'x-service-key':env.INTERNAL_SERVICE_KEY}});
+    assert.equal(result.status, 403, route);
+  }
+  console.log('PASS  Public API không lộ endpoint /internal');
+
+  const photo = await sharp({create:{width:2,height:2,channels:3,background:'red'}}).png().toBuffer();
+  const created = await request(base,'/api/gifts/gifts',{method:'POST',cookie,body:{templateId,recipientName:'Mai',senderName:'An',message:'Quà kiểm thử cô lập',photoDataUrl:`data:image/png;base64,${photo.toString('base64')}`}});
+  assert.equal(created.status, 201);
+  const slug = created.data.gift.slug;
+  const gift = await request(base,`/api/gifts/gifts/${slug}`);
+  const mine = await request(base,'/api/gifts/gifts/mine',{cookie});
+  for (const photoUrl of [gift.data.gift.photoUrl,mine.data.gifts.find(item => item.slug === slug).photoUrl]) {
+    assert.equal(typeof photoUrl, 'string');
+    const loaded = await request(base,photoUrl);
+    assert.equal(loaded.status, 200);
+    assert.equal(loaded.headers['content-type'], 'image/png');
+    assert.deepEqual(await sharp(loaded.bytes).raw().toBuffer(), await sharp(photo).raw().toBuffer());
+    assert.equal((await sharp(loaded.bytes).metadata()).exif, undefined);
+  }
+  console.log('PASS  URL ảnh public và danh sách của tôi trả đúng bytes ảnh');
+
+  const repliesRoute = `/api/gifts/gifts/${slug}/replies`;
+  for (let i = 0; i < 3; i++) {
+    assert.equal((await request(base,repliesRoute,{method:'POST',body:{message:'Lời đáp kiểm thử'}})).status,201);
+  }
+  assert.equal((await request(base,repliesRoute,{method:'POST',body:{message:'Vượt hạn mức'},headers:{'x-forwarded-for':'192.0.2.99'}})).status,429);
+  assert.equal((await request(base,repliesRoute,{method:'POST',body:{message:'Một người nhận khác'},localAddress:'127.0.0.2'})).status,201);
+  console.log('PASS  Hạn mức reply tách IP thực và không bị vượt bằng header giả');
+
+  for (let i = 0; i < 6; i++) {
+    const result = await request(base,'/api/support/requests',{method:'POST',
+      localAddress:'127.0.0.3',
+      headers:{'x-forwarded-for':`192.0.2.${i + 1}`},
+      body:{name:'Khách kiểm thử',email,topic:'Hỗ trợ',message:'Nội dung hỗ trợ trong môi trường kiểm thử cô lập.'}});
+    assert.equal(result.status, i < 5 ? 201 : 429);
+  }
+  console.log('PASS  Đổi X-Forwarded-For không vượt được hạn mức Support');
+  return { catalog, templateId };
+}
+
+async function runLegacy({ base, env, ports, seededLogin }) {
+  const senderCookie = sessionCookie(seededLogin);
+  const { templateId } = await checkGiftTransport(base, env, senderCookie, env.TEST_ACCOUNT_EMAIL);
+  const catalogService = `http://127.0.0.1:${ports[2]}`;
+  const privateTemplate = `/internal/templates/${templateId}`;
+  assert.equal((await request(catalogService, privateTemplate)).status, 403);
+  const internalHeaders = { 'x-service-key': env.INTERNAL_SERVICE_KEY };
+  assert.equal((await request(catalogService, privateTemplate, { headers: internalHeaders })).status, 200);
+  console.log('PASS  Gateway chặn truy cập qua mạng công khai, service yêu cầu khóa nội bộ');
+
+  const actor = await request(base, '/api/auth/register', {
+    method: 'POST',
+    body: { name: 'Legacy Creator QA', email: `legacy-creator-${randomUUID()}@example.test`,
+      password: 'RegressionPass123', confirmPassword: 'RegressionPass123' },
+  });
+  assert.equal(actor.status, 201);
+  const creatorCookie = sessionCookie(actor);
+  const roleId = actor.data.user.id;
+  const rolePath = `/api/auth/admin/users/${roleId}/role`;
+  const admin = await request(base, '/api/auth/demo-admin', { method: 'POST', body: { code: env.DEMO_ADMIN_CODE } });
+  assert.equal(admin.status, 200);
+  const adminCookie = sessionCookie(admin);
+
+  assert.equal((await request(base, '/api/checkout/orders', { cookie: senderCookie })).status, 200);
+  assert.equal((await request(base, '/api/auth/logout', { method: 'POST', cookie: senderCookie })).status, 200);
+  assert.equal((await request(base, '/api/auth/me', { cookie: senderCookie })).data.user, null);
+  for (const route of protectedRoutes)
+    assert.equal((await request(base, route, { cookie: senderCookie })).status, 401, route);
+  const identity = children[0];
+  const identityExited = once(identity, 'exit');
+  identity.kill();
+  await identityExited;
+  assert.equal((await request(base, '/api/gifts/gifts/mine', { cookie: senderCookie })).status, 503);
+  const restarted = launch('services/identity/server.mjs', { ...env, NODE_ENV: 'production', TEST_ACCOUNT_ENABLED: 'false' });
+  await waitForHealth(base, ['/api/auth/health'], [restarted]);
+  for (const route of protectedRoutes)
+    assert.equal((await request(base, route, { cookie: senderCookie })).status, 401, route);
+  console.log('PASS  Logout vẫn thu hồi phiên sau khi Identity khởi động lại, lỗi kết nối trả 503');
+
+  assert.equal((await request(base, '/api/auth/providers')).data.demo, false);
+  assert.equal((await request(base, '/api/auth/demo-admin', { method: 'POST', body: { code: env.DEMO_ADMIN_CODE } })).status, 403);
+  assert.equal((await request(base, '/api/auth/creator', { method: 'POST', cookie: creatorCookie, body: { userId: roleId } })).status, 403);
+  assert.equal((await request(base, rolePath, { method: 'POST', cookie: adminCookie, body: { role: 'creator' } })).status, 200);
+  assert.equal((await request(base, '/api/catalog/creator/templates', { cookie: creatorCookie })).status, 200);
+  assert.equal((await request(base, rolePath, { method: 'POST', cookie: creatorCookie, body: { role: 'admin' } })).status, 403);
+  const introspection = await request(`http://127.0.0.1:${ports[1]}`, '/internal/session', {
+    method: 'POST', headers: internalHeaders, body: { token: creatorCookie.slice('session='.length) },
+  });
+  assert.equal(introspection.status, 200);
+  assert.equal(introspection.data.user.role, 'creator');
+  assert.equal((await request(base, `/api/auth/admin/users/${admin.data.user.id}/role`, { method: 'POST', cookie: adminCookie, body: { role: 'sender' } })).status, 200);
+  assert.equal((await request(base, rolePath, { method: 'POST', cookie: adminCookie, body: { role: 'admin' } })).status, 403);
+  assert.equal((await request(base, '/api/catalog/admin/pending', { cookie: adminCookie })).status, 403);
+  assert.equal((await request(base, '/api/support/admin/requests', { cookie: adminCookie })).status, 403);
+  console.log('PASS  Role được cập nhật qua Identity sau khi khởi động lại ở chế độ production');
+}
+
+async function runMonolith({ base, env }) {
   const email = `architecture-${randomUUID()}@example.test`;
   const account = {name:'Kiểm thử kiến trúc',email,password:'RegressionPass123',confirmPassword:'RegressionPass123'};
   const registrations = await Promise.all([
@@ -156,47 +296,7 @@ try {
   assert.equal((await request(base,rolePath,{method:'POST',cookie:adminCookie,body:{role:'sender'}})).status,200);
   console.log('PASS  Only Admin changes roles; Sender/Creator cannot self-promote; demotion overrides old JWT claims');
 
-  const catalog = await request(base,'/api/catalog/templates');
-  assert.equal(catalog.status, 200);
-  const templateId = catalog.data.templates.find(template => template.price === 0).id;
-  for (const route of [`/api/catalog/internal/templates/${templateId}`, '/api/catalog/internal', '/api/catalog/%69nternal/templates/a', '/api/checkout/internal/license/a/b']) {
-    const result = await request(base,route,{headers:{'x-service-key':env.INTERNAL_SERVICE_KEY}});
-    assert.equal(result.status, 403, route);
-  }
-  console.log('PASS  Public API không lộ endpoint /internal khi chuyển sang một server');
-
-  const photo = await sharp({create:{width:2,height:2,channels:3,background:'red'}}).png().toBuffer();
-  const created = await request(base,'/api/gifts/gifts',{method:'POST',cookie,body:{templateId,recipientName:'Mai',senderName:'An',message:'Quà kiểm thử cô lập',photoDataUrl:`data:image/png;base64,${photo.toString('base64')}`}});
-  assert.equal(created.status, 201);
-  const slug = created.data.gift.slug;
-  const gift = await request(base,`/api/gifts/gifts/${slug}`);
-  const mine = await request(base,'/api/gifts/gifts/mine',{cookie});
-  for (const photoUrl of [gift.data.gift.photoUrl,mine.data.gifts.find(item => item.slug === slug).photoUrl]) {
-    assert.equal(typeof photoUrl, 'string');
-    const loaded = await request(base,photoUrl);
-    assert.equal(loaded.status, 200);
-    assert.equal(loaded.headers['content-type'], 'image/png');
-    assert.deepEqual(await sharp(loaded.bytes).raw().toBuffer(), await sharp(photo).raw().toBuffer());
-    assert.equal((await sharp(loaded.bytes).metadata()).exif, undefined);
-  }
-  console.log('PASS  URL ảnh public và danh sách của tôi trả đúng bytes ảnh');
-
-  const repliesRoute = `/api/gifts/gifts/${slug}/replies`;
-  for (let i = 0; i < 3; i++) {
-    assert.equal((await request(base,repliesRoute,{method:'POST',body:{message:'Lời đáp kiểm thử'}})).status,201);
-  }
-  assert.equal((await request(base,repliesRoute,{method:'POST',body:{message:'Vượt hạn mức'},headers:{'x-forwarded-for':'192.0.2.99'}})).status,429);
-  assert.equal((await request(base,repliesRoute,{method:'POST',body:{message:'Một người nhận khác'},localAddress:'127.0.0.2'})).status,201);
-  console.log('PASS  Hạn mức reply tách IP thực và không bị vượt bằng header giả');
-
-  for (let i = 0; i < 6; i++) {
-    const result = await request(base,'/api/support/requests',{method:'POST',
-      localAddress:'127.0.0.3',
-      headers:{'x-forwarded-for':`192.0.2.${i + 1}`},
-      body:{name:'Khách kiểm thử',email,topic:'Hỗ trợ',message:'Nội dung hỗ trợ trong môi trường kiểm thử cô lập.'}});
-    assert.equal(result.status, i < 5 ? 201 : 429);
-  }
-  console.log('PASS  Đổi X-Forwarded-For không vượt được hạn mức Support');
+  const { catalog, templateId } = await checkGiftTransport(base, env, cookie, email);
 
   await runHttpSmoke(base, { adminCode: env.DEMO_ADMIN_CODE });
 
@@ -235,7 +335,6 @@ try {
 
   assert.equal((await request(base,'/api/auth/logout',{method:'POST',cookie})).status,200);
   assert.equal((await request(base,'/api/auth/me',{cookie})).data.user,null);
-  const protectedRoutes=['/api/gifts/gifts/mine','/api/catalog/favorites','/api/checkout/orders','/api/support/admin/requests'];
   for (const route of protectedRoutes) assert.equal((await request(base,route,{cookie})).status,401,route);
   assert.equal((await request(base,`/api/auth/admin/users/${adminId}/role`,{method:'POST',cookie:adminCookie,body:{role:'sender'}})).status,200);
   assert.equal((await request(base,rolePath,{method:'POST',cookie:adminCookie,body:{role:'admin'}})).status,403);
@@ -243,10 +342,17 @@ try {
   assert.equal((await request(base,'/api/support/admin/requests',{cookie:adminCookie})).status,403);
   console.log('PASS  Mất quyền Admin làm vô hiệu hóa quyền truy cập trên mọi module');
   console.log('PASS  Tất cả module chia một HTTP process, bảo toàn public API và truy cập dữ liệu tách biệt');
+}
+
+try {
+  const topology = await startFixture();
+  if (legacy) await runLegacy(topology);
+  else await runMonolith(topology);
 } catch(error) {
   console.error(logs);
   throw error;
 } finally {
+  await releasePorts();
   await Promise.all(children.filter(child=>child.exitCode===null&&child.signalCode===null).map(async child=>{
     const exited=once(child,'exit');
     child.kill();

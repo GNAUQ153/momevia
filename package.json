@@ -29,7 +29,7 @@
     "smoke:ui": "node tests/smoke/http.mjs ui",
     "demo:web": "npm run build && node scripts/dev/web-demo.mjs",
     "dev:legacy": "node src/bootstrap/legacy.mjs",
-    "test:architecture:legacy": "node tests/integration/architecture-legacy.mjs",
+    "test:architecture:legacy": "node tests/integration/architecture.mjs --legacy",
     "db:prepare": "node database/scripts/prepare-import.mjs",
     "db:ping": "node database/scripts/mysql-ping.mjs",
     "db:verify": "node database/scripts/mysql-verify.mjs",

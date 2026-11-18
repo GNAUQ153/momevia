@@ -89,19 +89,19 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Bổ sung server-side payment status inquiry cho MoMo và payOS; không tin return URL.
-- Chỉ chuyển `paid` khi provider xác nhận đúng mã, số tiền và môi trường; tái sử dụng transaction cấp quyền/biên nhận hiện có.
-- Giao diện payment-result có nút đối soát và giới hạn truy vấn; không tự mở khóa pending hoặc cho retry khi chưa có quy trình kiểm tra giao dịch muộn.
-- Thêm regression tests và tài liệu `docs/PAYMENT_RECONCILIATION_20261118.md`.
+- Thêm migration `009_payment_reconciliation_audit` để lưu metadata lần truy vấn provider (không lưu token/chữ ký/response body).
+- Admin có API **chỉ đọc** để xem giao dịch chờ trên 30 phút và lịch sử đối soát; không có API tự đánh dấu paid hoặc mở khóa retry.
+- Ghi nhận kết quả đối soát pending/paid/terminal/invalid/provider error; tăng regression tests xác thực quyền Admin và truy vấn có giới hạn.
+- Chưa bật cancellation/retry tự động hoặc hoàn tiền. Phải kiểm thử MySQL thực tế và sandbox trước triển khai thanh toán thật.
 
 **Các commit gần nhất trên `main`:**
 
+- `b19ae81` — feat: add admin payment review and reconciliation audit (2026-11-18)
 - `7e3e9c3` — docs: automate README updates after successful CI (2026-11-18)
 - `cbfa560` — feat: add safe payment reconciliation for MoMo and payOS (2026-11-18)
 - `80bb899` — test: align creator regift journey with withdrawal policy (2026-11-18)
 - `16b2484` — fix: harden payment, creator reuse and admin support (2026-11-18)
 - `e34d12c` — feat: add initial business plan document for Momevia (2026-11-18)
-- `48f4819` — Merge pull request #7 from GNAUQ153/feat/canvas-design-plan (2026-11-18)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

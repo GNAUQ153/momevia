@@ -449,6 +449,7 @@
   }
   .my-gift-actions {
     width: 100%;
+    flex-wrap: wrap;
     justify-content: flex-end;
   }
   .creator-hero {

@@ -61,13 +61,26 @@ async function checkShareInBrowser(browser, context, base, gifts) {
     }
     await page.goto(alias + '/studio');
     await page.evaluate(() => { globalThis.denyClipboard = true; });
-    for (const gift of gifts) {
-      const card = page.locator('.my-gift').filter({ has: page.locator(`a[href="/g/${gift.slug}"]`) });
-      await card.getByRole('button', { name: 'Sao chép link' }).click();
-      const manual = page.getByRole('dialog').locator('[data-copy-value]');
-      assert.equal(await manual.inputValue(), gift.url);
-      assert(await selected(manual));
-      await page.keyboard.press('Escape');
+    for (const width of [390, 320]) {
+      await page.setViewportSize({ width, height: 844 });
+      for (const gift of gifts) {
+        const card = page.locator('.my-gift').filter({ has: page.locator(`a[href="/g/${gift.slug}"]`) });
+        const clipped = await card.locator('.my-gift-actions').evaluate(actions => {
+          const row = actions.getBoundingClientRect();
+          const left = Math.max(0, row.left);
+          const right = Math.min(globalThis.document.documentElement.clientWidth, row.right);
+          return Array.from(actions.children).filter(control => {
+            const box = control.getBoundingClientRect();
+            return box.left < left - 1 || box.right > right + 1;
+          }).map(control => control.getAttribute('aria-label') || control.textContent.trim());
+        });
+        assert.deepEqual(clipped, [], `Studio gift controls overflow at ${width}px`);
+        await card.getByRole('button', { name: 'Sao chép link' }).click();
+        const manual = page.getByRole('dialog').locator('[data-copy-value]');
+        assert.equal(await manual.inputValue(), gift.url);
+        assert(await selected(manual));
+        await page.keyboard.press('Escape');
+      }
     }
   } finally { await alternate.close(); }
 }
@@ -233,7 +246,7 @@ export async function runCanvasBrowser(base, expiredSlug) {
     const legacy = await api('/gifts/gifts', { templateId: freeTemplate.id, senderName: 'An', recipientName: 'Mai legacy', message: 'Mở lại quà cũ' });
     assert.equal(legacy.status, 201);
     await checkShareInBrowser(browser, context, base, [blankGift, legacy.data.gift]);
-    completed.push('canvas and legacy share across distinct hostnames; QR decoded; clipboard success and manual copy');
+    completed.push('canvas and legacy share across distinct hostnames; QR decoded; clipboard fallback and Studio actions fit at 320/390px');
     await checkRecipientDependencies(browser, base, blankGift, legacy.data.gift, expiredSlug, greeting);
     completed.push('anonymous gift ready during held catalog and auth outage; explore, legacy, expired and missing links');
     metrics.readableGreeting = await measureGiftReadability(browser, base, blankGift, greeting);

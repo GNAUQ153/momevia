@@ -354,11 +354,7 @@ export async function runCreatorJourney(base) {
     const existingPreflight = await sender.call(`/designs/designs/${senderId}/preflight`, { expectedRevision: senderDesign.revision });
     assert.equal(existingPreflight.canPublish, true);
     await admin.call(roleEndpoint, { role: 'creator' });
-    await creator.call(workspace + '/withdraw', {});
-    await guest.call(`/catalog/templates/${id}`, undefined, 404);
-    await sender.call(`/designs/designs/${senderId}/preflight`, { expectedRevision: senderDesign.revision });
-    assert.deepEqual((await guest.call(recipientEndpoint + inviteQuery)).gift.documentSnapshot, before.documentSnapshot);
-    assert.deepEqual(await (await guest.ask(`${recipientEndpoint}/assets/${uploaded.asset.id}${inviteQuery}`)).body(), originalPhoto);
+    // A published Creator template can be regifted while it is still available.
     const regiftEndpoint = `/gifts/gifts/mine/${slug}/regift`;
     const regiftInput = { mutationId: randomUUID() };
     await other.call(regiftEndpoint, regiftInput, 404);
@@ -382,6 +378,13 @@ export async function runCreatorJourney(base) {
     assert.notEqual(new URL(newGift.inviteUrl).search, inviteQuery);
     assert.deepEqual((await sender.call(`/gifts/gifts/mine/${newGift.slug}/replies`)).replies, []);
     assert.equal((await sender.call(`/gifts/gifts/mine/${slug}/replies`)).replies.length, 1);
+    // The original gift remains readable; a NEW regift must be blocked after withdrawal.
+    await creator.call(workspace + '/withdraw', {});
+    await guest.call(`/catalog/templates/${id}`, undefined, 404);
+    await sender.call(regiftEndpoint, { mutationId: randomUUID() }, 403);
+    await sender.call(`/designs/designs/${senderId}/preflight`, { expectedRevision: senderDesign.revision });
+    assert.deepEqual((await guest.call(recipientEndpoint + inviteQuery)).gift.documentSnapshot, before.documentSnapshot);
+    assert.deepEqual(await (await guest.ask(`${recipientEndpoint}/assets/${uploaded.asset.id}${inviteQuery}`)).body(), originalPhoto);
     const { gift: restoreGift } = await sender.call('/gifts/gifts/from-design', {
       designId: senderId, expectedRevision: senderDesign.revision, expectedDocumentHash: senderDesign.documentHash,
       idempotencyKey: randomUUID(), access: { open: 'invite', send: 'disabled', read: 'invite' },

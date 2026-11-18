@@ -452,6 +452,13 @@
     flex-wrap: wrap;
     justify-content: flex-end;
   }
+  .my-gift-actions > .btn {
+    min-width: 0;
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    text-align: center;
+  }
   .creator-hero {
     padding-block: 65px;
   }

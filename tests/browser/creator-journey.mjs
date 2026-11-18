@@ -395,21 +395,23 @@ export async function runCreatorJourney(base) {
 
     const revokeEndpoint = `/gifts/gifts/mine/${slug}/revoke`;
     await other.call(revokeEndpoint, {}, 404);
-    await phone.goto(base + '/studio');
     const calls = [];
     await phone.route('**/api/checkout/orders', async route => {
       calls.push('orders');
       if (calls.length === 1) await route.fulfill({ status: 503, json: { error: 'QA outage' } });
       else await route.continue();
     });
-    await phone.reload();
-    await phone.getByRole('alert').filter({ hasText: 'Chưa tải được lịch sử đơn hàng.' }).waitFor();
+    await phone.goto(base + '/studio');
+    const ordersSection = phone.locator('#studio-orders-section');
+    await ordersSection.getByRole('alert').filter({ hasText: 'Chưa tải được lịch sử đơn hàng.' }).waitFor();
+    assert.equal(calls.length, 1);
     await phone.locator('.my-gift').filter({ has: phone.locator(`a[href="/success/${slug}"]`) }).getByRole('button', { name: /Hồi đáp/ }).click();
     await phone.getByRole('dialog').getByText('Cảm ơn Linh vì tấm ảnh!').waitFor();
     await phone.getByRole('dialog').getByRole('button', { name: 'Đóng' }).click();
-    await phone.getByRole('button', { name: 'Thử lại', exact: true }).click();
-    await phone.getByText('Chưa có biên nhận thanh toán.').waitFor();
+    await ordersSection.getByRole('button', { name: 'Thử lại', exact: true }).click();
+    await ordersSection.getByText('Chưa có biên nhận thanh toán.').waitFor();
     assert.equal(calls.length, 2);
+    await phone.unroute('**/api/checkout/orders');
     const resume = phone.locator(`#studio-drafts a[href="/design/${senderId}"]`);
     await resume.click();
     await field(phone, 'binding.recipientName').waitFor();

@@ -212,7 +212,7 @@ function validateAggregate(state, records) {
         version.runtimeVersion === 1,
       "dangling/unsupported design version.",
     );
-    validateDocument(version.document, { mode: "publish" });
+    validateDocument(version.document, { mode: "publish", requiredBindings: [] });
   }
   const gifts = new Map();
   for (const publication of Object.values(state.publications)) {
@@ -234,7 +234,7 @@ function validateAggregate(state, records) {
         (gift.templateId || null) === (design.source.templateId || null),
       "publication source/revision mismatch.",
     );
-    validateDocument(gift.documentSnapshot, { mode: "publish" });
+    validateDocument(gift.documentSnapshot, { mode: "publish", requiredBindings: [] });
     check(
       same(gift.documentSnapshot, version.document),
       "publication/version snapshot mismatch.",

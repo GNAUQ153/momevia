@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { chromium } from 'playwright';
 import sharp from 'sharp';
+import jsQR from 'jsqr';
 import path from 'node:path';
 import { confirmGiftAccess } from './gift-access.mjs';
 
@@ -86,8 +87,13 @@ export async function runCreatorJourney(base) {
     await action(page, 'save').click();
     await page.locator('.editor-save-status').filter({ hasText: 'Đã lưu' }).waitFor();
     const reviewed = admin.page;
+    await reviewed.setViewportSize({ width: 390, height: 844 });
+    await reviewed.route('**/api/catalog/admin/pending', route => route.fulfill({ status: 503, json: { error: 'QA outage' } }), { times: 1 });
     await reviewed.goto(base + '/admin');
-    await reviewed.getByRole('link', { name: 'Mở phiên bản để duyệt' }).click();
+    await reviewed.getByRole('alert').filter({ hasText: 'Chưa tải được hàng đợi mẫu cũ.' }).waitFor();
+    const reviewLink = reviewed.locator(`a[href="/admin/review/${id}/${v1}"]`);
+    await reviewLink.focus();
+    await reviewed.keyboard.press('Enter');
     await reviewed.getByRole('heading', { name: title, exact: true }).waitFor();
     await loaded(reviewed);
     await reviewed.getByLabel('Tên người nhận thử').fill('Tên Admin thử');
@@ -107,17 +113,55 @@ export async function runCreatorJourney(base) {
     assert.equal(detail.title, title);
     assert.equal(detail.versionId, v1);
     assert(detail.thumbnail.includes(v1));
+    const coverSvg = await (await guest.ask(detail.thumbnail.slice('/api'.length))).text();
+    assert.match(coverSvg, /href="data:image\/webp;base64,/);
 
     const phone = sender.page;
-    await phone.goto(`${base}/template/${id}`);
-    await phone.getByRole('button', { name: /Trải nghiệm mẫu/ }).click();
+    await phone.context().addInitScript(() => {
+      Object.defineProperty(globalThis.navigator, 'share', { value: async ({ url }) => { globalThis.fixtureShares = url; } });
+      Object.defineProperty(globalThis.navigator, 'canShare', { value: () => true });
+      Object.defineProperty(globalThis.navigator.clipboard, 'writeText', { value: async url => { globalThis.fixtureClipboard = url; } });
+    });
+    await phone.goto(base + '/explore');
+    const firstCard = phone.locator('#catalog-grid .template-card').first();
+    await firstCard.waitFor();
+    assert((await firstCard.boundingBox()).y < 844);
+    await capture(phone, 'catalog-390');
+    const search = phone.getByRole('searchbox', { name: 'Tìm kiếm mẫu' });
+    await search.fill('sinh nhat ben khung anh');
+    await phone.getByRole('checkbox', { name: 'Miễn phí' }).check();
+    await phone.getByRole('checkbox', { name: 'Thay được ảnh' }).check();
+    assert.equal(await phone.locator('#catalog-grid .template-card').count(), 1);
+    await phone.getByRole('button', { name: 'Bỏ lọc' }).click();
+    assert.equal(await search.inputValue(), 'sinh nhat ben khung anh');
+    const startedAt = Date.now();
+    await phone.locator('#catalog-grid').getByRole('link', { name: title, exact: true }).click();
+    const start = phone.getByRole('link', { name: 'Dùng mẫu' });
+    await start.waitFor();
+    for (const width of [320, 390, 1440]) {
+      await phone.setViewportSize({ width, height: 844 });
+      const position = await start.boundingBox();
+      assert(position.y + position.height < 844, `Dùng mẫu not visible in the first ${width}px viewport`);
+      assert(await phone.evaluate(() => globalThis.document.documentElement.scrollWidth <= globalThis.innerWidth));
+      await capture(phone, `detail-${width}`);
+    }
+    await phone.setViewportSize({ width: 390, height: 844 });
+    await phone.evaluate(() => { globalThis.document.documentElement.style.fontSize = '200%'; });
+    assert(await phone.evaluate(() => globalThis.document.documentElement.scrollWidth <= globalThis.innerWidth));
+    await capture(phone, 'detail-zoom-200');
+    await phone.evaluate(() => { globalThis.document.documentElement.style.fontSize = ''; });
+    const heading = phone.locator('.detail-info h1');
+    await heading.evaluate(item => { item.textContent = item.textContent.repeat(5); });
+    assert(await phone.evaluate(() => globalThis.document.documentElement.scrollWidth <= globalThis.innerWidth));
+    await heading.evaluate(item => { item.textContent = item.textContent.slice(0, item.textContent.length / 5); });
+    await phone.getByRole('button', { name: 'Xem thử' }).click();
     await phone.locator('.template-preview-player').getByText('Mai', { exact: true }).waitFor();
     await loaded(phone);
     await phone.getByRole('button', { name: 'Đóng', exact: true }).click();
-    await phone.getByRole('link', { name: 'Cá nhân hóa nhanh' }).click();
-    await field(phone, 'binding.recipientName').fill('Bảo');
-    await field(phone, 'binding.senderName').fill('Linh');
-    const greeting = 'Lời chúc riêng của Linh dành cho Bảo.';
+    await phone.getByRole('link', { name: 'Dùng mẫu' }).click();
+    await field(phone, 'binding.recipientName').fill('Mai');
+    await field(phone, 'binding.senderName').fill('An');
+    const greeting = 'Lời chúc riêng của An dành cho Mai.';
     await field(phone, 'binding.message').fill(greeting);
     // The image is on the cover, so the quick editor can verify the new pixels without changing scene.
     const upload = phone.waitForResponse(response => response.url().endsWith('/assets') && response.request().method() === 'POST');
@@ -136,14 +180,44 @@ export async function runCreatorJourney(base) {
     await action(phone, 'preview').click();
     await capture(phone, 'sender-preview-390');
     await action(phone, 'preview-send').click();
+    let publishIntent;
+    await phone.route('**/api/gifts/gifts/from-design', async route => {
+      publishIntent = route.request().postDataJSON().idempotencyKey;
+      assert.equal((await route.fetch()).status(), 201);
+      await route.abort('failed');
+    }, { times: 1 });
+    const missingPublishAck = phone.waitForEvent('requestfailed', request => request.url().endsWith('/from-design'));
     await confirmGiftAccess(phone, { open: 'link', send: 'invite', read: 'sender' });
+    await missingPublishAck;
+    await action(phone, 'preview').click();
+    await action(phone, 'preview-send').click();
+    const publishRetry = phone.waitForRequest(request => request.url().endsWith('/from-design'));
+    await confirmGiftAccess(phone, { open: 'link', send: 'invite', read: 'sender' });
+    assert.equal((await publishRetry).postDataJSON().idempotencyKey, publishIntent);
     await phone.waitForURL('**/success/*');
+    assert.equal((await sender.call('/gifts/gifts/mine')).gifts.length, 1);
+    console.log(`Creator flow synthetic choose-to-link ms=${Date.now() - startedAt}`);
     const url = await phone.getByLabel('Đường link quà tặng').inputValue();
     const inviteUrl = await phone.getByLabel('Link mời riêng').inputValue();
     const slug = new URL(url).pathname.split('/').at(-1);
     const recipientEndpoint = `/gifts/gifts/${slug}`;
     const inviteQuery = new URL(inviteUrl).search;
     assert.notEqual(url, inviteUrl);
+    const regularShare = phone.locator('.share-option').filter({ has: phone.getByRole('heading', { name: 'Link thường' }) });
+    const inviteShare = phone.locator('.share-option').filter({ has: phone.getByRole('heading', { name: 'Link mời riêng' }) });
+    await regularShare.getByText('Mở được quà. Cần link mời để gửi lời đáp. Chỉ người gửi quà đọc được lời đáp.').waitFor();
+    await inviteShare.getByText('Mở được quà. Gửi được lời đáp. Chỉ người gửi quà đọc được lời đáp.').waitFor();
+    await capture(phone, 'share-permissions-390');
+    await inviteShare.getByRole('button', { name: 'Chia sẻ link mời riêng' }).click();
+    assert.equal(await phone.evaluate(() => globalThis.fixtureShares), inviteUrl);
+    await inviteShare.getByRole('button', { name: 'Sao chép' }).click();
+    assert.equal(await phone.evaluate(() => globalThis.fixtureClipboard), inviteUrl);
+    await inviteShare.getByRole('button', { name: 'Mã QR link mời' }).click();
+    const qrDownload = phone.waitForEvent('download');
+    await phone.getByRole('link', { name: 'Tải mã QR' }).click();
+    const { data: qrBytes, info: qrInfo } = await sharp(await (await qrDownload).path()).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+    assert.equal(jsQR(new Uint8ClampedArray(qrBytes), qrInfo.width, qrInfo.height)?.data, inviteUrl);
+    await phone.keyboard.press('Escape');
     await denied.call(recipientEndpoint + '/replies', { message: 'Không có link mời' }, 403);
     await denied.call(recipientEndpoint + '/replies', undefined, 403);
     await other.call(`/gifts/gifts/mine/${slug}/replies`, undefined, 404);
@@ -159,6 +233,8 @@ export async function runCreatorJourney(base) {
     await receiver.getByText('Đã gửi lời đáp.').waitFor();
     await guest.call(recipientEndpoint + '/replies' + inviteQuery, undefined, 403);
     const before = (await guest.call(recipientEndpoint + inviteQuery)).gift;
+    assert.equal(before.recipientName, 'Mai');
+    assert.equal(before.senderName, 'An');
     const originalPhoto = await (await guest.ask(`${recipientEndpoint}/assets/${uploaded.asset.id}${inviteQuery}`)).body();
     const inbox = (await sender.call(`/gifts/gifts/mine/${slug}/replies`)).replies;
     assert.equal(inbox[0].message, 'Cảm ơn Linh vì tấm ảnh!');
@@ -189,9 +265,30 @@ export async function runCreatorJourney(base) {
     }, 201)).gift;
     const legacyPhoto = await (await guest.ask(`/gifts/gifts/${activeLegacy.slug}/photo`)).body();
 
-    const changed = (await creator.call(designEndpoint)).design;
-    const v2 = (await creator.call(workspace + '/submit', { ...first, expectedRevision: changed.revision })).version.id;
+    await action(page, 'submit-template').click();
+    await submit.waitFor();
+    assert.deepEqual(await submit.locator('input[name="binding"]:checked').evaluateAll(list => list.map(input => input.value)), first.bindings);
+    assert.equal(await submit.getByLabel('Khung ảnh Sender được thay').inputValue(), photoId);
+    assert.equal(await submit.getByLabel('Nguồn ảnh và quyền phân phối trong mẫu, quà').inputValue(), first.rights);
+    await submit.getByText(/Tên mẫu từ/).waitFor();
+    await submit.getByText('Quyền chỉnh chữ và thay ảnh của Sender giữ nguyên.').waitFor();
+    await submit.getByLabel('Cảnh dùng làm bìa mẫu').selectOption('scene-message');
+    await submit.getByText('Đổi cảnh dùng làm bìa mẫu.').waitFor();
+    await capture(page, 'creator-submit-v2');
+    const v2Response = page.waitForResponse(response => response.url().endsWith('/submit') && response.request().method() === 'POST');
+    await submit.getByRole('button', { name: 'Gửi duyệt' }).click();
+    const v2 = (await (await v2Response).json()).version.id;
+    await page.waitForURL('**/creator');
     assert.notEqual(v2, v1);
+    await reviewed.goto(`${base}/admin/review/${id}/${v2}`);
+    await reviewed.getByText(/Tên mẫu từ/).waitFor();
+    await reviewed.getByText('Quyền chỉnh chữ và thay ảnh của Sender giữ nguyên.').waitFor();
+    await reviewed.getByText('Đổi cảnh dùng làm bìa mẫu.').waitFor();
+    const pendingCover = await admin.ask(`/catalog/admin/templates/${id}/versions/${v2}/cover`);
+    assert.equal(pendingCover.status(), 200);
+    assert.match(pendingCover.headers()['content-type'], /image\/svg\+xml/);
+    assert.equal((await guest.ask(`/catalog/templates/${id}/versions/${v2}/cover`)).status(), 409);
+    await capture(reviewed, 'admin-review-v2');
     const [verdictA, verdictB] = await Promise.all([
       admin.ask(`/catalog/admin/templates/${id}/versions/${v2}`, { action: 'revise', reason: 'Kiểm tra lại bố cục bìa.' }),
       rival.ask(`/catalog/admin/templates/${id}/versions/${v2}`, { action: 'revise', reason: 'Kiểm tra lại bố cục bìa.' }),
@@ -199,6 +296,38 @@ export async function runCreatorJourney(base) {
     assert.deepEqual([verdictA.status(), verdictB.status()].sort(), [200, 409]);
     await page.goto(base + '/creator');
     await page.getByText(/Kiểm tra lại bố cục bìa/).waitFor();
+    const newDemo = await page.context().request.post(`${base}/api${designEndpoint}/assets`, {
+      data: await image('#5c9074'),
+      headers: { 'content-type': 'image/png', 'x-mutation-id': randomUUID() },
+    });
+    assert.equal(newDemo.status(), 201);
+    const replacement = (await newDemo.json()).asset.id;
+    async function updateCreatorImage(assetId) {
+      const { design: current } = await creator.call(designEndpoint);
+      const target = current.document.elements.find(element => element.id === photoId);
+      if (assetId) target.props.assetId = assetId;
+      else {
+        current.document.elements = current.document.elements.filter(element => element.id !== photoId);
+        const scene = current.document.scenes.find(item => item.elementIds.includes(photoId));
+        scene.elementIds = scene.elementIds.filter(id => id !== photoId);
+      }
+      current.document.assets = assetId ? [{ assetId, kind: 'image' }] : [];
+      await creator.call(designEndpoint + '/save', {
+        expectedRevision: current.revision, mutationId: randomUUID(), title: current.title, document: current.document,
+      });
+      await page.goto(`${base}/design/${id}`);
+      await action(page, 'submit-template').click();
+      await submit.waitFor();
+    }
+    await updateCreatorImage(replacement);
+    assert.equal(await submit.getByLabel('Khung ảnh Sender được thay').inputValue(), photoId);
+    assert.equal(await submit.getByLabel('Nguồn ảnh và quyền phân phối trong mẫu, quà').inputValue(), '');
+    await submit.getByText('Có ảnh demo mới cần kiểm tra quyền phân phối.').waitFor();
+    await submit.getByRole('button', { name: 'Quay lại' }).click();
+    await updateCreatorImage(null);
+    assert.equal(await submit.getByLabel('Khung ảnh Sender được thay').inputValue(), '');
+    await submit.getByText('Có ảnh demo từ bản trước đã bị xóa hoặc thay.').waitFor();
+    await submit.getByRole('button', { name: 'Quay lại' }).click();
     const preview = (await guest.call(`/catalog/templates/${id}/versions/${v1}`)).version;
     assert(!JSON.stringify(preview).includes(greeting));
     assert(!JSON.stringify(preview).includes(uploaded.asset.id));
@@ -228,6 +357,27 @@ export async function runCreatorJourney(base) {
 
     const revokeEndpoint = `/gifts/gifts/mine/${slug}/revoke`;
     await other.call(revokeEndpoint, {}, 404);
+    await phone.goto(base + '/studio');
+    const calls = [];
+    await phone.route('**/api/checkout/orders', async route => {
+      calls.push('orders');
+      if (calls.length === 1) await route.fulfill({ status: 503, json: { error: 'QA outage' } });
+      else await route.continue();
+    });
+    await phone.reload();
+    await phone.getByRole('alert').filter({ hasText: 'Chưa tải được lịch sử đơn hàng.' }).waitFor();
+    await phone.locator('.my-gift').filter({ has: phone.locator(`a[href="/success/${slug}"]`) }).getByRole('button', { name: /Hồi đáp/ }).click();
+    await phone.getByRole('dialog').getByText('Cảm ơn Linh vì tấm ảnh!').waitFor();
+    await phone.getByRole('dialog').getByRole('button', { name: 'Đóng' }).click();
+    await phone.getByRole('button', { name: 'Thử lại', exact: true }).click();
+    await phone.getByText('Chưa có biên nhận thanh toán.').waitFor();
+    assert.equal(calls.length, 2);
+    const resume = phone.locator(`#studio-drafts a[href="/design/${senderId}"]`);
+    await resume.click();
+    await field(phone, 'binding.recipientName').waitFor();
+    await phone.getByRole('button', { name: 'Chỉnh bố cục' }).waitFor();
+    await phone.goto(`${base}/design/${senderId}?mode=layout`);
+    await phone.getByRole('button', { name: 'Cá nhân hóa nhanh' }).waitFor();
     await phone.goto(base + '/studio');
     const draftCard = phone.locator('.my-gift').filter({ has: phone.locator(`a[href="/design/${senderId}"]`) });
     phone.once('dialog', dialog => dialog.accept());

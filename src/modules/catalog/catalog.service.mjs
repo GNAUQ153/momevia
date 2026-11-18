@@ -1,6 +1,9 @@
 import { randomUUID } from 'node:crypto';
 import { HttpError } from '../../shared/http.mjs';
 import { sanitizeText, sanitizeOptionalText } from '../../shared/security.mjs';
+import { createDocument, isPhotoFrame } from '../../../web/js/shared/canvas/index.js';
+import { visibleBindingKeys } from '../../../web/js/shared/canvas/personalization.js';
+import { searchText } from '../../../web/js/features/catalog/filter.js';
 
 const publicFields = ['id', 'title', 'subtitle', 'theme', 'style', 'price', 'scenes', 'effect', 'creator', 'featured', 'category', 'status', 'createdAt'];
 export function publicTemplate(template) {
@@ -8,8 +11,13 @@ export function publicTemplate(template) {
   if (template.versionId) {
     view.versionId = template.versionId;
     const version = template.versions.find(item => item.id === template.versionId);
-    const thumbnail = version?.document.elements.find(item => item.type === 'image' && item.props.assetId && item.visible !== false);
-    if (thumbnail) view.thumbnail = `/api/catalog/templates/${template.id}/versions/${template.versionId}/assets/${thumbnail.props.assetId}`;
+    if (version) {
+      view.thumbnail = `/api/catalog/templates/${template.id}/versions/${template.versionId}/cover`;
+      view.personalization = { bindings: version.bindings, photoFrames: Number(Boolean(version.photoId)), layout: false };
+    }
+  } else {
+    const document = createDocument({ template });
+    view.personalization = { bindings: [...visibleBindingKeys(document)], photoFrames: document.elements.filter(isPhotoFrame).length, layout: true };
   }
   return view;
 }
@@ -27,8 +35,8 @@ export class CatalogService {
   }
   async search({ q = '', style = '' }) {
     let items = await this.publicList();
-    q = q.toLocaleLowerCase('vi');
-    if (q) items = items.filter(item => `${item.title} ${item.subtitle} ${item.creator}`.toLocaleLowerCase('vi').includes(q));
+    q = searchText(q.trim());
+    if (q) items = items.filter(item => [item.title, item.subtitle, item.creator, item.style, item.category].some(value => searchText(value).includes(q)));
     if (style && style !== 'Tất cả') items = items.filter(item => item.style === style);
     return items;
   }

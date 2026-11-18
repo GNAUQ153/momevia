@@ -167,6 +167,8 @@ try {
     const replay = await post(owner, '/gifts/gifts/from-design', publishBody); assert.equal(replay.replayed, true); assert.equal(replay.gift.slug, published.slug);
   });
   if (process.argv.includes('--browser')) {
+    const { runSenderIdentity } = await import('../browser/sender-identity.mjs');
+    await check('Creator template identity is isolated from preview data', () => runSenderIdentity(base));
     const template = (await request('/catalog/templates')).data.templates.find(item => item.price === 0);
     const { gift: expired } = await post(owner, '/gifts/gifts', { templateId: template.id, recipientName: 'Mai', senderName: 'An', message: 'Quà hết hạn tổng hợp.' }, 201);
     const legacyFile = path.join(fixture, 'services/gifts/data/gifts.json');
@@ -177,6 +179,8 @@ try {
     const { runCanvasBrowser } = await import('../browser/canvas.mjs'); await runCanvasBrowser(base, expired.slug);
     const { runCanvasResilience } = await import('../browser/canvas-resilience.mjs'); await runCanvasResilience(base);
     const { runCreatorJourney } = await import('../browser/creator-journey.mjs'); await runCreatorJourney(base);
+    const { runNewTemplates } = await import('../browser/new-templates.mjs');
+    await check('Mobile memory template, optional photo and two-envelope keyboard branching', () => runNewTemplates(base));
   }
   console.log(JSON.stringify({ gate: 'JSON API', cases, fixture: 'synthetic isolated single process', result: 'PASS' }));
 } catch (error) { console.error(logs); throw error; }

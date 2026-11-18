@@ -1,6 +1,7 @@
 import { escapeHtml as e, formatPrice } from "../core/api.js";
 import { icon } from "../ui/icons.js";
 import { basicTemplateDefinition, BASIC_TEMPLATE_REVISION } from '../shared/canvas/basic-templates.js';
+import { personalizationLabels } from '../shared/canvas/personalization.js';
 
 export function createComponents({ state }) {
   function artwork(template, variant = "") {
@@ -42,7 +43,7 @@ export function createComponents({ state }) {
       ${favoriteButton(template.id)}
       <div class="template-card__info"><div class="template-card__caption">${e(template.style)} <span class="dot-separator"></span> ${e(template.scenes)} cảnh</div>
         <a href="/template/${encodeURIComponent(template.id)}" data-link class="template-card__title">${e(template.title)}</a>
-        <p>${e(template.subtitle)}</p>
+        <p${template.personalization ? ' class="template-card__capabilities"' : ''}>${e(personalizationLabels(template.personalization).join(' · ') || template.subtitle)}</p>
         <div class="template-card__bottom"><span>${e(template.creator)}</span><strong>${formatPrice(template.price)}</strong></div>
       </div>
     </article>`;

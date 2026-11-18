@@ -1,5 +1,6 @@
 import { escapeHtml as e, formatPrice } from "../core/api.js";
 import { icon } from "../ui/icons.js";
+import { personalizationLabels } from "../shared/canvas/personalization.js";
 import {
   filterTemplates,
   styleOptions,
@@ -20,6 +21,7 @@ export function createCatalogViews({
       style: state.filter,
       search: state.search,
       freeOnly: state.freeOnly,
+      photoOnly: state.photoOnly,
     });
   }
   // Điều hướng trang dùng chung cho danh sách mẫu và danh sách yêu thích.
@@ -51,17 +53,17 @@ export function createCatalogViews({
   function explore() {
     // Tùy chọn phong cách lấy từ dữ liệu, không tạo hàng chip có thể tràn ngang.
     const styles = styleOptions(state.templates);
-    return `<section class="page-banner"><div class="container page-banner__inner"><span class="eyebrow">BỘ SƯU TẬP MOMEVIA</span><h1>Chọn một món quà <em>thật bạn.</em></h1><p>Mỗi mẫu là một cách kể chuyện. Chọn phong cách bạn yêu thích và biến nó thành lời chúc của riêng mình.</p></div></section>
-    <section class="section catalog-section"><div class="container">
-      <div class="catalog-toolbar"><div class="catalog-title"><h2>Thư viện quà tặng</h2><span id="catalog-count" aria-live="polite" aria-atomic="true">${countLabel(matchingTemplates().length)}</span></div>
-        <label class="search-field">${icon("search", 19)}<span class="visually-hidden">Tìm kiếm mẫu</span><input type="search" id="template-search" placeholder="Tìm tên mẫu, phong cách..." value="${e(state.search)}"/></label></div>
+    return `<section class="section catalog-section catalog-compact"><div class="container">
+      <div class="catalog-toolbar"><div class="catalog-title"><h1>Thư viện quà tặng</h1><span id="catalog-count" aria-live="polite" aria-atomic="true">${countLabel(matchingTemplates().length)}</span></div>
+        <label class="search-field">${icon("search", 19)}<span class="visually-hidden">Tìm kiếm mẫu</span><input type="search" id="template-search" placeholder="Tìm tên mẫu, dịp, phong cách…" value="${e(state.search)}"/></label></div>
       <div class="catalog-filters" role="group" aria-label="Bộ lọc thư viện">
         <label class="catalog-style-select"><span>${icon("filter", 17)} Phong cách</span><select id="style-filter" aria-label="Lọc theo phong cách">
           <option value="Tất cả" ${state.filter === "Tất cả" ? "selected" : ""}>Tất cả phong cách (${state.templates.length})</option>
           ${styles.map((item) => `<option value="${e(item.style)}" ${state.filter === item.style ? "selected" : ""}>${e(item.style)} (${item.count})</option>`).join("")}
         </select>${icon("chevron-down", 18)}</label>
-        <label class="catalog-free-filter"><input id="free-filter" type="checkbox" ${state.freeOnly ? "checked" : ""}/><span>Chỉ mẫu miễn phí</span></label>
-        <button type="button" class="catalog-reset" data-action="clear-filters">${icon("close", 15)} Đặt lại</button>
+        <label class="catalog-free-filter"><input id="free-filter" type="checkbox" ${state.freeOnly ? "checked" : ""}/><span>Miễn phí</span></label>
+        <label class="catalog-free-filter"><input id="photo-filter" type="checkbox" ${state.photoOnly ? "checked" : ""}/><span>Thay được ảnh</span></label>
+        <button type="button" class="catalog-reset" data-action="clear-filters">${icon("close", 15)} Bỏ lọc</button>
       </div>
       <div class="catalog-range" id="catalog-range" aria-live="polite">${(() => {
         const p = paginateTemplates(matchingTemplates(), state.catalogPage);
@@ -77,21 +79,23 @@ export function createCatalogViews({
   function templateDetail(template) {
     const version = template.versionId ? `&version=${encodeURIComponent(template.versionId)}` : "";
     return `<section class="detail-section"><div class="container">
-      <div class="breadcrumb"><a href="/explore" data-link>${icon("arrow-left", 17)} Thư viện mẫu</a><span>/</span><span>${e(template.title)}</span></div>
-      <div class="detail-grid"><div class="detail-art">${artwork(template, "artwork--detail")}<div class="detail-preview-label">${icon("eye", 17)} Xem trước thiết kế</div>
-        <button class="btn btn--outline btn--wide template-preview-trigger" type="button" data-template-preview>Trải nghiệm mẫu trước khi dùng ${icon('eye', 17)}</button><dialog class="template-preview-dialog" aria-label="Trải nghiệm mẫu ${e(template.title)}"><div class="template-preview-toolbar"><h2>${e(template.title)}</h2><button class="btn btn--outline" type="button" data-template-reset>Xem lại từ đầu</button><button class="btn btn--dark" type="button" data-template-close>Đóng</button></div><p class="template-preview-note">Nội dung minh họa. Lời đáp trong bản xem thử không được gửi đi.</p><div class="template-preview-player"></div></dialog>
-      </div>
-        <div class="detail-info"><span class="eyebrow">${e(template.style)} · ${e(template.scenes)} CẢNH TƯƠNG TÁC</span><h1>${e(template.title)}</h1><p class="detail-subtitle">${e(template.subtitle)}</p>
-        <div class="detail-divider"></div><div class="detail-meta"><span>${icon("user", 18)} Thiết kế bởi ${e(template.creator)}</span><span>${icon("gift", 18)} ${e(template.effect)}</span><span>${icon("shield", 18)} Mở link không cần đăng nhập</span></div>
-        <div class="detail-price-row"><div><small>Giá sử dụng mẫu</small><strong>${formatPrice(template.price)}</strong></div><span class="demo-label">${template.price === 0 ? 'Mẫu miễn phí' : 'Kiểm tra quyền trước khi xuất bản'}</span></div>
-        <div class="detail-favorite-row">${favoriteButton(template.id, "favorite-button--inline")}<span>Lưu mẫu để xem lại sau</span></div>
-        ${buttonLink(`/create/${encodeURIComponent(template.id)}?mode=quick${version}`, "Cá nhân hóa nhanh", "btn--dark btn--wide")}
-        ${buttonLink(`/create/${encodeURIComponent(template.id)}?mode=layout${version}`, "Chỉnh bố cục", "btn--outline btn--wide")}
-        <button class="btn btn--outline" data-action="report-content" data-kind="template" data-id="${e(template.id)}">Báo cáo mẫu</button>
-        <p class="helper-text">${icon("check-circle", 16)} Bạn có thể thay tên, ảnh và lời chúc. Không cần biết thiết kế.</p>
-        <div class="detail-note"><strong>Điều bạn sẽ nhận được</strong><p>Một món quà tương tác có đường link riêng, kèm khu vực để người nhận gửi lời hồi đáp. Nội dung sử dụng đúng phạm vi cá nhân hóa được cho phép.</p></div>
+      <div class="breadcrumb"><a href="/explore" data-link>${icon("arrow-left", 17)} Thư viện mẫu</a></div>
+      <div class="detail-grid"><div class="detail-info">
+        <h1>${e(template.title)}</h1>
+        <div class="detail-price-row"><strong>${formatPrice(template.price)}</strong></div>
+        <p>${e(personalizationLabels(template.personalization).join(' · '))}</p>
+        <div class="detail-start-actions">
+          ${buttonLink(`/create/${encodeURIComponent(template.id)}?mode=quick${version}`, "Dùng mẫu", "btn--dark", false)}
+          <button class="btn btn--outline" type="button" data-template-preview>Xem thử ${icon('eye', 17)}</button>
         </div>
+        <p class="detail-subtitle">${e(template.subtitle)}</p>
+        <p class="detail-meta">Thiết kế bởi ${e(template.creator)} · ${e(template.scenes)} cảnh</p>
+        <div class="detail-favorite-row">${favoriteButton(template.id, "favorite-button--inline")}<span>Lưu mẫu để xem lại sau</span></div>
+        ${buttonLink(`/create/${encodeURIComponent(template.id)}?mode=layout${version}`, template.personalization?.layout === false ? "Xem bố cục" : "Chỉnh bố cục", "btn--outline")}
+        <button class="btn btn--outline" data-action="report-content" data-kind="template" data-id="${e(template.id)}">Báo cáo mẫu</button>
+        </div><div class="detail-art">${artwork(template, "artwork--detail")}</div>
       </div>
+      <dialog class="template-preview-dialog" aria-label="Xem thử mẫu ${e(template.title)}"><div class="template-preview-toolbar"><h2>${e(template.title)}</h2><button class="btn btn--outline" type="button" data-template-reset>Xem lại từ đầu</button><button class="btn btn--dark" type="button" data-template-close>Đóng</button></div><p class="template-preview-note">Nội dung minh họa. Lời đáp trong bản xem thử được mô phỏng.</p><div class="template-preview-player"></div></dialog>
     </div></section>`;
   }
 

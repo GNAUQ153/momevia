@@ -4,8 +4,13 @@ import {
   validateDocument,
   insertPhotoFrame,
   isPhotoFrame,
+  assetIds,
 } from "../shared/canvas/index.js";
 import { mountPlayer } from "../features/gift-runtime/index.js";
+import { bindingLabels, clearTemplateBindingDefaults, lockedVisibleNames, visibleBindingKeys } from "../shared/canvas/personalization.js";
+import { submissionChanges } from "../shared/canvas/submission.js";
+import { giftLinkDescription } from "../shared/gift-permissions.js";
+import { framePhoto, MEMORY_TEMPLATE_ID, memoryGreetingStarters } from "../shared/canvas/basic-templates.js";
 import { materializeTemplateStart } from '../features/canvas-editor/template-start.js';
 import { createEditorStore } from "../features/canvas-editor/store.js";
 import { createSaveSession } from "../features/canvas-editor/session.js";
@@ -20,11 +25,6 @@ import {
 } from "../features/canvas-editor/dom.js";
 
 const newId = () => crypto.randomUUID();
-const bindingLabels = {
-  recipientName: "Tên người nhận",
-  senderName: "Tên người gửi",
-  message: "Lời chúc",
-};
 const stopKeys = (target) =>
   target?.closest('input,textarea,select,[contenteditable="true"]');
 
@@ -75,6 +75,7 @@ export function mountDesigner(
   const dialogs = new Set();
   let quickMode = mode === "quick" || (Boolean(templateId) && mode !== "layout");
   const ownerId = user?.sub || user?.id;
+  const modeKey = draftId => `momevia:canvas:mode:${ownerId}:${draftId}`;
   main.classList.add("editor-main");
   main.replaceChildren(
     node(
@@ -124,6 +125,11 @@ export function mountDesigner(
   }
   function saveStatus(info) {
     if (info.status === "clean") clearError();
+    if (info.revision > design.revision) {
+      design.reviewTemplateDefaults = false;
+      const note = main.querySelector(".editor-template-defaults");
+      if (note) note.hidden = true;
+    }
     markStatus(
       `${info.message}${info.status === "clean" ? ` · r${info.revision}` : ""}`,
     );
@@ -204,6 +210,11 @@ export function mountDesigner(
       !design.policy?.lockedElements?.[element.id]
     );
   }
+  function quickTemplateText(document) {
+    const id = design.source.templateId;
+    const name = id === MEMORY_TEMPLATE_ID ? "Chú thích ảnh" : id === "hai-phong-bi" ? "Nội dung kỷ niệm" : null;
+    return name ? document.elements.find(element => element.type === "text" && element.name === name && Object.hasOwn(element.props, "text")) : null;
+  }
 
   function syncDraftUrl() {
     const query = quickMode ? "?mode=quick" : "";
@@ -212,6 +223,9 @@ export function mountDesigner(
   }
 
   function showMode() {
+    if (design.source?.kind === "template") {
+      try { localStorage.setItem(modeKey(design.id), quickMode ? "quick" : "layout"); } catch { /* Optional cache. */ }
+    }
     const workspace = main.querySelector(".editor-workspace");
     workspace.classList.toggle("is-quick", quickMode);
     const mode = workspace.querySelector('[data-editor-action="toggle-mode"]');
@@ -307,6 +321,13 @@ export function mountDesigner(
             ),
       ),
       node("div", { class: "editor-quick-only" },
+        design.source.templateId === MEMORY_TEMPLATE_ID ? node("div", { class: "editor-greeting-starters" },
+          node("p", { class: "editor-help" }, "Thêm câu mở đầu vào lời chúc"),
+          ...memoryGreetingStarters.map((text, index) => button(text, "greeting-starter", { "data-index": index })),
+        ) : null,
+        quickTemplateText(store.get().document) ? input(
+          quickTemplateText(store.get().document).name, "quick-template-text", quickTemplateText(store.get().document).props.text, { maxlength: 500 },
+        ) : null,
         node("div", { class: "editor-quick-photo", hidden: true },
           field("Ảnh kỷ niệm", node("input", {
             type: "file",
@@ -314,6 +335,7 @@ export function mountDesigner(
             "data-editor-field": "quick-photo",
           })),
           node("p", { class: "editor-help" }, "PNG, JPEG hoặc WebP · Tối đa 2 MB"),
+          design.source.templateId === MEMORY_TEMPLATE_ID ? button("Bỏ ảnh cá nhân", "remove-frame-photo", { hidden: true }) : null,
         ),
       ),
       node("p", { class: "editor-help editor-layout-only" },
@@ -386,6 +408,12 @@ export function mountDesigner(
         "section",
         { class: "editor-workspace" },
         top,
+        design.policy?.kind === "creator-template" && lockedVisibleNames(design.document, design.policy.editableBindings).length
+          ? node("p", { class: "editor-help" }, "Lớp tên bị khóa của mẫu cũ sẽ để trống trong quà.")
+          : null,
+        design.reviewTemplateDefaults
+          ? node("p", { class: "editor-help editor-template-defaults", role: "status" }, "Đã bỏ chữ minh họa của mẫu cũ. Hãy xem lại nội dung rồi chọn Lưu nháp trước khi gửi.")
+          : null,
         node("div", { class: "editor-error", role: "alert", hidden: true }),
         node("div", { class: "editor-preflight", hidden: true }),
         node(
@@ -823,6 +851,14 @@ export function mountDesigner(
     renderScenes();
     renderAssets();
     main.querySelector(".editor-quick-photo").hidden = !quickPhotoFrame();
+    const removePhoto = main.querySelector('[data-editor-action="remove-frame-photo"]');
+    if (removePhoto) removePhoto.hidden = !framePhoto(doc, quickPhotoFrame());
+    const quickText = main.querySelector('[data-editor-field="quick-template-text"]');
+    if (quickText) {
+      const text = quickTemplateText(doc);
+      quickText.closest("label").hidden = !text;
+      if (text && quickText !== document.activeElement) quickText.value = text.props.text;
+    }
     if (
       !main.querySelector(".editor-inspector")?.contains(document.activeElement)
     )
@@ -848,6 +884,9 @@ export function mountDesigner(
     session?.dispose();
     stage?.dispose();
     design = loaded;
+    if (id && !templateId && !["quick", "layout"].includes(mode)) {
+      try { quickMode = localStorage.getItem(modeKey(id)) === "quick"; } catch { /* Optional cache. */ }
+    }
     quickMode = quickMode && design.source?.kind === "template";
     sceneId = design.document.entrySceneId;
     selection = null;
@@ -862,6 +901,11 @@ export function mountDesigner(
     shell();
     unsubscribe = store.subscribe(renderAll);
     const recovery = session.readRecovery();
+    if (recovery && design.policy?.kind === "creator-template") {
+      const editable = design.policy.editableBindings;
+      clearTemplateBindingDefaults(recovery.value.document, editable);
+      if (recovery.pending && clearTemplateBindingDefaults(recovery.pending.document, editable)) recovery.pending = null;
+    }
     if (
       recovery &&
       JSON.stringify(recovery.value) !== JSON.stringify(store.get())
@@ -1059,32 +1103,64 @@ export function mountDesigner(
       { signal },
     );
   }
-  async function flushSave() {
+  async function flushSave(options) {
     if (composing)
       throw new Error("Hoàn tất nhập tiếng Việt trước khi lưu hoặc xuất bản.");
     if (assetPending) throw new Error("Chờ ảnh xử lý xong trước khi tiếp tục.");
     if (!session) throw new Error("Thiết kế chưa sẵn sàng.");
-    return session.save();
+    return session.save(options);
   }
   async function submitTemplate() {
+    const workspace = `/catalog/creator/workspaces/${encodeURIComponent(design.id)}`;
+    const { previous } = await request(workspace + "/submission");
     const saved = await flushSave();
-    const { elements } = store.get().document;
+    if (session.dirty || session.revision !== saved.revision)
+      throw new Error("Nháp vừa thay đổi. Hãy mở lại hộp gửi duyệt.");
+    const snapshot = store.get();
+    const { elements } = snapshot.document;
     const visible = elements.filter(element => element.visible !== false && element.opacity !== 0);
-    const bindings = Object.entries(bindingLabels).filter(([key]) => visible.some(element => element.type === "text" && element.props.textBinding === key));
+    const keys = visibleBindingKeys(snapshot.document);
+    const bindings = Object.entries(bindingLabels).filter(([key]) => keys.has(key));
     const images = visible.filter(element => element.type === "image" && element.props.assetId);
-    const controls = bindings.map(([key, label]) => field(label, node("input", { type: "checkbox", value: key, checked: true, name: "binding" })));
-    const photo = select("Khung ảnh Sender được thay", "template-photo", "", [["", "Không có"], ...images.map((image, index) => [image.id, `${image.name || "Ảnh"} (${index + 1})`])]);
-    const rights = node("textarea", { name: "rights", required: elements.some(element => element.type === "image" && element.props.assetId), maxlength: 500 });
+    const currentAssets = assetIds(snapshot.document);
+    const canKeepRights = previous && currentAssets.length && currentAssets.every(id => previous.assetIds.includes(id));
+    const controls = bindings.map(([key, label]) => field(label, node("input", {
+      type: "checkbox", value: key, checked: !previous || previous.bindings.includes(key), name: "binding",
+    })));
+    const photo = select("Khung ảnh Sender được thay", "template-photo", images.some(image => image.id === previous?.photoId) ? previous.photoId : "",
+      [["", "Không có"], ...images.map((image, index) => [image.id, `${image.name || "Ảnh"} (${index + 1})`])]);
+    const photoSelect = photo.querySelector("select");
+    const scenes = snapshot.document.scenes;
+    const cover = select("Cảnh dùng làm bìa mẫu", "template-cover",
+      scenes.some(scene => scene.id === previous?.coverSceneId) ? previous.coverSceneId : snapshot.document.entrySceneId,
+      scenes.map(scene => [scene.id, scene.name]));
+    const coverSelect = cover.querySelector("select");
+    const rights = node("textarea", { name: "rights", maxlength: 500, value: canKeepRights ? previous.rights || "" : "" });
+    rights.required = currentAssets.length > 0;
+    const changes = node("ul", { "aria-label": "Thay đổi từ lần gửi trước", "aria-live": "polite" });
+    const identityWarning = node("p", { role: "status" });
     const form = node("form", {},
       node("h2", {}, "Gửi phiên bản để duyệt"),
-      node("p", {}, "Chọn nội dung Sender được sửa. Bản gửi duyệt dùng tên và lời chúc minh họa."),
-      ...controls, photo,
+      node("p", {}, "Chọn nội dung Sender được sửa. Tên và lời chúc minh họa chỉ dùng trong bản xem thử."),
+      identityWarning,
+      ...controls, photo, cover,
       rights.required ? field("Nguồn ảnh và quyền phân phối trong mẫu, quà", rights) : null,
+      previous ? node("section", {}, node("h3", {}, "Thay đổi từ lần gửi trước"), changes) : null,
       node("p", { role: "alert" }),
       node("button", { type: "submit", class: "editor-primary" }, "Gửi duyệt"),
       node("button", { type: "button" }, "Quay lại"),
     );
     const dialog = node("dialog", { class: "editor-preview-dialog", "aria-label": "Gửi phiên bản để duyệt" }, form);
+    const current = () => ({ title: snapshot.title, bindings: new FormData(form).getAll("binding"),
+      photoId: photoSelect.value || null, rights: rights.value.trim(), assetIds: currentAssets, coverSceneId: coverSelect.value });
+    const updateChanges = () => {
+      const selection = current();
+      identityWarning.textContent = lockedVisibleNames(snapshot.document, selection.bindings).length
+        ? "Mở quyền sửa các lớp tên đang hiển thị hoặc quay lại và đổi chúng thành chữ cố định trung tính." : "";
+      changes.replaceChildren(...submissionChanges(previous, selection).map(change => node("li", {}, change)));
+    };
+    form.addEventListener("input", updateChanges, { signal });
+    updateChanges();
     document.body.append(dialog);
     dialogs.add(dialog);
     const close = trapDialog(dialog, () => dialogs.delete(dialog));
@@ -1094,10 +1170,9 @@ export function mountDesigner(
       const submit = form.querySelector('button[type="submit"]');
       submit.disabled = true;
       try {
-        const inputs = new FormData(form);
-        await request(`/catalog/creator/workspaces/${encodeURIComponent(design.id)}/submit`, {
-          expectedRevision: saved.revision, bindings: inputs.getAll("binding"),
-          photoId: photo.querySelector("select").value || null, rights: rights.value,
+        const { bindings, photoId, rights, coverSceneId } = current();
+        await request(workspace + "/submit", {
+          expectedRevision: saved.revision, bindings, photoId, rights, coverSceneId,
         });
         close();
         navigate("/creator");
@@ -1111,17 +1186,28 @@ export function mountDesigner(
     const invite = ["invite", "Chỉ người có link mời"];
     const link = ["link", "Ai có link quà"];
     const choose = ["", "Chọn phạm vi"];
+    const descriptions = node("div", { role: "status" });
     const form = node("form", {},
       node("h2", {}, "Quyền truy cập món quà"),
       node("p", {}, "Link mời có thể được chuyển tiếp. Bạn luôn xem được hồi đáp trong Studio."),
       select("Ai được mở quà?", "open", "", [choose, link, invite]),
       select("Ai được gửi hồi đáp?", "send", "", [choose, link, invite, ["disabled", "Tắt hồi đáp"]]),
       select("Ai được đọc hồi đáp?", "read", "", [choose, link, invite, ["sender", "Chỉ người gửi"]]),
+      descriptions,
       node("button", { type: "submit", class: "editor-primary" }, "Xuất bản và lấy link"),
       node("button", { type: "button" }, "Quay lại"),
     );
     const controls = [...form.querySelectorAll("select")];
     controls.forEach(control => { control.required = true; });
+    const selection = () => Object.fromEntries(controls.map(control => [control.dataset.editorField, control.value]));
+    form.addEventListener("change", () => {
+      const access = selection();
+      const values = Object.values(access);
+      descriptions.replaceChildren();
+      if (!values.every(Boolean)) return;
+      descriptions.append(node("p", {}, `Link thường. ${giftLinkDescription(access, false)}`));
+      if (values.includes("invite")) descriptions.append(node("p", {}, `Link mời. ${giftLinkDescription(access, true)}`));
+    }, { signal });
     const dialog = node("dialog", { class: "editor-preview-dialog", "aria-label": "Quyền truy cập món quà" }, form);
     return new Promise(resolve => {
       let access;
@@ -1136,7 +1222,7 @@ export function mountDesigner(
       form.querySelector('button[type="button"]').addEventListener("click", close);
       form.addEventListener("submit", event => {
         event.preventDefault();
-        access = Object.fromEntries(controls.map(control => [control.dataset.editorField, control.value]));
+        access = selection();
         close();
       });
     });
@@ -1432,7 +1518,7 @@ export function mountDesigner(
       return;
     }
     if (name === "save" || name === "retry-save") {
-      await flushSave();
+      await flushSave({ force: Boolean(design.reviewTemplateDefaults) });
       return;
     }
     if (name === "undo") {
@@ -1458,6 +1544,28 @@ export function mountDesigner(
     }
     if (name === "fit") {
       fit();
+      return;
+    }
+    if (name === "greeting-starter") {
+      const starter = memoryGreetingStarters[Number(target.dataset.index)];
+      const message = store.get().document.bindings.message.value;
+      const next = message ? `${message}\n${starter}` : starter;
+      if (next.length > 1000) throw new Error("Lời chúc vượt 1.000 ký tự. Hãy rút ngắn trước khi chèn.");
+      commit(value => { value.document.bindings.message.value = next; }, "Chèn câu mở đầu");
+      const control = main.querySelector('[data-editor-field="binding.message"]');
+      control.focus();
+      control.setSelectionRange(next.length, next.length);
+      return;
+    }
+    if (name === "remove-frame-photo") {
+      const photo = framePhoto(store.get().document, quickPhotoFrame());
+      if (!photo) return;
+      commit(({ document }) => {
+        document.elements = document.elements.filter(element => element.id !== photo.id);
+        const scene = document.scenes.find(item => item.elementIds.includes(photo.id));
+        scene.elementIds = scene.elementIds.filter(elementId => elementId !== photo.id);
+        document.assets = document.assets.filter(asset => assetIds(document).includes(asset.assetId));
+      }, "Bỏ ảnh cá nhân");
       return;
     }
     if (name === "preview") {
@@ -1718,6 +1826,11 @@ export function mountDesigner(
           next.document.bindings[key.slice(8)].value = value;
           return;
         }
+        if (key === "quick-template-text") {
+          const text = quickTemplateText(next.document);
+          if (text) text.props.text = value;
+          return;
+        }
         if (key === "scene.name") {
           next.document.scenes.find((item) => item.id === sceneId).name = value;
           return;
@@ -1886,7 +1999,7 @@ export function mountDesigner(
       }
       if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "s") {
         event.preventDefault();
-        return flushSave();
+        return flushSave({ force: Boolean(design?.reviewTemplateDefaults) });
       }
       if (
         ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(

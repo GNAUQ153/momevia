@@ -48,6 +48,34 @@ test('canvas JSON create is owner-scoped and replay survives repository restart;
   await assert.rejects(f.service.get(other, first.design.id), status(404));
 });
 
+test('old Creator draft provenance clears locked demo values while keeping Sender names and already-sent snapshots', async t => {
+  const f = fixture(t);
+  const draft = await create(f);
+  const state = f.repository.read();
+  const saved = state.designs[draft.id];
+  saved.source = { kind: 'template', templateId: 'origin-old', templateVersionId: randomUUID() };
+  saved.provenance = { adapter: 'creator-v1', price: 0 };
+  saved.policy = { kind: 'creator-template', editableBindings: ['senderName', 'message'], photoId: null, lockedElements: {} };
+  saved.document.bindings.recipientName.value = 'Tên minh họa bất kỳ';
+  saved.document.bindings.senderName.value = 'An';
+  saved.document.bindings.message.value = 'Lời chúc đã viết.';
+  saved.documentHash = hash(saved.document);
+  const old = publicGiftView({ title: 'Quà đã gửi', recipientName: 'Tên minh họa bất kỳ', senderName: 'An',
+    documentSnapshot: saved.document, runtimeVersion: 1, expiresAt: '2100-01-01' });
+  f.repository.write(state);
+  const loaded = designView(await f.service.get(user, draft.id));
+  assert.equal(loaded.reviewTemplateDefaults, true);
+  assert.equal(loaded.document.bindings.recipientName.value, '');
+  assert.equal(loaded.document.bindings.senderName.value, 'An');
+  await assert.rejects(f.service.publish(user, publicationInput(loaded)), error => error.details.some(item => item.code === 'REVIEW_TEMPLATE_DEFAULTS'));
+  await f.service.save(user, draft.id, { expectedRevision: loaded.revision, mutationId: randomUUID(), title: loaded.title, document: loaded.document });
+  const clean = designView(await f.service.get(user, draft.id));
+  const { gift } = await f.service.publish(user, publicationInput(clean));
+  assert.equal(gift.recipientName, '');
+  assert.equal(gift.senderName, 'An');
+  assert.equal(old.documentSnapshot.bindings.recipientName.value, 'Tên minh họa bất kỳ');
+});
+
 test('create replay recovers committed result while source catalog is unavailable; duplicate replay after source archive', async t => {
   const f = fixture(t), input = { source: { kind: 'template', templateId: templates[0].id }, mutationId: randomUUID() };
   const first = await f.service.create(user, input); f.control.unavailable = true;

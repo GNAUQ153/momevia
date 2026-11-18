@@ -43,7 +43,7 @@ const {
   templateDetail,
   favoritesPage,
 } = createCatalogViews(viewContext);
-const { successPage, giftPage, renderReplies, dashboard, draftCards } =
+const { successPage, giftPage, renderReplies, dashboard, draftCards, studioDrafts, studioGifts, studioOrders } =
   createGiftViews(viewContext);
 const { creatorPage } = createCreatorViews(viewContext);
 const { adminPage } = createAdminViews(viewContext);
@@ -109,6 +109,21 @@ function requireLogin(path) {
   state.afterLogin = path;
   navigate("/login");
   return false;
+}
+function loadStudioSection(name, label, endpoint, view, signal) {
+  const section = document.getElementById(`studio-${name}-section`);
+  const load = async () => {
+    section.innerHTML = `<p role="status">Đang tải ${label}…</p>`;
+    try {
+      const result = await api.get(endpoint, { signal });
+      if (!signal.aborted) section.innerHTML = view(result);
+    } catch {
+      if (signal.aborted) return;
+      section.innerHTML = `<p role="alert">Chưa tải được ${label}.</p><button class="btn btn--outline" type="button">Thử lại</button>`;
+      section.querySelector("button").addEventListener("click", load, { once: true, signal });
+    }
+  };
+  return load();
 }
 async function render() {
   const generation = ++renderGeneration;
@@ -317,13 +332,15 @@ async function render() {
         main.innerHTML = errorPage("Đăng nhập để xem các món quà của bạn.");
         setTimeout(() => requireLogin("/studio"), 50);
       } else {
-        const [gifts, orders, drafts] = await Promise.all([
-          api.get("/gifts/gifts/mine"),
-          api.get("/checkout/orders"),
-          api.get("/designs/designs"),
+        const lifetime = new AbortController();
+        routeController = { dispose: () => lifetime.abort() };
+        main.innerHTML = dashboard();
+        await Promise.all([
+          loadStudioSection("drafts", "bản nháp", "/designs/designs", studioDrafts, lifetime.signal),
+          loadStudioSection("gifts", "quà đã gửi", "/gifts/gifts/mine", studioGifts, lifetime.signal),
+          loadStudioSection("orders", "lịch sử đơn hàng", "/checkout/orders", studioOrders, lifetime.signal),
         ]);
         if (generation !== renderGeneration) return;
-        main.innerHTML = dashboard(gifts.gifts, orders.orders, drafts.designs, drafts.nextOffset);
       }
     } else if (route === "favorites") {
       if (!state.user) {
@@ -349,13 +366,13 @@ async function render() {
         if (generation !== renderGeneration) return;
         routeController = mountReview(main, { version, endpoint, api, navigate });
       } else {
-        const [pending, tickets, versions] = await Promise.all([
+        const [pending, tickets, versions] = await Promise.allSettled([
           api.get("/catalog/admin/pending"),
           api.get("/support/admin/requests"),
           api.get("/catalog/admin/version-queue"),
         ]);
         if (generation !== renderGeneration) return;
-        main.innerHTML = adminPage(pending.templates, tickets.requests, state.user, versions.queue);
+        main.innerHTML = adminPage(pending.value?.templates ?? null, tickets.value?.requests ?? null, state.user, versions.value?.queue ?? null);
       }
     } else if (route === "about") main.innerHTML = aboutPage();
     else if (route === 'pricing') main.innerHTML = pricingPage();
@@ -533,6 +550,7 @@ async function copyText(trigger) {
   }
 }
 async function handleAction(action, element) {
+  if (action === "retry-admin-queues") return render();
   if (action === "duplicate-template" || action === "withdraw-template") {
     const withdraw = action === "withdraw-template";
     if (withdraw && !window.confirm("Rút mẫu khỏi thư viện? Người mới sẽ không thể chọn mẫu. Nháp đã tạo và quà đã gửi vẫn dùng được.")) return;
@@ -622,14 +640,14 @@ async function handleAction(action, element) {
   if (action === "clear-filters") {
     state.catalogPage = 1;
     state.filter = "Tất cả";
-    state.search = "";
     state.freeOnly = false;
-    const search = document.getElementById("template-search");
+    state.photoOnly = false;
     const style = document.getElementById("style-filter");
     const free = document.getElementById("free-filter");
-    if (search) search.value = "";
+    const photo = document.getElementById("photo-filter");
     if (style) style.value = "Tất cả";
     if (free) free.checked = false;
+    if (photo) photo.checked = false;
     syncCatalogResults();
     return;
   }
@@ -911,8 +929,8 @@ document.addEventListener("change", async (event) => {
     syncCatalogResults();
     return;
   }
-  if (event.target.id === "free-filter") {
-    state.freeOnly = event.target.checked;
+  if (["free-filter", "photo-filter"].includes(event.target.id)) {
+    state[event.target.id === "free-filter" ? "freeOnly" : "photoOnly"] = event.target.checked;
     state.catalogPage = 1;
     syncCatalogResults();
     return;

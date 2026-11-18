@@ -33,6 +33,15 @@ test('Không có kết quả và dữ liệu style có thể mở rộng', () =>
   assert.equal(styleOptions(expanded).some(s => s.style === 'Tân cổ điển'), true);
 });
 
+test('Tìm dịp gồm đ/Đ, kết hợp miễn phí và khung ảnh, giữ nguyên dấu của kết quả', () => {
+  const category = 'Đầy tháng';
+  const rows = [0, 1, 2].map(index => ({ id: index, title: 'Kỷ niệm', category, price: index === 2 ? 39000 : 0,
+    personalization: { photoFrames: index === 0 ? 0 : 1 } }));
+  for (const search of ['day thang', 'ĐẦY THÁNG'])
+    assert.deepEqual(filterTemplates(rows, { search, freeOnly: true, photoOnly: true }), [rows[1]]);
+  assert.equal(rows[1].category, 'Đầy tháng');
+});
+
 // Kiểm tra số lượng và thứ tự mẫu khi số lượng dữ liệu tăng.
 const paginationTemplates = Array.from({ length: 23 }, (_, index) => ({
   id: `mau-${index + 1}`,

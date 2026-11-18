@@ -4,6 +4,7 @@ export const state = {
   templates: [],
   filter: 'Tất cả',
   freeOnly: false,
+  photoOnly: false,
   search: '',
   catalogPage: 1,
   favoritePage: 1,

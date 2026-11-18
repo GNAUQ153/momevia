@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { randomUUID } from 'node:crypto';
-import { templates } from '../../src/modules/catalog/seed.mjs';
+import { templates, addedSystemTemplates } from '../../src/modules/catalog/seed.mjs';
 import { BASIC_TEMPLATES, createDocument, createBasicTemplate, templatePreviewDocument, validateDocument, canonicalStringify, duplicateDocument, insertPhotoFrame, LIMITS } from '../../web/js/shared/canvas/index.js';
 import { materializeTemplateStart } from '../../web/js/features/canvas-editor/template-start.js';
 import { previewSvg } from '../../scripts/build/template-previews.mjs';
@@ -15,8 +15,9 @@ function contrast(a, b) {
 
 test('all 12 shared template compositions are distinct, editable, deterministic and within v1 budgets', () => {
   const original = structuredClone(templates), signatures = new Set();
-  assert.equal(Object.keys(BASIC_TEMPLATES).length, 12);
-  for (const template of templates) {
+  assert.equal(Object.keys(BASIC_TEMPLATES).length, 14);
+  const addedIds = new Set(addedSystemTemplates.map(template => template.id));
+  for (const template of templates.filter(item => !addedIds.has(item.id))) {
     const d = createDocument({ template }); assert.equal(d.scenes.length, 3); assert(d.elements.length >= 18);
     assert.deepEqual(d, createDocument({ template })); assert.deepEqual(d, createBasicTemplate(template));
     assert(d.elements.some(e => e.type === 'reply')); assert(d.elements.some(e => ['envelope', 'gift-box'].includes(e.type)));
@@ -30,6 +31,25 @@ test('all 12 shared template compositions are distinct, editable, deterministic 
   assert.equal(signatures.size, 12); assert.deepEqual(templates, original);
   assert.equal(createBasicTemplate({ id: 'creator-metadata-only' }), null);
   assert.equal(createDocument({ template: { id: 'creator-metadata-only', theme: 'sky' } }).scenes.length, 3, 'legacy custom template fallback stays supported');
+});
+
+test('free memory cover and two-envelope branching validate independently', () => {
+  const [memory, envelopes] = ['mot-ky-niem', 'hai-phong-bi'].map(id => {
+    const template = templates.find(item => item.id === id);
+    assert.equal(template.price, 0);
+    return validateDocument(fill(createDocument({ template })), { mode: 'publish' });
+  });
+  assert.equal(memory.assets.length, 0);
+  assert(memory.elements.some(item => item.id === 'photo-caption'));
+  const cover = envelopes.scenes.find(scene => scene.id === envelopes.entrySceneId);
+  const forward = envelopes.elements.filter(item => cover.elementIds.includes(item.id) && item.type === 'envelope');
+  assert.deepEqual(forward.map(item => item.props.label), ['Một kỷ niệm', 'Một điều mình chúc bạn']);
+  assert.equal(new Set(forward.map(item => item.actions[0].targetSceneId)).size, 2);
+  for (const envelope of forward) {
+    const destination = envelopes.scenes.find(scene => scene.id === envelope.actions[0].targetSceneId);
+    assert(envelopes.elements.some(item => destination.elementIds.includes(item.id)
+      && item.actions?.some(action => action.targetSceneId === cover.id)));
+  }
 });
 
 test('body/button contrast stays readable on the scene background, including long-message reflow', () => {

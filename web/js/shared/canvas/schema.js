@@ -35,7 +35,7 @@ export function canonicalStringify(value) {
   return encode(value);
 }
 
-export function validateDocument(document, { mode = 'draft' } = {}) {
+export function validateDocument(document, { mode = 'draft', requiredBindings = BINDINGS } = {}) {
   enumeration(mode, 'mode', ['draft', 'publish']);
   preflightTree(document);
   const serialized = JSON.stringify(document);
@@ -51,8 +51,9 @@ export function validateDocument(document, { mode = 'draft' } = {}) {
   object(document.bindings, 'bindings', BINDINGS, BINDINGS);
   for (const key of BINDINGS) {
     const p = `bindings.${key}`, b = document.bindings[key]; object(b, p, ['type', 'value'], ['type', 'value']); enumeration(b.type, `${p}.type`, ['text']);
-    string(b.value, `${p}.value`, key === 'message' ? 1000 : 60, mode === 'publish' ? 1 : 0);
-    if (mode === 'publish' && !b.value.trim()) fail(`${p}.value`, 'Nội dung bắt buộc chưa được nhập.', 'BINDING_REQUIRED');
+    string(b.value, `${p}.value`, key === 'message' ? 1000 : 60);
+    if (mode === 'publish' && requiredBindings.includes(key) && !b.value.trim())
+      fail(`${p}.value`, 'Nội dung bắt buộc chưa được nhập.', 'BINDING_REQUIRED');
   }
   array(document.assets, 'assets', LIMITS.assets); const assets = new Set();
   for (const [i, a] of document.assets.entries()) { const p = `assets.${i}`; object(a, p, ['assetId', 'kind'], ['assetId', 'kind']); id(a.assetId, `${p}.assetId`); enumeration(a.kind, `${p}.kind`, ['image']); if (assets.has(a.assetId)) fail(p, 'Asset trùng ID.'); assets.add(a.assetId); }
@@ -129,7 +130,7 @@ export function duplicateDocument(document, { idFactory = () => globalThis.crypt
 
 // Build an explicit public allowlist; private envelope/policy/view state never crosses here.
 export function publicDocument(document) {
-  const d = validateDocument(document, { mode: 'publish' });
+  const d = validateDocument(document, { mode: 'publish', requiredBindings: [] });
   return {
     schemaVersion: d.schemaVersion, registryVersion: d.registryVersion, artboard: d.artboard, entrySceneId: d.entrySceneId,
     bindings: d.bindings, assets: d.assets.filter(a => assetIds(d).includes(a.assetId)), scenes: d.scenes,

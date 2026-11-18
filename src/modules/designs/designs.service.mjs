@@ -2,6 +2,7 @@ import { createHash, randomUUID } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { validateDocument, canonicalStringify, createDocument, duplicateDocument, assetIds, publicDocument } from '../../../web/js/shared/canvas/index.js';
+import { bindingLabels, clearTemplateBindingDefaults, lockedVisibleNames } from '../../../web/js/shared/canvas/personalization.js';
 import { randomId } from '../../shared/security.mjs';
 import { canvasError, fields, owned, revision, uuid } from './errors.mjs';
 import { createGiftAccess, giftStatus } from '../gifts/access.mjs';
@@ -13,7 +14,11 @@ function title(value) {
   return value.trim();
 }
 export function designView(d) {
-  return { id: d.id, title: d.title, source: copy(d.source), policy: copy(d.policy), purpose: d.provenance?.purpose, revision: d.revision, schemaVersion: d.document.schemaVersion, document: copy(d.document), documentHash: d.documentHash, createdAt: d.createdAt, updatedAt: d.updatedAt };
+  const document = copy(d.document);
+  const reviewTemplateDefaults = d.source.kind === 'template' && d.source.templateVersionId && d.provenance?.adapter === 'creator-v1'
+    && d.policy?.kind === 'creator-template' && clearTemplateBindingDefaults(document, d.policy.editableBindings);
+  return { id: d.id, title: d.title, source: copy(d.source), policy: copy(d.policy), purpose: d.provenance?.purpose, revision: d.revision, schemaVersion: document.schemaVersion, document, documentHash: d.documentHash,
+    ...(reviewTemplateDefaults ? { reviewTemplateDefaults } : {}), createdAt: d.createdAt, updatedAt: d.updatedAt };
 }
 export const designSummary = d => ({ id: d.id, title: d.title, revision: d.revision, sourceKind: d.source.kind, updatedAt: d.updatedAt, createdAt: d.createdAt });
 export function giftSummary(gift) {
@@ -83,7 +88,7 @@ export class DesignsService {
       for (const element of document.elements) {
         if (element.type === 'image' && element.props.assetId) element.props.assetId = mapping.get(element.props.assetId);
       }
-      for (const key of resolved.version.bindings) document.bindings[key].value = '';
+      clearTemplateBindingDefaults(document);
       const photoId = resolved.version.photoId;
       policy = { kind: 'creator-template', editableBindings: resolved.version.bindings, photoId,
         lockedElements: Object.fromEntries(document.elements.map(element => [element.id, { editableProps: element.id === photoId ? ['assetId'] : [] }])) };
@@ -105,7 +110,9 @@ export class DesignsService {
         if (photo) photo.props.assetId = null;
         return canonicalStringify(comparable);
       };
-      if (normalize(current.document) !== normalize(document) || document.assets.length !== assetIds(document).length)
+      const before = copy(current.document);
+      clearTemplateBindingDefaults(before, current.policy.editableBindings);
+      if (normalize(before) !== normalize(document) || document.assets.length !== assetIds(document).length)
         throw canvasError(403, 'LOCKED_ELEMENT', 'Mẫu chỉ cho chỉnh các vùng cá nhân hóa đã duyệt.');
       return;
     }
@@ -143,7 +150,7 @@ export class DesignsService {
     this.requireEdit(); fields(input, ['mutationId']); uuid(input.mutationId);
     const previous = await this.repository.findCreate(user.sub, input.mutationId, hash({ duplicateOf: id, ...input }));
     if (previous) return { ...previous, design: designView(previous.design) };
-    const current = await this.get(user, id); const document = duplicateDocument(current.document, { idFactory: () => randomUUID() });
+    const current = await this.get(user, id); const document = duplicateDocument(designView(current).document, { idFactory: () => randomUUID() });
     const mapping = new Map(current.document.elements.map((e, i) => [e.id, document.elements[i].id]));
     const policy = copy(current.policy); policy.lockedElements = Object.fromEntries(Object.entries(policy.lockedElements || {}).map(([key, value]) => [mapping.get(key) || key, value]));
     if (policy.photoId) policy.photoId = mapping.get(policy.photoId);
@@ -156,9 +163,12 @@ export class DesignsService {
   async check(design, { getAsset = id => this.repository.getAsset(design.ownerId, id), hasLicense = (owner, template) => this.checkout.hasLicense(owner, template), getTemplate = id => this.catalog.getTemplate(id) } = {}) {
     if (design.provenance?.purpose === 'creator') throw canvasError(403, 'CREATOR_DRAFT', 'Gửi bản mẫu qua Creator Studio để Admin duyệt.');
     const blockers = []; let authorization = { status: 'allowed', reasonCodes: [] }; let template = null;
-    try { validateDocument(design.document, { mode: 'publish' }); } catch (error) { blockers.push(...(error.details || [{ path: 'document', code: 'INVALID_DOCUMENT', message: error.message }])); }
+    const { document, reviewTemplateDefaults } = designView(design);
+    const editable = design.policy?.kind === 'creator-template' ? design.policy.editableBindings : null;
+    if (reviewTemplateDefaults) blockers.push({ path: 'document.bindings', code: 'REVIEW_TEMPLATE_DEFAULTS', message: 'Xem lại nội dung sau khi bỏ chữ minh họa của mẫu cũ, rồi lưu bản nháp để gửi.' });
+    try { validateDocument(document, { mode: 'publish', requiredBindings: [] }); } catch (error) { blockers.push(...(error.details || [{ path: 'document', code: 'INVALID_DOCUMENT', message: error.message }])); }
     // Apply this rule to new publications. Existing gift snapshots use the reader's structural validation.
-    const { bindings, elements } = design.document;
+    const { bindings, elements } = document;
     const hasContent = elements.some(element => {
       if (element.visible === false || element.opacity === 0) return false;
       if (element.type === 'text') {
@@ -188,11 +198,14 @@ export class DesignsService {
     if (authorization.status !== 'allowed') blockers.push({ path: 'source', code: authorization.reasonCodes[0], message: 'Thiết kế chưa có quyền xuất bản.' });
     const values = design.document.bindings;
     for (const [key, max] of [['recipientName', 60], ['senderName', 60], ['message', 1000]]) {
+      if (editable && !editable.includes(key)) continue;
       const v = values[key]?.value;
-      if (typeof v !== 'string' || !v.trim() || v.length > max) blockers.push({ path: `bindings.${key}`, code: 'BINDING_REQUIRED', message: `Nhập ${key} (tối đa ${max} ký tự).` });
+      if (typeof v !== 'string' || !v.trim() || v.length > max) blockers.push({ path: `bindings.${key}`, code: 'BINDING_REQUIRED', message: `Điền ${bindingLabels[key].toLocaleLowerCase('vi')} (tối đa ${max} ký tự).` });
     }
     return { designId: design.id, revision: design.revision, documentHash: hash(design.document), authorization, canPublish: authorization.status === 'allowed' && blockers.length === 0,
-      blockers, warnings: [], summary: { sceneCount: design.document.scenes.length, assetCount: assetIds(design.document).length }, ...(template ? { template: { id: template.id, title: template.title, price: template.price } } : {}) };
+      blockers, warnings: editable && lockedVisibleNames(document, editable).length
+        ? [{ path: 'document.bindings', code: 'LOCKED_NAMES_OMITTED', message: 'Lớp tên bị khóa của mẫu cũ sẽ để trống khi gửi.' }] : [],
+      summary: { sceneCount: document.scenes.length, assetCount: assetIds(document).length }, ...(template ? { template: { id: template.id, title: template.title, price: template.price } } : {}) };
   }
   assetPath(asset) {
     if (!/^[\da-f-]{36}\.(png|jpg|webp)$/.test(asset.storageKey)) throw canvasError(404, 'ASSET_NOT_FOUND', 'Không tìm thấy ảnh.');

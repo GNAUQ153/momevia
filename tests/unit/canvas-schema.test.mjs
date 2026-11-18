@@ -11,7 +11,7 @@ function complete(presetId = 'envelope-basic') {
 }
 function add(d, element) { d.elements.push(element); d.scenes[0].elementIds.push(element.id); return d; }
 
-test('canvas schema is lossless, Unicode-safe and accepts all 12 legacy presets without mutating templates', () => {
+test('canvas schema is lossless, Unicode-safe and accepts all 14 presets without mutating templates', () => {
   const original = structuredClone(templates);
   for (const template of templates) {
     const d = createDocument({ template }); assert.equal(d.scenes.length, 3);

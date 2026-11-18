@@ -99,6 +99,11 @@ body.is-designing #main {
   background: #f1ebff;
   border-color: #a98ce7;
 }
+.editor-preview-dialog .gift-runtime-control {
+  color: var(--white);
+  font: inherit;
+  font-weight: 700;
+}
 .editor-workspace button:disabled {
   opacity: 0.45;
   cursor: default;

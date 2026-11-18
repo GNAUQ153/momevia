@@ -73,11 +73,12 @@ export function createSaveSession({
       setStatus(flight ? "saving" : dirty() ? "dirty" : "clean");
     schedule();
   });
-  async function write() {
+  async function write(force) {
     if (disposed) throw new Error("Editor đã đóng.");
     if (["conflict", "session-expired"].includes(status))
       throw new Error(messages[status]);
-    while (pending || dirty()) {
+    while (pending || dirty() || force) {
+      force = false;
       if (!pending)
         pending = {
           expectedRevision: revision,
@@ -136,10 +137,10 @@ export function createSaveSession({
     setStatus("clean");
     return { revision, documentHash };
   }
-  function save() {
+  function save({ force = false } = {}) {
     clearTimeout(timer);
     if (flight) return flight;
-    flight = write().finally(() => {
+    flight = write(force).finally(() => {
       flight = null;
     });
     return flight;

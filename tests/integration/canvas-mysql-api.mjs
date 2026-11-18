@@ -76,8 +76,8 @@ try{
     PAYMENT_ENABLED:'false',PAYMENT_LIVE_ENABLED:'false',CANVAS_READ_ENABLED:'true',CANVAS_EDIT_ENABLED:'true',CANVAS_PUBLISH_ENABLED:'true',
     PUBLIC_BASE_URL:'http://127.0.0.1',TEST_ACCOUNT_ENABLED:'false'});
   process.chdir(fixture);
-  const {templates}=await import(pathToFileURL(path.join(fixture,'src/modules/catalog/seed.mjs')).href);
-  for(const t of templates)await admin.execute(`INSERT INTO templates(id,title,style,theme,price_vnd,status,created_at,payload) VALUES (?,?,?,?,?,'published',UTC_TIMESTAMP(3),?)`,[t.id,t.title,t.style,t.theme,t.price,JSON.stringify({...t,status:'published',creatorId:'system'})]);
+  const {templates,addedSystemTemplates}=await import(pathToFileURL(path.join(fixture,'src/modules/catalog/seed.mjs')).href);
+  for(const t of templates.filter(template => !addedSystemTemplates.some(added => added.id === template.id)))await admin.execute(`INSERT INTO templates(id,title,style,theme,price_vnd,status,created_at,payload) VALUES (?,?,?,?,?,'published',UTC_TIMESTAMP(3),?)`,[t.id,t.title,t.style,t.theme,t.price,JSON.stringify({...t,status:'published',creatorId:'system'})]);
   const {createHttpApp}=await import(pathToFileURL(path.join(fixture,'src/server/app.mjs')).href);
   ({HttpError:FixtureHttpError}=await import(pathToFileURL(path.join(fixture,'src/shared/http.mjs')).href));
   const {createElement}=await import(pathToFileURL(path.join(fixture,'web/js/shared/canvas/index.js')).href);
@@ -143,8 +143,9 @@ try{
     assert.equal((await request(`/api/gifts/gifts/${blankGift.slug}/assets/${imageAsset.id}`)).status,200);
     assert.equal(providerCreates,0,'Blank must create no checkout');
   });
-  await check('C02 all 12 real legacy presets adapt without changing Catalog; free template publishes',async()=>{
+  await check('C02 legacy catalog adds only two seeds; all 14 presets adapt, free template publishes',async()=>{
     const originals=JSON.stringify((await json('/api/catalog/templates')).templates);
+    assert.equal(JSON.parse(originals).length,14);
     for(const template of templates){const d=await create({kind:'template',templateId:template.id});assert.equal(d.source.templateId,template.id);assert.equal(d.document.scenes.length,3);}
     const free=await create({kind:'template',templateId:'confetti'});const saved=await save(free,fill(free));assert.equal((await preflight(saved)).canPublish,true);
     await post('/api/gifts/gifts/from-design',cookie,publishBody(saved),201);
@@ -251,6 +252,10 @@ try{
     });
   }
   let restoreGift;
+  if (process.argv.includes('--browser')) await check('Creator template identity is isolated from preview data on MySQL', async () => {
+    const { runSenderIdentity } = await import('../browser/sender-identity.mjs');
+    await runSenderIdentity(base);
+  });
   if (process.argv.includes('--browser')) await check('Creator birthday template V1/V2, real UI and MySQL', async () => {
     const { runCreatorJourney } = await import('../browser/creator-journey.mjs');
     restoreGift = await runCreatorJourney(base);

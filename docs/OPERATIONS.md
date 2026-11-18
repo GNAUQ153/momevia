@@ -10,8 +10,6 @@ Chạy `npm ci`, `npm run build` rồi `npm start`. Ứng dụng mặc định n
 
 JSON là mặc định và dùng một backend process. Khi dùng MySQL 8.4, canvas cần Identity/Catalog/Designs/Gifts cùng profile. Mẫu trả phí cần Checkout cùng profile. Support có adapter riêng. Cờ storage quyết định kho sử dụng, dữ liệu chỉ chuyển qua quy trình import.
 
-- Dựng schema mới theo thứ tự số từ **001** đến **007** trong [database/migrations](../database/migrations/). Migration 006 bổ sung canvas, snapshot và pin. Migration 007 bổ sung đối tượng báo cáo, người xử lý và kết quả Support.
-- Trước khi nâng schema đang dùng, sao lưu DB và ảnh cùng mốc rồi thử khôi phục trên đích mới. Đối chiếu ledger bằng `npm run db:ping` và `npm run db:verify`. MySQL DDL có implicit commit. Nếu dừng giữa chừng, xác minh cột, constraint và ledger trước khi sửa tiếp.
 - Lập kế hoạch import bằng `npm run db:import:identity-catalog` và `npm run db:import:gifts-checkout`. Dùng `-- --apply` sau khi kiểm nguồn, đích và backup. Importer legacy từ chối aggregate canvas có nội dung. Giữ ID, FK và ảnh legacy.
 - Có thể tạm dừng ghi qua `CANVAS_EDIT_ENABLED=false` và `CANVAS_PUBLISH_ENABLED=false`. Giữ `CANVAS_READ_ENABLED=true` cho quà đã gửi. Trước rollback binary, kiểm khả năng đọc snapshot hiện có.
 
@@ -24,6 +22,43 @@ node scripts/dev/canvas-backup.mjs restore --source <backup-dir> --target <new-d
 ```
 
 Sao lưu phối hợp Identity, Catalog, Checkout, Gifts legacy, Support và các ảnh tương ứng. `database/scripts/canvas-backup.mjs` diễn tập trên MySQL QA và xác minh schema, container, checksum và file ảnh. [Kịch bản khôi phục](SENDER_CREATOR_BETA.md#khôi-phục-và-vận-hành)
+
+### Nâng schema MySQL từ terminal
+
+Chạy từ thư mục gốc repo. Nếu các module của môi trường đang dùng JSON thì bỏ qua migration MySQL. Với môi trường dùng MySQL, repo áp dụng các file SQL trong [database/migrations](../database/migrations/) theo thứ tự số. Migration `006_canvas` bổ sung canvas, snapshot và pin. Migration `007_support_reports` bổ sung đối tượng báo cáo, người xử lý và kết quả Support.
+
+**1. Xác nhận máy chủ, schema và migration đã áp dụng.** Chạy `npm run db:ping` để kiểm tra tài khoản ứng dụng. Nếu gặp `ER_ACCESS_DENIED_ERROR`, đối chiếu `MYSQL_HOST`, `MYSQL_PORT` và tài khoản trên đúng máy chủ. Khi chạy Docker Compose, dùng `docker compose --env-file .env -f database/compose.yml ps` để xem cổng host của dịch vụ `db`. Mỗi máy chủ quản lý tài khoản riêng.
+
+Trong PowerShell, dùng `mysql.exe` trong `PATH` hoặc điền đường dẫn đầy đủ. Thay các giá trị ví dụ trong `$dbArgs` bằng cấu hình của DB đích và tài khoản có quyền migration. `--password` sẽ hỏi mật khẩu trong terminal.
+
+```powershell
+$mysql = 'mysql.exe'
+# Ví dụ khi mysql.exe chưa có trong PATH
+# $mysql = 'C:/Program Files/MySQL/MySQL Server 8.0/bin/mysql.exe'
+$dbArgs = @('--no-defaults', '--protocol=TCP', '--host=127.0.0.1', '--port=3306', '--user=momevia', '--password', '--default-character-set=utf8mb4', '--database=momevia_dev')
+& $mysql @dbArgs --execute='SELECT @@hostname AS server_host, VERSION() AS server_version, DATABASE() AS schema_name, CURRENT_USER() AS db_account; SELECT version, applied_at FROM schema_migrations ORDER BY version;'
+```
+
+Nếu bảng `schema_migrations` chưa có, chạy `SHOW TABLES` trên cùng schema. Chỉ bắt đầu từ `001` với schema mới, rỗng. Nếu schema đã có bảng ứng dụng hoặc ledger bị hổng số, kiểm tra trạng thái schema trước khi áp dụng tiếp.
+
+**2. Sao lưu và áp dụng từng file còn thiếu.** Sao lưu DB và ảnh cùng mốc, rồi thử khôi phục trên đích riêng trước khi nâng schema đang dùng. Khi ledger đã có đầy đủ `001`–`006` và thiếu `007`, chạy:
+
+```powershell
+& $mysql @dbArgs --execute='source database/migrations/007_support_reports.sql'
+```
+
+Nếu thiếu nhiều file, thay tên file trong lệnh trên và chạy từng file theo thứ tự tăng dần. Dừng khi terminal báo lỗi hoặc `$LASTEXITCODE` khác `0`. MySQL DDL có implicit commit. Khi migration dừng giữa chừng, đối chiếu cột, constraint và ledger trước khi chạy lại.
+
+Khi Catalog khởi động, ứng dụng bổ sung hai mẫu hệ thống mới còn thiếu theo ID và bảo toàn bản ghi đã có.
+
+**3. Xác minh sau khi chạy.** Lặp lại truy vấn ledger ở bước 1. Với `007`, kiểm tra ledger có `007_support_reports` và bảng `support_requests` có đủ bốn cột mới:
+
+```powershell
+& $mysql @dbArgs --execute="SELECT COLUMN_NAME FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'support_requests' AND COLUMN_NAME IN ('report_kind', 'report_target', 'assigned_to', 'resolution') ORDER BY COLUMN_NAME;"
+npm run db:verify
+```
+
+`npm run db:verify` dùng cấu hình ứng dụng và kiểm tra bắt buộc đến `005`. Dùng truy vấn ledger để xác nhận `006` và `007`. Dữ liệu từ kho JSON chuyển sang MySQL qua các lệnh import ở trên.
 
 ## CI và phát hành
 

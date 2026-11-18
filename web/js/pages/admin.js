@@ -25,11 +25,12 @@ export function createAdminViews() {
                   (t) => `<article class="support-admin__item">
           <strong>${e(t.code)} · ${e(t.topic)}</strong><span>${e(t.name)} · ${e(t.email)}</span>
           <p>${e(t.message)}</p><small>${new Date(t.createdAt).toLocaleString("vi-VN")}</small>
-          ${t.reportKind ? `<p>${t.reportKind === "gift" ? "Quà" : "Mẫu"} · ${e(t.reportTarget)} · ${e(({ new: "Mới", in_progress: "Đang xử lý", resolved: "Đã xử lý" })[t.status])}</p>
+          ${t.reportKind ? `<p>Báo cáo ${t.reportKind === "gift" ? "quà" : "mẫu"} · ${e(t.reportTarget)}</p>` : ''}
+          <p>Trạng thái: ${e(({ new: "Mới", in_progress: "Đang xử lý", resolved: "Đã xử lý" })[t.status] || t.status)}</p>
           ${t.assignedTo ? `<p>Người xử lý: ${e(t.assignedTo === (user?.id || user?.sub) ? user.name : t.assignedTo)}</p>` : ''}
           ${t.resolution ? `<p>Kết quả: ${e(t.resolution)}</p>` : ''}
           ${t.status === "new" ? `<button class="btn btn--outline" data-action="claim-report" data-id="${e(t.id)}">Nhận xử lý</button>` : ''}
-          ${t.status === "in_progress" && t.assignedTo === (user?.id || user?.sub) ? `<button class="btn btn--dark" data-action="resolve-report" data-id="${e(t.id)}">Ghi kết quả</button>` : ''}` : ''}
+          ${t.status === "in_progress" && t.assignedTo === (user?.id || user?.sub) ? `<button class="btn btn--dark" data-action="resolve-report" data-id="${e(t.id)}">Ghi kết quả</button>` : ''}
         </article>`,
                 )
                 .join("")}</div>`

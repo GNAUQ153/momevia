@@ -68,7 +68,7 @@ Các path dưới đây tương đối với `/api`. Methods vẫn GET/POST; err
 | GET | `/checkout/payments/orders/:orderId/design-contexts/:contextId` | Owner context verified, resumePath nội bộ/currentRevision/changed |
 | GET | `/checkout/payments/methods` | Public provider availability; profile demo có thể trả demoPurchaseAvailable |
 | POST | `/checkout/payments/create` | Login, templateId/method; amount server; provider có điều kiện cấu hình |
-| GET | `/checkout/payments/orders/:orderId` | Owner status server; không tin return/cancel URL |
+| GET | `/checkout/payments/orders/:orderId` | Owner status server, thêm `pendingSince`/`needsReview`/`notice` cho giao dịch chờ lâu; không tự hủy giao dịch hoặc bỏ khóa |
 | GET | `/checkout/payments/orders/:orderId/receipt` | Owner paid receipt; lỗi receipt không đổi paid status |
 | POST | `/checkout/payments/webhooks/payos` hoặc `/momo` | Provider signature, giữ settlement/receipt foundation |
 
@@ -90,6 +90,6 @@ Document/schema v1 và canonical hash giữ array order, sắp xếp object keys
 | POST | `/gifts/gifts/mine/:slug/revoke` | Chủ quà; thu hồi link, gọi lặp ổn định |
 | POST | `/support/requests` | Báo cáo qua reportKind, reportId và invite nếu cần |
 | GET | `/support/admin/requests` | Admin; xem trạng thái và người xử lý |
-| POST | `/support/admin/requests/:id/resolve` | Admin; action claim hoặc resolve cùng resolution |
+| POST | `/support/admin/requests/:id/resolve` | Admin; action claim hoặc resolve cùng resolution; dùng được cho báo cáo **và** ticket hỗ trợ thông thường, người nhận xử lý mới được đóng |
 
 Quyền link mời được áp dụng cho quà, ảnh và hồi đáp. Creator/Admin xem ảnh demo theo phiên bản. Ảnh cá nhân của Sender dùng endpoint nháp riêng và chỉ xuất hiện trong quà được pin.

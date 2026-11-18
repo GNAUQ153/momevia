@@ -37,17 +37,30 @@ export class SupportService {
     await this.repo.insert(ticket);
     return { code: ticket.code, status: ticket.status };
   }
-  async updateReport(user, id, data) {
-    if (user.role !== 'admin') throw new HttpError(403, 'Chỉ quản trị viên được xử lý báo cáo.');
-    const ticket = (await this.repo.all()).find(item => item.id === id && item.reportKind);
-    if (!ticket) throw new HttpError(404, 'Không tìm thấy báo cáo.');
+  async updateRequest(user, id, data) {
+    if (user.role !== 'admin') throw new HttpError(403, 'Chỉ quản trị viên được xử lý yêu cầu.');
+    const ticket = (await this.repo.all()).find(item => item.id === id);
+    if (!ticket) throw new HttpError(404, 'Không tìm thấy yêu cầu hỗ trợ.');
     const claim = data.action === 'claim' && ticket.status === 'new';
     const resolve = data.action === 'resolve' && ticket.status === 'in_progress' && ticket.assignedTo === user.sub;
-    if (!claim && !resolve) throw new HttpError(409, 'Báo cáo đã được xử lý hoặc giao cho quản trị viên khác.');
-    const patch = { assignedTo: user.sub, status: claim ? 'in_progress' : 'resolved', resolution: claim ? null : sanitizeText(data.resolution, 500) };
-    if (this.repo.updateReport) {
-      if (!await this.repo.updateReport(id, patch, ticket)) throw new HttpError(409, 'Báo cáo vừa thay đổi. Tải lại trước khi xử lý.');
-    } else this.repo.update(id, patch);
+    if (!claim && !resolve) throw new HttpError(409, 'Yêu cầu đã được xử lý hoặc giao cho quản trị viên khác.');
+    const resolution = claim ? null : sanitizeText(data.resolution, 500);
+    if (resolve && !resolution) throw new HttpError(422, 'Cần ghi kết quả xử lý trước khi đóng yêu cầu.');
+    const patch = { assignedTo: user.sub, status: claim ? 'in_progress' : 'resolved', resolution };
+    if (this.repo.updateRequest || this.repo.updateReport) {
+      const update = this.repo.updateRequest || this.repo.updateReport;
+      if (!await update.call(this.repo, id, patch, ticket)) throw new HttpError(409, 'Yêu cầu vừa thay đổi. Tải lại trước khi xử lý.');
+    } else if (this.repo.mutate) {
+      let applied = false;
+      const updated = await this.repo.mutate(id, current => {
+        if (current.status !== ticket.status || (current.assignedTo || null) !== (ticket.assignedTo || null)) return null;
+        applied = true;
+        return patch;
+      });
+      if (!updated || !applied) throw new HttpError(409, 'Yêu cầu vừa thay đổi. Tải lại trước khi xử lý.');
+    } else throw new Error('Support repository thiếu cập nhật có kiểm soát trạng thái.');
     return { status: patch.status };
   }
+  // Backward-compatible name for existing report routes and tests.
+  async updateReport(user, id, data) { return this.updateRequest(user, id, data); }
 }

@@ -37,12 +37,13 @@ export class MySqlSupportRepository {
     return ticket;
   }
 
-  async updateReport(id, patch, expected) {
+  async updateRequest(id, patch, expected) {
     const [result] = await this.client.execute(`UPDATE support_requests SET status=?, assigned_to=?, resolution=?
-      WHERE id=? AND report_kind IS NOT NULL AND status=? AND assigned_to <=> ?`,
+      WHERE id=? AND status=? AND assigned_to <=> ?`,
     [patch.status, patch.assignedTo, patch.resolution, id, expected.status, expected.assignedTo || null]);
     return result.affectedRows === 1;
   }
+  async updateReport(id, patch, expected) { return this.updateRequest(id, patch, expected); }
 
   async close() { await this.client.close(); }
 }

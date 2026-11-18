@@ -176,6 +176,10 @@ export class CreatorTemplates {
   async reusable(id, versionId) {
     const template = await this.repository.get(id);
     if (!template?.creatorDesignId) return null;
+    // Previously approved snapshots are still retained for existing gifts, but a
+    // withdrawn/unpublished template must not be used for a NEW regift/draft.
+    if (template.withdrawn || template.status !== 'published')
+      throw new HttpError(403, 'Mẫu đã rút khỏi thư viện; không thể tạo lượt tặng mới.');
     if (!await this.canCreate(template.creatorId)) throw new HttpError(403, 'Quyền dùng lại mẫu của Creator không còn hiệu lực.');
     const version = this.findVersion(template, versionId);
     if (version.status !== 'approved' || (Object.keys(version.assets).length && !version.rightsConfirmed))

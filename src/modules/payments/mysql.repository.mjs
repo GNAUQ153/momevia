@@ -47,9 +47,11 @@ export class MySqlPaymentRepository {
   }
 
   intentRow(row) {
+    const createdAt = row.created_at instanceof Date ? row.created_at.toISOString()
+      : (row.created_at ? `${String(row.created_at).replace(' ', 'T').replace(/Z$/, '')}Z` : null);
     return { id: row.id, orderId: row.order_id, code: row.provider_order_code,
       amount: Number(row.amount_vnd), provider: row.provider, status: row.status,
-      checkoutUrl: row.checkout_url || null, qrPayload: row.qr_payload || null };
+      checkoutUrl: row.checkout_url || null, qrPayload: row.qr_payload || null, createdAt };
   }
   async setLink(intentId, link) {
     await this.client.execute(`UPDATE payment_intents SET checkout_url=?, qr_payload=?,provider_payment_id=?

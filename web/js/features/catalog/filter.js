@@ -1,4 +1,8 @@
 // Các phép lọc thuần, dùng chung cho giao diện và unit tests.
+export function searchText(value) {
+  return String(value ?? '').toLocaleLowerCase('vi').normalize('NFD').replace(/\p{M}/gu, '').replaceAll('đ', 'd');
+}
+
 export function styleOptions(templates) {
   const counts = new Map();
   for (const template of templates) {
@@ -12,9 +16,9 @@ export function styleOptions(templates) {
 
 export function filterTemplates(
   templates,
-  { style = "Tất cả", search = "", freeOnly = false } = {},
+  { style = "Tất cả", search = "", freeOnly = false, photoOnly = false } = {},
 ) {
-  const query = String(search).trim().toLocaleLowerCase("vi");
+  const query = searchText(String(search).trim());
   return templates.filter((template) => {
     const matchesStyle = style === "Tất cả" || template.style === style;
     const matchesPrice = !freeOnly || Number(template.price) === 0;
@@ -23,15 +27,14 @@ export function filterTemplates(
       template.subtitle,
       template.creator,
       template.style,
+      template.category,
     ];
     const matchesSearch =
       !query ||
       fields.some((value) =>
-        String(value || "")
-          .toLocaleLowerCase("vi")
-          .includes(query),
+        searchText(value).includes(query),
       );
-    return matchesStyle && matchesPrice && matchesSearch;
+    return matchesStyle && matchesPrice && matchesSearch && (!photoOnly || template.personalization?.photoFrames > 0);
   });
 }
 

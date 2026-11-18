@@ -103,7 +103,7 @@ test('MySQL gifts/replies query by owner and gift with parameters, never load al
   const calls=[];
   const client={ async execute(sql,params=[]) {
     calls.push({sql,params});
-    if(sql.includes('FROM gifts WHERE user_id')) return [[{id:randomUUID(),slug:'a'.repeat(24),user_id:userId,
+    if(sql.includes('FROM gifts g WHERE g.user_id=?')) return [[{id:randomUUID(),slug:'a'.repeat(24),user_id:userId,
       template_id:'template',recipient_name:'Mai',sender_name:'An',message:'Hello',
       reply_count:0,created_at:'2026-11-17 00:00:00.000',expires_at:'2027-11-17 00:00:00.000',payload:'{}'}]];
     return [[]];
@@ -113,4 +113,5 @@ test('MySQL gifts/replies query by owner and gift with parameters, never load al
   assert.equal((await gifts.allForUser(userId)).length,1);
   assert.deepEqual(await replies.allForGift('gift-id'),[]);
   assert(calls.every(c=>c.sql.includes('?')));
+  assert.deepEqual(calls.map(call => call.params), [[userId], ['gift-id']]);
 });

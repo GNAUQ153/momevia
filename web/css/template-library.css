@@ -1,7 +1,21 @@
 .artwork.artwork--canvas { isolation:isolate; }
 .artwork--canvas img { position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block; }
-.detail-art:has(.template-preview-trigger) .detail-preview-label { top:14px;bottom:auto; }
-.template-preview-trigger { margin-top:14px; }
+.catalog-section.catalog-compact { padding-block: clamp(20px, 4vw, 48px); }
+.catalog-compact .catalog-title h1 { margin: 0; font: 500 clamp(1.8rem, 5vw, 3rem)/1.12 var(--font-display); }
+.detail-section .detail-info { min-width: 0; padding-top: 0; }
+.detail-section .detail-info h1 { margin: 0 0 .4em; font-size: clamp(1.95rem, 5vw, 3.75rem); overflow-wrap: anywhere; }
+.detail-section .detail-price-row { margin: .5rem 0; }
+.detail-start-actions { display: flex; flex-wrap: wrap; gap: .65rem; margin-block: .9rem 1.2rem; }
+.detail-start-actions .btn { min-height: 44px; }
+.template-review-cover { display: block; max-width: min(100%, 240px); max-height: 480px; object-fit: contain; }
+.editor-greeting-starters { display: grid; gap: .35rem; margin-block: .75rem; }
+.editor-greeting-starters button { text-align: left; }
+.recovery-panel { max-width: 40rem; margin-inline: auto; }
+.recovery-panel form[hidden] { display: none; }
+.share-option { text-align: left; margin-block: 1.5rem; }
+.inbox-filter { display: inline-flex; align-items: center; gap: .5rem; min-height: 44px; }
+.template-card__info p.template-card__capabilities { white-space: normal; overflow-wrap: anywhere; line-height: 1.4; }
+.page-banner.page-banner--dashboard { padding-block: clamp(1.25rem, 4vw, 3rem); }
 .template-preview-dialog { width:min(94vw,760px);max-height:94dvh;border:1px solid var(--line);border-radius:20px;padding:20px;background:var(--paper);color:var(--ink);overflow:auto; }
 .template-preview-dialog::backdrop { background:#221a3988; }
 .template-preview-toolbar { display:flex;align-items:center;gap:8px;position:sticky;top:-20px;z-index:2;padding:12px 0;background:var(--paper); }
@@ -18,5 +32,5 @@
 .template-review-controls button { margin: 4px 8px 4px 0; }
 .template-review-preview { width: min(100%, 390px); }
 @media (min-width: 850px) {
-  .template-review-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 390px); }
+  .template-review-grid { grid-template-columns: minmax(0, 390px) minmax(0, 1fr); }
 }

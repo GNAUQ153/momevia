@@ -8,8 +8,10 @@ import { spawn } from 'node:child_process';
 import { once } from 'node:events';
 import { setTimeout as delay } from 'node:timers/promises';
 import sharp from 'sharp';
+import { runReplyIntents } from './reply-intents.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
+const { runRecovery } = await import('./recovery-journey.mjs');
 const fixture = fs.mkdtempSync(path.join(fs.realpathSync(os.tmpdir()), 'momevia-canvas-'));
 let child, base, logs = ''; const cases = [];
 async function launch(extra = {}) {
@@ -41,7 +43,21 @@ try {
   for (const dir of ['src', 'services', 'web']) fs.cpSync(path.join(root, dir), path.join(fixture, dir), { recursive: true, filter: p => path.basename(p) !== 'data' });
   fs.copyFileSync(path.join(root, 'package.json'), path.join(fixture, 'package.json'));
   fs.symlinkSync(path.join(root, 'node_modules'), path.join(fixture, 'node_modules'), 'junction');
-  fs.writeFileSync(path.join(fixture, 'fixture.mjs'), `import {createHttpApp} from './src/server/app.mjs'; import {environment} from './src/shared/config.mjs'; const config=environment();const app=await createHttpApp(config); app.server.listen(0,'127.0.0.1',()=>{const url=new URL(config.baseUrl);url.port=app.server.address().port;config.baseUrl=url.origin;console.log('CANVAS_BASE='+config.baseUrl);});`);
+  fs.copyFileSync(path.join(root, 'tests/integration/recovery-journey.mjs'), path.join(fixture, 'recovery-journey.mjs'));
+  fs.writeFileSync(path.join(fixture, 'fixture.mjs'), `
+    import fs from 'node:fs';
+    import { createHttpApp } from './src/server/app.mjs';
+    import { environment } from './src/shared/config.mjs';
+    import { simulatedGoogle } from './recovery-journey.mjs';
+    const nativeFetch = globalThis.fetch;
+    globalThis.fetch = (input, options) => simulatedGoogle(input, options) || nativeFetch(input, options);
+    const config = { ...environment(), googleId: 'synthetic', googleSecret: 'synthetic' };
+    const app = await createHttpApp(config, {
+      sendRecoveryMail: async mail => fs.appendFileSync('mailbox.ndjson', JSON.stringify(mail) + '\\n'),
+      recoveryNow: () => fs.existsSync('recovery-now.txt') ? Number(fs.readFileSync('recovery-now.txt','utf8')) : Date.now(),
+    });
+    app.server.listen(0,'127.0.0.1',() => { const url = new URL(config.baseUrl); url.port = app.server.address().port; config.baseUrl = url.origin; console.log('CANVAS_BASE=' + config.baseUrl); });
+  `);
   await launch();
   const owner = await register('Người gửi thử nghiệm'), other = await register('Người gửi khác');
   await check('Empty canvas saves but cannot publish, even with all bindings filled', async () => {
@@ -158,6 +174,18 @@ try {
     const replies = await Promise.all([request(`/gifts/gifts/${published.slug}/replies`, { body: { name: 'Mai', message: 'Cảm ơn bạn!' } }), request(`/gifts/gifts/${published.slug}/replies`, { body: { message: 'Rất vui!' } })]);
     assert(replies.every(r => r.status === 201)); assert.equal((await request(`/gifts/gifts/${published.slug}/replies`)).data.replies.length, 2); assert.equal((await request(`/gifts/gifts/${published.slug}`)).data.gift.replyCount, 2);
   });
+  await check('JSON legacy and canvas: reply replay, distinct identical replies, owner-only read IDs and late arrivals', async () => {
+    const { design: draft } = await post(owner, '/designs/designs', { source: { kind: 'blank' }, presetId: 'envelope-basic', mutationId: randomUUID() }, 201);
+    for (const binding of Object.values(draft.document.bindings)) binding.value = 'Quà hộp thư QA';
+    const ack = await post(owner, `/designs/designs/${draft.id}/save`, {
+      expectedRevision: draft.revision, mutationId: randomUUID(), title: draft.title, document: draft.document,
+    });
+    const { gift } = await post(owner, '/gifts/gifts/from-design', {
+      designId: draft.id, expectedRevision: ack.savedRevision, expectedDocumentHash: ack.documentHash, idempotencyKey: randomUUID(),
+    }, 201);
+    const { gift: legacy } = await post(owner, '/gifts/gifts', { templateId: 'sunny-wishes', recipientName: 'Mai', senderName: 'An', message: 'Lời chúc' }, 201);
+    for (const item of [gift, legacy]) await runReplyIntents(base, item.slug, owner.cookie, other.cookie);
+  });
   await check('C18/C27 restart replay and writer-off reader preserved', async () => {
     await stop(); await launch({ CANVAS_EDIT_ENABLED: 'false', CANVAS_PUBLISH_ENABLED: 'false' });
     assert.equal((await request(`/gifts/gifts/${published.slug}`)).status, 200); assert.equal((await fetch(`${base}/api/gifts/gifts/${published.slug}/assets/${asset.id}`)).status, 200);
@@ -166,7 +194,18 @@ try {
     await stop(); await launch();
     const replay = await post(owner, '/gifts/gifts/from-design', publishBody); assert.equal(replay.replayed, true); assert.equal(replay.gift.slug, published.slug);
   });
+  await check('Account recovery fake inbox: verified email code expires, consumes once and restores owner; Google provider ID stays linked', async () => {
+    const mailbox = path.join(fixture, 'mailbox.ndjson'), clock = path.join(fixture, 'recovery-now.txt');
+    let now = Date.now();
+    fs.writeFileSync(clock, String(now));
+    await runRecovery(base, {
+      messageFor: email => fs.existsSync(mailbox) ? fs.readFileSync(mailbox, 'utf8').trim().split('\n').map(line => JSON.parse(line)).findLast(item => item.to === email)?.text : undefined,
+      advance: ms => { now += ms; fs.writeFileSync(clock, String(now)); },
+    });
+  });
   if (process.argv.includes('--browser')) {
+    const { runSenderIdentity } = await import('../browser/sender-identity.mjs');
+    await check('Creator template identity is isolated from preview data', () => runSenderIdentity(base));
     const template = (await request('/catalog/templates')).data.templates.find(item => item.price === 0);
     const { gift: expired } = await post(owner, '/gifts/gifts', { templateId: template.id, recipientName: 'Mai', senderName: 'An', message: 'Quà hết hạn tổng hợp.' }, 201);
     const legacyFile = path.join(fixture, 'services/gifts/data/gifts.json');
@@ -177,6 +216,8 @@ try {
     const { runCanvasBrowser } = await import('../browser/canvas.mjs'); await runCanvasBrowser(base, expired.slug);
     const { runCanvasResilience } = await import('../browser/canvas-resilience.mjs'); await runCanvasResilience(base);
     const { runCreatorJourney } = await import('../browser/creator-journey.mjs'); await runCreatorJourney(base);
+    const { runNewTemplates } = await import('../browser/new-templates.mjs');
+    await check('Mobile memory template, optional photo and two-envelope keyboard branching', () => runNewTemplates(base));
   }
   console.log(JSON.stringify({ gate: 'JSON API', cases, fixture: 'synthetic isolated single process', result: 'PASS' }));
 } catch (error) { console.error(logs); throw error; }

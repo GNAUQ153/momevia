@@ -3,6 +3,8 @@ import { icon } from "../ui/icons.js";
 import { paginateTemplates } from "../features/catalog/filter.js";
 import { legalPages, legalPage } from "../pages/policies.js";
 import { giftQrDataUrl } from "../features/gifts/qr.js";
+import { submitReplyIntent } from "../features/gifts/reply-intent.js";
+import { mountInbox } from "../features/gifts/inbox.js";
 import { state } from "../core/state.js";
 import { createComponents } from "../ui/components.js";
 import { createLayout } from "../ui/layout.js";
@@ -22,7 +24,8 @@ const footer = document.getElementById("site-footer");
 let routeController = null,
   renderGeneration = 0,
   canvasCheckout = null,
-  favoritesLoad = null;
+  favoritesLoad = null,
+  disposeInbox = null;
 let historyIndex = 0,
   activeUrl = location.pathname + location.search + location.hash,
   restoringHistory = false;
@@ -43,11 +46,11 @@ const {
   templateDetail,
   favoritesPage,
 } = createCatalogViews(viewContext);
-const { successPage, giftPage, renderReplies, dashboard, draftCards } =
+const { successPage, giftPage, renderReplies, dashboard, draftCards, studioDrafts, studioGifts, studioOrders } =
   createGiftViews(viewContext);
 const { creatorPage } = createCreatorViews(viewContext);
 const { adminPage } = createAdminViews(viewContext);
-const { authPage } = createAuthViews(viewContext);
+const { authPage, recoveryPage } = createAuthViews(viewContext);
 const { errorPage, loadingPage } = createSystemViews(viewContext);
 
 function buttonLink(path, label, style = "btn--dark", trailing = true) {
@@ -109,6 +112,21 @@ function requireLogin(path) {
   state.afterLogin = path;
   navigate("/login");
   return false;
+}
+function loadStudioSection(name, label, endpoint, view, signal) {
+  const section = document.getElementById(`studio-${name}-section`);
+  const load = async () => {
+    section.innerHTML = `<p role="status">Đang tải ${label}…</p>`;
+    try {
+      const result = await api.get(endpoint, { signal });
+      if (!signal.aborted) section.innerHTML = view(result);
+    } catch {
+      if (signal.aborted) return;
+      section.innerHTML = `<p role="alert">Chưa tải được ${label}.</p><button class="btn btn--outline" type="button">Thử lại</button>`;
+      section.querySelector("button").addEventListener("click", load, { once: true, signal });
+    }
+  };
+  return load();
 }
 async function render() {
   const generation = ++renderGeneration;
@@ -214,12 +232,12 @@ async function render() {
               `/api/gifts/gifts/${encodeURIComponent(id)}/assets/${encodeURIComponent(assetId)}${query}`,
             replyAdapter: {
               ...gift.replyPermissions,
-              send: gift.replyPermissions.canSend ? async (body) =>
-                (
+              send: gift.replyPermissions.canSend ? async (reply) =>
+                submitReplyIntent(id, reply, async body => (
                   await api.post(repliesEndpoint, body, {
                     signal: lifetime.signal,
                   }).catch(error => { closed(error); throw error; })
-                ).reply : null,
+                ).reply) : null,
               list: gift.replyPermissions.canRead ? async () =>
                 (
                   await api.get(repliesEndpoint, {
@@ -317,13 +335,15 @@ async function render() {
         main.innerHTML = errorPage("Đăng nhập để xem các món quà của bạn.");
         setTimeout(() => requireLogin("/studio"), 50);
       } else {
-        const [gifts, orders, drafts] = await Promise.all([
-          api.get("/gifts/gifts/mine"),
-          api.get("/checkout/orders"),
-          api.get("/designs/designs"),
+        const lifetime = new AbortController();
+        routeController = { dispose: () => lifetime.abort() };
+        main.innerHTML = dashboard();
+        await Promise.all([
+          loadStudioSection("drafts", "bản nháp", "/designs/designs", studioDrafts, lifetime.signal),
+          loadStudioSection("gifts", "quà đã gửi", "/gifts/gifts/mine", studioGifts, lifetime.signal),
+          loadStudioSection("orders", "lịch sử đơn hàng", "/checkout/orders", studioOrders, lifetime.signal),
         ]);
         if (generation !== renderGeneration) return;
-        main.innerHTML = dashboard(gifts.gifts, orders.orders, drafts.designs, drafts.nextOffset);
       }
     } else if (route === "favorites") {
       if (!state.user) {
@@ -349,16 +369,18 @@ async function render() {
         if (generation !== renderGeneration) return;
         routeController = mountReview(main, { version, endpoint, api, navigate });
       } else {
-        const [pending, tickets, versions] = await Promise.all([
+        const [pending, tickets, versions] = await Promise.allSettled([
           api.get("/catalog/admin/pending"),
           api.get("/support/admin/requests"),
           api.get("/catalog/admin/version-queue"),
         ]);
         if (generation !== renderGeneration) return;
-        main.innerHTML = adminPage(pending.templates, tickets.requests, state.user, versions.queue);
+        main.innerHTML = adminPage(pending.value?.templates ?? null, tickets.value?.requests ?? null, state.user, versions.value?.queue ?? null);
       }
     } else if (route === "about") main.innerHTML = aboutPage();
     else if (route === 'pricing') main.innerHTML = pricingPage();
+    else if (route === "recover" || route === "verify-email")
+      main.innerHTML = recoveryPage({ verify: route === "verify-email", googleUnlinked: new URLSearchParams(location.search).get("google") === "unlinked" });
     else if (route === "login" || route === "register")
       main.innerHTML = authPage(route);
     else if (route === "policies" && legalPages[id])
@@ -453,6 +475,8 @@ async function saveFavorite(templateId, saved) {
 }
 let modalReturnFocus = null;
 function closeModal() {
+  disposeInbox?.();
+  disposeInbox = null;
   const wasOpen = modal.hasChildNodes();
   modal.replaceChildren();
   document.body.classList.remove("no-scroll");
@@ -464,6 +488,8 @@ function closeModal() {
   modalReturnFocus = null;
 }
 function openModal(content) {
+  disposeInbox?.();
+  disposeInbox = null;
   if (!modal.hasChildNodes()) modalReturnFocus = document.activeElement;
   modal.innerHTML = `<div class="modal-backdrop" data-action="close-modal"><div class="dialog" role="dialog" aria-modal="true" aria-label="Hộp thoại"><button class="icon-button dialog-close" data-action="close-modal" aria-label="Đóng">${icon("close", 21)}</button>${content}</div></div>`;
   document.body.classList.add("no-scroll");
@@ -533,6 +559,7 @@ async function copyText(trigger) {
   }
 }
 async function handleAction(action, element) {
+  if (action === "retry-admin-queues") return render();
   if (action === "duplicate-template" || action === "withdraw-template") {
     const withdraw = action === "withdraw-template";
     if (withdraw && !window.confirm("Rút mẫu khỏi thư viện? Người mới sẽ không thể chọn mẫu. Nháp đã tạo và quà đã gửi vẫn dùng được.")) return;
@@ -622,14 +649,14 @@ async function handleAction(action, element) {
   if (action === "clear-filters") {
     state.catalogPage = 1;
     state.filter = "Tất cả";
-    state.search = "";
     state.freeOnly = false;
-    const search = document.getElementById("template-search");
+    state.photoOnly = false;
     const style = document.getElementById("style-filter");
     const free = document.getElementById("free-filter");
-    if (search) search.value = "";
+    const photo = document.getElementById("photo-filter");
     if (style) style.value = "Tất cả";
     if (free) free.checked = false;
+    if (photo) photo.checked = false;
     syncCatalogResults();
     return;
   }
@@ -686,8 +713,29 @@ async function handleAction(action, element) {
     return;
   }
   if (action === "gift-inbox") {
-    const { replies } = await api.get(`/gifts/gifts/mine/${encodeURIComponent(element.dataset.id)}/replies`);
-    if (element.isConnected) openModal(`<h2>Hồi đáp của món quà</h2><div class="reply-list">${renderReplies(replies)}</div>`);
+    const endpoint = `/gifts/gifts/mine/${encodeURIComponent(element.dataset.id)}/replies`;
+    const { replies } = await api.get(endpoint);
+    if (!element.isConnected) return;
+    openModal(`<h2>Hồi đáp của món quà</h2><label class="inbox-filter"><input type="checkbox"/> Chưa đọc</label>
+      <p class="inbox-status" role="status"></p><div class="reply-list"></div>`);
+    disposeInbox = mountInbox(modal.querySelector(".dialog"), {
+      replies, renderReplies,
+      markRead: ids => api.post(endpoint + "/read", { ids }),
+      onUnreadCount: count => {
+        if (element.isConnected) element.querySelector("[data-unread-count]").textContent = count ? ` · ${count} chưa đọc` : "";
+      },
+    });
+    return;
+  }
+  if (action === "regift") {
+    element.disabled = true;
+    try {
+      const mutationId = element.dataset.mutation || (element.dataset.mutation = crypto.randomUUID());
+      const { design } = await api.post(`/gifts/gifts/mine/${encodeURIComponent(element.dataset.id)}/regift`, { mutationId });
+      if (element.isConnected) navigate(`/design/${encodeURIComponent(design.id)}${design.source.kind === "template" ? "?mode=quick" : ""}`);
+    } finally {
+      if (element.isConnected) element.disabled = false;
+    }
     return;
   }
   if (action === "duplicate-design") {
@@ -911,8 +959,8 @@ document.addEventListener("change", async (event) => {
     syncCatalogResults();
     return;
   }
-  if (event.target.id === "free-filter") {
-    state.freeOnly = event.target.checked;
+  if (["free-filter", "photo-filter"].includes(event.target.id)) {
+    state[event.target.id === "free-filter" ? "freeOnly" : "photoOnly"] = event.target.checked;
     state.catalogPage = 1;
     syncCatalogResults();
     return;
@@ -957,6 +1005,8 @@ document.addEventListener("submit", async (event) => {
       "admin-login-form",
       "reject-form",
       "support-form",
+      "recovery-request-form",
+      "recovery-confirm-form",
     ].includes(form.id)
   )
     return;
@@ -970,7 +1020,24 @@ document.addEventListener("submit", async (event) => {
   if (submit) submit.disabled = true;
   try {
     const data = Object.fromEntries(new FormData(form));
-    if (form.id === "register-form" || form.id === "email-login-form") {
+    if (form.id === "recovery-request-form" || form.id === "recovery-confirm-form") {
+      const verify = form.dataset.verify === "true";
+      const requestCode = form.id === "recovery-request-form";
+      const result = await api.post(`/auth/${verify ? "verify-email" : "recover"}/${requestCode ? "request" : "confirm"}`, data);
+      if (!form.isConnected) return;
+      if (requestCode) {
+        const confirm = document.getElementById("recovery-confirm-form");
+        if (!verify) confirm.elements.email.value = data.email.trim();
+        confirm.hidden = false;
+        document.getElementById("recovery-notice").textContent = verify ? "Hãy nhập mã trong hộp thư của bạn."
+          : "Nếu email đã xác minh, bạn sẽ nhận được mã trong hộp thư.";
+        confirm.elements.code.focus();
+      } else {
+        setUser(result.user);
+        toast(verify ? "Đã xác minh email." : "Đã đặt mật khẩu mới.");
+        navigate("/studio");
+      }
+    } else if (form.id === "register-form" || form.id === "email-login-form") {
       if (
         form.id === "register-form" &&
         data.password !== data.confirmPassword
@@ -1035,7 +1102,7 @@ document.addEventListener("submit", async (event) => {
       </div>`);
     } else if (form.id === "reply-form") {
       try {
-        await api.post(form.dataset.endpoint, data);
+        await submitReplyIntent(form.dataset.slug, data, body => api.post(form.dataset.endpoint, body));
         const list = form.isConnected ? main.querySelector("#reply-list") : null;
         if (list) updateLegacyReplies(list, (await api.get(form.dataset.endpoint)).replies);
       } catch (error) {
@@ -1134,7 +1201,7 @@ function loadPageData(route) {
   const loads = [identity];
   if (catalogRoutes.has(route)) loads.push(state.user && route === "explore" ? loadTemplates() : loadCatalog());
   if (favoriteRoutes.has(route)) loads.push(identity.then(loadFavorites, () => {}));
-  if (route === "login" || route === "register") loads.push(loadProviders());
+  if (["login", "register", "recover", "verify-email", "studio"].includes(route)) loads.push(loadProviders());
   return Promise.allSettled(loads);
 }
 render();

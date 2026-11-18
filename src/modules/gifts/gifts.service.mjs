@@ -4,6 +4,7 @@ import { randomId, sanitizeText, sanitizeOptionalText } from '../../shared/secur
 import { decodePhoto } from './photo.mjs';
 import { publicGiftView, giftSummary } from '../designs/designs.service.mjs';
 import { createGiftAccess, requireGiftPermission } from './access.mjs';
+import { checkReplyReplay, replyId, replyView } from './replies.mjs';
 
 export class GiftService {
   constructor({ giftsRepo, repliesRepo, media, config, repliesLimit, catalog, checkout, canvas }) {
@@ -14,18 +15,31 @@ export class GiftService {
     let gift = this.giftsRepo.getBySlug
       ? await this.giftsRepo.getBySlug(slug)
       : this.giftsRepo.all().find(item => item.slug === slug);
-    if (!gift && this.canvas?.profile.mode === 'json') gift = await this.canvas.repository.findBySlug(slug);
+    if (gift && !this.giftsRepo.getBySlug) {
+      const rows = this.repliesRepo.all().filter(reply => reply.giftId === gift.id);
+      gift = { ...gift, replyCount: rows.length, unreadCount: rows.filter(reply => reply.readStatus === 'unread').length };
+    }
+    if (!gift && this.canvas?.profile.mode === 'json') {
+      gift = await this.canvas.repository.findBySlug(slug);
+      if (gift) gift.unreadCount = (await this.canvas.repository.repliesForGift(gift.id)).filter(reply => reply.readStatus === 'unread').length;
+    }
     if (!gift) throw new HttpError(404, 'Không tìm thấy món quà.');
     return gift;
   }
   ownerView(gift) {
-    return { ...giftSummary(gift), access: gift.access, inviteToken: gift.inviteToken,
+    return { ...giftSummary(gift), unreadCount: gift.unreadCount ?? 0, canRegift: Boolean(this.canvas?.flags.edit && (gift.templateId || gift.documentSnapshot)),
+      access: gift.access, inviteToken: gift.inviteToken,
       photoUrl: gift.imageFile ? `/api/gifts/gifts/${gift.slug}/photo` : null };
   }
   async ownGift(user, slug) {
     const gift = await this.validateSlug(slug);
     if (gift.userId !== user.sub) throw new HttpError(404, 'Không tìm thấy món quà.');
     return gift;
+  }
+  async regift(user, slug, input) {
+    if (!this.canvas) throw new HttpError(503, 'Tặng lại từ bố cục đang tạm tắt.');
+    if (!this.canvas.writeLimit.consume(user.sub)) throw new HttpError(429, 'Bạn thao tác quá nhanh. Thử lại sau.');
+    return this.canvas.service.regift(user, await this.ownGift(user, slug), input);
   }
   async publicStatus(slug, invite) {
     requireGiftPermission(await this.validateSlug(slug), invite);
@@ -40,9 +54,20 @@ export class GiftService {
     return this.ownerView(this.giftsRepo.update(gift.id, { revokedAt }));
   }
   async mine(user) {
+    const legacyStats = new Map();
+    if (!this.giftsRepo.allForUser) {
+      for (const reply of this.repliesRepo.all()) {
+        const stat = legacyStats.get(reply.giftId) || { replyCount: 0, unreadCount: 0 };
+        stat.replyCount++;
+        stat.unreadCount += Number(reply.readStatus === 'unread');
+        legacyStats.set(reply.giftId, stat);
+      }
+    }
     const items = this.giftsRepo.allForUser
       ? await this.giftsRepo.allForUser(user.sub)
-      : this.giftsRepo.all().filter(item => item.userId === user.sub).reverse();
+      : this.giftsRepo.all().filter(item => item.userId === user.sub).reverse().map(gift => ({
+        ...gift, ...(legacyStats.get(gift.id) || { replyCount: 0, unreadCount: 0 }),
+      }));
     if (this.canvas?.profile.mode === 'json') items.push(...await this.canvas.repository.listForUser(user.sub));
     return items.sort((a, b) => b.createdAt.localeCompare(a.createdAt)).map(gift => this.ownerView(gift));
   }
@@ -55,13 +80,27 @@ export class GiftService {
   async replies(slug, invite) {
     const gift = await this.validateSlug(slug);
     requireGiftPermission(gift, invite, 'canRead');
-    return this.giftReplies(gift);
+    return (await this.giftReplies(gift)).map(reply => replyView(reply));
   }
   async giftReplies(gift) {
     if (gift.documentSnapshot && this.canvas?.profile.mode === 'json') return this.canvas.repository.repliesForGift(gift.id);
     return this.repliesRepo.allForGift
       ? this.repliesRepo.allForGift(gift.id)
       : this.repliesRepo.all().filter(item => item.giftId === gift.id);
+  }
+  async markRepliesRead(gift, ids) {
+    if (gift.documentSnapshot && this.canvas?.profile.mode === 'json')
+      return this.canvas.repository.markRepliesRead(gift.id, ids);
+    if (this.repliesRepo.markRead) return this.repliesRepo.markRead(gift.id, ids);
+    const rows = this.repliesRepo.all();
+    let unread = 0, changed = false;
+    for (const reply of rows) {
+      if (reply.giftId !== gift.id || reply.readStatus !== 'unread') continue;
+      if (ids.has(reply.id)) { reply.readStatus = 'read'; changed = true; }
+      else unread++;
+    }
+    if (changed) this.repliesRepo.write(rows);
+    return unread;
   }
   async create(user, input) {
     const templateId = sanitizeText(input.templateId, 100);
@@ -105,18 +144,26 @@ export class GiftService {
     const gift = await this.validateSlug(slug);
     requireGiftPermission(gift, invite, 'canSend');
     const key = `${slug}:${ip}`;
-    if (!this.repliesLimit.consume(key)) throw new HttpError(429, 'Bạn đã gửi nhiều phản hồi. Vui lòng thử lại sau.');
-    const reply = {
-      id: randomUUID(), giftId: gift.id,
-      name: sanitizeOptionalText(body.name, 50) || 'Người nhận',
-      message: sanitizeText(body.message, 1000), createdAt: new Date().toISOString(),
+    const acceptNew = () => {
+      if (!this.repliesLimit.consume(key)) throw new HttpError(429, 'Bạn đã gửi nhiều phản hồi. Vui lòng thử lại sau.');
     };
-    if (gift.documentSnapshot && this.canvas?.profile.mode === 'json') return this.canvas.repository.addReply(gift.id, reply, invite);
-    if (this.giftsRepo.addReply) return this.giftsRepo.addReply(gift.id, reply, invite);
-    // The legacy JSON stores write synchronously in the same process.
+    const reply = {
+      id: replyId(gift.id, body.intentId), giftId: gift.id,
+      name: sanitizeOptionalText(body.name, 50) || 'Người nhận',
+      message: sanitizeText(body.message, 1000), createdAt: new Date().toISOString(), readStatus: 'unread',
+    };
+    if (gift.documentSnapshot && this.canvas?.profile.mode === 'json') return this.canvas.repository.addReply(gift.id, reply, invite, acceptNew);
+    if (this.giftsRepo.addReply) return this.giftsRepo.addReply(gift.id, reply, invite, acceptNew);
+    // The legacy JSON reply list is authoritative if a process stops between the two writes.
     requireGiftPermission(this.giftsRepo.all().find(item => item.id === gift.id), invite, 'canSend');
-    this.repliesRepo.insert(reply);
-    this.giftsRepo.update(gift.id, { replyCount: gift.replyCount + 1 });
-    return reply;
+    const existing = this.repliesRepo.all().filter(item => item.giftId === gift.id);
+    const replay = existing.find(item => item.id === reply.id);
+    if (replay) checkReplyReplay(replay, reply);
+    else {
+      acceptNew();
+      this.repliesRepo.insert(reply);
+    }
+    this.giftsRepo.update(gift.id, { replyCount: existing.length + Number(!replay) });
+    return replay || reply;
   }
 }

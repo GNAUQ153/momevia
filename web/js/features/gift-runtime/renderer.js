@@ -190,9 +190,12 @@ export function renderElement(
         ? "Người gửi đã tắt hồi đáp." : "Cần link mời để gửi hồi đáp."));
     }
     const replies = element("div", "gift-runtime-replies");
+    const displayedReplies = new Set();
     node.append(replies);
     replies.hidden = mode === "public" && !replyAdapter?.canRead;
     const appendReply = (reply) => {
+      if (reply.id && displayedReplies.has(reply.id)) return;
+      if (reply.id) displayedReplies.add(reply.id);
       const item = element("blockquote");
       item.append(
         element("p", "", reply.message),

@@ -4,6 +4,7 @@ import { node, field } from '../canvas-editor/dom.js';
 export function mountReview(host, { version, endpoint, api, navigate }) {
   const lifetime = new AbortController();
   const stage = node('div', { class: 'template-preview-player template-review-preview' });
+  const coverScene = version.document.scenes.find(scene => scene.id === (version.coverSceneId || version.document.entrySceneId));
   const bindings = { recipientName: 'Tên người nhận thử', senderName: 'Tên người gửi thử', message: 'Lời chúc thử' };
   const controls = version.bindings.map(key => field(bindings[key], node('input', {
     name: key, value: version.document.bindings[key].value, maxlength: key === 'message' ? 1000 : 60,
@@ -26,11 +27,14 @@ export function mountReview(host, { version, endpoint, api, navigate }) {
   const back = node('a', { href: '/admin', 'data-link': '', class: 'btn btn--outline' }, 'Về hàng đợi');
   host.replaceChildren(node('section', { class: 'section' }, node('div', { class: 'container' },
     back, node('h1', {}, version.title), node('p', {}, `Bản r${version.revision} · ${version.id}`),
+    version.hasLockedNames ? node('p', { role: 'status' }, 'Phiên bản có lớp tên bị khóa. Yêu cầu Creator mở quyền sửa tên hoặc đổi lớp đó thành chữ cố định trung tính.') : null,
+    version.previousVersionId ? node('section', {}, node('h2', {}, 'Thay đổi từ lần gửi trước'),
+      node('ul', {}, ...version.changes.map(change => node('li', {}, change)))) : null,
     version.rights ? node('p', {}, `Nguồn và quyền ảnh demo: ${version.rights}`) : null,
-    node('div', { class: 'template-review-grid' },
-      node('div', { class: 'template-review-controls' }, test, version.status === 'pending' ? actions : node('p', {}, 'Phiên bản đã xử lý.')),
-      stage,
-    ),
+    node('details', {}, node('summary', {}, `Bìa mẫu · ${coverScene.name}`),
+      node('img', { class: 'template-review-cover', alt: `Bìa mẫu ${version.title}`, src: `/api${endpoint}/cover` })),
+    node('div', { class: 'template-review-grid' }, stage,
+      node('div', { class: 'template-review-controls' }, test, version.status === 'pending' ? actions : node('p', {}, 'Phiên bản đã xử lý.'))),
   )));
   let player;
   let photoData;

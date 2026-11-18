@@ -22,7 +22,8 @@ test('revision API range matches the MySQL unsigned INT column', () => {
 test('public catalog projects metadata and never spreads private future payload fields', async () => {
   const record = { id: 'seed', title: 'Mẫu', status: 'published', price: 0, creatorId: 'private-owner', policy: { secret: 1 }, storageKey: 'private.png', document: { binding: 'PII' } };
   const service = new CatalogService({ async all() { return [record]; }, async get() { return record; } });
-  assert.deepEqual(await service.publicList(), [{ id: 'seed', title: 'Mẫu', price: 0, status: 'published' }]);
+  assert.deepEqual(await service.publicList(), [{ id: 'seed', title: 'Mẫu', price: 0, status: 'published',
+    personalization: { bindings: ['recipientName', 'message', 'senderName'], photoFrames: 0, layout: true } }]);
   assert.deepEqual(await service.publicOne('seed'), (await service.publicList())[0]);
 });
 test('JSON process critical section serializes separate adapters sharing an aggregate', async () => {

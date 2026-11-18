@@ -12,6 +12,8 @@ export const templates = [
   { id: 'polaroid', title: 'Captured Moments', subtitle: 'Tập hợp những khoảnh khắc đáng yêu', theme: 'cream', style: 'Hoài niệm', price: 79000, scenes: 3, effect: 'Lật ảnh', creator: 'Momevia Originals' },
   { id: 'afterglow', title: 'Afterglow', subtitle: 'Mọi điều đẹp đều có ánh sáng riêng', theme: 'amber', style: 'Kỳ ảo', price: 59000, scenes: 3, effect: 'Ánh sáng', creator: 'Momevia Originals' },
   { id: 'tiny-celebration', title: 'Tiny Celebration', subtitle: 'Dành cho những niềm vui thật lớn', theme: 'mint', style: 'Tươi vui', price: 0, scenes: 3, effect: 'Bật mí', creator: 'Momevia Originals' },
+  { id: 'mot-ky-niem', title: 'Một kỷ niệm của hai mình', subtitle: 'Gửi một tấm ảnh, một dòng chú thích và lời chúc sinh nhật.', theme: 'cream', style: 'Hoài niệm', price: 0, scenes: 3, effect: 'Mở thư', creator: 'Momevia Originals' },
+  { id: 'hai-phong-bi', title: 'Hai phong bì', subtitle: 'Người nhận tự chọn mở kỷ niệm hay lời chúc trước.', theme: 'lilac', style: 'Tình cảm', price: 0, scenes: 3, effect: 'Mở thư', creator: 'Momevia Originals' },
 ].map(template => ({
   ...template,
   category: 'Sinh nhật',
@@ -19,3 +21,4 @@ export const templates = [
   status: 'published',
   createdAt: '2026-11-01T00:00:00.000Z',
 }));
+export const addedSystemTemplates = templates.filter(template => ['mot-ky-niem', 'hai-phong-bi'].includes(template.id));

@@ -59,6 +59,7 @@ export function createAuthViews({ state, buttonLink }) {
           <p class="auth-inline-error" role="alert" hidden></p>
           <button class="btn btn--dark btn--wide auth-submit" type="submit"><span>${registering ? "Tạo tài khoản" : "Đăng nhập"}</span>${icon("arrow", 18)}</button>
         </form>
+        ${registering ? "" : '<p class="auth-switch"><a href="/recover" data-link>Quên mật khẩu hoặc mất quyền truy cập?</a></p>'}
         <div class="auth-divider" role="separator"><span>Hoặc ${registering ? "đăng ký" : "đăng nhập"} bằng</span></div>
         <div class="auth-buttons">${social("google", state.providers.google, "Google", googleLogo)}${social("zalo", state.providers.zalo, "Zalo", zaloLogo)}</div>
         ${!state.providers.google || !state.providers.zalo ? '<p class="auth-provider-note">Phương thức chưa kết nối sẽ được kích hoạt khi hệ thống hỗ trợ.</p>' : ""}
@@ -68,5 +69,32 @@ export function createAuthViews({ state, buttonLink }) {
     </div></section>`;
   }
 
-  return { authPage };
+  function recoveryPage({ verify = false, googleUnlinked = false } = {}) {
+    if (verify && state.user?.provider !== "email")
+      return `<section class="section"><div class="container"><h1>Xác minh email</h1><p>Đăng nhập bằng email để xác minh địa chỉ của bạn.</p>${buttonLink("/login", "Đăng nhập")}</div></section>`;
+    const enabled = state.providers.recoveryEmail && (!verify || !state.user.emailVerified);
+    const code = '<label class="field"><span>Mã 8 chữ số</span><input name="code" autocomplete="one-time-code" inputmode="numeric" pattern="[0-9]{8}" maxlength="8" required/></label>';
+    const email = '<label class="field"><span>Email tài khoản</span><input name="email" type="email" maxlength="254" autocomplete="email" required/></label>';
+    return `<section class="section"><div class="container"><div class="auth-panel recovery-panel">
+      <h1>${verify ? 'Xác minh email' : 'Khôi phục tài khoản'}</h1>
+      ${verify && state.user.emailVerified ? '<p>Email của bạn đã được xác minh.</p>' : ''}
+      ${googleUnlinked ? '<p role="alert">Tài khoản Google này chưa được liên kết. Hãy chọn đúng tài khoản Google bạn đã dùng với Momevia.</p>' : ''}
+      ${enabled ? `<form id="recovery-request-form" data-verify="${verify}" class="auth-form">
+        ${verify ? '<p>Gửi mã đến địa chỉ email của tài khoản đang đăng nhập.</p>' : email}
+        <p class="auth-inline-error" role="alert" hidden></p>
+        <button class="btn btn--dark" type="submit">Gửi mã qua email</button>
+      </form><p id="recovery-notice" role="status"></p>
+      <form id="recovery-confirm-form" data-verify="${verify}" class="auth-form" hidden>
+        ${!verify ? '<input type="hidden" name="email"/>' : ''}${code}
+        ${verify ? '' : '<label class="field"><span>Mật khẩu mới</span><input name="password" type="password" autocomplete="new-password" minlength="10" maxlength="128" required/></label><label class="field"><span>Xác nhận mật khẩu mới</span><input name="confirmPassword" type="password" autocomplete="new-password" minlength="10" maxlength="128" required/></label>'}
+        <p class="auth-inline-error" role="alert" hidden></p>
+        <button class="btn btn--dark" type="submit">${verify ? 'Xác minh email' : 'Đặt mật khẩu mới'}</button>
+      </form>` : ''}
+      ${!verify && state.providers.google ? '<p><a class="btn btn--outline" href="/api/auth/google?recover=1">Dùng tài khoản Google đã liên kết</a></p>' : ''}
+      ${verify ? `<p>${buttonLink("/studio", "Về Studio", "btn--outline")}</p>` : '<p>Nếu bạn chưa xác minh email hoặc mất quyền truy cập Google, hãy liên hệ hỗ trợ.</p>'}
+      <button type="button" class="btn btn--outline" data-action="support">Liên hệ hỗ trợ</button>
+    </div></div></section>`;
+  }
+
+  return { authPage, recoveryPage };
 }

@@ -326,7 +326,7 @@ export async function runCanvasBrowser(base, expiredSlug) {
     // Methods-error and methods-empty are intentionally distinct without merchant calls.
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(`${base}/template/polaroid`);
-    await page.getByRole('link', { name: 'Cá nhân hóa nhanh' }).click();
+    await page.getByRole('link', { name: 'Dùng mẫu' }).click();
     await page.locator('.editor-workspace').waitFor();
     await page.getByRole('heading', { name: 'Điền nội dung' }).waitFor({ timeout: 5000 });
     assert.equal(await control('scene-add').isVisible(), false);

@@ -1,6 +1,7 @@
 import { timingSafeEqual } from 'node:crypto';
 import { HttpError } from '../../shared/http.mjs';
 import { randomId } from '../../shared/security.mjs';
+import { giftLinkPermissions } from '../../../web/js/shared/gift-permissions.js';
 
 export function giftStatus(gift) {
   if (gift.revokedAt) return 'revoked';
@@ -31,18 +32,11 @@ export function createGiftAccess(input) {
 
 export function requireGiftPermission(gift, invite, permission = 'canOpen') {
   requireActiveGift(gift);
-  const { open = 'link', send = 'link', read = 'link' } = gift.access || {};
   const token = gift.inviteToken;
   const invited = Boolean(token && typeof invite === 'string' && invite.length === token.length
     && Buffer.byteLength(invite) === token.length
     && timingSafeEqual(Buffer.from(token), Buffer.from(invite)));
-  const permissions = {
-    canOpen: open === 'link' || invited,
-    canSend: send === 'link' || (send === 'invite' && invited),
-    canRead: read === 'link' || (read === 'invite' && invited),
-    replyAudience: read === 'link' && open === 'link' ? 'link' : read === 'sender' ? 'sender' : 'invite',
-    repliesDisabled: send === 'disabled',
-  };
+  const permissions = giftLinkPermissions(gift.access, invited);
   if (!permissions.canOpen || !permissions[permission])
     throw new HttpError(403, 'Bạn không có quyền thực hiện thao tác này. Hãy dùng đường link người gửi đã cấp.');
   return permissions;

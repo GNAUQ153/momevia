@@ -2,12 +2,33 @@ import { randomUUID } from 'node:crypto';
 import { HttpError } from '../../shared/http.mjs';
 import { sanitizeText } from '../../shared/security.mjs';
 import { assetIds, validateDocument } from '../../../web/js/shared/canvas/index.js';
+import { clearTemplateBindingDefaults, lockedVisibleNames, visibleBindingKeys } from '../../../web/js/shared/canvas/personalization.js';
+import { submissionChanges } from '../../../web/js/shared/canvas/submission.js';
 
 const demo = { recipientName: 'Mai', senderName: 'An', message: 'Chúc bạn một sinh nhật thật vui và nhiều khoảnh khắc đáng nhớ!' };
+export function previewTemplateDocument(version) {
+  const document = structuredClone(version.document);
+  for (const [key, value] of Object.entries(version.previewBindings || {})) document.bindings[key].value = value;
+  return document;
+}
+
 export const versionView = version => {
-  const { assets, ...view } = version;
-  return { ...view, assetIds: Object.keys(assets) };
+  const { assets, previewBindings, ...view } = version;
+  return { ...view, document: previewTemplateDocument(version), assetIds: Object.keys(assets) };
 };
+function submissionConfig({ id, title, bindings, photoId, rights, assets, coverSceneId, document }) {
+  return { id, title, bindings, photoId, rights, assetIds: Object.keys(assets), coverSceneId: coverSceneId || document.entrySceneId };
+}
+function sameSubmission(candidate, version) {
+  return candidate.revision === version.revision && candidate.photoId === version.photoId && candidate.rights === version.rights
+    && candidate.bindings.join() === version.bindings.join()
+    && submissionConfig(candidate).coverSceneId === version.coverSceneId;
+}
+
+function requireNamesEditable(document, bindings) {
+  if (lockedVisibleNames(document, bindings).length)
+    throw new HttpError(422, 'Mở quyền sửa cho lớp tên đang hiển thị, hoặc đổi lớp đó thành chữ cố định trung tính trước khi duyệt.');
+}
 
 export class CreatorTemplates {
   constructor(repository, { getDraft, getAsset, canCreate }) {
@@ -32,6 +53,12 @@ export class CreatorTemplates {
         versions: versions.map(({ id, status, reason, revision, createdAt }) => ({ id, status, reason, revision, createdAt })),
       }));
   }
+  async previousSubmission(user, id) {
+    this.requireCreator(user);
+    const template = this.authored(await this.repository.get(id), user.sub);
+    const last = template.versions.at(-1);
+    return last ? submissionConfig(last) : null;
+  }
   async register(user, body) {
     this.requireCreator(user);
     const design = await this.getDraft(user, body.designId);
@@ -55,43 +82,50 @@ export class CreatorTemplates {
     const design = await this.getDraft(user, id);
     if (body.expectedRevision !== design.revision) throw new HttpError(409, 'Nháp đã thay đổi. Mở lại và gửi phiên bản muốn duyệt.');
     const document = structuredClone(design.document);
+    const visible = visibleBindingKeys(document);
     const bindings = Array.isArray(body.bindings) ? [...new Set(body.bindings)].sort() : [];
-    if (!bindings.length || bindings.some(key => !Object.hasOwn(demo, key) ||
-      !document.elements.some(element => element.type === 'text' && element.visible !== false && element.opacity !== 0 && element.props.textBinding === key)))
+    if (!bindings.length || bindings.some(key => !visible.has(key)))
       throw new HttpError(422, 'Chọn ít nhất một trường chữ liên kết với lớp đang hiển thị.');
     const photoId = body.photoId || null;
     if (photoId && !document.elements.some(element => element.id === photoId && element.type === 'image' && element.visible !== false && element.opacity !== 0 && element.props.assetId))
       throw new HttpError(422, 'Khung ảnh cần có ảnh demo hiển thị.');
-    for (const [key, value] of Object.entries(demo)) document.bindings[key].value = value;
+    const coverSceneId = body.coverSceneId ?? document.entrySceneId;
+    if (!document.scenes.some(scene => scene.id === coverSceneId))
+      throw new HttpError(422, 'Chọn một cảnh trong phiên bản làm bìa mẫu.');
+    clearTemplateBindingDefaults(document);
     const ids = assetIds(document);
     document.assets = document.assets.filter(ref => ids.includes(ref.assetId));
     const assets = Object.fromEntries(await Promise.all(ids.map(async assetId => [assetId, await this.getAsset(user, assetId)])));
     const rights = ids.length ? sanitizeText(body.rights, 500) : null;
-    validateDocument(document, { mode: 'publish' });
-    const version = { id: randomUUID(), status: 'pending', revision: design.revision, document, bindings, photoId, rights, assets,
+    validateDocument(document, { mode: 'publish', requiredBindings: [] });
+    const version = { id: randomUUID(), status: 'pending', revision: design.revision, document, previewBindings: demo, bindings, photoId, rights, assets, coverSceneId,
       title: design.title, createdAt: new Date().toISOString() };
     const item = await this.repository.mutate(id, current => {
       this.authored(current, user.sub);
-      const replay = current.versions.find(candidate => candidate.revision === version.revision
-        && candidate.photoId === photoId && candidate.rights === rights && candidate.bindings.join() === bindings.join());
+      const replay = current.versions.find(candidate => sameSubmission(candidate, version));
       if (replay) return null;
+      requireNamesEditable(document, bindings);
       if (current.versions.some(candidate => candidate.status === 'pending'))
         throw new HttpError(409, 'Mẫu vẫn có phiên bản đang chờ duyệt.');
       return { versions: [...current.versions, version] };
     });
-    return versionView(item.versions.find(candidate => candidate.revision === version.revision
-      && candidate.photoId === photoId && candidate.rights === rights && candidate.bindings.join() === bindings.join()));
+    return versionView(item.versions.find(candidate => sameSubmission(candidate, version)));
   }
   async queue(user) {
     this.requireAdmin(user);
     return (await this.repository.all()).flatMap(template => (template.versions || [])
       .filter(version => version.status === 'pending')
-      .map(version => ({ templateId: template.id, title: version.title, creator: template.creator, versionId: version.id })));
+      .map(version => ({ templateId: template.id, title: version.title, creator: template.creator, versionId: version.id,
+        revision: version.revision, createdAt: version.createdAt })));
   }
   async version(user, id, versionId) {
     this.requireAdmin(user);
     const template = this.authored(await this.repository.get(id));
-    return this.findVersion(template, versionId);
+    const version = this.findVersion(template, versionId);
+    const index = template.versions.indexOf(version);
+    const previous = index > 0 ? submissionConfig(template.versions[index - 1]) : null;
+    return { ...version, previousVersionId: previous?.id, changes: submissionChanges(previous, submissionConfig(version)),
+      hasLockedNames: lockedVisibleNames(version.document, version.bindings).length > 0 };
   }
   findVersion(template, id) {
     const version = template.versions.find(candidate => candidate.id === id);
@@ -109,6 +143,7 @@ export class CreatorTemplates {
       this.authored(current);
       const version = this.findVersion(current, versionId);
       if (version.status !== 'pending') throw new HttpError(409, 'Phiên bản đã được xử lý.');
+      if (approval) requireNamesEditable(version.document, version.bindings);
       if (approval && version.rights && body.rightsConfirmed !== true)
         throw new HttpError(422, 'Xác nhận quyền phân phối ảnh demo trước khi duyệt.');
       const reviewed = { ...version, status: approval ? 'approved' : 'changes_requested', reason, reviewerId: user.sub,
@@ -137,5 +172,14 @@ export class CreatorTemplates {
       throw new HttpError(404, 'Mẫu không còn trong thư viện.');
     if (versionId !== template.versionId) throw new HttpError(409, 'Mẫu đã đổi phiên bản. Mở lại chi tiết mẫu.');
     return this.findVersion(template, versionId);
+  }
+  async reusable(id, versionId) {
+    const template = await this.repository.get(id);
+    if (!template?.creatorDesignId) return null;
+    if (!await this.canCreate(template.creatorId)) throw new HttpError(403, 'Quyền dùng lại mẫu của Creator không còn hiệu lực.');
+    const version = this.findVersion(template, versionId);
+    if (version.status !== 'approved' || (Object.keys(version.assets).length && !version.rightsConfirmed))
+      throw new HttpError(403, 'Phiên bản này chưa đủ quyền để tạo lượt tặng mới.');
+    return { template: { id, title: version.title, price: template.price }, version };
   }
 }

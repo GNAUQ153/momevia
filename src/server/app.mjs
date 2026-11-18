@@ -25,8 +25,8 @@ const prefixes = [
   ['/api/designs', 'designs'],
 ];
 
-export async function createHttpApp(config = environment(), { paymentProviders, paymentEnv } = {}) {
-  const identity = await identityApp(config);
+export async function createHttpApp(config = environment(), { paymentProviders, paymentEnv, sendRecoveryMail, recoveryNow } = {}) {
+  const identity = await identityApp(config, { sendRecoveryMail, recoveryNow });
   // Phiên và role được xác nhận từ Identity module tại mỗi request, kể cả sau khi logout.
   const resolveUser = async (req, _secret, required = true) => {
     const user = await identity.sessions.find(sessionToken(req));
@@ -42,7 +42,8 @@ export async function createHttpApp(config = environment(), { paymentProviders, 
   const designs = await designsApp(config, {
     resolveUser,
     catalog: { getTemplate: id => catalog.service.publicOne(id),
-      approvedVersion: (id, version) => catalog.service.creatorTemplates.approved(id, version) },
+      approvedVersion: (id, version) => catalog.service.creatorTemplates.approved(id, version),
+      reusableVersion: (id, version) => catalog.service.creatorTemplates.reusable(id, version) },
     checkout: { hasLicense: (userId, templateId) => checkout.service.hasLicense(userId, templateId) },
     orders: user => checkout.service.orders(user),
   });

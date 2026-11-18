@@ -85,9 +85,17 @@ try {
   legacySlug = legacy.slug;
   await new MySqlGiftsRepository(db).insert(legacy);
   await admin.query(await fs.readFile(new URL('../../database/migrations/006_canvas.sql', import.meta.url), 'utf8'));
-  await check('C25 upgrade 001–006 preserves legacy slug/Unicode/FK and ascii_bin UUID shape', async () => {
+  await admin.query(await fs.readFile(new URL('../../database/migrations/007_support_reports.sql', import.meta.url), 'utf8'));
+  const oldReply = uuid();
+  await admin.execute("INSERT INTO gift_replies(id,gift_id,name,message,created_at) VALUES (?,?,'QA','Lời cũ',?)", [oldReply, legacy.id, date(now)]);
+  await admin.query(await fs.readFile(new URL('../../database/migrations/008_gift_reply_read_state.sql', import.meta.url), 'utf8'));
+  const [[preservedReply]] = await admin.execute('SELECT message,read_status FROM gift_replies WHERE id=?', [oldReply]);
+  assert.deepEqual({ ...preservedReply }, { message: 'Lời cũ', read_status: null });
+  await check('C25 upgrade 001–008 preserves legacy gift/reply, excludes old replies from unread, and preserves FK rules', async () => {
     await repo.ready();
-    assert.equal((await new MySqlGiftsRepository(db).getBySlug(legacySlug)).id, legacy.id);
+    const preservedGift = await new MySqlGiftsRepository(db).getBySlug(legacySlug);
+    assert.equal(preservedGift.id, legacy.id);
+    assert.equal(preservedGift.unreadCount, 0);
     const [rows] = await admin.query("SELECT COLLATION_NAME,IS_NULLABLE FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='gifts' AND COLUMN_NAME='template_id'");
     assert.equal(rows[0].COLLATION_NAME, 'ascii_bin'); assert.equal(rows[0].IS_NULLABLE, 'YES');
     await assert.rejects(admin.execute(`INSERT INTO designs(id,owner_id,title,source_kind,provenance,policy,revision,schema_version,document,document_hash,created_at,updated_at)

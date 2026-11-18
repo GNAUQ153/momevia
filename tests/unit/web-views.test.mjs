@@ -42,3 +42,17 @@ test('Trang Creator chỉ hiện form cho Creator/Admin và không khôi phục 
   assert.match(sender,/quản trị viên/);
   for(const role of ['creator','admin']) assert.match(views({id:'u',name:'QA',role}).creatorPage(),/id="creator-template-form"/);
 });
+
+test('Admin thấy tổng hai hàng đợi và chỉ thấy trạng thái hoàn tất khi cả hai tải xong và trống', () => {
+  const { adminPage } = views({ id: 'admin', name: 'QA', role: 'admin' });
+  const legacy = [{ id: 'legacy', title: 'Mẫu cũ', price: 0 }];
+  const current = [{ templateId: 'creator', versionId: 'v1', title: 'Bản Creator', revision: 1 }];
+  assert.match(adminPage([], [], {}, current), /Cần duyệt \(1\)/);
+  assert.match(adminPage(legacy, [], {}, []), /Cần duyệt \(1\)/);
+  assert.match(adminPage([], [], {}, []), /Đã xử lý tất cả mẫu/);
+  const partial = adminPage(null, [], {}, current);
+  assert.match(partial, /Cần duyệt \(1\+\)/);
+  assert.match(partial, /Chưa tải được hàng đợi mẫu cũ/);
+  assert.match(partial, /Mở phiên bản để duyệt/);
+  assert.doesNotMatch(partial, /Đã xử lý tất cả mẫu/);
+});

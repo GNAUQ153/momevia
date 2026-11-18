@@ -21,6 +21,7 @@ export function mountPlayer(
     throw new Error("Chế độ trình phát không hợp lệ.");
   const document = validateDocument(input, {
     mode: mode === "public" ? "publish" : "draft",
+    requiredBindings: [],
   });
   let activeSceneId = document.entrySceneId,
     disposed = false,

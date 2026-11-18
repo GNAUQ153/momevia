@@ -57,11 +57,17 @@ export class MySqlUsersRepository {
     } catch (error) { duplicated(error); }
   }
   async update(id, patch) {
+    return this.mutate(id, () => patch);
+  }
+  async mutate(id, update) {
     try {
       return await this.client.withTransaction(async tx => {
         const [rows] = await tx.execute('SELECT * FROM users WHERE id = ? FOR UPDATE', [id]);
         if (!rows.length) return null;
-        const user = { ...userFromRow(rows[0]), ...patch, id };
+        const current = userFromRow(rows[0]);
+        const patch = update(current);
+        if (!patch) return current;
+        const user = { ...current, ...patch, id };
         await tx.execute(`UPDATE users SET provider=?, provider_id=?, name=?, email=?, password_hash=?, avatar=?,
           role=?, legacy_payload=? WHERE id=?`,
         [user.provider, user.providerId, user.name, user.email || null, user.passwordHash || null,
@@ -90,7 +96,7 @@ export class MySqlSessionStore {
       WHERE id=? AND user_id=? AND expires_at > UTC_TIMESTAMP(3) LIMIT 1`, [claims.jti, claims.sub]);
     if (!rows.length) return null;
     const user = await this.users.get(claims.sub);
-    return user ? { ...claims, role: user.role, name: user.name } : null;
+    return user && (user.credentialVersion || 0) === (claims.cv || 0) ? { ...claims, role: user.role, name: user.name } : null;
   }
   async revoke(token) {
     const claims = verifySession(token, this.secret);

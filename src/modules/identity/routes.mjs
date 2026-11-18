@@ -3,12 +3,13 @@ import { sessionToken, cookie, randomId, sanitizeText } from '../../shared/secur
 import { createHash } from 'node:crypto';
 import { publicUser } from './credentials.service.mjs';
 
-export function registerRoutes(router, { config, credentials, sessions, authLimits, roles, service }) {
+export function registerRoutes(router, { config, credentials, sessions, authLimits, roles, service, recovery }) {
   router.on('GET', '/health', ({res}) => sendJson(res, 200, { name: 'identity', ok: true }));
   router.on('GET', '/providers', ({res}) => sendJson(res, 200, {
     demo: config.demoEnabled,
     google: Boolean(config.googleId && config.googleSecret),
     zalo: Boolean(config.zaloId && config.zaloSecret),
+    recoveryEmail: Boolean(recovery?.sendMail),
   }));
   router.on('GET', '/me', async ({req, res}) => {
     const user = await service.findCurrent(req);
@@ -27,6 +28,35 @@ export function registerRoutes(router, { config, credentials, sessions, authLimi
     const body = await parseJson(req, 16_384);
     authLimits.consume('login', req, res, body.email);
     const user = await credentials.login(body);
+    await service.issueSession(res, user);
+    sendJson(res, 200, { user: publicUser(user) });
+  });
+  router.on('POST', '/verify-email/request', async ({ req, res }) => {
+    const user = await service.findCurrent(req);
+    if (user?.provider !== 'email') throw new HttpError(403, 'Cần đăng nhập bằng email để xác minh địa chỉ.');
+    authLimits.consume('recovery', req, res, user.email);
+    await recovery.start(user, 'verify');
+    sendJson(res, 202, { ok: true });
+  });
+  router.on('POST', '/verify-email/confirm', async ({ req, res }) => {
+    const user = await service.findCurrent(req);
+    if (user?.provider !== 'email') throw new HttpError(403, 'Cần đăng nhập bằng email để xác minh địa chỉ.');
+    authLimits.consume('recovery', req, res, user.email);
+    const { code } = await parseJson(req, 4096);
+    const updated = await recovery.finish(user, 'verify', code);
+    sendJson(res, 200, { user: publicUser(updated) });
+  });
+  router.on('POST', '/recover/request', async ({ req, res }) => {
+    const { email } = await parseJson(req, 4096);
+    authLimits.consume('recovery', req, res, email);
+    await recovery.start(await recovery.byEmail(email), 'reset');
+    sendJson(res, 202, { ok: true });
+  });
+  router.on('POST', '/recover/confirm', async ({ req, res }) => {
+    const { email, code, password, confirmPassword } = await parseJson(req, 4096);
+    authLimits.consume('recovery', req, res, email);
+    if (password !== confirmPassword) throw new HttpError(400, 'Xác nhận mật khẩu không khớp.');
+    const user = await recovery.finish(await recovery.byEmail(email), 'reset', code, password);
     await service.issueSession(res, user);
     sendJson(res, 200, { user: publicUser(user) });
   });
@@ -87,7 +117,7 @@ export function registerRoutes(router, { config, credentials, sessions, authLimi
     sendJson(res, 200, { user: await sessions.find(body.token) });
   });
 
-  router.on('GET', '/google', ({res}) => {
+  router.on('GET', '/google', ({res, url}) => {
     if (!config.googleId || !config.googleSecret) throw new HttpError(503, 'Chưa cấu hình đăng nhập Google.');
     const state = randomId(24);
     const query = new URLSearchParams({
@@ -98,13 +128,13 @@ export function registerRoutes(router, { config, credentials, sessions, authLimi
       state,
       prompt: 'select_account',
     });
-    res.setHeader('set-cookie', service.oauthCookie('google', state));
+    res.setHeader('set-cookie', service.oauthCookie('google', state, url.searchParams.get('recover') === '1' ? 'recover' : ''));
     res.writeHead(302, { location: `https://accounts.google.com/o/oauth2/v2/auth?${query}`, 'cache-control': 'no-store' });
     res.end();
   });
   router.on('GET', '/google/callback', async ({req, res, url}) => {
     if (url.searchParams.has('error')) throw new HttpError(401, 'Bạn đã hủy đăng nhập Google.');
-    service.consumeState(req, 'google', url.searchParams.get('state'));
+    const recovering = service.consumeState(req, 'google', url.searchParams.get('state')) === 'recover';
     const code = url.searchParams.get('code');
     if (!code) throw new HttpError(400, 'Không có mã xác thực Google.');
     const response = await fetch('https://oauth2.googleapis.com/token', {
@@ -121,7 +151,7 @@ export function registerRoutes(router, { config, credentials, sessions, authLimi
     });
     const info = await infoResponse.json();
     if (!infoResponse.ok || !info.sub) throw new HttpError(401, 'Không đọc được hồ sơ Google.');
-    await service.finishOAuth(res, 'google', { id: info.sub, name: info.name || info.email || 'Người dùng Google', email: info.email, avatar: info.picture });
+    await service.finishOAuth(res, 'google', { id: info.sub, name: info.name || info.email || 'Người dùng Google', email: info.email, avatar: info.picture }, recovering);
   });
   router.on('GET', '/zalo', ({res}) => {
     if (!config.zaloId || !config.zaloSecret) throw new HttpError(503, 'Chưa cấu hình đăng nhập Zalo.');

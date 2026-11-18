@@ -104,5 +104,6 @@ import { randomUUID as cryptoRandomId } from 'node:crypto';
 export function publicUser(user) {
   if (!user) return null;
   const { id, name, email, avatar, role, provider, createdAt } = user;
-  return { id, name, email, avatar, role, provider, createdAt };
+  return { id, name, email, avatar, role, provider, createdAt,
+    ...(provider === 'email' ? { emailVerified: Boolean(user.emailVerifiedAt) } : {}) };
 }

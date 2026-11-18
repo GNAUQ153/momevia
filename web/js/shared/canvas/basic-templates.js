@@ -17,7 +17,11 @@ export const BASIC_TEMPLATES = Object.freeze({
   polaroid: { motif: 'polaroid', name: 'Khoảnh khắc của mình', bg: '#EAE1D5', paper: '#FFFCF5', ink: '#55463C', accent: '#AF9981', detail: '#D8C7AE', button: '#77604A', headline: 'Có những ngày,\nmình muốn giữ mãi.', note: 'Một tấm thiệp cho những khoảnh khắc không phai.', font: 'serif' },
   afterglow: { motif: 'sunset', name: 'Sau một ngày đẹp', bg: '#F4DDD4', paper: '#FFFAF0', ink: '#714A43', accent: '#DBA276', detail: '#D38C9D', button: '#945B59', headline: 'Điều đẹp nhất\nvẫn còn phía trước.', note: 'Giữ lại chút ấm áp, để ngày mai lại bắt đầu.', font: 'serif' },
   'tiny-celebration': { motif: 'gift', name: 'Niềm vui bé xinh', bg: '#E0EFE7', paper: '#F7FAF2', ink: '#315D50', accent: '#82B29C', detail: '#C8DCC1', button: '#477B67', headline: 'Niềm vui nhỏ,\ndành riêng cho bạn.', note: 'Không cần lý do lớn để gửi một điều thương.', font: 'heading' },
+  'mot-ky-niem': { motif: 'memory', name: 'Một kỷ niệm của hai mình', bg: '#F2EDE3', paper: '#FFF9EC', ink: '#273C40', accent: '#738E86', detail: '#C98461', button: '#355658', headline: 'Một kỷ niệm\ncủa hai mình', note: 'Mừng sinh nhật bạn.', font: 'serif' },
+  'hai-phong-bi': { motif: 'two-letters', name: 'Hai phong bì', bg: '#EDE8F4', paper: '#FFF9F4', ink: '#38294B', accent: '#AA80B9', detail: '#C78672', button: '#664579', headline: 'Bạn muốn mở gì trước?', font: 'serif' },
 });
+export const MEMORY_TEMPLATE_ID = 'mot-ky-niem';
+export const memoryGreetingStarters = ['Mình vẫn nhớ lần…', 'Cảm ơn bạn vì…', 'Tuổi mới, mình mong bạn…'];
 
 export function basicTemplateDefinition(id) { return Object.hasOwn(BASIC_TEMPLATES, id) ? BASIC_TEMPLATES[id] : null; }
 
@@ -28,6 +32,7 @@ const LAYER_NAMES = {
   'reply-heading': 'Tiêu đề hồi đáp', 'reply-intro': 'Lời mời hồi đáp', 'reply-card': 'Khối hồi đáp', 'replay-gift': 'Xem lại món quà',
   'photo-window': 'Khung ảnh kỷ niệm', 'photo-shadow': 'Nền sau ảnh', 'photo-paper': 'Viền polaroid', 'photo-caption': 'Chú thích ảnh',
   'photo-sun': 'Mặt trời trong ảnh', 'photo-landscape': 'Cảnh minh họa',
+  'envelope-memory': 'Nội dung kỷ niệm',
 };
 
 export function createBasicTemplate(template) {
@@ -64,6 +69,46 @@ export function createBasicTemplate(template) {
     line(scene, `${prefix}-stem`, [x - height / 2, y + height / 2, height, 2, -90], color, 2);
     for (let i = 0; i < 4; i++) shape(scene, `${prefix}-leaf-${i}`, [x + (i % 2 ? 4 : -14), y + i * 28, 17, 42, i % 2 ? 33 : -33], i % 2 ? color : p.detail);
   };
+
+  if (p.motif === 'memory') {
+    doc.scenes[0].background.color = p.paper;
+    text(0, 'cover-title', p.headline, [35, 57, 320, 114], 37, p.ink, p.font);
+    doc.elements.at(-1).accessibility = { role: 'heading', level: 1 };
+    binding(0, 'text-recipient', 'recipientName', [40, 177, 310, 52], 23);
+    shape(0, 'photo-paper', [38, 245, 314, 345, -2], '#FFFFFF', 'rectangle', { radius: 3 });
+    shape(0, 'photo-window', [52, 263, 286, 247], '#DBE4D9', 'rectangle');
+    shape(0, 'photo-sun', [253, 292, 48, 48], '#F3D6A1');
+    shape(0, 'photo-landscape', [68, 427, 252, 67], p.accent);
+    text(0, 'photo-caption', 'Một khoảnh khắc của hai mình', [58, 527, 274, 52], 18, p.ink, p.font);
+    action(0, 'envelope', 'open-gift', 'Mở lời chúc', [53, 626, 284, 142], 'scene-surprise');
+    doc.scenes[1].background.color = p.paper;
+    text(1, 'message-heading', p.note, [40, 84, 310, 65], 38, p.ink, p.font);
+    binding(1, 'text-message', 'message', [40, 187, 310, 370], 22, p.ink, 'left');
+    binding(1, 'text-sender', 'senderName', [40, 588, 310, 58], 22, p.ink, 'right');
+    action(1, 'button', 'to-message', 'Gửi lời đáp', [83, 696, 224, 55], 'scene-message');
+    add(2, 'reply', 'reply-card', [24, 148, 342, 340], {});
+    action(2, 'button', 'replay-gift', 'Về bìa', [105, 650, 180, 56]);
+    return validateDocument(doc);
+  }
+  if (p.motif === 'two-letters') {
+    doc.scenes[1].name = 'Kỷ niệm';
+    doc.scenes[2].name = 'Điều mình chúc bạn';
+    text(0, 'cover-title', p.headline, [36, 62, 318, 103], 36, p.ink, p.font);
+    doc.elements.at(-1).accessibility = { role: 'heading', level: 1 };
+    binding(0, 'text-recipient', 'recipientName', [44, 180, 302, 56], 24);
+    action(0, 'envelope', 'open-memory', 'Một kỷ niệm', [49, 274, 292, 153, -2], 'scene-surprise');
+    action(0, 'envelope', 'open-wish', 'Một điều mình chúc bạn', [49, 502, 292, 153, 2], 'scene-message');
+    doc.scenes[1].background.color = p.paper;
+    text(1, 'memory-heading', 'Một kỷ niệm', [42, 67, 306, 83], 37, p.ink, p.font);
+    text(1, 'envelope-memory', 'Có những chuyện mỗi lần nhớ lại, mình vẫn mỉm cười.', [44, 191, 302, 220], 24, p.ink, p.font, 'left');
+    action(1, 'button', 'memory-back', 'Về hai phong bì', [77, 629, 236, 56], 'scene-cover');
+    text(2, 'message-heading', 'Một điều mình chúc bạn', [39, 55, 312, 99], 32, p.ink, p.font);
+    binding(2, 'text-message', 'message', [41, 172, 308, 204], 21, p.ink, 'left');
+    binding(2, 'text-sender', 'senderName', [41, 406, 308, 51], 21, p.ink, 'right');
+    action(2, 'button', 'wish-back', 'Về hai phong bì', [77, 488, 236, 56], 'scene-cover');
+    add(2, 'reply', 'reply-card', [24, 568, 342, 235], {});
+    return validateDocument(doc);
+  }
 
   // Each cover has a recognizable silhouette before any personal text is filled.
   if (p.motif === 'bloom') {
@@ -147,13 +192,20 @@ export function createBasicTemplate(template) {
 
 export function isPhotoFrame(element) { return element?.type === 'shape' && (element.id === 'photo-window' || element.name === 'Khung ảnh kỷ niệm'); }
 
+export function framePhoto(document, frame) {
+  if (!frame) return undefined;
+  const scene = document.scenes.find(item => item.elementIds.includes(frame.id));
+  return document.elements.find(element => element.id === `${frame.id}-image`)
+    || document.elements.find(element => element.type === 'image' && element.name === 'Ảnh kỷ niệm'
+      && scene?.elementIds.includes(element.id) && canonicalLayout(element.layout) === canonicalLayout(frame.layout));
+}
+
 export function insertPhotoFrame(document, assetId, frameId = 'photo-window') {
   const doc = validateDocument(document), frame = doc.elements.find(element => element.id === frameId && element.type === 'shape');
   if (!frame) throw new Error('Khung ảnh không còn trong thiết kế. Ảnh cũ vẫn được giữ.');
   const scene = doc.scenes.find(s => s.elementIds.includes(frame.id)), photoId = `${frame.id}-image`;
-  let photo = doc.elements.find(element => element.id === photoId);
+  let photo = framePhoto(doc, frame);
   if (photo && photo.type !== 'image') throw new Error('Lớp ảnh đã thay đổi. Chọn một khung ảnh khác.');
-  photo ||= doc.elements.find(element => element.type === 'image' && element.name === 'Ảnh kỷ niệm' && scene.elementIds.includes(element.id) && canonicalLayout(element.layout) === canonicalLayout(frame.layout));
   if (photo) photo.props.assetId = assetId;
   else {
     photo = createElement('image', { id: photoId, name: 'Ảnh kỷ niệm', layout: { ...frame.layout }, props: { assetId, radius: frame.props.radius || 0 }, accessibility: { alt: 'Ảnh kỷ niệm người gửi chọn' } });

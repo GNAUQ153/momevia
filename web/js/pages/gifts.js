@@ -1,5 +1,6 @@
 import { api, escapeHtml as e } from "../core/api.js";
 import { icon } from "../ui/icons.js";
+import { giftLinkDescription } from "../shared/gift-permissions.js";
 
 export function createGiftViews({
   state,
@@ -55,17 +56,24 @@ export function createGiftViews({
   }
 
   function successPage(gift) {
-    const url = gift.access?.open === "invite" ? gift.inviteUrl : gift.url;
     if (gift.status && gift.status !== "active") return `<section class="success-section"><div class="container"><div class="success-card"><h1>${gift.status === "revoked" ? "Quà đã ngừng chia sẻ" : "Quà đã hết hạn"}</h1>${buttonLink("/studio", "Về Studio")}</div></div></section>`;
-    const share = typeof navigator.share === "function" && (!navigator.canShare || navigator.canShare({ url }));
+    const primaryInvited = gift.access?.open === "invite";
+    const primaryUrl = primaryInvited ? gift.inviteUrl : gift.url;
+    const shareLink = (url, invited, primary) => {
+      const title = invited ? "Link mời riêng" : "Link thường";
+      const share = typeof navigator.share === "function" && (!navigator.canShare || navigator.canShare({ url }));
+      const linkLabel = primary ? "Đường link quà tặng" : title;
+      return `<section class="share-option"><h2>${title}</h2><p>${giftLinkDescription(gift.access, invited)}</p>
+        <div class="share-link" data-copy-container><input ${primary ? 'id="share-link"' : ''} data-copy-value readonly value="${e(url)}" aria-label="${linkLabel}"/><button data-action="copy-link" data-value="${e(url)}">${icon("copy", 18)} Sao chép</button></div>
+        <div class="success-buttons">${primary ? buttonLink(new URL(url).pathname + new URL(url).search, "Xem món quà", "btn--dark") : ''}
+        ${share ? `<button class="btn btn--outline" data-action="share-gift" data-value="${e(url)}">${primary ? "Chia sẻ link" : `Chia sẻ ${title.toLocaleLowerCase('vi')}`}</button>` : ''}
+        <button class="btn btn--outline" data-action="qr" data-value="${e(url)}">${icon("qr-code", 18)} ${primary ? "Tạo mã QR" : `Mã QR ${invited ? "link mời" : "link thường"}`}</button></div></section>`;
+    };
     return `<section class="success-section"><div class="container"><div class="success-card"><span class="success-emblem">${icon("check", 35)}</span>
-      <span class="eyebrow">MỘT BẤT NGỜ ĐÃ SẴN SÀNG</span><h1>Món quà của bạn<br><em>đã thành hình.</em></h1><p>Gửi ngay đường link này để người ấy khám phá điều bất ngờ bạn đã chuẩn bị.</p>
-      <div class="share-link" data-copy-container><input id="share-link" data-copy-value readonly value="${e(url)}" aria-label="Đường link quà tặng"/><button data-action="copy-link" data-value="${e(url)}">${icon("copy", 18)} Sao chép</button></div>
-      <div class="success-buttons">${buttonLink(new URL(url).pathname + new URL(url).search, "Xem món quà", "btn--dark")}
-      ${share ? `<button class="btn btn--outline" data-action="share-gift" data-value="${e(url)}">Chia sẻ link</button>` : ''}
-      <button class="btn btn--outline" data-action="qr" data-value="${e(url)}">${icon("qr-code", 18)} Tạo mã QR</button></div>
-      ${gift.inviteUrl && gift.inviteUrl !== url ? `<h2>Link mời riêng</h2><p>Gửi link này cho người bạn muốn cấp quyền riêng.</p><div class="share-link" data-copy-container><input data-copy-value readonly value="${e(gift.inviteUrl)}" aria-label="Link mời riêng"/><button data-action="copy-link" data-value="${e(gift.inviteUrl)}">Sao chép</button></div><button class="btn btn--outline" data-action="qr" data-value="${e(gift.inviteUrl)}">Mã QR link mời</button>` : ''}
-      <div class="success-foot">${icon("lock", 15)} Link riêng chỉ nên gửi cho người bạn tin tưởng.</div>
+      <h1>Món quà đã sẵn sàng</h1>
+      ${shareLink(primaryUrl, primaryInvited, true)}
+      ${gift.inviteUrl ? shareLink(primaryInvited ? gift.url : gift.inviteUrl, !primaryInvited, false) : ''}
+      ${gift.inviteUrl ? `<div class="success-foot">${icon("lock", 15)} Người nhận có thể chuyển tiếp link mời. Quyền đi cùng link.</div>` : ''}
     </div></div></section>`;
   }
 
@@ -96,47 +104,53 @@ export function createGiftViews({
     </section>`;
   }
 
-  function renderReplies(replies) {
+  function renderReplies(replies, owner = false) {
     return replies.length
       ? replies
           .map(
             (r) =>
-              `<article class="reply-item"><div class="reply-avatar">${e(r.name.charAt(0).toUpperCase())}</div><div><strong>${e(r.name)}</strong><span>${new Date(r.createdAt).toLocaleDateString("vi-VN")}</span><p>${e(r.message)}</p></div></article>`,
+              `<article class="reply-item"${owner && r.unread ? ` data-unread-reply="${e(r.id)}"` : ''}><div class="reply-avatar">${e(r.name.charAt(0).toUpperCase())}</div><div><strong>${e(r.name)}</strong><span>${new Date(r.createdAt).toLocaleDateString("vi-VN")}</span><p>${e(r.message)}</p></div></article>`,
           )
           .join("")
       : '<p class="no-replies">Chưa có lời hồi đáp. Hãy là người đầu tiên viết một điều dễ thương.</p>';
   }
 
-  function draftCards(designs) {
-    return designs.map(d => `<article class="my-gift"><div class="my-gift-detail"><strong>${e(d.title)}</strong><p>Bản nháp r${Number(d.revision)} · ${new Date(d.updatedAt).toLocaleDateString('vi-VN')}</p></div><div class="my-gift-actions"><a class="btn btn--outline" href="/design/${e(d.id)}" data-link>Tiếp tục</a><button class="btn btn--outline" data-action="duplicate-design" data-id="${e(d.id)}">Nhân bản</button><button class="btn btn--outline" data-action="archive-design" data-id="${e(d.id)}">Lưu trữ bản nháp</button></div></article>`).join('');
+  function draftCards(designs, emphasizeLatest = false) {
+    return designs.map((d, index) => {
+      const latest = emphasizeLatest && index === 0;
+      return `<article class="my-gift"><div class="my-gift-detail"><strong>${e(d.title)}</strong><p>Bản nháp r${Number(d.revision)} · ${new Date(d.updatedAt).toLocaleDateString('vi-VN')}</p></div><div class="my-gift-actions"><a class="btn ${latest ? 'btn--dark' : 'btn--outline'}" href="/design/${e(d.id)}" data-link>${latest ? 'Tiếp tục nháp gần nhất' : 'Tiếp tục'}</a><button class="btn btn--outline" data-action="duplicate-design" data-id="${e(d.id)}">Nhân bản</button><button class="btn btn--outline" data-action="archive-design" data-id="${e(d.id)}">Lưu trữ bản nháp</button></div></article>`;
+    }).join('');
   }
-  function dashboard(gifts, orders, designs = [], nextOffset = null) {
-    return `<section class="page-banner page-banner--dashboard"><div class="container"><span class="eyebrow">KHÔNG GIAN CỦA BẠN</span><h1>Xin chào, <em>${e(state.user.name)}.</em></h1><p>Nơi những món quà bạn gửi đi luôn được nâng niu.</p></div></section>
-    <section class="section dashboard-section"><div class="container"><div class="dashboard-stats">
+  function dashboard() {
+    return `<section class="page-banner page-banner--dashboard"><div class="container"><h1>Xin chào, <em>${e(state.user.name)}.</em></h1>
+      ${state.providers?.recoveryEmail && state.user.provider === "email" && !state.user.emailVerified ? '<a href="/verify-email" data-link>Xác minh email để khôi phục tài khoản</a>' : ''}</div></section>
+    <section class="section dashboard-section"><div class="container">
+      <section><div class="dashboard-heading"><h2>Nháp của bạn</h2>${buttonLink("/design/new", "Tự thiết kế")}</div><div id="studio-drafts-section"></div></section>
+      <section><div class="dashboard-heading"><div><h2>Những điều bạn đã gửi</h2></div><div class="dashboard-heading__actions"><a class="btn btn--outline" href="/favorites" data-link>${icon("heart", 17)} Mẫu yêu thích (${state.favorites.size})</a>${buttonLink("/explore", "Tạo quà từ mẫu")}</div></div><div id="studio-gifts-section"></div></section>
+      <section><div class="dashboard-heading"><h2>Biên nhận thanh toán</h2></div><div id="studio-orders-section"></div></section>
+    </div></section>`;
+  }
+  function studioDrafts({ designs, nextOffset }) {
+    return `<div class="my-gifts" id="studio-drafts">${designs.length ? draftCards(designs, true) : "<p>Bạn chưa có bản nháp. Bắt đầu từ trang trống hoặc chọn một mẫu.</p>"}</div>
+    ${nextOffset !== null ? `<button class="btn btn--outline" data-action="load-more-designs" data-offset="${Number(nextOffset)}">Xem thêm nháp</button>` : ''}`;
+  }
+  function studioGifts({ gifts }) {
+    const usedTemplates = new Set(gifts.map(gift => gift.templateId).filter(Boolean)).size;
+    return `<div class="dashboard-stats">
       <article class="stat-card">${icon("gift", 23)}<strong>${gifts.length}</strong><span>Món quà đã tạo</span></article>
       <article class="stat-card">${icon("message-circle", 23)}<strong>${gifts.reduce((n, g) => n + g.replyCount, 0)}</strong><span>Lời hồi đáp</span></article>
-      <article class="stat-card">${icon("layers", 23)}<strong>${orders.length}</strong><span>Mẫu đã sử dụng</span></article>
-    </div><div class="dashboard-heading"><div><span class="eyebrow">THIẾT KẾ RIÊNG</span><h2>Nháp của bạn</h2><p>Tiếp tục sửa hoặc nhân bản để tạo món quà mới.</p></div>${buttonLink("/design/new", "Tự thiết kế")}</div>
-      <div class="my-gifts" id="studio-drafts">${designs.length ? draftCards(designs) : "<p>Bạn chưa có bản nháp. Bắt đầu từ trang trống hoặc chọn một mẫu.</p>"}</div>
-      ${nextOffset !== null ? `<button class="btn btn--outline" data-action="load-more-designs" data-offset="${Number(nextOffset)}">Xem thêm nháp</button>` : ''}
-      <div class="dashboard-heading"><div><span class="eyebrow">BỘ SƯU TẬP CỦA TÔI</span><h2>Những điều bạn đã gửi.</h2></div><div class="dashboard-heading__actions"><a class="btn btn--outline" href="/favorites" data-link>${icon("heart", 17)} Mẫu yêu thích (${state.favorites.size})</a>${buttonLink("/explore", "Tạo quà từ mẫu")}</div></div>
-      ${
-        orders.some((o) => o.status === "paid")
-          ? `<div class="dashboard-heading"><h2>Biên nhận thanh toán</h2></div><div class="my-gifts">${orders
-              .filter((o) => o.status === "paid")
-              .map(
-                (o) =>
-                  `<article class="my-gift"><div class="my-gift-detail"><strong>${e(o.templateTitle)}</strong><p>${Number(o.grossAmount).toLocaleString("vi-VN")} VND</p></div><a class="btn btn--outline" href="/payment-result/${e(o.id)}" data-link>Xem biên nhận</a></article>`,
-              )
-              .join("")}</div>`
-          : ""
-      }
-      ${
+      <article class="stat-card">${icon("layers", 23)}<strong>${usedTemplates}</strong><span>Mẫu đã sử dụng</span></article>
+      </div>${
         gifts.length
           ? `<div class="my-gifts">${gifts.map(giftCard).join("")}</div>`
           : `<div class="empty-state empty-state--panel">${icon("gift", 38)}<h3>Chưa có món quà nào</h3><p>Mọi kỷ niệm đẹp đều bắt đầu từ một hành động nhỏ.</p>${buttonLink("/explore", "Khám phá mẫu đầu tiên")}</div>`
-      }
-    </div></section>`;
+      }`;
+  }
+  function studioOrders({ orders }) {
+    const paid = orders.filter(order => order.status === "paid");
+    return paid.length ? `<div class="my-gifts">${paid.map(order =>
+      `<article class="my-gift"><div class="my-gift-detail"><strong>${e(order.templateTitle)}</strong><p>${Number(order.grossAmount).toLocaleString("vi-VN")} VND</p></div><a class="btn btn--outline" href="/payment-result/${e(order.id)}" data-link>Xem biên nhận</a></article>`,
+    ).join("")}</div>` : '<p>Chưa có biên nhận thanh toán.</p>';
   }
   function giftCard(gift) {
     const active = gift.status === "active";
@@ -144,7 +158,9 @@ export function createGiftViews({
     const status = { active: "Đang hoạt động", expired: "Hết hạn", revoked: "Đã thu hồi" }[gift.status];
     const slug = e(gift.slug);
     const opens = active ? `<a href="${e(new URL(url).pathname + new URL(url).search)}" data-link class="btn btn--outline">Mở quà ${icon("arrow-up-right", 16)}</a><a class="btn btn--outline" href="/success/${slug}" data-link>Chia sẻ và QR</a><button class="icon-button" aria-label="Sao chép link" data-action="copy-link" data-value="${e(url)}">${icon("copy", 18)}</button><button class="btn btn--outline" data-action="revoke-gift" data-id="${slug}">Ngừng chia sẻ món quà</button>` : '';
-    return `<article class="my-gift"><div class="my-gift-art artwork artwork--${e(gift.theme)}">${icon("gift", 40)}</div><div class="my-gift-detail"><span>GỬI TỚI ${e(gift.recipientName).toLocaleUpperCase("vi")}</span><h3>${e(gift.templateTitle)}</h3><p>${e(status)} · Hết hạn ngày ${new Date(gift.expiresAt).toLocaleDateString("vi-VN")}</p></div><div class="my-gift-actions">${opens}<button class="btn btn--outline" data-action="gift-inbox" data-id="${slug}">Hồi đáp (${Number(gift.replyCount)})</button></div></article>`;
+    const recipient = gift.recipientName ? `GỬI TỚI ${e(gift.recipientName).toLocaleUpperCase("vi")}` : 'QUÀ KHÔNG GHI TÊN NGƯỜI NHẬN';
+    const regift = gift.canRegift ? `<button class="btn btn--outline" data-action="regift" data-id="${slug}">Tặng người khác từ bố cục này</button>` : "";
+    return `<article class="my-gift"><div class="my-gift-art artwork artwork--${e(gift.theme)}">${icon("gift", 40)}</div><div class="my-gift-detail"><span>${recipient}</span><h3>${e(gift.templateTitle)}</h3><p>${e(status)} · Hết hạn ngày ${new Date(gift.expiresAt).toLocaleDateString("vi-VN")}</p></div><div class="my-gift-actions">${opens}<button class="btn btn--outline" data-action="gift-inbox" data-id="${slug}">Hồi đáp (${Number(gift.replyCount)})<span data-unread-count>${gift.unreadCount ? ` · ${Number(gift.unreadCount)} chưa đọc` : ""}</span></button>${regift}</div></article>`;
   }
 
   return {
@@ -154,6 +170,9 @@ export function createGiftViews({
     giftPage,
     renderReplies,
     dashboard,
+    studioDrafts,
+    studioGifts,
+    studioOrders,
     draftCards,
   };
 }

@@ -46,7 +46,7 @@ Tệp phiên nằm trong `local/beta-pilot/` trên máy người điều phối.
 
 ## Khôi phục và vận hành
 
-Phiên rehearsal dùng MySQL 8.4 cô lập. Nạp 001–006, tạo bản ghi Support theo schema cũ, áp 007 và kiểm bản ghi gốc. Dừng writer QA trong lúc dump. Sao lưu SQL, ảnh canvas có tham chiếu và ảnh gift legacy. Dùng một schema đích mới, đối chiếu dữ liệu bảng và hash ảnh, rồi khởi động app từ thư mục sạch. Mở lại cùng URL, kiểm quyền khi có hoặc thiếu link mời, đọc bản V1, đối chiếu bytes ảnh canvas và quà cũ. Lệnh và log nằm trong thư mục bàn giao cục bộ.
+Phiên rehearsal dùng MySQL 8.4 cô lập. Nạp 001–006, tạo bản ghi Support theo schema cũ, áp 007 và kiểm bản ghi gốc. Giữ một lời đáp từ trước 008 để đối chiếu nội dung và số chưa đọc sau nâng cấp. Dừng writer QA trong lúc dump. Sao lưu SQL, ảnh canvas có tham chiếu và ảnh gift legacy. Dùng một schema đích mới, đối chiếu dữ liệu bảng và hash ảnh, rồi khởi động app từ thư mục sạch. Mở lại cùng URL, kiểm quyền khi có hoặc thiếu link mời, đọc bản V1, đối chiếu bytes ảnh canvas và quà cũ. Lệnh và log nằm trong thư mục bàn giao cục bộ.
 
 Trước khi mở beta, giao một người trực xử lý theo ca. Theo dõi số lần lỗi mạng, 5xx và thời gian phản hồi của hai thao tác `POST /api/gifts/gifts/from-design` và `GET /api/gifts/gifts/:slug` bằng mẫu route, nhóm status và mốc thời gian. Tách 403/410 thường gặp do quyền, hết hạn hoặc thu hồi. Dùng số lần thử lại ở cổng đo để tách lỗi tạm thời. Cấu hình access log để loại bỏ slug, query, URL thô, body và thông tin cá nhân trước khi gửi sang công cụ theo dõi. Khi lỗi 5xx lặp lại, xác minh bằng quà tổng hợp và kiểm trạng thái API, MySQL, kho ảnh. Nếu writer gặp sự cố, code hiện có hỗ trợ tạm tắt canvas publish trong cấu hình và giữ reader hoạt động.
 

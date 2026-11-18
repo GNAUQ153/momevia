@@ -1,6 +1,6 @@
 import { loadEnvironment } from '../../shared/config.mjs';
 
-function resolveMysqlConfig(env) {
+export function resolveMysqlConfig(env = process.env) {
   loadEnvironment();
   const host = env.MYSQL_HOST || '127.0.0.1';
   const database = env.MYSQL_DATABASE || 'momevia_dev';

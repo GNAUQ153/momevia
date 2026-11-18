@@ -215,6 +215,11 @@ try {
     assert.equal((await request(`/gifts/gifts/${expired.slug}`)).status, 410);
     const { runCanvasBrowser } = await import('../browser/canvas.mjs'); await runCanvasBrowser(base, expired.slug);
     const { runCanvasResilience } = await import('../browser/canvas-resilience.mjs'); await runCanvasResilience(base);
+    // Browser suites share one localhost IP; preceding scenarios can exhaust auth quotas.
+    // Restart only the isolated fixture process, retaining its JSON data and JWT secrets.
+    // Do not change production rate limits or spoof X-Forwarded-For headers.
+    await stop(); await launch();
+    assert.equal((await request(`/gifts/gifts/${published.slug}`)).status, 200, 'Fixture JSON must survive an isolated server restart');
     const { runCreatorJourney } = await import('../browser/creator-journey.mjs'); await runCreatorJourney(base);
     const { runNewTemplates } = await import('../browser/new-templates.mjs');
     await check('Mobile memory template, optional photo and two-envelope keyboard branching', () => runNewTemplates(base));

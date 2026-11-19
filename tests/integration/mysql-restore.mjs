@@ -66,6 +66,8 @@ export async function runMysqlRestore({ root, sourceFixture, database, container
     await browser?.close();
     if (app) { await new Promise(resolve => app.server.close(resolve)); await app.close(); }
     process.env.MYSQL_DATABASE = environmentDatabase;
+    const modules = path.join(restored,'node_modules');
+    if (fs.lstatSync(modules,{throwIfNoEntry:false})?.isSymbolicLink()) fs.unlinkSync(modules);
     fs.rmSync(restored, { recursive: true, force: true });
   }
 }

@@ -42,7 +42,11 @@ const check = (name, fn) => Promise.resolve().then(fn).then(() => { cases.push(n
 try {
   for (const dir of ['src', 'services', 'web']) fs.cpSync(path.join(root, dir), path.join(fixture, dir), { recursive: true, filter: p => path.basename(p) !== 'data' });
   fs.copyFileSync(path.join(root, 'package.json'), path.join(fixture, 'package.json'));
-  fs.symlinkSync(path.join(root, 'node_modules'), path.join(fixture, 'node_modules'), 'junction');
+  const modules = path.join(root, 'node_modules');
+  const fixtureModules = path.join(fixture, 'node_modules');
+  // A Windows fixture must own its dependencies when its temp tree is removed.
+  if (process.platform === 'win32') fs.cpSync(modules, fixtureModules, {recursive:true});
+  else fs.symlinkSync(modules, fixtureModules, 'dir');
   fs.copyFileSync(path.join(root, 'tests/integration/recovery-journey.mjs'), path.join(fixture, 'recovery-journey.mjs'));
   fs.writeFileSync(path.join(fixture, 'fixture.mjs'), `
     import fs from 'node:fs';
@@ -226,4 +230,9 @@ try {
   }
   console.log(JSON.stringify({ gate: 'JSON API', cases, fixture: 'synthetic isolated single process', result: 'PASS' }));
 } catch (error) { console.error(logs); throw error; }
-finally { await stop(); fs.rmSync(fixture, { recursive: true, force: true }); }
+finally {
+  await stop();
+  const modules = path.join(fixture, 'node_modules');
+  if (fs.lstatSync(modules, {throwIfNoEntry:false})?.isSymbolicLink()) fs.unlinkSync(modules);
+  fs.rmSync(fixture, { recursive: true, force: true });
+}

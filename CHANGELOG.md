@@ -1,3 +1,11 @@
+## Unreleased — Phase 5.5: Expanded Elements & Canvas Discovery (2026-11-19)
+
+- Thêm 48 hình vector nội bộ thuộc sáu chủ đề; Canvas Library tăng từ 124 lên 172 elements, bảo toàn 100 mục gốc và 24 hình Phase 5.4.
+- Bộ lọc Tất cả / Theo dịp / Mới thêm / Vừa dùng, tìm kiếm không dấu, thống kê kết quả và thông báo khi không tìm thấy hình.
+- 12 element dùng gần nhất chỉ lưu ID vào localStorage nếu trình duyệt cho phép, không lưu dữ liệu cá nhân hoặc nội dung thiệp.
+- Tối ưu Canvas library trên desktop/mobile bằng CSS độc lập, focus-visible và prefers-reduced-motion; không thêm dependency, không sử dụng emoji.
+- Cập nhật test API/UI và kiểm thử schema, quyền Creator, preview SVG, Undo/Redo, giữ tương thích thiệp V1/V2.
+
 ## Unreleased — Canvas 100: Crop Quick Focus (Phase 5.3 integration)
 
 - Giữ nguyên 100 Elements, 24 hiệu ứng và schema V1/V2 sau khi hợp nhất cập nhật Canvas mới.

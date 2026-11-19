@@ -10,7 +10,7 @@ import { previewSvg } from '../../web/js/shared/canvas/cover-svg.js';
 import { cleanGiftLayout } from '../../web/js/shared/canvas/clean-layout.js';
 
 const cards = catalog.flatMap(({items}) => items);
-const originalCards = cards.filter(card => !card.id.startsWith("m54-"));
+const originalCards = cards.filter(card => !card.id.startsWith("m54-") && !card.id.startsWith("m55-"));
 
 test('the pre-expansion V1 fixture round-trips without a document upgrade', () => {
   const document = JSON.parse(fs.readFileSync(new URL('../fixtures/canvas-v1.json',import.meta.url),'utf8'));
@@ -45,7 +45,7 @@ test('100 original library IDs match the approved 72 additions and the 28 origin
   assert(matchesBlock(cards.find(card=>card.id==='hero-collage'),'anh ghep'));
 });
 
-test('all 124 factories survive draft, duplicate, public projection and static cover render', () => {
+test('all 172 factories survive draft, duplicate, public projection and static cover render', () => {
   for (const card of cards) {
     const { document,elements } = forCard(card.id);
     assert.deepEqual(validateDocument(JSON.parse(JSON.stringify(document))),document,card.id);

@@ -1,3 +1,5 @@
+import { extendedArt } from "../../shared/canvas/decorative-art-55.js";
+import { extendedCollections } from "./decorative-sets-55.js";
 import { createElement } from "../../shared/canvas/registry.js";
 import { decorativeArt } from "../../shared/canvas/decorative-art.js";
 
@@ -37,6 +39,10 @@ const collections = [
     ["m54-floral-wreath", "Vòng hoa", "khung hoa kỷ niệm", "#B47D99"],
   ]],
 ];
+
+collections.push(...extendedCollections);
+
+export const extendedDecorativeIds = Object.freeze(Object.keys(extendedArt));
 
 export const decorativeNames = Object.fromEntries(
   collections.flatMap(([, entries]) => entries.map(([id, name]) => [id, name])),

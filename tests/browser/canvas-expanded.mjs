@@ -75,14 +75,16 @@ export async function runExpandedBrowser(base, cookie, {cards, controls}, artifa
     await page.goto(base+'/design/new');
     await control('create-blank').click();
     await addTab.click();
-    // Giữ 100 elements gốc và kiểm tra đủ 24 sticker Phase 5.4 trên giao diện thực tế.
+    // Không giảm bộ cũ: 100 khối gốc + 24 họa tiết Phase 5.4 + 48 vector Phase 5.5.
     const catalogIds = catalog.flatMap(group => group.items.map(item => item.id));
-    assert.equal(catalogIds.filter(id => !id.startsWith('m54-')).length, 100, 'Không được thiếu elements gốc');
-    assert.equal(catalogIds.filter(id => id.startsWith('m54-')).length, 24, 'Phải có đủ 24 hình trang trí mới');
-    assert.equal(new Set(catalogIds).size, 124, 'Không được trùng ID element');
+    assert.equal(catalogIds.filter(id => !/^m5[45]-/.test(id)).length, 100, 'Không được thiếu 100 elements gốc');
+    assert.equal(catalogIds.filter(id => id.startsWith('m54-')).length, 24, 'Không được mất sticker Phase 5.4');
+    assert.equal(catalogIds.filter(id => id.startsWith('m55-')).length, 48, 'Phải có đủ 48 hình trang trí mới');
+    assert.equal(new Set(catalogIds).size, 172, 'Không được trùng ID element');
     const visibleIds = await page.locator('[data-block]:visible').evaluateAll(nodes => nodes.map(node => node.dataset.block));
     assert.deepEqual(visibleIds.slice().sort(), catalogIds.slice().sort(),
-      'Thư viện phải hiển thị chính xác 124 elements, không thiếu hoặc trùng mục');
+      'Thư viện phải hiển thị đủ 172 elements, không thiếu hoặc trùng mục');
+    assert.match(await page.locator('#editor-block-count').innerText(), /172/);
     await shot(page,'library-1440.png');
     const search = page.locator('[data-block-search]');
     await search.fill('con dau');
@@ -104,6 +106,13 @@ export async function runExpandedBrowser(base, cookie, {cards, controls}, artifa
       }
     }
     await page.locator('[data-block-group-select]').selectOption('');
+    // Lọc đúng 48 phần tử mới và 12 phần tử dùng gần đây, không cần tải lại trang.
+    await control('filter-blocks').filter({hasText:'Mới thêm'}).click();
+    assert.equal(await page.locator('[data-block]:visible').count(), 48);
+    await control('filter-blocks').filter({hasText:'Vừa dùng'}).click();
+    assert.equal(await page.locator('[data-block]:visible').count(), 12);
+    await control('filter-blocks').filter({hasText:'Tất cả'}).click();
+    assert.equal(await page.locator('[data-block]:visible').count(), 172);
     if (artifacts) {
       await page.evaluate(() => {
         const doc = globalThis.document;
@@ -381,3 +390,4 @@ export async function runExpandedBrowser(base, cookie, {cards, controls}, artifa
     await browser.close();
   }
 }
+

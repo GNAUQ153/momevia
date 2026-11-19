@@ -25,7 +25,8 @@ import { createSaveSession } from "../features/canvas-editor/session.js";
 import { createStage } from "../features/canvas-editor/stage.js";
 import { applyFabricWorkspacePatch } from "../features/canvas-editor/fabric-workspace.js";
 import { sceneThumbnail, thumbnail } from "../features/canvas-editor/thumbnail.js";
-import { bounds, catalog, fillPolaroid, isPolaroidPlaceholder, matchesBlock, placeBlock, sampleBindings, stickerNames } from "../features/canvas-editor/library.js";
+import { bounds, catalog, fillPolaroid, isPolaroidPlaceholder, placeBlock, sampleBindings, stickerNames } from "../features/canvas-editor/library.js";
+import { addRecent, discoveryModes, filteredIds, readRecent, recentKey } from "../features/canvas-editor/library-discovery.js";
 import { cropEditor } from "../features/canvas-editor/crop.js";
 import { icon } from "../ui/icons.js";
 import {
@@ -106,6 +107,12 @@ export function mountDesigner(
     sheet = null,
     creating = false;
   let libraryTab = "content", fitted = true, stageObserver;
+  let discoveryMode = "all";
+  // Bộ nhớ lịch sử chỉ lưu ID element, không lưu dữ liệu hoặc nội dung thiệp.
+  let recentBlocks = (() => {
+    try { return readRecent(localStorage.getItem(recentKey), catalog); }
+    catch { return []; }
+  })();
   const mobile = matchMedia("(max-width: 800px)");
   const dialogs = new Set();
   let quickMode = mode === "quick" || (Boolean(templateId) && mode !== "layout");
@@ -341,7 +348,21 @@ export function mountDesigner(
       })),
     ));
     return [
-      field("Tìm khối", node("input", { type: "search", "data-block-search": "", placeholder: "Ví dụ: ngôi sao" })),
+      node("div", { class: "editor-discovery-heading" },
+        node("span", { class: "editor-discovery-eyebrow" }, "THƯ VIỆN MOMEVIA"),
+        node("strong", {}, "Tạo dấu ấn của riêng bạn"),
+        node("p", {}, "Hình vector sắc nét, đổi màu và thêm trực tiếp vào thiệp.")),
+      field("Tìm hình trang trí", node("input", {
+        type: "search", "data-block-search": "", placeholder: "Hoa, sinh nhật, du lịch...",
+        "aria-describedby": "editor-block-count",
+      })),
+      node("div", { class: "editor-discovery-filters", role: "group", "aria-label": "Bộ lọc thư viện" },
+        ...discoveryModes.map(mode => button(mode.label, "filter-blocks", {
+          class: "editor-discovery-chip", "data-filter-mode": mode.id,
+          "aria-pressed": mode.id === discoveryMode ? "true" : "false",
+        }))),
+      node("p", { class: "editor-discovery-count", id: "editor-block-count", role: "status", "aria-live": "polite" },
+        `${catalog.flatMap(group => group.items).length} elements có sẵn`),
       field("Nhóm khối", node("select", { "data-block-group-select": "" },
         node("option", { value: "" }, `Tất cả (${cards.size})`),
         ...catalog.map(({ label, items }, index) => node("option", { value: index }, `${label} (${items.length})`)))),
@@ -353,21 +374,27 @@ export function mountDesigner(
   }
 
   function filterBlocks(query) {
-    let found = false;
     const panel = main.querySelector("#editor-panel-add");
+    if (!panel?.querySelector("[data-block-group-select]")) return;
     const selectedGroup = panel.querySelector("[data-block-group-select]").value;
-    const groups = panel.querySelectorAll("[data-block-group]");
+    const allowed = filteredIds(catalog, { query, group: selectedGroup, mode: discoveryMode, recent: recentBlocks });
     for (const [index, { items }] of catalog.entries()) {
-      const group = groups[index];
-      let hasMatch = false;
-      for (const [i, control] of [...group.querySelectorAll("[data-block]")].entries()) {
-        control.hidden = !matchesBlock(items[i], query);
-        hasMatch ||= !control.hidden;
+      const section = panel.querySelector(`[data-block-group="${index}"]`);
+      let count = 0;
+      for (const [itemIndex, control] of [...section.querySelectorAll("[data-block]")].entries()) {
+        control.hidden = !allowed.has(items[itemIndex].id);
+        if (!control.hidden) count += 1;
       }
-      group.hidden = !hasMatch || (selectedGroup !== "" && Number(selectedGroup) !== index);
-      found ||= !group.hidden;
+      section.hidden = count === 0;
     }
-    main.querySelector("[data-block-empty]").hidden = found;
+    panel.querySelector("#editor-block-count").textContent = `${allowed.size} kết quả trên ${catalog.flatMap(group => group.items).length} elements`;
+    const empty = panel.querySelector("[data-block-empty]");
+    empty.hidden = allowed.size !== 0;
+    empty.querySelector("p").textContent = discoveryMode === "recent" && recentBlocks.length === 0
+      ? "Chưa có hình vừa dùng. Chọn một hình từ thư viện để bắt đầu."
+      : "Không tìm thấy hình phù hợp. Thử từ khóa hoặc bộ lọc khác.";
+    for (const chip of panel.querySelectorAll("[data-filter-mode]"))
+      chip.setAttribute("aria-pressed", String(chip.dataset.filterMode === discoveryMode));
   }
 
   function switchMode() {
@@ -1884,9 +1911,16 @@ export function mountDesigner(
       showLibrary(target.dataset.tab);
       return;
     }
+    if (name === "filter-blocks") {
+      discoveryMode = target.dataset.filterMode;
+      filterBlocks(main.querySelector("[data-block-search]").value);
+      return;
+    }
     if (name === "clear-block-search") {
       const search = main.querySelector("[data-block-search]");
       search.value = "";
+      discoveryMode = "all";
+      main.querySelector("[data-block-group-select]").value = "";
       filterBlocks("");
       search.focus();
       return;
@@ -1959,6 +1993,11 @@ export function mountDesigner(
           .elementIds.push(...models.map(item => item.id));
       }, `Chèn ${block.title.toLowerCase()}`);
       choose(models.at(-1).id);
+      if (!insertingGreeting) {
+        recentBlocks = addRecent(recentBlocks, block.id, catalog);
+        try { localStorage.setItem(recentKey, JSON.stringify(recentBlocks)); }
+        catch { /* Lưu cục bộ tùy chọn, không ảnh hưởng thao tác thêm hình. */ }
+      }
       if (sheet) closeSheet();
       if (insertingGreeting) main.querySelector('[data-editor-action="preview"]').focus();
       return;

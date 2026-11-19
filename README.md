@@ -96,12 +96,12 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các commit gần nhất trên `main`:**
 
+- `ee0d7f0` — feat: improve Canvas Designer UX and Fabric Studio accessibility (2026-11-19)
 - `bfb1330` — feat: redesign Studio Space dashboard and improve UX (2026-11-19)
 - `dab15ec` — feat: expand Canvas to 172 elements and improve discovery UX (2026-11-19)
 - `4dfc747` — feat: expand Canvas library with 24 seasonal decorations (2026-11-19)
 - `4ffd221` — feat: add image crop presets for Canvas 100 (2026-11-19)
 - `0946dc7` — Merge pull request #10 from GNAUQ153/feat/canvas-100-elements (2026-11-19)
-- `6ee282c` — docs: clarify Phase 5.2 precision alignment release (2026-11-19)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

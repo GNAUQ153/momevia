@@ -1,0 +1,110 @@
+/* Phase 5.1: layout workspace, điều hướng layer bằng nút/ARIA, không dùng emoji. */
+.fabric-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(245px, 305px);
+  gap: 14px;
+  align-items: start;
+}
+
+.fabric-workspace .fabric-surface {
+  min-width: 0;
+  max-height: 57dvh;
+}
+
+.fabric-layer-panel {
+  min-width: 0;
+  max-height: 57dvh;
+  padding: 14px;
+  background: #ffffff;
+  border: 1px solid #e3d8ef;
+  border-radius: 14px;
+  overflow: auto;
+}
+
+.fabric-layer-panel__heading strong {
+  display: block;
+  color: #2f2444;
+  font-size: 15px;
+}
+
+.fabric-layer-panel__heading p {
+  margin: 6px 0 14px;
+  color: #665a74;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.fabric-layer-list {
+  display: grid;
+  gap: 9px;
+}
+
+.fabric-layer-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) repeat(4, auto);
+  align-items: center;
+  gap: 4px;
+  padding: 5px;
+  border-radius: 10px;
+  border: 1px solid #ece5f4;
+  background: #faf8fd;
+}
+
+.fabric-layer-row.is-selected {
+  border-color: #6c49be;
+  background: #f0ebfb;
+}
+
+.editor-fabric-dialog .fabric-layer-row button {
+  min-width: 0;
+  min-height: 36px;
+  padding: 7px 6px;
+  border-radius: 7px;
+  font-size: 11px;
+}
+
+.editor-fabric-dialog .fabric-layer-select {
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 700;
+}
+
+.editor-fabric-dialog .fabric-layer-row button[aria-pressed="true"] {
+  color: #54309d;
+  border-color: #b69adb;
+  background: #ede6fa;
+}
+
+@media (max-width: 850px) {
+  .fabric-workspace {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .fabric-workspace .fabric-surface {
+    max-height: 49dvh;
+  }
+
+  .fabric-layer-panel {
+    max-height: 32dvh;
+  }
+}
+
+@media (max-width: 390px) {
+  .fabric-layer-panel {
+    padding: 9px;
+  }
+
+  .editor-fabric-dialog .fabric-layer-row button {
+    padding: 6px 4px;
+    font-size: 10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fabric-workspace * {
+    transition: none !important;
+    animation: none !important;
+  }
+}

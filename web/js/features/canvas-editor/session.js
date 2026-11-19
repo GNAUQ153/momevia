@@ -1,4 +1,5 @@
 import { isRecoveryEnvelope } from "./recovery-guards.js";
+import { createTabRevisionSync } from "./tab-sync.js";
 
 const messages = {
   clean: "Đã lưu",
@@ -19,9 +20,12 @@ export function createSaveSession({
   request,
   userId,
   storage = globalThis.localStorage,
+  recoveryStorage = globalThis.sessionStorage ?? (globalThis.window ? null : storage),
   onStatus = () => {},
   debounceMs = 900,
   makeId = () => globalThis.crypto.randomUUID(),
+  makeTabId = () => globalThis.crypto.randomUUID(),
+  tabEventTarget = globalThis.window,
 }) {
   let revision = design.revision,
     documentHash = design.documentHash;
@@ -31,10 +35,32 @@ export function createSaveSession({
     timer = null,
     pending = null,
     flight = null;
-  const key = `momevia:canvas:recovery:v1:${userId}:${design.id}`;
+  // sessionStorage được cô lập theo tab; tránh tab B xóa nháp chưa lưu của tab A.
+  const key = `momevia:canvas:recovery:v2:${userId}:${design.id}`;
+  const legacyKey = `momevia:canvas:recovery:v1:${userId}:${design.id}`;
+  let latestOtherRevision = revision;
+  function otherTabConflict() {
+    return Object.assign(new Error(
+      'Thiết kế đã được lưu ở tab khác. Bản chỉnh sửa cục bộ được giữ; hãy xem bản máy chủ trước khi tải lại.',
+    ), { status: 409 });
+  }
+  const tabSync = createTabRevisionSync({
+    userId,
+    designId: design.id,
+    storage,
+    eventTarget: tabEventTarget,
+    createId: makeTabId,
+    onRevision(nextRevision) {
+      if (disposed || nextRevision <= revision) return;
+      latestOtherRevision = Math.max(latestOtherRevision, nextRevision);
+      // Không tạo recovery giả cho tab đang sạch.
+      if (dirty() || pending || flight) recovery();
+      setStatus('conflict', otherTabConflict());
+    },
+  });
   function recovery() {
     try {
-      storage?.setItem(
+      recoveryStorage?.setItem(
         key,
         JSON.stringify({
           designId: design.id,
@@ -108,14 +134,19 @@ export function createSaveSession({
             "Phản hồi lưu không khớp yêu cầu. Giữ bản cục bộ để thử lại.",
           );
         }
+        // ACK cũ không được xóa một xung đột vừa đến từ tab khác.
+        if (latestOtherRevision > ack.savedRevision) throw otherTabConflict();
         revision = ack.savedRevision;
         documentHash = ack.documentHash;
         saved = snapshot;
         pending = null;
+        tabSync.announce(revision);
         if (dirty()) recovery();
         else {
           try {
-            storage?.removeItem(key);
+            recoveryStorage?.removeItem(key);
+            // Chỉ dọn bản cache V1 cũ sau khi máy chủ đã ACK đầy đủ.
+            storage?.removeItem(legacyKey);
           } catch {
             /* Optional cache. */
           }
@@ -148,12 +179,16 @@ export function createSaveSession({
     return flight;
   }
   function readRecovery() {
-    try {
-      const item = JSON.parse(storage?.getItem(key) || "null");
-      return isRecoveryEnvelope(item, { userId, designId: design.id }) ? item : null;
-    } catch {
-      return null;
+    function read(cache, cacheKey) {
+      try {
+        const value = JSON.parse(cache?.getItem(cacheKey) || "null");
+        return isRecoveryEnvelope(value, { userId, designId: design.id }) ? value : null;
+      } catch {
+        return null;
+      }
     }
+    // Cache V2 của tab hiện tại được ưu tiên; V1 chỉ dùng để phục hồi tương thích.
+    return read(recoveryStorage, key) || read(storage, legacyKey);
   }
   return {
     save,
@@ -186,20 +221,22 @@ export function createSaveSession({
       // Không giữ reference mutable từ localStorage hay caller trong phiên lưu.
       pending = item.pending ? structuredClone(item.pending) : null;
       recovery();
+      if (latestOtherRevision > revision) {
+        setStatus('conflict', otherTabConflict());
+        return;
+      }
       setStatus("dirty");
       schedule();
     },
     clearRecovery() {
-      try {
-        storage?.removeItem(key);
-      } catch {
-        /* Optional cache. */
-      }
+      try { recoveryStorage?.removeItem(key); } catch { /* Optional cache. */ }
+      try { storage?.removeItem(legacyKey); } catch { /* Optional cache. */ }
     },
     dispose() {
       recoveryIfDirty();
       disposed = true;
       clearTimeout(timer);
+      tabSync.dispose();
       unsubscribe();
     },
   };

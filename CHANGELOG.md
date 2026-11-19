@@ -1,3 +1,11 @@
+## Unreleased — Phase 6.0b: Contextual Style Properties (2026-11-19)
+
+- Bổ sung panel kiểu dáng theo loại đối tượng trong Fabric Studio và Inline Canvas.
+- Văn bản: màu chữ, font token, cỡ chữ, căn lề, giãn dòng; hình khối: màu nền/viền, độ dày viền, bo góc; ảnh: opacity.
+- Chỉ cập nhật bản nháp sau khi Áp dụng, kiểm tra allowlist, schema V1/V2, quyền Creator, lớp bị khóa, scene ID và thông số không hợp lệ.
+- Mobile: panel thu gọn, nút tối thiểu 44px, CSS tách module, không emoji, không thay đổi API/DB.
+- Bốn file local modified từ source gửi ngày 19/11 chỉ khác định dạng; cung cấp công cụ hoàn nguyên riêng có checksum, không tự động ghi đè.
+
 ## Unreleased — Phase 6.0a: Contextual Canvas Quickbar
 
 - Thêm công cụ chỉnh nhanh theo lớp đang chọn: di chuyển, xoay 15°, căn giữa ngang/dọc.

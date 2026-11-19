@@ -1,0 +1,133 @@
+/* Phase 6.0b: Công cụ kiểu dáng theo đối tượng, độc lập với CSS toàn trang. */
+.editor-fabric-dialog .fabric-properties {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+  padding: 14px;
+  margin-bottom: 16px;
+  border: 1px solid #dfd7ed;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 4px 16px rgba(50, 31, 85, 0.04);
+}
+
+.fabric-properties__heading {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.fabric-properties__heading strong {
+  font-size: 14px;
+  line-height: 1.4;
+  color: #312247;
+}
+
+.fabric-properties__summary {
+  margin: 0;
+  color: #594e6b;
+  font-size: 12px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.fabric-properties__body {
+  display: grid;
+  gap: 12px;
+}
+
+.fabric-properties__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.fabric-properties__field {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  font-size: 12px;
+  font-weight: 650;
+  color: #413250;
+}
+
+.fabric-properties__input {
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 8px 10px;
+  border: 1px solid #cabce1;
+  border-radius: 9px;
+  background: #ffffff;
+  color: #30233c;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.fabric-properties__input[type="color"] {
+  padding: 4px;
+  cursor: pointer;
+}
+
+.fabric-properties__input:disabled {
+  opacity: 0.56;
+  cursor: not-allowed;
+}
+
+.fabric-properties__hint {
+  margin: 0;
+  color: #655879;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.editor-fabric-dialog .fabric-properties__toggle {
+  display: none;
+  min-height: 44px;
+  padding: 8px 12px;
+  background: #f4edfc;
+  color: #513482;
+}
+
+.fabric-properties__input:focus-visible,
+.editor-fabric-dialog .fabric-properties__toggle:focus-visible {
+  outline: 3px solid #6945b9;
+  outline-offset: 2px;
+}
+
+@media (max-width: 850px) {
+  .editor-fabric-dialog .fabric-properties {
+    padding: 12px;
+  }
+
+  .editor-fabric-dialog .fabric-properties__toggle {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .editor-fabric-dialog .fabric-properties__body {
+    display: none;
+  }
+
+  .editor-fabric-dialog .fabric-properties.is-expanded .fabric-properties__body {
+    display: grid;
+  }
+}
+
+@media (max-width: 390px) {
+  .fabric-properties__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fabric-properties,
+  .fabric-properties * {
+    transition: none !important;
+    animation: none !important;
+  }
+}

@@ -1,4 +1,5 @@
 import { applyFabricDiff, FABRIC_EDITABLE_TYPES } from './fabric-adapter.js';
+import { applyFabricStylePatch } from './fabric-style-patch.js';
 import { validateDocument } from '../../shared/canvas/schema.js';
 
 // Các thao tác của workspace là dữ liệu thuần; Fabric chỉ dùng để hiển thị.
@@ -59,7 +60,8 @@ export function fabricWorkspaceChanged(document, sceneId, patch) {
   const scene = sceneOf(document, sceneId);
   const order = patch?.order || scene.elementIds;
   const visibility = patch?.visibility || {};
-  return Boolean(patch?.layouts?.length || order.some((id, index) => id !== scene.elementIds[index]) ||
+  return Boolean(patch?.layouts?.length || patch?.styles?.length ||
+    order.some((id, index) => id !== scene.elementIds[index]) ||
     Object.entries(visibility).some(([id, value]) => {
       const element = elementOf(document, scene, id);
       return (element.visible !== false) !== value;
@@ -98,7 +100,8 @@ export function applyFabricWorkspacePatch(document, sceneId, patch, policy = nul
   }
   // Layout chỉ được áp dụng sau visibility để lớp được mở lại có thể chỉnh sửa.
   const applied = applyFabricDiff(next, sceneId, patch.layouts, policy);
-  return validateDocument(applied);
+  const styled = applyFabricStylePatch(applied, sceneId, patch.styles ?? [], policy);
+  return validateDocument(styled);
 }
 
 // Snap theo tâm/biên bản vẽ, không thay đổi nội dung text hoặc action.

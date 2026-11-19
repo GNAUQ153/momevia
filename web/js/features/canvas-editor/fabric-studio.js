@@ -3,6 +3,7 @@ import { fabricView, fabricDiff } from './fabric-adapter.js';
 import { arrangeFabricBoxes } from './fabric-align.js';
 import { mountFabricInspector } from './fabric-inspector.js';
 import { mountFabricQuickbar } from './fabric-quickbar.js';
+import { mountFabricProperties } from './fabric-properties.js';
 import {
   canManageFabricLayer, moveFabricLayer, applyFabricWorkspacePatch,
   fabricWorkspaceChanged, snapFabricCenter
@@ -194,6 +195,7 @@ export async function openFabricStudio({ snapshot, sceneId, policy, assetUrl, on
   let canvas;
   let inspector;
   let quickbar;
+  let properties;
   let fitObserver;
   let closed = false;
   function close() { if (dialog.open) dialog.close(); else cleanup(); }
@@ -203,6 +205,7 @@ export async function openFabricStudio({ snapshot, sceneId, policy, assetUrl, on
     fitObserver?.disconnect();
     inspector?.dispose();
     quickbar?.dispose();
+    properties?.dispose();
     try { void canvas?.dispose(); } catch { /* Đóng editor cũ vẫn phải thành công. */ }
     dialog.remove();
     onClose();
@@ -262,6 +265,11 @@ export async function openFabricStudio({ snapshot, sceneId, policy, assetUrl, on
       canEdit: id => isMovable(id) && visibility.get(id) !== false,
     });
     layersPanel.insertBefore(inspector.panel, batchSummary);
+    // Kiểu dáng dùng state tạm, chỉ đưa vào document khi người dùng bấm Áp dụng.
+    properties = mountFabricProperties({
+      canvas, layerModels, canEdit: id => isMovable(id) && visibility.get(id) !== false,
+    });
+    layersPanel.insertBefore(properties.panel, batchSummary);
     // Quickbar đặt cạnh artboard, chỉ điều khiển đối tượng Fabric tạm.
     quickbar = mountFabricQuickbar({
       canvas, dialog,
@@ -492,7 +500,7 @@ export async function openFabricStudio({ snapshot, sceneId, policy, assetUrl, on
           const state = { order: [...layerOrder], visibility: Object.fromEntries(visibility), layouts: [] };
           const metadataDocument = applyFabricWorkspacePatch(snapshot, sceneId, state, policy);
           const layouts = fabricDiff(metadataDocument, sceneId, canvas.getObjects(), policy);
-          const patch = { ...state, layouts };
+          const patch = { ...state, layouts, styles: properties.changes() };
           if (fabricWorkspaceChanged(snapshot, sceneId, patch)) onApply(patch);
           close();
         } catch (error) { help.textContent = error.message; }

@@ -28,6 +28,7 @@ import { sceneThumbnail, thumbnail } from "../features/canvas-editor/thumbnail.j
 import { bounds, catalog, fillPolaroid, isPolaroidPlaceholder, placeBlock, sampleBindings, stickerNames } from "../features/canvas-editor/library.js";
 import { addRecent, discoveryModes, filteredIds, readRecent, recentKey } from "../features/canvas-editor/library-discovery.js";
 import { cropEditor } from "../features/canvas-editor/crop.js";
+import { canOpenAdvancedEditor, scenePositionLabel, selectionDescription } from "../features/canvas-editor/editor-experience.js";
 import { icon } from "../ui/icons.js";
 import {
   node,
@@ -210,6 +211,15 @@ export function mountDesigner(
     renderInspector();
     renderLayers();
     renderAssets();
+    updateCanvasGuidance();
+  }
+  function updateCanvasGuidance() {
+    if (!store || !design) return;
+    const document = store.get().document;
+    const sceneStatus = main.querySelector('[data-editor-scene-progress]');
+    const selectionStatus = main.querySelector('[data-editor-selection]');
+    if (sceneStatus) sceneStatus.textContent = scenePositionLabel(document, sceneId);
+    if (selectionStatus) selectionStatus.textContent = selectionDescription(document, sceneId, selection, design.policy);
   }
   function commit(mutate, label, options) {
     const next = structuredClone(store.get());
@@ -304,6 +314,7 @@ export function mountDesigner(
     const next = workspace.querySelector(quickMode ? ".editor-stage-scroll" : ".editor-mobile-dock");
     next.before(sceneBar);
     showLibrary(libraryTab);
+    updateCanvasGuidance();
   }
 
   function showLibrary(tab) {
@@ -415,7 +426,12 @@ export function mountDesigner(
       iconButton("Làm lại (Ctrl Shift Z)", "redo", "redo"),
       button("Lưu nháp", "save", { class: "editor-save" }),
       button("Xem trước", "preview"),
-      button("Fabric Studio", "fabric-studio", { class: "editor-layout-only" }),
+      canOpenAdvancedEditor(design.policy)
+        ? button("Chỉnh sửa nâng cao", "advanced-design", {
+          class: "editor-advanced-cta",
+          title: "Kéo, xoay, căn chỉnh và quản lý các lớp bằng Fabric Studio",
+        })
+        : null,
       design.purpose === "creator"
         ? button("Gửi phiên bản để duyệt", "submit-template", { class: "editor-primary" })
         : button("Xuất bản", "publish", { class: "editor-primary editor-layout-only" }),
@@ -516,6 +532,16 @@ export function mountDesigner(
       "section",
       { class: "editor-stage-column", "aria-label": "Bản thiết kế" },
       node("h2", { class: "editor-quick-only" }, "Bố cục thiệp"),
+      node("div", { class: "editor-experience-header editor-layout-only" },
+        node("div", { class: "editor-experience-heading" },
+          node("span", { class: "editor-experience-kicker" }, "KHÔNG GIAN THIẾT KẾ"),
+          node("h2", {}, "Làm món quà mang dấu ấn riêng"),
+          node("p", {}, "Thêm hình trang trí, chọn một lớp và chỉnh trực tiếp trên thiệp."),
+        ),
+        node("span", { class: "editor-scene-progress", "data-editor-scene-progress": "" }, "Cảnh 1/1"),
+      ),
+      node("p", { class: "editor-quick-tip editor-quick-only" },
+        "Muốn di chuyển, xoay và căn chỉnh chi tiết? Chọn Chỉnh sửa nâng cao ở thanh trên."),
       node(
         "div",
         { class: "editor-stage-tools editor-layout-only" },
@@ -532,7 +558,18 @@ export function mountDesigner(
           }),
         ),
       ),
+      node("p", { class: "editor-selection-summary editor-layout-only", "data-editor-selection": "", role: "status", "aria-live": "polite" },
+        "Chọn một thành phần trên thiệp để chỉnh sửa."),
       node("div", { class: "editor-stage-scroll" }),
+      node("details", { class: "editor-editing-help editor-layout-only" },
+        node("summary", {}, "Cách sử dụng công cụ thiết kế"),
+        node("ol", {},
+          node("li", {}, "Chọn Thêm để tìm hình trang trí, chữ hoặc khung ảnh."),
+          node("li", {}, "Chọn thành phần trên thiệp để mở bảng Chỉnh; dùng Lớp để quản lý thứ tự."),
+          node("li", {}, "Chọn Chỉnh sửa nâng cao để kéo, xoay, căn hàng và đổi thứ tự bằng Fabric Studio."),
+          node("li", {}, "Lưu nháp, rồi Xem trước trước khi xuất bản."),
+        ),
+      ),
     );
     const inspector = node("aside", {
       class: "editor-inspector editor-layout-only",
@@ -1160,6 +1197,7 @@ export function mountDesigner(
     const title = main.querySelector(".editor-title");
     if (title && title !== document.activeElement)
       title.value = store.get().title;
+    updateCanvasGuidance();
   }
   async function initialize(loaded) {
     if (disposed) return;
@@ -1737,9 +1775,12 @@ export function mountDesigner(
       return;
     }
     if (!store) return;
-    if (name === "fabric-studio") {
-      if (quickMode || design.policy?.kind === "creator-template")
-        throw new Error("Chỉ dùng Fabric Studio ở chế độ chỉnh bố cục được phép.");
+    if (name === "advanced-design" || name === "fabric-studio") {
+      if (!canOpenAdvancedEditor(design.policy))
+        throw new Error("Mẫu hiện tại không cho phép thay đổi bố cục nâng cao.");
+      // Người dùng vào từ chế độ nhanh sẽ được chuyển sang chế độ bố cục có quyền chỉnh.
+      if (quickMode && name === "advanced-design") switchMode();
+      if (quickMode) throw new Error("Hãy chuyển sang chế độ chỉnh bố cục trước khi mở Fabric Studio.");
       const { openFabricStudio } = await import("../features/canvas-editor/fabric-studio.js");
       const initialSequence = store.sequence;
       const studio = await openFabricStudio({
@@ -1895,6 +1936,7 @@ export function mountDesigner(
       renderScenes();
       renderLayers();
       renderInspector();
+      updateCanvasGuidance();
       return;
     }
     if (name === "fit") {

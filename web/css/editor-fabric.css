@@ -1,0 +1,142 @@
+/* Fabric Studio: bảng công cụ nâng cao, tách biệt trình phát quà tương tác. */
+.editor-fabric-dialog {
+  box-sizing: border-box;
+  width: min(96vw, 980px);
+  max-width: 980px;
+  max-height: 96dvh;
+  border: 1px solid #ded4ea;
+  border-radius: 20px;
+  padding: clamp(14px, 3vw, 24px);
+  background: #fbf9ff;
+  color: #2f2640;
+  box-shadow: 0 22px 70px rgba(34, 18, 56, 0.23);
+  overflow: auto;
+}
+
+.editor-fabric-dialog::backdrop {
+  background: rgba(17, 11, 30, 0.63);
+}
+
+.fabric-header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.fabric-header strong {
+  display: block;
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.fabric-header p {
+  margin: 7px 0 0;
+  max-width: 610px;
+  color: #675c75;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.fabric-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 18px 0 10px;
+}
+
+.editor-fabric-dialog button {
+  border: 1px solid #d8cbeb;
+  border-radius: 10px;
+  padding: 10px 14px;
+  min-height: 42px;
+  background: white;
+  font: 700 13px var(--font-body, sans-serif);
+  color: #382750;
+  cursor: pointer;
+}
+
+.editor-fabric-dialog button:hover:not(:disabled) {
+  border-color: #8868bf;
+  background: #f1ebfa;
+}
+
+.editor-fabric-dialog button:focus-visible {
+  outline: 3px solid #6847bf;
+  outline-offset: 3px;
+}
+
+.editor-fabric-dialog button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.editor-fabric-dialog .editor-primary {
+  border-color: #6840ba;
+  background: #6438b8;
+  color: #fff;
+}
+
+.fabric-help {
+  color: #64586c;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.fabric-surface {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  overflow: auto;
+  max-height: 60dvh;
+  border: 1px solid #e4daed;
+  border-radius: 14px;
+  background: #ece6f4;
+  padding: 14px 0;
+}
+
+.fabric-surface .canvas-container {
+  flex: 0 0 auto;
+  box-shadow: 0 10px 32px rgba(35, 18, 60, 0.12);
+}
+
+.fabric-footer {
+  display: flex;
+  align-items: center;
+  justify-content: end;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.fabric-note {
+  flex: 1;
+  min-width: 210px;
+  color: #675a78;
+  font-size: 12px;
+}
+
+@media (max-width: 600px) {
+  .editor-fabric-dialog {
+    width: 100vw;
+    max-height: 100dvh;
+    border-radius: 0;
+    padding: 14px;
+  }
+
+  .fabric-header strong {
+    font-size: 19px;
+  }
+
+  .fabric-footer > button {
+    flex: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .editor-fabric-dialog * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -15,6 +15,7 @@ import { materializeTemplateStart } from '../features/canvas-editor/template-sta
 import { createEditorStore } from "../features/canvas-editor/store.js";
 import { createSaveSession } from "../features/canvas-editor/session.js";
 import { createStage } from "../features/canvas-editor/stage.js";
+import { applyFabricDiff } from "../features/canvas-editor/fabric-adapter.js";
 import {
   node,
   button,
@@ -255,6 +256,7 @@ export function mountDesigner(
       button("Làm lại", "redo", { "aria-label": "Làm lại (Ctrl Shift Z)" }),
       button("Lưu nháp", "save", { class: "editor-save" }),
       button("Xem trước", "preview"),
+      button("Fabric Studio", "fabric-studio", { class: "editor-layout-only" }),
       design.purpose === "creator"
         ? button("Gửi phiên bản để duyệt", "submit-template", { class: "editor-primary" })
         : button("Xuất bản", "publish", { class: "editor-primary editor-layout-only" }),
@@ -1414,6 +1416,32 @@ export function mountDesigner(
       return;
     }
     if (!store) return;
+    if (name === "fabric-studio") {
+      if (quickMode || design.policy?.kind === "creator-template")
+        throw new Error("Chỉ dùng Fabric Studio ở chế độ chỉnh bố cục được phép.");
+      const { openFabricStudio } = await import("../features/canvas-editor/fabric-studio.js");
+      const initialSequence = store.sequence;
+      const studio = await openFabricStudio({
+        snapshot: structuredClone(store.get().document),
+        sceneId,
+        policy: design.policy,
+        assetUrl,
+        onApply: (updates) => {
+          if (store.sequence !== initialSequence)
+            throw new Error("Nháp đã đổi trong lúc mở Fabric Studio. Hãy mở lại để tránh ghi đè.");
+          if (!updates.length) return;
+          commit(value => {
+            value.document = applyFabricDiff(value.document, sceneId, updates, design.policy);
+          }, "Fabric Studio: điều chỉnh bố cục");
+        },
+        onClose: () => {
+          for (const item of dialogs)
+            if (item.classList.contains("editor-fabric-dialog")) dialogs.delete(item);
+        },
+      });
+      if (studio?.dialog && studio.dialog.open) dialogs.add(studio.dialog);
+      return;
+    }
     if (name === "toggle-mode") {
       switchMode();
       return;

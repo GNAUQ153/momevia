@@ -110,6 +110,9 @@ async function startFixture() {
   const health=['/api/auth/health','/api/catalog/health','/api/checkout/health','/api/gifts/health','/api/support/health'];
   await waitForHealth(base, health, children);
   assert.equal(children.length, legacy ? 6 : 1, 'Fixture phải khởi động đúng số process của topology.');
+  const fabricModule = await request(base, '/js/vendor/fabric.mjs', { method: 'HEAD' });
+  assert.equal(fabricModule.status, 200);
+  assert.match(fabricModule.headers['content-type'], /^text\/javascript\b/, 'Fabric ESM must be served as JavaScript.');
   const seededLogin = await request(base, '/api/auth/login', { method: 'POST', body: {
     email: legacy ? env.TEST_ACCOUNT_EMAIL : 'ENV-QA@example.test',
     password: legacy ? env.TEST_ACCOUNT_PASSWORD : 'EnvFixturePass123',

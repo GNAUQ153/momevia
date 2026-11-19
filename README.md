@@ -95,12 +95,12 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các commit gần nhất trên `main`:**
 
+- `0946dc7` — Merge pull request #10 from GNAUQ153/feat/canvas-100-elements (2026-11-19)
 - `6ee282c` — docs: clarify Phase 5.2 precision alignment release (2026-11-19)
 - `7bb3554` — feat: add seasonal templates and recipient viral conversion (2026-11-19)
 - `460151f` — feat: enhance Fabric Studio with professional layer workspace (2026-11-19)
 - `cddb2bb` — feat: integrate Fabric Studio advanced canvas editor (2026-11-19)
 - `55f42ec` — fix: stabilize seasonal template preview and browser tests (2026-11-19)
-- `0cb0afc` — feat: add seasonal templates and recipient viral conversion (2026-11-19)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

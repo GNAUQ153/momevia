@@ -1,3 +1,5 @@
+import { icon } from "../../ui/icons.js";
+
 export function node(tag, attrs = {}, ...children) {
   const item = document.createElement(tag);
   for (const [key, value] of Object.entries(attrs)) {
@@ -17,6 +19,17 @@ export const button = (text, action, attrs = {}) =>
     { type: "button", "data-editor-action": action, ...attrs },
     text,
   );
+export function iconButton(label, action, symbol, attrs = {}) {
+  const { class: className = "", ...attributes } = attrs;
+  const control = button("", action, {
+    class: `editor-icon-button ${className}`,
+    "aria-label": label,
+    title: label,
+    ...attributes,
+  });
+  control.innerHTML = icon(symbol, 18);
+  return control;
+}
 export function field(label, input) {
   return node(
     "label",

@@ -1,4 +1,5 @@
 import { mountPlayer } from '../gift-runtime/index.js';
+import { assetIds } from '../../shared/canvas/schema.js';
 import { node, field } from '../canvas-editor/dom.js';
 
 export function mountReview(host, { version, endpoint, api, navigate }) {
@@ -45,7 +46,7 @@ export function mountReview(host, { version, endpoint, api, navigate }) {
     const photo = document.elements.find(item => item.id === version.photoId);
     const localId = 'review-local-photo';
     if (photo && photoData) {
-      const sameAsset = document.elements.some(item => item !== photo && item.type === 'image' && item.props.assetId === photo.props.assetId);
+      const sameAsset = assetIds({ elements: document.elements.filter(item => item !== photo) }).includes(photo.props.assetId);
       if (!sameAsset) document.assets = document.assets.filter(asset => asset.assetId !== photo.props.assetId);
       document.assets.push({ assetId: localId, kind: 'image' });
       photo.props.assetId = localId;

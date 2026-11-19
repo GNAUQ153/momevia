@@ -7,8 +7,8 @@ import { execFileSync } from 'node:child_process';
 import { pathToFileURL } from 'node:url';
 import { chromium } from 'playwright';
 
-export async function runMysqlRestore({ root, sourceFixture, database, container, config, gift, stopSource }) {
-  const evidence = path.join(root, 'local', 'sender-creator-20261118');
+export async function runMysqlRestore({ root, sourceFixture, database, container, config, gift, stopSource, extended, artifacts }) {
+  const evidence = artifacts || path.join(root, 'local', 'sender-creator-20261118');
   fs.mkdirSync(evidence, { recursive: true });
   const run = fs.mkdtempSync(path.join(evidence, 'restore-'));
   const media = path.join(run, 'source-media');
@@ -61,11 +61,32 @@ export async function runMysqlRestore({ root, sourceFixture, database, container
     await page.locator('.gift-runtime-stage').getByText(gift.greeting, { exact: true }).waitFor();
     await page.getByText('Người gửi đã tắt hồi đáp.').waitFor();
     console.log('PASS restored application: same link and port, original image bytes, version V1 and invite-only access in a clean MySQL schema and fresh app.');
+    if (extended) {
+      const endpoint = `${config.baseUrl}/api/gifts/gifts/${extended.slug}`;
+      const response = await fetch(endpoint);
+      assert.equal(response.status,200);
+      const {gift} = await response.json();
+      assert.equal(gift.runtimeVersion,2);
+      assert.deepEqual(gift.documentSnapshot,extended.snapshot);
+      for (const {assetId} of gift.documentSnapshot.assets) {
+        const photo = await fetch(`${endpoint}/assets/${assetId}`);
+        assert.equal(photo.status,200);
+        assert(Buffer.from(await photo.arrayBuffer()).length > 0);
+      }
+      await page.goto(`${config.baseUrl}/g/${extended.slug}`);
+      await page.getByRole('button',{name:'Mở album',exact:true}).click();
+      await page.getByAltText('Phong cảnh minh hoạ 1').waitFor();
+      await page.getByRole('button',{name:'Sau',exact:true}).click();
+      await page.getByAltText('Phong cảnh minh hoạ 2').waitFor();
+      console.log('PASS restored V2 public runtime and nested album assets on MySQL.');
+    }
     console.log(`Restore manifest: ${path.join(output, 'manifest.json')}`);
   } finally {
     await browser?.close();
     if (app) { await new Promise(resolve => app.server.close(resolve)); await app.close(); }
     process.env.MYSQL_DATABASE = environmentDatabase;
+    const modules = path.join(restored,'node_modules');
+    if (fs.lstatSync(modules,{throwIfNoEntry:false})?.isSymbolicLink()) fs.unlinkSync(modules);
     fs.rmSync(restored, { recursive: true, force: true });
   }
 }

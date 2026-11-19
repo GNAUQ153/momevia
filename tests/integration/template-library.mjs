@@ -118,5 +118,9 @@ try {
   for (const key of Object.keys(process.env)) if (!(key in beforeEnv)) delete process.env[key]; Object.assign(process.env, beforeEnv);
   const relative = path.relative(temporaryRoot, fixtureRoot);
   if (!relative.startsWith('momevia-basic-library-') || relative.includes(path.sep) || path.isAbsolute(relative)) throw new Error('Refuse unexpected fixture cleanup path.');
+  for (const directory of fs.readdirSync(fixtureRoot)) {
+    const modules = path.join(fixtureRoot, directory, 'node_modules');
+    if (fs.lstatSync(modules, {throwIfNoEntry:false})?.isSymbolicLink()) fs.unlinkSync(modules);
+  }
   fs.rmSync(fixtureRoot, { recursive: true, force: true });
 }

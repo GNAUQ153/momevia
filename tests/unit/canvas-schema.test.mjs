@@ -20,7 +20,8 @@ test('canvas schema is lossless, Unicode-safe and accepts all 24 presets without
   }
   assert.deepEqual(templates, original);
   assert.equal(createDocument().scenes.length, 1);
-  assert.equal(Object.keys(registry).length, 9);
+  assert.equal(Object.values(registry).filter(type => type.capability === 'basic').length, 9);
+  assert.equal(registry.interaction.capability, 'extended');
 });
 
 test('canonical serialization has fixed key order, preserves array order and a stable SHA-256 fixture', () => {

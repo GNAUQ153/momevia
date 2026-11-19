@@ -71,7 +71,8 @@ export async function runCreatorJourney(base) {
     await creator.call(`/designs/designs/${otherDraft.id}`, undefined, 404);
     assert.deepEqual((await sender.call('/designs/designs')).designs, []);
 
-    await page.locator('[data-editor-action="add"][data-type="image"]').click();
+    await page.locator('[data-editor-action="library-tab"][data-tab="add"]').click();
+    await page.locator('[data-block="photo"]').click();
     await field(page, 'upload').setInputFiles({ name: 'demo.png', mimeType: 'image/png', buffer: await image('#945ad1') });
     await page.locator('.editor-artboard img').waitFor();
     await action(page, 'save').click();
@@ -438,6 +439,17 @@ export async function runCreatorJourney(base) {
     await phone.getByRole('button', { name: 'Chỉnh bố cục' }).waitFor();
     await phone.goto(`${base}/design/${senderId}?mode=layout`);
     await phone.getByRole('button', { name: 'Cá nhân hóa nhanh' }).waitFor();
+    await action(phone, 'sheet-layers').click();
+    await phone.locator(`.editor-layers [data-id="${photoId}"]`).click();
+    await phone.keyboard.press('Escape');
+    await action(phone, 'sheet-inspector').click();
+    assert(await field(phone, 'upload').isEnabled());
+    assert(await field(phone, 'props.radius').isDisabled());
+    assert(await action(phone, 'layer-lock').isDisabled());
+    assert.equal(await phone.locator('.editor-crop-surface.is-editable').count(), 0);
+    await phone.getByText(/Vùng mẫu có khóa/).waitFor();
+    await capture(phone, 'sender-locked-layout');
+    await phone.keyboard.press('Escape');
     await phone.goto(base + '/studio');
     const draftCard = phone.locator('.my-gift').filter({ has: phone.locator(`a[href="/design/${senderId}"]`) });
     phone.once('dialog', dialog => dialog.accept());

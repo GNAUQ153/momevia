@@ -11,6 +11,7 @@ import { pathToFileURL, fileURLToPath } from 'node:url';
 import { confirmGiftAccess } from '../browser/gift-access.mjs';
 import { runRecovery, simulatedGoogle } from './recovery-journey.mjs';
 import { runReplyIntents } from './reply-intents.mjs';
+import { runExpandedApi } from './canvas-expanded.mjs';
 
 const require = createRequire(import.meta.url), driver = require('mysql2/promise'), sharp = require('sharp');
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
@@ -155,6 +156,10 @@ try{
     await post('/api/gifts/gifts/from-design',cookie,publishBody(saved),201);
     assert.equal(JSON.stringify((await json('/api/catalog/templates')).templates),originals);
   });
+  let extendedCards;
+  await check('V2 on MySQL: three published QA cards, nested album media, ACL and revoke', async () => {
+    ({cards:extendedCards} = await runExpandedApi(base, cookie, otherCookie, { artifacts: artifacts && path.join(artifacts,'qa-gifts') }));
+  });
   await check('C14/C15 pending intent + two resume contexts do not grant rights or auto publish',async()=>{
     paidA=await create({kind:'template',templateId:'midnight-bloom'});paidA=await save(paidA,fill(paidA));
     paidB=await create({kind:'template',templateId:'midnight-bloom'});paidB=await save(paidB,fill(paidB));
@@ -211,7 +216,9 @@ try{
         const page=await context.newPage();let previewWrites=0;page.on('request',r=>{if(r.method()==='POST'&&/\/replies$/.test(r.url()))previewWrites++;});
         await page.goto(`${base}/design/new`);await page.locator('[data-editor-action="create-starter"]').click();await page.locator('.editor-workspace').waitFor();
         await page.locator('[data-editor-field="binding.recipientName"]').fill('Mai');await page.locator('[data-editor-field="binding.senderName"]').fill('An');await page.locator('[data-editor-field="binding.message"]').fill('Lời chúc MySQL từ trang trống');
-        await page.locator('[data-editor-action="add"][data-type="text"]').click();await page.locator('[data-editor-field="props.text"]').fill('Tiếng Việt được lưu: ă â ê ô ơ ư đ');
+        await page.locator('[data-editor-action="library-tab"][data-tab="add"]').click();
+        await page.locator('[data-block="paragraph"]').click();await page.locator('[data-editor-field="props.text"]').fill('Tiếng Việt được lưu: ă â ê ô ơ ư đ');
+        await page.locator('.editor-geometry summary').click();
         await page.locator('[data-editor-field="layout.x"]').fill('72');await page.locator('[data-editor-action="save"]').click();await page.locator('.editor-save-status').filter({hasText:'Đã lưu'}).waitFor();
         const id=page.url().split('/').at(-1);let persisted=await getDesign(id);assert.equal(persisted.source.kind,'blank');assert(persisted.document.elements.some(e=>e.type==='text'&&e.props.text==='Tiếng Việt được lưu: ă â ê ô ơ ư đ'&&e.layout.x===72));
         await page.reload();await page.locator('.editor-workspace').waitFor();assert.equal(await page.locator('[data-editor-field="binding.message"]').inputValue(),'Lời chúc MySQL từ trang trống');
@@ -286,7 +293,8 @@ try{
   });
   if (process.env.MOMEVIA_QA_RESTORE_CONTAINER && restoreGift) await check('DB and media restore to a clean MySQL schema and fresh app', async () => {
     const { runMysqlRestore } = await import('./mysql-restore.mjs');
-    await runMysqlRestore({ root, sourceFixture: fixture, database, container: process.env.MOMEVIA_QA_RESTORE_CONTAINER, config, gift: restoreGift, stopSource: async () => {
+    await runMysqlRestore({ root, sourceFixture: fixture, database, container: process.env.MOMEVIA_QA_RESTORE_CONTAINER, config, gift: restoreGift,
+      extended:extendedCards.find(card=>card.key==='anniversary'), artifacts, stopSource: async () => {
       await new Promise(resolve => app.server.close(resolve));
       await app.close();
       app = null;

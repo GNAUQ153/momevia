@@ -8,6 +8,7 @@ import {
   publicDocument,
   assetIds,
 } from "../../web/js/shared/canvas/index.js";
+import { runtimeVersionFor } from "../../web/js/shared/canvas/schema.js";
 
 const FORMAT = "momevia-canvas-json-backup";
 const COLLECTIONS = [
@@ -209,7 +210,8 @@ function validateAggregate(state, records) {
     check(
       id === version.id &&
         state.designs[version.designId] &&
-        version.runtimeVersion === 1,
+        version.schemaVersion === version.document?.schemaVersion &&
+        version.runtimeVersion === runtimeVersionFor(version.document),
       "dangling/unsupported design version.",
     );
     validateDocument(version.document, { mode: "publish", requiredBindings: [] });
@@ -225,7 +227,7 @@ function validateAggregate(state, records) {
         design &&
         gift.userId === publication.ownerId &&
         design.ownerId === gift.userId &&
-        gift.runtimeVersion === 1,
+        gift.runtimeVersion === version.runtimeVersion,
       "dangling publication owner/version.",
     );
     check(

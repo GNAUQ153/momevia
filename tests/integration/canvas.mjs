@@ -9,6 +9,7 @@ import { once } from 'node:events';
 import { setTimeout as delay } from 'node:timers/promises';
 import sharp from 'sharp';
 import { runReplyIntents } from './reply-intents.mjs';
+import { runExpandedApi } from './canvas-expanded.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const { runRecovery } = await import('./recovery-journey.mjs');
@@ -42,7 +43,11 @@ const check = (name, fn) => Promise.resolve().then(fn).then(() => { cases.push(n
 try {
   for (const dir of ['src', 'services', 'web']) fs.cpSync(path.join(root, dir), path.join(fixture, dir), { recursive: true, filter: p => path.basename(p) !== 'data' });
   fs.copyFileSync(path.join(root, 'package.json'), path.join(fixture, 'package.json'));
-  fs.symlinkSync(path.join(root, 'node_modules'), path.join(fixture, 'node_modules'), 'junction');
+  const modules = path.join(root, 'node_modules');
+  const fixtureModules = path.join(fixture, 'node_modules');
+  // A Windows fixture must own its dependencies when its temp tree is removed.
+  if (process.platform === 'win32') fs.cpSync(modules, fixtureModules, {recursive:true});
+  else fs.symlinkSync(modules, fixtureModules, 'dir');
   fs.copyFileSync(path.join(root, 'tests/integration/recovery-journey.mjs'), path.join(fixture, 'recovery-journey.mjs'));
   fs.writeFileSync(path.join(fixture, 'fixture.mjs'), `
     import fs from 'node:fs';
@@ -203,7 +208,17 @@ try {
       advance: ms => { now += ms; fs.writeFileSync(clock, String(now)); },
     });
   });
+  let expanded;
+  const expandedArtifacts = process.env.BROWSER_ARTIFACT_DIR && path.join(process.env.BROWSER_ARTIFACT_DIR, 'qa-gifts');
+  await check('100 Canvas cards survive actual JSON save/read; three V2 gifts publish, enforce media ACL and revoke', async () => {
+    expanded = await runExpandedApi(base, owner.cookie, other.cookie, {
+      artifacts:expandedArtifacts,allCards:true,browser:process.argv.includes('--browser'),
+    });
+  });
   if (process.argv.includes('--browser')) {
+    const { runExpandedBrowser } = await import('../browser/canvas-expanded.mjs');
+    await check('100 UI cards, 24 effects, touch/keyboard, and three public V2 QA cards', () =>
+      runExpandedBrowser(base, owner.cookie, expanded, expandedArtifacts));
     const { runSenderIdentity } = await import('../browser/sender-identity.mjs');
     await check('Creator template identity is isolated from preview data', () => runSenderIdentity(base));
     const template = (await request('/catalog/templates')).data.templates.find(item => item.price === 0);
@@ -226,4 +241,9 @@ try {
   }
   console.log(JSON.stringify({ gate: 'JSON API', cases, fixture: 'synthetic isolated single process', result: 'PASS' }));
 } catch (error) { console.error(logs); throw error; }
-finally { await stop(); fs.rmSync(fixture, { recursive: true, force: true }); }
+finally {
+  await stop();
+  const modules = path.join(fixture, 'node_modules');
+  if (fs.lstatSync(modules, {throwIfNoEntry:false})?.isSymbolicLink()) fs.unlinkSync(modules);
+  fs.rmSync(fixture, { recursive: true, force: true });
+}

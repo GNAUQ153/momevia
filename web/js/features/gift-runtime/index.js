@@ -1,8 +1,7 @@
-import { validateDocument } from "../../shared/canvas/index.js";
+import { validateDocument, runtimeVersionFor } from "../../shared/canvas/schema.js";
 import { renderElement, applyLayout } from "./renderer.js";
+import { applySurface, createMotion, playAmbience, playElement, playReaction, sceneTransition } from "./effects.js";
 export { renderElement, applyLayout, resolveText } from "./renderer.js";
-
-export const RUNTIME_VERSION = 1;
 
 export function mountPlayer(
   root,
@@ -12,10 +11,11 @@ export function mountPlayer(
     mode = "preview",
     replyAdapter,
     onSceneChange = () => {},
-    runtimeVersion = 1,
+    effectPreview,
+    runtimeVersion = runtimeVersionFor(input),
   } = {},
 ) {
-  if (runtimeVersion !== RUNTIME_VERSION)
+  if (runtimeVersion !== runtimeVersionFor(input))
     throw new Error("Phiên bản trình phát chưa được hỗ trợ.");
   if (!["preview", "public"].includes(mode))
     throw new Error("Chế độ trình phát không hợp lệ.");
@@ -23,7 +23,7 @@ export function mountPlayer(
     mode: mode === "public" ? "publish" : "draft",
     requiredBindings: [],
   });
-  let activeSceneId = document.entrySceneId,
+  let activeSceneId = effectPreview?.sceneId || document.entrySceneId,
     disposed = false,
     sceneController = null,
     resizeObserver = null;
@@ -43,17 +43,52 @@ export function mountPlayer(
   const navigation = globalThis.document.createElement("nav");
   navigation.className = "gift-runtime-navigation";
   navigation.setAttribute("aria-label", "Các cảnh của món quà");
+  const lifetime = new AbortController();
+  const preference = globalThis.matchMedia("(prefers-reduced-motion: reduce)");
+  let motionOff = false;
+  const motion = createMotion(() => !preference.matches && !motionOff);
+  const motionControl = globalThis.document.createElement("button");
+  motionControl.type = "button";
+  motionControl.className = "gift-motion-control";
+  motionControl.textContent = "Tắt chuyển động";
+  const updateMotionControl = () => {
+    motionControl.setAttribute("aria-pressed", String(!motion.enabled()));
+    motionControl.disabled = preference.matches;
+    if (!motion.enabled()) motion.cancel();
+  };
+  motionControl.addEventListener("click", () => {
+    motionOff = !motionOff;
+    updateMotionControl();
+  }, {signal:lifetime.signal});
+  preference.addEventListener("change", updateMotionControl, {signal:lifetime.signal});
+  updateMotionControl();
   shell.append(marker, stage, navigation, status);
+  if (document.schemaVersion === 2 && (document.scenes.some(scene => scene.effects) || document.elements.some(element => element.effects)))
+    shell.insertBefore(motionControl, stage);
   root.replaceChildren(shell);
   const size = document.artboard.baseSize;
   const render = ({ focus = true } = {}) => {
     if (disposed) return;
     sceneController?.abort();
-    sceneController = new AbortController();
+    const signal = (sceneController = new AbortController()).signal;
     resizeObserver?.disconnect();
     const scene = document.scenes.find((s) => s.id === activeSceneId);
+    const family = effectPreview?.family;
+    const transition = ((!family && focus) || family === "transition") ? scene.effects?.transition : null;
+    let previous;
+    if (transition && motion.enabled()) {
+      previous = globalThis.document.createElement("div");
+      previous.style.backgroundColor = stage.style.backgroundColor || scene.background.color;
+      if (stage.offsetHeight) previous.style.height = `${stage.offsetHeight}px`;
+      for (const child of [...stage.children]) {
+        if (!child.hasAttribute("data-runtime-element")) continue;
+        child.removeAttribute("data-runtime-element");
+        previous.append(child);
+      }
+    }
     stage.replaceChildren();
     stage.style.backgroundColor = scene.background.color;
+    applySurface(stage, scene.effects?.surface);
     stage.setAttribute("aria-label", scene.name);
     const nodes = [];
     // Layer order changes stacking, while document order preserves reading and Tab.
@@ -65,12 +100,12 @@ export function mountPlayer(
         assetUrl,
         mode,
         replyAdapter,
-        signal: sceneController.signal,
+        signal, motion,
+        previewFamily: family,
         onAction: (actions) => {
-          for (const action of actions) {
-            if (action.type === "replay") goToScene(document.entrySceneId);
-            else if (action.targetSceneId) goToScene(action.targetSceneId);
-          }
+          const [action] = actions;
+          if (action?.type === "replay") goToScene(document.entrySceneId);
+          else if (action?.targetSceneId) goToScene(action.targetSceneId);
         },
       });
       node.style.zIndex = String(scene.elementIds.indexOf(model.id));
@@ -95,9 +130,8 @@ export function mountPlayer(
           node.style.fontSize = `${Math.max(16, (model.props.fontSize || 24) * scale)}px`;
           node.style.height = "auto";
         }
-        if (model.type === "reply") node.style.height = "auto";
-        if (model.type === "sticker")
-          node.style.fontSize = `${Math.max(20, Math.min(model.layout.width, model.layout.height) * scale * 0.8)}px`;
+        if (["reply", "interaction"].includes(model.type) || (model.type === "image" && model.props.caption))
+          node.style.height = "auto";
       }
       const cohorts = [];
       for (const item of content) {
@@ -122,11 +156,27 @@ export function mountPlayer(
       stage.style.minHeight = `${Math.max(size.height * scale, actualEnd + 24)}px`;
     };
     layout();
+    const transitionDone = sceneTransition(stage, previous, transition, motion, signal);
+    if (!family || family === "ambience") void playAmbience(stage, scene.effects?.ambience, motion, signal);
+    for (const {node,model} of nodes) {
+      if (!family || (effectPreview.elementId === model.id && ["emphasis","entrance"].includes(family))) {
+        const animate = () => { if (!signal.aborted) return playElement(node,model,motion,signal,family); };
+        if (transitionDone) void transitionDone.then(animate);
+        else void animate();
+      }
+      if (family === "reaction" && effectPreview.elementId === model.id) {
+        const control = node.matches("button") ? node : node.querySelector("button");
+        if (control) {
+          if (model.effects?.reaction?.id === "R04") control.click();
+          else void playReaction(control,model.effects?.reaction,motion,signal);
+        }
+      }
+    }
     if (globalThis.ResizeObserver) {
       resizeObserver = new ResizeObserver(layout);
       resizeObserver.observe(stage);
       for (const { node, model } of nodes)
-        if (["text", "reply"].includes(model.type))
+        if (["text", "reply", "interaction"].includes(model.type) || (model.type === "image" && model.props.caption))
           resizeObserver.observe(node);
     }
     navigation.replaceChildren();
@@ -170,6 +220,7 @@ export function mountPlayer(
     dispose() {
       if (disposed) return;
       disposed = true;
+      lifetime.abort();
       sceneController?.abort();
       resizeObserver?.disconnect();
       root.replaceChildren();

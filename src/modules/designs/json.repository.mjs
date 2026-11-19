@@ -69,7 +69,7 @@ export class JsonDesignRepository {
       if (current.revision !== input.expectedRevision) throw canvasError(409, 'REVISION_CONFLICT', 'Thiết kế đã thay đổi ở phiên khác. Giữ bản local và tải lại để đối chiếu.', [{ path: 'revision', revision: current.revision }]);
       validateCurrent?.(clone(current));
       for (const assetId of input.assetIds) if (state.assets[assetId]?.ownerId !== ownerId || state.assets[assetId].status !== 'ready') throw canvasError(422, 'ASSET_NOT_READY', 'Ảnh không thuộc tài khoản hoặc chưa sẵn sàng.');
-      state.designs[id] = { ...current, title: input.title, document: clone(input.document), documentHash: input.documentHash, revision: current.revision + 1, updatedAt: new Date().toISOString() };
+      state.designs[id] = { ...current, title: input.title, document: clone(input.document), schemaVersion: input.document.schemaVersion, documentHash: input.documentHash, revision: current.revision + 1, updatedAt: new Date().toISOString() };
       const result = { designId: id, mutationId: input.mutationId, savedRevision: current.revision + 1, documentHash: input.documentHash, replayed: false };
       state.mutations[key] = { requestHash: input.requestHash, result }; return result;
     });

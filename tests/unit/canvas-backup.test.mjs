@@ -18,7 +18,7 @@ import { collectSnapshot, validateSnapshot, generateImportSql } from '../../data
 
 const workspace = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 function temp(t) { const root = fs.mkdtempSync(path.join(os.tmpdir(), 'momevia-canvas-backup-')); t.after(() => fs.rmSync(root, { recursive: true, force: true })); return root; }
-async function fixture(t) {
+async function fixture(t, extended = false) {
   const root = temp(t), source = path.join(root, 'services/designs/data'), mediaRoot = path.join(source, 'assets');
   const repository = new JsonDesignRepository(path.join(source, 'canvas.json')), user = { sub: randomUUID() }, orderId = randomUUID();
   const service = new DesignsService({ repository, publication: repository, catalog: { getTemplate: async id => structuredClone(templates.find(t => t.id === id)) }, checkout: { hasLicense: async () => true }, orders: async () => [{ id: orderId, templateId: 'midnight-bloom' }], config: { giftTtlDays: 365 }, flags: { read: true, edit: true, publish: true }, mediaRoot, profile: { supported: true, mode: 'json' } });
@@ -26,7 +26,11 @@ async function fixture(t) {
   const image = await sharp({ create: { width: 12, height: 9, channels: 3, background: '#FFC0FF' } }).png().toBuffer();
   const asset = await new AssetsService(service).upload(user, first.design.id, randomUUID(), { mime: 'image/png', bytes: image });
   const document = structuredClone(first.design.document); document.bindings.recipientName.value = 'Nguyễn Mai'; document.bindings.senderName.value = 'Trần An'; document.bindings.message.value = 'Chúc bạn bình an! Tiếng Việt ♥';
-  const photo = createElement('image', { id: 'photo', props: { assetId: asset.id } }); document.elements.push(photo); document.scenes[2].elementIds.push(photo.id); document.assets.push({ assetId: asset.id, kind: 'image' });
+  const photo = extended ? createElement('interaction', {id:'photo',props:{kind:'swipe-album',
+    photos:Array.from({length:3},(_,i)=>({id:`slot-${i}`,assetId:i ? null : asset.id,alt:'Ảnh QA',caption:'Kỷ niệm',focalPoint:{x:.2,y:.7}}))},
+    effects:{entrance:{id:'E01'}}}) : createElement('image', { id: 'photo', props: { assetId: asset.id } });
+  if (extended) document.schemaVersion = document.registryVersion = 2;
+  document.elements.push(photo); document.scenes[2].elementIds.push(photo.id); document.assets.push({ assetId: asset.id, kind: 'image' });
   await service.save(user, first.design.id, { expectedRevision: 1, mutationId: randomUUID(), title: first.design.title, document });
   const saved = await service.get(user, first.design.id), published = await service.publish(user, { designId: saved.id, expectedRevision: saved.revision, expectedDocumentHash: saved.documentHash, idempotencyKey: randomUUID() });
   await repository.addReply(published.gift.id, { id: randomUUID(), giftId: published.gift.id, name: 'Nguyễn Mai', message: 'Cảm ơn bạn!', createdAt: new Date().toISOString() });
@@ -54,6 +58,17 @@ test('versioned canvas JSON backup restores exact authoritative bytes, IDs, snap
   assert.deepEqual(gift.assetIds, f.gift.assetIds); assert.deepEqual(fs.readFileSync(path.join(f.restored, 'assets', path.basename(f.assetFile))), fs.readFileSync(f.assetFile));
   assert.deepEqual(fs.readFileSync(path.join(f.restored, 'assets', f.orphanFile)), fs.readFileSync(path.join(f.source, 'assets', f.orphanFile)));
   const reexport = path.join(f.root, 'second-backup'); assert.deepEqual(exportCanvas({ source: f.restored, target: reexport, offline: true }).counts, manifest.counts);
+});
+
+test('backup restores a V2 snapshot and the private bytes pinned by a nested album slot', async t => {
+  const f = await fixture(t, true);
+  exportCanvas({ source:f.source,target:f.backup,offline:true });
+  restoreCanvas({ source:f.backup,target:f.restored });
+  const gift = await new JsonDesignRepository(path.join(f.restored,'canvas.json')).findBySlug(f.gift.slug);
+  assert.equal(gift.runtimeVersion,2);
+  assert.deepEqual(gift.documentSnapshot,f.gift.documentSnapshot);
+  assert.deepEqual(gift.assetIds,f.gift.assetIds);
+  assert.deepEqual(fs.readFileSync(path.join(f.restored,'assets',path.basename(f.assetFile))),fs.readFileSync(f.assetFile));
 });
 
 test('canvas backup fails missing/corrupt media, invalid refs and corrupted backup before creating restore target', async t => {

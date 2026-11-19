@@ -23,6 +23,18 @@ export function cleanGiftLayout(snapshot) {
       element.props.title = 'Lời đáp';
       element.props.submitLabel = 'Gửi lời đáp';
     }
+    if (element.type === 'interaction') {
+      for (const entry of element.props.entries || []) {
+        entry.heading = '';
+        if (Object.hasOwn(entry, 'body')) entry.body = '';
+      }
+      for (const photo of element.props.photos || []) {
+        photo.assetId = null;
+        photo.alt = '';
+        photo.caption = '';
+      }
+      if (element.props.kind === 'event-countdown') element.props.eventAt = null;
+    }
   }
   return duplicateDocument(document);
 }

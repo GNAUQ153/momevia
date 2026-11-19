@@ -2,6 +2,8 @@ import { createHash, randomUUID } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { validateDocument, canonicalStringify, createDocument, duplicateDocument, assetIds, publicDocument } from '../../../web/js/shared/canvas/index.js';
+import { runtimeVersionFor } from '../../../web/js/shared/canvas/schema.js';
+import { photoSlots } from '../../../web/js/shared/canvas/interactions.js';
 import { bindingLabels, clearTemplateBindingDefaults, lockedVisibleNames } from '../../../web/js/shared/canvas/personalization.js';
 import { cleanGiftLayout } from '../../../web/js/shared/canvas/clean-layout.js';
 import { randomId } from '../../shared/security.mjs';
@@ -87,7 +89,7 @@ export class DesignsService {
       }
       for (const ref of document.assets) ref.assetId = mapping.get(ref.assetId);
       for (const element of document.elements) {
-        if (element.type === 'image' && element.props.assetId) element.props.assetId = mapping.get(element.props.assetId);
+        for (const photo of photoSlots(element)) if (photo.assetId) photo.assetId = mapping.get(photo.assetId);
       }
       clearTemplateBindingDefaults(document);
       const photoId = resolved.version.photoId;
@@ -95,7 +97,7 @@ export class DesignsService {
         lockedElements: Object.fromEntries(document.elements.map(element => [element.id, { editableProps: element.id === photoId ? ['assetId'] : [] }])) };
     }
     const record = { id, ownerId: user.sub, title: title(input.title || (resolved.template ? `Quà từ ${resolved.template.title}`.slice(0, 120) : 'Món quà của tôi')),
-      source: resolved.source, provenance: { ...resolved.provenance, ...(input.purpose ? { purpose: input.purpose } : {}) }, policy, revision: 1, schemaVersion: 1,
+      source: resolved.source, provenance: { ...resolved.provenance, ...(input.purpose ? { purpose: input.purpose } : {}) }, policy, revision: 1, schemaVersion: document.schemaVersion,
       document, documentHash: hash(document), createdAt: now, updatedAt: now, archivedAt: null };
     validateDocument(document);
     const result = await this.repository.create(user.sub, input.mutationId, requestHash, record, assets);
@@ -194,7 +196,7 @@ export class DesignsService {
         const text = element.props.textBinding ? bindings[element.props.textBinding]?.value : element.props.text;
         return Boolean(text?.trim());
       }
-      return element.type !== 'image' || Boolean(element.props.assetId);
+      return element.type !== 'image' || Boolean(element.props.assetId || element.props.caption?.trim());
     });
     if (!hasContent) blockers.push({ path: 'document.elements', code: 'EMPTY_DESIGN', message: 'Thiết kế chưa có nội dung hiển thị. Hãy chèn lời chúc, thêm ảnh hoặc hiện một lớp trước khi xuất bản.' });
     if (design.source.kind === 'template') {
@@ -254,8 +256,8 @@ export class DesignsService {
         templateId: d.source.kind === 'template' ? d.source.templateId : null, templateVersionId: d.source.templateVersionId, sourceKind: d.source.kind, designVersionId: versionId,
         theme: 'violet', recipientName: d.document.bindings.recipientName.value, senderName: d.document.bindings.senderName.value, message: d.document.bindings.message.value,
         imageFile: null, replyCount: 0, createdAt: now, expiresAt: new Date(Date.now() + this.config.giftTtlDays * 86400000).toISOString(),
-        documentSnapshot: document, runtimeVersion: 1, assetIds: assetIds(document), ...createGiftAccess(input.access) };
-      const version = { id: versionId, designId: d.id, revision: d.revision, schemaVersion: 1, runtimeVersion: 1, documentHash: actualHash, document, createdAt: now };
+        documentSnapshot: document, runtimeVersion: runtimeVersionFor(document), assetIds: assetIds(document), ...createGiftAccess(input.access) };
+      const version = { id: versionId, designId: d.id, revision: d.revision, schemaVersion: document.schemaVersion, runtimeVersion: runtimeVersionFor(document), documentHash: actualHash, document, createdAt: now };
       return { gift, version, assetIds: gift.assetIds };
     });
   }

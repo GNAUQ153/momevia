@@ -1,4 +1,15 @@
 import { registry, STICKERS, FONT_TOKENS, BINDINGS, LIMITS } from './registry.js';
+import { lines, masks, originalStickerIds, shapes } from './artwork.js';
+import { interactionKinds, photoSlots } from './interactions.js';
+import { effectsFor, effectSpeed, elementEffectFamilies, sceneEffectFamilies } from './effects.js';
+
+export const CANVAS_VERSIONS = Object.freeze([1, 2]);
+export const runtimeVersionFor = document => document.schemaVersion;
+export const requiresCanvasV2 = document => document.scenes.some(scene => scene.effects) || document.elements.some(e =>
+  e.type === 'interaction' || e.effects ||
+  ['dropCap', 'pattern', 'mask', 'optional', 'caption'].some(key => own(e.props, key)) ||
+  (e.type === 'sticker' && !originalStickerIds.includes(e.props.stickerId)) ||
+  (e.type === 'shape' && Object.hasOwn(shapes, e.props.kind)));
 
 export class CanvasValidationError extends Error {
   constructor(path, message, code = 'INVALID_DOCUMENT') { super(message); this.name = 'CanvasValidationError'; this.code = code; this.status = 422; this.details = [{ path, code, message }]; }
@@ -29,6 +40,80 @@ function preflightTree(value, path = 'document', depth = 0, ancestors = new Set(
   }
 }
 
+function validateInteraction(p, path, assets, publishing) {
+  enumeration(p.kind, `${path}.kind`, Object.keys(interactionKinds));
+  const spec = interactionKinds[p.kind];
+  const keys = ['kind', 'color', ...(spec.fields ? ['entries'] : []),
+    ...(spec.slots ? ['photos'] : []), ...(spec.clock ? ['eventAt', 'timeZone'] : [])];
+  object(p, path, keys, keys);
+  color(p.color, `${path}.color`);
+  if (spec.fields) {
+    array(p.entries, `${path}.entries`, spec.fields.length);
+    if (p.entries.length !== spec.fields.length) fail(`${path}.entries`, 'Thiếu vùng nội dung tương tác.');
+    for (const [i, entry] of p.entries.entries()) {
+      const fields = spec.fields[i].length === 2 ? ['heading', 'body'] : ['heading'];
+      const q = `${path}.entries.${i}`;
+      object(entry, q, fields, fields);
+      string(entry.heading, `${q}.heading`, 120, publishing ? 1 : 0);
+      if (fields.includes('body')) string(entry.body, `${q}.body`, LIMITS.text, publishing ? 1 : 0);
+      if (publishing) for (const [index, field] of fields.entries())
+        if (!entry[field].trim()) fail(`${q}.${field}`, `Nhập ${spec.fields[i][index].toLowerCase()} cho ${spec.label}.`, 'INTERACTION_CONTENT_REQUIRED');
+    }
+  }
+  if (spec.slots) {
+    array(p.photos, `${path}.photos`, spec.slots);
+    if (p.photos.length !== spec.slots) fail(`${path}.photos`, 'Thiếu ô ảnh tương tác.');
+    const slots = new Set();
+    for (const [i, photo] of p.photos.entries()) {
+      const q = `${path}.photos.${i}`;
+      const fields = ['id', 'assetId', 'alt', 'caption', 'focalPoint'];
+      object(photo, q, fields, fields);
+      id(photo.id, `${q}.id`);
+      if (slots.has(photo.id)) fail(`${q}.id`, 'Ô ảnh trùng ID.');
+      slots.add(photo.id);
+      if (photo.assetId !== null) {
+        id(photo.assetId, `${q}.assetId`);
+        if (!assets.has(photo.assetId)) fail(`${q}.assetId`, 'Asset chưa được khai báo.', 'ASSET_REFERENCE');
+        if (publishing && !photo.alt?.trim()) fail(`${q}.alt`, `Ảnh ${i + 1} cần mô tả.`, 'IMAGE_ALT_REQUIRED');
+      }
+      string(photo.alt, `${q}.alt`, LIMITS.accessibilityText);
+      string(photo.caption, `${q}.caption`, LIMITS.text);
+      object(photo.focalPoint, `${q}.focalPoint`, ['x','y'], ['x','y']);
+      for (const axis of ['x','y']) number(photo.focalPoint[axis], `${q}.focalPoint.${axis}`, 0, 1);
+    }
+    if (publishing && p.photos.filter(photo => photo.assetId).length < spec.minimumPhotos) {
+      const missing = p.photos.findIndex(photo => !photo.assetId);
+      fail(`${path}.photos.${missing}.assetId`, `${spec.label} cần ${spec.minimumPhotos} ảnh. Chọn ảnh cho ô ${missing+1}.`, 'INTERACTION_PHOTO_REQUIRED');
+    }
+  }
+  if (spec.clock) {
+    string(p.timeZone, `${path}.timeZone`, 65, 1);
+    if (!/^[A-Za-z][\w+-]*(?:\/[\w+-]+)*$/.test(p.timeZone)) fail(`${path}.timeZone`, 'Múi giờ không hợp lệ.');
+    try { new Intl.DateTimeFormat('vi', {timeZone:p.timeZone}); }
+    catch { fail(`${path}.timeZone`, 'Múi giờ không hợp lệ.'); }
+    if (p.eventAt !== null || publishing) {
+      string(p.eventAt, `${path}.eventAt`, 24, 24);
+      const time = new Date(p.eventAt);
+      if (!Number.isFinite(time.getTime()) || time.toISOString() !== p.eventAt) fail(`${path}.eventAt`, 'Chọn ngày giờ hẹn hợp lệ.');
+    }
+  }
+}
+
+function validateEffects(effects, path, model) {
+  const families = model ? elementEffectFamilies : sceneEffectFamilies;
+  object(effects,path,families);
+  for (const [family, preset] of Object.entries(effects)) {
+    const q = `${path}.${family}`;
+    const option = { surface: 'color', entrance: 'delay', ambience: 'density' }[family];
+    object(preset,q,['id', ...(family === 'surface' ? [] : ['speed']), ...(option ? [option] : [])],['id']);
+    enumeration(preset.id,`${q}.id`, effectsFor(family, model).map(([id]) => id));
+    if (own(preset,'speed')) enumeration(preset.speed,`${q}.speed`,Object.keys(effectSpeed));
+    if (own(preset,'delay')) enumeration(preset.delay,`${q}.delay`,[0,150,300]);
+    if (own(preset,'color')) color(preset.color,`${q}.color`);
+    if (own(preset,'density')) enumeration(preset.density,`${q}.density`,['sparse','normal']);
+  }
+}
+
 export function canonicalStringify(value) {
   preflightTree(value);
   const encode = item => item === null || typeof item !== 'object' ? JSON.stringify(item) : Array.isArray(item) ? `[${item.map(encode).join(',')}]` : `{${Object.keys(item).sort().map(k => `${JSON.stringify(k)}:${encode(item[k])}`).join(',')}}`;
@@ -41,7 +126,8 @@ export function validateDocument(document, { mode = 'draft', requiredBindings = 
   const serialized = JSON.stringify(document);
   if (new TextEncoder().encode(serialized).length > LIMITS.documentBytes) fail('document', 'Thiết kế vượt giới hạn 256 KiB.', 'DOCUMENT_BUDGET');
   object(document, 'document', ['schemaVersion', 'registryVersion', 'artboard', 'entrySceneId', 'bindings', 'assets', 'scenes', 'elements', 'responsive'], ['schemaVersion', 'registryVersion', 'artboard', 'entrySceneId', 'bindings', 'assets', 'scenes', 'elements', 'responsive']);
-  enumeration(document.schemaVersion, 'schemaVersion', [1]); enumeration(document.registryVersion, 'registryVersion', [1]);
+  enumeration(document.schemaVersion, 'schemaVersion', CANVAS_VERSIONS);
+  enumeration(document.registryVersion, 'registryVersion', [document.schemaVersion]);
   object(document.artboard, 'artboard', ['baseSize', 'layoutMode', 'safeInsets'], ['baseSize', 'layoutMode', 'safeInsets']);
   object(document.artboard.baseSize, 'artboard.baseSize', ['width', 'height'], ['width', 'height']);
   for (const [k, v] of Object.entries(document.artboard.baseSize)) number(v, `artboard.baseSize.${k}`, 240, LIMITS.artboard);
@@ -61,7 +147,8 @@ export function validateDocument(document, { mode = 'draft', requiredBindings = 
   if (!document.scenes.length) fail('scenes', 'Cần ít nhất một cảnh.');
   const sceneIds = new Set(), elementIds = new Set(), assigned = new Set();
   for (const [i, s] of document.scenes.entries()) {
-    const p = `scenes.${i}`; object(s, p, ['id', 'name', 'background', 'elementIds'], ['id', 'name', 'background', 'elementIds']); id(s.id, `${p}.id`); string(s.name, `${p}.name`, 100, 1);
+    const p = `scenes.${i}`; object(s, p, ['id', 'name', 'background', 'elementIds', 'effects'], ['id', 'name', 'background', 'elementIds']); id(s.id, `${p}.id`); string(s.name, `${p}.name`, 100, 1);
+    if (own(s,'effects')) validateEffects(s.effects,`${p}.effects`);
     if (sceneIds.has(s.id)) fail(`${p}.id`, 'Cảnh trùng ID.'); sceneIds.add(s.id);
     object(s.background, `${p}.background`, ['kind', 'color'], ['kind', 'color']); enumeration(s.background.kind, `${p}.background.kind`, ['solid']); color(s.background.color, `${p}.background.color`);
     array(s.elementIds, `${p}.elementIds`, LIMITS.elements);
@@ -69,7 +156,7 @@ export function validateDocument(document, { mode = 'draft', requiredBindings = 
   }
   id(document.entrySceneId, 'entrySceneId'); if (!sceneIds.has(document.entrySceneId)) fail('entrySceneId', 'Cảnh mở đầu không tồn tại.');
   for (const [i, e] of document.elements.entries()) {
-    const p = `elements.${i}`; object(e, p, ['id', 'type', 'elementVersion', 'layout', 'props', 'accessibility', 'actions', 'name', 'visible', 'locked', 'opacity'], ['id', 'type', 'elementVersion', 'layout', 'props', 'accessibility']);
+    const p = `elements.${i}`; object(e, p, ['id', 'type', 'elementVersion', 'layout', 'props', 'accessibility', 'actions', 'name', 'visible', 'locked', 'opacity', 'effects'], ['id', 'type', 'elementVersion', 'layout', 'props', 'accessibility']);
     id(e.id, `${p}.id`); if (elementIds.has(e.id) || sceneIds.has(e.id)) fail(`${p}.id`, 'Node trùng ID.'); elementIds.add(e.id);
     if (!own(registry, e.type)) fail(`${p}.type`, 'Element chưa được hỗ trợ.', 'UNSUPPORTED_ELEMENT'); enumeration(e.elementVersion, `${p}.elementVersion`, [1]);
     if (own(e, 'name')) string(e.name, `${p}.name`, 100); if (own(e, 'visible')) boolean(e.visible, `${p}.visible`); if (own(e, 'locked')) boolean(e.locked, `${p}.locked`); if (own(e, 'opacity')) number(e.opacity, `${p}.opacity`, 0, 1);
@@ -77,23 +164,29 @@ export function validateDocument(document, { mode = 'draft', requiredBindings = 
     for (const k of ['x', 'y']) number(e.layout[k], `${p}.layout.${k}`, -LIMITS.coordinate, LIMITS.coordinate);
     for (const k of ['width', 'height']) number(e.layout[k], `${p}.layout.${k}`, 1, LIMITS.coordinate);
     number(e.layout.rotation, `${p}.layout.rotation`, -360, 360);
-    const propKeys = e.type === 'text' ? ['text', 'textBinding', 'fontToken', 'fontSize', 'align', 'color', 'lineHeight'] : registry[e.type].inspector;
+    const propKeys = e.type === 'text' ? ['text', 'textBinding', 'fontToken', 'fontSize', 'align', 'color', 'lineHeight', 'dropCap'] : registry[e.type].inspector;
     object(e.props, `${p}.props`, propKeys);
-    for (const [k, v] of Object.entries(e.props)) {
+    if (e.type === 'interaction') validateInteraction(e.props, `${p}.props`, assets, mode === 'publish');
+    for (const [k, v] of e.type === 'interaction' ? [] : Object.entries(e.props)) {
       const q = `${p}.props.${k}`;
       if (['text', 'label', 'title', 'submitLabel'].includes(k)) string(v, q, k === 'text' ? LIMITS.text : 120);
       else if (k === 'textBinding') enumeration(v, q, BINDINGS);
       else if (k === 'fontToken') enumeration(v, q, FONT_TOKENS);
       else if (k === 'fontSize') number(v, q, 10, 160);
       else if (k === 'lineHeight') number(v, q, 1, 3);
+      else if (k === 'dropCap') boolean(v, q);
+      else if (k === 'mask') enumeration(v, q, Object.keys(masks));
+      else if (k === 'optional') boolean(v, q);
+      else if (k === 'caption') string(v, q, LIMITS.text);
+      else if (k === 'pattern') enumeration(v, q, Object.keys(lines));
       else if (k === 'align') enumeration(v, q, ['left', 'center', 'right']);
       else if (k === 'color' || k === 'strokeColor') color(v, q);
       else if (k === 'radius') number(v, q, 0, 512);
       else if (k === 'strokeWidth') number(v, q, 0, 40);
-      else if (k === 'kind') enumeration(v, q, ['rectangle', 'ellipse', 'line']);
+      else if (k === 'kind') enumeration(v, q, ['rectangle', 'ellipse', 'line', ...Object.keys(shapes)]);
       else if (k === 'fit') enumeration(v, q, ['cover', 'contain']);
       else if (k === 'focalPoint') { object(v, q, ['x', 'y'], ['x', 'y']); number(v.x, `${q}.x`, 0, 1); number(v.y, `${q}.y`, 0, 1); }
-      else if (k === 'assetId') { if (v === null && mode === 'draft') continue; id(v, q); if (!assets.has(v)) fail(q, 'Asset chưa được khai báo.', 'ASSET_REFERENCE'); }
+      else if (k === 'assetId') { if (v === null && (mode === 'draft' || e.props.optional)) continue; id(v, q); if (!assets.has(v)) fail(q, 'Asset chưa được khai báo.', 'ASSET_REFERENCE'); }
       else if (k === 'stickerId') enumeration(v, q, Object.keys(STICKERS));
       else if (k === 'preset') enumeration(v, q, ['classic']);
     }
@@ -101,23 +194,31 @@ export function validateDocument(document, { mode = 'draft', requiredBindings = 
     if (e.type === 'text' && own(e.props, 'text') && own(e.props, 'textBinding')) fail(`${p}.props`, 'Chỉ chọn literal hoặc binding.');
     if (e.type === 'image' && !own(e.props, 'assetId')) fail(`${p}.props.assetId`, 'Cần asset hoặc placeholder null.');
     object(e.accessibility, `${p}.accessibility`, ['role', 'level', 'label', 'alt', 'decorative']);
-    for (const [k, v] of Object.entries(e.accessibility)) { const q = `${p}.accessibility.${k}`; if (k === 'role') enumeration(v, q, ['heading', 'paragraph']); else if (k === 'level') { number(v, q, 1, 6); if (!Number.isInteger(v)) fail(q, 'Heading level phải nguyên.'); } else if (k === 'decorative') boolean(v, q); else string(v, q, 240); }
-    if (mode === 'publish' && e.type === 'image' && !e.accessibility.decorative && !e.accessibility.alt?.trim()) fail(`${p}.accessibility.alt`, 'Ảnh cần mô tả hoặc đánh dấu trang trí.', 'IMAGE_ALT_REQUIRED');
+    for (const [k, v] of Object.entries(e.accessibility)) { const q = `${p}.accessibility.${k}`; if (k === 'role') enumeration(v, q, ['heading', 'paragraph']); else if (k === 'level') { number(v, q, 1, 6); if (!Number.isInteger(v)) fail(q, 'Heading level phải nguyên.'); } else if (k === 'decorative') boolean(v, q); else string(v, q, LIMITS.accessibilityText); }
+    if (mode === 'publish' && e.type === 'image' && e.props.assetId && !e.accessibility.decorative && !e.accessibility.alt?.trim()) fail(`${p}.accessibility.alt`, 'Ảnh cần mô tả hoặc đánh dấu trang trí.', 'IMAGE_ALT_REQUIRED');
     if (own(e, 'actions')) {
       array(e.actions, `${p}.actions`, LIMITS.actionsPerElement);
-      for (const [j, a] of e.actions.entries()) { const q = `${p}.actions.${j}`; object(a, q, ['on', 'type', 'targetSceneId'], ['on', 'type']); enumeration(a.on, `${q}.on`, ['activate']); enumeration(a.type, `${q}.type`, registry[e.type].actions); if (a.type === 'goToScene') { if (a.targetSceneId === null && mode === 'draft') continue; id(a.targetSceneId, `${q}.targetSceneId`); if (!sceneIds.has(a.targetSceneId)) fail(`${q}.targetSceneId`, 'Cảnh đích không tồn tại.', 'ACTION_TARGET'); } else if (own(a, 'targetSceneId')) fail(q, 'Replay không có target.'); }
+      const allowed = e.type === 'interaction' && interactionKinds[e.props.kind].targets ? ['goToScene'] : registry[e.type].actions;
+      for (const [j, a] of e.actions.entries()) { const q = `${p}.actions.${j}`; object(a, q, ['on', 'type', 'targetSceneId'], ['on', 'type']); enumeration(a.on, `${q}.on`, ['activate']); enumeration(a.type, `${q}.type`, allowed); if (a.type === 'goToScene') { if (a.targetSceneId === null && mode === 'draft') continue; id(a.targetSceneId, `${q}.targetSceneId`); if (!sceneIds.has(a.targetSceneId)) fail(`${q}.targetSceneId`, 'Cảnh đích không tồn tại.', 'ACTION_TARGET'); } else if (own(a, 'targetSceneId')) fail(q, 'Replay không có target.'); }
+    }
+    if (e.type === 'interaction' && interactionKinds[e.props.kind].targets) {
+      if (e.actions?.length !== 2) fail(`${p}.actions`, 'Hai cửa cần hai thao tác chuyển cảnh.', 'ACTION_REQUIRED');
+      if (mode === 'publish' && e.actions[0].targetSceneId === e.actions[1].targetSceneId)
+        fail(`${p}.actions.1.targetSceneId`, 'Cửa thứ hai cần một cảnh khác cửa thứ nhất.', 'ACTION_TARGET');
     }
     if (mode === 'publish' && registry[e.type].actions.length && !e.actions?.length) fail(`${p}.actions`, 'Nút cần thao tác hợp lệ.', 'ACTION_REQUIRED');
+    if (own(e,'effects')) validateEffects(e.effects,`${p}.effects`,e);
   }
   for (const e of assigned) if (!elementIds.has(e)) fail('scenes.elementIds', 'Element không tồn tại.');
   for (const e of elementIds) if (!assigned.has(e)) fail(`elements.${e}`, 'Element chưa thuộc cảnh nào.');
+  if (document.schemaVersion === 1 && requiresCanvasV2(document)) fail('schemaVersion', 'Khối này cần tài liệu Canvas phiên bản 2.');
   object(document.responsive, 'responsive', ['textOverflow', 'sceneOverflow', 'desktop'], ['textOverflow', 'sceneOverflow', 'desktop']);
   enumeration(document.responsive.textOverflow, 'responsive.textOverflow', ['expand-flow']); enumeration(document.responsive.sceneOverflow, 'responsive.sceneOverflow', ['scroll']);
   object(document.responsive.desktop, 'responsive.desktop', ['maxContentWidth', 'align'], ['maxContentWidth', 'align']); number(document.responsive.desktop.maxContentWidth, 'responsive.desktop.maxContentWidth', 240, 1440); enumeration(document.responsive.desktop.align, 'responsive.desktop.align', ['center']);
   return JSON.parse(serialized);
 }
 
-export function assetIds(document) { return [...new Set(document.elements.filter(e => e.type === 'image' && e.props.assetId).map(e => e.props.assetId))]; }
+export function assetIds(document) { return [...new Set(document.elements.flatMap(photoSlots).map(photo => photo.assetId).filter(Boolean))]; }
 
 export function duplicateDocument(document, { idFactory = () => globalThis.crypto.randomUUID() } = {}) {
   const result = validateDocument(document); const ids = new Map();
@@ -131,10 +232,11 @@ export function duplicateDocument(document, { idFactory = () => globalThis.crypt
 // Build an explicit public allowlist; private envelope/policy/view state never crosses here.
 export function publicDocument(document) {
   const d = validateDocument(document, { mode: 'publish', requiredBindings: [] });
+  const used = new Set(assetIds(d));
   return {
     schemaVersion: d.schemaVersion, registryVersion: d.registryVersion, artboard: d.artboard, entrySceneId: d.entrySceneId,
-    bindings: d.bindings, assets: d.assets.filter(a => assetIds(d).includes(a.assetId)), scenes: d.scenes,
-    elements: d.elements.map(e => ({ id: e.id, type: e.type, elementVersion: e.elementVersion, layout: e.layout, props: e.props, accessibility: e.accessibility, ...(e.actions ? { actions: e.actions } : {}), ...(own(e, 'visible') ? { visible: e.visible } : {}), ...(own(e, 'opacity') ? { opacity: e.opacity } : {}) })),
+    bindings: d.bindings, assets: d.assets.filter(a => used.has(a.assetId)), scenes: d.scenes,
+    elements: d.elements.map(e => ({ id: e.id, type: e.type, elementVersion: e.elementVersion, layout: e.layout, props: e.props, accessibility: e.accessibility, ...(e.actions ? { actions: e.actions } : {}), ...(e.effects ? { effects: e.effects } : {}), ...(own(e, 'visible') ? { visible: e.visible } : {}), ...(own(e, 'opacity') ? { opacity: e.opacity } : {}) })),
     responsive: d.responsive,
   };
 }

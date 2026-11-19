@@ -2,6 +2,7 @@ import { HttpError, parseJson, sendJson } from '../../shared/http.mjs';
 import { previewTemplateDocument, versionView } from './creator-templates.mjs';
 import { sanitizeText } from '../../shared/security.mjs';
 import { previewSvg } from '../../../web/js/shared/canvas/cover-svg.js';
+import { assetIds } from '../../../web/js/shared/canvas/schema.js';
 import sharp from 'sharp';
 
 export function registerCreatorRoutes(router, { service, user, designs, streamAsset }) {
@@ -17,14 +18,16 @@ export function registerCreatorRoutes(router, { service, user, designs, streamAs
   async function serveCover(res, version) {
     const document = previewTemplateDocument(version);
     const scene = document.scenes.find(item => item.id === (version.coverSceneId || document.entrySceneId));
-    const imageIds = new Set(document.elements.filter(item => scene.elementIds.includes(item.id) && item.type === 'image'
-      && item.props.assetId && item.visible !== false && item.opacity !== 0).map(item => item.props.assetId));
+    const imageIds = assetIds({ elements: document.elements.filter(item => scene.elementIds.includes(item.id)
+      && item.visible !== false && item.opacity !== 0) });
     const images = new Map();
     for (const id of imageIds) {
       const asset = version.assets[id];
       if (!asset || !designs.assetExists(asset)) throw new HttpError(404, 'Ảnh của bìa mẫu đang tạm thời không khả dụng.');
-      const bytes = await sharp(designs.assetPath(asset)).resize({ width: 390, height: 844, fit: 'inside', withoutEnlargement: true }).webp({ quality: 72 }).toBuffer();
-      images.set(id, `data:image/webp;base64,${bytes.toString('base64')}`);
+      const { data, info } = await sharp(designs.assetPath(asset)).resize({ width: 390, height: 844, fit: 'inside', withoutEnlargement: true })
+        .webp({ quality: 72 }).toBuffer({resolveWithObject:true});
+      const url = `data:image/webp;base64,${data.toString('base64')}`;
+      images.set(id, document.schemaVersion === 1 ? url : {url,width:info.width,height:info.height});
     }
     const svg = previewSvg(document, scene.id, images);
     res.writeHead(200, { 'content-type': 'image/svg+xml; charset=utf-8', 'cache-control': 'no-store',

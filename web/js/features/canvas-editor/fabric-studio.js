@@ -1,5 +1,6 @@
 import { node, button } from './dom.js';
 import { fabricView, fabricDiff } from './fabric-adapter.js';
+import { arrangeFabricBoxes } from './fabric-align.js';
 import { canManageFabricLayer, moveFabricLayer, applyFabricWorkspacePatch,
   fabricWorkspaceChanged, snapFabricCenter } from './fabric-workspace.js';
 
@@ -119,6 +120,8 @@ export async function openFabricStudio({ snapshot, sceneId, policy, assetUrl, on
   const layerModels = new Map(scene.elementIds.map(id => [id, snapshot.elements.find(item => item.id === id)]));
   const visibility = new Map(view.elements.map(item => [item.id, !item.hidden]));
   const temporaryLocks = new Set();
+  // Chọn nhiều lớp chỉ điều khiển thao tác căn chỉnh, không tạo Fabric ActiveSelection.
+  const batchSelection = new Set();
   let snapEnabled = true;
   const canManage = id => canManageFabricLayer(layerModels.get(id), policy);
   const dialog = node('dialog', { class: 'editor-fabric-dialog', 'aria-label': 'Fabric Studio nâng cao' });
@@ -147,6 +150,20 @@ export async function openFabricStudio({ snapshot, sceneId, policy, assetUrl, on
     ),
     node('div', { class: 'fabric-layer-list', role: 'list', 'aria-label': 'Thứ tự các lớp' }),
   );
+  const batchToolbar = node('div', { class: 'fabric-batch-toolbar', role: 'toolbar',
+    'aria-label': 'Căn chỉnh nhiều lớp' });
+  const batchSummary = node('p', { class: 'fabric-batch-summary', role: 'status', 'aria-live': 'polite' },
+    'Chọn ít nhất 2 lớp bằng ô đánh dấu.');
+  const batchActions = [
+    ['left', 'Căn trái'], ['center-x', 'Giữa ngang'], ['right', 'Căn phải'],
+    ['top', 'Căn trên'], ['middle', 'Giữa dọc'], ['bottom', 'Căn dưới'],
+    ['space-x', 'Chia đều ngang'], ['space-y', 'Chia đều dọc'],
+  ].map(([action, label]) => addTool(batchToolbar, label, `fabric-batch-${action}`));
+  batchActions.forEach(item => { item.disabled = true; });
+  batchToolbar.append(button('Bỏ chọn', 'fabric-batch-clear', { class: 'fabric-batch-clear', disabled: true }));
+  const layerListElement = layersPanel.querySelector('.fabric-layer-list');
+  layersPanel.insertBefore(batchSummary, layerListElement);
+  layersPanel.insertBefore(batchToolbar, layerListElement);
   const workspace = node('div', { class: 'fabric-workspace' }, surface, layersPanel);
   const footer = node('div', { class: 'fabric-footer' },
     node('span', { class: 'fabric-note' }, 'Chỉ lưu bố cục trong Canvas Momevia. Không lưu Fabric JSON.'),
@@ -185,8 +202,24 @@ export async function openFabricStudio({ snapshot, sceneId, policy, assetUrl, on
     const byId = new Map(canvas.getObjects().map(item => [item.momeviaId, item]));
     const layerList = layersPanel.querySelector('.fabric-layer-list');
     const isMovable = id => canManage(id) && !temporaryLocks.has(id);
+    const availableForBatch = id => isMovable(id) && visibility.get(id) !== false &&
+      Boolean(byId.get(id)?.selectable) && !byId.get(id)?.momeviaMissingImage;
     const currentSelection = () => canvas.getActiveObject()?.momeviaId || null;
+    function updateBatchTools() {
+      for (const id of [...batchSelection]) {
+        if (!availableForBatch(id)) batchSelection.delete(id);
+      }
+      const size = batchSelection.size;
+      batchSummary.textContent = size ? `Đã chọn ${size} lớp để căn chỉnh.` : 'Chọn ít nhất 2 lớp bằng ô đánh dấu.';
+      batchActions.forEach(item => {
+        const distribute = item.dataset.editorAction.endsWith('space-x') ||
+          item.dataset.editorAction.endsWith('space-y');
+        item.disabled = size < (distribute ? 3 : 2);
+      });
+      batchToolbar.querySelector('[data-editor-action="fabric-batch-clear"]').disabled = size === 0;
+    }
     function renderLayers() {
+      updateBatchTools();
       const active = currentSelection();
       layerList.replaceChildren(...[...layerOrder].reverse().map(id => {
         const model = layerModels.get(id);
@@ -196,7 +229,12 @@ export async function openFabricStudio({ snapshot, sceneId, policy, assetUrl, on
         const index = layerOrder.indexOf(id);
         const row = node('div', { class: 'fabric-layer-row', role: 'listitem' });
         if (active === id) row.classList.add('is-selected');
+        if (batchSelection.has(id)) row.classList.add('is-batched');
         row.append(
+          node('input', { type: 'checkbox', class: 'fabric-layer-multi',
+            'data-fabric-multi': id, checked: batchSelection.has(id),
+            disabled: !availableForBatch(id),
+            'aria-label': `Chọn ${model.name || model.accessibility?.label || model.type} để căn chỉnh` }),
           button(model.name || model.accessibility?.label || model.type, 'fabric-layer-select', {
             class: 'fabric-layer-select', 'data-layer-id': id,
             'aria-pressed': String(active === id), disabled: !shown || lockedNow,
@@ -229,6 +267,17 @@ export async function openFabricStudio({ snapshot, sceneId, policy, assetUrl, on
       canvas.requestRenderAll();
       renderLayers();
     }
+    // Checkbox riêng giữ tương thích với chế độ selection=false của Fabric Canvas.
+    layerList.addEventListener('change', event => {
+      const input = event.target.closest('input[data-fabric-multi]');
+      if (!input) return;
+      const id = input.dataset.fabricMulti;
+      if (!availableForBatch(id)) { input.checked = false; return; }
+      if (input.checked) batchSelection.add(id);
+      else batchSelection.delete(id);
+      input.closest('.fabric-layer-row')?.classList.toggle('is-batched', input.checked);
+      updateBatchTools();
+    });
     canvas.on('selection:created', renderLayers);
     canvas.on('selection:updated', renderLayers);
     canvas.on('selection:cleared', renderLayers);
@@ -294,6 +343,34 @@ export async function openFabricStudio({ snapshot, sceneId, policy, assetUrl, on
           }
         }
         renderLayers();
+        return;
+      }
+      if (action?.startsWith('fabric-batch-')) {
+        if (action === 'fabric-batch-clear') {
+          batchSelection.clear();
+          renderLayers();
+          return;
+        }
+        try {
+          const selectedIds = layerOrder.filter(id => batchSelection.has(id));
+          const boxes = selectedIds.map(id => {
+            const bounds = byId.get(id).getBoundingRect();
+            return { id, x: bounds.left, y: bounds.top,
+              width: bounds.width, height: bounds.height };
+          });
+          const changes = arrangeFabricBoxes(boxes, selectedIds,
+            action.slice('fabric-batch-'.length), { canMove: availableForBatch });
+          for (const { id, dx, dy } of changes) {
+            const item = byId.get(id);
+            item.set({ left: item.left + dx, top: item.top + dy });
+            item.setCoords();
+          }
+          canvas.requestRenderAll();
+          help.textContent = changes.length ? `Đã cập nhật ${changes.length} lớp. Chọn Áp dụng vào thiết kế để lưu.` :
+            'Các lớp đã được căn chỉnh, không cần thay đổi.';
+        } catch (error) {
+          help.textContent = error.message;
+        }
         return;
       }
       if (action === 'fabric-snap') {

@@ -1,0 +1,79 @@
+/* Phase 5.2: căn chỉnh nhiều lớp, thứ tự rõ ràng và thao tác hỗ trợ bàn phím. */
+.fabric-batch-summary {
+  margin: 0 0 9px;
+  color: #5b4a71;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.fabric-batch-toolbar {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  margin-bottom: 14px;
+  padding-bottom: 13px;
+  border-bottom: 1px solid #e6dff1;
+}
+
+.editor-fabric-dialog .fabric-batch-toolbar button {
+  min-width: 0;
+  min-height: 38px;
+  padding: 6px 8px;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.editor-fabric-dialog .fabric-batch-clear {
+  grid-column: 1 / -1;
+}
+
+.fabric-layer-panel .fabric-layer-row {
+  grid-template-columns: 19px minmax(0, 1fr) repeat(4, auto);
+}
+
+.fabric-layer-multi {
+  width: 17px;
+  height: 17px;
+  margin: 0;
+  accent-color: #6641b3;
+  cursor: pointer;
+}
+
+.fabric-layer-multi:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.fabric-layer-multi:focus-visible {
+  outline: 3px solid #6641b3;
+  outline-offset: 3px;
+}
+
+.fabric-layer-row.is-batched {
+  border-color: #7654b8;
+  background: #eee7fc;
+}
+
+@media (max-width: 390px) {
+  .fabric-batch-toolbar {
+    gap: 5px;
+  }
+
+  .editor-fabric-dialog .fabric-batch-toolbar button {
+    padding: 7px 5px;
+    font-size: 11px;
+  }
+
+  .fabric-layer-multi {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fabric-batch-toolbar *,
+  .fabric-layer-row.is-batched {
+    animation: none !important;
+    transition: none !important;
+  }
+}

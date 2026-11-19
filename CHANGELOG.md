@@ -1,3 +1,9 @@
+## Unreleased — Fabric Precision Align (Phase 5.2)
+
+- Chọn nhiều layer bằng checkbox, căn trái/giữa/phải/trên/dưới và chia đều khoảng cách.
+- Chỉ tịnh tiến bounding box Fabric, bảo toàn góc xoay, hành động và quyền Creator.
+- CSS độc lập, ARIA và unit tests; không migration hoặc thư viện mới.
+
 ## Unreleased — Fabric Workspace (Phase 5.1)
 
 - Thêm Layer Panel trên Fabric Studio, đổi thứ tự/ẩn hiện có lưu, khóa thao tác tạm và snap tâm/biên.

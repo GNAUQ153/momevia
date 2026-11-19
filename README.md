@@ -89,18 +89,18 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Chọn nhiều layer bằng checkbox, căn trái/giữa/phải/trên/dưới và chia đều khoảng cách.
-- Chỉ tịnh tiến bounding box Fabric, bảo toàn góc xoay, hành động và quyền Creator.
-- CSS độc lập, ARIA và unit tests; không migration hoặc thư viện mới.
+- Giữ nguyên 100 Elements, 24 hiệu ứng và schema V1/V2 sau khi hợp nhất cập nhật Canvas mới.
+- Bổ sung bảng chín vị trí trọng tâm trong crop Inspector cho ảnh thường và ảnh nằm trong khối tương tác; không lưu lại ảnh gốc.
+- Bảo toàn quyền chỉnh sửa Creator, Undo/Redo, autosave; nút crop có tên truy cập và điều khiển bàn phím.
 
 **Các commit gần nhất trên `main`:**
 
+- `4ffd221` — feat: add image crop presets for Canvas 100 (2026-11-19)
 - `0946dc7` — Merge pull request #10 from GNAUQ153/feat/canvas-100-elements (2026-11-19)
 - `6ee282c` — docs: clarify Phase 5.2 precision alignment release (2026-11-19)
 - `7bb3554` — feat: add seasonal templates and recipient viral conversion (2026-11-19)
 - `460151f` — feat: enhance Fabric Studio with professional layer workspace (2026-11-19)
 - `cddb2bb` — feat: integrate Fabric Studio advanced canvas editor (2026-11-19)
-- `55f42ec` — fix: stabilize seasonal template preview and browser tests (2026-11-19)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

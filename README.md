@@ -89,19 +89,19 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Bổ sung panel kiểu dáng theo loại đối tượng trong Fabric Studio và Inline Canvas.
-- Văn bản: màu chữ, font token, cỡ chữ, căn lề, giãn dòng; hình khối: màu nền/viền, độ dày viền, bo góc; ảnh: opacity.
-- Chỉ cập nhật bản nháp sau khi Áp dụng, kiểm tra allowlist, schema V1/V2, quyền Creator, lớp bị khóa, scene ID và thông số không hợp lệ.
-- Mobile: panel thu gọn, nút tối thiểu 44px, CSS tách module, không emoji, không thay đổi API/DB.
+- Tách cấu hình thanh công cụ, tiện ích hiển thị/zoom và bộ chọn ảnh từ `designer.js` thành module độc lập `designer-helpers.js`, không thay đổi API hoặc state.
+- Củng cố chính sách loại trừ source/release cho chứng chỉ, private key, file credentials, cấu hình riêng và bản sao dữ liệu; giữ migration SQL cùng license hợp lệ.
+- Bổ sung kiểm thử hồi quy hành vi UI và release-safety; verifier từ chối thư mục `node_modules`/`data` lạ trong gói, kể cả thư mục rỗng. Không thay đổi API hoặc quyền nghiệp vụ.
+- Đây là đợt 6.1a; chưa refactor toàn bộ file Designer, chưa tuyên bố đạt pentest/production.
 
 **Các commit gần nhất trên `main`:**
 
+- `99400ad` — fix(ci): isolate release smoke tests from verified package (2026-11-19)
+- `e7345f9` — refactor: improve Canvas Designer maintainability and release security (2026-11-19)
 - `c4b78dc` — feat: add contextual properties to Fabric Canvas Designer (2026-11-19)
 - `67fd96e` — feat: add contextual quickbar to Fabric Canvas Designer (2026-11-19)
 - `54507a0` — feat: add contextual Fabric Inspector for Canvas Designer (2026-11-19)
 - `85a65b3` — feat: enable inline Fabric editing in Canvas Designer (2026-11-19)
-- `ee0d7f0` — feat: improve Canvas Designer UX and Fabric Studio accessibility (2026-11-19)
-- `bfb1330` — feat: redesign Studio Space dashboard and improve UX (2026-11-19)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

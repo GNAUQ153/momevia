@@ -2,6 +2,7 @@ import { node, button } from './dom.js';
 import { fabricView, fabricDiff } from './fabric-adapter.js';
 import { arrangeFabricBoxes } from './fabric-align.js';
 import { mountFabricInspector } from './fabric-inspector.js';
+import { mountFabricQuickbar } from './fabric-quickbar.js';
 import {
   canManageFabricLayer, moveFabricLayer, applyFabricWorkspacePatch,
   fabricWorkspaceChanged, snapFabricCenter
@@ -180,7 +181,8 @@ export async function openFabricStudio({ snapshot, sceneId, policy, assetUrl, on
   const layerListElement = layersPanel.querySelector('.fabric-layer-list');
   layersPanel.insertBefore(batchSummary, layerListElement);
   layersPanel.insertBefore(batchToolbar, layerListElement);
-  const workspace = node('div', { class: 'fabric-workspace' }, surface, layersPanel);
+  const workspace = node('div', { class: 'fabric-workspace' },
+    node('div', { class: 'fabric-stage-stack' }, surface), layersPanel);
   const footer = node('div', { class: 'fabric-footer' },
     node('span', { class: 'fabric-note' }, 'Chỉ lưu bố cục trong Canvas Momevia. Không lưu Fabric JSON.'),
     button('Hủy', 'fabric-close'),
@@ -191,6 +193,7 @@ export async function openFabricStudio({ snapshot, sceneId, policy, assetUrl, on
   else document.body.append(dialog);
   let canvas;
   let inspector;
+  let quickbar;
   let fitObserver;
   let closed = false;
   function close() { if (dialog.open) dialog.close(); else cleanup(); }
@@ -199,6 +202,7 @@ export async function openFabricStudio({ snapshot, sceneId, policy, assetUrl, on
     closed = true;
     fitObserver?.disconnect();
     inspector?.dispose();
+    quickbar?.dispose();
     try { void canvas?.dispose(); } catch { /* Đóng editor cũ vẫn phải thành công. */ }
     dialog.remove();
     onClose();
@@ -258,6 +262,14 @@ export async function openFabricStudio({ snapshot, sceneId, policy, assetUrl, on
       canEdit: id => isMovable(id) && visibility.get(id) !== false,
     });
     layersPanel.insertBefore(inspector.panel, batchSummary);
+    // Quickbar đặt cạnh artboard, chỉ điều khiển đối tượng Fabric tạm.
+    quickbar = mountFabricQuickbar({
+      canvas, dialog,
+      artboard: { width: view.width, height: view.height },
+      layerModels,
+      canEdit: id => isMovable(id) && visibility.get(id) !== false,
+    });
+    surface.before(quickbar.panel);
     function updateBatchTools() {
       for (const id of [...batchSelection]) {
         if (!availableForBatch(id)) batchSelection.delete(id);

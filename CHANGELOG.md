@@ -1,3 +1,9 @@
+## Unreleased — Phase 6.0a: Contextual Canvas Quickbar
+
+- Thêm công cụ chỉnh nhanh theo lớp đang chọn: di chuyển, xoay 15°, căn giữa ngang/dọc.
+- Phím mũi tên 1px, Shift + mũi tên 10px; không can thiệp khi nhập nội dung.
+- Giữ quyền lớp, chính sách Creator, document Momevia, khả năng Hủy/Áp dụng và giao diện mobile.
+- Không chỉnh sửa các file main.js, api.js, library.js, session.js đang modified ngoài phạm vi.
 ## Unreleased — Phase 5.9: Fabric Contextual Inspector
 
 - Chọn layer Fabric và chỉnh X/Y, chiều rộng, chiều cao, góc xoay; căn giữa ngang/dọc.

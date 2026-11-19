@@ -29,6 +29,7 @@ import { bounds, catalog, fillPolaroid, isPolaroidPlaceholder, placeBlock, sampl
 import { addRecent, discoveryModes, filteredIds, readRecent, recentKey } from "../features/canvas-editor/library-discovery.js";
 import { cropEditor } from "../features/canvas-editor/crop.js";
 import { canOpenAdvancedEditor, scenePositionLabel, selectionDescription } from "../features/canvas-editor/editor-experience.js";
+import { canStartInlineFabric, assertInlineFabricRevision } from "../features/canvas-editor/fabric-inline.js";
 import { icon } from "../ui/icons.js";
 import {
   node,
@@ -109,6 +110,8 @@ export function mountDesigner(
     creating = false;
   let libraryTab = "content", fitted = true, stageObserver;
   let discoveryMode = "all";
+  let inlineFabricSession = null;
+  let inlineFabricOpening = false;
   // Bộ nhớ lịch sử chỉ lưu ID element, không lưu dữ liệu hoặc nội dung thiệp.
   let recentBlocks = (() => {
     try { return readRecent(localStorage.getItem(recentKey), catalog); }
@@ -427,6 +430,11 @@ export function mountDesigner(
       button("Lưu nháp", "save", { class: "editor-save" }),
       button("Xem trước", "preview"),
       canOpenAdvancedEditor(design.policy)
+        ? button("Chỉnh trực tiếp", "inline-fabric", {
+          class: "editor-inline-cta",
+          title: "Kéo, xoay, thay đổi kích thước và sắp lớp trực tiếp trên Canvas",
+        }) : null,
+      canOpenAdvancedEditor(design.policy)
         ? button("Chỉnh sửa nâng cao", "advanced-design", {
           class: "editor-advanced-cta",
           title: "Kéo, xoay, căn chỉnh và quản lý các lớp bằng Fabric Studio",
@@ -471,51 +479,51 @@ export function mountDesigner(
         { "data-library-panel": "add", id: "editor-panel-add" },
       ),
       node("div", { "data-library-panel": "content", id: "editor-panel-content" },
-      node("h2", { class: "editor-quick-only" }, "Điền nội dung"),
-      ...Object.entries(bindingLabels).filter(([key]) =>
-        design.policy?.kind !== "creator-template" || design.policy.editableBindings.includes(key)).map(([key, label]) =>
-          key === "message"
-            ? field(
-              label,
-              node(
-                "textarea",
-                {
-                  "data-editor-field": `binding.${key}`,
-                  rows: 4,
-                  maxlength: 1000,
-                  value: store.get().document.bindings[key].value,
-                },
+        node("h2", { class: "editor-quick-only" }, "Điền nội dung"),
+        ...Object.entries(bindingLabels).filter(([key]) =>
+          design.policy?.kind !== "creator-template" || design.policy.editableBindings.includes(key)).map(([key, label]) =>
+            key === "message"
+              ? field(
+                label,
+                node(
+                  "textarea",
+                  {
+                    "data-editor-field": `binding.${key}`,
+                    rows: 4,
+                    maxlength: 1000,
+                    value: store.get().document.bindings[key].value,
+                  },
+                  store.get().document.bindings[key].value,
+                ),
+              )
+              : input(
+                label,
+                `binding.${key}`,
                 store.get().document.bindings[key].value,
+                { maxlength: 60 },
               ),
-            )
-            : input(
-              label,
-              `binding.${key}`,
-              store.get().document.bindings[key].value,
-              { maxlength: 60 },
-            ),
+          ),
+        node("div", { class: "editor-quick-only" },
+          design.source.templateId === MEMORY_TEMPLATE_ID ? node("div", { class: "editor-greeting-starters" },
+            node("p", { class: "editor-help" }, "Thêm câu mở đầu vào lời chúc"),
+            ...memoryGreetingStarters.map((text, index) => button(text, "greeting-starter", { "data-index": index })),
+          ) : null,
+          quickTemplateText(store.get().document) ? input(
+            quickTemplateText(store.get().document).name, "quick-template-text", quickTemplateText(store.get().document).props.text, { maxlength: 500 },
+          ) : null,
+          node("div", { class: "editor-quick-photo", hidden: true },
+            field("Ảnh kỷ niệm", node("input", {
+              type: "file",
+              accept: "image/png,image/jpeg,image/webp",
+              "data-editor-field": "quick-photo",
+            })),
+            node("p", { class: "editor-help" }, "PNG, JPEG hoặc WebP · Tối đa 2 MB"),
+            design.source.templateId === MEMORY_TEMPLATE_ID ? button("Bỏ ảnh cá nhân", "remove-frame-photo", { hidden: true }) : null,
+          ),
         ),
-      node("div", { class: "editor-quick-only" },
-        design.source.templateId === MEMORY_TEMPLATE_ID ? node("div", { class: "editor-greeting-starters" },
-          node("p", { class: "editor-help" }, "Thêm câu mở đầu vào lời chúc"),
-          ...memoryGreetingStarters.map((text, index) => button(text, "greeting-starter", { "data-index": index })),
-        ) : null,
-        quickTemplateText(store.get().document) ? input(
-          quickTemplateText(store.get().document).name, "quick-template-text", quickTemplateText(store.get().document).props.text, { maxlength: 500 },
-        ) : null,
-        node("div", { class: "editor-quick-photo", hidden: true },
-          field("Ảnh kỷ niệm", node("input", {
-            type: "file",
-            accept: "image/png,image/jpeg,image/webp",
-            "data-editor-field": "quick-photo",
-          })),
-          node("p", { class: "editor-help" }, "PNG, JPEG hoặc WebP · Tối đa 2 MB"),
-          design.source.templateId === MEMORY_TEMPLATE_ID ? button("Bỏ ảnh cá nhân", "remove-frame-photo", { hidden: true }) : null,
+        node("p", { class: "editor-help editor-layout-only" },
+          "Tên và lời chúc được dùng ở những khối có liên kết dữ liệu. Nhập đủ trước khi xuất bản.",
         ),
-      ),
-      node("p", { class: "editor-help editor-layout-only" },
-        "Tên và lời chúc được dùng ở những khối có liên kết dữ liệu. Nhập đủ trước khi xuất bản.",
-      ),
       ),
       node("div", { "data-library-panel": "assets", id: "editor-panel-assets", class: "editor-assets" }),
       node("div", { "data-library-panel": "layers", id: "editor-panel-layers", class: "editor-layers" }),
@@ -561,6 +569,7 @@ export function mountDesigner(
       node("p", { class: "editor-selection-summary editor-layout-only", "data-editor-selection": "", role: "status", "aria-live": "polite" },
         "Chọn một thành phần trên thiệp để chỉnh sửa."),
       node("div", { class: "editor-stage-scroll" }),
+      node("div", { class: "editor-inline-mount", hidden: true, "aria-label": "Không gian chỉnh sửa Fabric trực tiếp" }),
       node("details", { class: "editor-editing-help editor-layout-only" },
         node("summary", {}, "Cách sử dụng công cụ thiết kế"),
         node("ol", {},
@@ -643,7 +652,7 @@ export function mountDesigner(
       onGesture: (active) => main.classList.toggle("editor-dragging", active),
     });
     stageObserver?.disconnect();
-    stageObserver = new ResizeObserver(() => { if (fitted && !sheet) fit(); });
+    stageObserver = new ResizeObserver(() => { if (fitted && !sheet && !inlineFabricSession && !inlineFabricOpening) fit(); });
     stageObserver.observe(main.querySelector(".editor-stage-scroll"));
     renderAll();
   }
@@ -705,11 +714,12 @@ export function mountDesigner(
       const menu = node("details", { class: "editor-scene-menu editor-layout-only" },
         summary,
         node("div", { class: "editor-scene-menu-actions" }, ...sceneActions.map(([label, action]) =>
-          button(label, action, { "data-id": scene.id, disabled:
-            action === "scene-up" && index === 0 ||
-            action === "scene-down" && index === doc.scenes.length - 1 ||
-            action === "scene-entry" && entry ||
-            action === "scene-delete" && doc.scenes.length === 1,
+          button(label, action, {
+            "data-id": scene.id, disabled:
+              action === "scene-up" && index === 0 ||
+              action === "scene-down" && index === doc.scenes.length - 1 ||
+              action === "scene-entry" && entry ||
+              action === "scene-delete" && doc.scenes.length === 1,
           }))));
       menu.open = scene.id === openId;
       return node("div", { class: "editor-scene-card", "data-scene": scene.id }, card, locked ? null : menu);
@@ -766,63 +776,66 @@ export function mountDesigner(
       if (!options.length) return [];
       const preset = model.effects?.[family];
       const prefix = `effect.${family}.`;
-      return [node("fieldset", {class:"editor-effect-settings"},
-        node("legend",{},effectFamilies[family].label),
-        select("Hiệu ứng",prefix+"id",preset?.id,[["", "Tắt"],...options]),
-        preset && family !== "surface" ? select("Tốc độ",prefix+"speed",preset.speed || "normal",
-          [["slow","Chậm"],["normal","Vừa"],["fast","Nhanh"]]) : null,
-        preset && family === "entrance" ? select("Độ trễ",prefix+"delay",preset.delay || 0,
-          [[0,"Ngay"],[150,"150 ms"],[300,"300 ms"]]) : null,
-        preset && family === "ambience" ? select("Mật độ",prefix+"density",preset.density || "normal",
-          [["sparse","Thưa"],["normal","Vừa"]]) : null,
-        preset && ["S02","S04"].includes(preset.id) ? input("Màu viền",prefix+"color",
-          preset.color || (preset.id === "S02" ? "#6D488A" : "#F3DA97"),{type:"color"}) : null,
-        preset ? node("div",{class:"editor-control-row"},
-          button("Xem thử","effect-preview",{"data-family":family}),
-          button("Bỏ hiệu ứng","effect-remove",{"data-family":family})) : null,
+      return [node("fieldset", { class: "editor-effect-settings" },
+        node("legend", {}, effectFamilies[family].label),
+        select("Hiệu ứng", prefix + "id", preset?.id, [["", "Tắt"], ...options]),
+        preset && family !== "surface" ? select("Tốc độ", prefix + "speed", preset.speed || "normal",
+          [["slow", "Chậm"], ["normal", "Vừa"], ["fast", "Nhanh"]]) : null,
+        preset && family === "entrance" ? select("Độ trễ", prefix + "delay", preset.delay || 0,
+          [[0, "Ngay"], [150, "150 ms"], [300, "300 ms"]]) : null,
+        preset && family === "ambience" ? select("Mật độ", prefix + "density", preset.density || "normal",
+          [["sparse", "Thưa"], ["normal", "Vừa"]]) : null,
+        preset && ["S02", "S04"].includes(preset.id) ? input("Màu viền", prefix + "color",
+          preset.color || (preset.id === "S02" ? "#6D488A" : "#F3DA97"), { type: "color" }) : null,
+        preset ? node("div", { class: "editor-control-row" },
+          button("Xem thử", "effect-preview", { "data-family": family }),
+          button("Bỏ hiệu ứng", "effect-remove", { "data-family": family })) : null,
       )];
     });
   }
   function interactionFields(model) {
     const p = model.props, spec = interactionKinds[p.kind], doc = store.get().document;
-    const fields = [input("Màu nền khối", "props.color", p.color, {type:"color"})];
+    const fields = [input("Màu nền khối", "props.color", p.color, { type: "color" })];
     for (const [i, entry] of (p.entries || []).entries()) {
-      fields.push(input(spec.fields[i][0], `entry.${i}.heading`, entry.heading, {maxlength:120}));
+      fields.push(input(spec.fields[i][0], `entry.${i}.heading`, entry.heading, { maxlength: 120 }));
       if (spec.fields[i][1]) fields.push(field(spec.fields[i][1], node("textarea", {
         "data-editor-field": `entry.${i}.body`, maxlength: LIMITS.text, rows: 3,
       }, entry.body)));
     }
     for (const [i, action] of (model.actions || []).entries())
-      fields.push(select(`Cảnh đích cửa ${i+1}`, `door.${i}`, action.targetSceneId,
+      fields.push(select(`Cảnh đích cửa ${i + 1}`, `door.${i}`, action.targetSceneId,
         [["", "Chọn cảnh"], ...doc.scenes.map(scene => [scene.id, scene.name])]));
     for (const [i, photo] of (p.photos || []).entries()) {
-      const label = p.kind === "photo-comparison" ? (i ? "Ảnh sau" : "Ảnh trước") : `Ảnh ${i+1}`;
-      const picture = createElement("image", { id: photo.id, layout: model.layout,
-        props: { assetId: photo.assetId, focalPoint: photo.focalPoint }, accessibility: {alt:photo.alt} });
-      const editPhoto = edit => commit(({document}) => {
+      const label = p.kind === "photo-comparison" ? (i ? "Ảnh sau" : "Ảnh trước") : `Ảnh ${i + 1}`;
+      const picture = createElement("image", {
+        id: photo.id, layout: model.layout,
+        props: { assetId: photo.assetId, focalPoint: photo.focalPoint }, accessibility: { alt: photo.alt }
+      });
+      const editPhoto = edit => commit(({ document }) => {
         const slot = document.elements.find(item => item.id === model.id)?.props.photos.find(item => item.id === photo.id);
         if (slot) edit(slot);
       }, "Chỉnh ô ảnh");
-      fields.push(node("fieldset", {class:"editor-interaction-photo"}, node("legend",{},label),
+      fields.push(node("fieldset", { class: "editor-interaction-photo" }, node("legend", {}, label),
         imagePicker(photo.assetId ? `Thay ${label.toLowerCase()}` : `Chọn ${label.toLowerCase()}`, photo.id),
         doc.assets.length ? select("Ảnh đã tải", `slot.${photo.id}.assetId`, photo.assetId,
-          [["", "Chưa có ảnh"], ...doc.assets.map(({assetId},index) => [assetId, `Ảnh đã tải ${index+1}`])]) : null,
-        input("Mô tả ảnh", `slot.${photo.id}.alt`, photo.alt, {maxlength:LIMITS.accessibilityText}),
-        field("Chú thích ảnh",node("textarea",{"data-editor-field":`slot.${photo.id}.caption`,maxlength:LIMITS.text,rows:2},photo.caption)),
-        photo.assetId ? cropEditor(picture, {document:doc,assetUrl,
+          [["", "Chưa có ảnh"], ...doc.assets.map(({ assetId }, index) => [assetId, `Ảnh đã tải ${index + 1}`])]) : null,
+        input("Mô tả ảnh", `slot.${photo.id}.alt`, photo.alt, { maxlength: LIMITS.accessibilityText }),
+        field("Chú thích ảnh", node("textarea", { "data-editor-field": `slot.${photo.id}.caption`, maxlength: LIMITS.text, rows: 2 }, photo.caption)),
+        photo.assetId ? cropEditor(picture, {
+          document: doc, assetUrl,
           editable: !design.policy?.lockedElements?.[model.id],
-          onChange: safe(point => { editPhoto(slot => {slot.focalPoint = point;}); renderInspector(); }),
-          onPreview: () => {},
+          onChange: safe(point => { editPhoto(slot => { slot.focalPoint = point; }); renderInspector(); }),
+          onPreview: () => { },
         }) : null,
-        node("div", {class:"editor-layout-fields"},
-          ...["x","y"].map((axis,index) => input(index ? "Nét dọc (%)" : "Nét ngang (%)",
-            `slot.${photo.id}.${axis}`, toPercent(photo.focalPoint[axis]), {type:"number",min:0,max:100,step:.1}))),
+        node("div", { class: "editor-layout-fields" },
+          ...["x", "y"].map((axis, index) => input(index ? "Nét dọc (%)" : "Nét ngang (%)",
+            `slot.${photo.id}.${axis}`, toPercent(photo.focalPoint[axis]), { type: "number", min: 0, max: 100, step: .1 }))),
       ));
     }
     if (spec.clock) {
       const zones = new Set(["Asia/Ho_Chi_Minh", "UTC", p.timeZone, ...Intl.supportedValuesOf("timeZone")]);
-      fields.push(select("Múi giờ hẹn","props.timeZone",p.timeZone,[...zones].map(zone=>[zone,zone])),
-        input("Ngày giờ hẹn","event-time",p.eventAt ? localEventTime(p.eventAt,p.timeZone) : "",{type:"datetime-local"}));
+      fields.push(select("Múi giờ hẹn", "props.timeZone", p.timeZone, [...zones].map(zone => [zone, zone])),
+        input("Ngày giờ hẹn", "event-time", p.eventAt ? localEventTime(p.eventAt, p.timeZone) : "", { type: "datetime-local" }));
     }
     return fields;
   }
@@ -1684,7 +1697,7 @@ export function mountDesigner(
             "data-photo-slot": slot?.id,
             "data-element-field": slot && missingPhoto[2] === "alt" ? `slot.${slot.id}.alt`
               : missingDoor && element?.props.kind === "scene-choices" ? `door.${missingDoor[1]}`
-              : path.endsWith(".props.eventAt") ? "event-time" : null,
+                : path.endsWith(".props.eventAt") ? "event-time" : null,
           },
         );
         return control;
@@ -1775,6 +1788,70 @@ export function mountDesigner(
       return;
     }
     if (!store) return;
+    // Khi Fabric nhúng đang mở, chỉ Áp dụng/Hủy trong Fabric mới được thay document.
+    if (inlineFabricSession || inlineFabricOpening) {
+      throw new Error("Hãy Áp dụng hoặc Hủy chế độ chỉnh trực tiếp trước khi dùng công cụ khác.");
+    }
+    if (name === "inline-fabric") {
+      if (!canOpenAdvancedEditor(design.policy))
+        throw new Error("Bạn không có quyền thay đổi bố cục mẫu này.");
+      if (quickMode) switchMode();
+      if (!canStartInlineFabric(design.policy, quickMode))
+        throw new Error("Chỉ có thể chỉnh trực tiếp ở chế độ bố cục được phép.");
+      closeSheet();
+      const mount = main.querySelector(".editor-inline-mount");
+      const stageScroll = main.querySelector(".editor-stage-scroll");
+      if (!mount || !stageScroll) throw new Error("Không tìm thấy vùng thiết kế trực tiếp.");
+      const editingScene = sceneId;
+      const initialSequence = store.sequence;
+      const previousTrigger = target;
+      inlineFabricOpening = true;
+      stageScroll.hidden = true;
+      mount.hidden = false;
+      main.classList.add("editor-inline-active");
+      const restore = () => {
+        if (inlineFabricSession?.dialog) dialogs.delete(inlineFabricSession.dialog);
+        inlineFabricSession = null;
+        mount.hidden = true;
+        stageScroll.hidden = false;
+        main.classList.remove("editor-inline-active");
+        if (!disposed && main.isConnected) {
+          if (fitted) fit();
+          if (previousTrigger?.isConnected) previousTrigger.focus({ preventScroll: true });
+        }
+      };
+      try {
+        const { openFabricStudio } = await import("../features/canvas-editor/fabric-studio.js");
+        if (disposed) return;
+        const studio = await openFabricStudio({
+          snapshot: structuredClone(store.get().document),
+          sceneId: editingScene,
+          policy: design.policy,
+          assetUrl,
+          inlineHost: mount,
+          onApply: patch => {
+            assertInlineFabricRevision(initialSequence, store.sequence, editingScene, sceneId, disposed);
+            commit(value => {
+              value.document = applyFabricWorkspacePatch(value.document, editingScene, patch, design.policy);
+            }, "Fabric trực tiếp: chỉnh bố cục và layer");
+          },
+          onClose: restore,
+        });
+        if (!studio?.dialog?.open) throw new Error("Không mở được vùng Fabric trực tiếp.");
+        if (disposed) {
+          studio.close();
+          return;
+        }
+        inlineFabricSession = studio;
+        dialogs.add(studio.dialog);
+      } catch (error) {
+        restore();
+        throw error;
+      } finally {
+        inlineFabricOpening = false;
+      }
+      return;
+    }
     if (name === "advanced-design" || name === "fabric-studio") {
       if (!canOpenAdvancedEditor(design.policy))
         throw new Error("Mẫu hiện tại không cho phép thay đổi bố cục nâng cao.");
@@ -1994,11 +2071,11 @@ export function mountDesigner(
       return;
     }
     if (name === "effect-preview") {
-      openPreview({family:target.dataset.family,elementId:selection,sceneId:currentScene().id});
+      openPreview({ family: target.dataset.family, elementId: selection, sceneId: currentScene().id });
       return;
     }
     if (name === "effect-remove") {
-      commit(({document}) => {
+      commit(({ document }) => {
         const model = document.elements.find(item => item.id === selection) || document.scenes.find(scene => scene.id === sceneId);
         delete model.effects[target.dataset.family];
         if (!Object.keys(model.effects).length) delete model.effects;
@@ -2315,11 +2392,11 @@ export function mountDesigner(
           return;
         }
         if (key.startsWith("effect.")) {
-          const [,family,field] = key.split(".");
+          const [, family, field] = key.split(".");
           const model = next.document.elements.find(item => item.id === selection) ||
             next.document.scenes.find(scene => scene.id === sceneId);
           if (field === "id") {
-            if (value) (model.effects ??= {})[family] = {id:value};
+            if (value) (model.effects ??= {})[family] = { id: value };
             else {
               delete model.effects?.[family];
               if (model.effects && !Object.keys(model.effects).length) delete model.effects;
@@ -2332,7 +2409,7 @@ export function mountDesigner(
         );
         if (!item) return;
         if (key.startsWith("entry.")) {
-          const [,index,field] = key.split(".");
+          const [, index, field] = key.split(".");
           item.props.entries[index][field] = value;
           return;
         }
@@ -2341,7 +2418,7 @@ export function mountDesigner(
           return;
         }
         if (key.startsWith("slot.")) {
-          const [,id,field] = key.split(".");
+          const [, id, field] = key.split(".");
           const photo = item.props.photos.find(photo => photo.id === id);
           if (field === "x" || field === "y") photo.focalPoint[field] = value / 100;
           else photo[field] = value || (field === "assetId" ? null : "");
@@ -2551,6 +2628,8 @@ export function mountDesigner(
   function hasUnsaved() {
     return Boolean(
       session?.dirty ||
+      inlineFabricOpening ||
+      Boolean(inlineFabricSession) ||
       assetPending ||
       stage?.gestureActive ||
       stage?.textDirty ||
@@ -2559,6 +2638,9 @@ export function mountDesigner(
     );
   }
   function beforeLeave() {
+    if (inlineFabricOpening || inlineFabricSession) {
+      return window.confirm("Thay đổi trong Fabric chưa được Áp dụng và sẽ bị hủy khi rời trang. Bạn vẫn muốn rời đi?");
+    }
     return (
       !hasUnsaved() ||
       window.confirm(
@@ -2599,6 +2681,8 @@ export function mountDesigner(
     dispose() {
       if (disposed) return;
       disposed = true;
+      if (inlineFabricSession?.dialog) dialogs.delete(inlineFabricSession.dialog);
+      inlineFabricSession?.close();
       lifecycle.abort();
       session?.dispose();
       unsubscribe?.();
@@ -2610,7 +2694,7 @@ export function mountDesigner(
         dialog.remove();
       }
       dialogs.clear();
-      main.classList.remove("editor-main", "editor-dragging");
+      main.classList.remove("editor-main", "editor-dragging", "editor-inline-active");
     },
   };
 }

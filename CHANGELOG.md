@@ -1,3 +1,9 @@
+## Unreleased — Phase 5.8: Inline Fabric Workspace
+
+- Chỉnh sửa trực tiếp trong Canvas Designer bằng Fabric.js, vẫn giữ Fabric modal cũ.
+- Chọn layer, kéo, xoay, resize, sắp thứ tự, căn chỉnh; Áp dụng/Hủy theo document gốc.
+- Chặn thay đổi chéo khi session đang mở; kiểm tra revision và quyền Creator trước khi ghi.
+- Giữ schema Momevia, Undo/Redo, không lưu Fabric JSON; CSS và kiểm thử tách module.
 ## Unreleased — Phase 5.5: Expanded Elements & Canvas Discovery (2026-11-19)
 
 - Thêm 48 hình vector nội bộ thuộc sáu chủ đề; Canvas Library tăng từ 124 lên 172 elements, bảo toàn 100 mục gốc và 24 hình Phase 5.4.

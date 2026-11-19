@@ -1,0 +1,141 @@
+/* Phase 5.8: Fabric nằm trong Canvas Workspace, không tạo thêm một runtime nhận quà. */
+.editor-inline-cta {
+  border: 1px solid #6942bf;
+  border-radius: 12px;
+  background: #f1ebff;
+  color: #4b278f;
+  font-weight: 800;
+  min-height: 44px;
+}
+
+.editor-inline-cta:hover {
+  background: #e6dcff;
+}
+
+.editor-inline-cta:focus-visible {
+  outline: 3px solid #6942bf;
+  outline-offset: 3px;
+}
+
+.editor-inline-mount[hidden] {
+  display: none !important;
+}
+
+.editor-inline-mount {
+  width: 100%;
+  min-width: 0;
+}
+
+.editor-main.editor-inline-active .editor-grid {
+  grid-template-columns: minmax(0, 1fr) !important;
+}
+
+.editor-main.editor-inline-active .editor-library,
+.editor-main.editor-inline-active .editor-inspector,
+.editor-main.editor-inline-active .editor-scene-bar,
+.editor-main.editor-inline-active .editor-mobile-dock,
+.editor-main.editor-inline-active .editor-editing-help,
+.editor-main.editor-inline-active .editor-stage-tools,
+.editor-main.editor-inline-active .editor-selection-summary {
+  display: none !important;
+}
+
+.editor-main.editor-inline-active .editor-stage-scroll {
+  display: none !important;
+}
+
+.editor-main.editor-inline-active .editor-topbar {
+  pointer-events: none;
+  opacity: 0.68;
+}
+
+.editor-main.editor-inline-active .editor-stage-column {
+  width: 100%;
+  min-width: 0;
+}
+
+.editor-fabric-dialog.editor-fabric-dialog--inline {
+  display: block;
+  position: relative;
+  inset: auto;
+  margin: 0;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: none;
+  max-height: none;
+  overflow: visible;
+  padding: clamp(12px, 2vw, 20px);
+  border: 1px solid #ded6f1;
+  border-radius: 18px;
+  background: #fbfaff;
+  box-shadow: 0 8px 32px rgba(48, 28, 84, 0.08);
+}
+
+.editor-fabric-dialog--inline .fabric-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(230px, 280px);
+  gap: 16px;
+}
+
+.editor-fabric-dialog--inline .fabric-surface {
+  max-height: min(72dvh, 960px);
+}
+
+.editor-fabric-dialog--inline .fabric-layer-panel {
+  max-height: min(72dvh, 960px);
+}
+
+.editor-fabric-dialog--inline .fabric-actions {
+  position: relative;
+  margin-top: 16px;
+}
+
+.editor-fabric-dialog--inline .fabric-footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  padding: 12px 0;
+  background: #fbfaff;
+  border-top: 1px solid #ebe4f5;
+}
+
+@media (max-width: 980px) {
+  .editor-fabric-dialog--inline .fabric-workspace {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .editor-fabric-dialog--inline .fabric-layer-panel {
+    max-height: 260px;
+  }
+}
+
+@media (max-width: 600px) {
+  .editor-fabric-dialog.editor-fabric-dialog--inline {
+    padding: 10px;
+    border-radius: 12px;
+  }
+
+  .editor-fabric-dialog--inline .fabric-actions {
+    gap: 6px;
+  }
+
+  .editor-fabric-dialog--inline .fabric-actions button {
+    min-height: 44px;
+  }
+
+  .editor-fabric-dialog--inline .fabric-surface {
+    max-height: 54dvh;
+  }
+
+  .editor-fabric-dialog--inline .fabric-footer {
+    gap: 8px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .editor-fabric-dialog--inline,
+  .editor-fabric-dialog--inline * {
+    animation: none !important;
+    transition: none !important;
+  }
+}

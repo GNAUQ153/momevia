@@ -89,18 +89,19 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Giữ nguyên 100 Elements, 24 hiệu ứng và schema V1/V2 sau khi hợp nhất cập nhật Canvas mới.
-- Bổ sung bảng chín vị trí trọng tâm trong crop Inspector cho ảnh thường và ảnh nằm trong khối tương tác; không lưu lại ảnh gốc.
-- Bảo toàn quyền chỉnh sửa Creator, Undo/Redo, autosave; nút crop có tên truy cập và điều khiển bàn phím.
+- Thêm 48 hình vector nội bộ thuộc sáu chủ đề; Canvas Library tăng từ 124 lên 172 elements, bảo toàn 100 mục gốc và 24 hình Phase 5.4.
+- Bộ lọc Tất cả / Theo dịp / Mới thêm / Vừa dùng, tìm kiếm không dấu, thống kê kết quả và thông báo khi không tìm thấy hình.
+- 12 element dùng gần nhất chỉ lưu ID vào localStorage nếu trình duyệt cho phép, không lưu dữ liệu cá nhân hoặc nội dung thiệp.
+- Tối ưu Canvas library trên desktop/mobile bằng CSS độc lập, focus-visible và prefers-reduced-motion; không thêm dependency, không sử dụng emoji.
 
 **Các commit gần nhất trên `main`:**
 
+- `dab15ec` — feat: expand Canvas to 172 elements and improve discovery UX (2026-11-19)
 - `4dfc747` — feat: expand Canvas library with 24 seasonal decorations (2026-11-19)
 - `4ffd221` — feat: add image crop presets for Canvas 100 (2026-11-19)
 - `0946dc7` — Merge pull request #10 from GNAUQ153/feat/canvas-100-elements (2026-11-19)
 - `6ee282c` — docs: clarify Phase 5.2 precision alignment release (2026-11-19)
 - `7bb3554` — feat: add seasonal templates and recipient viral conversion (2026-11-19)
-- `460151f` — feat: enhance Fabric Studio with professional layer workspace (2026-11-19)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

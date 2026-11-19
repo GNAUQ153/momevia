@@ -1,3 +1,9 @@
+## Unreleased — Canvas 100: Crop Quick Focus (Phase 5.3 integration)
+
+- Giữ nguyên 100 Elements, 24 hiệu ứng và schema V1/V2 sau khi hợp nhất cập nhật Canvas mới.
+- Bổ sung bảng chín vị trí trọng tâm trong crop Inspector cho ảnh thường và ảnh nằm trong khối tương tác; không lưu lại ảnh gốc.
+- Bảo toàn quyền chỉnh sửa Creator, Undo/Redo, autosave; nút crop có tên truy cập và điều khiển bàn phím.
+
 ## Unreleased — Fabric Precision Align (Phase 5.2)
 
 - Chọn nhiều layer bằng checkbox, căn trái/giữa/phải/trên/dưới và chia đều khoảng cách.

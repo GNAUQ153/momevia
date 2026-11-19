@@ -34,7 +34,10 @@ test('Gói nguồn loại secret/data/dependency và phát hiện file bị sử
       'web/debug.log','web/cache.tmp','node_modules/example/index.js',
       'docs/UPDATE_V04.md','docs/UPDATE_V05.md','docs/archive/CODE_REVIEW_ARCHITECTURE_2026-11-16_initial.md',
       'docs/local/notes.md','docs/coverage/index.html','web/test-results/results.json',
-      'docs/Thumbs.db','docs/.eslintcache'];
+      'docs/Thumbs.db','docs/.eslintcache',
+      'web/.npmrc','services/secrets/server.pem','services/secrets/server.key',
+      'docs/credentials.json','docs/service-account.prod.json','database/backup.sql.gz',
+      'web/.git/config'];
     for(const file of excludedFiles) write(file,'PRIVATE_SENTINEL');
     write('docs/ARCHITECTURE.md','shared architecture');
     write('docs/licenses/example-MIT.txt','shared license');
@@ -66,6 +69,17 @@ test('Gói nguồn loại secret/data/dependency và phát hiện file bị sử
     fs.writeFileSync(path.join(release,'.env'),'PRIVATE_SENTINEL');
     assert.notEqual(run().status,0);
     fs.unlinkSync(path.join(release,'.env'));
+    // Không được bỏ qua tệp ẩn trong thư mục node_modules của release.
+    const hidden = path.join(release, 'node_modules/hidden.js');
+    fs.mkdirSync(path.dirname(hidden), { recursive: true });
+    fs.writeFileSync(hidden, 'PRIVATE_SENTINEL');
+    assert.notEqual(run().status, 0);
+    fs.rmSync(path.join(release, 'node_modules'), { recursive: true, force: true });
+    // Cả thư mục dữ liệu rỗng cũng bị từ chối vì không nằm trong release allowlist.
+    const privateDirectory = path.join(release, 'services/identity/data');
+    fs.mkdirSync(privateDirectory, { recursive: true });
+    assert.notEqual(run().status, 0);
+    fs.rmSync(privateDirectory, { recursive: true, force: true });
     // Kể cả manifest được thêm checksum đúng, tài liệu cũ vẫn bị cấm.
     const oldDoc='docs/UPDATE_V04.md';
     fs.writeFileSync(path.join(release,oldDoc),'legacy notes');

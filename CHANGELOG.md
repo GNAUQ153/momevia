@@ -1,3 +1,10 @@
+## Unreleased — Phase 6.1a: Designer Modularity & Release Safety
+
+- Tách cấu hình thanh công cụ, tiện ích hiển thị/zoom và bộ chọn ảnh từ `designer.js` thành module độc lập `designer-helpers.js`, không thay đổi API hoặc state.
+- Củng cố chính sách loại trừ source/release cho chứng chỉ, private key, file credentials, cấu hình riêng và bản sao dữ liệu; giữ migration SQL cùng license hợp lệ.
+- Bổ sung kiểm thử hồi quy hành vi UI và release-safety; verifier từ chối thư mục `node_modules`/`data` lạ trong gói, kể cả thư mục rỗng. Không thay đổi API hoặc quyền nghiệp vụ.
+- Đây là đợt 6.1a; chưa refactor toàn bộ file Designer, chưa tuyên bố đạt pentest/production.
+
 ## Unreleased — Phase 6.0b: Contextual Style Properties (2026-11-19)
 
 - Bổ sung panel kiểu dáng theo loại đối tượng trong Fabric Studio và Inline Canvas.

@@ -21,6 +21,16 @@ import { giftLinkDescription } from "../shared/gift-permissions.js";
 import { framePhoto, MEMORY_TEMPLATE_ID, memoryGreetingStarters } from "../shared/canvas/basic-templates.js";
 import { materializeTemplateStart } from '../features/canvas-editor/template-start.js';
 import { createEditorStore } from "../features/canvas-editor/store.js";
+import {
+  zoomLevels,
+  libraryTabs,
+  sceneActions,
+  starterActions,
+  toPercent,
+  imagePicker,
+  stopKeys,
+  readableInk,
+} from "../features/canvas-editor/designer-helpers.js";
 import { createSaveSession } from "../features/canvas-editor/session.js";
 import { createStage } from "../features/canvas-editor/stage.js";
 import { applyFabricWorkspacePatch } from "../features/canvas-editor/fabric-workspace.js";
@@ -42,36 +52,7 @@ import {
 } from "../features/canvas-editor/dom.js";
 
 const newId = () => crypto.randomUUID();
-const zoomLevels = [0.25, 0.5, 0.75, 1, 1.5, 2];
-const libraryTabs = { add: "Thêm", content: "Nội dung", assets: "Ảnh", layers: "Lớp" };
-const sceneActions = [
-  ["Nhân bản cảnh", "scene-duplicate"], ["Đưa cảnh lên", "scene-up"],
-  ["Đưa cảnh xuống", "scene-down"], ["Chọn làm cảnh mở đầu", "scene-entry"],
-  ["Xóa cảnh", "scene-delete"],
-];
-const starterActions = { blank: "create-blank", "envelope-basic": "create-starter", celebration: "create-celebration" };
-const toPercent = value => Number((value * 100).toFixed(2));
 const isLegacyFrame = element => isPhotoFrame(element) && !isPolaroidPlaceholder(element);
-
-function imagePicker(label, slot) {
-  return node("label", { class: "editor-image-picker" },
-    node("span", {}, label),
-    node("input", {
-      type: "file", accept: "image/png,image/jpeg,image/webp",
-      "data-editor-field": "upload", "data-slot": slot,
-    }));
-}
-const stopKeys = (target) =>
-  target?.closest('input,textarea,select,[contenteditable="true"]');
-
-function readableInk(background) {
-  const [red, green, blue] = background.slice(1).match(/../g).map(hex => {
-    const value = parseInt(hex, 16) / 255;
-    return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
-  });
-  const luminance = 0.2126 * red + 0.7152 * green + 0.0722 * blue;
-  return luminance > 0.179 ? "#000000" : "#FFFFFF";
-}
 
 // Mounted only on Sender design routes. The public player never imports this module.
 export function mountDesigner(

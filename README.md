@@ -89,19 +89,18 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Thêm 10 mẫu vector Momevia Originals miễn phí trong đợt marketing (4 mùa lễ 2026–2027, 6 mẫu cảm xúc), thành 24 mẫu tích hợp. Mỗi mẫu có 3 cảnh Canvas, tùy chỉnh tên người nhận/người gửi/lời nhắn; không dùng emoji hoặc ảnh stock.
-- Chèn các ID mẫu còn thiếu vào Catalog JSON/MySQL, không ghi đè mẫu đã tồn tại hoặc snapshot quà đã gửi. Không yêu cầu migration mới.
-- Thêm khu vực mẫu theo mùa trên /explore; mẫu vẫn tìm được quanh năm.
-- Gắn CTA “Tạo thiệp của riêng bạn”, “Khám phá thêm mẫu” và “Tạo bằng Momevia” trên cả Legacy Gift và Canvas Gift. Link không mang invite token.
+- Tích hợp Fabric.js (MIT) dưới dạng công cụ thiết kế nâng cao tùy chọn: di chuyển, xoay, thay kích thước và căn chỉnh lớp chữ/hình/ảnh.
+- Mọi thay đổi được chuyển về Canvas schema gốc và đi qua kiểm tra quyền sửa cùng cơ chế Undo/Redo/autosave; không ảnh hưởng trình phát quà.
+- Tách CSS, giữ vendor JavaScript cục bộ và kèm license trong release; bổ sung kiểm thử adapter.
 
 **Các commit gần nhất trên `main`:**
 
+- `cddb2bb` — feat: integrate Fabric Studio advanced canvas editor (2026-11-19)
 - `55f42ec` — fix: stabilize seasonal template preview and browser tests (2026-11-19)
 - `0cb0afc` — feat: add seasonal templates and recipient viral conversion (2026-11-19)
 - `00a3528` — feat: enhance marketing UI and payment experience (2026-11-18)
 - `03dd978` — test: isolate creator browser journey from shared auth quotas (2026-11-18)
 - `35051d5` — feat: improve identity recovery and admin payment operations (2026-11-18)
-- `b19ae81` — feat: add admin payment review and reconciliation audit (2026-11-18)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

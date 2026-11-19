@@ -1,3 +1,9 @@
+## Unreleased — Fabric Workspace (Phase 5.1)
+
+- Thêm Layer Panel trên Fabric Studio, đổi thứ tự/ẩn hiện có lưu, khóa thao tác tạm và snap tâm/biên.
+- Giữ nguyên schema v1, quyền Creator và renderer người nhận; kiểm tra patch hợp lệ bằng unit tests.
+- CSS riêng cho workspace, hỗ trợ mobile, ARIA và prefers-reduced-motion.
+
 ## Unreleased — Fabric Studio nâng cao (Phase 5 beta)
 
 - Tích hợp Fabric.js (MIT) dưới dạng công cụ thiết kế nâng cao tùy chọn: di chuyển, xoay, thay kích thước và căn chỉnh lớp chữ/hình/ảnh.

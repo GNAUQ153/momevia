@@ -15,7 +15,7 @@ import { materializeTemplateStart } from '../features/canvas-editor/template-sta
 import { createEditorStore } from "../features/canvas-editor/store.js";
 import { createSaveSession } from "../features/canvas-editor/session.js";
 import { createStage } from "../features/canvas-editor/stage.js";
-import { applyFabricDiff } from "../features/canvas-editor/fabric-adapter.js";
+import { applyFabricWorkspacePatch } from "../features/canvas-editor/fabric-workspace.js";
 import {
   node,
   button,
@@ -1426,13 +1426,13 @@ export function mountDesigner(
         sceneId,
         policy: design.policy,
         assetUrl,
-        onApply: (updates) => {
+        onApply: (patch) => {
           if (store.sequence !== initialSequence)
             throw new Error("Nháp đã đổi trong lúc mở Fabric Studio. Hãy mở lại để tránh ghi đè.");
-          if (!updates.length) return;
           commit(value => {
-            value.document = applyFabricDiff(value.document, sceneId, updates, design.policy);
-          }, "Fabric Studio: điều chỉnh bố cục");
+            // Chỉ persist metadata và bố cục qua schema Momevia; không lưu Fabric JSON.
+            value.document = applyFabricWorkspacePatch(value.document, sceneId, patch, design.policy);
+          }, "Fabric Studio: chỉnh lớp và bố cục");
         },
         onClose: () => {
           for (const item of dialogs)

@@ -16,7 +16,7 @@ export function displayText(element, document) {
     : element.props.text || '';
 }
 
-export function fabricView(document, sceneId, policy = null) {
+export function fabricView(document, sceneId, policy = null, { includeHidden = false } = {}) {
   const scene = document.scenes.find(item => item.id === sceneId);
   if (!scene) throw new Error('Cảnh không tồn tại.');
   return {
@@ -24,7 +24,7 @@ export function fabricView(document, sceneId, policy = null) {
     height: document.artboard.baseSize.height,
     background: scene.background.color,
     elements: scene.elementIds.map(id => document.elements.find(item => item.id === id))
-      .filter(item => item && item.visible !== false)
+      .filter(item => item && (includeHidden || item.visible !== false))
       .map(item => ({
         id: item.id,
         name: item.name || item.accessibility?.label || item.type,
@@ -33,6 +33,7 @@ export function fabricView(document, sceneId, policy = null) {
         props: structuredClone(item.props),
         text: item.type === 'text' ? displayText(item, document) : null,
         editable: canFabricEdit(item, policy),
+        hidden: item.visible === false,
         opacity: item.opacity ?? 1,
         textEditable: item.type === 'text' && !item.props.textBinding && canFabricEdit(item, policy),
       })),

@@ -1,3 +1,9 @@
+## Unreleased — Phase 5.9: Fabric Contextual Inspector
+
+- Chọn layer Fabric và chỉnh X/Y, chiều rộng, chiều cao, góc xoay; căn giữa ngang/dọc.
+- Inspector chỉ đổi đối tượng tạm, không sửa bản nháp trước khi chọn Áp dụng.
+- Giữ khóa lớp, quyền Creator, kiểm soát dữ liệu và cơ chế Undo/Redo hiện tại.
+- Không thay đổi API, schema, source ảnh hoặc 4 module có chỉnh sửa local ngoài phạm vi.
 ## Unreleased — Phase 5.8: Inline Fabric Workspace
 
 - Chỉnh sửa trực tiếp trong Canvas Designer bằng Fabric.js, vẫn giữ Fabric modal cũ.

@@ -1,0 +1,119 @@
+/* Phase 5.9: thuộc tính đối tượng trong Fabric Studio, hỗ trợ mobile và bàn phím. */
+.fabric-inspector {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 18px;
+  padding: 14px;
+  background: #f7f3ff;
+  border: 1px solid #d9c9f4;
+  border-radius: 14px;
+  color: #2c2142;
+}
+
+.fabric-inspector__heading strong {
+  display: block;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.fabric-inspector__status {
+  margin: 5px 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+  color: #615275;
+}
+
+.fabric-inspector__fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.fabric-inspector__field {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+  font-size: 12px;
+  font-weight: 650;
+  color: #3e3156;
+}
+
+.fabric-inspector__input {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 9px 10px;
+  background: #ffffff;
+  border: 1px solid #cbbce5;
+  border-radius: 9px;
+  color: #2c2142;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+.fabric-inspector__input:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.fabric-inspector__input:focus-visible,
+.fabric-inspector__actions button:focus-visible {
+  outline: 3px solid #6741be;
+  outline-offset: 2px;
+}
+
+.fabric-inspector__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.editor-fabric-dialog .fabric-inspector__actions button {
+  flex: 1 1 105px;
+  min-height: 44px;
+  padding: 9px 12px;
+  border: 1px solid #b8a3e7;
+  border-radius: 9px;
+  background: #ffffff;
+  color: #4d2c90;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.editor-fabric-dialog .fabric-inspector__actions button:not(:disabled):hover {
+  background: #ebe2ff;
+}
+
+.editor-fabric-dialog .fabric-inspector__actions button:disabled {
+  opacity: 0.5;
+}
+
+.fabric-inspector__help {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.5;
+  color: #635876;
+}
+
+@media (max-width: 600px) {
+  .fabric-inspector {
+    margin-bottom: 14px;
+    padding: 12px;
+  }
+
+  .fabric-inspector__fields {
+    gap: 8px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fabric-inspector *,
+  .fabric-inspector *::before,
+  .fabric-inspector *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}

@@ -1,6 +1,7 @@
 import { node, button } from './dom.js';
 import { fabricView, fabricDiff } from './fabric-adapter.js';
 import { arrangeFabricBoxes } from './fabric-align.js';
+import { mountFabricInspector } from './fabric-inspector.js';
 import {
   canManageFabricLayer, moveFabricLayer, applyFabricWorkspacePatch,
   fabricWorkspaceChanged, snapFabricCenter
@@ -189,6 +190,7 @@ export async function openFabricStudio({ snapshot, sceneId, policy, assetUrl, on
   if (embedded) inlineHost.append(dialog);
   else document.body.append(dialog);
   let canvas;
+  let inspector;
   let fitObserver;
   let closed = false;
   function close() { if (dialog.open) dialog.close(); else cleanup(); }
@@ -196,6 +198,7 @@ export async function openFabricStudio({ snapshot, sceneId, policy, assetUrl, on
     if (closed) return;
     closed = true;
     fitObserver?.disconnect();
+    inspector?.dispose();
     try { void canvas?.dispose(); } catch { /* Đóng editor cũ vẫn phải thành công. */ }
     dialog.remove();
     onClose();
@@ -247,6 +250,14 @@ export async function openFabricStudio({ snapshot, sceneId, policy, assetUrl, on
     const availableForBatch = id => isMovable(id) && visibility.get(id) !== false &&
       Boolean(byId.get(id)?.selectable) && !byId.get(id)?.momeviaMissingImage;
     const currentSelection = () => canvas.getActiveObject()?.momeviaId || null;
+    // Bảng thuộc tính dùng chính đối tượng Fabric hiện tại, không tạo bản sao document.
+    inspector = mountFabricInspector({
+      canvas,
+      artboard: { width: view.width, height: view.height },
+      layerModels,
+      canEdit: id => isMovable(id) && visibility.get(id) !== false,
+    });
+    layersPanel.insertBefore(inspector.panel, batchSummary);
     function updateBatchTools() {
       for (const id of [...batchSelection]) {
         if (!availableForBatch(id)) batchSelection.delete(id);

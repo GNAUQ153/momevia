@@ -32,6 +32,7 @@ import {
   readableInk,
 } from "../features/canvas-editor/designer-helpers.js";
 import { createSaveSession } from "../features/canvas-editor/session.js";
+import { hasPendingEditorWork, historyShortcut } from "../features/canvas-editor/editor-guards.js";
 import { createStage } from "../features/canvas-editor/stage.js";
 import { applyFabricWorkspacePatch } from "../features/canvas-editor/fabric-workspace.js";
 import { sceneThumbnail, thumbnail } from "../features/canvas-editor/thumbnail.js";
@@ -2509,7 +2510,8 @@ export function mountDesigner(
     { signal },
   );
   const beforeUnload = (event) => {
-    if (session?.dirty || assetPending || stage?.gestureActive || stage?.textDirty || composing) {
+    // Đồng bộ với cảnh báo rời route; Fabric đang mở cũng có thay đổi chưa áp dụng.
+    if (hasUnsaved()) {
       event.preventDefault();
       event.returnValue = "";
     }
@@ -2571,9 +2573,10 @@ export function mountDesigner(
       }
       if (stopKeys(event.target) || document.querySelector("dialog[open]"))
         return;
-      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "z") {
+      const historyAction = historyShortcut(event);
+      if (historyAction) {
         event.preventDefault();
-        if (event.shiftKey) store.redo();
+        if (historyAction === "redo") store.redo();
         else store.undo();
         return;
       }
@@ -2607,16 +2610,16 @@ export function mountDesigner(
     { signal },
   );
   function hasUnsaved() {
-    return Boolean(
-      session?.dirty ||
-      inlineFabricOpening ||
-      Boolean(inlineFabricSession) ||
-      assetPending ||
-      stage?.gestureActive ||
-      stage?.textDirty ||
-      publishing ||
+    return hasPendingEditorWork({
+      sessionDirty: session?.dirty,
+      inlineFabricOpening,
+      inlineFabricActive: Boolean(inlineFabricSession),
+      assetPending,
+      gestureActive: stage?.gestureActive,
+      textDirty: stage?.textDirty,
+      publishing,
       composing,
-    );
+    });
   }
   function beforeLeave() {
     if (inlineFabricOpening || inlineFabricSession) {

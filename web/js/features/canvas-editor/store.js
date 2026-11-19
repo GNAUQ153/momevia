@@ -19,12 +19,19 @@ export function createEditorStore(design, { historyLimit = 60 } = {}) {
     { record = true, merge = null } = {},
   ) {
     if (JSON.stringify(next) === JSON.stringify(value)) return false;
-    if (record && (!merge || merge !== mergeKey)) {
-      undo.push(structuredClone(value));
-      if (undo.length > historyLimit) undo.shift();
+    if (record) {
+      if (!merge || merge !== mergeKey) {
+        undo.push(structuredClone(value));
+        if (undo.length > historyLimit) undo.shift();
+      }
+      // Mọi chỉnh sửa mới đều tạo một nhánh lịch sử mới, kể cả khi đang gộp.
+      redo.length = 0;
+    } else {
+      // Đồng bộ lại bản authoritative: tuyệt đối không Undo về snapshot cũ.
+      undo.length = 0;
       redo.length = 0;
     }
-    mergeKey = merge;
+    mergeKey = record ? merge : null;
     value = structuredClone(next);
     emit("change", label);
     return true;

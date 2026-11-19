@@ -1,3 +1,5 @@
+import { isRecoveryEnvelope } from "./recovery-guards.js";
+
 const messages = {
   clean: "Đã lưu",
   dirty: "Chưa lưu",
@@ -148,11 +150,7 @@ export function createSaveSession({
   function readRecovery() {
     try {
       const item = JSON.parse(storage?.getItem(key) || "null");
-      return item?.ownerId === userId &&
-        item?.designId === design.id &&
-        item?.schemaVersion === 1
-        ? item
-        : null;
+      return isRecoveryEnvelope(item, { userId, designId: design.id }) ? item : null;
     } catch {
       return null;
     }
@@ -173,8 +171,8 @@ export function createSaveSession({
     },
     readRecovery,
     restore(item) {
-      if (item.ownerId !== userId || item.designId !== design.id)
-        throw new Error("Bản phục hồi không thuộc tài khoản này.");
+      if (!isRecoveryEnvelope(item, { userId, designId: design.id }))
+        throw new Error("Dữ liệu phục hồi không hợp lệ hoặc không thuộc tài khoản này.");
       if (
         item.revision !== revision &&
         !(item.pending && item.pending.expectedRevision + 1 === revision)
@@ -185,7 +183,8 @@ export function createSaveSession({
         return;
       }
       store.replace(item.value);
-      pending = item.pending || null;
+      // Không giữ reference mutable từ localStorage hay caller trong phiên lưu.
+      pending = item.pending ? structuredClone(item.pending) : null;
       recovery();
       setStatus("dirty");
       schedule();

@@ -11,6 +11,7 @@ import { createLayout } from "../ui/layout.js";
 import { createHomeViews } from "../pages/home.js";
 import { createCatalogViews } from "../pages/catalog.js";
 import { createGiftViews } from "../pages/gifts.js";
+import { mountStudioSpace } from "../features/studio/studio-space.js";
 import { createCreatorViews } from "../pages/creator.js";
 import { createAdminViews } from "../pages/admin.js";
 import { adminPaymentsPage, paymentReviewRows, paymentAuditRows, filterPendingReviews } from "../pages/admin-payments.js";
@@ -347,8 +348,9 @@ async function render() {
         setTimeout(() => requireLogin("/studio"), 50);
       } else {
         const lifetime = new AbortController();
-        routeController = { dispose: () => lifetime.abort() };
         main.innerHTML = dashboard();
+        const disposeStudioSpace = mountStudioSpace(main);
+        routeController = { dispose: () => { lifetime.abort(); disposeStudioSpace(); } };
         await Promise.all([
           loadStudioSection("drafts", "bản nháp", "/designs/designs", studioDrafts, lifetime.signal),
           loadStudioSection("gifts", "quà đã gửi", "/gifts/gifts/mine", studioGifts, lifetime.signal),

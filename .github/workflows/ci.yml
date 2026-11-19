@@ -125,8 +125,12 @@ jobs:
       - run: npm ci
       - run: npm run build
       - run: npm run package
+      # Xác minh gói sạch trước khi cài dependency vào bản sao phục vụ kiểm thử.
+      - run: npm run verify:package
+      - name: Prepare isolated release smoke-test copy
+        run: cp -a dist/release dist/release-smoke
       - name: Verify packaged installation and regressions
-        working-directory: dist/release
+        working-directory: dist/release-smoke
         run: |
           npm ci
           npm run check

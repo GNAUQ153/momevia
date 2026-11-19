@@ -6,6 +6,7 @@ import { chromium } from 'playwright';
 import jsQR from 'jsqr';
 import sharp from 'sharp';
 import { confirmGiftAccess } from './gift-access.mjs';
+import { checkContextualCanvas } from './canvas-contextual.mjs';
 
 async function checkShareInBrowser(browser, context, base, gifts) {
   const alias = base.replace('127.0.0.1', 'localhost');
@@ -267,15 +268,19 @@ export async function runCanvasBrowser(base, expiredSlug) {
     metrics.editorBlankReadyMs = Date.now() - editorStart;
     const designPath = new URL(page.url()).pathname; const id = designPath.split('/').at(-1);
     await field('binding.recipientName').fill('Ánh Mai'); await field('binding.senderName').fill('Đặng An'); await field('binding.message').fill('Chúc bạn một ngày thật vui!');
-    await page.locator('[data-editor-action="add"][data-type="text"]').click();
+    await page.locator('[data-editor-action="library-tab"][data-tab="add"]').click();
+    await page.locator('[data-block="paragraph"]').click();
     await field('props.text').fill('Kỷ niệm của chúng mình ✨');
+    await page.locator('.editor-geometry summary').click();
     await field('layout.y').fill('90'); await field('layout.y').dispatchEvent('change');
-    await page.locator('[data-editor-action="add"][data-type="image"]').click();
+    await page.locator('[data-block="photo"]').click();
     const bytes = await sharp({ create: { width: 80, height: 60, channels: 3, background: '#b98adc' } }).png().toBuffer();
     await field('upload').setInputFiles({ name: 'synthetic.png', mimeType: 'image/png', buffer: bytes });
     await page.waitForFunction(() => globalThis.document.querySelector('.editor-save-status')?.textContent !== 'Ảnh đang xử lý…');
+    await page.locator('.editor-geometry summary').click();
     await field('layout.y').fill('240'); await field('layout.y').dispatchEvent('change');
-    await page.locator('[data-editor-action="add"][data-type="reply"]').click();
+    await page.locator('[data-block="reply"]').click();
+    await page.locator('.editor-geometry summary').click();
     await field('layout.y').fill('480'); await field('layout.y').dispatchEvent('change');
     await save();
     const first = (await api(`/designs/designs/${id}`)).data.design;
@@ -283,6 +288,20 @@ export async function runCanvasBrowser(base, expiredSlug) {
     await page.reload(); await field('binding.recipientName').waitFor(); assert.equal(await field('binding.recipientName').inputValue(), 'Ánh Mai');
     const loaded = (await api(`/designs/designs/${id}`)).data.design; assert.deepEqual(loaded.document, first.document);
     completed.push('blank Unicode + binary image + reply, save/reload stable IDs/layout');
+
+    await control('zoom-in').click();
+    await control('fit').click();
+    assert(Number(await field('zoom').inputValue()) > 0, 'Vừa khung leaves a numeric zoom selected');
+    const firstLayer = first.document.elements[0].id;
+    const layer = page.locator(`.editor-artboard .editor-stage-element[data-element-id="${firstLayer}"]`);
+    const layerIndex = await layer.evaluate(node => node.style.zIndex);
+    await page.locator('[data-editor-action="library-tab"][data-tab="layers"]').click();
+    await page.locator(`.editor-layers [data-id="${firstLayer}"]`).click();
+    assert.equal(await layer.evaluate(node => node.style.zIndex), layerIndex);
+    await page.locator('.editor-selection-outline').waitFor();
+    await page.locator('[data-editor-action="library-tab"][data-tab="content"]').click();
+    await page.locator('.editor-scenes .editor-thumbnail-surface .gift-runtime-image img').waitFor();
+    completed.push('fit zoom displays its actual value; layer selection preserves stacking; scene thumbnails show draft media');
 
     // Preview uses the same player and never writes replies.
     let replyPosts = 0; page.on('request', req => { if (req.method() === 'POST' && /\/gifts\/.*\/replies$/.test(req.url())) replyPosts++; });
@@ -310,9 +329,21 @@ export async function runCanvasBrowser(base, expiredSlug) {
 
     for (const width of [320, 375, 390, 768, 1024, 1440]) {
       await page.setViewportSize({ width, height: 950 });
-      if (artifacts && [320, 390, 1440].includes(width)) { fs.mkdirSync(artifacts, { recursive: true }); await page.screenshot({ path: path.join(artifacts, `canvas-editor-${width}.png`), fullPage: true }); }
+      if (artifacts && [320, 390, 768, 1440].includes(width)) { fs.mkdirSync(artifacts, { recursive: true }); await page.screenshot({ path: path.join(artifacts, `canvas-editor-${width}.png`), fullPage: true }); }
       const overflow = await page.evaluate(() => ({ width: globalThis.document.documentElement.scrollWidth, viewport: globalThis.innerWidth, elements: [...globalThis.document.querySelectorAll('body *')].filter(e => e.getBoundingClientRect().right > globalThis.innerWidth + 1 && globalThis.getComputedStyle(e).position !== 'absolute').slice(0, 6).map(e => [e.tagName, e.className, e.getBoundingClientRect().right]) }));
       assert(overflow.width <= overflow.viewport + 1, `editor overflow ${width}: ${JSON.stringify(overflow)}`);
+      if ([320, 390, 768].includes(width)) {
+        for (const kind of ['library', 'layers', 'inspector', 'scenes']) {
+          const trigger = control(`sheet-${kind}`);
+          await trigger.click();
+          assert.equal(await page.locator('.editor-sheet-open[aria-modal="true"]').count(), 1);
+          assert.equal(await trigger.getAttribute('aria-expanded'), 'true');
+          if (kind === 'scenes') await page.locator('.editor-sheet-open [data-editor-action="close-sheet"]').click();
+          else await page.keyboard.press('Escape');
+          assert.equal(await page.locator('.editor-sheet-open').count(), 0);
+          assert(await trigger.evaluate(node => node === node.ownerDocument.activeElement));
+        }
+      }
     }
     completed.push('editor viewport 320/375/390/768/1024/1440 + reduced motion');
     await control('publish').click(); await confirmGiftAccess(page); await page.waitForURL('**/success/*'); const slug = new URL(page.url()).pathname.split('/').at(-1);
@@ -355,7 +386,9 @@ export async function runCanvasBrowser(base, expiredSlug) {
     await control('toggle-mode').click();
     assert.equal(new URL(page.url()).pathname, quickDraft.pathname);
     assert.equal(new URL(page.url()).searchParams.has('mode'), false);
+    await control('sheet-scenes').click();
     assert.equal(await control('scene-add').isVisible(), true);
+    await page.keyboard.press('Escape');
     await control('toggle-mode').click();
     assert.equal(await field('binding.message').inputValue(), quickGreeting);
     await save();
@@ -385,9 +418,81 @@ export async function runCanvasBrowser(base, expiredSlug) {
     await page.waitForURL('**/success/*');
     await page.goto(`${base}/template/polaroid`);
     await page.getByRole('link', { name: 'Chỉnh bố cục' }).click();
+    await control('sheet-scenes').click();
     await control('scene-add').waitFor();
     assert.equal(new URL(page.url()).searchParams.has('mode'), false);
     completed.push('paid photo template: upload failure preserves image, mode switches share one draft, checkout returns to the saved draft, demo license permits quick publication');
+    await page.setViewportSize({ width: 1440, height: 1000 });
+    await page.goto(base + '/design/new');
+    await control('create-celebration').waitFor();
+    assert.deepEqual(await page.locator('.editor-start-options [data-preset]').evaluateAll(cards => cards.map(card => card.dataset.preset)), ['blank', 'envelope-basic', 'celebration']);
+    assert.equal(await page.locator('.editor-start-options .editor-thumbnail').count(), 3);
+    if (artifacts) await page.screenshot({ path: path.join(artifacts, 'canvas-starters-1440.png'), fullPage: true });
+    await control('create-celebration').click();
+    await page.locator('.editor-artboard .gift-runtime-gift-box').waitFor();
+    const libraryId = new URL(page.url()).pathname.split('/').at(-1);
+    const library = page.locator('.editor-library');
+    const tab = key => library.locator(`[data-tab="${key}"]`);
+    const block = key => library.locator(`[data-block="${key}"]`);
+    const search = library.getByRole('searchbox');
+    await field('binding.recipientName').fill('Ánh Mai');
+    await field('binding.senderName').fill('An');
+    await field('binding.message').fill('Mong bạn tìm được nhiều niềm vui mới.');
+    await tab('add').click();
+    await search.fill('ngoi sao');
+    assert.equal(await library.locator('[data-block]:visible').count(), 1);
+    await block('star').click();
+    const star = page.locator('.editor-artboard .gift-runtime-sticker');
+    assert.equal(await star.textContent(), '★');
+    const starFirst = await star.evaluate(node => [node.style.left, node.style.top]);
+    await block('star').click();
+    assert.notDeepEqual(await star.last().evaluate(node => [node.style.left, node.style.top]), starFirst);
+    assert.equal(await page.locator('.editor-selection-outline').getAttribute('data-element-id'), await star.last().getAttribute('data-element-id'));
+    await search.fill('cum hoa');
+    const layerCount = await page.locator('.editor-artboard .editor-stage-element').count();
+    await block('flowers').click();
+    assert.equal(await page.locator('.editor-artboard .editor-stage-element').count(), layerCount + 7);
+    await control('undo').click();
+    assert.equal(await page.locator('.editor-artboard .editor-stage-element').count(), layerCount);
+    await control('redo').click();
+    assert.equal(await page.locator('.editor-artboard .editor-stage-element').count(), layerCount + 7);
+    await search.fill('doc tiep');
+    await block('continue').click();
+    await page.locator('.editor-artboard .editor-unlinked-action').waitFor();
+    const actionId = await page.locator('.editor-selection-outline').getAttribute('data-element-id');
+    await save();
+    const libraryDraft = (await api(`/designs/designs/${libraryId}`)).data.design;
+    const blocked = (await api(`/designs/designs/${libraryId}/preflight`, { expectedRevision: libraryDraft.revision })).data;
+    assert.equal(blocked.canPublish, false);
+    assert(blocked.blockers.some(blocker => blocker.path.includes('.actions.')));
+    await page.locator('.editor-target-picker summary').click();
+    const destination = page.locator('.editor-target-scenes').getByRole('button', { name: 'Lời chúc', exact: true });
+    assert.equal(await destination.locator('.editor-thumbnail').count(), 1);
+    await destination.click();
+    assert.equal(await page.locator('.editor-artboard .editor-unlinked-action').count(), 0);
+    await search.fill('xem lai');
+    await block('replay').click();
+    const replayId = await page.locator('.editor-selection-outline').getAttribute('data-element-id');
+    await control('layer-down').click();
+    await control('preview').click();
+    const libraryPreview = page.locator('dialog[open] .gift-runtime-stage');
+    const previewStar = libraryPreview.locator('.gift-runtime-sticker').first();
+    assert.equal(await previewStar.textContent(), '★');
+    const effectiveStar = await previewStar.evaluate(node => parseFloat(node.style.fontSize) / (node.parentElement.clientWidth / 390));
+    assert(Math.abs(effectiveStar - parseFloat(await star.first().evaluate(node => node.style.fontSize))) < 0.1);
+    const readNext = libraryPreview.locator(`[data-runtime-element="${actionId}"]`);
+    const replay = libraryPreview.locator(`[data-runtime-element="${replayId}"]`);
+    assert(Number(await replay.evaluate(node => node.style.zIndex)) < Number(await readNext.evaluate(node => node.style.zIndex)));
+    await readNext.focus();
+    await page.keyboard.press('Tab');
+    assert(await replay.evaluate(node => node === node.ownerDocument.activeElement));
+    await readNext.click();
+    assert.equal(await libraryPreview.getAttribute('aria-label'), 'Lời chúc');
+    await control('preview-close').click();
+    await save();
+    completed.push('three visual starters; Vietnamese search, exact star, staggered insertion, one undo for a motif, blocking incomplete action and choosing a scene by thumbnail');
+    completed.push(await checkContextualCanvas({ page, base, browser, context, artifacts }));
+
     csp.push(...await page.evaluate(() => globalThis.__csp)); assert.deepEqual(csp, []); assert.deepEqual(errors, []);
     if (artifacts) fs.writeFileSync(path.join(artifacts, 'canvas-browser.json'), JSON.stringify({
       result: 'PASS', completed, metrics, platform: process.platform, browser: browser.version(),

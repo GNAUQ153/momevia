@@ -1,0 +1,313 @@
+{
+  "schemaVersion": 1,
+  "registryVersion": 1,
+  "artboard": {
+    "baseSize": {
+      "width": 390,
+      "height": 844
+    },
+    "layoutMode": "responsive-scene",
+    "safeInsets": {
+      "top": 24,
+      "right": 20,
+      "bottom": 24,
+      "left": 20
+    }
+  },
+  "entrySceneId": "scene-cover",
+  "bindings": {
+    "recipientName": {
+      "type": "text",
+      "value": ""
+    },
+    "senderName": {
+      "type": "text",
+      "value": ""
+    },
+    "message": {
+      "type": "text",
+      "value": ""
+    }
+  },
+  "assets": [],
+  "scenes": [
+    {
+      "id": "scene-cover",
+      "name": "Mở quà",
+      "background": {
+        "kind": "solid",
+        "color": "#F5EFFF"
+      },
+      "elementIds": [
+        "text-recipient",
+        "open-gift",
+        "text-intro"
+      ]
+    },
+    {
+      "id": "scene-surprise",
+      "name": "Bất ngờ",
+      "background": {
+        "kind": "solid",
+        "color": "#F5EFFF"
+      },
+      "elementIds": [
+        "birthday-cake",
+        "birthday-title",
+        "to-message"
+      ]
+    },
+    {
+      "id": "scene-message",
+      "name": "Lời chúc",
+      "background": {
+        "kind": "solid",
+        "color": "#F5EFFF"
+      },
+      "elementIds": [
+        "text-message",
+        "text-sender",
+        "reply-card",
+        "replay-gift"
+      ]
+    }
+  ],
+  "elements": [
+    {
+      "id": "text-recipient",
+      "type": "text",
+      "elementVersion": 1,
+      "layout": {
+        "x": 20,
+        "y": 110,
+        "width": 350,
+        "height": 105,
+        "rotation": 0
+      },
+      "props": {
+        "fontToken": "heading",
+        "fontSize": 34,
+        "align": "center",
+        "color": "#6136DF",
+        "textBinding": "recipientName"
+      },
+      "accessibility": {
+        "role": "heading",
+        "level": 1
+      }
+    },
+    {
+      "id": "open-gift",
+      "type": "envelope",
+      "elementVersion": 1,
+      "layout": {
+        "x": 50,
+        "y": 290,
+        "width": 290,
+        "height": 220,
+        "rotation": 0
+      },
+      "props": {
+        "preset": "classic",
+        "label": "Mở món quà",
+        "color": "#6136DF"
+      },
+      "accessibility": {
+        "label": "Mở món quà"
+      },
+      "actions": [
+        {
+          "on": "activate",
+          "type": "goToScene",
+          "targetSceneId": "scene-surprise"
+        }
+      ]
+    },
+    {
+      "id": "text-intro",
+      "type": "text",
+      "elementVersion": 1,
+      "layout": {
+        "x": 35,
+        "y": 570,
+        "width": 320,
+        "height": 100,
+        "rotation": 0
+      },
+      "props": {
+        "text": "Một điều đặc biệt đang chờ bạn…",
+        "fontToken": "body",
+        "fontSize": 20,
+        "align": "center",
+        "color": "#6136DF"
+      },
+      "accessibility": {
+        "role": "paragraph"
+      }
+    },
+    {
+      "id": "birthday-cake",
+      "type": "sticker",
+      "elementVersion": 1,
+      "layout": {
+        "x": 105,
+        "y": 130,
+        "width": 180,
+        "height": 180,
+        "rotation": 0
+      },
+      "props": {
+        "stickerId": "cake",
+        "color": "#F45278"
+      },
+      "accessibility": {
+        "decorative": true
+      }
+    },
+    {
+      "id": "birthday-title",
+      "type": "text",
+      "elementVersion": 1,
+      "layout": {
+        "x": 25,
+        "y": 340,
+        "width": 340,
+        "height": 140,
+        "rotation": 0
+      },
+      "props": {
+        "text": "Chúc mừng sinh nhật!",
+        "fontToken": "heading",
+        "fontSize": 38,
+        "align": "center",
+        "color": "#6136DF"
+      },
+      "accessibility": {
+        "role": "heading",
+        "level": 1
+      }
+    },
+    {
+      "id": "to-message",
+      "type": "button",
+      "elementVersion": 1,
+      "layout": {
+        "x": 70,
+        "y": 550,
+        "width": 250,
+        "height": 64,
+        "rotation": 0
+      },
+      "props": {
+        "label": "Đọc lời nhắn",
+        "color": "#6136DF"
+      },
+      "accessibility": {
+        "label": "Đọc lời nhắn"
+      },
+      "actions": [
+        {
+          "on": "activate",
+          "type": "goToScene",
+          "targetSceneId": "scene-message"
+        }
+      ]
+    },
+    {
+      "id": "text-message",
+      "type": "text",
+      "elementVersion": 1,
+      "layout": {
+        "x": 25,
+        "y": 65,
+        "width": 340,
+        "height": 210,
+        "rotation": 0
+      },
+      "props": {
+        "fontToken": "body",
+        "fontSize": 24,
+        "align": "center",
+        "color": "#6136DF",
+        "textBinding": "message"
+      },
+      "accessibility": {
+        "role": "paragraph"
+      }
+    },
+    {
+      "id": "text-sender",
+      "type": "text",
+      "elementVersion": 1,
+      "layout": {
+        "x": 25,
+        "y": 310,
+        "width": 340,
+        "height": 70,
+        "rotation": 0
+      },
+      "props": {
+        "fontToken": "body",
+        "fontSize": 20,
+        "align": "right",
+        "color": "#6136DF",
+        "textBinding": "senderName"
+      },
+      "accessibility": {
+        "role": "paragraph"
+      }
+    },
+    {
+      "id": "reply-card",
+      "type": "reply",
+      "elementVersion": 1,
+      "layout": {
+        "x": 20,
+        "y": 420,
+        "width": 350,
+        "height": 300,
+        "rotation": 0
+      },
+      "props": {
+        "title": "Gửi lời đáp",
+        "submitLabel": "Gửi lời đáp"
+      },
+      "accessibility": {
+        "label": "Gửi lời đáp cho người tặng"
+      }
+    },
+    {
+      "id": "replay-gift",
+      "type": "button",
+      "elementVersion": 1,
+      "layout": {
+        "x": 105,
+        "y": 745,
+        "width": 180,
+        "height": 55,
+        "rotation": 0
+      },
+      "props": {
+        "label": "Xem lại",
+        "color": "#6136DF"
+      },
+      "accessibility": {
+        "label": "Xem lại"
+      },
+      "actions": [
+        {
+          "on": "activate",
+          "type": "replay"
+        }
+      ]
+    }
+  ],
+  "responsive": {
+    "textOverflow": "expand-flow",
+    "sceneOverflow": "scroll",
+    "desktop": {
+      "maxContentWidth": 720,
+      "align": "center"
+    }
+  }
+}

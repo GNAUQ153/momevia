@@ -5,8 +5,16 @@ import {
   insertPhotoFrame,
   isPhotoFrame,
   assetIds,
+  createDocument,
+  PRESETS,
+  LIMITS,
 } from "../shared/canvas/index.js";
 import { mountPlayer } from "../features/gift-runtime/index.js";
+import { requiresCanvasV2 } from "../shared/canvas/schema.js";
+import { lines, masks, shapes } from "../shared/canvas/artwork.js";
+import { eventTimeFromLocal, interactionKinds, localEventTime, photoSlots } from "../shared/canvas/interactions.js";
+import { effectFamilies, effectsFor, elementEffectFamilies, sceneEffectFamilies } from "../shared/canvas/effects.js";
+import { textFont } from "../features/gift-runtime/renderer.js";
 import { bindingLabels, clearTemplateBindingDefaults, lockedVisibleNames, visibleBindingKeys } from "../shared/canvas/personalization.js";
 import { submissionChanges } from "../shared/canvas/submission.js";
 import { giftLinkDescription } from "../shared/gift-permissions.js";
@@ -16,16 +24,40 @@ import { createEditorStore } from "../features/canvas-editor/store.js";
 import { createSaveSession } from "../features/canvas-editor/session.js";
 import { createStage } from "../features/canvas-editor/stage.js";
 import { applyFabricWorkspacePatch } from "../features/canvas-editor/fabric-workspace.js";
+import { sceneThumbnail, thumbnail } from "../features/canvas-editor/thumbnail.js";
+import { bounds, catalog, fillPolaroid, isPolaroidPlaceholder, matchesBlock, placeBlock, sampleBindings, stickerNames } from "../features/canvas-editor/library.js";
+import { cropEditor } from "../features/canvas-editor/crop.js";
+import { icon } from "../ui/icons.js";
 import {
   node,
   button,
   field,
   input,
+  iconButton,
   select,
   trapDialog,
 } from "../features/canvas-editor/dom.js";
 
 const newId = () => crypto.randomUUID();
+const zoomLevels = [0.25, 0.5, 0.75, 1, 1.5, 2];
+const libraryTabs = { add: "Thêm", content: "Nội dung", assets: "Ảnh", layers: "Lớp" };
+const sceneActions = [
+  ["Nhân bản cảnh", "scene-duplicate"], ["Đưa cảnh lên", "scene-up"],
+  ["Đưa cảnh xuống", "scene-down"], ["Chọn làm cảnh mở đầu", "scene-entry"],
+  ["Xóa cảnh", "scene-delete"],
+];
+const starterActions = { blank: "create-blank", "envelope-basic": "create-starter", celebration: "create-celebration" };
+const toPercent = value => Number((value * 100).toFixed(2));
+const isLegacyFrame = element => isPhotoFrame(element) && !isPolaroidPlaceholder(element);
+
+function imagePicker(label, slot) {
+  return node("label", { class: "editor-image-picker" },
+    node("span", {}, label),
+    node("input", {
+      type: "file", accept: "image/png,image/jpeg,image/webp",
+      "data-editor-field": "upload", "data-slot": slot,
+    }));
+}
 const stopKeys = (target) =>
   target?.closest('input,textarea,select,[contenteditable="true"]');
 
@@ -73,6 +105,8 @@ export function mountDesigner(
     closePreview = null,
     sheet = null,
     creating = false;
+  let libraryTab = "content", fitted = true, stageObserver;
+  const mobile = matchMedia("(max-width: 800px)");
   const dialogs = new Set();
   let quickMode = mode === "quick" || (Boolean(templateId) && mode !== "layout");
   const ownerId = user?.sub || user?.id;
@@ -168,10 +202,15 @@ export function mountDesigner(
     stage?.render();
     renderInspector();
     renderLayers();
+    renderAssets();
   }
   function commit(mutate, label, options) {
     const next = structuredClone(store.get());
     mutate(next);
+    if (next.document.schemaVersion === 1 && requiresCanvasV2(next.document)) {
+      next.document.schemaVersion = 2;
+      next.document.registryVersion = 2;
+    }
     validateDocument(next.document);
     store.replace(next, label, options);
     clearError();
@@ -186,6 +225,27 @@ export function mountDesigner(
   }
   function assetUrl(assetId) {
     return `/api/designs/designs/${encodeURIComponent(design.id)}/assets/${encodeURIComponent(assetId)}`;
+  }
+  function textOptions(element) {
+    if (element?.type !== "text" || element.visible === false) return null;
+    const binding = element.props.textBinding;
+    if (design.policy?.lockedElements?.[element.id] && (!binding || !design.policy.editableBindings?.includes(binding))) return null;
+    return binding
+      ? { label: bindingLabels[binding], maxlength: binding === "message" ? 1000 : 60 }
+      : { label: "Chữ trên thiệp", maxlength: LIMITS.text };
+  }
+
+  function commitInlineText(elementId, value) {
+    try {
+      commit(({ document }) => {
+        const element = document.elements.find(item => item.id === elementId);
+        if (!textOptions(element)) return;
+        if (element.props.textBinding) document.bindings[element.props.textBinding].value = value;
+        else element.props.text = value;
+      }, "Sửa chữ trên thiệp");
+    } catch (error) {
+      warn(error);
+    }
   }
   function safe(action) {
     return async (event) => {
@@ -207,7 +267,7 @@ export function mountDesigner(
     if (design.policy?.kind === "creator-template")
       return store.get().document.elements.find(element => element.id === design.policy.photoId);
     return store.get().document.elements.find(element =>
-      isPhotoFrame(element) && element.visible !== false && !element.locked &&
+      isLegacyFrame(element) && element.visible !== false && !element.locked &&
       !design.policy?.lockedElements?.[element.id]
     );
   }
@@ -236,6 +296,78 @@ export function mountDesigner(
     const sceneBar = workspace.querySelector(".editor-scene-bar");
     const next = workspace.querySelector(quickMode ? ".editor-stage-scroll" : ".editor-mobile-dock");
     next.before(sceneBar);
+    showLibrary(libraryTab);
+  }
+
+  function showLibrary(tab) {
+    libraryTab = tab;
+    const library = main.querySelector(".editor-library");
+    const add = library.querySelector("#editor-panel-add");
+    if (!quickMode && tab === "add" && !add.hasChildNodes()) add.append(...blockLibrary());
+    for (const panel of library.querySelectorAll("[data-library-panel]"))
+      panel.hidden = panel.dataset.libraryPanel !== (quickMode ? "content" : tab);
+    for (const control of library.querySelectorAll('[data-editor-action="library-tab"]'))
+      control.setAttribute("aria-pressed", control.dataset.tab === tab);
+  }
+
+  function blockLibrary() {
+    const sample = sampleBindings(createDocument());
+    const cards = new Map();
+    const fillThumbnail = control => {
+      const block = cards.get(control);
+      if (!block || control.querySelector(".editor-thumbnail")) return;
+      const models = block.create();
+      control.prepend(thumbnail(sample, models, bounds(models), { width: 62, height: 48 }));
+    };
+    const lazy = new IntersectionObserver(entries => {
+      for (const { target, isIntersecting } of entries) {
+        if (!isIntersecting) continue;
+        fillThumbnail(target);
+        lazy.unobserve(target);
+      }
+    }, { rootMargin: "120px" });
+    signal.addEventListener("abort", () => lazy.disconnect(), { once: true });
+    const groups = catalog.map(({ label, items }, index) => node("section", { class: "editor-block-group", "data-block-group": index },
+      node("h3", {}, label),
+      node("div", { class: "editor-block-grid" }, ...items.map(block => {
+        const control = button("", "add", {
+          "data-block": block.id, "aria-label": block.title,
+          disabled: design.policy?.kind === "creator-template",
+        });
+        cards.set(control, block);
+        control.append(node("span", {}, block.title));
+        lazy.observe(control);
+        return control;
+      })),
+    ));
+    return [
+      field("Tìm khối", node("input", { type: "search", "data-block-search": "", placeholder: "Ví dụ: ngôi sao" })),
+      field("Nhóm khối", node("select", { "data-block-group-select": "" },
+        node("option", { value: "" }, `Tất cả (${cards.size})`),
+        ...catalog.map(({ label, items }, index) => node("option", { value: index }, `${label} (${items.length})`)))),
+      node("div", { class: "editor-help", "data-block-empty": "", hidden: true },
+        node("p", { role: "status" }, "Không tìm thấy khối phù hợp."),
+        button("Xóa tìm kiếm", "clear-block-search")),
+      ...groups,
+    ];
+  }
+
+  function filterBlocks(query) {
+    let found = false;
+    const panel = main.querySelector("#editor-panel-add");
+    const selectedGroup = panel.querySelector("[data-block-group-select]").value;
+    const groups = panel.querySelectorAll("[data-block-group]");
+    for (const [index, { items }] of catalog.entries()) {
+      const group = groups[index];
+      let hasMatch = false;
+      for (const [i, control] of [...group.querySelectorAll("[data-block]")].entries()) {
+        control.hidden = !matchesBlock(items[i], query);
+        hasMatch ||= !control.hidden;
+      }
+      group.hidden = !hasMatch || (selectedGroup !== "" && Number(selectedGroup) !== index);
+      found ||= !group.hidden;
+    }
+    main.querySelector("[data-block-empty]").hidden = found;
   }
 
   function switchMode() {
@@ -252,8 +384,8 @@ export function mountDesigner(
     const tools = node(
       "div",
       { class: "editor-top-actions" },
-      button("Hoàn tác", "undo", { "aria-label": "Hoàn tác (Ctrl Z)" }),
-      button("Làm lại", "redo", { "aria-label": "Làm lại (Ctrl Shift Z)" }),
+      iconButton("Hoàn tác (Ctrl Z)", "undo", "undo"),
+      iconButton("Làm lại (Ctrl Shift Z)", "redo", "redo"),
       button("Lưu nháp", "save", { class: "editor-save" }),
       button("Xem trước", "preview"),
       button("Fabric Studio", "fabric-studio", { class: "editor-layout-only" }),
@@ -278,27 +410,25 @@ export function mountDesigner(
     const top = node("header", { class: "editor-topbar" }, heading, tools);
     const sidebar = node(
       "aside",
-      { class: "editor-library", "aria-label": "Công cụ thiết kế" },
+      { class: "editor-library", id: "editor-library", "aria-label": "Công cụ thiết kế" },
       node(
         "div",
         { class: "editor-panel-heading editor-layout-only" },
-        node("h2", {}, "Thêm vào món quà"),
-        button("Đóng", "close-sheet", { class: "editor-sheet-close" }),
+        node("h2", {}, "Công cụ thiết kế"),
+        iconButton("Đóng bảng công cụ", "close-sheet", "close", { class: "editor-sheet-close" }),
       ),
       node(
-        "p",
-        { class: "editor-help editor-layout-only" },
-        "Chọn một khối, rồi chỉnh nội dung và vị trí.",
+        "nav",
+        { class: "editor-library-tabs editor-layout-only", "aria-label": "Công cụ thiết kế" },
+        ...Object.entries(libraryTabs).map(([key, label]) =>
+          button(label, "library-tab", { "data-tab": key, "aria-controls": `editor-panel-${key}` })),
       ),
       node(
         "div",
-        { class: "editor-add-grid editor-layout-only" },
-        ...Object.entries(registry).map(([type, value]) =>
-          button(value.label, "add", { "data-type": type }),
-        ),
+        { "data-library-panel": "add", id: "editor-panel-add" },
       ),
+      node("div", { "data-library-panel": "content", id: "editor-panel-content" },
       node("h2", { class: "editor-quick-only" }, "Điền nội dung"),
-      node("h3", { class: "editor-layout-only" }, "Nội dung cá nhân hóa"),
       ...Object.entries(bindingLabels).filter(([key]) =>
         design.policy?.kind !== "creator-template" || design.policy.editableBindings.includes(key)).map(([key, label]) =>
           key === "message"
@@ -343,15 +473,14 @@ export function mountDesigner(
       node("p", { class: "editor-help editor-layout-only" },
         "Tên và lời chúc được dùng ở những khối có liên kết dữ liệu. Nhập đủ trước khi xuất bản.",
       ),
-      node("h3", { class: "editor-layout-only" }, "Ảnh đã dùng"),
-      node("div", { class: "editor-assets editor-layout-only" }),
-      node("h3", { class: "editor-layout-only" }, "Các lớp"),
-      node("div", { class: "editor-layers editor-layout-only" }),
+      ),
+      node("div", { "data-library-panel": "assets", id: "editor-panel-assets", class: "editor-assets" }),
+      node("div", { "data-library-panel": "layers", id: "editor-panel-layers", class: "editor-layers" }),
     );
     const zoomControl = node(
       "select",
       { "aria-label": "Mức thu phóng", "data-editor-field": "zoom" },
-      ...[0.5, 0.75, 1, 1.5, 2].map((value) =>
+      ...zoomLevels.map((value) =>
         node("option", { value: String(value) }, `${value * 100}%`),
       ),
     );
@@ -363,11 +492,10 @@ export function mountDesigner(
       node(
         "div",
         { class: "editor-stage-tools editor-layout-only" },
-        node("span", {}, "Khung thiết kế · 390 × 844"),
+        iconButton("Thu nhỏ", "zoom-out", "zoom-out"),
         zoomControl,
-        button("Vừa khung", "fit"),
-        button("Căn giữa", "center"),
-        button("Vào khung", "inside"),
+        iconButton("Phóng to", "zoom-in", "zoom-in"),
+        iconButton("Vừa khung", "fit", "fit"),
         field(
           "Căn hút",
           node("input", {
@@ -381,29 +509,29 @@ export function mountDesigner(
     );
     const inspector = node("aside", {
       class: "editor-inspector editor-layout-only",
-      "aria-label": "Thuộc tính",
+      id: "editor-inspector",
+      "aria-label": "Chỉnh",
     });
     const sceneBar = node(
       "section",
-      { class: "editor-scene-bar", "aria-label": "Các cảnh" },
+      { class: "editor-scene-bar", id: "editor-scene-bar", "aria-label": "Các cảnh" },
+      node("div", { class: "editor-panel-heading editor-layout-only" },
+        node("h2", {}, "Cảnh"),
+        iconButton("Đóng bảng cảnh", "close-sheet", "close", { class: "editor-sheet-close" })),
       node("div", { class: "editor-scenes" }),
       node(
         "div",
         { class: "editor-scene-actions editor-layout-only" },
         button("+ Cảnh", "scene-add"),
-        button("Nhân bản cảnh", "scene-duplicate"),
-        button("Cảnh lên", "scene-up"),
-        button("Cảnh xuống", "scene-down"),
-        button("Cảnh mở đầu", "scene-entry"),
-        button("Xóa cảnh", "scene-delete"),
       ),
     );
     const dock = node(
       "nav",
       { class: "editor-mobile-dock editor-layout-only", "aria-label": "Bảng công cụ" },
-      button("Thêm / Nội dung", "sheet-library"),
-      button("Các lớp", "sheet-layers"),
-      button("Thuộc tính", "sheet-inspector"),
+      button("Thêm", "sheet-library", { "aria-controls": "editor-library", "aria-expanded": false }),
+      button("Lớp", "sheet-layers", { "aria-controls": "editor-library", "aria-expanded": false }),
+      button("Chỉnh", "sheet-inspector", { "aria-controls": "editor-inspector", "aria-expanded": false }),
+      button("Cảnh", "sheet-scenes", { "aria-controls": "editor-scene-bar", "aria-expanded": false }),
     );
     main.replaceChildren(
       node(
@@ -441,6 +569,8 @@ export function mountDesigner(
       getSelection: () => selection,
       select: choose,
       assetUrl,
+      textOptions,
+      onTextChange: commitInlineText,
       signal,
       getSnap: () => snap,
       isReadOnly: () => quickMode,
@@ -448,69 +578,112 @@ export function mountDesigner(
         Boolean(design.policy?.lockedElements?.[idValue]),
       onGesture: (active) => main.classList.toggle("editor-dragging", active),
     });
+    stageObserver?.disconnect();
+    stageObserver = new ResizeObserver(() => { if (fitted && !sheet) fit(); });
+    stageObserver.observe(main.querySelector(".editor-stage-scroll"));
     renderAll();
   }
   function renderLayers() {
     const host = main.querySelector(".editor-layers");
     if (!host) return;
+    if (quickMode) {
+      host.replaceChildren();
+      return;
+    }
     const scene = currentScene();
     host.replaceChildren(
       ...[...scene.elementIds].reverse().map((idValue) => {
         const item = store
           .get()
           .document.elements.find((element) => element.id === idValue);
-        return button(
-          `${item.visible === false ? "◌ " : ""}${item.locked || design.policy?.lockedElements?.[item.id] ? "🔒 " : ""}${item.name || registry[item.type].label}`,
+        const label = item.name || registry[item.type].label;
+        const locked = item.locked || design.policy?.lockedElements?.[item.id];
+        const hidden = item.visible === false;
+        const choice = button(
+          label,
           "select",
           {
             "data-id": idValue,
             class: selection === idValue ? "is-selected" : "",
+            "aria-pressed": selection === idValue,
+            "aria-label": `${label}${hidden ? ", đang ẩn" : ""}${locked ? ", có khóa" : ""}`,
           },
         );
+        if (hidden || locked) {
+          const flags = node("span", { class: "editor-layer-flags", "aria-hidden": "true" });
+          flags.innerHTML = (hidden ? icon("eye-off", 15) : "") + (locked ? icon("lock", 15) : "");
+          choice.append(flags);
+        }
+        return choice;
       }),
     );
   }
   function renderScenes() {
     const host = main.querySelector(".editor-scenes");
     if (!host) return;
-    host.replaceChildren(
-      ...store
-        .get()
-        .document.scenes.map((scene, index) =>
-          button(
-            `${index + 1}. ${scene.name}${scene.id === store.get().document.entrySceneId ? " · Mở đầu" : ""}`,
-            "scene-select",
-            {
-              "data-id": scene.id,
-              "aria-pressed": sceneId === scene.id,
-              class: sceneId === scene.id ? "is-selected" : "",
-            },
-          ),
-        ),
-    );
+    const doc = store.get().document;
+    const active = document.activeElement;
+    const focusedId = host.contains(active) ? active.closest("[data-scene]")?.dataset.scene : null;
+    const openId = host.querySelector("details[open]")?.closest("[data-scene]").dataset.scene;
+    const locked = design.policy?.kind === "creator-template";
+    host.replaceChildren(...doc.scenes.map((scene, index) => {
+      const entry = scene.id === doc.entrySceneId;
+      const selected = scene.id === sceneId;
+      const card = button("", "scene-select", {
+        "data-id": scene.id, "aria-pressed": selected,
+        class: `editor-scene-choice${selected ? " is-selected" : ""}`,
+      });
+      if (!quickMode) card.append(sceneThumbnail(doc, scene, { assetUrl }));
+      card.append(node("span", { class: "editor-scene-name" }, scene.name));
+      if (entry && !quickMode) card.append(node("span", { class: "editor-scene-entry" }, "Mở đầu"));
+      const summary = node("summary", { "aria-label": `Tùy chọn cảnh ${scene.name}` });
+      summary.innerHTML = icon("more", 18);
+      const menu = node("details", { class: "editor-scene-menu editor-layout-only" },
+        summary,
+        node("div", { class: "editor-scene-menu-actions" }, ...sceneActions.map(([label, action]) =>
+          button(label, action, { "data-id": scene.id, disabled:
+            action === "scene-up" && index === 0 ||
+            action === "scene-down" && index === doc.scenes.length - 1 ||
+            action === "scene-entry" && entry ||
+            action === "scene-delete" && doc.scenes.length === 1,
+          }))));
+      menu.open = scene.id === openId;
+      return node("div", { class: "editor-scene-card", "data-scene": scene.id }, card, locked ? null : menu);
+    }));
+    if (focusedId) {
+      const card = host.querySelector(`[data-scene="${CSS.escape(focusedId)}"]`);
+      const focusTarget = active.matches("summary") ? card?.querySelector("summary") :
+        active.dataset.editorAction !== "scene-select" ? card?.querySelector("summary") : card?.firstElementChild;
+      focusTarget?.focus({ preventScroll: true });
+    }
   }
   function renderAssets() {
     const host = main.querySelector(".editor-assets");
     if (!host) return;
-    const assets = store.get().document.assets;
-    const signature = assets.map((asset) => asset.assetId).join("|");
+    if (quickMode) {
+      host.replaceChildren();
+      delete host.dataset.assetIds;
+      return;
+    }
+    const doc = store.get().document;
+    const images = doc.elements.filter(item => item.type === "image" && item.props.assetId);
+    const assets = doc.assets;
+    const canReuse = design.policy?.kind !== "creator-template" ||
+      design.policy.lockedElements?.[selection]?.editableProps.includes("assetId");
+    const signature = JSON.stringify([assets, images, Boolean(canReuse)]);
     if (host.dataset.assetIds === signature) return;
     host.dataset.assetIds = signature;
     host.replaceChildren(
-      ...assets.map((asset, index) => {
-        const control = button(`Dùng ảnh ${index + 1}`, "reuse-asset", {
-          "data-id": asset.assetId,
-          class: "editor-asset-choice",
+      ...assets.flatMap(({ assetId }, index) => {
+        const linked = images.filter(image => image.props.assetId === assetId);
+        const models = linked.length ? linked : [createElement("image", { props: { assetId } })];
+        return models.map(model => {
+          const control = button(`Dùng ảnh · ${model.name || index + 1}`, "reuse-asset", {
+            "data-id": assetId, class: "editor-asset-choice", disabled: !canReuse,
+          });
+          control.prepend(thumbnail(doc, [{ ...model, visible: true }], bounds([model]), { width: 58, height: 52, assetUrl }));
+          return control;
         });
-        const image = node("img", {
-          src: assetUrl(asset.assetId),
-          alt: "",
-          width: 40,
-          height: 40,
-          loading: "lazy",
-        });
-        control.prepend(image);
-        return control;
       }),
     );
     if (!assets.length)
@@ -522,11 +695,86 @@ export function mountDesigner(
         ),
       );
   }
+  function effectFields(model, element) {
+    const categories = element ? elementEffectFamilies : sceneEffectFamilies;
+    return categories.flatMap(family => {
+      const options = effectsFor(family, element);
+      if (!options.length) return [];
+      const preset = model.effects?.[family];
+      const prefix = `effect.${family}.`;
+      return [node("fieldset", {class:"editor-effect-settings"},
+        node("legend",{},effectFamilies[family].label),
+        select("Hiệu ứng",prefix+"id",preset?.id,[["", "Tắt"],...options]),
+        preset && family !== "surface" ? select("Tốc độ",prefix+"speed",preset.speed || "normal",
+          [["slow","Chậm"],["normal","Vừa"],["fast","Nhanh"]]) : null,
+        preset && family === "entrance" ? select("Độ trễ",prefix+"delay",preset.delay || 0,
+          [[0,"Ngay"],[150,"150 ms"],[300,"300 ms"]]) : null,
+        preset && family === "ambience" ? select("Mật độ",prefix+"density",preset.density || "normal",
+          [["sparse","Thưa"],["normal","Vừa"]]) : null,
+        preset && ["S02","S04"].includes(preset.id) ? input("Màu viền",prefix+"color",
+          preset.color || (preset.id === "S02" ? "#6D488A" : "#F3DA97"),{type:"color"}) : null,
+        preset ? node("div",{class:"editor-control-row"},
+          button("Xem thử","effect-preview",{"data-family":family}),
+          button("Bỏ hiệu ứng","effect-remove",{"data-family":family})) : null,
+      )];
+    });
+  }
+  function interactionFields(model) {
+    const p = model.props, spec = interactionKinds[p.kind], doc = store.get().document;
+    const fields = [input("Màu nền khối", "props.color", p.color, {type:"color"})];
+    for (const [i, entry] of (p.entries || []).entries()) {
+      fields.push(input(spec.fields[i][0], `entry.${i}.heading`, entry.heading, {maxlength:120}));
+      if (spec.fields[i][1]) fields.push(field(spec.fields[i][1], node("textarea", {
+        "data-editor-field": `entry.${i}.body`, maxlength: LIMITS.text, rows: 3,
+      }, entry.body)));
+    }
+    for (const [i, action] of (model.actions || []).entries())
+      fields.push(select(`Cảnh đích cửa ${i+1}`, `door.${i}`, action.targetSceneId,
+        [["", "Chọn cảnh"], ...doc.scenes.map(scene => [scene.id, scene.name])]));
+    for (const [i, photo] of (p.photos || []).entries()) {
+      const label = p.kind === "photo-comparison" ? (i ? "Ảnh sau" : "Ảnh trước") : `Ảnh ${i+1}`;
+      const picture = createElement("image", { id: photo.id, layout: model.layout,
+        props: { assetId: photo.assetId, focalPoint: photo.focalPoint }, accessibility: {alt:photo.alt} });
+      const editPhoto = edit => commit(({document}) => {
+        const slot = document.elements.find(item => item.id === model.id)?.props.photos.find(item => item.id === photo.id);
+        if (slot) edit(slot);
+      }, "Chỉnh ô ảnh");
+      fields.push(node("fieldset", {class:"editor-interaction-photo"}, node("legend",{},label),
+        imagePicker(photo.assetId ? `Thay ${label.toLowerCase()}` : `Chọn ${label.toLowerCase()}`, photo.id),
+        doc.assets.length ? select("Ảnh đã tải", `slot.${photo.id}.assetId`, photo.assetId,
+          [["", "Chưa có ảnh"], ...doc.assets.map(({assetId},index) => [assetId, `Ảnh đã tải ${index+1}`])]) : null,
+        input("Mô tả ảnh", `slot.${photo.id}.alt`, photo.alt, {maxlength:LIMITS.accessibilityText}),
+        field("Chú thích ảnh",node("textarea",{"data-editor-field":`slot.${photo.id}.caption`,maxlength:LIMITS.text,rows:2},photo.caption)),
+        photo.assetId ? cropEditor(picture, {document:doc,assetUrl,
+          editable: !design.policy?.lockedElements?.[model.id],
+          onChange: safe(point => { editPhoto(slot => {slot.focalPoint = point;}); renderInspector(); }),
+          onPreview: () => {},
+        }) : null,
+        node("div", {class:"editor-layout-fields"},
+          ...["x","y"].map((axis,index) => input(index ? "Nét dọc (%)" : "Nét ngang (%)",
+            `slot.${photo.id}.${axis}`, toPercent(photo.focalPoint[axis]), {type:"number",min:0,max:100,step:.1}))),
+      ));
+    }
+    if (spec.clock) {
+      const zones = new Set(["Asia/Ho_Chi_Minh", "UTC", p.timeZone, ...Intl.supportedValuesOf("timeZone")]);
+      fields.push(select("Múi giờ hẹn","props.timeZone",p.timeZone,[...zones].map(zone=>[zone,zone])),
+        input("Ngày giờ hẹn","event-time",p.eventAt ? localEventTime(p.eventAt,p.timeZone) : "",{type:"datetime-local"}));
+    }
+    return fields;
+  }
   function renderInspector() {
     const host = main.querySelector(".editor-inspector");
     if (!host || composing) return;
+    if (quickMode) {
+      host.replaceChildren();
+      return;
+    }
     const element = selected(),
       scene = currentScene();
+    const previousField = host.contains(document.activeElement) ? document.activeElement.dataset.editorField : null;
+    const keepGeometry = host.dataset.modelId === element?.id && host.querySelector(".editor-geometry")?.open;
+    const policy = design.policy?.lockedElements?.[element?.id];
+    host.dataset.modelId = element?.id || "";
     const children = [
       node(
         "div",
@@ -534,9 +782,9 @@ export function mountDesigner(
         node(
           "h2",
           {},
-          element ? registry[element.type].label : "Thuộc tính cảnh",
+          element ? element.name || registry[element.type].label : "Chỉnh cảnh",
         ),
-        button("Đóng", "close-sheet", { class: "editor-sheet-close" }),
+        iconButton("Đóng bảng chỉnh", "close-sheet", "close", { class: "editor-sheet-close" }),
       ),
     ];
     if (!element) {
@@ -545,6 +793,7 @@ export function mountDesigner(
         input("Màu nền", "scene.color", scene.background.color, {
           type: "color",
         }),
+        ...effectFields(scene),
         node(
           "p",
           { class: "editor-help" },
@@ -557,6 +806,7 @@ export function mountDesigner(
         input("Tên lớp", "element.name", element.name || "", {
           maxlength: 100,
         }),
+        element.type === "image" ? imagePicker(props.assetId ? "Thay ảnh" : "Chọn ảnh") : null,
       );
       if (element.type === "text") {
         children.push(
@@ -571,7 +821,7 @@ export function mountDesigner(
               "Văn bản",
               node(
                 "textarea",
-                { "data-editor-field": "props.text", rows: 5, maxlength: 4000 },
+                { "data-editor-field": "props.text", rows: 4, maxlength: LIMITS.text },
                 props.text || "",
               ),
             ),
@@ -581,28 +831,39 @@ export function mountDesigner(
             node(
               "p",
               { class: "editor-help" },
-              `Sửa ${bindingLabels[props.textBinding].toLowerCase()} trong bảng Nội dung cá nhân hóa.`,
+              `Dùng chung trường ${bindingLabels[props.textBinding]} trong các cảnh.`,
             ),
           );
         children.push(
+          textOptions(element) ? button("Sửa trên thiệp", "inline-text") : null,
+          node("div", { class: "editor-font-options", role: "group", "aria-label": "Kiểu chữ" },
+            ...[["body", "Thân bài"], ["heading", "Tiêu đề"], ["serif", "Có chân"]].map(([token, label]) => {
+              const sample = node("span", { "aria-hidden": "true" }, "Aa");
+              sample.style.fontFamily = textFont(token);
+              const control = button("", "text-font", {
+                "data-font": token, "aria-label": `Kiểu chữ ${label.toLowerCase()}`,
+                "aria-pressed": (props.fontToken || "body") === token,
+              });
+              control.append(sample, node("span", {}, label));
+              return control;
+            })),
           input("Cỡ chữ", "props.fontSize", props.fontSize, {
             type: "number",
             min: 10,
             max: 160,
           }),
-          select("Kiểu chữ", "props.fontToken", props.fontToken, [
-            ["body", "Nội dung"],
-            ["heading", "Tiêu đề"],
-            ["serif", "Chữ có chân"],
-          ]),
-          select("Căn chữ", "props.align", props.align, [
-            ["left", "Trái"],
-            ["center", "Giữa"],
-            ["right", "Phải"],
-          ]),
+          input("Giãn dòng", "props.lineHeight", props.lineHeight ?? 1.4, {
+            type: "number", min: 1, max: 3, step: 0.05,
+          }),
+          node("div", { class: "editor-control-row", role: "group", "aria-label": "Căn chữ" },
+            ...[["left", "trái"], ["center", "giữa"], ["right", "phải"]].map(([align, label]) =>
+              iconButton(`Căn chữ ${label}`, "text-align", `align-${align}`, {
+                "data-align": align, "aria-pressed": props.align === align,
+              }))),
         );
       }
-      for (const key of registry[element.type].inspector) {
+      if (element.type === "interaction") children.push(...interactionFields(element));
+      for (const key of element.type === "interaction" ? [] : registry[element.type].inspector) {
         if (
           [
             "text",
@@ -639,12 +900,21 @@ export function mountDesigner(
               ["rectangle", "Chữ nhật"],
               ["ellipse", "Bầu dục"],
               ["line", "Đường kẻ"],
+              ...Object.keys(shapes).map((id, i) => [id, ["Tam giác", "Hình thoi", "Lục giác", "Hình vòm", "Ruy băng", "Khung thoại"][i]]),
             ]),
           );
+        else if (key === "mask" && props.mask)
+          children.push(select("Mặt nạ ảnh", "props.mask", props.mask,
+            Object.keys(masks).map((id, i) => [id, ["Ảnh tròn", "Ảnh vòm", "Ảnh trái tim", "Mép giấy xé"][i]])));
+        else if (key === "caption" && Object.hasOwn(props, key))
+          children.push(field("Chú thích ảnh", node("textarea", { "data-editor-field": "props.caption", maxlength: LIMITS.text, rows: 3 }, props.caption)));
+        else if (key === "pattern" && props.pattern)
+          children.push(select("Kiểu nét", "props.pattern", props.pattern,
+            Object.keys(lines).map((id, i) => [id, ["Vòng cung", "Chỉ may", "Mũi tên cong", "Sóng", "Ngoặc", "Bốn góc"][i]])));
         else if (key === "fit")
           children.push(
             select("Khung ảnh", "props.fit", props.fit, [
-              ["cover", "Lấp đầy / Crop"],
+              ["cover", "Lấp khung"],
               ["contain", "Vừa ảnh"],
             ]),
           );
@@ -654,29 +924,10 @@ export function mountDesigner(
               "Sticker",
               "props.stickerId",
               props.stickerId,
-              [
-                "heart",
-                "star",
-                "flower",
-                "sparkles",
-                "balloon",
-                "cake",
-                "gift",
-              ].map((value) => [
-                value,
-                {
-                  heart: "Trái tim",
-                  star: "Ngôi sao",
-                  flower: "Hoa",
-                  sparkles: "Lấp lánh",
-                  balloon: "Bóng bay",
-                  cake: "Bánh",
-                  gift: "Quà",
-                }[value],
-              ]),
+              Object.entries(stickerNames),
             ),
           );
-        else if (key !== "preset")
+        else if (!["preset", "pattern", "mask", "caption", "optional"].includes(key))
           children.push(
             input(
               { label: "Nhãn nút", title: "Tiêu đề", submitLabel: "Nhãn gửi" }[
@@ -689,37 +940,45 @@ export function mountDesigner(
           );
       }
       if (element.type === "image") {
+        const focal = props.focalPoint || { x: 0.5, y: 0.5 };
         children.push(
           field(
-            "Chọn / Thay ảnh",
-            node("input", {
-              type: "file",
-              accept: "image/png,image/jpeg,image/webp",
-              "data-editor-field": "upload",
+            "Mô tả ảnh",
+            node("textarea", {
+              "data-editor-field": "accessibility.alt", rows: 2, maxlength: LIMITS.accessibilityText,
+              disabled: Boolean(element.accessibility.decorative),
+              value: element.accessibility.alt || "",
             }),
           ),
-          input(
-            "Mô tả ảnh",
-            "accessibility.alt",
-            element.accessibility.alt || "",
-            { maxlength: 500 },
-          ),
-          input("Crop ngang (0–1)", "crop.x", props.focalPoint.x, {
-            type: "number",
-            min: 0,
-            max: 1,
-            step: 0.05,
-          }),
-          input("Crop dọc (0–1)", "crop.y", props.focalPoint.y, {
-            type: "number",
-            min: 0,
-            max: 1,
-            step: 0.05,
-          }),
+          node("label", { class: "editor-checkbox" }, node("input", {
+            type: "checkbox", "data-editor-field": "accessibility.decorative",
+            checked: Boolean(element.accessibility.decorative),
+          }), "Ảnh trang trí"),
+          props.assetId ? cropEditor(element, {
+            document: store.get().document,
+            assetUrl,
+            editable: !policy || policy.editableProps.includes("focalPoint"),
+            onPreview: point => stage.previewFocal(element.id, point),
+            onChange: safe(point => {
+              commit(({ document }) => {
+                const image = document.elements.find(item => item.id === element.id);
+                if (image?.type === "image") image.props.focalPoint = point;
+              }, "Chỉnh điểm lấy nét");
+              renderInspector();
+            }),
+          }) : null,
+          props.assetId && !policy ? node("p", { class: "editor-help" }, "Kéo điểm trên ảnh hoặc nhập vị trí bằng bàn phím.") : null,
+          node("div", { class: "editor-layout-fields" },
+            input("Ngang (%)", "crop.x", toPercent(focal.x), { type: "number", min: 0, max: 100, step: 0.1, "aria-label": "Điểm nét ngang (%)" }),
+            input("Dọc (%)", "crop.y", toPercent(focal.y), { type: "number", min: 0, max: 100, step: 0.1, "aria-label": "Điểm nét dọc (%)" })),
           button("Đặt lại crop", "crop-reset"),
         );
       }
-      if (isPhotoFrame(element)) {
+      if (isPolaroidPlaceholder(element)) {
+        children.push(imagePicker("Thêm ảnh vào Polaroid"),
+          node("p", { class: "editor-help" }, "Ảnh tùy chọn. Chọn lớp chú thích để sửa chữ."));
+      }
+      if (isLegacyFrame(element)) {
         children.push(field('Thêm ảnh vào khung', node('input', { type: 'file', accept: 'image/png,image/jpeg,image/webp', 'data-editor-field': 'upload' })), node('p', { class: 'editor-help' }, 'Chọn ảnh để thay cảnh minh họa. Khung và góc xoay được giữ nguyên.'));
       }
       if (registry[element.type].actions.length) {
@@ -730,71 +989,59 @@ export function mountDesigner(
             ["replay", "Phát lại từ đầu"],
           ]),
         );
-        if (action?.type !== "replay")
-          children.push(
-            select(
-              "Cảnh đích",
-              "action.targetSceneId",
-              action?.targetSceneId || "",
-              [
-                ["", "Chọn cảnh…"],
-                ...store
-                  .get()
-                  .document.scenes.map((value) => [value.id, value.name]),
-              ],
-            ),
-          );
+        if (action?.type !== "replay") {
+          const doc = store.get().document;
+          const destination = doc.scenes.find(scene => scene.id === action?.targetSceneId);
+          children.push(node("details", { class: "editor-target-picker" },
+            node("summary", {}, destination ? `Cảnh đích · ${destination.name}` : "Chọn cảnh đích"),
+            node("div", { class: "editor-target-scenes" }, ...doc.scenes.map(scene => {
+              const choice = button("", "action-target", {
+                "data-id": scene.id,
+                "aria-pressed": scene.id === destination?.id,
+              });
+              choice.append(sceneThumbnail(doc, scene, { width: 28, assetUrl }), node("span", {}, scene.name));
+              return choice;
+            }))));
+          if (!destination) children.push(node("p", { class: "editor-help" },
+            "Chọn cảnh đích để nút hoạt động khi người nhận mở thiệp."));
+        }
       }
+      children.push(...effectFields(element, element));
       children.push(
-        node("h3", {}, "Vị trí và kích thước"),
         node(
-          "div",
-          { class: "editor-layout-fields" },
-          ...[
-            ["x", "X"],
-            ["y", "Y"],
-            ["width", "Rộng"],
-            ["height", "Cao"],
-            ["rotation", "Xoay °"],
-          ].map(([key, label]) =>
-            input(label, `layout.${key}`, Number(layout[key].toFixed(2)), {
-              type: "number",
-              min:
-                key === "width" || key === "height"
-                  ? 1
-                  : key === "rotation"
-                    ? -360
-                    : -10000,
-              max: key === "rotation" ? 360 : 10000,
-              step: 1,
-            }),
+          "details",
+          { class: "editor-geometry" },
+          node("summary", {}, "Vị trí và kích thước"),
+          node("div", { class: "editor-layout-fields" },
+            ...[["x", "X"], ["y", "Y"], ["width", "Rộng"], ["height", "Cao"], ["rotation", "Xoay °"]]
+              .map(([key, label]) => input(label, `layout.${key}`, Number(layout[key].toFixed(2)), {
+                type: "number",
+                min: key === "width" || key === "height" ? 1 : key === "rotation" ? -360 : -LIMITS.coordinate,
+                max: key === "rotation" ? 360 : LIMITS.coordinate,
+                step: 1,
+              })),
+          ),
+          node("div", { class: "editor-control-row", role: "group", "aria-label": "Vị trí phần tử trên thiệp" },
+            button("Căn giữa theo chiều ngang", "center"),
+            button("Vào khung", "inside"),
           ),
         ),
-        input("Độ trong suốt", "element.opacity", element.opacity ?? 1, {
+        input("Độ mờ (%)", "element.opacity", toPercent(1 - (element.opacity ?? 1)), {
           type: "number",
           min: 0,
-          max: 1,
-          step: 0.1,
+          max: 100,
+          step: 1,
+          title: "0% hiện rõ, 100% trong suốt",
         }),
-        field(
-          "Hiển thị",
-          node("input", {
-            type: "checkbox",
-            "data-editor-field": "element.visible",
-            checked: element.visible !== false,
-          }),
-        ),
-        field(
-          "Khóa tránh kéo nhầm",
-          node("input", {
-            type: "checkbox",
-            "data-editor-field": "element.locked",
-            checked: Boolean(element.locked),
-          }),
-        ),
         node(
           "div",
           { class: "editor-control-row" },
+          iconButton("Hiển thị lớp", "layer-visibility", element.visible === false ? "eye-off" : "eye", {
+            "aria-pressed": element.visible !== false,
+          }),
+          iconButton("Khóa lớp", "layer-lock", element.locked ? "lock" : "unlock", {
+            "aria-pressed": Boolean(element.locked),
+          }),
           button("Đưa trước", "layer-up"),
           button("Đưa sau", "layer-down"),
           button("Nhân bản", "element-duplicate"),
@@ -817,9 +1064,9 @@ export function mountDesigner(
         );
     }
     host.replaceChildren(...children);
-    const policy = design.policy?.lockedElements?.[element?.id];
+    if (keepGeometry) host.querySelector(".editor-geometry").open = true;
     if (!element && design.policy?.kind === "creator-template")
-      host.querySelectorAll("[data-editor-field]").forEach(control => { control.disabled = true; });
+      host.querySelectorAll("[data-editor-field], [data-editor-action='effect-remove']").forEach(control => { control.disabled = true; });
     if (policy) {
       const permitted = policy.editableProps || [];
       host.insertBefore(
@@ -834,20 +1081,26 @@ export function mountDesigner(
         const key = control.dataset.editorField;
         control.disabled = !(
           (key.startsWith("props.") && permitted.includes(key.slice(6))) ||
+          (key.startsWith("crop.") && permitted.includes("focalPoint")) ||
           (key === "upload" && permitted.includes("assetId"))
         );
       }
       for (const control of host.querySelectorAll("[data-editor-action]"))
-        if (control.dataset.editorAction !== "close-sheet")
+        if (control.dataset.editorAction !== "close-sheet" &&
+          !(control.dataset.editorAction === "text-align" && permitted.includes("align")) &&
+          !(control.dataset.editorAction === "text-font" && permitted.includes("fontToken")) &&
+          !(control.dataset.editorAction === "inline-text" && textOptions(element)))
           control.disabled = true;
     }
+    if (previousField && !composing)
+      host.querySelector(`[data-editor-field="${CSS.escape(previousField)}"]`)?.focus({ preventScroll: true });
   }
-  function renderAll() {
+  function renderAll(change) {
     if (!store || disposed) return;
     const doc = store.get().document;
     if (!doc.scenes.some((value) => value.id === sceneId))
       sceneId = doc.entrySceneId;
-    if (!doc.elements.some((value) => value.id === selection)) selection = null;
+    if (!currentScene().elementIds.includes(selection)) selection = null;
     stage?.render();
     renderLayers();
     renderScenes();
@@ -862,6 +1115,7 @@ export function mountDesigner(
       if (text && quickText !== document.activeElement) quickText.value = text.props.text;
     }
     if (
+      change?.kind === "undo" || change?.kind === "redo" ||
       !main.querySelector(".editor-inspector")?.contains(document.activeElement)
     )
       renderInspector();
@@ -974,19 +1228,16 @@ export function mountDesigner(
       node(
         "section",
         { class: "editor-start" },
-        node("span", { class: "eyebrow" }, "TỰ THIẾT KẾ MÓN QUÀ"),
-        node("h1", {}, "Một khởi đầu riêng cho bạn"),
-        node(
-          "p",
-          {},
-          "Lưu nháp trước, xem thử và gửi qua link khi bạn sẵn sàng.",
-        ),
+        node("h1", {}, "Tự thiết kế món quà"),
         node(
           "div",
           { class: "editor-start-options" },
-          button("Trang trống", "create-blank", { class: "editor-start-card" }),
-          button("Phong bì → Lời chúc → Hồi đáp", "create-starter", {
-            class: "editor-start-card",
+          ...PRESETS.map(({ id, label }) => {
+            const doc = sampleBindings(createDocument({ presetId: id }));
+            const scene = doc.scenes.find(scene => scene.id === doc.entrySceneId);
+            const card = button("", starterActions[id], { class: "editor-start-card", "data-preset": id });
+            card.append(sceneThumbnail(doc, scene, { width: 104 }), node("span", {}, label));
+            return card;
           }),
         ),
         button("← Về Studio", "studio"),
@@ -996,16 +1247,50 @@ export function mountDesigner(
   }
   function fit() {
     if (!store || !stage) return;
-    const width = main.querySelector(".editor-stage-scroll").clientWidth - 40;
-    zoom = Math.min(
-      1,
-      Math.max(0.5, width / store.get().document.artboard.baseSize.width),
-    );
+    fitted = true;
+    const scroll = main.querySelector(".editor-stage-scroll");
+    const padding = getComputedStyle(scroll);
+    const width = scroll.clientWidth - parseFloat(padding.paddingLeft) - parseFloat(padding.paddingRight);
+    const height = scroll.clientHeight - parseFloat(padding.paddingTop) - parseFloat(padding.paddingBottom);
+    const size = store.get().document.artboard.baseSize;
+    setZoom(Math.min(1, Math.max(0.1, Math.min(width / size.width, quickMode ? 1 : height / size.height))));
+  }
+  function setZoom(value) {
+    zoom = value;
     stage.setZoom(zoom);
     const control = main.querySelector('[data-editor-field="zoom"]');
-    if (control) control.value = String(zoom);
+    control.querySelector("[data-fit-zoom]")?.remove();
+    if (!zoomLevels.includes(zoom))
+      control.prepend(node("option", { value: String(zoom), "data-fit-zoom": "" }, `${Math.round(zoom * 100)}%`));
+    control.value = String(zoom);
+    main.querySelector('[data-editor-action="zoom-out"]').disabled = zoom <= zoomLevels[0];
+    main.querySelector('[data-editor-action="zoom-in"]').disabled = zoom >= zoomLevels.at(-1);
   }
-  async function upload(file, elementId) {
+  function assignImage(value, elementId, assetId, slotId) {
+    const index = value.document.elements.findIndex(item => item.id === elementId);
+    const element = value.document.elements[index];
+    if (!element) return;
+    if (slotId) {
+      const photo = element.props.photos?.find(item => item.id === slotId);
+      if (!photo) return;
+      photo.assetId = assetId;
+    } else if (isLegacyFrame(element)) {
+      value.document = insertPhotoFrame(value.document, assetId, elementId);
+      return;
+    }
+    if (!slotId) {
+      if (isPolaroidPlaceholder(element)) value.document.elements[index] = fillPolaroid(element, assetId);
+      else if (element.type === "image") element.props.assetId = assetId;
+      else return;
+    }
+    if (!value.document.assets.some(item => item.assetId === assetId))
+      value.document.assets.push({ assetId, kind: "image" });
+    if (design.policy?.kind === "creator-template" || value.document.schemaVersion === 2) {
+      const used = new Set(assetIds(value.document));
+      value.document.assets = value.document.assets.filter(ref => used.has(ref.assetId));
+    }
+  }
+  async function upload(file, elementId, slotId) {
     if (!file || assetPending) return;
     if (
       !["image/png", "image/jpeg", "image/webp"].includes(file.type) ||
@@ -1014,7 +1299,7 @@ export function mountDesigner(
       throw new Error(
         "Chọn ảnh PNG/JPEG/WebP tối đa 2 MB. Ảnh hiện tại được giữ nguyên.",
       );
-    const frameUpload = isPhotoFrame(store.get().document.elements.find(element => element.id === elementId));
+    const frameUpload = isLegacyFrame(store.get().document.elements.find(element => element.id === elementId));
     assetPending = true;
     markStatus("Ảnh đang xử lý…");
     try {
@@ -1029,35 +1314,19 @@ export function mountDesigner(
       );
       if (result.asset.status !== "ready")
         throw new Error("Ảnh chưa sẵn sàng. Ảnh hiện tại được giữ nguyên.");
-      commit((value) => {
-        const image = value.document.elements.find(
-          (item) => item.id === elementId,
-        );
-        if (!image) return;
-        if (frameUpload && image.type === 'shape') { value.document = insertPhotoFrame(value.document, result.asset.id, elementId); return; }
-        if (
-          !value.document.assets.some(
-            (item) => item.assetId === result.asset.id,
-          )
-        )
-          value.document.assets.push({
-            assetId: result.asset.id,
-            kind: "image",
-          });
-        image.props.assetId = result.asset.id;
-        if (design.policy?.kind === "creator-template") {
-          const used = new Set(value.document.elements.filter(item => item.type === "image").map(item => item.props.assetId));
-          value.document.assets = value.document.assets.filter(ref => used.has(ref.assetId));
-        }
-      }, "Thay ảnh");
-      if (frameUpload && !quickMode) choose(store.get().document.elements.find(element => element.type === 'image' && element.props.assetId === result.asset.id)?.id || elementId);
+      commit(value => assignImage(value, elementId, result.asset.id, slotId), "Thay ảnh");
+      if (frameUpload && !quickMode && selection === elementId) {
+        const doc = store.get().document;
+        const frame = doc.elements.find(element => element.id === elementId);
+        choose(framePhoto(doc, frame)?.id || elementId);
+      }
       renderInspector();
     } finally {
       assetPending = false;
       if (!disposed) markStatus(session.dirty ? "Chưa lưu" : `Đã lưu · r${session.revision}`);
     }
   }
-  function openPreview() {
+  function openPreview(effectPreview) {
     if (assetPending) throw new Error("Chờ ảnh xử lý xong trước khi xem trước.");
     const dialog = node(
       "dialog",
@@ -1067,7 +1336,7 @@ export function mountDesigner(
         { class: "editor-preview-heading" },
         node("h2", {}, quickMode ? "Xem như người nhận" : "Xem trước món quà"),
         button("Phát lại", "preview-reset"),
-        button(quickMode ? "Sửa nội dung" : "Đóng", "preview-close"),
+        quickMode ? button("Sửa nội dung", "preview-close") : iconButton("Đóng xem trước", "preview-close", "close"),
         quickMode ? button("Gửi", "preview-send", { class: "editor-primary" }) : null,
       ),
       node("div", { class: "editor-preview-player" }),
@@ -1085,6 +1354,7 @@ export function mountDesigner(
         document: structuredClone(store.get().document),
         assetUrl,
         mode: "preview",
+        effectPreview,
       });
     } catch (error) {
       closePreview();
@@ -1332,8 +1602,11 @@ export function mountDesigner(
         let element = index !== undefined ? doc.elements[Number(index)] : null;
         if (!element && path.startsWith("assets."))
           element = doc.elements.find(
-            (item) => item.props.assetId === path.slice(7),
+            (item) => photoSlots(item).some(photo => photo.assetId === path.slice(7)),
           );
+        const missingPhoto = /\.props\.photos\.(\d+)\.(alt|assetId)$/.exec(path);
+        const slot = missingPhoto && element?.props.photos?.[Number(missingPhoto[1])];
+        const missingDoor = /\.actions\.(\d+)\.targetSceneId$/.exec(path);
         const binding = /^bindings\.(recipientName|senderName|message)/.exec(
           path,
         )?.[1];
@@ -1343,6 +1616,10 @@ export function mountDesigner(
           {
             "data-id": element?.id,
             "data-field": binding ? `binding.${binding}` : null,
+            "data-photo-slot": slot?.id,
+            "data-element-field": slot && missingPhoto[2] === "alt" ? `slot.${slot.id}.alt`
+              : missingDoor && element?.props.kind === "scene-choices" ? `door.${missingDoor[1]}`
+              : path.endsWith(".props.eventAt") ? "event-time" : null,
           },
         );
         return control;
@@ -1358,21 +1635,32 @@ export function mountDesigner(
         [list[index], list[next]] = [list[next], list[index]];
     }, "Sắp xếp cảnh");
   }
-  function openSheet(kind) {
+  function openSheet(kind, trigger) {
+    if (!mobile.matches || quickMode) return;
     const target = main.querySelector(
-      kind === "inspector" ? ".editor-inspector" : ".editor-library",
+      kind === "inspector" ? ".editor-inspector" :
+        kind === "scenes" ? ".editor-scene-bar" : ".editor-library",
     );
     closeSheet();
-    sheet = { target, previous: document.activeElement };
+    if (target.matches(".editor-library")) showLibrary(kind === "layers" ? "layers" : kind === "content" ? "content" : "add");
+    const dockTrigger = trigger?.closest(".editor-mobile-dock") ? trigger :
+      main.querySelector(`[data-editor-action="sheet-${kind === "content" ? "library" : kind}"]`);
+    const background = [];
+    for (let panel = target; panel && !panel.matches(".editor-workspace"); panel = panel.parentElement) {
+      for (const peer of panel.parentElement.children) {
+        if (peer !== panel && !peer.inert) {
+          peer.inert = true;
+          background.push(peer);
+        }
+      }
+    }
+    sheet = { target, previous: trigger || document.activeElement, dockTrigger, background };
+    dockTrigger?.setAttribute("aria-expanded", "true");
     target.classList.add("editor-sheet-open");
     target.setAttribute("role", "dialog");
     target.setAttribute("aria-modal", "true");
     target.setAttribute("tabindex", "-1");
     target.focus();
-    if (kind === "layers")
-      target
-        .querySelector(".editor-layers")
-        ?.scrollIntoView({ block: "nearest" });
   }
   function closeSheet() {
     if (!sheet) return;
@@ -1380,19 +1668,25 @@ export function mountDesigner(
     sheet.target.removeAttribute("tabindex");
     sheet.target.removeAttribute("role");
     sheet.target.removeAttribute("aria-modal");
-    const previous = sheet.previous;
+    const { previous, dockTrigger, background } = sheet;
+    for (const panel of background) panel.inert = false;
+    dockTrigger?.setAttribute("aria-expanded", "false");
     sheet = null;
-    previous?.focus();
+    (previous?.isConnected && previous.getClientRects().length ? previous : dockTrigger)?.focus();
   }
+  mobile.addEventListener("change", () => {
+    if (!mobile.matches) closeSheet();
+    if (fitted) fit();
+  }, { signal });
   async function action(name, target) {
     if (name === "studio") {
       await navigate(design?.purpose === "creator" ? "/creator" : "/studio");
       return;
     }
-    if (name === "create-blank" || name === "create-starter") {
+    if (Object.values(starterActions).includes(name)) {
       target.disabled = true;
       try {
-        await create(name === "create-blank" ? "blank" : "envelope-basic", {
+        await create(target.dataset.preset, {
           kind: "blank",
         });
       } finally {
@@ -1457,10 +1751,15 @@ export function mountDesigner(
             ?.id || sceneId;
         renderAll();
         renderInspector();
-        if (matchMedia("(max-width:800px)").matches) openSheet("inspector");
+        openSheet("inspector", target);
+        const focus = target.dataset.elementField
+          ? `[data-editor-field="${CSS.escape(target.dataset.elementField)}"]`
+          : target.dataset.photoSlot ? `[data-slot="${CSS.escape(target.dataset.photoSlot)}"]` : null;
+        if (focus) main.querySelector(focus)?.focus();
       }
       if (target.dataset.field) {
-        if (!quickMode && matchMedia("(max-width:800px)").matches) openSheet("library");
+        showLibrary("content");
+        openSheet("content", target);
         main
           .querySelector(
             `[data-editor-field="${CSS.escape(target.dataset.field)}"]`,
@@ -1471,12 +1770,10 @@ export function mountDesigner(
     }
     if (name === "reuse-asset") {
       const assetId = target.dataset.id;
-      if (selected()?.type === "image")
-        commit((value) => {
-          value.document.elements.find(
-            (item) => item.id === selection,
-          ).props.assetId = assetId;
-        }, "Dùng ảnh đã tải");
+      if (selected()?.type === "image" || isPhotoFrame(selected()) || isPolaroidPlaceholder(selected())) {
+        commit(value => assignImage(value, selection, assetId), "Dùng ảnh đã tải");
+        renderInspector();
+      }
       else {
         const image = createElement("image", {
           id: newId(),
@@ -1561,6 +1858,7 @@ export function mountDesigner(
     }
     if (name === "select") {
       choose(target.dataset.id);
+      main.querySelector(`.editor-layers [data-id="${CSS.escape(selection)}"]`)?.focus({ preventScroll: true });
       return;
     }
     if (name === "scene-select") {
@@ -1574,6 +1872,23 @@ export function mountDesigner(
     }
     if (name === "fit") {
       fit();
+      return;
+    }
+    if (name === "zoom-in" || name === "zoom-out") {
+      fitted = false;
+      const next = name === "zoom-in" ? zoomLevels.find(level => level > zoom) : zoomLevels.findLast(level => level < zoom);
+      if (next) setZoom(next);
+      return;
+    }
+    if (name === "library-tab") {
+      showLibrary(target.dataset.tab);
+      return;
+    }
+    if (name === "clear-block-search") {
+      const search = main.querySelector("[data-block-search]");
+      search.value = "";
+      filterBlocks("");
+      search.focus();
       return;
     }
     if (name === "greeting-starter") {
@@ -1602,13 +1917,26 @@ export function mountDesigner(
       openPreview();
       return;
     }
+    if (name === "effect-preview") {
+      openPreview({family:target.dataset.family,elementId:selection,sceneId:currentScene().id});
+      return;
+    }
+    if (name === "effect-remove") {
+      commit(({document}) => {
+        const model = document.elements.find(item => item.id === selection) || document.scenes.find(scene => scene.id === sceneId);
+        delete model.effects[target.dataset.family];
+        if (!Object.keys(model.effects).length) delete model.effects;
+      }, "Bỏ hiệu ứng");
+      renderInspector();
+      return;
+    }
     if (name === "publish") {
       await publish();
       return;
     }
     if (name === "submit-template") return submitTemplate();
     if (name.startsWith("sheet-")) {
-      openSheet(name.slice(6));
+      openSheet(name.slice(6), target);
       return;
     }
     if (name === "close-sheet") {
@@ -1618,27 +1946,28 @@ export function mountDesigner(
     if (name === "add" || name === "insert-greeting") {
       const scene = currentScene();
       const insertingGreeting = name === "insert-greeting";
-      const { width, height } = store.get().document.artboard.baseSize;
-      const element = insertingGreeting
-        ? createElement("text", {
-          id: newId(),
-          layout: { x: width * 0.1, y: height * 0.18, width: width * 0.8, height: 120 },
-          props: { textBinding: "message", align: "center", color: readableInk(scene.background.color) },
-        })
-        : createElement(target.dataset.type, { id: newId() });
-      if (element.type === "reply") {
-        element.layout.height = 300;
-        element.layout.rotation = 0;
-      }
+      const block = catalog.flatMap(group => group.items).find(item => item.id === (insertingGreeting ? "greeting" : target.dataset.block));
+      if (!block) return;
+      const models = block.create();
+      if (insertingGreeting) models[0].props.color = readableInk(scene.background.color);
+      models.at(-1).name ||= block.title;
+      placeBlock(models, stage.visibleArea(), store.get().document.elements.filter(item => scene.elementIds.includes(item.id)));
       commit((value) => {
-        value.document.elements.push(element);
+        value.document.elements.push(...models);
         value.document.scenes
           .find((item) => item.id === scene.id)
-          .elementIds.push(element.id);
-      }, insertingGreeting ? "Chèn lời chúc" : "Thêm phần tử");
-      choose(element.id);
+          .elementIds.push(...models.map(item => item.id));
+      }, `Chèn ${block.title.toLowerCase()}`);
+      choose(models.at(-1).id);
+      if (sheet) closeSheet();
       if (insertingGreeting) main.querySelector('[data-editor-action="preview"]').focus();
       return;
+    }
+    if (sceneActions.some(([, action]) => action === name)) {
+      if (target.dataset.id !== sceneId) {
+        sceneId = target.dataset.id;
+        choose(null);
+      }
     }
     if (name === "scene-add") {
       const nextId = newId();
@@ -1735,6 +2064,35 @@ export function mountDesigner(
       return;
     }
     if (!selected()) throw new Error("Chọn một phần tử trước.");
+    if (name === "inline-text") {
+      closeSheet();
+      stage.editText(selection);
+      return;
+    }
+    if (name === "action-target") {
+      commit(({ document }) => {
+        document.elements.find(item => item.id === selection).actions = [
+          { on: "activate", type: "goToScene", targetSceneId: target.dataset.id },
+        ];
+      }, "Chọn cảnh đích");
+      renderInspector();
+      main.querySelector(".editor-target-picker summary")?.focus();
+      return;
+    }
+    if (["text-align", "text-font", "layer-visibility", "layer-lock"].includes(name)) {
+      commit(({ document }) => {
+        const item = document.elements.find(element => element.id === selection);
+        if (name === "text-align") item.props.align = target.dataset.align;
+        if (name === "text-font") item.props.fontToken = target.dataset.font;
+        if (name === "layer-visibility") item.visible = item.visible === false;
+        if (name === "layer-lock") item.locked = !item.locked;
+      }, target.getAttribute("aria-label"));
+      renderInspector();
+      const variant = name === "text-align" ? `[data-align="${target.dataset.align}"]` :
+        name === "text-font" ? `[data-font="${target.dataset.font}"]` : "";
+      main.querySelector(`[data-editor-action="${name}"]${variant}`)?.focus({ preventScroll: true });
+      return;
+    }
     if (name === "center" || name === "inside") {
       commit(
         (value) => {
@@ -1814,12 +2172,16 @@ export function mountDesigner(
     }
   }
   async function change(event) {
+    if (event.target.matches("[data-block-group-select]")) {
+      filterBlocks(main.querySelector("[data-block-search]").value);
+      return;
+    }
     const control = event.target.closest("[data-editor-field]");
     if (!control || !store || composing) return;
     const key = control.dataset.editorField;
     if (key === "zoom") {
-      zoom = Number(control.value);
-      stage.setZoom(zoom);
+      fitted = false;
+      setZoom(Number(control.value));
       return;
     }
     if (key === "snap") {
@@ -1829,7 +2191,7 @@ export function mountDesigner(
     if (key === "upload" || key === "quick-photo") {
       const target = key === "quick-photo" ? quickPhotoFrame()?.id : selection;
       try {
-        if (target) await upload(control.files?.[0], target);
+        if (target) await upload(control.files?.[0], target, control.dataset.slot);
       } finally {
         control.value = "";
       }
@@ -1871,10 +2233,43 @@ export function mountDesigner(
           ).background.color = value;
           return;
         }
+        if (key.startsWith("effect.")) {
+          const [,family,field] = key.split(".");
+          const model = next.document.elements.find(item => item.id === selection) ||
+            next.document.scenes.find(scene => scene.id === sceneId);
+          if (field === "id") {
+            if (value) (model.effects ??= {})[family] = {id:value};
+            else {
+              delete model.effects?.[family];
+              if (model.effects && !Object.keys(model.effects).length) delete model.effects;
+            }
+          } else model.effects[family][field] = field === "delay" ? Number(value) : value;
+          return;
+        }
         const item = next.document.elements.find(
           (item) => item.id === selection,
         );
         if (!item) return;
+        if (key.startsWith("entry.")) {
+          const [,index,field] = key.split(".");
+          item.props.entries[index][field] = value;
+          return;
+        }
+        if (key.startsWith("door.")) {
+          item.actions[Number(key.slice(5))].targetSceneId = value || null;
+          return;
+        }
+        if (key.startsWith("slot.")) {
+          const [,id,field] = key.split(".");
+          const photo = item.props.photos.find(photo => photo.id === id);
+          if (field === "x" || field === "y") photo.focalPoint[field] = value / 100;
+          else photo[field] = value || (field === "assetId" ? null : "");
+          return;
+        }
+        if (key === "event-time") {
+          item.props.eventAt = value ? eventTimeFromLocal(value, item.props.timeZone) : null;
+          return;
+        }
         if (key === "textBinding") {
           if (value) {
             item.props.textBinding = value;
@@ -1888,7 +2283,12 @@ export function mountDesigner(
           return;
         }
         if (key.startsWith("crop.")) {
-          item.props.focalPoint[key.slice(5)] = value;
+          item.props.focalPoint ??= { x: 0.5, y: 0.5 };
+          item.props.focalPoint[key.slice(5)] = value / 100;
+          return;
+        }
+        if (key === "element.opacity") {
+          item.opacity = (100 - value) / 100;
           return;
         }
         if (key === "action.type") {
@@ -1896,12 +2296,6 @@ export function mountDesigner(
             value === "replay"
               ? { on: "activate", type: "replay" }
               : { on: "activate", type: "goToScene", targetSceneId: null },
-          ];
-          return;
-        }
-        if (key === "action.targetSceneId") {
-          item.actions = [
-            { on: "activate", type: "goToScene", targetSceneId: value || null },
           ];
           return;
         }
@@ -1923,7 +2317,9 @@ export function mountDesigner(
             : null,
       },
     );
-    if (key === "textBinding" || key.startsWith("action.")) renderInspector();
+    if (["textBinding", "action.type", "props.fit", "props.radius", "props.timeZone", "accessibility.decorative"].includes(key) ||
+      key.endsWith(".assetId") || (key.startsWith("effect.") && key.endsWith(".id")) ||
+      key.startsWith("crop.")) renderInspector();
   }
   main.addEventListener(
     "click",
@@ -1936,9 +2332,18 @@ export function mountDesigner(
     { signal },
   );
   main.addEventListener("change", safe(change), { signal });
+  main.addEventListener("toggle", event => {
+    if (event.target.matches(".editor-scene-menu[open]"))
+      for (const menu of main.querySelectorAll(".editor-scene-menu[open]"))
+        if (menu !== event.target) menu.open = false;
+  }, { signal, capture: true });
   main.addEventListener(
     "input",
     safe((event) => {
+      if (event.target.matches("[data-block-search]")) {
+        filterBlocks(event.target.value);
+        return;
+      }
       if (
         composing ||
         !event.target.matches('input[type="text"],input:not([type]),textarea')
@@ -1965,7 +2370,7 @@ export function mountDesigner(
     { signal },
   );
   const beforeUnload = (event) => {
-    if (session?.dirty || assetPending || stage?.gestureActive || composing) {
+    if (session?.dirty || assetPending || stage?.gestureActive || stage?.textDirty || composing) {
       event.preventDefault();
       event.returnValue = "";
     }
@@ -1990,14 +2395,20 @@ export function mountDesigner(
           stage.cancel();
           return;
         }
-        if (stopKeys(event.target)) {
-          event.preventDefault();
-          event.target.blur();
-          return;
-        }
         if (sheet) {
           event.preventDefault();
           closeSheet();
+          return;
+        }
+        const menu = event.target.closest(".editor-scene-menu[open]");
+        if (menu) {
+          menu.open = false;
+          menu.querySelector("summary").focus();
+          return;
+        }
+        if (stopKeys(event.target)) {
+          event.preventDefault();
+          event.target.blur();
           return;
         }
         return;
@@ -2005,9 +2416,9 @@ export function mountDesigner(
       if (sheet && event.key === "Tab") {
         const controls = [
           ...sheet.target.querySelectorAll(
-            'button,input,textarea,select,[tabindex="0"]',
+            'button,input,textarea,select,summary,[tabindex="0"]',
           ),
-        ].filter((control) => !control.disabled && !control.hidden),
+        ].filter((control) => !control.disabled && control.getClientRects().length),
           first = controls[0],
           last = controls.at(-1);
         if (event.shiftKey && document.activeElement === first) {
@@ -2061,6 +2472,7 @@ export function mountDesigner(
       session?.dirty ||
       assetPending ||
       stage?.gestureActive ||
+      stage?.textDirty ||
       publishing ||
       composing,
     );
@@ -2109,6 +2521,7 @@ export function mountDesigner(
       lifecycle.abort();
       session?.dispose();
       unsubscribe?.();
+      stageObserver?.disconnect();
       stage?.dispose();
       preview?.dispose();
       for (const dialog of dialogs) {

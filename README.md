@@ -89,19 +89,19 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Chỉnh sửa trực tiếp trong Canvas Designer bằng Fabric.js, vẫn giữ Fabric modal cũ.
-- Chọn layer, kéo, xoay, resize, sắp thứ tự, căn chỉnh; Áp dụng/Hủy theo document gốc.
-- Chặn thay đổi chéo khi session đang mở; kiểm tra revision và quyền Creator trước khi ghi.
-- Giữ schema Momevia, Undo/Redo, không lưu Fabric JSON; CSS và kiểm thử tách module.
+- Chọn layer Fabric và chỉnh X/Y, chiều rộng, chiều cao, góc xoay; căn giữa ngang/dọc.
+- Inspector chỉ đổi đối tượng tạm, không sửa bản nháp trước khi chọn Áp dụng.
+- Giữ khóa lớp, quyền Creator, kiểm soát dữ liệu và cơ chế Undo/Redo hiện tại.
+- Không thay đổi API, schema, source ảnh hoặc 4 module có chỉnh sửa local ngoài phạm vi.
 
 **Các commit gần nhất trên `main`:**
 
+- `54507a0` — feat: add contextual Fabric Inspector for Canvas Designer (2026-11-19)
 - `85a65b3` — feat: enable inline Fabric editing in Canvas Designer (2026-11-19)
 - `ee0d7f0` — feat: improve Canvas Designer UX and Fabric Studio accessibility (2026-11-19)
 - `bfb1330` — feat: redesign Studio Space dashboard and improve UX (2026-11-19)
 - `dab15ec` — feat: expand Canvas to 172 elements and improve discovery UX (2026-11-19)
 - `4dfc747` — feat: expand Canvas library with 24 seasonal decorations (2026-11-19)
-- `4ffd221` — feat: add image crop presets for Canvas 100 (2026-11-19)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

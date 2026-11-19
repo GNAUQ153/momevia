@@ -1,5 +1,7 @@
+import { decorativeArt } from "./decorative-art.js";
 // Original Momevia paths. Every path is defined in a 100 × 100 viewBox.
 export const stickerArt = Object.freeze({
+  ...decorativeArt,
   'ribbon-bow': ['M49 49C37 43 12 24 12 41S32 64 50 52C70 65 88 57 88 41S63 42 51 49Z', 'M45 54 29 85l18-8 5 9 2-32 14 31 6-11 12 4-24-26'],
   'wax-seal': ['M50 8 61 13 72 13 79 24 90 30 90 45 95 55 86 66 82 80 69 83 60 93 46 90 32 93 25 84 13 78 13 64 5 52 11 41 12 26 24 21 32 10 43 13Z', 'M50 68C12 46 45 25 50 44 56 25 88 46 50 68Z'],
   'paper-crane': ['M8 62 56 26 58 54 84 22 95 34 85 36 75 67 52 76 44 62Z', 'M44 62 56 26 52 76M58 54 75 67'],

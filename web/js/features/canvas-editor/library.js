@@ -1,9 +1,11 @@
+import { decorativeGroups, decorativeNames } from "./decorations.js";
 import { createElement } from "../../shared/canvas/registry.js";
 import { originalStickerIds } from "../../shared/canvas/artwork.js";
 import { createDocument } from "../../shared/canvas/presets.js";
 import { decorations, geometry, illustratedStickers, interactions, lettering, photoLayouts, stories } from "./library-presets.js";
 
 export const stickerNames = {
+  ...decorativeNames,
   heart: "Trái tim", star: "Ngôi sao", flower: "Hoa", sparkles: "Lấp lánh",
   balloon: "Bóng bay", cake: "Bánh sinh nhật", gift: "Quà",
   ...Object.fromEntries(illustratedStickers.map(([id, title]) => [id, title])),
@@ -100,6 +102,7 @@ export const catalog = [
     ...decorations,
   ]],
   ["Kể chuyện và kỷ niệm", stories],
+  ...decorativeGroups,
   ["Tương tác", [
     ["envelope", "Phong bì", piece("envelope", 260, 168), "mở thư"],
     ["gift-box", "Hộp quà", piece("gift-box", 228, 168), "mở hộp"],

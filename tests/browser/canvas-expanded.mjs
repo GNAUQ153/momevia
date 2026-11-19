@@ -75,7 +75,14 @@ export async function runExpandedBrowser(base, cookie, {cards, controls}, artifa
     await page.goto(base+'/design/new');
     await control('create-blank').click();
     await addTab.click();
-    assert.equal(await page.locator('[data-block]:visible').count(),100);
+    // Giữ 100 elements gốc và kiểm tra đủ 24 sticker Phase 5.4 trên giao diện thực tế.
+    const catalogIds = catalog.flatMap(group => group.items.map(item => item.id));
+    assert.equal(catalogIds.filter(id => !id.startsWith('m54-')).length, 100, 'Không được thiếu elements gốc');
+    assert.equal(catalogIds.filter(id => id.startsWith('m54-')).length, 24, 'Phải có đủ 24 hình trang trí mới');
+    assert.equal(new Set(catalogIds).size, 124, 'Không được trùng ID element');
+    const visibleIds = await page.locator('[data-block]:visible').evaluateAll(nodes => nodes.map(node => node.dataset.block));
+    assert.deepEqual(visibleIds.slice().sort(), catalogIds.slice().sort(),
+      'Thư viện phải hiển thị chính xác 124 elements, không thiếu hoặc trùng mục');
     await shot(page,'library-1440.png');
     const search = page.locator('[data-block-search]');
     await search.fill('con dau');
@@ -123,7 +130,7 @@ export async function runExpandedBrowser(base, cookie, {cards, controls}, artifa
       await page.locator('#canvas-contact-sheet').evaluate(node=>node.remove());
     }
     await save();
-    console.log('PASS Browser 100/100 thẻ có thumbnail, chèn được và undo đúng một bước');
+    console.log(`PASS Browser ${catalogIds.length}/${catalogIds.length} elements có thumbnail, chèn được và undo đúng một bước`);
 
     const familiesCaptured = new Set();
     for (const [family,{presets}] of Object.entries(effectFamilies)) {

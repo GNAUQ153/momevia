@@ -210,14 +210,14 @@ try {
   });
   let expanded;
   const expandedArtifacts = process.env.BROWSER_ARTIFACT_DIR && path.join(process.env.BROWSER_ARTIFACT_DIR, 'qa-gifts');
-  await check('100 Canvas cards survive actual JSON save/read; three V2 gifts publish, enforce media ACL and revoke', async () => {
+  await check('124 Canvas cards survive actual JSON save/read; three V2 gifts publish, enforce media ACL and revoke', async () => {
     expanded = await runExpandedApi(base, owner.cookie, other.cookie, {
       artifacts:expandedArtifacts,allCards:true,browser:process.argv.includes('--browser'),
     });
   });
   if (process.argv.includes('--browser')) {
     const { runExpandedBrowser } = await import('../browser/canvas-expanded.mjs');
-    await check('100 UI cards, 24 effects, touch/keyboard, and three public V2 QA cards', () =>
+    await check('124 UI cards, 24 effects, touch/keyboard, and three public V2 QA cards', () =>
       runExpandedBrowser(base, owner.cookie, expanded, expandedArtifacts));
     const { runSenderIdentity } = await import('../browser/sender-identity.mjs');
     await check('Creator template identity is isolated from preview data', () => runSenderIdentity(base));

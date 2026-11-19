@@ -10,6 +10,7 @@ import { previewSvg } from '../../web/js/shared/canvas/cover-svg.js';
 import { cleanGiftLayout } from '../../web/js/shared/canvas/clean-layout.js';
 
 const cards = catalog.flatMap(({items}) => items);
+const originalCards = cards.filter(card => !card.id.startsWith("m54-"));
 
 test('the pre-expansion V1 fixture round-trips without a document upgrade', () => {
   const document = JSON.parse(fs.readFileSync(new URL('../fixtures/canvas-v1.json',import.meta.url),'utf8'));
@@ -29,22 +30,22 @@ function forCard(id) {
   return { document, elements };
 }
 
-test('100 library IDs match the approved 72 additions and the 28 original IDs', () => {
+test('100 original library IDs match the approved 72 additions and the 28 original IDs', () => {
   const plan = fs.readFileSync(new URL('../../docs/CANVAS_100_ELEMENTS_PLAN.md',import.meta.url),'utf8');
   const planned = Array.from(plan.matchAll(/^\| (\d{2,3}) \| `([^\x60]+)` \| ([^|]+) \|/gm), ([,n,id,label]) => [Number(n),id,label.trim()]);
   assert.deepEqual(planned.map(([n])=>n),Array.from({length:72},(_,i)=>i+29));
   const baseline = ['heading','paragraph','greeting','recipient','signature','photo','rounded-photo','polaroid',
     'rectangle','rounded','ellipse','circle','divider','heart','star','flower','sparkles','balloon','cake','gift',
     'flowers','leaves','stars','envelope','gift-box','continue','replay','reply'];
-  assert.deepEqual(cards.map(card=>card.id).sort(), [...baseline,...planned.map(([,id])=>id)].sort());
-  assert.deepEqual(catalog.map(group=>group.items.length),[15,14,15,21,12,8,15]);
+  assert.deepEqual(originalCards.map(card=>card.id).sort(), [...baseline,...planned.map(([,id])=>id)].sort());
+  assert.deepEqual(catalog.filter(group => !group.label.startsWith("Kho trang trí · ")).map(group=>group.items.length),[15,14,15,21,12,8,15]);
   for (const [,id,label] of planned) assert.equal(cards.find(card=>card.id===id).title,label);
   for (const card of cards) assert(matchesBlock(card, card.title),card.id);
   assert(matchesBlock(cards.find(card=>card.id==='wax-seal'),'con dau'));
   assert(matchesBlock(cards.find(card=>card.id==='hero-collage'),'anh ghep'));
 });
 
-test('all 100 factories survive draft, duplicate, public projection and static cover render', () => {
+test('all 124 factories survive draft, duplicate, public projection and static cover render', () => {
   for (const card of cards) {
     const { document,elements } = forCard(card.id);
     assert.deepEqual(validateDocument(JSON.parse(JSON.stringify(document))),document,card.id);

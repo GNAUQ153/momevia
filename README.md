@@ -96,12 +96,12 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các commit gần nhất trên `main`:**
 
+- `1aa96d3` — Merge pull request #12 from GNAUQ153/feat/momevia-i18n-ui (2026-11-20)
 - `baea533` — feat(canvas): enhance autosave feedback and offline recovery UX (2026-11-20)
 - `809c558` — feat(canvas): improve multi-tab recovery and session consistency (2026-11-20)
 - `7483e5a` — fix(canvas): safeguard Fabric edits and recovery history (2026-11-20)
 - `99400ad` — fix(ci): isolate release smoke tests from verified package (2026-11-19)
 - `e7345f9` — refactor: improve Canvas Designer maintainability and release security (2026-11-19)
-- `c4b78dc` — feat: add contextual properties to Fabric Canvas Designer (2026-11-19)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

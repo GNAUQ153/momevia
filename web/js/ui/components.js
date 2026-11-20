@@ -1,15 +1,17 @@
-import { escapeHtml as e, formatPrice } from "../core/api.js";
+import { escapeHtml as e } from "../core/api.js";
+import { attr, priceText, text } from "../core/i18n.js";
 import { icon } from "../ui/icons.js";
-import { basicTemplateDefinition, BASIC_TEMPLATE_REVISION } from '../shared/canvas/basic-templates.js';
-import { personalizationLabels } from '../shared/canvas/personalization.js';
+import { isSystemTemplate } from '../shared/template-copy.js';
+import { personalizationText, templateCover, templateField, templateValue } from '../features/catalog/template-copy.js';
 
 export function createComponents({ state }) {
-  function artwork(template, variant = "") {
-    if (basicTemplateDefinition(template.id)) return `<div class="artwork artwork--${e(template.theme)} artwork--canvas ${variant}"><img src="/assets/basic-templates/${encodeURIComponent(template.id)}.svg?v=${BASIC_TEMPLATE_REVISION}" alt="Bố cục mẫu ${e(template.title)}" width="390" height="844" loading="lazy"/></div>`;
-    if (template.thumbnail) return `<div class="artwork artwork--${e(template.theme)} artwork--canvas ${variant}"><img src="${e(template.thumbnail)}" alt="Ảnh minh họa mẫu ${e(template.title)}" width="390" height="844" loading="lazy"/></div>`;
+  function artwork(template, variant = "", { eager = false } = {}) {
+    const loading = eager ? 'eager' : 'lazy';
+    if (isSystemTemplate(template)) return `<div class="artwork artwork--${e(template.theme)} artwork--canvas ${variant}"><img ${templateCover(template.id)} ${attr('alt', 'catalog.artwork.systemAlt', { title: templateValue(template, 'title') })} width="390" height="844" loading="${loading}"/></div>`;
+    if (template.thumbnail) return `<div class="artwork artwork--${e(template.theme)} artwork--canvas ${variant}"><img src="${e(template.thumbnail)}" ${attr('alt', 'catalog.artwork.creatorAlt', { title: template.title })} width="390" height="844" loading="${loading}"/></div>`;
     const theme = e(template.theme || "violet");
-    const title = e(template.title || "A little wish");
-    const small = e(template.subtitle || "Made with love");
+    const title = template.title ? e(template.title) : text('catalog.artwork.fallbackTitle');
+    const small = template.subtitle ? e(template.subtitle) : text('catalog.artwork.fallbackSubtitle');
     return `<div class="artwork artwork--${theme} ${variant}">
       <span class="artwork__blur artwork__blur--one"></span>
       <span class="artwork__blur artwork__blur--two"></span>
@@ -17,7 +19,7 @@ export function createComponents({ state }) {
       <span class="artwork__shape artwork__shape--two"></span>
       <span class="artwork__shape artwork__shape--three"></span>
       <div class="artwork__content">
-        <span class="artwork__eyebrow">A NOTE FOR YOU</span>
+        <span class="artwork__eyebrow">${text('catalog.artwork.eyebrow')}</span>
         <span class="artwork__symbol">${icon("sparkles", 37)}</span>
         <strong>${title}</strong>
         <em>${small}</em>
@@ -29,22 +31,23 @@ export function createComponents({ state }) {
   function favoriteButton(templateId, variant = "") {
     const saved = state.favorites.has(templateId);
     return `<button type="button" class="favorite-button ${variant} ${saved ? "is-saved" : ""}" data-action="toggle-favorite" data-id="${e(templateId)}"
-      aria-label="${saved ? "Bỏ yêu thích" : "Lưu mẫu vào yêu thích"}" aria-pressed="${saved}" title="${saved ? "Bỏ yêu thích" : "Thêm vào yêu thích"}">
+      ${attr('aria-label', saved ? 'catalog.actions.unfavorite' : 'catalog.actions.favorite')} aria-pressed="${saved}" ${attr('title', saved ? 'catalog.actions.unfavorite' : 'catalog.actions.addFavorite')}>
       ${icon("heart", 20)}
     </button>`;
   }
 
-  function templateCard(template, i = 0) {
-    return `<article class="template-card">
-      <a href="/template/${encodeURIComponent(template.id)}" data-link class="template-card__visual" aria-label="Xem mẫu ${e(template.title)}">
-        ${artwork(template)}
-        <span class="template-card__view">${icon("eye", 16)} Xem mẫu</span>
+  function templateCard(template, { compact = false } = {}) {
+    const title = templateField(template, 'title');
+    return `<article class="template-card${compact ? ' card template-card--home' : ''}">
+      <a href="/template/${encodeURIComponent(template.id)}" data-link class="template-card__visual" ${attr('aria-label', 'catalog.actions.viewNamed', { title: templateValue(template, 'title') })}>
+        ${artwork(template, "", { eager: compact })}
+        ${compact ? '' : `<span class="template-card__view">${icon("eye", 16)} ${text('catalog.actions.view')}</span>`}
       </a>
       ${favoriteButton(template.id)}
-      <div class="template-card__info"><div class="template-card__caption">${e(template.style)} <span class="dot-separator"></span> ${e(template.scenes)} cảnh</div>
-        <a href="/template/${encodeURIComponent(template.id)}" data-link class="template-card__title">${e(template.title)}</a>
-        <p${template.personalization ? ' class="template-card__capabilities"' : ''}>${e(personalizationLabels(template.personalization).join(' · ') || template.subtitle)}</p>
-        <div class="template-card__bottom"><span>${e(template.creator)}</span><strong>${formatPrice(template.price)}</strong></div>
+      <div class="template-card__info"><div class="template-card__${compact ? 'occasion' : 'caption'}">${templateField(template, template.category ? 'category' : 'style')}${compact ? '' : ` <span class="dot-separator"></span> ${text('catalog.scenes', { count: template.scenes })}`}</div>
+        <a href="/template/${encodeURIComponent(template.id)}" data-link class="template-card__title">${compact ? `<span>${title}</span>${icon('arrow-up-right', 16)}` : title}</a>
+        ${compact ? '' : `<p${template.personalization ? ' class="template-card__capabilities"' : ''}>${personalizationText(template.personalization) || templateField(template, 'subtitle')}</p>`}
+        <div class="template-card__bottom">${compact ? '' : `<span>${e(template.creator)}</span>`}<strong>${priceText(template.price)}</strong></div>
       </div>
     </article>`;
   }
@@ -54,7 +57,7 @@ export function createComponents({ state }) {
     const pageButton = (
       number,
     ) => `<button type="button" class="pagination__number ${number === result.page ? "is-current" : ""}"
-      data-action="set-page" data-list="${listName}" data-page="${number}" aria-label="Trang ${number}"
+      data-action="set-page" data-list="${listName}" data-page="${number}" ${attr('aria-label', 'catalog.pagination.page', { page: number })}
       ${number === result.page ? 'aria-current="page"' : ""}>${number}</button>`;
     // Chỉ hiển thị tối đa 5 số trang để không tràn ngang trên điện thoại.
     let first = Math.max(1, result.page - 2);
@@ -63,12 +66,12 @@ export function createComponents({ state }) {
     const numbers = Array.from({ length: last - first + 1 }, (_, i) =>
       pageButton(first + i),
     ).join("");
-    return `<nav class="pagination" aria-label="Phân trang ${listName === "favorites" ? "mẫu yêu thích" : "thư viện mẫu"}">
+    return `<nav class="pagination" ${attr('aria-label', listName === 'favorites' ? 'catalog.pagination.favorites' : 'catalog.pagination.catalog')}>
       <button type="button" class="pagination__arrow" data-action="set-page" data-list="${listName}" data-page="${result.page - 1}"
-        ${result.page === 1 ? "disabled" : ""} aria-label="Trang trước">${icon("arrow-left", 17)} <span>Trước</span></button>
+        ${result.page === 1 ? "disabled" : ""} ${attr('aria-label', 'catalog.pagination.prevTitle')}>${icon("arrow-left", 17)} <span>${text('catalog.pagination.prev')}</span></button>
       <div class="pagination__pages">${numbers}</div>
       <button type="button" class="pagination__arrow" data-action="set-page" data-list="${listName}" data-page="${result.page + 1}"
-        ${result.page === result.totalPages ? "disabled" : ""} aria-label="Trang tiếp theo"><span>Tiếp</span> ${icon("arrow", 17)}</button>
+        ${result.page === result.totalPages ? "disabled" : ""} ${attr('aria-label', 'catalog.pagination.nextTitle')}><span>${text('catalog.pagination.next')}</span> ${icon("arrow", 17)}</button>
     </nav>`;
   }
 

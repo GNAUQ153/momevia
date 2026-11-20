@@ -112,4 +112,4 @@ span.gift-comparison-range { min-height: 6px; background: #674392; border-radius
 .gift-typewriter-overlay { white-space: pre-wrap; }
 .gift-typewriter-skip, .gift-motion-control { min-height: 36px; padding: 5px 10px; border-radius: 8px; background: #fffaf6; color: #32243b; border: 1px solid #9474a1; font: 600 14px var(--font-body); }
 .gift-typewriter-skip { display: block; }
-.gift-motion-control { margin-block: 0 8px; }
+.gift-motion-control { min-height: 44px; margin-block: 0 8px; }

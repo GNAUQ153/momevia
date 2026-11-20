@@ -1,7 +1,11 @@
 import { escapeHtml as e } from "../core/api.js";
 import { icon } from "../ui/icons.js";
+import { attr, localeControl, text } from "../core/i18n.js";
 
-export function createLayout({ state, header, footer }) {
+export function createLayout({ state, header, footer, homeClosing }) {
+  let headerKey;
+  let footerIsHome;
+
   function activeLink(path, label, section = "") {
     const current = location.pathname;
     const hash = location.hash;
@@ -20,64 +24,78 @@ export function createLayout({ state, header, footer }) {
 
   function refreshNav() {
     const signedIn = Boolean(state.user);
+    const home = location.pathname === '/';
     const links = [
-      activeLink("/", "Trang chủ"),
-      activeLink("/explore", "Khám phá mẫu"),
-      activeLink("/#how-it-works", "Cách hoạt động", "how-it-works"),
-      activeLink("/creator", "Cho nhà sáng tạo"),
-      activeLink("/pricing", "Bảng giá"),
-      activeLink("/about", "Về chúng tôi"),
+      activeLink("/", text("shell.nav.home")),
+      activeLink("/explore", text("shell.nav.explore")),
+      activeLink("/#how-it-works", text("shell.nav.how"), "how-it-works"),
+      activeLink("/creator", text("shell.nav.forCreators")),
+      activeLink("/pricing", text("shell.pages.pricing")),
+      activeLink("/about", text("shell.nav.about")),
     ];
     const studioActive =
       location.pathname === "/studio" || location.pathname === "/favorites";
-    header.innerHTML = `
-      <div class="container nav-inner">
-        <a class="brand" href="/" data-link aria-label="Momevia - Trang chủ">
-          <img class="brand-mark" src="/assets/momevia-logo-3d.png" alt="" width="50" height="50" />
+    const nextHeaderKey = JSON.stringify([
+      location.pathname, location.hash, state.user?.name, state.user?.role, signedIn,
+    ]);
+    if (headerKey !== nextHeaderKey) {
+      header.innerHTML = `
+      <div class="container wrap nav-inner">
+        <a class="skip-link" href="#main">${text("shell.skip")}</a>
+        <a class="brand" href="/" data-link ${attr("aria-label", "shell.nav.homeLabel")}>
+          <img class="brand-mark" src="/assets/momevia-brand-92.webp" alt="" width="50" height="50" loading="lazy" />
           <span class="brand-name">momevia<span class="brand-period">.</span></span>
         </a>
-        <nav class="nav-links" aria-label="Điều hướng chính">${links.join("")}</nav>
+        <nav class="nav-links" ${attr("aria-label", "shell.nav.main")}>${links.join("")}</nav>
         <div class="nav-actions">
+          ${localeControl()}
           ${
             signedIn
               ? `
-            <a class="nav-studio ${studioActive ? "is-current" : ""}" href="/studio" data-link ${studioActive ? 'aria-current="page"' : ""}>${icon("layers", 17)} Không gian của tôi</a>
-            <button type="button" class="avatar-button" data-action="account-menu" aria-label="Tài khoản ${e(state.user.name)}" title="Tài khoản">${e(state.user.name.charAt(0).toUpperCase())}</button>
+            <a class="nav-studio ${studioActive ? "is-current" : ""}" href="/studio" data-link ${studioActive ? 'aria-current="page"' : ""}>${icon("layers", 17)} ${text("shell.nav.studio")}</a>
+            <button type="button" class="avatar-button" data-action="account-menu" aria-controls="account-menu" aria-expanded="false" ${attr("aria-label", "shell.nav.namedAccount", { name: state.user.name })} ${attr("title", "shell.nav.account")}>${e(state.user.name.charAt(0).toUpperCase())}</button>
           `
-              : `<a class="btn btn--dark login-trigger" href="/login" data-link>Đăng nhập</a>`
+              : `<a class="btn btn--dark login-trigger" href="/login" data-link>${text("shell.pages.login")}</a>`
           }
-          <button type="button" class="icon-button nav-toggle" data-action="toggle-menu" aria-label="Mở menu" aria-expanded="false">${icon("menu", 22)}</button>
+          <button type="button" class="icon-button nav-toggle" data-action="toggle-menu" ${attr("aria-label", "shell.nav.openMenu")} aria-expanded="false" aria-controls="mobile-nav">${icon("menu", 22)}</button>
         </div>
       </div>
       ${
         signedIn
           ? `<div class="account-menu" id="account-menu" hidden>
-        <div class="account-menu__meta"><strong>${e(state.user.name)}</strong><span>${state.user.role === "creator" ? "Nhà sáng tạo" : state.user.role === "admin" ? "Quản trị viên" : "Người gửi"}</span></div>
-        <a href="/studio" data-link>${icon("layers", 16)} Món quà của tôi</a>
-        <a href="/favorites" data-link>${icon("heart", 16)} Mẫu yêu thích</a>
-        <a href="/creator" data-link>${icon("pencil", 16)} Creator Studio</a>
-        ${state.user.role === "admin" ? `<a href="/admin" data-link>${icon("shield", 16)} Kiểm duyệt</a><a href="/admin/payments" data-link>${icon("shield", 16)} Giám sát thanh toán</a>` : ""}
-        <button type="button" data-action="logout">${icon("log-out", 16)} Đăng xuất</button>
+        <div class="account-menu__meta"><strong>${e(state.user.name)}</strong><span>${text(state.user.role === "creator" ? "common.roles.creator" : state.user.role === "admin" ? "common.roles.admin" : "common.roles.sender")}</span></div>
+        <a href="/studio" data-link>${icon("layers", 16)} ${text("shell.nav.myGifts")}</a>
+        <a href="/favorites" data-link>${icon("heart", 16)} ${text("shell.pages.favorites")}</a>
+        <a href="/creator" data-link>${icon("pencil", 16)} ${text("shell.pages.creator")}</a>
+        ${state.user.role === "admin" ? `<a href="/admin" data-link>${icon("shield", 16)} ${text("shell.nav.moderation")}</a><a href="/admin/payments" data-link>${icon("shield", 16)} ${text("shell.pages.adminPayments")}</a>` : ""}
+        <button type="button" data-action="logout">${icon("log-out", 16)} ${text("shell.nav.signOut")}</button>
       </div>`
           : ""
       }
       <div class="mobile-nav" id="mobile-nav" hidden>
+        ${localeControl()}
         ${links.join("")}
-        ${signedIn ? '<a href="/studio" data-link>Không gian của tôi</a><a href="/favorites" data-link>Mẫu yêu thích</a>' : '<a href="/login" data-link>Đăng nhập</a>'}
-        ${state.user?.role === 'admin' ? '<a href="/admin" data-link>Kiểm duyệt</a><a href="/admin/payments" data-link>Giám sát thanh toán</a>' : ''}
+        ${signedIn ? `<a href="/studio" data-link>${text("shell.nav.studio")}</a><a href="/favorites" data-link>${text("shell.pages.favorites")}</a>` : `<a href="/login" data-link>${text("shell.pages.login")}</a>`}
+        ${state.user?.role === 'admin' ? `<a href="/admin" data-link>${text("shell.nav.moderation")}</a><a href="/admin/payments" data-link>${text("shell.pages.adminPayments")}</a>` : ''}
       </div>
     `;
+      headerKey = nextHeaderKey;
+    }
+    if (footerIsHome === home) return;
     footer.innerHTML = `
-      <div class="container footer-grid">
+      <div class="container wrap">
+      ${home && homeClosing ? `<div class="home-footer-faq">${homeClosing()}</div>` : ''}
+      <div class="footer-grid">
         <div class="footer-about"><div class="footer-logo">momevia<span>.</span></div>
-        <p>Mỗi lời chúc đều xứng đáng trở thành một trải nghiệm đáng nhớ.</p>
-        <span class="footnote">Gửi điều thương, giữ kỷ niệm.</span></div>
-        <div class="footer-column"><h4>Khám phá</h4><a href="/explore" data-link>Thư viện mẫu</a><a href="/creator" data-link>Trở thành Creator</a><a href="/pricing" data-link>Bảng giá & gói dự kiến</a></div>
-        <div class="footer-column"><h4>Thông tin</h4><a href="/about" data-link>Về chúng tôi</a><a href="/favorites" data-link>Mẫu yêu thích</a><button class="footer-contact" data-action="support">Liên hệ hỗ trợ</button></div>
-        <div class="footer-column"><h4>Chính sách</h4><a href="/policies/general" data-link>Chính sách & Quy định chung</a><a href="/policies/payment" data-link>Chính sách thanh toán</a><a href="/policies/privacy" data-link>Chính sách bảo mật</a><a href="/policies/content" data-link>Nội dung & Bản quyền</a></div>
-        <div class="footer-news"><span class="footer-bloom">${icon("sparkles", 22)}</span><h3>Một bất ngờ nhỏ, một niềm vui lớn.</h3><a href="/explore" data-link>Khám phá ngay ${icon("arrow", 17)}</a></div>
-      </div><div class="container footer-bottom"><span>© 2026 Momevia. Bảo lưu mọi quyền.</span><span>Thiết kế với sự quan tâm đến từng chi tiết.</span></div>
+        <p>${text("shell.footer.pitch")}</p></div>
+        <div class="footer-column"><h3>${text("shell.footer.discover")}</h3><a href="/explore" data-link>${text("shell.footer.library")}</a><a href="/creator" data-link>${text("shell.footer.becomeCreator")}</a><a href="/pricing" data-link>${text("shell.footer.plans")}</a></div>
+        <div class="footer-column"><h3>${text("shell.footer.information")}</h3><a href="/about" data-link>${text("shell.nav.about")}</a><a href="/favorites" data-link>${text("shell.pages.favorites")}</a><button class="footer-contact" data-action="support">${text("common.actions.support")}</button></div>
+        <div class="footer-column"><h3>${text("shell.footer.policies")}</h3><a href="/policies/general" data-link>${text("shell.footer.general")}</a><a href="/policies/payment" data-link>${text("shell.footer.payments")}</a><a href="/policies/privacy" data-link>${text("shell.footer.privacy")}</a><a href="/policies/content" data-link>${text("shell.footer.content")}</a></div>
+      </div>
+      <div class="footer-bottom"><span>${text("shell.footer.copyright")}</span></div>
+      </div>
     `;
+    footerIsHome = home;
   }
 
   return { activeLink, refreshNav };

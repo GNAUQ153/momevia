@@ -1,3 +1,4 @@
+import { createLocaleControl, message, setAttr, setText, t } from "../../core/i18n.js";
 import { node, button } from './dom.js';
 import { fabricView, fabricDiff } from './fabric-adapter.js';
 import { arrangeFabricBoxes } from './fabric-align.js';
@@ -115,14 +116,14 @@ export async function openFabricStudio({ snapshot, sceneId, policy, assetUrl, on
   try {
     fabric = await import('../../vendor/fabric.mjs');
   } catch {
-    throw new Error('Chưa cài Fabric Studio. Chạy npm install --save-exact fabric@7.4.0 rồi npm run build.');
+    throw new Error(t("editor.fabric.errors.bundle"));
   }
-  if (!fabric.Canvas || !fabric.Rect || !fabric.Textbox) throw new Error('Bản Fabric.js không tương thích.');
-  if (policy?.kind === 'creator-template') throw new Error('Không được sửa cấu trúc của mẫu Creator đã khóa.');
+  if (!fabric.Canvas || !fabric.Rect || !fabric.Textbox) throw new Error(t("editor.fabric.errors.version"));
+  if (policy?.kind === 'creator-template') throw new Error(t("editor.fabric.errors.locked"));
   // Chỉ cho nhúng Fabric vào vùng artboard của Canvas Designer, không nhúng vào trang công khai.
   const embedded = Boolean(inlineHost);
   if (embedded && (!inlineHost.isConnected || !inlineHost.closest('.editor-stage-column'))) {
-    throw new Error('Vùng Canvas trực tiếp không hợp lệ.');
+    throw new Error(t("editor.fabric.errors.host"));
   }
   const view = fabricView(snapshot, sceneId, policy, { includeHidden: true });
   const scene = snapshot.scenes.find(item => item.id === sceneId);
@@ -134,60 +135,61 @@ export async function openFabricStudio({ snapshot, sceneId, policy, assetUrl, on
   const batchSelection = new Set();
   let snapEnabled = true;
   const canManage = id => canManageFabricLayer(layerModels.get(id), policy);
-  const dialog = node('dialog', { class: 'editor-fabric-dialog', 'aria-label': 'Fabric Studio nâng cao' });
+  const dialog = node('dialog', { class: 'editor-fabric-dialog', 'aria-label': message("editor.fabric.title") });
   if (embedded) {
     dialog.classList.add('editor-fabric-dialog--inline');
-    dialog.setAttribute('aria-label', 'Chỉnh sửa trực tiếp trên Canvas');
+    setAttr(dialog, 'aria-label', message("editor.fabric.inline"));
     // Không cho hành động từ Fabric nổi bọt tới event delegation của Designer.
     dialog.addEventListener('click', event => event.stopPropagation());
   }
   const header = node('div', { class: 'fabric-header' },
     node('div', {},
-      node('strong', {}, 'Fabric Studio · Beta'),
-      node('p', {}, 'Kéo, đổi kích thước, xoay và căn chỉnh từng lớp. Mẫu tương tác vẫn mở bằng trình phát gốc.'),
+      node('strong', {}, message("editor.fabric.badge")),
+      node('p', {}, message("editor.fabric.description")),
     ),
-    button('Đóng', 'fabric-close'),
+    createLocaleControl(),
+    button(message("common.actions.close"), 'fabric-close'),
   );
-  const actions = node('div', { class: 'fabric-actions', role: 'toolbar', 'aria-label': 'Công cụ Fabric' });
-  addTool(actions, 'Căn trái', 'align-left');
-  addTool(actions, 'Căn giữa', 'align-center');
-  addTool(actions, 'Căn phải', 'align-right');
-  addTool(actions, 'Lên trên', 'align-top');
-  addTool(actions, 'Xuống dưới', 'align-bottom');
-  addTool(actions, 'Tải PNG tĩnh', 'fabric-download');
-  const snapTool = addTool(actions, 'Căn thông minh', 'fabric-snap');
+  const actions = node('div', { class: 'fabric-actions', role: 'toolbar', 'aria-label': message("editor.fabric.toolbar") });
+  addTool(actions, message("editor.fabric.align.left"), 'align-left');
+  addTool(actions, message("editor.fabric.align.center"), 'align-center');
+  addTool(actions, message("editor.fabric.align.right"), 'align-right');
+  addTool(actions, message("editor.fabric.align.topAction"), 'align-top');
+  addTool(actions, message("editor.fabric.align.bottomAction"), 'align-bottom');
+  addTool(actions, message("editor.fabric.download"), 'fabric-download');
+  const snapTool = addTool(actions, message("editor.fabric.snap"), 'fabric-snap');
   snapTool.setAttribute('aria-pressed', 'true');
-  const help = node('p', { class: 'fabric-help', role: 'status' }, 'Chọn lớp để kéo, xoay hoặc chỉnh kích thước.');
+  const help = node('p', { class: 'fabric-help', role: 'status' }, message("editor.fabric.select"));
   const surface = node('div', { class: 'fabric-surface' }, node('canvas', { width: view.width, height: view.height }));
-  const layersPanel = node('aside', { class: 'fabric-layer-panel', 'aria-label': 'Quản lý các lớp' },
+  const layersPanel = node('aside', { class: 'fabric-layer-panel', 'aria-label': message("editor.fabric.layers") },
     node('div', { class: 'fabric-layer-panel__heading' },
-      node('strong', {}, 'Các lớp trong cảnh'),
-      node('p', {}, 'Lớp ở trên cùng được vẽ cuối cùng. Khóa tạm chỉ áp dụng trong phiên Fabric Studio.'),
+      node('strong', {}, message("editor.fabric.sceneLayers")),
+      node('p', {}, message("editor.fabric.layerHint")),
     ),
-    node('div', { class: 'fabric-layer-list', role: 'list', 'aria-label': 'Thứ tự các lớp' }),
+    node('div', { class: 'fabric-layer-list', role: 'list', 'aria-label': message("editor.fabric.order") }),
   );
   const batchToolbar = node('div', {
     class: 'fabric-batch-toolbar', role: 'toolbar',
-    'aria-label': 'Căn chỉnh nhiều lớp'
+    'aria-label': message("editor.fabric.batch")
   });
   const batchSummary = node('p', { class: 'fabric-batch-summary', role: 'status', 'aria-live': 'polite' },
-    'Chọn ít nhất 2 lớp bằng ô đánh dấu.');
+    message("editor.fabric.selectTwo"));
   const batchActions = [
-    ['left', 'Căn trái'], ['center-x', 'Giữa ngang'], ['right', 'Căn phải'],
-    ['top', 'Căn trên'], ['middle', 'Giữa dọc'], ['bottom', 'Căn dưới'],
-    ['space-x', 'Chia đều ngang'], ['space-y', 'Chia đều dọc'],
+    ['left', message("editor.fabric.align.left")], ['center-x', message("editor.fabric.align.horizontal")], ['right', message("editor.fabric.align.right")],
+    ['top', message("editor.fabric.align.top")], ['middle', message("editor.fabric.align.vertical")], ['bottom', message("editor.fabric.align.bottom")],
+    ['space-x', message("editor.fabric.align.distributeX")], ['space-y', message("editor.fabric.align.distributeY")],
   ].map(([action, label]) => addTool(batchToolbar, label, `fabric-batch-${action}`));
   batchActions.forEach(item => { item.disabled = true; });
-  batchToolbar.append(button('Bỏ chọn', 'fabric-batch-clear', { class: 'fabric-batch-clear', disabled: true }));
+  batchToolbar.append(button(message("editor.fabric.clear"), 'fabric-batch-clear', { class: 'fabric-batch-clear', disabled: true }));
   const layerListElement = layersPanel.querySelector('.fabric-layer-list');
   layersPanel.insertBefore(batchSummary, layerListElement);
   layersPanel.insertBefore(batchToolbar, layerListElement);
   const workspace = node('div', { class: 'fabric-workspace' },
     node('div', { class: 'fabric-stage-stack' }, surface), layersPanel);
   const footer = node('div', { class: 'fabric-footer' },
-    node('span', { class: 'fabric-note' }, 'Chỉ lưu bố cục trong Canvas Momevia. Không lưu Fabric JSON.'),
-    button('Hủy', 'fabric-close'),
-    button('Áp dụng vào thiết kế', 'fabric-apply', { class: 'editor-primary' }),
+    node('span', { class: 'fabric-note' }, message("editor.fabric.saveNote")),
+    button(message("editor.fabric.cancel"), 'fabric-close'),
+    button(message("editor.fabric.apply"), 'fabric-apply', { class: 'editor-primary' }),
   );
   dialog.append(header, actions, help, workspace, footer);
   if (embedded) inlineHost.append(dialog);
@@ -283,7 +285,7 @@ export async function openFabricStudio({ snapshot, sceneId, policy, assetUrl, on
         if (!availableForBatch(id)) batchSelection.delete(id);
       }
       const size = batchSelection.size;
-      batchSummary.textContent = size ? `Đã chọn ${size} lớp để căn chỉnh.` : 'Chọn ít nhất 2 lớp bằng ô đánh dấu.';
+      setText(batchSummary, size ? message("editor.fabric.selected", { count: size }) : message("editor.fabric.selectTwo"));
       batchActions.forEach(item => {
         const distribute = item.dataset.editorAction.endsWith('space-x') ||
           item.dataset.editorAction.endsWith('space-y');
@@ -308,30 +310,30 @@ export async function openFabricStudio({ snapshot, sceneId, policy, assetUrl, on
             type: 'checkbox', class: 'fabric-layer-multi',
             'data-fabric-multi': id, checked: batchSelection.has(id),
             disabled: !availableForBatch(id),
-            'aria-label': `Chọn ${model.name || model.accessibility?.label || model.type} để căn chỉnh`
+            'aria-label': message("editor.fabric.layer.selectForAlignment", { name: model.name || model.accessibility?.label || model.type })
           }),
           button(model.name || model.accessibility?.label || model.type, 'fabric-layer-select', {
             class: 'fabric-layer-select', 'data-layer-id': id,
             'aria-pressed': String(active === id), disabled: !shown || lockedNow,
             title: model.type,
           }),
-          button(shown ? 'Ẩn' : 'Hiện', 'fabric-layer-visible', {
+          button(shown ? message("editor.fabric.layer.hide") : message("editor.fabric.layer.show"), 'fabric-layer-visible', {
             'data-layer-id': id, 'aria-pressed': String(!shown), disabled: protectedLayer,
-            title: shown ? 'Ẩn lớp này trên thiệp' : 'Hiện lớp trên thiệp',
+            title: shown ? message("editor.fabric.layer.hideTitle") : message("editor.fabric.layer.showTitle"),
           }),
-          button(lockedNow ? 'Mở khóa tạm' : 'Khóa tạm', 'fabric-layer-lock', {
+          button(lockedNow ? message("editor.fabric.layer.unlockTemp") : message("editor.fabric.layer.lockTemp"), 'fabric-layer-lock', {
             'data-layer-id': id, 'aria-pressed': String(lockedNow),
-            disabled: protectedLayer, title: protectedLayer ? 'Lớp đã bị khóa bởi thiết kế hoặc quyền Creator' : 'Khóa tạm thao tác',
+            disabled: protectedLayer, title: protectedLayer ? message("editor.fabric.layer.protected") : message("editor.fabric.layer.lockHint"),
           }),
-          button('Lên', 'fabric-layer-up', {
+          button(message("editor.fabric.layer.up"), 'fabric-layer-up', {
             'data-layer-id': id,
             disabled: index === layerOrder.length - 1 || !isMovable(id) || !isMovable(layerOrder[index + 1]),
-            'aria-label': 'Đưa lên một lớp'
+            'aria-label': message("editor.fabric.layer.moveUp")
           }),
-          button('Xuống', 'fabric-layer-down', {
+          button(message("editor.fabric.layer.down"), 'fabric-layer-down', {
             'data-layer-id': id,
             disabled: index === 0 || !isMovable(id) || !isMovable(layerOrder[index - 1]),
-            'aria-label': 'Đưa xuống một lớp'
+            'aria-label': message("editor.fabric.layer.moveDown")
           }),
         );
         return row;
@@ -379,8 +381,8 @@ export async function openFabricStudio({ snapshot, sceneId, policy, assetUrl, on
     const download = actions.querySelector('[data-editor-action="fabric-download"]');
     if (unsupported.length || missingImages.length) {
       download.disabled = true;
-      download.title = 'Bản PNG không thể tái tạo đầy đủ hiệu ứng tương tác hoặc ảnh chưa tải.';
-      help.textContent = 'Một số lớp tương tác chỉ hiển thị dạng minh họa. Chỉnh bố cục, rồi xem kết quả trong trình phát gốc.';
+      setAttr(download, 'title', message("editor.fabric.downloadUnavailable"));
+      setText(help, message("editor.fabric.downloadHint"));
     }
     // Chỉ thu nhỏ bằng CSS, giữ hệ tọa độ của document để Fabric Diff không bị trôi.
     const resizeFabric = () => {
@@ -404,7 +406,7 @@ export async function openFabricStudio({ snapshot, sceneId, policy, assetUrl, on
       if (action?.startsWith('fabric-layer-')) {
         if (!layerModels.has(layerId)) throw new Error('Không tìm thấy layer.');
         const layer = byId.get(layerId);
-        if (!layer) throw new Error('Không tìm thấy đối tượng trên Canvas.');
+        if (!layer) throw new Error(t("editor.fabric.errors.object"));
         if (action === 'fabric-layer-select') {
           if (layer.visible && layer.selectable) {
             canvas.setActiveObject(layer);
@@ -459,17 +461,17 @@ export async function openFabricStudio({ snapshot, sceneId, policy, assetUrl, on
             item.setCoords();
           }
           canvas.requestRenderAll();
-          help.textContent = changes.length ? `Đã cập nhật ${changes.length} lớp. Chọn Áp dụng vào thiết kế để lưu.` :
-            'Các lớp đã được căn chỉnh, không cần thay đổi.';
+          setText(help, changes.length ? message("editor.fabric.updated", { count: changes.length }) :
+            message("editor.fabric.alreadyAligned"));
         } catch (error) {
-          help.textContent = error.message;
+          setText(help, error.message);
         }
         return;
       }
       if (action === 'fabric-snap') {
         snapEnabled = !snapEnabled;
         control.setAttribute('aria-pressed', String(snapEnabled));
-        help.textContent = snapEnabled ? 'Đã bật căn nhanh theo tâm và biên bản vẽ.' : 'Đã tắt căn nhanh.';
+        setText(help, message(snapEnabled ? "editor.fabric.snapOn" : "editor.fabric.snapOff"));
         return;
       }
 
@@ -477,7 +479,7 @@ export async function openFabricStudio({ snapshot, sceneId, policy, assetUrl, on
       if (closed || !canvas) return;
       const selected = canvas.getActiveObject();
       if (action?.startsWith('align-')) {
-        if (!selected || !selected.selectable) { help.textContent = 'Chọn một lớp có thể chỉnh sửa trước.'; return; }
+        if (!selected || !selected.selectable) { setText(help, message("editor.fabric.chooseEditable")); return; }
         const width = selected.getScaledWidth();
         const height = selected.getScaledHeight();
         const left = action === 'align-left' ? width / 2 : action === 'align-center' ? view.width / 2 :
@@ -492,7 +494,7 @@ export async function openFabricStudio({ snapshot, sceneId, policy, assetUrl, on
           const a = node('a', { download: 'momevia-thiep-tinh.png' });
           a.href = canvas.toDataURL({ format: 'png', multiplier: 2 });
           a.click();
-        } catch { help.textContent = 'Không xuất được PNG. Kiểm tra ảnh tải lên và quyền CORS.'; }
+        } catch { setText(help, message("editor.fabric.failedExport")); }
       }
       if (action === 'fabric-apply') {
         try {
@@ -503,7 +505,7 @@ export async function openFabricStudio({ snapshot, sceneId, policy, assetUrl, on
           const patch = { ...state, layouts, styles: properties.changes() };
           if (fabricWorkspaceChanged(snapshot, sceneId, patch)) onApply(patch);
           close();
-        } catch (error) { help.textContent = error.message; }
+        } catch (error) { setText(help, error.message); }
       }
     });
     return { dialog, close };

@@ -1,4 +1,5 @@
-import { escapeHtml as e, formatPrice } from '../core/api.js';
+import { attr, priceText, text } from "../core/i18n.js";
+import { canonicalText, escapeHtml as e } from '../shared/locale.js';
 import { icon } from '../ui/icons.js';
 
 // Chỉ hiển thị trạng thái do Backend trả về, tuyệt đối không dùng query URL làm bằng chứng đã trả tiền.
@@ -6,36 +7,56 @@ export function paymentStatusPanel(payment) {
   const paid = payment?.status === 'paid';
   const pending = payment?.status === 'pending';
   const needsReview = pending && payment?.needsReview === true;
-  const title = paid ? 'Thanh toán thành công'
-    : pending ? 'Đang xác nhận thanh toán'
-      : 'Cần kiểm tra giao dịch';
+  const title = paid ? text("payment.status.paid")
+    : pending ? text("payment.status.pending")
+      : text("payment.status.review");
   const message = paid
-    ? 'Nhà cung cấp đã xác nhận giao dịch. Quyền sử dụng mẫu được kiểm tra khi xuất bản quà.'
+    ? text("payment.status.paidHint")
     : pending
-      ? 'Giao dịch đang chờ xác nhận từ nhà cung cấp. Đóng hoặc tải lại trang không làm mất thông tin đơn hàng.'
-      : 'Trạng thái đơn hàng cần được nhân viên hỗ trợ kiểm tra trước khi thực hiện giao dịch khác.';
+      ? text("payment.status.pendingHint")
+      : text("payment.status.reviewHint");
 
   return `<header class="payment-status payment-status--${paid ? 'success' : needsReview ? 'review' : 'pending'}">
     <span class="payment-status__icon" aria-hidden="true">${icon(paid ? 'check-circle' : needsReview ? 'shield' : 'clock', 26)}</span>
-    <span class="payment-status__eyebrow">TRẠNG THÁI GIAO DỊCH</span>
+    <span class="payment-status__eyebrow">${text("payment.status.eyebrow")}</span>
     <h1>${title}</h1>
     <p>${message}</p>
-    <div class="payment-status__facts" aria-label="Thông tin đơn hàng">
-      <div><span>Mã đơn</span><strong>${e(payment?.orderId || 'Chưa có')}</strong></div>
-      <div><span>Số tiền</span><strong>${e(formatPrice(payment?.amountVnd || 0))}</strong></div>
+    <div class="payment-status__facts" ${attr("aria-label", "payment.status.details")}>
+      <div><span>${text("payment.status.order")}</span><strong>${payment?.orderId ? e(payment.orderId) : text("payment.status.noOrder")}</strong></div>
+      <div><span>${text("payment.status.amount")}</span><strong>${priceText(payment?.amountVnd ?? payment?.amount ?? 0)}</strong></div>
     </div>
     ${!paid ? `<div class="payment-status__notice" role="note">
       ${icon('shield', 18)}
-      <span>Không thanh toán lại khi đơn còn chờ. Chỉ nhà cung cấp xác nhận giao dịch thành công mới được cấp quyền sử dụng mẫu.</span>
+      <span>${text("payment.status.wait")}</span>
     </div>
     <div class="payment-status__actions">
-      <button class="btn btn--dark" type="button" data-action="refresh-payment">Tải lại trạng thái ${icon('arrow', 17)}</button>
-      ${pending ? `<button class="btn btn--outline" type="button" data-action="reconcile-payment">Đối soát với nhà cung cấp</button>` : ''}
+      <button class="btn btn--dark" type="button" data-action="refresh-payment">${text("payment.status.refresh")} ${icon('arrow', 17)}</button>
+      ${pending ? `<button class="btn btn--outline" type="button" data-action="reconcile-payment">${text("payment.status.reconcile")}</button>` : ''}
     </div>` : ''}
     ${needsReview ? `<div class="payment-status__review" role="alert">
-      <strong>Đơn hàng cần được kiểm tra thêm.</strong>
-      <p>${e(payment.notice || 'Đơn đang chờ quá lâu. Nếu đã chuyển tiền, không thanh toán lại.')}</p>
-      <button type="button" class="btn btn--outline" data-action="support">Liên hệ hỗ trợ</button>
+      <strong>${text("payment.status.supportReview")}</strong>
+      <p>${systemPaymentText(payment.notice, 'payment.status.longPending', 'payment.status.stale')}</p>
+      <button type="button" class="btn btn--outline" data-action="support">${text("common.actions.support")}</button>
     </div>` : ''}
   </header>`;
+}
+
+function systemPaymentText(value, key, fallback) {
+  if (value === canonicalText(key)) return text(key);
+  return value ? e(value) : fallback ? text(fallback) : '';
+}
+
+export function paymentMethodText(method) {
+  return ['momo', 'payos'].includes(method.id) ? text(`payment.methods.${method.id}`) : e(method.label);
+}
+
+export function paymentReceipt(receipt) {
+  return `<div id="payment-receipt">
+    <h2>${text('payment.receipt.title', { receipt: receipt.receiptNo })}</h2>
+    <p>${text('payment.receipt.template', { template: receipt.templateTitle })}</p>
+    <p>${text('payment.receipt.amount', { amount: { format: 'currency', value: receipt.amountVnd } })}</p>
+    <p>${text('payment.receipt.method', { provider: receipt.provider })}</p>
+    <p>${text('payment.receipt.reference', { reference: receipt.transactionReference })}</p>
+    <p>${receipt.testPayment ? text('payment.receipt.testNote') : systemPaymentText(receipt.note, 'payment.receipt.taxNote')}</p>
+    </div><button class="btn btn--outline" data-action="print-receipt">${text('payment.receipt.print')}</button>`;
 }

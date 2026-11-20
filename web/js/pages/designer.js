@@ -1,3 +1,5 @@
+import { captureTranslator, createLocaleControl, message, setAttr, setText, t } from "../core/i18n.js";
+import { errorCopy } from "../core/api.js";
 import {
   createElement,
   registry,
@@ -18,7 +20,7 @@ import { textFont } from "../features/gift-runtime/renderer.js";
 import { bindingLabels, clearTemplateBindingDefaults, lockedVisibleNames, visibleBindingKeys } from "../shared/canvas/personalization.js";
 import { submissionChanges } from "../shared/canvas/submission.js";
 import { giftLinkDescription } from "../shared/gift-permissions.js";
-import { framePhoto, MEMORY_TEMPLATE_ID, memoryGreetingStarters } from "../shared/canvas/basic-templates.js";
+import { framePhoto, MEMORY_TEMPLATE_ID, memoryGreetingStarterKeys } from "../shared/canvas/basic-templates.js";
 import { materializeTemplateStart } from '../features/canvas-editor/template-start.js';
 import { createEditorStore } from "../features/canvas-editor/store.js";
 import {
@@ -109,7 +111,7 @@ export function mountDesigner(
     node(
       "section",
       { class: "editor-loading", role: "status" },
-      "Đang mở thiết kế…",
+      message("editor.loading"),
     ),
   );
 
@@ -130,11 +132,11 @@ export function mountDesigner(
   }
   function warn(error) {
     if (!disposed && error.name !== "AbortError") {
-      toast(error.message, "error");
+      toast(errorCopy(error), "error");
       const banner = main.querySelector(".editor-error");
       if (banner) {
         banner.hidden = false;
-        banner.textContent = error.message;
+        setText(banner, errorCopy(error));
       }
     }
   }
@@ -142,14 +144,14 @@ export function mountDesigner(
     const banner = main.querySelector(".editor-error");
     if (banner) {
       banner.hidden = true;
-      banner.textContent = "";
+      setText(banner, "");
     }
     const blockers = main.querySelector(".editor-preflight");
     if (blockers) blockers.hidden = true;
   }
   function markStatus(message) {
     const status = main.querySelector(".editor-save-status");
-    if (status) status.textContent = message;
+    if (status) setText(status, message);
   }
   function saveStatus(info) {
     if (info.status === "clean") clearError();
@@ -158,9 +160,7 @@ export function mountDesigner(
       const note = main.querySelector(".editor-template-defaults");
       if (note) note.hidden = true;
     }
-    markStatus(
-      `${info.message}${info.status === "clean" ? ` · r${info.revision}` : ""}`,
-    );
+    markStatus(info.status === "clean" ? message("editor.status.clean", { revision: info.revision }) : message(`editor.status.${info.status}`));
     const actions = main.querySelector(".editor-session-actions");
     if (!actions) return;
     actions.hidden = ![
@@ -180,7 +180,7 @@ export function mountDesigner(
     if (info.error) {
       const banner = main.querySelector(".editor-error");
       banner.hidden = false;
-      banner.textContent = info.error.message;
+      setText(banner, errorCopy(info.error));
     }
   }
   function currentScene() {
@@ -203,8 +203,8 @@ export function mountDesigner(
     const document = store.get().document;
     const sceneStatus = main.querySelector('[data-editor-scene-progress]');
     const selectionStatus = main.querySelector('[data-editor-selection]');
-    if (sceneStatus) sceneStatus.textContent = scenePositionLabel(document, sceneId);
-    if (selectionStatus) selectionStatus.textContent = selectionDescription(document, sceneId, selection, design.policy);
+    if (sceneStatus) setText(sceneStatus, scenePositionLabel(document, sceneId, message));
+    if (selectionStatus) setText(selectionStatus, selectionDescription(document, sceneId, selection, design.policy, message));
   }
   function commit(mutate, label, options) {
     const next = structuredClone(store.get());
@@ -292,9 +292,9 @@ export function mountDesigner(
     const workspace = main.querySelector(".editor-workspace");
     workspace.classList.toggle("is-quick", quickMode);
     const mode = workspace.querySelector('[data-editor-action="toggle-mode"]');
-    if (mode) mode.textContent = quickMode ? "Chỉnh bố cục" : "Cá nhân hóa nhanh";
-    workspace.querySelector('[data-editor-action="preview"]').textContent = quickMode ? "Xem như người nhận" : "Xem trước";
-    workspace.querySelector(".editor-library").setAttribute("aria-label", quickMode ? "Cá nhân hóa món quà" : "Công cụ thiết kế");
+    if (mode) setText(mode, message(quickMode ? "editor.mode.editLayout" : "editor.mode.quick"));
+    setText(workspace.querySelector('[data-editor-action="preview"]'), message(quickMode ? "editor.mode.recipientPreview" : "editor.actions.preview"));
+    setAttr(workspace.querySelector(".editor-library"), "aria-label", message(quickMode ? "editor.mode.quickLabel" : "editor.tools"));
     const sceneBar = workspace.querySelector(".editor-scene-bar");
     const next = workspace.querySelector(quickMode ? ".editor-stage-scroll" : ".editor-mobile-dock");
     next.before(sceneBar);
@@ -407,32 +407,33 @@ export function mountDesigner(
     const tools = node(
       "div",
       { class: "editor-top-actions" },
-      iconButton("Hoàn tác (Ctrl Z)", "undo", "undo"),
-      iconButton("Làm lại (Ctrl Shift Z)", "redo", "redo"),
-      button("Lưu nháp", "save", { class: "editor-save" }),
-      button("Xem trước", "preview"),
+      createLocaleControl(),
+      iconButton(message("editor.actions.undo"), "undo", "undo"),
+      iconButton(message("editor.actions.redo"), "redo", "redo"),
+      button(message("editor.actions.saveDraft"), "save", { class: "editor-save" }),
+      button(message("editor.actions.preview"), "preview"),
       canOpenAdvancedEditor(design.policy)
-        ? button("Chỉnh trực tiếp", "inline-fabric", {
+        ? button(message("editor.actions.inline"), "inline-fabric", {
           class: "editor-inline-cta",
-          title: "Kéo, xoay, thay đổi kích thước và sắp lớp trực tiếp trên Canvas",
+          title: message("editor.actions.inlineHint"),
         }) : null,
       canOpenAdvancedEditor(design.policy)
-        ? button("Chỉnh sửa nâng cao", "advanced-design", {
+        ? button(message("editor.actions.advanced"), "advanced-design", {
           class: "editor-advanced-cta",
-          title: "Kéo, xoay, căn chỉnh và quản lý các lớp bằng Fabric Studio",
+          title: message("editor.actions.advancedHint"),
         })
         : null,
       design.purpose === "creator"
-        ? button("Gửi phiên bản để duyệt", "submit-template", { class: "editor-primary" })
-        : button("Xuất bản", "publish", { class: "editor-primary editor-layout-only" }),
+        ? button(message("editor.actions.submit"), "submit-template", { class: "editor-primary" })
+        : button(message("editor.actions.publish"), "publish", { class: "editor-primary editor-layout-only" }),
     );
     const heading = node(
       "div",
       { class: "editor-heading" },
-      button(design.purpose === "creator" ? "← Mẫu của tôi" : "← Studio", "studio"),
+      button(message(design.purpose === "creator" ? "editor.actions.myTemplates" : "editor.actions.studio"), "studio"),
       node("input", {
         class: "editor-title",
-        "aria-label": "Tên thiết kế",
+        "aria-label": message("editor.fields.title"),
         "data-editor-field": "title",
         value: store.get().title,
         maxlength: 120,
@@ -443,16 +444,16 @@ export function mountDesigner(
     const top = node("header", { class: "editor-topbar" }, heading, tools);
     const sidebar = node(
       "aside",
-      { class: "editor-library", id: "editor-library", "aria-label": "Công cụ thiết kế" },
+      { class: "editor-library", id: "editor-library", "aria-label": message("editor.tools") },
       node(
         "div",
         { class: "editor-panel-heading editor-layout-only" },
-        node("h2", {}, "Công cụ thiết kế"),
-        iconButton("Đóng bảng công cụ", "close-sheet", "close", { class: "editor-sheet-close" }),
+        node("h2", {}, message("editor.tools")),
+        iconButton(message("editor.actions.closeTools"), "close-sheet", "close", { class: "editor-sheet-close" }),
       ),
       node(
         "nav",
-        { class: "editor-library-tabs editor-layout-only", "aria-label": "Công cụ thiết kế" },
+        { class: "editor-library-tabs editor-layout-only", "aria-label": message("editor.tools") },
         ...Object.entries(libraryTabs).map(([key, label]) =>
           button(label, "library-tab", { "data-tab": key, "aria-controls": `editor-panel-${key}` })),
       ),
@@ -461,12 +462,12 @@ export function mountDesigner(
         { "data-library-panel": "add", id: "editor-panel-add" },
       ),
       node("div", { "data-library-panel": "content", id: "editor-panel-content" },
-        node("h2", { class: "editor-quick-only" }, "Điền nội dung"),
-        ...Object.entries(bindingLabels).filter(([key]) =>
-          design.policy?.kind !== "creator-template" || design.policy.editableBindings.includes(key)).map(([key, label]) =>
+        node("h2", { class: "editor-quick-only" }, message("editor.quick.title")),
+        ...Object.keys(bindingLabels).filter(key =>
+          design.policy?.kind !== "creator-template" || design.policy.editableBindings.includes(key)).map(key =>
             key === "message"
               ? field(
-                label,
+                message(`editor.binding.${key}`),
                 node(
                   "textarea",
                   {
@@ -479,7 +480,7 @@ export function mountDesigner(
                 ),
               )
               : input(
-                label,
+                message(`editor.binding.${key}`),
                 `binding.${key}`,
                 store.get().document.bindings[key].value,
                 { maxlength: 60 },
@@ -487,24 +488,24 @@ export function mountDesigner(
           ),
         node("div", { class: "editor-quick-only" },
           design.source.templateId === MEMORY_TEMPLATE_ID ? node("div", { class: "editor-greeting-starters" },
-            node("p", { class: "editor-help" }, "Thêm câu mở đầu vào lời chúc"),
-            ...memoryGreetingStarters.map((text, index) => button(text, "greeting-starter", { "data-index": index })),
+            node("p", { class: "editor-help" }, message("editor.quick.startGreeting")),
+            ...memoryGreetingStarterKeys.map((key, index) => button(message(key), "greeting-starter", { "data-index": index })),
           ) : null,
           quickTemplateText(store.get().document) ? input(
             quickTemplateText(store.get().document).name, "quick-template-text", quickTemplateText(store.get().document).props.text, { maxlength: 500 },
           ) : null,
           node("div", { class: "editor-quick-photo", hidden: true },
-            field("Ảnh kỷ niệm", node("input", {
+            field(message("editor.quick.photo"), node("input", {
               type: "file",
               accept: "image/png,image/jpeg,image/webp",
               "data-editor-field": "quick-photo",
             })),
-            node("p", { class: "editor-help" }, "PNG, JPEG hoặc WebP · Tối đa 2 MB"),
-            design.source.templateId === MEMORY_TEMPLATE_ID ? button("Bỏ ảnh cá nhân", "remove-frame-photo", { hidden: true }) : null,
+            node("p", { class: "editor-help" }, message("editor.quick.photoLimits")),
+            design.source.templateId === MEMORY_TEMPLATE_ID ? button(message("editor.quick.removePhoto"), "remove-frame-photo", { hidden: true }) : null,
           ),
         ),
         node("p", { class: "editor-help editor-layout-only" },
-          "Tên và lời chúc được dùng ở những khối có liên kết dữ liệu. Nhập đủ trước khi xuất bản.",
+          message("editor.quick.bindingsHelp"),
         ),
       ),
       node("div", { "data-library-panel": "assets", id: "editor-panel-assets", class: "editor-assets" }),
@@ -512,7 +513,7 @@ export function mountDesigner(
     );
     const zoomControl = node(
       "select",
-      { "aria-label": "Mức thu phóng", "data-editor-field": "zoom" },
+      { "aria-label": message("editor.zoom.level"), "data-editor-field": "zoom" },
       ...zoomLevels.map((value) =>
         node("option", { value: String(value) }, `${value * 100}%`),
       ),
@@ -520,27 +521,27 @@ export function mountDesigner(
     zoomControl.value = "1";
     const stageArea = node(
       "section",
-      { class: "editor-stage-column", "aria-label": "Bản thiết kế" },
-      node("h2", { class: "editor-quick-only" }, "Bố cục thiệp"),
+      { class: "editor-stage-column", "aria-label": message("editor.stage.label") },
+      node("h2", { class: "editor-quick-only" }, message("editor.stage.layout")),
       node("div", { class: "editor-experience-header editor-layout-only" },
         node("div", { class: "editor-experience-heading" },
-          node("span", { class: "editor-experience-kicker" }, "KHÔNG GIAN THIẾT KẾ"),
-          node("h2", {}, "Làm món quà mang dấu ấn riêng"),
-          node("p", {}, "Thêm hình trang trí, chọn một lớp và chỉnh trực tiếp trên thiệp."),
+          node("span", { class: "editor-experience-kicker" }, message("editor.stage.badge")),
+          node("h2", {}, message("editor.stage.title")),
+          node("p", {}, message("editor.stage.body")),
         ),
-        node("span", { class: "editor-scene-progress", "data-editor-scene-progress": "" }, "Cảnh 1/1"),
+        node("span", { class: "editor-scene-progress", "data-editor-scene-progress": "" }, message("editor.stage.initialScene")),
       ),
       node("p", { class: "editor-quick-tip editor-quick-only" },
-        "Muốn di chuyển, xoay và căn chỉnh chi tiết? Chọn Chỉnh sửa nâng cao ở thanh trên."),
+        message("editor.stage.tip")),
       node(
         "div",
         { class: "editor-stage-tools editor-layout-only" },
-        iconButton("Thu nhỏ", "zoom-out", "zoom-out"),
+        iconButton(message("editor.zoom.out"), "zoom-out", "zoom-out"),
         zoomControl,
-        iconButton("Phóng to", "zoom-in", "zoom-in"),
-        iconButton("Vừa khung", "fit", "fit"),
+        iconButton(message("editor.zoom.in"), "zoom-in", "zoom-in"),
+        iconButton(message("editor.zoom.fit"), "fit", "fit"),
         field(
-          "Căn hút",
+          message("editor.zoom.snap"),
           node("input", {
             type: "checkbox",
             "data-editor-field": "snap",
@@ -549,16 +550,16 @@ export function mountDesigner(
         ),
       ),
       node("p", { class: "editor-selection-summary editor-layout-only", "data-editor-selection": "", role: "status", "aria-live": "polite" },
-        "Chọn một thành phần trên thiệp để chỉnh sửa."),
+        message("editor.stage.select")),
       node("div", { class: "editor-stage-scroll" }),
-      node("div", { class: "editor-inline-mount", hidden: true, "aria-label": "Không gian chỉnh sửa Fabric trực tiếp" }),
+      node("div", { class: "editor-inline-mount", hidden: true, "aria-label": message("editor.stage.fabricLabel") }),
       node("details", { class: "editor-editing-help editor-layout-only" },
-        node("summary", {}, "Cách sử dụng công cụ thiết kế"),
+        node("summary", {}, message("editor.help.title")),
         node("ol", {},
-          node("li", {}, "Chọn Thêm để tìm hình trang trí, chữ hoặc khung ảnh."),
-          node("li", {}, "Chọn thành phần trên thiệp để mở bảng Chỉnh; dùng Lớp để quản lý thứ tự."),
-          node("li", {}, "Chọn Chỉnh sửa nâng cao để kéo, xoay, căn hàng và đổi thứ tự bằng Fabric Studio."),
-          node("li", {}, "Lưu nháp, rồi Xem trước trước khi xuất bản."),
+          node("li", {}, message("editor.help.add")),
+          node("li", {}, message("editor.help.select")),
+          node("li", {}, message("editor.help.advanced")),
+          node("li", {}, message("editor.help.save")),
         ),
       ),
     );
@@ -569,20 +570,20 @@ export function mountDesigner(
     });
     const sceneBar = node(
       "section",
-      { class: "editor-scene-bar", id: "editor-scene-bar", "aria-label": "Các cảnh" },
+      { class: "editor-scene-bar", id: "editor-scene-bar", "aria-label": message("editor.scenes.label") },
       node("div", { class: "editor-panel-heading editor-layout-only" },
         node("h2", {}, "Cảnh"),
-        iconButton("Đóng bảng cảnh", "close-sheet", "close", { class: "editor-sheet-close" })),
+        iconButton(message("editor.scenes.close"), "close-sheet", "close", { class: "editor-sheet-close" })),
       node("div", { class: "editor-scenes" }),
       node(
         "div",
         { class: "editor-scene-actions editor-layout-only" },
-        button("+ Cảnh", "scene-add"),
+        button(message("editor.scenes.add"), "scene-add"),
       ),
     );
     const dock = node(
       "nav",
-      { class: "editor-mobile-dock editor-layout-only", "aria-label": "Bảng công cụ" },
+      { class: "editor-mobile-dock editor-layout-only", "aria-label": message("editor.tools.panels") },
       button("Thêm", "sheet-library", { "aria-controls": "editor-library", "aria-expanded": false }),
       button("Lớp", "sheet-layers", { "aria-controls": "editor-library", "aria-expanded": false }),
       button("Chỉnh", "sheet-inspector", { "aria-controls": "editor-inspector", "aria-expanded": false }),
@@ -690,7 +691,7 @@ export function mountDesigner(
       });
       if (!quickMode) card.append(sceneThumbnail(doc, scene, { assetUrl }));
       card.append(node("span", { class: "editor-scene-name" }, scene.name));
-      if (entry && !quickMode) card.append(node("span", { class: "editor-scene-entry" }, "Mở đầu"));
+      if (entry && !quickMode) card.append(node("span", { class: "editor-scene-entry" }, message("editor.scene.entry")));
       const summary = node("summary", { "aria-label": `Tùy chọn cảnh ${scene.name}` });
       summary.innerHTML = icon("more", 18);
       const menu = node("details", { class: "editor-scene-menu editor-layout-only" },
@@ -1240,12 +1241,13 @@ export function mountDesigner(
         }
       } else session.clearRecovery();
     }
-    if (!session.dirty) markStatus(`Đã lưu · r${session.revision}`);
+    if (!session.dirty) markStatus(message("editor.status.clean", { revision: session.revision }));
     fit();
   }
   async function create(presetId, source) {
     if (creating) return;
     creating = true;
+    const localize = captureTranslator();
     for (const button of main.querySelectorAll(".editor-start-options button"))
       button.disabled = true;
     try {
@@ -1270,7 +1272,7 @@ export function mountDesigner(
       let loaded = result.design;
       if (source.kind === 'template' && loaded.policy?.kind === 'sender-basic') {
         const { template } = await request(`/catalog/templates/${encodeURIComponent(source.templateId)}`);
-        loaded = await materializeTemplateStart(loaded, { template, createMutationId: mutationId, request });
+        loaded = await materializeTemplateStart(loaded, { template, createMutationId: mutationId, request, localize });
       }
       id = loaded.id;
       syncDraftUrl();
@@ -1288,19 +1290,20 @@ export function mountDesigner(
       node(
         "section",
         { class: "editor-start" },
-        node("h1", {}, "Tự thiết kế món quà"),
+        createLocaleControl(),
+        node("h1", {}, message("editor.start.title")),
         node(
           "div",
           { class: "editor-start-options" },
-          ...PRESETS.map(({ id, label }) => {
+          ...PRESETS.map(({ id, labelKey }) => {
             const doc = sampleBindings(createDocument({ presetId: id }));
             const scene = doc.scenes.find(scene => scene.id === doc.entrySceneId);
             const card = button("", starterActions[id], { class: "editor-start-card", "data-preset": id });
-            card.append(sceneThumbnail(doc, scene, { width: 104 }), node("span", {}, label));
+            card.append(sceneThumbnail(doc, scene, { width: 104 }), node("span", {}, message(labelKey)));
             return card;
           }),
         ),
-        button("← Về Studio", "studio"),
+        button(message("editor.start.back"), "studio"),
         node("div", { class: "editor-error", role: "alert", hidden: true }),
       ),
     );
@@ -1357,11 +1360,11 @@ export function mountDesigner(
       file.size > 2 * 1024 * 1024
     )
       throw new Error(
-        "Chọn ảnh PNG/JPEG/WebP tối đa 2 MB. Ảnh hiện tại được giữ nguyên.",
+        t("editor.upload.invalid"),
       );
     const frameUpload = isLegacyFrame(store.get().document.elements.find(element => element.id === elementId));
     assetPending = true;
-    markStatus("Ảnh đang xử lý…");
+    markStatus(message("editor.status.photo"));
     try {
       const result = await request(
         `/designs/designs/${encodeURIComponent(design.id)}/assets`,
@@ -1373,7 +1376,7 @@ export function mountDesigner(
         },
       );
       if (result.asset.status !== "ready")
-        throw new Error("Ảnh chưa sẵn sàng. Ảnh hiện tại được giữ nguyên.");
+        throw new Error(t("editor.upload.notReady"));
       commit(value => assignImage(value, elementId, result.asset.id, slotId), "Thay ảnh");
       if (frameUpload && !quickMode && selection === elementId) {
         const doc = store.get().document;
@@ -1383,21 +1386,22 @@ export function mountDesigner(
       renderInspector();
     } finally {
       assetPending = false;
-      if (!disposed) markStatus(session.dirty ? "Chưa lưu" : `Đã lưu · r${session.revision}`);
+      if (!disposed) markStatus(session.dirty ? message("editor.status.dirty") : message("editor.status.clean", { revision: session.revision }));
     }
   }
   function openPreview(effectPreview) {
-    if (assetPending) throw new Error("Chờ ảnh xử lý xong trước khi xem trước.");
+    if (assetPending) throw new Error(t("editor.preview.waitPhoto"));
+    const title = message(quickMode ? "editor.mode.recipientPreview" : "editor.preview.title");
     const dialog = node(
       "dialog",
-      { class: "editor-preview-dialog", "aria-label": "Xem trước món quà" },
+      { class: "editor-preview-dialog", "aria-labelledby": "editor-preview-title" },
       node(
         "div",
         { class: "editor-preview-heading" },
-        node("h2", {}, quickMode ? "Xem như người nhận" : "Xem trước món quà"),
-        button("Phát lại", "preview-reset"),
-        quickMode ? button("Sửa nội dung", "preview-close") : iconButton("Đóng xem trước", "preview-close", "close"),
-        quickMode ? button("Gửi", "preview-send", { class: "editor-primary" }) : null,
+        node("h2", { id: "editor-preview-title" }, title),
+        button(message("editor.preview.restart"), "preview-reset"),
+        quickMode ? button(message("editor.preview.edit"), "preview-close") : iconButton(message("editor.preview.close"), "preview-close", "close"),
+        quickMode ? button(message("editor.preview.send"), "preview-send", { class: "editor-primary" }) : null,
       ),
       node("div", { class: "editor-preview-player" }),
     );
@@ -1437,9 +1441,9 @@ export function mountDesigner(
   }
   async function flushSave(options) {
     if (composing)
-      throw new Error("Hoàn tất nhập tiếng Việt trước khi lưu hoặc xuất bản.");
-    if (assetPending) throw new Error("Chờ ảnh xử lý xong trước khi tiếp tục.");
-    if (!session) throw new Error("Thiết kế chưa sẵn sàng.");
+      throw new Error(t("editor.save.composing"));
+    if (assetPending) throw new Error(t("editor.save.waitPhoto"));
+    if (!session) throw new Error(t("editor.save.notReady"));
     return session.save(options);
   }
   async function submitTemplate() {
@@ -1447,42 +1451,42 @@ export function mountDesigner(
     const { previous } = await request(workspace + "/submission");
     const saved = await flushSave();
     if (session.dirty || session.revision !== saved.revision)
-      throw new Error("Nháp vừa thay đổi. Hãy mở lại hộp gửi duyệt.");
+      throw new Error(t("editor.submission.changed"));
     const snapshot = store.get();
     const { elements } = snapshot.document;
     const visible = elements.filter(element => element.visible !== false && element.opacity !== 0);
     const keys = visibleBindingKeys(snapshot.document);
-    const bindings = Object.entries(bindingLabels).filter(([key]) => keys.has(key));
+    const bindings = Object.keys(bindingLabels).filter(key => keys.has(key));
     const images = visible.filter(element => element.type === "image" && element.props.assetId);
     const currentAssets = assetIds(snapshot.document);
     const canKeepRights = previous && currentAssets.length && currentAssets.every(id => previous.assetIds.includes(id));
-    const controls = bindings.map(([key, label]) => field(label, node("input", {
+    const controls = bindings.map(key => field(message(`editor.binding.${key}`), node("input", {
       type: "checkbox", value: key, checked: !previous || previous.bindings.includes(key), name: "binding",
     })));
-    const photo = select("Khung ảnh Sender được thay", "template-photo", images.some(image => image.id === previous?.photoId) ? previous.photoId : "",
+    const photo = select(message("editor.submission.photo"), "template-photo", images.some(image => image.id === previous?.photoId) ? previous.photoId : "",
       [["", "Không có"], ...images.map((image, index) => [image.id, `${image.name || "Ảnh"} (${index + 1})`])]);
     const photoSelect = photo.querySelector("select");
     const scenes = snapshot.document.scenes;
-    const cover = select("Cảnh dùng làm bìa mẫu", "template-cover",
+    const cover = select(message("editor.submission.cover"), "template-cover",
       scenes.some(scene => scene.id === previous?.coverSceneId) ? previous.coverSceneId : snapshot.document.entrySceneId,
       scenes.map(scene => [scene.id, scene.name]));
     const coverSelect = cover.querySelector("select");
     const rights = node("textarea", { name: "rights", maxlength: 500, value: canKeepRights ? previous.rights || "" : "" });
     rights.required = currentAssets.length > 0;
-    const changes = node("ul", { "aria-label": "Thay đổi từ lần gửi trước", "aria-live": "polite" });
+    const changes = node("ul", { "aria-label": message("editor.submission.changes"), "aria-live": "polite" });
     const identityWarning = node("p", { role: "status" });
     const form = node("form", {},
-      node("h2", {}, "Gửi phiên bản để duyệt"),
-      node("p", {}, "Chọn nội dung Sender được sửa. Tên và lời chúc minh họa chỉ dùng trong bản xem thử."),
+      node("h2", {}, message("editor.actions.submit")),
+      node("p", {}, message("editor.submission.help")),
       identityWarning,
       ...controls, photo, cover,
-      rights.required ? field("Nguồn ảnh và quyền phân phối trong mẫu, quà", rights) : null,
-      previous ? node("section", {}, node("h3", {}, "Thay đổi từ lần gửi trước"), changes) : null,
+      rights.required ? field(message("editor.submission.rights"), rights) : null,
+      previous ? node("section", {}, node("h3", {}, message("editor.submission.changes")), changes) : null,
       node("p", { role: "alert" }),
-      node("button", { type: "submit", class: "editor-primary" }, "Gửi duyệt"),
-      node("button", { type: "button" }, "Quay lại"),
+      node("button", { type: "submit", class: "editor-primary" }, message("editor.submission.send")),
+      node("button", { type: "button" }, message("editor.actions.back")),
     );
-    const dialog = node("dialog", { class: "editor-preview-dialog", "aria-label": "Gửi phiên bản để duyệt" }, form);
+    const dialog = node("dialog", { class: "editor-preview-dialog", "aria-label": message("editor.actions.submit") }, form);
     const current = () => ({
       title: snapshot.title, bindings: new FormData(form).getAll("binding"),
       photoId: photoSelect.value || null, rights: rights.value.trim(), assetIds: currentAssets, coverSceneId: coverSelect.value
@@ -1517,19 +1521,19 @@ export function mountDesigner(
     }, { signal });
   }
   function chooseGiftAccess() {
-    const invite = ["invite", "Chỉ người có link mời"];
-    const link = ["link", "Ai có link quà"];
-    const choose = ["", "Chọn phạm vi"];
+    const invite = ["invite", message("editor.access.invite")];
+    const link = ["link", message("editor.access.link")];
+    const choose = ["", message("editor.access.choose")];
     const descriptions = node("div", { role: "status" });
     const form = node("form", {},
-      node("h2", {}, "Quyền truy cập món quà"),
-      node("p", {}, "Link mời có thể được chuyển tiếp. Bạn luôn xem được hồi đáp trong Studio."),
-      select("Ai được mở quà?", "open", "", [choose, link, invite]),
-      select("Ai được gửi hồi đáp?", "send", "", [choose, link, invite, ["disabled", "Tắt hồi đáp"]]),
-      select("Ai được đọc hồi đáp?", "read", "", [choose, link, invite, ["sender", "Chỉ người gửi"]]),
+      node("h2", {}, message("editor.access.title")),
+      node("p", {}, message("editor.access.help")),
+      select(message("editor.access.open"), "open", "", [choose, link, invite]),
+      select(message("editor.access.send"), "send", "", [choose, link, invite, ["disabled", message("editor.access.disabled")]]),
+      select(message("editor.access.read"), "read", "", [choose, link, invite, ["sender", message("editor.access.sender")]]),
       descriptions,
-      node("button", { type: "submit", class: "editor-primary" }, "Xuất bản và lấy link"),
-      node("button", { type: "button" }, "Quay lại"),
+      node("button", { type: "submit", class: "editor-primary" }, message("editor.access.publish")),
+      node("button", { type: "button" }, message("editor.actions.back")),
     );
     const controls = [...form.querySelectorAll("select")];
     controls.forEach(control => { control.required = true; });
@@ -1542,7 +1546,7 @@ export function mountDesigner(
       descriptions.append(node("p", {}, `Link thường. ${giftLinkDescription(access, false)}`));
       if (values.includes("invite")) descriptions.append(node("p", {}, `Link mời. ${giftLinkDescription(access, true)}`));
     }, { signal });
-    const dialog = node("dialog", { class: "editor-preview-dialog", "aria-label": "Quyền truy cập món quà" }, form);
+    const dialog = node("dialog", { class: "editor-preview-dialog", "aria-label": message("editor.access.title") }, form);
     return new Promise(resolve => {
       let access;
       document.body.append(dialog);
@@ -1568,23 +1572,23 @@ export function mountDesigner(
     control.disabled = true;
     try {
       const saved = await flushSave();
-      markStatus("Đang kiểm tra quyền và nội dung…");
+      markStatus(message("editor.status.checking"));
       const preflight = await request(
         `/designs/designs/${encodeURIComponent(design.id)}/preflight`,
         { expectedRevision: saved.revision },
       );
       if (session.dirty || session.revision !== saved.revision)
         throw new Error(
-          "Thiết kế vừa thay đổi. Lưu và kiểm tra lại trước khi xuất bản.",
+          t("editor.preflight.changed"),
         );
       if (preflight.blockers?.some(({ code }) => code === "EMPTY_DESIGN")) {
         showBlockers(preflight.blockers);
         return;
       }
       if (preflight.authorization.status === "needs_template_license") {
-        markStatus("Cần quyền sử dụng mẫu");
+        markStatus(message("editor.status.license"));
         if (!onCheckout)
-          throw new Error("Cần mua quyền sử dụng mẫu trước khi xuất bản.");
+          throw new Error(t("editor.preflight.license"));
         publishing = false;
         await onCheckout({ design: designView(), preflight, flushSave, mode: quickMode ? "quick" : "layout" });
         return;
@@ -1592,16 +1596,16 @@ export function mountDesigner(
       if (!preflight.canPublish) {
         showBlockers(preflight.blockers || []);
         const messages = (preflight.blockers || [])
-          .map((item) => `${item.path ? `${item.path}: ` : ""}${item.message}`)
+          .map(item => `${item.path ? `${item.path}: ` : ""}${item.messageKey ? t(item.messageKey, item.messageParams) : item.message}`)
           .join("\n");
         throw new Error(
-          messages || `Chưa thể xuất bản (${preflight.authorization.status}).`,
+          messages || t("editor.preflight.cannotPublish", { status: preflight.authorization.status }),
         );
       }
       const access = await chooseGiftAccess();
       if (!access || disposed) return;
       if (session.dirty || session.revision !== saved.revision)
-        throw new Error("Thiết kế vừa thay đổi. Lưu và kiểm tra lại trước khi xuất bản.");
+        throw new Error(t("editor.preflight.changed"));
       const accessKey = [access.open, access.send, access.read].join("-");
       const key = `momevia:canvas:publish:${ownerId}:${design.id}:${saved.revision}:${preflight.documentHash}:${accessKey}`;
       let intent;
@@ -1616,7 +1620,7 @@ export function mountDesigner(
       } catch {
         /* Optional cache. */
       }
-      markStatus("Đang xuất bản…");
+      markStatus(message("editor.status.publishing"));
       const result = await request("/gifts/gifts/from-design", {
         designId: design.id,
         expectedRevision: saved.revision,
@@ -1630,7 +1634,7 @@ export function mountDesigner(
         /* Optional cache. */
       }
       publishing = false;
-      toast("Đã xuất bản món quà.");
+      toast(message("editor.publish.done"));
       await navigate(`/success/${encodeURIComponent(result.gift.slug)}`);
     } catch (error) {
       if (error.code !== "PUBLISH_BLOCKED" || !error.details?.some(({ code }) => code === "EMPTY_DESIGN")) throw error;
@@ -1640,7 +1644,7 @@ export function mountDesigner(
       if (!disposed) {
         control.disabled = false;
         if (session.status === "clean")
-          markStatus(`Đã lưu · r${session.revision}`);
+          markStatus(message("editor.status.clean", { revision: session.revision }));
       }
     }
   }
@@ -1648,12 +1652,14 @@ export function mountDesigner(
     const host = main.querySelector(".editor-preflight");
     host.hidden = false;
     host.replaceChildren(
-      node("strong", {}, "Cần hoàn thiện trước khi xuất bản"),
+      node("strong", {}, message("editor.preflight.title")),
       ...blockers.map((blocker) => {
+        const label = blocker.messageKey ? message(blocker.messageKey, blocker.messageParams)
+          : blocker.message || blocker.code || message("editor.preflight.notReady");
         if (blocker.code === "EMPTY_DESIGN") {
           return node("div", {},
-            node("p", { role: "alert" }, blocker.message),
-            button("Chèn lời chúc vào cảnh đang chọn", "insert-greeting"),
+            node("p", { role: "alert" }, label),
+            button(message("editor.preflight.insertGreeting"), "insert-greeting"),
           );
         }
         const path = blocker.path || "",
@@ -1671,7 +1677,7 @@ export function mountDesigner(
           path,
         )?.[1];
         const control = button(
-          blocker.message || blocker.code || "Nội dung chưa sẵn sàng",
+          label,
           "focus-blocker",
           {
             "data-id": element?.id,
@@ -2027,7 +2033,8 @@ export function mountDesigner(
       return;
     }
     if (name === "greeting-starter") {
-      const starter = memoryGreetingStarters[Number(target.dataset.index)];
+      const key = memoryGreetingStarterKeys[Number(target.dataset.index)];
+      const starter = key && t(key);
       const message = store.get().document.bindings.message.value;
       const next = message ? `${message}\n${starter}` : starter;
       if (next.length > 1000) throw new Error("Lời chúc vượt 1.000 ký tự. Hãy rút ngắn trước khi chèn.");
@@ -2045,7 +2052,7 @@ export function mountDesigner(
         const scene = document.scenes.find(item => item.elementIds.includes(photo.id));
         scene.elementIds = scene.elementIds.filter(elementId => elementId !== photo.id);
         document.assets = document.assets.filter(asset => assetIds(document).includes(asset.assetId));
-      }, "Bỏ ảnh cá nhân");
+      }, message("editor.quick.removePhoto"));
       return;
     }
     if (name === "preview") {

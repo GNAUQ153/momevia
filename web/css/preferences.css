@@ -1,0 +1,137 @@
+.locale-control {
+  position: relative;
+  width: max-content;
+  max-width: 100%;
+}
+
+.locale-control select {
+  min-width: 64px;
+  min-height: 44px;
+  max-width: 100%;
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--paper);
+  color: var(--ink);
+  font: 700 14px/1 var(--font-shell);
+  cursor: pointer;
+}
+
+.locale-control select:is(:hover, :open) {
+  border-color: var(--lavender);
+  background: var(--cream-deep);
+}
+
+.locale-control select:focus-visible {
+  outline: 2px solid var(--purple);
+  outline-offset: 2px;
+}
+
+@supports (appearance: base-select) {
+  .locale-control select,
+  .locale-control select::picker(select) {
+    appearance: base-select;
+  }
+
+  .locale-control select {
+    align-items: center;
+    gap: 8px;
+  }
+
+  .locale-control select::picker(select) {
+    min-width: 86px;
+    margin-top: 6px;
+    padding: 4px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--paper);
+    box-shadow: var(--shadow-elevated);
+  }
+
+  .locale-control select::picker-icon {
+    content: "";
+    width: 7px;
+    height: 7px;
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    color: var(--muted);
+    rotate: 45deg;
+    transition: rotate 160ms var(--ease);
+  }
+
+  .locale-control select:open::picker-icon {
+    rotate: 225deg;
+  }
+
+  .locale-control option {
+    min-height: 44px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    color: var(--ink);
+  }
+
+  .locale-control option:checked {
+    background: var(--cream-deep);
+    color: var(--purple-deep);
+  }
+
+  .locale-control option:is(:hover, :focus-visible) {
+    background: var(--cream-deep);
+    outline: 2px solid var(--purple);
+    outline-offset: -2px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .locale-control select::picker-icon {
+    transition: none;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .nav-actions > .locale-control select {
+    min-width: 48px;
+    min-height: 32px;
+    padding: 4px 7px;
+    border-radius: 8px;
+    font-size: 12px;
+    gap: 6px;
+  }
+
+  @supports (appearance: base-select) {
+    .nav-actions > .locale-control select::picker(select) {
+      min-width: 64px;
+      margin-top: 4px;
+      padding: 3px;
+      border-radius: 10px;
+    }
+
+    .nav-actions > .locale-control option {
+      min-height: 32px;
+      padding: 4px 7px;
+      border-radius: 6px;
+    }
+  }
+}
+
+.locale-error:not(:empty) {
+  display: block;
+  max-width: 14rem;
+  font-size: 0.8rem;
+}
+
+.recipient-preferences {
+  display: flex;
+  justify-content: flex-end;
+  margin-block-end: 0.75rem;
+}
+
+.dialog > .locale-control,
+.editor-preview-dialog > .locale-control {
+  margin: 0 2.5rem 0.75rem auto;
+}
+
+@media (max-width: 900px) {
+  .nav-actions > .locale-control { display: none; }
+  .editor-top-actions > .locale-control { grid-column: 1 / -1; }
+}

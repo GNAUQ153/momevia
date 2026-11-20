@@ -88,10 +88,6 @@
   color: #fff;
 }
 
-.studio-space__hero-actions .btn:hover {
-  transform: translateY(-2px);
-}
-
 .studio-space__visual {
   position: absolute;
   z-index: 1;
@@ -198,7 +194,6 @@
 
 .studio-space__jump a:hover {
   background: #f0eaff;
-  transform: translateY(-1px);
 }
 
 .studio-space__toolbar {

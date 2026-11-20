@@ -134,7 +134,22 @@ export async function runCanvasResilience(base){
     methodsState='ready';await control('publish').click();await page.getByRole('heading',{name:'Mua quyền sử dụng mẫu'}).waitFor();
     await page.locator('[data-action="start-payment"]').click();await page.locator('.toast--error').filter({hasText:'Không thể kết nối'}).waitFor();
     assert.equal(contexts.length,1);assert.equal(contexts[0].designId,paidA.id);
-    await page.locator('[data-action="start-payment"]').click();await page.getByRole('heading',{name:'Quét VietQR để thanh toán'}).waitFor();
+    createMode='delayed';createGate=gate();createStarted=gate();createFinished=gate();
+    const modalLocale=page.locator('#modal-root [data-locale-select]');
+    const paymentButton=await page.locator('[data-action="start-payment"]').elementHandle();
+    await page.locator('[data-action="start-payment"]').click();
+    await bounded(createStarted.promise,'localized checkout create started');
+    await modalLocale.selectOption('en');
+    await page.getByRole('heading',{name:'Buy a template license'}).waitFor();
+    assert.equal(await page.locator('[data-action="start-payment"]').evaluate((node,previous)=>node===previous&&node.disabled,paymentButton),true);
+    createGate.resolve();
+    await bounded(createFinished.promise,'localized checkout create completed');
+    createMode='normal';
+    await page.getByRole('heading',{name:'Scan VietQR to pay'}).waitFor();
+    const qrBeforeLanguageSwitch=await page.locator('.qr-image').getAttribute('src');
+    await modalLocale.selectOption('vi');
+    await page.getByRole('heading',{name:'Quét VietQR để thanh toán'}).waitFor();
+    assert.equal(await page.locator('.qr-image').getAttribute('src'),qrBeforeLanguageSwitch);
     assert.equal(contexts.length,1);assert.deepEqual(contextRequests[0],contextRequests[1]);assert.equal(contextRequests[1].designId,paidA.id);
     assert((await page.locator('.qr-modal').innerText()).includes(intentAmount.toLocaleString('vi-VN')));
     await page.locator('[data-action="payment-status"]').click();await page.getByRole('heading',{name:'Đang xác nhận thanh toán'}).waitFor();assert.equal(giftPosts,0);
@@ -149,6 +164,20 @@ export async function runCanvasResilience(base){
     const createsBeforeReturn=createRequests.length;paymentStatus='paid';await page.locator('[data-action="refresh-payment"]').click();await page.getByRole('heading',{name:'Thanh toán thành công'}).waitFor();await page.getByRole('alert').filter({hasText:'Biên nhận chưa tải được'}).waitFor();await page.getByText('Nháp đã được chỉnh sửa ở phiên khác. Mở bản mới để xem trước và kiểm tra lại quyền.').waitFor();
     assert.equal(giftPosts,0);assert.equal(createRequests.length,createsBeforeReturn);assert.equal(await page.locator('[data-action="print-receipt"]').count(),0);
     receiptError=false;await page.getByRole('button',{name:'Thử tải biên nhận'}).click();await page.locator('#payment-receipt').waitFor();assert.equal(await page.locator('[data-action="print-receipt"]').count(),1);assert.equal(giftPosts,0);assert.equal(createRequests.length,createsBeforeReturn);
+    const trafficBeforeLocale=paymentTraffic.length;
+    const pageLocale=page.locator('.nav-actions [data-locale-select]');
+    await pageLocale.selectOption('en');
+    await page.getByRole('heading',{name:'Receipt SYNTHETIC-ONLY-RECEIPT'}).waitFor();
+    assert.match(await page.locator('#payment-receipt').innerText(),/Transaction reference: TEST-REFERENCE/);
+    assert.equal(paymentTraffic.length,trafficBeforeLocale);
+    assert.equal(new URL(page.url()).pathname,`/payment-result/${orderId}`);
+    if (artifacts) {
+      fs.mkdirSync(artifacts,{recursive:true});
+      await page.screenshot({path:path.join(artifacts,'locale-receipt-en.png'),fullPage:true});
+    }
+    await pageLocale.selectOption('vi');
+    await page.getByRole('heading',{name:'Biên nhận SYNTHETIC-ONLY-RECEIPT'}).waitFor();
+    completed.push('VI/EN during delayed fake checkout keeps the same disabled control and order, QR source unchanged, receipt translated without refetch.');
     await page.getByRole('link',{name:'Tiếp tục nháp vừa liên kết'}).click();await field('binding.message').waitFor();assert.equal(await field('binding.message').inputValue(),expectedPaidBMessage);assert.equal(new URL(page.url()).searchParams.get('mode'),'quick');assert.equal(giftPosts,0);
     completed.push('C14/C15 same order keeps two explicit draft choices; paid and receipt-error distinct, receipt retry never charges/publishes');
 

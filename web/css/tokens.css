@@ -1,3 +1,27 @@
+@font-face {
+  font-family: "IBM Plex Sans";
+  src: url("/assets/fonts/ibm-plex-sans.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: optional;
+}
+
+@font-face {
+  font-family: "Momevia Lora";
+  src: url("/assets/fonts/lora.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Momevia Lora";
+  src: url("/assets/fonts/lora-italic.woff2") format("woff2");
+  font-style: italic;
+  font-weight: 400 700;
+  font-display: swap;
+}
+
 :root {
   /* Bảng màu mới: tím điện, hồng san hô và kem ấm. */
   --ink: #221a39;
@@ -24,7 +48,8 @@
   --shadow-elevated: 0 26px 70px rgba(52, 26, 115, 0.18);
   --font-display: "Plus Jakarta Sans", "Inter", system-ui, -apple-system, sans-serif;
   --font-body: "Inter", system-ui, -apple-system, sans-serif;
-  --font-serif: "Lora", Georgia, serif;
+  --font-serif: "Momevia Lora", "Times New Roman", serif;
+  --font-shell: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
   --container: 1190px;
   --ease: cubic-bezier(.2, .8, .2, 1);
 }

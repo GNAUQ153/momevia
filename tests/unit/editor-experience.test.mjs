@@ -47,7 +47,7 @@ test('Lớp khóa và quyền policy được thông báo chính xác mà không
 
 test('Trình chỉnh Canvas gắn nút thao tác vào handler bảo vệ và giữ nguyên Fabric patch', () => {
   const designer = read('web/js/pages/designer.js');
-  assert.match(designer, /button\("Chỉnh sửa nâng cao", "advanced-design"/);
+  assert.match(designer, /button\(message\("editor\.actions\.advanced"\), "advanced-design"/);
   assert.match(designer, /if \(name === "advanced-design" \|\| name === "fabric-studio"\)/);
   assert.match(designer, /if \(quickMode && name === "advanced-design"\) switchMode\(\)/);
   assert.match(designer, /if \(!canOpenAdvancedEditor\(design\.policy\)\)/);

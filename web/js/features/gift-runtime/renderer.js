@@ -1,4 +1,5 @@
 import { STICKERS } from "../../shared/canvas/index.js";
+import { message as label, setAttr, setText, t } from "../../core/i18n.js";
 import { masks, vectorParts } from "../../shared/canvas/artwork.js";
 import { renderInteraction } from "./interactions.js";
 import { applySurface, playReaction } from "./effects.js";
@@ -51,7 +52,11 @@ export function drawVector(parts, { stretch = false } = {}) {
 function element(tag, className, text) {
   const node = globalThis.document.createElement(tag);
   if (className) node.className = className;
-  if (text !== undefined) node.textContent = text;
+  if (text !== undefined) {
+    const content = document.createTextNode("");
+    setText(content, text);
+    node.append(content);
+  }
   return node;
 }
 function imageUrl(value, mode) {
@@ -179,7 +184,7 @@ export function renderElement(
           if (signal?.aborted) return;
           img.remove();
           frame.append(
-            element("span", "gift-runtime-placeholder", "Không tải được ảnh"),
+            element("span", "gift-runtime-placeholder", label("gift.runtime.imageError")),
           );
         },
         signal ? { signal } : {},
@@ -194,7 +199,7 @@ export function renderElement(
       ], { stretch: true }));
     } else
       frame.append(
-        element("span", "gift-runtime-placeholder", "Chọn ảnh của bạn"),
+        element("span", "gift-runtime-placeholder", label("gift.runtime.choosePhoto")),
       );
     if (!framed) node.style.borderRadius = `${p.radius || 0}px`;
   } else if (type === "shape" || type === "line") {
@@ -233,10 +238,10 @@ export function renderElement(
       element(
         "span",
         "gift-runtime-control-label",
-        p.label || a.label || "Tiếp tục",
+        p.label || a.label || label("gift.runtime.continue"),
       ),
     );
-    node.setAttribute("aria-label", a.label || p.label || "Tiếp tục");
+    setAttr(node, "aria-label", a.label || p.label || label("gift.runtime.continue"));
     if (mode === "editor") node.tabIndex = -1;
     else if (mode !== "thumbnail")
       node.addEventListener(
@@ -255,34 +260,34 @@ export function renderElement(
     });
   } else if (type === "reply") {
     node = element("section", "gift-runtime-reply");
-    node.setAttribute("aria-label", a.label || p.title || "Lời hồi đáp");
+    setAttr(node, "aria-label", a.label || p.title || label("gift.reply.title"));
     if (mode === "thumbnail") {
-      node.append(element("h2", "", p.title || "Gửi lời đáp"));
-      node.append(element("div", "gift-runtime-placeholder", "Lời đáp của bạn"));
+      node.append(element("h2", "", p.title || label("gift.reply.send")));
+      node.append(element("div", "gift-runtime-placeholder", label("gift.reply.placeholder")));
       applySurface(node, model.effects?.surface);
       return node;
     }
     node.append(
-      element("h2", "", p.title || "Gửi lời đáp"),
+      element("h2", "", p.title || label("gift.reply.send")),
       element(
         "p",
         "gift-runtime-reply-privacy",
         mode === "public" ? ({
-          link: "Người gửi và ai có link quà đều đọc được lời đáp.",
-          invite: "Chỉ người gửi và người có link mời đọc được lời đáp.",
-          sender: "Chỉ người gửi quà đọc được lời đáp.",
-        }[replyAdapter?.replyAudience] || "") : "Lời đáp trong bản xem trước được mô phỏng.",
+          link: label("gift.reply.linkAudience"),
+          invite: label("gift.reply.inviteAudience"),
+          sender: label("gift.reply.senderAudience"),
+        }[replyAdapter?.replyAudience] || "") : label("gift.reply.preview"),
       ),
     );
     const form = element("form"),
-      nameLabel = element("label", "", "Tên của bạn"),
+      nameLabel = element("label", "", label("gift.reply.name")),
       name = element("input"),
-      messageLabel = element("label", "", "Lời đáp"),
+      messageLabel = element("label", "", label("gift.reply.body")),
       message = element("textarea"),
       submit = element(
         "button",
         "gift-runtime-submit",
-        p.submitLabel || "Gửi lời đáp",
+        p.submitLabel || label("gift.reply.send"),
       ),
       status = element("p", "gift-runtime-reply-status");
     name.name = "name";
@@ -300,8 +305,8 @@ export function renderElement(
     node.append(form);
     if (mode === "public" && !replyAdapter?.canSend) {
       form.hidden = true;
-      node.append(element("p", "", replyAdapter?.repliesDisabled
-        ? "Người gửi đã tắt hồi đáp." : "Cần link mời để gửi hồi đáp."));
+      node.append(element("p", "", label(replyAdapter?.repliesDisabled
+        ? "gift.reply.disabled" : "gift.reply.inviteRequired")));
     }
     const replies = element("div", "gift-runtime-replies");
     const displayedReplies = new Set();
@@ -313,7 +318,7 @@ export function renderElement(
       const item = element("blockquote");
       item.append(
         element("p", "", reply.message),
-        element("cite", "", reply.name || "Người nhận"),
+        element("cite", "", reply.name || label("gift.reply.recipient")),
       );
       replies.prepend(item);
     };
@@ -329,30 +334,27 @@ export function renderElement(
           event.preventDefault();
           if (!form.reportValidity() || submit.disabled) return;
           submit.disabled = true;
-          status.textContent = "Đang gửi…";
+          setText(status, label("gift.reply.sending"));
           try {
             const input = {
               name: name.value.trim(),
               message: message.value.trim(),
             };
-            if (!input.message) throw new Error("Vui lòng nhập lời đáp.");
+            if (!input.message) throw new Error(t("gift.reply.enter"));
             const reply =
               mode === "preview"
                 ? input
                 : await replyAdapter?.send(input, { signal });
             if (signal?.aborted) return;
             if (!reply)
-              throw new Error("Không gửi được lời đáp. Vui lòng thử lại.");
+              throw new Error(t("gift.reply.tryAgain"));
             appendReply(reply);
             message.value = "";
-            status.textContent =
-              mode === "preview"
-                ? "Đã mô phỏng lời đáp. Không gửi cho người tặng."
-                : "Đã gửi lời đáp.";
+            setText(status, label(mode === "preview" ? "gift.reply.previewSent" : "gift.reply.sent"));
             onReply(reply);
           } catch (error) {
             if (!signal?.aborted)
-              status.textContent = error.message || "Không gửi được lời đáp.";
+              setText(status, error.message || label("gift.reply.sendFailed"));
           } finally {
             if (!signal?.aborted) submit.disabled = false;
           }
@@ -367,10 +369,9 @@ export function renderElement(
         })
         .catch(() => {
           if (!signal?.aborted)
-            status.textContent =
-              "Chưa tải được lời đáp.";
+            setText(status, label("gift.reply.loadFailed"));
         });
-  } else throw new Error("Phiên bản element chưa được hỗ trợ.");
+  } else throw new Error(t("gift.runtime.unsupportedElement"));
   node.dataset.runtimeElement = model.id;
   applySurface(node, model.effects?.surface);
   if (model.visible === false) node.hidden = true;

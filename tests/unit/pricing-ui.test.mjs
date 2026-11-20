@@ -15,12 +15,6 @@ test('Auth footnotes 12px, gift image smaller, and new CSS is last', () => {
   assert(index.lastIndexOf('ui-polish.css') > index.lastIndexOf('responsive.css'));
 });
 
-test('Mobile hero image is beside headline; buttons and proof remain full width', () => {
-  assert.match(css, /grid-template-areas:[\s\S]*?'headline visual'[\s\S]*?'description description'[\s\S]*?'buttons buttons'/);
-  assert.match(css, /\.hero-display \{[\s\S]*?grid-area: visual/);
-  assert.match(css, /prefers-reduced-motion/);
-});
-
 test('Pricing preview makes no active subscription or auto-renew promise', () => {
   const html = pricingPage();
   assert.match(html, /Mẫu miễn phí/);
@@ -43,9 +37,10 @@ test('Pricing is reachable from desktop header and mobile menu with active state
     const { refreshNav } = createLayout({ state: { user: null }, header, footer });
     refreshNav();
     const nav = header.innerHTML.match(/<nav class="nav-links"[^>]*>([\s\S]*?)<\/nav>/)?.[1] || '';
-    const mobile = header.innerHTML.match(/<div class="mobile-nav"[^>]*>([\s\S]*?)<\/div>/)?.[1] || '';
-    assert.match(nav, /href="\/pricing"[^>]*class="is-active"[^>]*aria-current="page"[^>]*>Bảng giá<\/a>/);
-    assert.match(mobile, /href="\/pricing"[^>]*>Bảng giá<\/a>/);
+    const mobile = header.innerHTML.split('id="mobile-nav"')[1] || '';
+    const visibleText = html => html.replace(/<!--[^]*?-->/g, '');
+    assert.match(visibleText(nav), /href="\/pricing"[^>]*class="is-active"[^>]*aria-current="page"[^>]*>Bảng giá<\/a>/);
+    assert.match(visibleText(mobile), /href="\/pricing"[^>]*>Bảng giá<\/a>/);
     assert.equal((nav.match(/href="\/pricing"/g) || []).length, 1);
     assert.equal((mobile.match(/href="\/pricing"/g) || []).length, 1);
   } finally {
@@ -54,9 +49,6 @@ test('Pricing is reachable from desktop header and mobile menu with active state
   }
 });
 
-test('Mobile hero visual is enlarged but stays within grid column', () => {
-  assert.match(css, /grid-template-columns: minmax\(0, 1\.3fr\) minmax\(0, 1fr\)/);
-  assert.match(css, /\.hero-card-frame \{\s*width: min\(218px, 96%\)/);
-  assert.match(css, /@media \(max-width: 390px\)[\s\S]*?\.hero-card-frame \{ width: 100%; padding: 4px;/);
+test('Compact menu remains available on narrow laptops', () => {
   assert.match(css, /@media \(min-width: 901px\) and \(max-width: 1020px\)/);
 });

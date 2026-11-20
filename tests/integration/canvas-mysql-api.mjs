@@ -268,6 +268,7 @@ try{
     await runSenderIdentity(base);
   });
   await check('Account recovery on MySQL with mock inbox and Google, same account/draft/gift', () => runRecovery(base, {
+    mailFor: email => mailbox.findLast(item => item.to === email),
     messageFor: email => mailbox.findLast(item => item.to === email)?.text,
     advance: ms => { recoveryNow += ms; },
   }));

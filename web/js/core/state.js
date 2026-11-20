@@ -2,7 +2,7 @@ export const state = {
   user: null,
   providers: { demo: true, google: false, zalo: false },
   templates: [],
-  filter: 'Tất cả',
+  filter: 'all',
   freeOnly: false,
   photoOnly: false,
   search: '',

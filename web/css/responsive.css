@@ -9,18 +9,6 @@
     width: 20px;
     height: 20px;
   }
-  .hero-grid {
-    gap: 20px;
-  }
-  .hero-card-frame {
-    width: 78%;
-  }
-  .floating-note--left {
-    left: -5%;
-  }
-  .floating-note--right {
-    right: -5%;
-  }
   .story-grid {
     gap: 52px;
   }
@@ -41,6 +29,9 @@
   .nav-inner {
     min-height: 70px;
   }
+  .site-header:empty {
+    min-height: 71px;
+  }
   .nav-links,
   .login-trigger,
   .nav-studio {
@@ -51,6 +42,8 @@
   }
   .mobile-nav:not([hidden]) {
     display: block;
+    max-height: calc(100svh - 71px);
+    overflow: auto;
     padding: 7px 22px 20px;
     border-top: 1px solid var(--line);
     background: white;
@@ -62,30 +55,6 @@
   }
   .section {
     padding-block: 75px;
-  }
-  .hero-grid {
-    min-height: 580px;
-    gap: 20px;
-  }
-  .hero-copy h1 {
-    font-size: clamp(42px, 5vw, 58px);
-  }
-  .hero-display {
-    min-height: 450px;
-  }
-  .hero-orbit--one {
-    width: 410px;
-    height: 410px;
-  }
-  .hero-orbit--two {
-    width: 485px;
-    height: 485px;
-  }
-  .hero-artwork .artwork__content strong {
-    font-size: 34px;
-  }
-  .floating-note {
-    display: none;
   }
   .template-grid {
     gap: 17px;
@@ -117,11 +86,8 @@
     font-size: 21px;
   }
   .footer-grid {
-    grid-template-columns: 1.3fr .8fr .8fr;
-    gap: 25px;
-  }
-  .footer-news {
-    grid-column: 1 / -1;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
   }
   .detail-info {
     padding-top: 0;
@@ -158,59 +124,6 @@
   }
   .nav-cta {
     display: none;
-  }
-  .hero-grid {
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
-    padding-top: 57px;
-    padding-bottom: 40px;
-    gap: 25px;
-  }
-  .hero-copy {
-    width: 100%;
-  }
-  .hero-copy h1 {
-    font-size: clamp(39px, 11vw, 56px);
-  }
-  .hero-copy h1 em {
-    white-space: normal;
-  }
-  .hero-copy > p {
-    font-size: 13px;
-  }
-  .hero-buttons {
-    gap: 9px;
-  }
-  .hero-buttons .btn {
-    flex: 1;
-    padding-inline: 13px;
-    font-size: 11px;
-  }
-  .hero-proof {
-    margin-top: 23px;
-  }
-  .hero-display {
-    width: 100%;
-    min-height: 410px;
-    margin-top: 10px;
-  }
-  .hero-card-frame {
-    width: min(310px, 75%);
-  }
-  .hero-card-caption {
-    font-size: 7px;
-  }
-  .hero-orbit--one {
-    width: 370px;
-    height: 370px;
-  }
-  .hero-orbit--two {
-    width: 445px;
-    height: 445px;
-  }
-  .hero-artwork .artwork__content strong {
-    font-size: 33px;
   }
   .section {
     padding-block: 59px;
@@ -300,13 +213,9 @@
     margin-inline: auto;
   }
   .footer-grid {
-    grid-template-columns: 1fr 1fr;
-    gap: 30px 15px;
+    gap: 18px 15px;
   }
   .footer-about {
-    grid-column: 1 / -1;
-  }
-  .footer-news {
     grid-column: 1 / -1;
   }
   .footer-bottom {
@@ -498,13 +407,6 @@
 @media (max-width: 370px) {
   .container {
     width: calc(100% - 26px);
-  }
-  .hero-buttons .btn {
-    min-height: 43px;
-    font-size: 10px;
-  }
-  .hero-display {
-    min-height: 360px;
   }
   .template-grid {
     gap: 19px 10px;

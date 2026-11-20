@@ -1,195 +1,139 @@
+import { attr, text } from "../core/i18n.js";
+import { templatePreviewDialog } from "../features/catalog/template-preview.js";
+import { isInSeason, vietnamDay } from "../features/catalog/seasonal.js";
+import { templateCover } from "../features/catalog/template-copy.js";
+import { canonicalText } from "../shared/locale.js";
 import { icon } from "../ui/icons.js";
 
-export function createHomeViews({ state, buttonLink, artwork, templateCard }) {
+// The cover and player both use the same public, built-in template.
+export const homeDemo = {
+  id: "hai-phong-bi",
+  creator: "Momevia Originals",
+  title: canonicalText("templates.hai-phong-bi.title"),
+};
+
+export function createHomeViews({ state, buttonLink, templateCard }) {
   function hero() {
-    const featured = state.templates.find((t) => t.id === "midnight-bloom") ||
-      state.templates[0] || {
-      theme: "violet",
-      title: "Midnight Bloom",
-      subtitle: "A LITTLE WISH",
-    };
-    return `<section class="hero"><div class="container hero-grid">
-      <div class="hero-copy">
-        <span class="eyebrow eyebrow--outlined">${icon("sparkles", 15)} Một cách gửi yêu thương mới</span>
-        <h1>Không chỉ là<br>một lời chúc.<br><em>Là một khoảnh khắc.</em></h1>
-        <p>Biến những điều bạn muốn nói thành món quà tương tác đầy bất ngờ. Cá nhân hóa trong vài phút, gửi đi chỉ với một đường link.</p>
-        <div class="hero-buttons">${buttonLink("/explore", "Tạo món quà đầu tiên")}<a href="/#how-it-works" data-link class="btn btn--outline">Xem cách hoạt động ${icon("arrow", 17)}</a></div>
-        <div class="hero-proof"><div class="proof-icons"><span>${icon("heart", 17)}</span><span>${icon("gift", 17)}</span><span>${icon("sparkles", 17)}</span></div><span>Không cần biết thiết kế <strong>·</strong> Người nhận không cần tài khoản</span></div>
+    return `<section class="hero hero--split mkt-hero" data-enter><div class="container wrap"><div class="hero-text mkt-hero__layout">
+      <div class="mkt-hero__intro">
+        <h1>${text("home.hero.title")}</h1>
+        <p class="hero__lead">${text("home.hero.description")}</p>
+        <div class="mkt-actions">
+          ${buttonLink("/explore", text("home.hero.cta"), "mkt-primary")}
+          <button type="button" class="btn mkt-secondary" data-template-preview aria-haspopup="dialog">${icon("eye", 18)} ${text("home.hero.preview")}</button>
+        </div>
       </div>
-      <div class="hero-display">
-        <div class="hero-orbit hero-orbit--one"></div><div class="hero-orbit hero-orbit--two"></div>
-        <span class="hero-tiny-spark hero-tiny-spark--a">${icon("sparkles", 30)}</span>
-        <span class="hero-tiny-spark hero-tiny-spark--b">${icon("star", 25)}</span>
-        <div class="hero-card-frame">${artwork(featured, "hero-artwork")}<div class="hero-card-caption">GỬI RIÊNG MỘT NGƯỜI THƯƠNG</div></div>
-        <div class="floating-note floating-note--left">${icon("heart", 20)} <div><strong>Một điều thật riêng</strong><span>Chỉ dành cho người ấy</span></div></div>
-        <div class="floating-note floating-note--right">${icon("message-circle", 19)} <div><strong>Lời hồi đáp</strong><span>Kỷ niệm của hai người</span></div></div>
+      <div class="mkt-hero__frame hero__window" data-visual data-enter-media>
+        <button type="button" class="mkt-hero__cover" data-template-preview aria-haspopup="dialog" ${attr("aria-label", "home.hero.preview")}>
+          <img ${templateCover(homeDemo.id)} alt="" width="390" height="844" fetchpriority="high" />
+        </button>
       </div>
+      </div>
+      ${templatePreviewDialog(homeDemo)}
     </div></section>`;
+  }
+
+  function featuredGifts(status) {
+    if (status === "loading") return `<p role="status">${text("home.featured.loading")}</p>`;
+    if (status === "error") return `<p role="alert">${text("home.featured.error")}</p>
+      <button class="btn mkt-secondary" type="button" data-home-catalog-retry>${text("common.actions.retry")}</button>`;
+    const day = vietnamDay();
+    const ranked = state.templates.slice().sort((a, b) => Number(isInSeason(b, day)) - Number(isInSeason(a, day)) || Number(Boolean(b.featured)) - Number(Boolean(a.featured)));
+    const selections = new Map();
+    for (const template of ranked) {
+      const occasion = template.category || template.style || template.id;
+      if (!selections.has(occasion)) selections.set(occasion, template);
+      if (selections.size === 3) break;
+    }
+    return selections.size
+      ? `<div class="mkt-gift-grid" data-visual>${[...selections.values()].map(template => templateCard(template, { compact: true })).join("")}</div>`
+      : `<p role="status">${text("home.featured.empty")}</p>`;
   }
 
   function steps() {
-    const items = [
-      {
-        number: "01",
-        title: "Chọn điều bạn thích",
-        text: "Khám phá những mẫu quà mang phong cách riêng, từ ngọt ngào đến tinh nghịch.",
-        icon: "layers",
-      },
-      {
-        number: "02",
-        title: "Thêm dấu ấn của bạn",
-        text: "Điền tên, một lời chúc và bức ảnh để món quà trở nên thật đặc biệt.",
-        icon: "pencil",
-      },
-      {
-        number: "03",
-        title: "Gửi niềm vui đi xa",
-        text: "Chia sẻ đường link. Người ấy mở quà, tương tác và để lại lời hồi đáp.",
-        icon: "send",
-      },
-    ];
-    return `<section id="how-it-works" class="section section--cream"><div class="container">
-      <div class="section-heading section-heading--center"><span class="eyebrow">THẬT DỄ ĐỂ BẮT ĐẦU</span><h2>Chỉ ba bước, <em>ngàn cảm xúc.</em></h2><p>Không cần kỹ năng thiết kế. Chỉ cần bạn có điều muốn nói.</p></div>
-      <div class="steps-grid">${items.map((item) => `<article class="step-card"><div class="step-number">${item.number}</div><div class="step-icon">${icon(item.icon, 28)}</div><h3>${item.title}</h3><p>${item.text}</p></article>`).join("")}</div>
-    </div></section>`;
-  }
-
-  // Các thông tin giới thiệu đều mô tả chức năng thật, không dùng số liệu marketing giả.
-  function trustStrip() {
-    const promises = [
-      { iconName: "pencil", title: "Cá nhân hóa dễ dàng", detail: "Tên, lời nhắn và hình ảnh" },
-      { iconName: "send", title: "Chia sẻ bằng một đường link", detail: "Gửi ngay qua ứng dụng bạn dùng" },
-      { iconName: "heart", title: "Không bắt người nhận đăng ký", detail: "Mở quà trên trình duyệt" },
-    ];
-    return `<section class="mkt-trust" aria-label="Điểm nổi bật của Momevia">
-      <div class="container mkt-trust__grid">${promises.map((item) => `<div class="mkt-trust__item">
-        <span class="mkt-trust__icon">${icon(item.iconName, 22)}</span>
-        <div><strong>${item.title}</strong><span>${item.detail}</span></div>
-      </div>`).join("")}</div>
-    </section>`;
-  }
-
-  function experienceSection() {
-    const features = [
-      { iconName: "layers", title: "Chọn phong cách phù hợp", description: "Từ một lời chúc ấm áp đến món quà tương tác nhiều cảnh." },
-      { iconName: "image", title: "Thêm kỷ niệm của riêng bạn", description: "Biến câu chuyện, hình ảnh và lời nhắn thành thiết kế mang dấu ấn cá nhân." },
-      { iconName: "message-circle", title: "Tạo kết nối hai chiều", description: "Người nhận có thể gửi lời hồi đáp khi món quà cho phép." },
-    ];
-    return `<section class="section mkt-experience" aria-labelledby="mkt-experience-title">
-      <div class="container mkt-experience__grid">
-        <div class="mkt-experience__visual" aria-hidden="true">
-          <div class="mkt-experience__halo"></div>
-          <div class="mkt-experience__card mkt-experience__card--back">${icon("heart", 40)}<span>Gửi điều thương</span></div>
-          <div class="mkt-experience__card mkt-experience__card--front">
-            <span class="mkt-experience__tag">MỘT MÓN QUÀ RIÊNG</span>
-            <span class="mkt-experience__symbol">${icon("gift", 56)}</span>
-            <strong>Những điều nhỏ bé,<br>ý nghĩa thật lớn.</strong>
-            <span class="mkt-experience__caption">MỘT KỶ NIỆM ĐÁNG NHỚ</span>
+    return `<section id="how-it-works" class="mkt-section mkt-how" aria-labelledby="mkt-experience-title" data-moment="liquid-type" data-moment-opts='{"strength": 0.35}'><div class="container wrap">
+      <h2 id="mkt-experience-title" class="mo-lt__type">${text("home.steps.heading")}</h2>
+      <div class="mkt-how__body">
+        <ol class="mkt-steps">${["choose", "personalize", "send"].map((step, index) => `<li>
+          <span class="mkt-step-number" aria-hidden="true">0${index + 1}</span>
+          <div><h3>${text(`home.steps.${step}.title`)}</h3><p>${text(`home.steps.${step}.body`)}</p></div>
+        </li>`).join("")}</ol>
+        <div class="mkt-example app-frame" data-visual>
+          <div class="mkt-example__editor">
+            <h3>${icon("pencil", 17)} ${text("home.steps.editor")}</h3>
+            <div class="mkt-example__field"><strong>${text("home.steps.personalize.title")}</strong><p>${text("home.steps.greeting")}</p></div>
           </div>
-          <div class="mkt-experience__bubble">${icon("message-circle", 18)} Lời hồi đáp</div>
-        </div>
-        <div class="mkt-experience__content">
-          <span class="eyebrow">TRẢI NGHIỆM TẠO QUÀ</span>
-          <h2 id="mkt-experience-title">Không chỉ đẹp mắt.<br><em>Mà còn mang câu chuyện của bạn.</em></h2>
-          <p>Momevia giúp biến một lời nhắn thành món quà số có thể mở, khám phá và lưu giữ. Mọi bước đều được thiết kế để người mới cũng có thể bắt đầu.</p>
-          <div class="mkt-feature-list">${features.map((item) => `<div class="mkt-feature-list__item">
-            <span class="mkt-feature-list__icon">${icon(item.iconName, 21)}</span>
-            <div><h3>${item.title}</h3><p>${item.description}</p></div>
-          </div>`).join("")}</div>
-          <div class="mkt-experience__actions">${buttonLink("/explore", "Khám phá mẫu quà")}
-            <a href="/#how-it-works" data-link class="mkt-text-link">Xem 3 bước thực hiện ${icon("arrow", 18)}</a></div>
+          <div class="mkt-example__recipient">
+            <h3>${icon("gift", 17)} ${text("home.steps.gift")}</h3>
+            <div class="mkt-example__letter"><span>${text("home.steps.recipient")}</span><p>${text("home.steps.greeting")}</p></div>
+          </div>
         </div>
       </div>
-    </section>`;
+    </div></section>`;
   }
 
   function marketingFaq() {
-    const questions = [
-      { question: "Tôi cần biết thiết kế mới có thể tạo quà không?", answer: "Không. Bạn có thể chọn mẫu có sẵn, thêm lời nhắn và hình ảnh rồi xem trước trước khi gửi." },
-      { question: "Người nhận có cần đăng ký tài khoản không?", answer: "Không. Người nhận có thể mở quà bằng liên kết hợp lệ. Một số trải nghiệm hoặc lời hồi đáp được điều khiển bằng quyền chia sẻ của món quà." },
-      { question: "Momevia có miễn phí không?", answer: "Momevia có mẫu miễn phí và một số mẫu có giá riêng. Gói Creator Pro hiện chỉ là kế hoạch, chưa mở bán hoặc gia hạn tự động." },
-      { question: "Nếu tôi gặp vấn đề với thanh toán thì sao?", answer: "Nếu đơn đã trừ tiền nhưng vẫn chờ xác nhận, đừng thanh toán lại. Hãy giữ mã đơn và liên hệ bộ phận hỗ trợ để đối soát." },
-    ];
-    return `<section class="section mkt-faq" aria-labelledby="mkt-faq-title"><div class="container mkt-faq__grid">
-      <div class="mkt-faq__intro"><span class="eyebrow">GIẢI ĐÁP NHANH</span>
-        <h2 id="mkt-faq-title">Mới bắt đầu?<br><em>Cứ hỏi Momevia.</em></h2>
-        <p>Những điều cần biết trước khi tạo món quà đầu tiên.</p>
-        <a href="/pricing" data-link class="mkt-text-link">Tìm hiểu cách tính phí ${icon("arrow", 18)}</a>
-      </div>
-      <div class="mkt-faq__items">${questions.map((item) => `<details class="mkt-faq__item">
-        <summary>${item.question}<span class="mkt-faq__chevron">${icon("chevron-down", 20)}</span></summary>
-        <p>${item.answer}</p>
+    return `<h2 id="mkt-faq-title">${text("home.faq.title")}</h2>
+      <div class="mkt-faq">
+      <div class="mkt-faq__items">${["design", "account", "free", "payment"].map(key => `<details class="mkt-faq__item">
+        <summary>${text(`home.faq.${key}.question`)} ${icon("chevron-down", 20)}</summary>
+        <p>${text(`home.faq.${key}.answer`)}</p>
       </details>`).join("")}</div>
-    </div></section>`;
+      <div class="mkt-faq__callout">
+        ${buttonLink("/explore", text("home.hero.cta"), "mkt-primary")}
+        ${buttonLink("/pricing", text("home.faq.pricing"), "mkt-secondary", false)}
+      </div>
+    </div>`;
   }
 
-  function closingCta() {
-    return `<section class="mkt-final" aria-labelledby="mkt-final-title"><div class="container mkt-final__inner">
-      <span class="mkt-final__mark" aria-hidden="true">${icon("sparkles", 38)}</span>
-      <span class="eyebrow">MỘT MÓN QUÀ, MỘT DẤU ẤN</span>
-      <h2 id="mkt-final-title">Lời muốn nói đã có.<br><em>Giờ hãy khiến nó đáng nhớ.</em></h2>
-      <p>Khám phá mẫu miễn phí, cá nhân hóa theo cách của bạn và chia sẻ món quà với người quan trọng.</p>
-      <div class="mkt-final__actions">${buttonLink("/explore", "Bắt đầu khám phá", "btn--light")}
-        <a class="mkt-final__secondary" href="/pricing" data-link>Xem bảng giá ${icon("arrow", 18)}</a></div>
-    </div></section>`;
-  }
-
-  function home() {
-    const featured = state.templates.filter((item) => item.featured).slice(0, 3);
-    // Luôn có mẫu để giới thiệu, kể cả khi dữ liệu chưa gắn cờ featured.
-    if (featured.length === 0) featured.push(...state.templates.slice(0, 3));
+  function home({ catalogStatus = "ready" } = {}) {
     return `${hero()}
-      ${trustStrip()}
-      <section class="section section--white mkt-featured" aria-labelledby="mkt-featured-title"><div class="container"><div class="section-heading section-heading--split">
-        <div><span class="eyebrow">DÀNH CHO NHỮNG DỊP ĐẶC BIỆT</span><h2 id="mkt-featured-title">Mỗi dịp một cách <em>nói lời thương.</em></h2></div>
-        <a href="/explore" data-link class="inline-link">Xem tất cả mẫu ${icon("arrow", 19)}</a></div>
-        <div class="template-grid">${featured.map(templateCard).join("")}</div></div></section>
-      ${experienceSection()}
-      ${steps()}
-      <section class="section section--white"><div class="container story-grid"><div class="story-visual"><div class="story-letter"><div class="story-letter__icon">${icon("heart", 34)}</div><p>Có những điều, nói một lần vẫn chưa đủ.</p><span>— MỘT LỜI NHẮN GỬI</span></div><div class="story-seal">${icon("sparkles", 22)}</div></div>
-        <div class="story-content"><span class="eyebrow">HƠN CẢ MỘT TẤM THIỆP</span><h2>Món quà kết thúc,<br><em>kỷ niệm ở lại.</em></h2><p>Ở Momevia, người nhận không chỉ xem lời chúc. Họ có thể mở từng bất ngờ, gửi lại lời nhắn và cùng bạn lưu giữ khoảnh khắc ấy.</p><ul class="feature-list"><li>${icon("check-circle", 18)} Trải nghiệm tương tác trên điện thoại</li><li>${icon("check-circle", 18)} Lời hồi đáp chỉ dành cho người có link</li><li>${icon("check-circle", 18)} Dễ chia sẻ, không cần cài ứng dụng</li></ul>${buttonLink("/explore", "Bắt đầu tạo quà")}</div></div></section>
-      <section class="section creator-band"><div class="container creator-band__inner"><div><span class="eyebrow">DÀNH CHO NHÀ SÁNG TẠO</span><h2>Thiết kế của bạn.<br><em>Cảm xúc của ai đó.</em></h2><p>Tạo mẫu tương tác với Creator Studio, gửi duyệt và chia sẻ ý tưởng đến nhiều người. Các tính năng doanh thu dành cho Creator đang tiếp tục được hoàn thiện.</p>${buttonLink("/creator", "Khám phá Creator Studio", "btn--light")}</div><div class="creator-band__art">${icon("sparkles", 105)}</div></div></section>
-      ${marketingFaq()}
-      ${closingCta()}`;
+      <section class="mkt-section mkt-featured" aria-labelledby="mkt-featured-title"><div class="container wrap">
+        <div class="mkt-featured__heading"><h2 id="mkt-featured-title">${text("home.featured.title")}</h2>
+        ${buttonLink("/explore", text("home.featured.all"), "mkt-secondary")}</div>
+        <div id="home-featured-gifts">${featuredGifts(catalogStatus)}</div>
+      </div></section>
+      ${steps()}`;
   }
+
 
   function aboutPage() {
     const values = [
       {
         icon: "heart",
-        title: "Cá nhân hóa",
+        title: text("home.about.personal.title"),
         description:
-          "Tên, hình ảnh và lời nhắn giúp mỗi món quà mang một câu chuyện riêng.",
+          text("home.about.personal.body"),
       },
       {
         icon: "gift",
-        title: "Trải nghiệm sống động",
+        title: text("home.about.experience.title"),
         description:
-          "Khám phá nhiều cảnh và tương tác, không chỉ dừng lại ở một tấm thiệp tĩnh.",
+          text("home.about.experience.body"),
       },
       {
         icon: "shield",
-        title: "Đơn giản và riêng tư",
+        title: text("home.about.privacy.title"),
         description:
-          "Người nhận không cần tạo tài khoản; đường link được thiết kế để khó đoán.",
+          text("home.about.privacy.body"),
       },
     ];
     return `<section class="about-hero"><div class="container about-hero__inner">
-      <span class="eyebrow eyebrow--outlined">VỀ CHÚNG TÔI · MOMEVIA</span>
-      <h1>Chúng mình tin rằng<br><em>yêu thương cần được cảm nhận.</em></h1>
-      <p>Momevia là nền tảng quà tặng số tương tác dành cho những người muốn tạo bất ngờ, gửi lời chúc và lưu giữ kỷ niệm ngay cả khi ở xa nhau.</p>
-      ${buttonLink("/explore", "Khám phá quà tặng")}
+      <span class="eyebrow eyebrow--outlined">${text("home.about.badge")}</span>
+      <h1>${text("home.about.title")}<br><em>${text("home.about.emphasis")}</em></h1>
+      <p>${text("home.about.intro")}</p>
+      ${buttonLink("/explore", text("home.about.explore"))}
     </div></section>
     <section class="section section--white"><div class="container">
-      <div class="section-heading section-heading--center"><span class="eyebrow">ĐIỀU CHÚNG MÌNH THEO ĐUỔI</span><h2>Mỗi món quà, <em>một kết nối.</em></h2><p>Trải nghiệm được thiết kế xoay quanh cả người gửi lẫn người nhận.</p></div>
+      <div class="section-heading section-heading--center"><span class="eyebrow">${text("home.about.values.badge")}</span><h2>${text("home.about.values.title")} <em>${text("home.about.values.emphasis")}</em></h2><p>${text("home.about.values.body")}</p></div>
       <div class="about-values">${values.map((value) => `<article class="about-value"><span class="about-value__icon">${icon(value.icon, 25)}</span><h2>${value.title}</h2><p>${value.description}</p></article>`).join("")}</div>
     </div></section>
     <section class="section section--cream"><div class="container about-story">
-      <div><span class="eyebrow">CÂU CHUYỆN SẢN PHẨM</span><h2>Không chỉ gửi đi.<br><em>Hãy để cảm xúc tiếp nối.</em></h2><p>Chọn một thiết kế, thêm dấu ấn riêng rồi gửi qua đường link. Người nhận có thể tương tác, khám phá bất ngờ và để lại lời hồi đáp trong cùng một trải nghiệm.</p><p>Momevia đang tiếp tục phát triển các tính năng mua mẫu và lưu giữ kỷ niệm. Bạn sẽ luôn được thông báo rõ trước khi phát sinh bất kỳ khoản phí nào.</p></div>
-      <div class="about-story__card"><strong>“More than a greeting. A connection that continues.”</strong><span>MOMEVIA · GỬI ĐIỀU THƯƠNG, GIỮ KỶ NIỆM</span></div>
+      <div><span class="eyebrow">${text("home.about.story.badge")}</span><h2>${text("home.about.story.title")}<br><em>${text("home.about.story.emphasis")}</em></h2><p>${text("home.about.story.body")}</p><p>${text("home.about.story.roadmap")}</p></div>
+      <div class="about-story__card"><strong>${text("home.about.story.quote")}</strong><span>${text("home.about.story.byline")}</span></div>
     </div></section>
-    <section class="section section--white"><div class="container about-cta"><h2>Bắt đầu với một <em>lời chúc thật riêng.</em></h2><p>Không cần kỹ năng thiết kế. Chỉ cần một điều bạn muốn nói.</p>${buttonLink("/explore", "Chọn mẫu quà đầu tiên")}</div></section>`;
+    <section class="section section--white"><div class="container about-cta"><h2>${text("home.about.closing.title")} <em>${text("home.about.closing.emphasis")}</em></h2><p>${text("home.about.closing.body")}</p>${buttonLink("/explore", text("home.about.closing.action"))}</div></section>`;
   }
 
-  return { hero, steps, home, aboutPage };
+  return { home, featuredGifts, marketingFaq, aboutPage };
 }

@@ -49,7 +49,7 @@ test('Lễ hội xuất hiện đúng thời gian theo múi giờ Việt Nam và
 test('CTA gửi tiếp không rò rỉ invite token hoặc nội dung quà', () => {
   const html = recipientViralCta('2026-12-24');
   assert.match(html, /Tạo thiệp của riêng bạn/);
-  assert.match(html, /Tạo bằng <strong>Momevia<\/strong>/);
+  assert.match(html.replace(/<!--[^]*?-->/g, ''), /Tạo bằng <strong>Momevia<\/strong>/);
   assert.equal(RECIPIENT_CREATE_URL, '/explore?source=recipient');
   assert.equal(recipientSuggestions('2027-01-01')[0].id, 'new-year-spark-2027');
   assert.doesNotMatch(html, /(?:invite|token|recipientName|senderName|\/g\/)/);
@@ -67,7 +67,7 @@ test('Legacy Gift và Canvas Gift đều gắn component CTA chung', () => {
     replyPermissions: { canSend: false, canRead: false, repliesDisabled: true }, replyCount: 0,
   });
   assert.match(legacy, /Tạo thiệp của riêng bạn/);
-  assert.match(legacy, /Tạo bằng <strong>Momevia<\/strong>/);
+  assert.match(legacy.replace(/<!--[^]*?-->/g, ''), /Tạo bằng <strong>Momevia<\/strong>/);
   assert.doesNotMatch(legacy, /source=gift-private/);
   const main = fs.readFileSync(new URL('../../web/js/app/main.js', import.meta.url), 'utf8');
   assert.match(main, /\$\{recipientViralCta\(\)\}/);

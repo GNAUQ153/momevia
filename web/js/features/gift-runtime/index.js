@@ -1,4 +1,5 @@
 import { validateDocument, runtimeVersionFor } from "../../shared/canvas/schema.js";
+import { message, setAttr, setText, t } from "../../core/i18n.js";
 import { renderElement, applyLayout } from "./renderer.js";
 import { applySurface, createMotion, playAmbience, playElement, playReaction, sceneTransition } from "./effects.js";
 export { renderElement, applyLayout, resolveText } from "./renderer.js";
@@ -16,9 +17,9 @@ export function mountPlayer(
   } = {},
 ) {
   if (runtimeVersion !== runtimeVersionFor(input))
-    throw new Error("Phiên bản trình phát chưa được hỗ trợ.");
+    throw new Error(t("gift.runtime.unsupportedVersion"));
   if (!["preview", "public"].includes(mode))
-    throw new Error("Chế độ trình phát không hợp lệ.");
+    throw new Error(t("gift.runtime.invalidMode"));
   const document = validateDocument(input, {
     mode: mode === "public" ? "publish" : "draft",
     requiredBindings: [],
@@ -32,8 +33,7 @@ export function mountPlayer(
   shell.style.maxWidth = `${document.responsive.desktop.maxContentWidth}px`;
   const marker = globalThis.document.createElement("p");
   marker.className = "gift-runtime-mode-label";
-  marker.textContent =
-    mode === "preview" ? "Đang xem thử · lời đáp được mô phỏng" : "";
+  setText(marker, mode === "preview" ? message("gift.player.previewMode") : "");
   const status = globalThis.document.createElement("p");
   status.className = "gift-runtime-status";
   status.setAttribute("role", "status");
@@ -42,7 +42,7 @@ export function mountPlayer(
   stage.tabIndex = -1;
   const navigation = globalThis.document.createElement("nav");
   navigation.className = "gift-runtime-navigation";
-  navigation.setAttribute("aria-label", "Các cảnh của món quà");
+  setAttr(navigation, "aria-label", message("gift.player.scenes"));
   const lifetime = new AbortController();
   const preference = globalThis.matchMedia("(prefers-reduced-motion: reduce)");
   let motionOff = false;
@@ -50,7 +50,7 @@ export function mountPlayer(
   const motionControl = globalThis.document.createElement("button");
   motionControl.type = "button";
   motionControl.className = "gift-motion-control";
-  motionControl.textContent = "Tắt chuyển động";
+  setText(motionControl, message("gift.player.motion"));
   const updateMotionControl = () => {
     motionControl.setAttribute("aria-pressed", String(!motion.enabled()));
     motionControl.disabled = preference.matches;
@@ -193,7 +193,9 @@ export function mountPlayer(
       });
       navigation.append(button);
     }
-    status.textContent = `Cảnh ${document.scenes.indexOf(scene) + 1} / ${document.scenes.length}: ${scene.name}`;
+    setText(status, message("gift.player.scenePosition", {
+      index: document.scenes.indexOf(scene) + 1, total: document.scenes.length, name: scene.name,
+    }));
     onSceneChange(scene.id);
     if (focus) {
       const target = stage.querySelector("h1,h2,h3,h4,h5,h6");

@@ -1,3 +1,5 @@
+import { canonicalText } from '../../shared/locale.js';
+
 // Các phép lọc thuần, dùng chung cho giao diện và unit tests.
 export function searchText(value) {
   return String(value ?? '').toLocaleLowerCase('vi').normalize('NFD').replace(/\p{M}/gu, '').replaceAll('đ', 'd');
@@ -16,11 +18,11 @@ export function styleOptions(templates) {
 
 export function filterTemplates(
   templates,
-  { style = "Tất cả", search = "", freeOnly = false, photoOnly = false } = {},
+  { style = "all", search = "", freeOnly = false, photoOnly = false, searchFields = () => [] } = {},
 ) {
   const query = searchText(String(search).trim());
   return templates.filter((template) => {
-    const matchesStyle = style === "Tất cả" || template.style === style;
+    const matchesStyle = style === "all" || style === "Tất cả" || template.style === style;
     const matchesPrice = !freeOnly || Number(template.price) === 0;
     const fields = [
       template.title,
@@ -28,6 +30,7 @@ export function filterTemplates(
       template.creator,
       template.style,
       template.category,
+      ...searchFields(template),
     ];
     const matchesSearch =
       !query ||
@@ -39,7 +42,7 @@ export function filterTemplates(
 }
 
 export function countLabel(count) {
-  return `${count} mẫu phù hợp`;
+  return canonicalText('catalog.results.count', { count });
 }
 
 // Phân trang dữ liệu sau khi lọc; mặc định tối đa 9 mẫu cho mỗi trang.

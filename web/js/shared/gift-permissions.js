@@ -1,3 +1,5 @@
+import { canonicalText } from './locale.js';
+
 export function giftLinkPermissions(access, invited) {
   const { open = 'link', send = 'link', read = 'link' } = access || {};
   const canOpen = open === 'link' || invited;
@@ -10,10 +12,14 @@ export function giftLinkPermissions(access, invited) {
   };
 }
 
-export function giftLinkDescription(access, invited) {
+export function giftLinkDescriptionKeys(access, invited) {
   const { canOpen, canSend, canRead, replyAudience, repliesDisabled } = giftLinkPermissions(access, invited);
-  if (!canOpen) return 'Cần link mời để mở quà, gửi hoặc đọc lời đáp.';
-  const send = repliesDisabled ? 'Đã tắt gửi lời đáp.' : canSend ? 'Gửi được lời đáp.' : 'Cần link mời để gửi lời đáp.';
-  const read = canRead ? 'Đọc được lời đáp.' : replyAudience === 'sender' ? 'Chỉ người gửi quà đọc được lời đáp.' : 'Cần link mời để đọc lời đáp.';
-  return `Mở được quà. ${send} ${read}`;
+  if (!canOpen) return ['gift.share.rights.inviteOnly'];
+  const send = repliesDisabled ? 'gift.share.rights.noSend' : canSend ? 'gift.share.rights.send' : 'gift.share.rights.inviteSend';
+  const read = canRead ? 'gift.share.rights.read' : replyAudience === 'sender' ? 'gift.reply.senderAudience' : 'gift.share.rights.inviteRead';
+  return ['gift.share.rights.open', send, read];
+}
+
+export function giftLinkDescription(access, invited) {
+  return giftLinkDescriptionKeys(access, invited).map(key => canonicalText(key)).join(' ');
 }

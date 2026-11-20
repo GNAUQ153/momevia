@@ -1,3 +1,4 @@
+import { message, setText } from "../../core/i18n.js";
 import { mountPlayer } from '../gift-runtime/index.js';
 import { assetIds } from '../../shared/canvas/schema.js';
 import { node, field } from '../canvas-editor/dom.js';
@@ -6,7 +7,7 @@ export function mountReview(host, { version, endpoint, api, navigate }) {
   const lifetime = new AbortController();
   const stage = node('div', { class: 'template-preview-player template-review-preview' });
   const coverScene = version.document.scenes.find(scene => scene.id === (version.coverSceneId || version.document.entrySceneId));
-  const bindings = { recipientName: 'Tên người nhận thử', senderName: 'Tên người gửi thử', message: 'Lời chúc thử' };
+  const bindings = { recipientName: message("admin.review.binding.recipient"), senderName: message("admin.review.binding.sender"), message: message("admin.review.binding.greeting") };
   const controls = version.bindings.map(key => field(bindings[key], node('input', {
     name: key, value: version.document.bindings[key].value, maxlength: key === 'message' ? 1000 : 60,
   })));
@@ -16,26 +17,26 @@ export function mountReview(host, { version, endpoint, api, navigate }) {
   const status = node('p', { role: 'alert' });
   const photoStatus = node('p', { role: 'status' });
   const actions = node('form', {},
-    version.rights ? field('Đã xác nhận quyền phân phối ảnh demo trong mẫu và quà', consent) : null,
-    field('Lý do yêu cầu sửa', reason),
-    node('button', { type: 'submit', value: 'approve', class: 'btn btn--dark' }, 'Duyệt phiên bản'),
-    node('button', { type: 'submit', value: 'revise', class: 'btn btn--outline' }, 'Yêu cầu sửa'),
+    version.rights ? field(message("admin.review.confirmRights"), consent) : null,
+    field(message("admin.review.reason"), reason),
+    node('button', { type: 'submit', value: 'approve', class: 'btn btn--dark' }, message("admin.review.approve")),
+    node('button', { type: 'submit', value: 'revise', class: 'btn btn--outline' }, message("admin.review.revise")),
     status,
   );
-  const test = node('form', {}, node('h2', {}, 'Thử cá nhân hóa'),
-    ...controls, version.photoId ? field('Thử thay ảnh trên thiết bị', image) : null,
-    node('button', { type: 'submit', class: 'btn btn--outline' }, 'Cập nhật bản xem thử'), photoStatus);
-  const back = node('a', { href: '/admin', 'data-link': '', class: 'btn btn--outline' }, 'Về hàng đợi');
+  const test = node('form', {}, node('h2', {}, message("admin.review.try")),
+    ...controls, version.photoId ? field(message("admin.review.tryPhoto"), image) : null,
+    node('button', { type: 'submit', class: 'btn btn--outline' }, message("admin.review.refresh")), photoStatus);
+  const back = node('a', { href: '/admin', 'data-link': '', class: 'btn btn--outline' }, message("admin.review.back"));
   host.replaceChildren(node('section', { class: 'section' }, node('div', { class: 'container' },
-    back, node('h1', {}, version.title), node('p', {}, `Bản r${version.revision} · ${version.id}`),
-    version.hasLockedNames ? node('p', { role: 'status' }, 'Phiên bản có lớp tên bị khóa. Yêu cầu Creator mở quyền sửa tên hoặc đổi lớp đó thành chữ cố định trung tính.') : null,
-    version.previousVersionId ? node('section', {}, node('h2', {}, 'Thay đổi từ lần gửi trước'),
+    back, node('h1', {}, version.title), node('p', {}, message('admin.review.version', { revision: version.revision, id: version.id })),
+    version.hasLockedNames ? node('p', { role: 'status' }, message("admin.review.lockedNames")) : null,
+    version.previousVersionId ? node('section', {}, node('h2', {}, message("editor.submission.changes")),
       node('ul', {}, ...version.changes.map(change => node('li', {}, change)))) : null,
-    version.rights ? node('p', {}, `Nguồn và quyền ảnh demo: ${version.rights}`) : null,
-    node('details', {}, node('summary', {}, `Bìa mẫu · ${coverScene.name}`),
-      node('img', { class: 'template-review-cover', alt: `Bìa mẫu ${version.title}`, src: `/api${endpoint}/cover` })),
+    version.rights ? node('p', {}, message('admin.review.photoRights', { rights: version.rights })) : null,
+    node('details', {}, node('summary', {}, message('admin.review.cover', { scene: coverScene.name })),
+      node('img', { class: 'template-review-cover', alt: message('admin.review.coverAlt', { title: version.title }), src: `/api${endpoint}/cover` })),
     node('div', { class: 'template-review-grid' }, stage,
-      node('div', { class: 'template-review-controls' }, test, version.status === 'pending' ? actions : node('p', {}, 'Phiên bản đã xử lý.'))),
+      node('div', { class: 'template-review-controls' }, test, version.status === 'pending' ? actions : node('p', {}, message("admin.review.alreadyHandled")))),
   )));
   let player;
   let photoData;
@@ -58,11 +59,11 @@ export function mountReview(host, { version, endpoint, api, navigate }) {
   show();
   test.addEventListener('submit', event => {
     event.preventDefault();
-    photoStatus.textContent = '';
+    setText(photoStatus, '');
     const file = image.files?.[0];
     if (!file) { photoData = undefined; show(); return; }
     if (file.size > 2 * 1024 * 1024 || !['image/png', 'image/jpeg', 'image/webp'].includes(file.type)) {
-      photoStatus.textContent = 'Chọn ảnh PNG, JPEG hoặc WebP tối đa 2 MB.';
+      setText(photoStatus, message('admin.review.photoError'));
       return;
     }
     const reader = new FileReader();
@@ -75,7 +76,7 @@ export function mountReview(host, { version, endpoint, api, navigate }) {
     event.preventDefault();
     const action = event.submitter?.value;
     if (action === 'revise' && !reason.value.trim()) {
-      status.textContent = 'Ghi lý do yêu cầu sửa.';
+      setText(status, message('admin.review.reasonRequired'));
       reason.focus();
       return;
     }

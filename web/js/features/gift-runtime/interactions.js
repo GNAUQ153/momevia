@@ -1,26 +1,27 @@
 import { interactionKinds } from "../../shared/canvas/interactions.js";
 import { heartPieces } from "../../shared/canvas/artwork.js";
+import { message as label, setAttr, setText } from "../../core/i18n.js";
 
 function node(tag, css, text) {
   const element = document.createElement(tag);
   if (css) element.className = css;
-  if (text !== undefined) element.textContent = text;
+  if (text !== undefined) setText(element, text);
   return element;
 }
 
-export function renderInteraction(model, { mode, signal, onAction, renderPhoto, renderArt, activate }) {
+export function renderInteraction(model, { mode, signal, renderPhoto, renderArt, activate }) {
   const { kind, color, entries, photos, eventAt, timeZone } = model.props;
   const spec = interactionKinds[kind];
   const root = node("section", `gift-runtime-interaction gift-runtime-${kind}`);
   root.style.backgroundColor = color;
-  root.setAttribute("aria-label", spec.label);
+  setAttr(root, "aria-label", label(`gift.interactions.kind.${kind}`));
   const live = mode === "preview" || mode === "public";
   const listen = (target, event, handle) => target.addEventListener(event, handle, { signal });
-  const button = (label, action, css = "") => {
+  const button = (label, action, css = "", navigation) => {
     const control = node(live ? "button" : "span", `gift-interaction-button ${css}`, label);
     if (live) {
       control.type = "button";
-      listen(control, "click", event => activate(control, event, () => action(event), kind === "scene-choices"));
+      listen(control, "click", event => activate(control, event, () => action?.(event), navigation));
     }
     return control;
   };
@@ -38,7 +39,7 @@ export function renderInteraction(model, { mode, signal, onAction, renderPhoto, 
   if (kind === "flip-card") {
     const back = status(first.heading);
     let flipped = false;
-    const toggle = button("Lật thẻ", () => {
+    const toggle = button(label("gift.interactions.flip"), () => {
       flipped = !flipped;
       back.textContent = flipped ? first.body : first.heading;
       toggle.setAttribute("aria-pressed", String(flipped));
@@ -47,7 +48,7 @@ export function renderInteraction(model, { mode, signal, onAction, renderPhoto, 
     if (live) toggle.setAttribute("aria-pressed", "false");
     root.append(symbol(spec.icon), back, toggle);
   } else if (kind === "scene-choices") {
-    root.append(...entries.map((entry, i) => button(entry.heading, () => onAction([model.actions[i]]), "gift-interaction-door")));
+    root.append(...entries.map((entry, i) => button(entry.heading, null, "gift-interaction-door", [model.actions[i]])));
   } else if (kind === "scratch-ticket") {
     const covered = node("div", "gift-scratch-area");
     const message = status(first.body);
@@ -66,10 +67,10 @@ export function renderInteraction(model, { mode, signal, onAction, renderPhoto, 
       scratch.hidden = cover.hidden = true;
       message.hidden = false;
       message.removeAttribute("aria-hidden");
-      bypass.textContent = "Đã mở";
+      setText(bypass, label("gift.interactions.opened"));
       bypass.setAttribute("aria-disabled", "true");
     };
-    const bypass = button("Mở ngay", reveal);
+    const bypass = button(label("gift.interactions.openNow"), reveal);
     if (live) {
       const brush = scratch.getContext("2d");
       brush.fillStyle = "#81649b";
@@ -127,12 +128,12 @@ export function renderInteraction(model, { mode, signal, onAction, renderPhoto, 
       picture.replaceChildren(renderPhoto(pages[index]));
       caption.textContent = pages[index].caption;
       caption.hidden = !pages[index].caption;
-      indicator.textContent = `Ảnh ${index+1}/${pages.length}`;
+      setText(indicator, label("gift.interactions.albumPage", { index: index + 1, total: pages.length }));
       before.setAttribute("aria-disabled", String(index === 0));
       after.setAttribute("aria-disabled", String(index === pages.length-1));
     };
-    const before = button("Trước", () => setPage(index - 1));
-    const after = button("Sau", () => setPage(index + 1));
+    const before = button(label("catalog.pagination.prev"), () => setPage(index - 1));
+    const after = button(label("gift.interactions.next"), () => setPage(index + 1));
     if (live) {
       listen(picture, "pointerdown", event => {
         if (event.button !== 0 || start) return;
@@ -171,24 +172,24 @@ export function renderInteraction(model, { mode, signal, onAction, renderPhoto, 
       slider.max = "100";
       slider.step = "1";
       slider.value = "50";
-      slider.setAttribute("aria-label", "Tỷ lệ ảnh trước");
+      setAttr(slider, "aria-label", label("gift.interactions.beforeRatio"));
     }
     const render = value => {
       before.style.clipPath = `inset(0 ${100-value}% 0 0)`;
       divider.style.left = `${value}%`;
-      slider.setAttribute("aria-valuetext", `${value}% ảnh trước, ${100-value}% ảnh sau`);
+      setAttr(slider, "aria-valuetext", label("gift.interactions.ratio", { before: value, after: 100 - value }));
     };
     if (live) listen(slider, "input", () => render(Number(slider.value)));
     const labels = node("div", "gift-comparison-labels");
-    labels.append(...photos.map((photo,i) => node("p","gift-interaction-copy",photo.caption || (i ? "Ảnh sau" : "Ảnh trước"))));
+    labels.append(...photos.map((photo, i) => node("p", "gift-interaction-copy", photo.caption || label(i ? "gift.interactions.afterPhoto" : "gift.interactions.beforePhoto"))));
     root.append(figure,slider,labels);
     render(50);
   } else if (kind === "wish-pick") {
-    const wish = status("Chọn một điều bạn muốn nhận.");
+    const wish = status(label("gift.interactions.chooseWish"));
     const choices = node("div", "gift-wish-options");
     const controls = entries.map(entry => button(entry.heading, event => {
       for (const option of controls) option.setAttribute("aria-pressed", String(option === event.currentTarget));
-      wish.textContent = entry.body;
+      setText(wish, entry.body);
     }));
     for (const option of controls) if (live) option.setAttribute("aria-pressed","false");
     choices.append(...controls);
@@ -231,13 +232,13 @@ export function renderInteraction(model, { mode, signal, onAction, renderPhoto, 
       skip.setAttribute("aria-disabled","true");
     };
     const controls = Array.from({length:3}, (_, i) => {
-      const piece = button(`Mảnh ${i+1}`, () => {
+      const piece = button(label("gift.interactions.piece", { index: i + 1 }), () => {
         if (placed.has(i)) return;
         if (placed.size === 2) { reveal(); return; }
         placed.add(i);
         piece.setAttribute("aria-pressed", "true");
         build();
-        message.textContent = `Đã ghép ${placed.size}/3 mảnh.`;
+        setText(message, label("gift.interactions.pieces", { count: placed.size }));
       });
       if (live) piece.setAttribute("aria-pressed","false");
       return piece;
@@ -254,9 +255,9 @@ export function renderInteraction(model, { mode, signal, onAction, renderPhoto, 
     root.append(heading,date,countdown,arrival);
     if (eventAt && live) {
       date.dateTime = eventAt;
-      date.textContent = new Intl.DateTimeFormat("vi-VN", {
-        timeZone, dateStyle:"medium",timeStyle:"short",
-      }).format(new Date(eventAt)) + ` · ${timeZone}`;
+      setText(date, label("gift.interactions.eventDate", {
+        date: { format: "date", value: eventAt, options: { timeZone, dateStyle: "medium", timeStyle: "short" } }, zone: timeZone,
+      }));
       let clock;
       const tick = () => {
         const seconds = Math.max(0, Math.ceil((Date.parse(eventAt) - Date.now()) / 1000));
@@ -267,12 +268,14 @@ export function renderInteraction(model, { mode, signal, onAction, renderPhoto, 
           return;
         }
         const units = [Math.floor(seconds/86400), Math.floor(seconds/3600)%24, Math.floor(seconds/60)%60, seconds%60];
-        countdown.textContent = `${units[0]} ngày · ${units.slice(1).map(unit=>String(unit).padStart(2,"0")).join(":")}`;
+        setText(countdown, label("gift.interactions.countdown", {
+          count: units[0], clock: units.slice(1).map(unit => String(unit).padStart(2, "0")).join(":"),
+        }));
       };
       if (Date.parse(eventAt) > Date.now()) clock = setInterval(tick, 1000);
       signal?.addEventListener("abort", () => clearInterval(clock), {once:true});
       tick();
-    } else date.textContent = live ? "Chưa chọn ngày giờ hẹn" : "Ngày · Giờ · Múi giờ";
+    } else setText(date, label(live ? "gift.interactions.noDate" : "gift.interactions.datePreview"));
   }
   return root;
 }

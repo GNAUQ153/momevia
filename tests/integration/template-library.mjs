@@ -29,8 +29,12 @@ async function fixture(name, legacy = false, existingTemplates) {
   if (legacy) {
     // Explicit fixture for an already-running v1 server: same registry/API, generic preset.
     const file = path.join(directory, 'web/js/shared/canvas/presets.js'), source = fs.readFileSync(file, 'utf8');
-    const marker = 'const basic = template ? createBasicTemplate(template) : null;'; assert(source.includes(marker));
+    const marker = 'const basic = template ? createBasicTemplate(template, localize) : null;'; assert(source.includes(marker));
     fs.writeFileSync(file, source.replace(marker, 'const basic = null;'));
+    const routes = path.join(directory, 'src/modules/designs/routes.mjs');
+    const routeSource = fs.readFileSync(routes, 'utf8');
+    const localeArgument = ', { locale: requestLocale(req) }'; assert(routeSource.includes(localeArgument));
+    fs.writeFileSync(routes, routeSource.replace(localeArgument, ''));
   }
   process.chdir(directory);
   const { createHttpApp } = await import(pathToFileURL(path.join(directory, 'src/server/app.mjs')).href);
@@ -39,8 +43,8 @@ async function fixture(name, legacy = false, existingTemplates) {
   app.server.listen(0, '127.0.0.1'); await once(app.server, 'listening'); const base = `http://127.0.0.1:${app.server.address().port}`; config.baseUrl = base;
   const response = await fetch(base + '/api/auth/register', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ name: 'Template QA', email: `${randomUUID()}@example.test`, password: 'BasicTemplatesQA123', confirmPassword: 'BasicTemplatesQA123' }) });
   assert.equal(response.status, 201); const cookie = response.headers.get('set-cookie').split(';')[0];
-  async function request(route, body, status = 200, authenticated = true) {
-    const result = await fetch(base + '/api' + route, { method: body === undefined ? 'GET' : 'POST', headers: { ...(authenticated ? { cookie } : {}), ...(body ? { 'content-type': 'application/json' } : {}) }, body: body ? JSON.stringify(body) : undefined });
+  async function request(route, body, status = 200, authenticated = true, locale) {
+    const result = await fetch(base + '/api' + route, { method: body === undefined ? 'GET' : 'POST', headers: { ...(authenticated ? { cookie } : {}), ...(body ? { 'content-type': 'application/json' } : {}), ...(locale ? { 'x-momevia-locale': locale } : {}) }, body: body ? JSON.stringify(body) : undefined });
     const data = await result.json(); assert.equal(result.status, status, JSON.stringify(data)); return data;
   }
   const upload = async (designId, bytes) => {
@@ -95,6 +99,23 @@ try {
   const updated = (await existing.request('/catalog/templates', undefined, 200, false)).templates;
   assert.deepEqual(updated, catalog);
   console.log('PASS Existing JSON catalog: appended 12 missing templates and preserved all 12 originals.');
+
+  const localizedStart = { source: { kind: 'template', templateId: 'sunny-wishes' }, mutationId: randomUUID() };
+  const english = (await current.request('/designs/designs', localizedStart, 201, true, 'en')).design;
+  const vietnamese = (await current.request('/designs/designs', { ...localizedStart, mutationId: randomUUID() }, 201)).design;
+  assert.equal(english.startingLocale, 'en');
+  assert.equal(english.document.elements.find(item => item.id === 'cover-title').props.text, 'Your day.\nYour sunshine.');
+  assert.equal(english.source.templateVersionId, vietnamese.source.templateVersionId);
+  assert.notEqual(english.documentHash, vietnamese.documentHash);
+  assert.equal(english.revision, 1);
+  assert.deepEqual((await current.request('/designs/designs', localizedStart, 201, true, 'vi')).design, english);
+  const matching = await current.request('/catalog/templates?q=A%20Memory%20of%20Us&style=all', undefined, 200, false, 'en');
+  assert.deepEqual(matching.templates.map(item => item.id), ['mot-ky-niem']);
+  const cover = await fetch(current.base + '/assets/basic-templates/en/sunny-wishes.svg');
+  assert.equal(cover.status, 200);
+  assert.match(cover.headers.get('content-type'), /image\/svg\+xml/);
+  assert.match(await cover.text(), /sunshine\.<\/tspan>/);
+  console.log('PASS English template search and cover, localized draft revision 1, stable source version and locale across retry.');
 
   const legacy = await fixture('legacy-cached', true); const key = randomUUID(), template = catalog.find(t => t.id === 'sunny-wishes');
   const original = (await legacy.request('/designs/designs', { source: { kind: 'template', templateId: template.id }, presetId: 'envelope-basic', mutationId: key }, 201)).design;

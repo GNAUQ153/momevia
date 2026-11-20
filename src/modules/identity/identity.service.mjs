@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { HttpError } from '../../shared/http.mjs';
+import { localizedError } from '../../shared/http.mjs';
 import { sessionToken, cookie, parseCookies } from '../../shared/security.mjs';
 
 export class IdentityService {
@@ -49,7 +49,7 @@ export class IdentityService {
     const raw = parseCookies(req.headers.cookie || '')[`oauth_${provider}`];
     let stored;
     try { stored = JSON.parse(Buffer.from(raw || '', 'base64url').toString()); } catch { stored = null; }
-    if (!stored || !state || state !== stored.state) throw new HttpError(403, 'Phiên xác thực OAuth không hợp lệ hoặc đã hết hạn.');
+    if (!stored || !state || state !== stored.state) throw localizedError(403, 'errors.auth.oauthSession');
     return stored.verifier;
   }
   async finishOAuth(res, provider, profile, recovery = false) {

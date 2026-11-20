@@ -1,23 +1,28 @@
+import { canonicalText } from '../../shared/locale.js';
+
 // Thành phần hiển thị UX Canvas; không tạo/thay đổi dữ liệu thiết kế.
 export function canOpenAdvancedEditor(policy) {
   return policy?.kind !== 'creator-template';
 }
 
-export function scenePositionLabel(document, sceneId) {
+export function scenePositionLabel(document, sceneId, localize = canonicalText) {
   const scenes = Array.isArray(document?.scenes) ? document.scenes : [];
-  if (!scenes.length) return 'Chưa có cảnh';
+  if (!scenes.length) return localize('editor.scene.none');
   const index = scenes.findIndex(scene => scene.id === sceneId);
-  if (index < 0) return `Có ${scenes.length} cảnh`;
-  return `Cảnh ${index + 1}/${scenes.length}`;
+  if (index < 0) return localize('editor.scene.count', { count: scenes.length });
+  return localize('editor.scene.progress', { index: index + 1, total: scenes.length });
 }
 
-export function selectionDescription(document, sceneId, selectionId, policy) {
-  if (!selectionId) return 'Chọn hình hoặc chữ trên thiệp để chỉnh vị trí, màu sắc và thuộc tính.';
+export function selectionDescription(document, sceneId, selectionId, policy, localize = canonicalText) {
+  if (!selectionId) return localize('editor.selection.guide');
   const scene = document?.scenes?.find(item => item.id === sceneId);
-  if (!scene?.elementIds?.includes(selectionId)) return 'Chọn một thành phần trong cảnh hiện tại.';
+  if (!scene?.elementIds?.includes(selectionId)) return localize('editor.selection.current');
   const element = document?.elements?.find(item => item.id === selectionId);
-  if (!element) return 'Thành phần không còn tồn tại trong cảnh.';
-  const label = String(element.name || ({ text: 'Văn bản', image: 'Ảnh', shape: 'Hình khối', sticker: 'Hình trang trí' }[element.type] || 'Thành phần'));
+  if (!element) return localize('editor.selection.missing');
+  const key = {
+    text: 'editor.element.text', image: 'editor.selection.photo', shape: 'editor.element.shape', sticker: 'editor.selection.decoration',
+  }[element.type] || 'editor.selection.element';
+  const label = element.name || { format: 'message', key };
   const locked = Boolean(element.locked || policy?.lockedElements?.[element.id]);
-  return locked ? `Đang chọn: ${label} · Lớp được bảo vệ` : `Đang chọn: ${label} · Chỉnh trong bảng thuộc tính`;
+  return localize(locked ? 'editor.selection.locked' : 'editor.selection.editable', { label });
 }

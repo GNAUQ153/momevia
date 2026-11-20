@@ -1,3 +1,5 @@
+import { message, setText, text } from '../../core/i18n.js';
+
 export function mountInbox(dialog, { replies, renderReplies, markRead, onUnreadCount }) {
   const list = dialog.querySelector('.reply-list');
   const filter = dialog.querySelector('.inbox-filter input');
@@ -13,9 +15,9 @@ export function mountInbox(dialog, { replies, renderReplies, markRead, onUnreadC
       const { unreadCount } = await markRead(ids);
       for (const reply of replies) if (ids.includes(reply.id)) reply.unread = false;
       onUnreadCount(unreadCount);
-      if (dialog.isConnected) status.textContent = unreadCount ? `${unreadCount} lời đáp chưa đọc` : '';
+      if (dialog.isConnected) setText(status, unreadCount ? message('gift.inbox.unreadCount', { count: unreadCount }) : '');
     } catch {
-      if (dialog.isConnected) status.textContent = 'Chưa ghi nhận đã đọc. Mở lại hộp thư để thử lại.';
+      if (dialog.isConnected) setText(status, message('gift.inbox.readFailed'));
     } finally {
       saving = false;
       if (dialog.isConnected && seen.size) void markVisible();
@@ -33,7 +35,7 @@ export function mountInbox(dialog, { replies, renderReplies, markRead, onUnreadC
     observer.disconnect();
     const visible = filter.checked ? replies.filter(reply => reply.unread) : replies;
     list.innerHTML = visible.length ? renderReplies(visible, true)
-      : `<p>${filter.checked ? 'Không có lời đáp chưa đọc.' : 'Lời đáp cho món quà này sẽ xuất hiện ở đây.'}</p>`;
+      : `<p>${text(filter.checked ? 'gift.inbox.emptyUnread' : 'gift.inbox.empty')}</p>`;
     list.querySelectorAll('[data-unread-reply]').forEach(item => observer.observe(item));
   }
   filter.addEventListener('change', show);

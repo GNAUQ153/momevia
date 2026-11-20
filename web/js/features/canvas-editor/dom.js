@@ -1,16 +1,23 @@
 import { icon } from "../../ui/icons.js";
+import { createLocaleControl, isMessage, setAttr, setText } from "../../core/i18n.js";
 
 export function node(tag, attrs = {}, ...children) {
   const item = document.createElement(tag);
   for (const [key, value] of Object.entries(attrs)) {
     if (key === "class") item.className = value;
-    else if (key === "text") item.textContent = value;
+    else if (key === "text") setText(item, value);
     else if (key === "value") item.value = value;
     else if (key === "checked" || key === "disabled" || key === "hidden")
       item[key] = Boolean(value);
-    else if (value != null) item.setAttribute(key, String(value));
+    else if (value != null) setAttr(item, key, value);
   }
-  item.append(...children.filter((child) => child != null));
+  for (const child of children) {
+    if (isMessage(child)) {
+      const label = document.createTextNode("");
+      setText(label, child);
+      item.append(label);
+    } else if (child != null) item.append(child);
+  }
   return item;
 }
 export const button = (text, action, attrs = {}) =>
@@ -58,6 +65,7 @@ export function select(label, name, value, options) {
 }
 export function trapDialog(dialog, onClose) {
   const previous = document.activeElement;
+  dialog.prepend(createLocaleControl());
   dialog.showModal();
   const close = () => {
     dialog.close();

@@ -26,6 +26,11 @@
   font-size: clamp(15px, 1.3vw, 18px);
 }
 
+.editor-workspace.is-quick .editor-top-actions [data-editor-action="preview"],
+.editor-workspace.is-quick .editor-top-actions [data-editor-action="save"] {
+  min-height: 44px;
+}
+
 .editor-workspace .editor-save-status {
   color: #5b5370;
   font-size: 12px;
@@ -47,6 +52,18 @@
   background: linear-gradient(115deg, #6840d7, #4024b1);
   border-color: #4024b1;
   box-shadow: 0 10px 25px rgba(84, 52, 192, 0.26);
+}
+
+.editor-workspace.is-quick button.editor-advanced-cta {
+  color: var(--purple);
+  background: var(--paper);
+  border-color: var(--line);
+  box-shadow: none;
+}
+
+.editor-workspace.is-quick button.editor-advanced-cta:hover:not(:disabled) {
+  color: var(--purple-deep);
+  background: var(--cream-deep);
 }
 
 .editor-workspace .editor-grid {
@@ -180,7 +197,6 @@
 .editor-workspace button[data-block]:hover:not(:disabled) {
   background: #f8f3ff;
   border-color: #af96ed;
-  transform: translateY(-1px);
 }
 
 .editor-editing-help {
@@ -286,6 +302,10 @@
   }
 
   .editor-workspace .editor-top-actions button.editor-advanced-cta {
+    grid-column: span 2;
+  }
+
+  .editor-workspace.is-quick .editor-top-actions [data-editor-action="preview"] {
     grid-column: span 2;
   }
 

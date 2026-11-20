@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { randomUUID } from 'node:crypto';
-import { HttpError } from '../../shared/http.mjs';
+import { localizedError } from '../../shared/http.mjs';
 
 export class MediaRepository {
   constructor(directory) {
@@ -18,9 +18,9 @@ export class MediaRepository {
     fs.rmSync(path.join(this.directory, filename), { force: true });
   }
   find(filename) {
-    if (!/^[0-9a-f-]{36}\.(png|jpg|webp)$/.test(filename)) throw new HttpError(404, 'Ảnh không tồn tại.');
+    if (!/^[0-9a-f-]{36}\.(png|jpg|webp)$/.test(filename)) throw localizedError(404, 'errors.gift.missingPhoto');
     const filePath = path.join(this.directory, filename);
-    if (!fs.existsSync(filePath)) throw new HttpError(404, 'Ảnh không tồn tại.');
+    if (!fs.existsSync(filePath)) throw localizedError(404, 'errors.gift.missingPhoto');
     const ext = path.extname(filePath);
     return { filePath, contentType: ext === '.png' ? 'image/png' : ext === '.webp' ? 'image/webp' : 'image/jpeg' };
   }

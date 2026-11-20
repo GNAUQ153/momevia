@@ -108,3 +108,40 @@
     top: 40px;
   }
 }
+
+.catalog-compact .search-field,
+.catalog-free-filter,
+.catalog-reset,
+.seasonal-shelf__hint {
+  min-height: 44px;
+}
+.catalog-compact .catalog-filters {
+  margin-block: 16px 24px;
+}
+.catalog-compact .seasonal-shelf[hidden] {
+  display: none;
+}
+#catalog-range {
+  scroll-margin-top: 100px;
+}
+.detail-secondary-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: 14px;
+  margin-top: 18px;
+  padding-top: 9px;
+  border-top: 1px solid var(--line);
+}
+.detail-secondary-actions .detail-favorite-row {
+  flex: 1 1 100%;
+  margin: 0;
+}
+.detail-secondary-actions .detail-text-action {
+  color: var(--purple);
+  background: transparent;
+  padding-inline: 0;
+  min-height: 44px;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}

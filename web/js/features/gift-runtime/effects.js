@@ -34,10 +34,57 @@ export function createMotion(isEnabled) {
       cleanup();
     });
   }
-  return { run, cancel: () => pending.forEach(stop => stop()), enabled: isEnabled };
+  function track(stop) {
+    pending.add(stop);
+    return () => pending.delete(stop);
+  }
+  return { run, track, cancel: () => pending.forEach(stop => stop()), enabled: isEnabled };
 }
 
-export async function playElement(node, model, motion, signal, only) {
+const typewriters = new WeakMap();
+export function finishTypewriter(node) {
+  typewriters.get(node)?.();
+}
+
+function playTypewriter(node, entrance, motion, signal, register) {
+  const text = node.textContent;
+  const units = Array.from(new Intl.Segmenter(document.documentElement.lang, { granularity: "grapheme" }).segment(text), item => item.segment);
+  if (!units.length) return Promise.resolve();
+  const accessible = decoration("gift-typewriter-accessible", text);
+  accessible.removeAttribute("aria-hidden");
+  const visual = decoration("gift-typewriter-overlay");
+  visual.append(document.createTextNode(""), decoration("gift-typewriter-rest", text));
+  node.replaceChildren(accessible, visual);
+
+  return new Promise(resolve => {
+    const steps = Math.min(60, units.length);
+    const ticks = Math.max(24, Math.round(duration(entrance) * 3 / steps));
+    let frame = 0;
+    let timer = setTimeout(tick, entrance.delay || 0);
+    const releaseMotion = motion.track(finish);
+    const releaseSkip = register?.(finish, node);
+    typewriters.set(node, finish);
+    signal?.addEventListener("abort", finish, { once: true });
+    function tick() {
+      const end = Math.ceil(++frame * units.length / steps);
+      if (frame >= steps) return finish();
+      visual.firstChild.data = units.slice(0, end).join("");
+      visual.lastChild.textContent = units.slice(end).join("");
+      timer = setTimeout(tick, ticks);
+    }
+    function finish() {
+      if (!typewriters.delete(node)) return;
+      clearTimeout(timer);
+      signal?.removeEventListener("abort", finish);
+      releaseMotion();
+      node.textContent = text;
+      releaseSkip?.();
+      resolve();
+    }
+  });
+}
+
+export async function playElement(node, model, motion, signal, only, registerTypewriter) {
   const { entrance, emphasis } = model.effects || {};
   const opacity = model.opacity ?? 1;
   if (entrance && (!only || only === "entrance") && motion.enabled()) {
@@ -48,38 +95,7 @@ export async function playElement(node, model, motion, signal, only) {
       E04: [{clipPath:"inset(0 100% 0 0)"},{clipPath:"inset(0 0 0 0)"}],
     }[entrance.id];
     if (entrance.id === "E03") {
-      const text = node.textContent;
-      const graphemes = Array.from(new Intl.Segmenter("vi", {granularity:"grapheme"}).segment(text), item => item.segment);
-      const visual = decoration("gift-typewriter-overlay");
-      const accessible = decoration("gift-typewriter-accessible",text);
-      accessible.removeAttribute("aria-hidden");
-      const skip = document.createElement("button");
-      skip.type = "button";
-      skip.className = "gift-typewriter-skip";
-      skip.textContent = "Xem trọn ngay";
-      const execution = new AbortController();
-      skip.addEventListener("click", () => execution.abort(), {signal:execution.signal});
-      signal?.addEventListener("abort", () => execution.abort(), {once:true});
-      node.replaceChildren(accessible,visual,skip);
-      const steps = Math.min(60, graphemes.length);
-      const textFrames = Array.from({length:steps+1},(_,i) => graphemes.slice(0,Math.ceil(i*graphemes.length/Math.max(1,steps))).join(""));
-      const ticks = Math.max(24, Math.round(duration(entrance)*3/Math.max(1,steps)));
-      let frame = 0;
-      let timer;
-      const delay = entrance.delay || 0;
-      const start = setTimeout(() => {
-        timer = setInterval(() => { visual.textContent = textFrames[Math.min(frame++,steps)]; }, ticks);
-      }, delay);
-      function finish() {
-        clearTimeout(start);
-        clearInterval(timer);
-        const focused = document.activeElement === skip;
-        node.textContent = text;
-        if (focused && !signal?.aborted) { node.tabIndex = -1; node.focus({preventScroll:true}); }
-      }
-      await motion.run(visual,[{opacity:.99},{opacity:1}],{duration:Math.min(2400,ticks*(steps+1)),delay},
-        execution.signal,finish);
-      execution.abort();
+      await playTypewriter(node, entrance, motion, signal, registerTypewriter);
     } else {
       await motion.run(node, frames, {duration:duration(entrance),delay:entrance.delay||0,fill:"backwards"}, signal);
     }
@@ -104,7 +120,7 @@ export async function playElement(node, model, motion, signal, only) {
   delete node.dataset.giftEffect;
 }
 
-export function sceneTransition(stage, previous, preset, motion, signal) {
+export function sceneTransition(stage, incoming, previous, preset, motion, signal) {
   if (!previous || !preset || !motion.enabled()) return;
   previous.classList.add("gift-transition-layer");
   previous.dataset.giftEffect = preset.id;
@@ -130,9 +146,7 @@ export function sceneTransition(stage, previous, preset, motion, signal) {
     T04: [{opacity:1},{opacity:1}],
   }[preset.id];
   if (preset.id === "T02") {
-    const distance = stage.clientWidth;
-    for (const child of stage.querySelectorAll(":scope > [data-runtime-element]"))
-      void motion.run(child,[{translate:`${distance}px 0`},{translate:"0 0"}],{duration:ms},signal);
+    void motion.run(incoming, [{ translate: "100% 0" }, { translate: "0 0" }], { duration: ms }, signal);
   }
   return motion.run(previous,frames,{duration:ms},signal,() => previous.remove());
 }

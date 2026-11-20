@@ -203,8 +203,10 @@ try {
     const mailbox = path.join(fixture, 'mailbox.ndjson'), clock = path.join(fixture, 'recovery-now.txt');
     let now = Date.now();
     fs.writeFileSync(clock, String(now));
+    const mailFor = email => fs.existsSync(mailbox) ? fs.readFileSync(mailbox, 'utf8').trim().split('\n').map(line => JSON.parse(line)).findLast(item => item.to === email) : undefined;
     await runRecovery(base, {
-      messageFor: email => fs.existsSync(mailbox) ? fs.readFileSync(mailbox, 'utf8').trim().split('\n').map(line => JSON.parse(line)).findLast(item => item.to === email)?.text : undefined,
+      mailFor,
+      messageFor: email => mailFor(email)?.text,
       advance: ms => { now += ms; fs.writeFileSync(clock, String(now)); },
     });
   });

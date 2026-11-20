@@ -4,8 +4,10 @@ import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { load } from 'js-yaml';
 import { ESLint } from 'eslint';
+import { checkLocales } from './check-locales.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
+checkLocales();
 function walk(directory) {
   return fs.readdirSync(directory, { withFileTypes: true }).filter(entry => entry.name !== 'data').flatMap(entry => {
     const filename = path.join(directory, entry.name);

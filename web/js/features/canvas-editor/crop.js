@@ -18,7 +18,7 @@ export function cropEditor(model, { document, assetUrl, editable, onPreview, onC
   const marker = node("span", { class: "editor-crop-point" });
   viewport.append(marker);
   const initial = normalizeFocalPoint(model.props.focalPoint);
-  let pointer = null, point = initial;
+  let pointer = null, point = initial, frame = 0, sample, activeAnchor;
   // Các nút nằm ngoài vùng kéo crop nên không cản thao tác pointer/touch.
   const grid = node("div", {
     class: "editor-crop-presets", role: "group", "aria-label": "Chọn nhanh trọng tâm ảnh",
@@ -30,14 +30,16 @@ export function cropEditor(model, { document, assetUrl, editable, onPreview, onC
       "data-crop-anchor": anchor.id, title: anchor.label,
     }, node("span", { class: "editor-crop-presets__dot", "aria-hidden": "true" })));
   }
+  const buttons = [...grid.querySelectorAll("button[data-crop-anchor]")];
+  const img = picture.querySelector("img");
   const paint = value => {
     marker.style.left = `${value.x * 100}%`;
     marker.style.top = `${value.y * 100}%`;
     const active = activeCropAnchor(value);
-    for (const button of grid.querySelectorAll("button[data-crop-anchor]")) {
-      button.setAttribute("aria-pressed", String(button.dataset.cropAnchor === active));
+    if (activeAnchor !== active) {
+      activeAnchor = active;
+      for (const button of buttons) button.setAttribute("aria-pressed", String(button.dataset.cropAnchor === active));
     }
-    const img = picture.querySelector("img");
     if (img) applyFocalPoint(img, value);
   };
   paint(point);
@@ -56,16 +58,26 @@ export function cropEditor(model, { document, assetUrl, editable, onPreview, onC
     track(event);
   });
   viewport.addEventListener("pointermove", event => {
-    if (event.pointerId === pointer) track(event);
+    if (event.pointerId !== pointer) return;
+    sample = event;
+    if (frame) return;
+    frame = requestAnimationFrame(() => {
+      frame = 0;
+      if (viewport.isConnected && sample.pointerId === pointer) track(sample);
+    });
   });
   viewport.addEventListener("pointerup", event => {
     if (event.pointerId !== pointer) return;
+    cancelAnimationFrame(frame);
+    frame = 0;
     track(event);
     pointer = null;
     onChange(point);
   });
   const cancel = event => {
     if (event.pointerId !== pointer) return;
+    cancelAnimationFrame(frame);
+    frame = 0;
     pointer = null;
     point = initial;
     paint(point);

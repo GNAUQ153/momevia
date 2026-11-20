@@ -491,6 +491,14 @@
 }
 
 .auth-switch a,
+.is-auth .site-tools {
+  display: none;
+}
+
+.auth-support {
+  min-height: 44px;
+}
+
 .auth-policy-note a {
   color: #6335cb;
   font-weight: 800;
@@ -574,7 +582,7 @@
   }
 
   .auth-showcase__art > img {
-    width: min(260px, 88%);
+    width: min(260px, 40%);
   }
 
   .auth-showcase h2 {

@@ -1,7 +1,8 @@
 import { randomUUID, randomInt } from 'node:crypto';
 import { MySqlClient } from '../../infrastructure/mysql/client.mjs';
-import { HttpError } from '../../shared/http.mjs';
+import { localizedError } from '../../shared/http.mjs';
 import { mysqlDate } from '../identity/mysql.repositories.mjs';
+import { canonicalText } from '../../../web/js/shared/locale.js';
 
 const fromJson = value => typeof value === 'string' ? JSON.parse(value) : (value || {});
 const receiptNo = id => `MV-RC-${id.replace(/-/g, '').toUpperCase()}`;
@@ -80,7 +81,7 @@ export class MySqlPaymentRepository {
       currency: row.currency, provider: row.provider,
       transactionReference: row.provider_reference, issuedAt: row.issued_at,
       testPayment: Boolean(row.is_test), status: 'paid',
-      note: 'Biên nhận thanh toán; không phải hóa đơn điện tử VAT.',
+      note: canonicalText('payment.receipt.taxNote'),
     };
   }
 
@@ -123,16 +124,16 @@ export class MySqlPaymentRepository {
     const { provider, code, reference, amount, currency, success } = event;
     if (!success) return { settled: false, reason: 'not-paid' };
     if (!Number.isSafeInteger(amount) || amount <= 0 || currency !== 'VND' || !reference || reference.length > 191)
-      throw new HttpError(400, 'Thông tin giao dịch không hợp lệ.');
+      throw localizedError(400, 'errors.payment.invalidTransaction');
     return this.client.withTransaction(async tx => {
       const [matches] = await tx.execute(`SELECT p.*, o.user_id,o.template_id,o.is_test,o.status AS order_status
         FROM payment_intents p JOIN orders o ON o.id=p.order_id
         WHERE p.provider=? AND p.provider_order_code=? FOR UPDATE`, [provider, code]);
       const item = matches[0];
-      if (!item) throw new HttpError(404, 'Không tìm thấy đơn tương ứng.');
-      if (Number(item.amount_vnd) !== amount) throw new HttpError(400, 'Số tiền thanh toán không trùng khớp.');
+      if (!item) throw localizedError(404, 'errors.payment.orderNotFound');
+      if (Number(item.amount_vnd) !== amount) throw localizedError(400, 'errors.payment.amountMismatch');
       if (item.status === 'paid' && item.order_status === 'paid') return { settled: true, replay: true, orderId: item.order_id };
-      if (item.status !== 'pending' || item.order_status !== 'pending_payment') throw new HttpError(409, 'Trạng thái đơn hàng không hợp lệ.');
+      if (item.status !== 'pending' || item.order_status !== 'pending_payment') throw localizedError(409, 'errors.payment.orderState');
       // Event and entitlement are committed together. A failed transaction can be retried safely.
       await tx.execute('INSERT INTO payment_events(provider,event_key,payload) VALUES (?,?,?)',
         [provider, reference, JSON.stringify({ provider, code, reference, amount, currency })]);

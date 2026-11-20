@@ -1,55 +1,56 @@
+import { canonicalText } from '../locale.js';
 // Bộ hình vector nguyên bản cho Momevia: chỉ dùng Shape/Line/Text của Canvas Runtime.
 // Không dùng emoji, ảnh stock hay thư viện/bản quyền bên ngoài. Tất cả layer đều chỉnh sửa được.
 export const COLLECTION_2027 = Object.freeze({
   'winter-wishes-2026': {
-    motif: 'winter-tree', name: 'Giáng sinh an lành', bg: '#153D3B', paper: '#F8F1E7', ink: '#FFF8E9',
-    accent: '#DDBE78', detail: '#D46B66', button: '#B84651', headline: 'Mùa đông ấm áp\nnhờ có bạn.',
-    note: 'Một điều ước nhỏ, gửi giữa mùa Giáng sinh.', font: 'serif',
+    motif: 'winter-tree', name: canonicalText('templates.winter-wishes-2026.name'), bg: '#153D3B', paper: '#F8F1E7', ink: '#FFF8E9',
+    accent: '#DDBE78', detail: '#D46B66', button: '#B84651', headline: canonicalText('templates.winter-wishes-2026.headline'),
+    note: canonicalText('templates.winter-wishes-2026.note'), font: 'serif',
   },
   'new-year-spark-2027': {
-    motif: 'new-year', name: 'Chào năm 2027', bg: '#101F42', paper: '#FDF6E6', ink: '#F8EAC8',
-    accent: '#E4BF72', detail: '#93B7DD', button: '#4A6CB5', headline: 'Bước sang 2027,\nước mơ tỏa sáng.',
-    note: 'Gửi lời chúc cho một khởi đầu đáng nhớ.', font: 'serif',
+    motif: 'new-year', name: canonicalText('templates.new-year-spark-2027.name'), bg: '#101F42', paper: '#FDF6E6', ink: '#F8EAC8',
+    accent: '#E4BF72', detail: '#93B7DD', button: '#4A6CB5', headline: canonicalText('templates.new-year-spark-2027.headline'),
+    note: canonicalText('templates.new-year-spark-2027.note'), font: 'serif',
   },
   'spring-blessing-2027': {
-    motif: 'tet-flower', name: 'Xuân sum vầy', bg: '#921F32', paper: '#FFF3DF', ink: '#FFF2DC',
-    accent: '#F4CA71', detail: '#F7B3AD', button: '#BD3E37', headline: 'Tết đến bên nhau,\nphúc lành đầy nhà.',
-    note: 'Đón xuân 2027 với những lời thương.', font: 'serif',
+    motif: 'tet-flower', name: canonicalText('templates.spring-blessing-2027.name'), bg: '#921F32', paper: '#FFF3DF', ink: '#FFF2DC',
+    accent: '#F4CA71', detail: '#F7B3AD', button: '#BD3E37', headline: canonicalText('templates.spring-blessing-2027.headline'),
+    note: canonicalText('templates.spring-blessing-2027.note'), font: 'serif',
   },
   'velvet-valentine-2027': {
-    motif: 'valentine-note', name: 'Lá thư Valentine', bg: '#722D46', paper: '#FFF0EA', ink: '#FFE7E4',
-    accent: '#E5A4AD', detail: '#EFC6B2', button: '#A44365', headline: 'Một lá thư nhỏ,\nmột lời thương lớn.',
-    note: 'Đôi điều chỉ muốn gửi riêng người ấy.', font: 'serif',
+    motif: 'valentine-note', name: canonicalText('templates.velvet-valentine-2027.name'), bg: '#722D46', paper: '#FFF0EA', ink: '#FFE7E4',
+    accent: '#E5A4AD', detail: '#EFC6B2', button: '#A44365', headline: canonicalText('templates.velvet-valentine-2027.headline'),
+    note: canonicalText('templates.velvet-valentine-2027.note'), font: 'serif',
   },
   'birthday-radiance': {
-    motif: 'birthday-cake', name: 'Sinh nhật rực rỡ', bg: '#6A539E', paper: '#FFF6EB', ink: '#FFF7E8',
-    accent: '#F8D58A', detail: '#F2B5B8', button: '#7553B1', headline: 'Hôm nay là\nngày của bạn!',
-    note: 'Thêm một tuổi, thêm muôn điều rực rỡ.', font: 'heading',
+    motif: 'birthday-cake', name: canonicalText('templates.birthday-radiance.name'), bg: '#6A539E', paper: '#FFF6EB', ink: '#FFF7E8',
+    accent: '#F8D58A', detail: '#F2B5B8', button: '#7553B1', headline: canonicalText('templates.birthday-radiance.headline'),
+    note: canonicalText('templates.birthday-radiance.note'), font: 'heading',
   },
   'thank-you-bloom': {
-    motif: 'thanks-flower', name: 'Lời cảm ơn nở hoa', bg: '#DDECDD', paper: '#FFFDF7', ink: '#345548',
-    accent: '#779D7D', detail: '#C69AAA', button: '#436A56', headline: 'Cảm ơn bạn\nvì những điều đẹp.',
-    note: 'Lời biết ơn có thể nở hoa mỗi ngày.', font: 'serif',
+    motif: 'thanks-flower', name: canonicalText('templates.thank-you-bloom.name'), bg: '#DDECDD', paper: '#FFFDF7', ink: '#345548',
+    accent: '#779D7D', detail: '#C69AAA', button: '#436A56', headline: canonicalText('templates.thank-you-bloom.headline'),
+    note: canonicalText('templates.thank-you-bloom.note'), font: 'serif',
   },
   'proud-of-you': {
-    motif: 'congrats', name: 'Tự hào về bạn', bg: '#152D49', paper: '#FFFBF0', ink: '#F7E9C6',
-    accent: '#E6C57A', detail: '#85ACC1', button: '#40678C', headline: 'Thật tự hào\nvề bạn hôm nay.',
-    note: 'Mọi cố gắng đều xứng đáng được ghi nhớ.', font: 'serif',
+    motif: 'congrats', name: canonicalText('templates.proud-of-you.name'), bg: '#152D49', paper: '#FFFBF0', ink: '#F7E9C6',
+    accent: '#E6C57A', detail: '#85ACC1', button: '#40678C', headline: canonicalText('templates.proud-of-you.headline'),
+    note: canonicalText('templates.proud-of-you.note'), font: 'serif',
   },
   'faraway-hug': {
-    motif: 'distance', name: 'Một cái ôm từ xa', bg: '#DDEBF5', paper: '#FFFEFA', ink: '#395776',
-    accent: '#83A8C7', detail: '#B4CDE1', button: '#3F6386', headline: 'Cách nhau một chút,\nthương nhau thật nhiều.',
-    note: 'Gấp lời nhớ thành một chiếc máy bay giấy.', font: 'serif',
+    motif: 'distance', name: canonicalText('templates.faraway-hug.name'), bg: '#DDEBF5', paper: '#FFFEFA', ink: '#395776',
+    accent: '#83A8C7', detail: '#B4CDE1', button: '#3F6386', headline: canonicalText('templates.faraway-hug.headline'),
+    note: canonicalText('templates.faraway-hug.note'), font: 'serif',
   },
   'gentle-apology': {
-    motif: 'apology', name: 'Một lời xin lỗi', bg: '#E8DDD2', paper: '#FFFBF3', ink: '#5F4E43',
-    accent: '#899783', detail: '#C69C91', button: '#765D55', headline: 'Mình muốn nói\nmột lời xin lỗi.',
-    note: 'Một lời chân thành, mở đầu cho sự thấu hiểu.', font: 'serif',
+    motif: 'apology', name: canonicalText('templates.gentle-apology.name'), bg: '#E8DDD2', paper: '#FFFBF3', ink: '#5F4E43',
+    accent: '#899783', detail: '#C69C91', button: '#765D55', headline: canonicalText('templates.gentle-apology.headline'),
+    note: canonicalText('templates.gentle-apology.note'), font: 'serif',
   },
   'calm-light': {
-    motif: 'calm-dawn', name: 'Bình yên gửi bạn', bg: '#D9E6E3', paper: '#FDFDF7', ink: '#365E5F',
-    accent: '#E7BC95', detail: '#93B8AE', button: '#4A7774', headline: 'Mong bạn luôn\nbình an và dịu dàng.',
-    note: 'Hôm nay chậm lại một chút cũng không sao.', font: 'serif',
+    motif: 'calm-dawn', name: canonicalText('templates.calm-light.name'), bg: '#D9E6E3', paper: '#FDFDF7', ink: '#365E5F',
+    accent: '#E7BC95', detail: '#93B8AE', button: '#4A7774', headline: canonicalText('templates.calm-light.headline'),
+    note: canonicalText('templates.calm-light.note'), font: 'serif',
   },
 });
 

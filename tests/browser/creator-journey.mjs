@@ -134,13 +134,15 @@ export async function runCreatorJourney(base) {
       Object.defineProperty(globalThis.navigator.clipboard, 'writeText', { value: async url => { globalThis.fixtureClipboard = url; } });
     });
     await phone.goto(base + '/explore');
-    // Phase 4 đặt bộ sưu tập mùa lễ trước danh sách mẫu chính.
-    // Kiểm tra nội dung đầu trang và khả năng cuộn tới thư viện thay vì cố định tọa độ Y.
+    // Bộ sưu tập vẫn có thể thấy ở đầu trang sau nhóm tìm kiếm và lọc.
     const seasonalShelf = phone.locator('.seasonal-shelf');
     await seasonalShelf.waitFor();
     assert(await visibleInViewport(phone, seasonalShelf), 'Bộ sưu tập mùa lễ phải xuất hiện trong màn hình đầu');
+    assert.equal(await seasonalShelf.getAttribute('open'), null);
+    await seasonalShelf.locator('summary').click();
     await phone.locator('.seasonal-shelf__card').first().waitFor();
     await capture(phone, 'catalog-390');
+    await seasonalShelf.locator('summary').click();
     const firstCard = phone.locator('#catalog-grid .template-card').first();
     await firstCard.waitFor();
     await firstCard.scrollIntoViewIfNeeded();
@@ -172,10 +174,41 @@ export async function runCreatorJourney(base) {
     await heading.evaluate(item => { item.textContent = item.textContent.repeat(5); });
     assert(await phone.evaluate(() => globalThis.document.documentElement.scrollWidth <= globalThis.innerWidth));
     await heading.evaluate(item => { item.textContent = item.textContent.slice(0, item.textContent.length / 5); });
+    const previewVersion = `**/api/catalog/templates/${id}/versions/${v1}`;
+    let versionRequests = 0;
+    phone.on('request', request => {
+      if (request.url().endsWith(`/api/catalog/templates/${id}/versions/${v1}`)) versionRequests++;
+    });
+    await phone.route(previewVersion, route => route.fulfill({ status: 503 }), { times: 1 });
     await phone.getByRole('button', { name: 'Xem thử' }).click();
+    await phone.getByRole('dialog').getByRole('alert').getByText('Chưa mở được bản xem thử.').waitFor();
+    await phone.getByRole('dialog').getByRole('button', { name: 'Thử lại' }).click();
     await phone.locator('.template-preview-player').getByText('Mai', { exact: true }).waitFor();
+    const previewLocale = phone.getByRole('dialog').locator('[data-locale-select]');
+    await previewLocale.selectOption('en');
+    await phone.waitForFunction(() => globalThis.document.documentElement.lang === 'en');
+    await phone.locator('.template-preview-player').getByText('Mai', { exact: true }).waitFor();
+    assert.equal(versionRequests, 2);
+    await previewLocale.selectOption('vi');
+    await phone.waitForFunction(() => globalThis.document.documentElement.lang === 'vi');
     await loaded(phone);
     await phone.getByRole('button', { name: 'Đóng', exact: true }).click();
+    let releasePreview;
+    const holdPreview = new Promise(resolve => { releasePreview = resolve; });
+    await phone.route(previewVersion, async route => {
+      await holdPreview;
+      await route.continue().catch(() => {});
+    }, { times: 1 });
+    const pending = phone.waitForRequest(previewVersion);
+    await phone.getByRole('button', { name: 'Xem thử' }).click();
+    await pending;
+    await phone.getByRole('dialog').getByRole('status').getByText('Đang mở bản xem thử…').waitFor();
+    try {
+      await phone.goBack();
+      await phone.locator('#catalog-grid').waitFor();
+    } finally { releasePreview(); }
+    assert.equal(await phone.getByRole('dialog').count(), 0);
+    await phone.goForward();
     await phone.getByRole('link', { name: 'Dùng mẫu' }).click();
     await field(phone, 'binding.recipientName').fill('Mai');
     await field(phone, 'binding.senderName').fill('An');

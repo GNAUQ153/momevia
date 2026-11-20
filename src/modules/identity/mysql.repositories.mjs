@@ -1,5 +1,5 @@
 import { MySqlClient } from '../../infrastructure/mysql/client.mjs';
-import { HttpError } from '../../shared/http.mjs';
+import { localizedError } from '../../shared/http.mjs';
 import { signSession, verifySession } from '../../shared/security.mjs';
 
 export function mysqlDate(value) {
@@ -21,7 +21,7 @@ function userFromRow(row) {
   };
 }
 function duplicated(error) {
-  if (error?.code === 'ER_DUP_ENTRY') throw new HttpError(409, 'Thông tin đăng nhập đã tồn tại.');
+  if (error?.code === 'ER_DUP_ENTRY') throw localizedError(409, 'errors.auth.duplicate');
   throw error;
 }
 export class MySqlUsersRepository {
@@ -108,15 +108,15 @@ export class MySqlRoleService {
   constructor(users) { this.users = users; }
   async requireAdmin(actorId) {
     if ((await this.users.get(actorId))?.role !== 'admin')
-      throw new HttpError(403, 'Chỉ quản trị viên được thay đổi vai trò tài khoản.');
+      throw localizedError(403, 'errors.auth.adminRole');
   }
   async list(actorId) { await this.requireAdmin(actorId); return this.users.all(); }
   async change(actorId, userId, role) {
     await this.requireAdmin(actorId);
     if (typeof userId !== 'string' || !userId || userId.length > 100 || !['sender','creator','admin'].includes(role))
-      throw new HttpError(400, 'Tài khoản hoặc vai trò không hợp lệ.');
+      throw localizedError(400, 'errors.auth.invalidRole');
     const user = await this.users.get(userId);
-    if (!user) throw new HttpError(404, 'Tài khoản không tồn tại.');
+    if (!user) throw localizedError(404, 'errors.auth.noAccount');
     return user.role === role ? user : this.users.update(userId, { role });
   }
 }

@@ -113,6 +113,12 @@ async function startFixture() {
   const fabricModule = await request(base, '/js/vendor/fabric.mjs', { method: 'HEAD' });
   assert.equal(fabricModule.status, 200);
   assert.match(fabricModule.headers['content-type'], /^text\/javascript\b/, 'Fabric ESM must be served as JavaScript.');
+  for (const locale of ['vi', 'en']) {
+    const translations = await request(base, `/assets/locales/${locale}.json`);
+    assert.equal(translations.status, 200);
+    assert.match(translations.headers['content-type'], /^application\/json\b/);
+    assert(translations.data['shell.meta.homeTitle']);
+  }
   const seededLogin = await request(base, '/api/auth/login', { method: 'POST', body: {
     email: legacy ? env.TEST_ACCOUNT_EMAIL : 'ENV-QA@example.test',
     password: legacy ? env.TEST_ACCOUNT_PASSWORD : 'EnvFixturePass123',
@@ -122,6 +128,10 @@ async function startFixture() {
   assert(!('passwordHash' in seededLogin.data.user));
   assert(!('testAccount' in seededLogin.data.user));
   if(process.argv.includes('--browser')) {
+    const {runLocaleBrowser}=await import('../browser/locale.mjs');
+    await runLocaleBrowser(base);
+    const {runHomeBrowser}=await import('../browser/home.mjs');
+    await runHomeBrowser(base);
     const {runBrowserSmoke}=await import('../browser/smoke.mjs');
     await runBrowserSmoke(base);
   }

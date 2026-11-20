@@ -3,6 +3,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {randomUUID} from 'node:crypto';
 import {chromium} from 'playwright';
+import {createElement} from '../../web/js/shared/canvas/index.js';
+import {syntheticPhoto} from '../integration/canvas-expanded.mjs';
 
 const deferred=()=>{let resolve;const promise=new Promise(done=>{resolve=done;});return {promise,resolve};};
 const json=(route,value,status=200)=>route.fulfill({status,contentType:'application/json',body:JSON.stringify(value)});
@@ -87,6 +89,47 @@ export async function runCanvasResilience(base){
     page.on('dialog',acceptRecovery);await open(designA);await page.waitForFunction(value=>globalThis.document.querySelector('[data-editor-field="binding.message"]')?.value===value,privateText);page.off('dialog',acceptRecovery);await save();
     completed.push('C07/C08 recovery keys owner/design scoped; same-origin account B cannot read A draft or recovery UI');
 
+    const fabricDraft=await create('Fabric lifetime QA');
+    const fabricPath=`/designs/designs/${fabricDraft.id}`;
+    const imageResponse=await context.request.post(base+'/api'+fabricPath+'/assets',{
+      data:await syntheticPhoto(0),
+      headers:{'content-type':'image/png','x-mutation-id':randomUUID()},
+    });
+    assert.equal(imageResponse.status(),201);
+    const {asset}=await imageResponse.json();
+    fabricDraft.document.assets.push({assetId:asset.id,kind:'image'});
+    fabricDraft.document.elements.push(createElement('image',{id:'late-image',props:{assetId:asset.id}}));
+    fabricDraft.document.scenes[0].elementIds.push('late-image');
+    await api(fabricPath+'/save',{title:fabricDraft.title,document:fabricDraft.document,expectedRevision:fabricDraft.revision,mutationId:randomUUID()});
+    await open(fabricDraft);
+    await page.locator('.editor-stage-element[data-element-id="late-image"] img').evaluate(node=>node.decode());
+    const lateAsset='**'+fabricPath+'/assets/'+asset.id;
+    for(const closeBy of ['button','escape','route']){
+      const arrived=gate(),release=gate(),finished=gate();
+      await page.route(lateAsset,async route=>{
+        arrived.resolve();
+        await release.promise;
+        try { await route.continue(); } catch { /* The dialog aborted its asset load. */ }
+        finally { finished.resolve(); }
+      });
+      await control('advanced-design').evaluate(node=>{node.click();node.click();});
+      await bounded(arrived.promise,'Fabric image request');
+      const fabric=page.locator('.editor-fabric-dialog[open]');
+      assert.equal(await fabric.count(),1);
+      if(closeBy==='button') await fabric.locator('[data-editor-action="fabric-close"]').last().click();
+      else if(closeBy==='escape') await page.keyboard.press('Escape');
+      else {
+        await control('studio').evaluate(node=>node.click());
+        await page.waitForURL('**/studio');
+      }
+      await fabric.waitFor({state:'detached'});
+      release.resolve();
+      await bounded(finished.promise,'aborted Fabric image release');
+      await page.unroute(lateAsset);
+    }
+    assert.equal((await api(fabricPath)).design.revision,fabricDraft.revision+1);
+    completed.push('Fabric double-open yields one modal, Close, Escape and route disposal dismiss before image response with no save');
+
     const catalog=(await api('/catalog/templates')).templates,paid=catalog.find(template=>template.price>0);
     assert(paid,'paid seed fixture');
     const paidA=await create('Checkout draft A',paid.id),paidB=await create('Checkout draft B',paid.id);
@@ -134,7 +177,22 @@ export async function runCanvasResilience(base){
     methodsState='ready';await control('publish').click();await page.getByRole('heading',{name:'Mua quyền sử dụng mẫu'}).waitFor();
     await page.locator('[data-action="start-payment"]').click();await page.locator('.toast--error').filter({hasText:'Không thể kết nối'}).waitFor();
     assert.equal(contexts.length,1);assert.equal(contexts[0].designId,paidA.id);
-    await page.locator('[data-action="start-payment"]').click();await page.getByRole('heading',{name:'Quét VietQR để thanh toán'}).waitFor();
+    createMode='delayed';createGate=gate();createStarted=gate();createFinished=gate();
+    const modalLocale=page.locator('#modal-root [data-locale-select]');
+    const paymentButton=await page.locator('[data-action="start-payment"]').elementHandle();
+    await page.locator('[data-action="start-payment"]').click();
+    await bounded(createStarted.promise,'localized checkout create started');
+    await modalLocale.selectOption('en');
+    await page.getByRole('heading',{name:'Buy a template license'}).waitFor();
+    assert.equal(await page.locator('[data-action="start-payment"]').evaluate((node,previous)=>node===previous&&node.disabled,paymentButton),true);
+    createGate.resolve();
+    await bounded(createFinished.promise,'localized checkout create completed');
+    createMode='normal';
+    await page.getByRole('heading',{name:'Scan VietQR to pay'}).waitFor();
+    const qrBeforeLanguageSwitch=await page.locator('.qr-image').getAttribute('src');
+    await modalLocale.selectOption('vi');
+    await page.getByRole('heading',{name:'Quét VietQR để thanh toán'}).waitFor();
+    assert.equal(await page.locator('.qr-image').getAttribute('src'),qrBeforeLanguageSwitch);
     assert.equal(contexts.length,1);assert.deepEqual(contextRequests[0],contextRequests[1]);assert.equal(contextRequests[1].designId,paidA.id);
     assert((await page.locator('.qr-modal').innerText()).includes(intentAmount.toLocaleString('vi-VN')));
     await page.locator('[data-action="payment-status"]').click();await page.getByRole('heading',{name:'Đang xác nhận thanh toán'}).waitFor();assert.equal(giftPosts,0);
@@ -149,6 +207,20 @@ export async function runCanvasResilience(base){
     const createsBeforeReturn=createRequests.length;paymentStatus='paid';await page.locator('[data-action="refresh-payment"]').click();await page.getByRole('heading',{name:'Thanh toán thành công'}).waitFor();await page.getByRole('alert').filter({hasText:'Biên nhận chưa tải được'}).waitFor();await page.getByText('Nháp đã được chỉnh sửa ở phiên khác. Mở bản mới để xem trước và kiểm tra lại quyền.').waitFor();
     assert.equal(giftPosts,0);assert.equal(createRequests.length,createsBeforeReturn);assert.equal(await page.locator('[data-action="print-receipt"]').count(),0);
     receiptError=false;await page.getByRole('button',{name:'Thử tải biên nhận'}).click();await page.locator('#payment-receipt').waitFor();assert.equal(await page.locator('[data-action="print-receipt"]').count(),1);assert.equal(giftPosts,0);assert.equal(createRequests.length,createsBeforeReturn);
+    const trafficBeforeLocale=paymentTraffic.length;
+    const pageLocale=page.locator('.nav-actions [data-locale-select]');
+    await pageLocale.selectOption('en');
+    await page.getByRole('heading',{name:'Receipt SYNTHETIC-ONLY-RECEIPT'}).waitFor();
+    assert.match(await page.locator('#payment-receipt').innerText(),/Transaction reference: TEST-REFERENCE/);
+    assert.equal(paymentTraffic.length,trafficBeforeLocale);
+    assert.equal(new URL(page.url()).pathname,`/payment-result/${orderId}`);
+    if (artifacts) {
+      fs.mkdirSync(artifacts,{recursive:true});
+      await page.screenshot({path:path.join(artifacts,'locale-receipt-en.png'),fullPage:true});
+    }
+    await pageLocale.selectOption('vi');
+    await page.getByRole('heading',{name:'Biên nhận SYNTHETIC-ONLY-RECEIPT'}).waitFor();
+    completed.push('VI/EN during delayed fake checkout keeps the same disabled control and order, QR source unchanged, receipt translated without refetch.');
     await page.getByRole('link',{name:'Tiếp tục nháp vừa liên kết'}).click();await field('binding.message').waitFor();assert.equal(await field('binding.message').inputValue(),expectedPaidBMessage);assert.equal(new URL(page.url()).searchParams.get('mode'),'quick');assert.equal(giftPosts,0);
     completed.push('C14/C15 same order keeps two explicit draft choices; paid and receipt-error distinct, receipt retry never charges/publishes');
 

@@ -1,4 +1,4 @@
-import { HttpError, parseJson, sendJson } from '../../shared/http.mjs';
+import { parseJson, sendJson, localizedError } from '../../shared/http.mjs';
 import { currentUser, sanitizeText } from '../../shared/security.mjs';
 export function registerPaymentRoutes(router, { service, config, resolveUser = currentUser }) {
   router.on('GET', '/payments/methods', ({ res }) => {
@@ -34,7 +34,7 @@ export function registerPaymentRoutes(router, { service, config, resolveUser = c
     sendJson(res, 200, { attempts: await service.reconciliationHistory(admin, params.orderId, url.searchParams.get('limit')) });
   });
   router.on('POST', '/payments/webhooks/:provider', async ({ req, res, params }) => {
-    if (!['momo', 'payos'].includes(params.provider)) throw new HttpError(404, 'Không hỗ trợ provider.');
+    if (!['momo', 'payos'].includes(params.provider)) throw localizedError(404, 'errors.payment.unknownProvider');
     const body = await parseJson(req, 30_000);
     const result = await service.webhook(params.provider, body);
     sendJson(res, 200, { received: true, processed: result.settled });

@@ -1,5 +1,5 @@
 import { MySqlClient } from '../../infrastructure/mysql/client.mjs';
-import { HttpError } from '../../shared/http.mjs';
+import { localizedError } from '../../shared/http.mjs';
 import { mysqlDate } from '../identity/mysql.repositories.mjs';
 import { requireGiftPermission } from './access.mjs';
 import { checkReplyReplay } from './replies.mjs';
@@ -45,7 +45,7 @@ export class MySqlGiftsRepository {
   async revoke(ownerId, giftId, revokedAt) {
     return this.client.withTransaction(async tx => {
       const [rows] = await tx.execute('SELECT * FROM gifts WHERE id=? AND user_id=? FOR UPDATE', [giftId, ownerId]);
-      if (!rows.length) throw new HttpError(404, 'Không tìm thấy món quà.');
+      if (!rows.length) throw localizedError(404, 'errors.gift.notFound');
       const gift = asGift(rows[0]);
       if (!gift.revokedAt) {
         gift.revokedAt = revokedAt;
@@ -57,7 +57,7 @@ export class MySqlGiftsRepository {
   async addReply(giftId, reply, invite, acceptNew = () => {}) {
     return this.client.withTransaction(async tx => {
       const [rows] = await tx.execute('SELECT expires_at,payload FROM gifts WHERE id=? FOR UPDATE', [giftId]);
-      if (!rows.length) throw new HttpError(404, 'Không tìm thấy món quà.');
+      if (!rows.length) throw localizedError(404, 'errors.gift.notFound');
       const { expires_at, payload } = rows[0];
       requireGiftPermission({ ...(typeof payload === 'string' ? JSON.parse(payload) : payload), expiresAt: iso(expires_at) }, invite, 'canSend');
       const [existing] = await tx.execute('SELECT * FROM gift_replies WHERE gift_id=? AND id=?', [giftId, reply.id]);

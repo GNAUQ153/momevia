@@ -1,5 +1,5 @@
 import fs from 'node:fs';
-import { HttpError, parseJson, sendJson } from '../../shared/http.mjs';
+import { parseJson, sendJson, localizedError } from '../../shared/http.mjs';
 import { currentUser } from '../../shared/security.mjs';
 import { clientIp } from '../../shared/proxy.mjs';
 import { giftOwnerLinks, giftShareUrl } from './links.mjs';
@@ -42,7 +42,7 @@ export function registerRoutes(router, { config, creationLimit, globalReplies, s
   });
   router.on('POST', '/gifts', async ({req,res}) => {
     const user = await resolveUser(req, config.jwtSecret);
-    if (!creationLimit.consume(user.sub)) throw new HttpError(429, 'Bạn đã tạo nhiều món quà. Vui lòng thử lại sau.');
+    if (!creationLimit.consume(user.sub)) throw localizedError(429, 'errors.gift.createLimit');
     const gift = await service.create(user, await parseJson(req));
     sendJson(res, 201, { gift: ownerShare({ ...gift, imageFile: undefined, userId: undefined }) });
   });
@@ -64,7 +64,7 @@ export function registerRoutes(router, { config, creationLimit, globalReplies, s
     sendJson(res, 200, { replies: await service.replies(params.slug, url.searchParams.get('invite')) });
   });
   router.on('POST', '/gifts/:slug/replies', async ({req,res,params,url}) => {
-    if (!globalReplies.consume('all')) throw new HttpError(429, 'Hệ thống đang nhận nhiều phản hồi. Vui lòng thử lại sau.');
+    if (!globalReplies.consume('all')) throw localizedError(429, 'errors.gift.replyBusy');
     const body = await parseJson(req, 8192);
     const reply = await service.reply(params.slug, body, clientIp(req), url.searchParams.get('invite'));
     sendJson(res, 201, { reply: replyView(reply) });

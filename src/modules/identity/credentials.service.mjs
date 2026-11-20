@@ -1,6 +1,6 @@
 import { randomBytes, scrypt as scryptCallback, timingSafeEqual } from 'node:crypto';
 import { promisify } from 'node:util';
-import { HttpError } from '../../shared/http.mjs';
+import { HttpError, localizedError } from '../../shared/http.mjs';
 
 const scrypt = promisify(scryptCallback);
 
@@ -12,20 +12,20 @@ export class CredentialsService {
   }
 
   normalizeEmail(value) {
-    if (typeof value !== 'string') throw new HttpError(400, 'Email không hợp lệ.');
+    if (typeof value !== 'string') throw localizedError(400, 'errors.auth.invalidEmail');
     const email = value.trim().toLowerCase();
     if (email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      throw new HttpError(400, 'Vui lòng nhập địa chỉ email hợp lệ.');
+      throw localizedError(400, 'errors.auth.emailRequired');
     }
     return email;
   }
 
   validatePassword(value) {
     if (typeof value !== 'string' || value.length < 10 || value.length > 128) {
-      throw new HttpError(400, 'Mật khẩu phải từ 10 đến 128 ký tự.');
+      throw localizedError(400, 'errors.auth.passwordLength');
     }
     if (!/[a-zA-Z]/.test(value) || !/[0-9]/.test(value)) {
-      throw new HttpError(400, 'Mật khẩu cần có ít nhất một chữ cái và một chữ số.');
+      throw localizedError(400, 'errors.auth.passwordComposition');
     }
   }
 
@@ -36,7 +36,7 @@ export class CredentialsService {
   }
 
   async derivePassword(password, salt, length) {
-    if (this.activeHashes >= 4) throw new HttpError(503, 'Xác thực đang bận. Vui lòng thử lại sau.');
+    if (this.activeHashes >= 4) throw localizedError(503, 'errors.auth.busy');
     this.activeHashes++;
     try { return await scrypt(password, salt, length); }
     finally { this.activeHashes--; }
@@ -58,20 +58,20 @@ export class CredentialsService {
 
   async register({ name, email, password }) {
     if (typeof name !== 'string' || name.trim().length < 2 || name.trim().length > 50) {
-      throw new HttpError(400, 'Tên hiển thị phải từ 2 đến 50 ký tự.');
+      throw localizedError(400, 'errors.auth.nameLength');
     }
     const normalizedEmail = this.normalizeEmail(email);
     this.validatePassword(password);
     if ((this.repository.findByEmail ? await this.repository.findByEmail(normalizedEmail)
       : this.repository.all().some(u => u.provider === 'email' && u.email === normalizedEmail))) {
-      throw new HttpError(409, 'Email này đã được đăng ký. Vui lòng đăng nhập.');
+      throw localizedError(409, 'errors.auth.emailTaken');
     }
     const passwordHash = await this.hashPassword(password);
     // Một đăng ký khác có thể hoàn tất trong lúc scrypt chạy bất đồng bộ.
     // Kiểm tra lại và insert đồng bộ trong cùng tiến trình sở hữu repository.
     if ((this.repository.findByEmail ? await this.repository.findByEmail(normalizedEmail)
       : this.repository.all().some(u => u.provider === 'email' && u.email === normalizedEmail))) {
-      throw new HttpError(409, 'Email này đã được đăng ký. Vui lòng đăng nhập.');
+      throw localizedError(409, 'errors.auth.emailTaken');
     }
     return this.repository.insert({
       id: cryptoRandomId(),
@@ -92,7 +92,7 @@ export class CredentialsService {
       ? await this.repository.findByEmail(normalizedEmail)
       : this.repository.all().find(u => u.provider === 'email' && u.email === normalizedEmail);
     if (!user || !(await this.verifyPassword(password, user.passwordHash))) {
-      throw new HttpError(401, 'Email hoặc mật khẩu không chính xác.');
+      throw localizedError(401, 'errors.auth.badCredentials');
     }
     return user;
   }

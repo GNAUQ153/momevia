@@ -34,6 +34,13 @@ export async function runBrowserSmoke(base) {
     const saved = page.locator('#catalog-grid [data-action="toggle-favorite"]').first();
     await saved.click();
     await page.locator('#catalog-grid [data-action="toggle-favorite"][aria-pressed="true"]').first().waitFor();
+    const toast = page.locator('#toast-host .toast');
+    const toastNode = await toast.elementHandle();
+    await saved.click();
+    await toast.getByText('Đã bỏ mẫu khỏi yêu thích.').waitFor();
+    assert.equal(await toast.evaluate((node, original) => node === original, toastNode), true);
+    await saved.click();
+    await toast.getByText('Đã lưu mẫu vào yêu thích.').waitFor();
     await page.goto(base + '/favorites');
     await page.locator('.template-card').first().waitFor();
     const catalog = await (await page.request.get(base + '/api/catalog/templates')).json();

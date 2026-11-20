@@ -1,17 +1,6 @@
 import { isRecoveryEnvelope } from "./recovery-guards.js";
 import { createTabRevisionSync } from "./tab-sync.js";
-
-const messages = {
-  clean: "Đã lưu",
-  dirty: "Chưa lưu",
-  saving: "Đang lưu…",
-  offline: "Mất kết nối · Giữ bản cục bộ",
-  conflict: "Xung đột · Bản cục bộ được giữ",
-  "session-expired": "Phiên hết hạn · Đăng nhập lại để lưu",
-  error: "Chưa lưu được · Thử lại",
-  "asset-pending": "Ảnh đang xử lý…",
-  publishing: "Đang xuất bản…",
-};
+import { t } from "../../core/i18n.js";
 
 // Every pending request is retained verbatim until acknowledged, including a lost ACK.
 export function createSaveSession({
@@ -43,7 +32,7 @@ export function createSaveSession({
   let latestOtherRevision = revision;
   function otherTabConflict() {
     return Object.assign(new Error(
-      'Thiết kế đã được lưu ở tab khác. Bản chỉnh sửa cục bộ được giữ; hãy xem bản máy chủ trước khi tải lại.',
+      t('editor.session.otherTab'),
     ), { status: 409 });
   }
   const tabSync = createTabRevisionSync({
@@ -87,7 +76,7 @@ export function createSaveSession({
     status = next;
     onStatus({
       status,
-      message: messages[status],
+      message: t(status === 'clean' ? 'editor.session.clean' : `editor.status.${status}`),
       revision,
       documentHash,
       error,
@@ -124,7 +113,7 @@ export function createSaveSession({
   async function write(force) {
     if (disposed) throw new Error("Editor đã đóng.");
     if (["conflict", "session-expired"].includes(status))
-      throw new Error(messages[status]);
+      throw new Error(t(`editor.status.${status}`));
     while (pending || dirty() || force) {
       force = false;
       if (!pending)

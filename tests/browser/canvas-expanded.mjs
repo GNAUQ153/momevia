@@ -10,6 +10,83 @@ const effectCard = {E03:'heading', E04:'wave-line', A02:'arch-photo', A04:'headi
   R01:'envelope', R02:'gift-box', R03:'continue', R04:'light-a-candle'};
 const routes = (context,base) => context.route('**/*',route=>new URL(route.request().url()).origin===base ? route.continue() : route.abort());
 
+async function verifyMotion(browser, base) {
+  const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
+  try {
+    await page.goto(base + '/about');
+    await page.locator('main h1').waitFor();
+    await page.evaluate(async () => {
+      const { createDocument, createElement } = await import('/js/shared/canvas/index.js');
+      const { mountPlayer } = await import('/js/features/gift-runtime/index.js');
+      const host = globalThis.document.querySelector('main');
+      globalThis.mountMotionFixture = (fastFirst, withTyping = false) => {
+        globalThis.fixturePlayer?.dispose();
+        const doc = createDocument();
+        doc.schemaVersion = doc.registryVersion = 2;
+        doc.scenes = ['cover', 'choice-a', 'choice-b'].map(id => ({
+          id, name: id, background: { kind: 'solid', color: '#FFF7F6' }, elementIds: [],
+        }));
+        doc.entrySceneId = 'cover';
+        doc.elements = [];
+        function add(scene, type, properties) {
+          doc.elements.push(createElement(type, properties));
+          doc.scenes.find(item => item.id === scene).elementIds.push(properties.id);
+        }
+        for (const [index, branch] of ['a', 'b'].entries()) {
+          add('cover', 'button', { id: 'open-' + branch, layout: { x: 45, y: 65 + index * 95, width: 300, height: 64 },
+            props: { label: branch }, actions: [{ on: 'activate', type: 'goToScene', targetSceneId: 'choice-' + branch }],
+            effects: { reaction: { id: 'R03', speed: fastFirst === (index === 0) ? 'fast' : 'slow' } },
+          });
+        }
+        const greeting = withTyping ? 'Chúc bạn luôn an lành, đủ yêu thương 👩🏽‍🎨 và niềm vui. '.repeat(10).slice(0, 490) : 'Lời chúc';
+        add('choice-b', 'text', { id: 'greeting', layout: { x: 35, y: 68, width: 320, height: 82 },
+          props: { text: greeting, fontSize: 22 }, accessibility: { role: 'heading', level: 2 },
+          ...(withTyping ? { effects: { entrance: { id: 'E03', speed: 'slow', delay: 150 } } } : {}),
+        });
+        add('choice-b', 'button', { id: 'next', layout: { x: 45, y: 170, width: 300, height: 64 },
+          props: { label: 'Next' }, actions: [{ on: 'activate', type: 'replay' }],
+        });
+        globalThis.fixturePlayer = mountPlayer(host, { document: doc });
+        return greeting;
+      };
+    });
+    for (const fastFirst of [true, false]) {
+      await page.evaluate(fast => globalThis.mountMotionFixture(fast), fastFirst);
+      await page.locator('[data-runtime-element="open-a"]').press('Enter');
+      await page.waitForTimeout(45);
+      await page.locator('[data-runtime-element="open-b"]').press('Space');
+      await page.waitForFunction(() => globalThis.fixturePlayer.sceneId === 'choice-b');
+      assert.equal(await page.locator('[data-runtime-element="greeting"]').evaluate(node => node === node.ownerDocument.activeElement), true);
+    }
+    const greeting = await page.evaluate(() => globalThis.mountMotionFixture(false, true));
+    const next = page.locator('[data-runtime-element="next"]');
+    const skip = page.locator('.gift-typewriter-skip');
+    await page.evaluate(() => globalThis.fixturePlayer.goToScene('choice-b'));
+    await skip.waitFor();
+    const positions = await next.evaluate(async (node, selector) => {
+      const stage = node.closest('.gift-runtime-stage');
+      const measure = () => node.getBoundingClientRect().top - stage.getBoundingClientRect().top;
+      const readings = [measure()];
+      for (let i = 0; i < 5; i++) {
+        await new Promise(resolve => globalThis.setTimeout(resolve, 95));
+        readings.push(measure());
+      }
+      node.ownerDocument.querySelector(selector).click();
+      readings.push(measure());
+      return readings;
+    }, '.gift-typewriter-skip');
+    assert(Math.max(...positions) - Math.min(...positions) <= 2, JSON.stringify(positions));
+    assert.equal(await page.locator('[data-runtime-element="greeting"]').textContent(), greeting);
+    await skip.waitFor({ state: 'hidden' });
+    await page.evaluate(() => globalThis.fixturePlayer.goToScene('choice-b'));
+    await skip.waitFor();
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await skip.waitFor({ state: 'hidden' });
+    assert.equal(await page.locator('[data-runtime-element="greeting"]').textContent(), greeting);
+    console.log('PASS Browser motion: latest 180/450 reaction wins with either order, focus, E03 geometry, skip and live reduced motion');
+  } finally { await page.close(); }
+}
+
 export async function runExpandedBrowser(base, cookie, {cards, controls}, artifacts) {
   const browser = await chromium.launch({headless:true,channel:process.env.BROWSER_CHANNEL || (process.platform==='win32'?'msedge':undefined)});
   const desktop = await browser.newContext({viewport:{width:1440,height:1000}});
@@ -53,6 +130,7 @@ export async function runExpandedBrowser(base, cookie, {cards, controls}, artifa
     return page;
   }
   try {
+    await verifyMotion(browser, base);
     const separator=cookie.indexOf('=');
     const {value:session,name}={name:cookie.slice(0,separator),value:cookie.slice(separator+1)};
     await desktop.addCookies([{name,value:session,url:base}]);
@@ -63,6 +141,8 @@ export async function runExpandedBrowser(base, cookie, {cards, controls}, artifa
     const stage = page.locator('.editor-artboard');
     const active = () => stage.locator('.editor-stage-element');
     const dialog = page.getByRole('dialog',{name:'Xem trước món quà'});
+    // Keyboard input needs the destination scene to be interactive after its transition.
+    const interactiveScene = dialog.locator('.gift-runtime-stage:not([inert])');
     const close = () => dialog.locator('[data-editor-action="preview-close"]').click();
     const save = async () => { await control('save').click(); await page.locator('.editor-save-status').filter({hasText:'Đã lưu'}).waitFor(); };
     const draft = async () => {
@@ -329,7 +409,7 @@ export async function runExpandedBrowser(base, cookie, {cards, controls}, artifa
       await control('preview').click();
       if (card.key === 'birthday') {
         await dialog.getByRole('button',{name:'Mở món quà',...exact}).click();
-        await dialog.getByRole('button',{name:'Thắp nến',...exact}).press('Enter');
+        await interactiveScene.getByRole('button',{name:'Thắp nến',...exact}).press('Enter');
         await dialog.getByText('Chúc điều bạn ước sẽ thành hiện thực.').waitFor();
         await dialog.getByRole('button',{name:'Gửi lời hồi đáp',...exact}).click();
         await dialog.getByLabel('Lời đáp',exact).fill('Lời đáp xem thử QA');
@@ -337,15 +417,15 @@ export async function runExpandedBrowser(base, cookie, {cards, controls}, artifa
         await dialog.getByText(/Đã mô phỏng lời đáp/).waitFor();
       } else if (card.key === 'anniversary') {
         await dialog.getByRole('button',{name:'Mở album',...exact}).click();
-        await dialog.getByRole('button',{name:'Sau',...exact}).press('Space');
+        await interactiveScene.getByRole('button',{name:'Sau',...exact}).press('Space');
         await dialog.getByAltText('Phong cảnh minh hoạ 2').waitFor();
         await dialog.getByRole('button',{name:'So sánh hai ảnh',...exact}).click();
-        const compare = dialog.getByRole('slider');
+        const compare = interactiveScene.getByRole('slider');
         await compare.press('ArrowLeft');
         assert.equal(await compare.inputValue(),'49');
       } else {
         await dialog.getByRole('button',{name:'Mở lời cảm ơn',...exact}).click();
-        await dialog.getByRole('button',{name:'Lật thẻ',...exact}).press('Enter');
+        await interactiveScene.getByRole('button',{name:'Lật thẻ',...exact}).press('Enter');
         await dialog.getByText(/Bạn kiên nhẫn lắng nghe/).waitFor();
         await dialog.getByRole('button',{name:'Đọc lại lời nhắn',...exact}).click();
         await dialog.getByRole('button',{name:'Xem lại từ đầu',...exact}).click();
@@ -367,7 +447,7 @@ export async function runExpandedBrowser(base, cookie, {cards, controls}, artifa
           if (card.key === 'birthday') {
             const envelope=client.getByRole('button',{name:'Mở món quà',...exact});
             await envelope.evaluate(button=>{button.click();button.click();});
-            await client.getByRole('button',{name:'Thắp nến',...exact}).press('Enter');
+            await client.locator('.gift-runtime-stage:not([inert])').getByRole('button',{name:'Thắp nến',...exact}).press('Enter');
             await client.getByText('Chúc điều bạn ước sẽ thành hiện thực.').waitFor();
           } else if (card.key === 'anniversary') {
             await client.getByRole('button',{name:'Mở album',...exact}).click();
@@ -375,7 +455,7 @@ export async function runExpandedBrowser(base, cookie, {cards, controls}, artifa
             await client.getByText(/Ngày ấy, chúng mình ngồi trên đồi/).waitFor();
           } else {
             await client.getByRole('button',{name:'Mở lời cảm ơn',...exact}).click();
-            await client.getByRole('button',{name:'Lật thẻ',...exact}).press('Space');
+            await client.locator('.gift-runtime-stage:not([inert])').getByRole('button',{name:'Lật thẻ',...exact}).press('Space');
             await client.getByText(/Bạn kiên nhẫn lắng nghe/).waitFor();
           }
           await shot(client,`${card.key}-interaction-${width}.png`);

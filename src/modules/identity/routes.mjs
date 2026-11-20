@@ -1,7 +1,8 @@
-import { HttpError, parseJson, sendJson, requireInternal } from '../../shared/http.mjs';
+import { parseJson, sendJson, requireInternal, localizedError } from '../../shared/http.mjs';
 import { sessionToken, cookie, randomId, sanitizeText } from '../../shared/security.mjs';
 import { createHash } from 'node:crypto';
 import { publicUser } from './credentials.service.mjs';
+import { requestLocale } from '../../shared/locale.mjs';
 
 export function registerRoutes(router, { config, credentials, sessions, authLimits, roles, service, recovery }) {
   router.on('GET', '/health', ({res}) => sendJson(res, 200, { name: 'identity', ok: true }));
@@ -19,7 +20,7 @@ export function registerRoutes(router, { config, credentials, sessions, authLimi
   router.on('POST', '/register', async ({req, res}) => {
     authLimits.consume('register', req, res);
     const body = await parseJson(req, 16_384);
-    if (body.confirmPassword !== body.password) throw new HttpError(400, 'Xác nhận mật khẩu không khớp.');
+    if (body.confirmPassword !== body.password) throw localizedError(400, 'auth.password.mismatch');
     const user = await credentials.register(body);
     await service.issueSession(res, user);
     sendJson(res, 201, { user: publicUser(user) });
@@ -33,14 +34,14 @@ export function registerRoutes(router, { config, credentials, sessions, authLimi
   });
   router.on('POST', '/verify-email/request', async ({ req, res }) => {
     const user = await service.findCurrent(req);
-    if (user?.provider !== 'email') throw new HttpError(403, 'Cần đăng nhập bằng email để xác minh địa chỉ.');
+    if (user?.provider !== 'email') throw localizedError(403, 'errors.auth.verifySignIn');
     authLimits.consume('recovery', req, res, user.email);
-    await recovery.start(user, 'verify');
+    await recovery.start(user, 'verify', requestLocale(req));
     sendJson(res, 202, { ok: true });
   });
   router.on('POST', '/verify-email/confirm', async ({ req, res }) => {
     const user = await service.findCurrent(req);
-    if (user?.provider !== 'email') throw new HttpError(403, 'Cần đăng nhập bằng email để xác minh địa chỉ.');
+    if (user?.provider !== 'email') throw localizedError(403, 'errors.auth.verifySignIn');
     authLimits.consume('recovery', req, res, user.email);
     const { code } = await parseJson(req, 4096);
     const updated = await recovery.finish(user, 'verify', code);
@@ -49,20 +50,20 @@ export function registerRoutes(router, { config, credentials, sessions, authLimi
   router.on('POST', '/recover/request', async ({ req, res }) => {
     const { email } = await parseJson(req, 4096);
     authLimits.consume('recovery', req, res, email);
-    await recovery.start(await recovery.byEmail(email), 'reset');
+    await recovery.start(await recovery.byEmail(email), 'reset', requestLocale(req));
     sendJson(res, 202, { ok: true });
   });
   router.on('POST', '/recover/confirm', async ({ req, res }) => {
     const { email, code, password, confirmPassword } = await parseJson(req, 4096);
     authLimits.consume('recovery', req, res, email);
-    if (password !== confirmPassword) throw new HttpError(400, 'Xác nhận mật khẩu không khớp.');
+    if (password !== confirmPassword) throw localizedError(400, 'auth.password.mismatch');
     const user = await recovery.finish(await recovery.byEmail(email), 'reset', code, password);
     await service.issueSession(res, user);
     sendJson(res, 200, { user: publicUser(user) });
   });
 
   router.on('POST', '/demo', async ({req, res}) => {
-    if (!config.demoEnabled) throw new HttpError(403, 'Chế độ dùng thử đã bị tắt.');
+    if (!config.demoEnabled) throw localizedError(403, 'errors.auth.demoDisabled');
     authLimits.consume('demo', req, res);
     const body = await parseJson(req, 16_384);
     const name = sanitizeText(body.name, 50);
@@ -72,10 +73,10 @@ export function registerRoutes(router, { config, credentials, sessions, authLimi
     sendJson(res, 200, { user: publicUser(user) });
   });
   router.on('POST', '/demo-admin', async ({req, res}) => {
-    if (!config.demoEnabled || !config.adminCode) throw new HttpError(403, 'Không được phép.');
+    if (!config.demoEnabled || !config.adminCode) throw localizedError(403, 'errors.auth.demoAdminDenied');
     authLimits.consume('admin', req, res);
     const body = await parseJson(req, 4096);
-    if (body.code !== config.adminCode) throw new HttpError(403, 'Mã quản trị không chính xác.');
+    if (body.code !== config.adminCode) throw localizedError(403, 'errors.auth.adminCode');
     const admin = await service.demoAdmin();
     await service.issueSession(res, admin);
     sendJson(res, 200, { user: publicUser(admin) });
@@ -83,7 +84,7 @@ export function registerRoutes(router, { config, credentials, sessions, authLimi
   // Compatibility route: không còn tự nâng quyền; Admin phải chỉ định userId.
   router.on('POST', '/creator', async ({req, res}) => {
     const session = await sessions.find(sessionToken(req));
-    if (!session) throw new HttpError(401, 'Vui lòng đăng nhập để tiếp tục.');
+    if (!session) throw localizedError(401, 'errors.unauthorized');
     await roles.requireAdmin(session.sub);
     const body = await parseJson(req, 4096);
     const updated = await roles.change(session.sub, body.userId, 'creator');
@@ -93,13 +94,13 @@ export function registerRoutes(router, { config, credentials, sessions, authLimi
 
   router.on('GET', '/admin/users', async ({req, res}) => {
     const session = await sessions.find(sessionToken(req));
-    if (!session) throw new HttpError(401, 'Vui lòng đăng nhập để tiếp tục.');
+    if (!session) throw localizedError(401, 'errors.unauthorized');
     sendJson(res, 200, { users: (await roles.list(session.sub)).map(publicUser) });
   });
 
   router.on('POST', '/admin/users/:id/role', async ({req, res, params}) => {
     const session = await sessions.find(sessionToken(req));
-    if (!session) throw new HttpError(401, 'Vui lòng đăng nhập để tiếp tục.');
+    if (!session) throw localizedError(401, 'errors.unauthorized');
     await roles.requireAdmin(session.sub);
     const body = await parseJson(req, 4096);
     const updated = await roles.change(session.sub, params.id, body.role);
@@ -118,7 +119,7 @@ export function registerRoutes(router, { config, credentials, sessions, authLimi
   });
 
   router.on('GET', '/google', ({res, url}) => {
-    if (!config.googleId || !config.googleSecret) throw new HttpError(503, 'Chưa cấu hình đăng nhập Google.');
+    if (!config.googleId || !config.googleSecret) throw localizedError(503, 'errors.auth.googleDisabled');
     const state = randomId(24);
     const query = new URLSearchParams({
       client_id: config.googleId,
@@ -133,10 +134,10 @@ export function registerRoutes(router, { config, credentials, sessions, authLimi
     res.end();
   });
   router.on('GET', '/google/callback', async ({req, res, url}) => {
-    if (url.searchParams.has('error')) throw new HttpError(401, 'Bạn đã hủy đăng nhập Google.');
+    if (url.searchParams.has('error')) throw localizedError(401, 'errors.auth.googleCancelled');
     const recovering = service.consumeState(req, 'google', url.searchParams.get('state')) === 'recover';
     const code = url.searchParams.get('code');
-    if (!code) throw new HttpError(400, 'Không có mã xác thực Google.');
+    if (!code) throw localizedError(400, 'errors.auth.googleCode');
     const response = await fetch('https://oauth2.googleapis.com/token', {
       method: 'POST',
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
@@ -144,17 +145,17 @@ export function registerRoutes(router, { config, credentials, sessions, authLimi
       signal: AbortSignal.timeout(10000),
     });
     const token = await response.json();
-    if (!response.ok || !token.access_token) throw new HttpError(401, 'Google không xác thực được tài khoản.');
+    if (!response.ok || !token.access_token) throw localizedError(401, 'errors.auth.googleFailed');
     const infoResponse = await fetch('https://openidconnect.googleapis.com/v1/userinfo', {
       headers: { authorization: `Bearer ${token.access_token}` },
       signal: AbortSignal.timeout(10000),
     });
     const info = await infoResponse.json();
-    if (!infoResponse.ok || !info.sub) throw new HttpError(401, 'Không đọc được hồ sơ Google.');
+    if (!infoResponse.ok || !info.sub) throw localizedError(401, 'errors.auth.googleProfile');
     await service.finishOAuth(res, 'google', { id: info.sub, name: info.name || info.email || 'Người dùng Google', email: info.email, avatar: info.picture }, recovering);
   });
   router.on('GET', '/zalo', ({res}) => {
-    if (!config.zaloId || !config.zaloSecret) throw new HttpError(503, 'Chưa cấu hình đăng nhập Zalo.');
+    if (!config.zaloId || !config.zaloSecret) throw localizedError(503, 'errors.auth.zaloDisabled');
     const state = randomId(24);
     const verifier = randomId(40);
     const challenge = createHash('sha256').update(verifier).digest('base64url');
@@ -164,10 +165,10 @@ export function registerRoutes(router, { config, credentials, sessions, authLimi
     res.end();
   });
   router.on('GET', '/zalo/callback', async ({req, res, url}) => {
-    if (url.searchParams.has('error')) throw new HttpError(401, 'Bạn đã hủy đăng nhập Zalo.');
+    if (url.searchParams.has('error')) throw localizedError(401, 'errors.auth.zaloCancelled');
     const verifier = service.consumeState(req, 'zalo', url.searchParams.get('state'));
     const code = url.searchParams.get('code');
-    if (!code) throw new HttpError(400, 'Không có mã xác thực Zalo.');
+    if (!code) throw localizedError(400, 'errors.auth.zaloCode');
     const response = await fetch('https://oauth.zaloapp.com/v4/access_token', {
       method: 'POST',
       headers: { 'content-type': 'application/x-www-form-urlencoded', secret_key: config.zaloSecret },
@@ -175,13 +176,13 @@ export function registerRoutes(router, { config, credentials, sessions, authLimi
       signal: AbortSignal.timeout(10000),
     });
     const token = await response.json();
-    if (!response.ok || !token.access_token) throw new HttpError(401, 'Zalo không xác thực được tài khoản.');
+    if (!response.ok || !token.access_token) throw localizedError(401, 'errors.auth.zaloFailed');
     const infoResponse = await fetch('https://graph.zalo.me/v2.0/me?fields=id,name,picture', {
       headers: { access_token: token.access_token },
       signal: AbortSignal.timeout(10000),
     });
     const info = await infoResponse.json();
-    if (!infoResponse.ok || !info.id || info.error) throw new HttpError(401, 'Không đọc được hồ sơ Zalo.');
+    if (!infoResponse.ok || !info.id || info.error) throw localizedError(401, 'errors.auth.zaloProfile');
     await service.finishOAuth(res, 'zalo', { id: info.id, name: info.name || 'Người dùng Zalo', avatar: info.picture?.data?.url });
   });
 

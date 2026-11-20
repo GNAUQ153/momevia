@@ -35,6 +35,7 @@ export function createStage(
     disposed = false;
   let selectionOutline, inlineEditor;
   function setZoom(value) {
+    if (gesture && value !== zoom) gesture.rect = null;
     zoom = value;
     const size = store.get().document.artboard.baseSize;
     artboard.style.width = `${size.width}px`;
@@ -90,16 +91,19 @@ export function createStage(
     if (selectionOutline) artboard.append(selectionOutline);
     setZoom(zoom);
   }
-  function point(event) {
+  function point(event, rect) {
     return logicalPoint(
       { x: event.clientX, y: event.clientY },
-      artboard.getBoundingClientRect(),
+      rect,
       store.get().document.artboard.baseSize,
     );
   }
   function cancel() {
     if (!gesture) return;
+    const { pointerId, frame } = gesture;
     gesture = null;
+    cancelAnimationFrame(frame);
+    if (artboard.hasPointerCapture(pointerId)) artboard.releasePointerCapture(pointerId);
     onGesture?.(false);
     render();
   }
@@ -161,7 +165,7 @@ export function createStage(
   artboard.addEventListener(
     "pointerdown",
     (event) => {
-      if (isReadOnly() || event.button !== 0 || event.target.closest(".editor-inline-text")) return;
+      if (gesture || isReadOnly() || event.button !== 0 || event.target.closest(".editor-inline-text")) return;
       const target = event.target.closest("[data-element-id]");
       finishText(true);
       if (!target) {
@@ -176,62 +180,71 @@ export function createStage(
       if (element.locked || isLayoutLocked(id)) return;
       event.preventDefault();
       artboard.focus({ preventScroll: true });
+      const rect = artboard.getBoundingClientRect();
       gesture = {
         id,
         original: structuredClone(element.layout),
-        start: point(event),
+        start: point(event, rect),
+        clientX: event.clientX,
+        clientY: event.clientY,
+        rect,
         pointerId: event.pointerId,
         mode: event.target.closest("[data-editor-resize]") ? "resize" : "move",
         node: artboard.querySelector(`.editor-stage-element[data-element-id="${CSS.escape(id)}"]`),
         type: element.type,
+        model: element,
       };
       artboard.setPointerCapture(event.pointerId);
       onGesture?.(true);
     },
     { signal },
   );
+  const invalidateBounds = () => { if (gesture) gesture.rect = null; };
+  window.addEventListener("resize", invalidateBounds, { signal, passive: true });
+  window.addEventListener("scroll", invalidateBounds, { signal, passive: true, capture: true });
+
+  function paintGesture(event) {
+    if (!gesture || gesture.pointerId !== event.pointerId) return;
+    gesture.rect ??= artboard.getBoundingClientRect();
+    const size = store.get().document.artboard.baseSize;
+    let layout = gestureLayout(gesture.original, gesture.start, point(event, gesture.rect), gesture.mode,
+      { keepAspect: gesture.type === "image" && !event.shiftKey });
+    if (gesture.mode === "move") {
+      const snapped = getSnap() && !event.altKey ? snapLayout(layout, size) : null;
+      if (snapped) layout = snapped.layout;
+      for (const axis of ["x", "y"]) {
+        let guide = artboard.querySelector(`.editor-guide-${axis}`);
+        const position = snapped?.guides[axis];
+        if (!guide && position != null) {
+          guide = node("span", { class: `editor-guide editor-guide-${axis}`, "aria-hidden": "true" });
+          artboard.append(guide);
+        }
+        if (guide) {
+          guide.hidden = position == null;
+          if (position != null) guide.style.translate = axis === "x" ? `${position}px 0` : `0 ${position}px`;
+        }
+      }
+      const delta = `${layout.x - gesture.original.x}px ${layout.y - gesture.original.y}px`;
+      gesture.node.style.translate = delta;
+      selectionOutline.style.translate = delta;
+    } else {
+      applyLayout(gesture.node, { ...gesture.model, layout }, size);
+      applyLayout(selectionOutline, layout, size);
+    }
+    gesture.latest = layout;
+  }
+
   artboard.addEventListener(
     "pointermove",
     (event) => {
       if (!gesture || gesture.pointerId !== event.pointerId) return;
-      let layout = gestureLayout(
-        gesture.original,
-        gesture.start,
-        point(event),
-        gesture.mode,
-        { keepAspect: gesture.type === "image" && !event.shiftKey },
-      );
-      if (gesture.mode === "move" && getSnap() && !event.altKey) {
-        const snapped = snapLayout(
-          layout,
-          store.get().document.artboard.baseSize,
-        );
-        layout = snapped.layout;
-        for (const axis of ["x", "y"]) {
-          let guide = artboard.querySelector(`.editor-guide-${axis}`);
-          if (!guide) {
-            guide = node("span", {
-              class: `editor-guide editor-guide-${axis}`,
-              "aria-hidden": "true",
-            });
-            artboard.append(guide);
-          }
-          guide.hidden = snapped.guides[axis] === null;
-          if (!guide.hidden)
-            guide.style[axis === "x" ? "left" : "top"] =
-              `${snapped.guides[axis]}px`;
-        }
-      }
-      gesture.latest = layout;
-      const item = gesture.node;
-      item.style.left = `${layout.x}px`;
-      item.style.top = `${layout.y}px`;
-      item.style.width = `${layout.width}px`;
-      item.style.height = `${layout.height}px`;
-      item.style.minHeight = `${layout.height}px`;
-      applyLayout(selectionOutline, layout, store.get().document.artboard.baseSize);
-      if (gesture.type === "sticker")
-        applyLayout(item, { type: "sticker", layout }, store.get().document.artboard.baseSize);
+      const current = gesture;
+      current.sample = event;
+      if (current.frame) return;
+      current.frame = requestAnimationFrame(() => {
+        current.frame = 0;
+        if (gesture === current) paintGesture(current.sample);
+      });
     },
     { signal },
   );
@@ -240,10 +253,11 @@ export function createStage(
     (event) => {
       if (!gesture || gesture.pointerId !== event.pointerId) return;
       const current = gesture;
+      cancelAnimationFrame(current.frame);
+      if (current.sample || event.clientX !== current.clientX || event.clientY !== current.clientY) paintGesture(event);
       gesture = null;
       onGesture?.(false);
-      if (current.latest)
-        store.update(
+      const changed = current.latest && store.update(
           (value) => {
             value.document.elements.find(
               (item) => item.id === current.id,
@@ -251,12 +265,13 @@ export function createStage(
           },
           current.mode === "move" ? "Di chuyển" : "Đổi kích thước",
         );
-      render();
+      if (!changed) render();
     },
     { signal },
   );
-  artboard.addEventListener("pointercancel", cancel, { signal });
-  artboard.addEventListener("lostpointercapture", cancel, { signal });
+  const cancelPointer = event => { if (gesture?.pointerId === event.pointerId) cancel(); };
+  artboard.addEventListener("pointercancel", cancelPointer, { signal });
+  artboard.addEventListener("lostpointercapture", cancelPointer, { signal });
   artboard.addEventListener(
     "click",
     (event) => {
@@ -293,6 +308,7 @@ export function createStage(
     dispose() {
       disposed = true;
       lifecycle.abort();
+      if (gesture) cancelAnimationFrame(gesture.frame);
       gesture = null;
       inlineEditor = null;
       host.replaceChildren();

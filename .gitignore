@@ -13,6 +13,7 @@ web/js/vendor/
 .DS_Store
 /local/
 /graphify-out
+.agents/
 
 # Báo cáo công cụ và cache phát sinh.
 /playwright-report/
@@ -31,3 +32,4 @@ Desktop.ini
 
 # SQL snapshot có thể chứa email, nội dung thiệp và hash mật khẩu.
 /database/private/
+skills-lock.json

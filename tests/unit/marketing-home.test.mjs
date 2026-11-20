@@ -13,13 +13,13 @@ const sample = {
 };
 
 function render(templates = [sample]) {
-  const { home } = createHomeViews({
+  const { home, marketingFaq } = createHomeViews({
     state: { templates },
     buttonLink: (path, label) => `<a href="${path}" data-link>${label}</a>`,
     artwork: () => '<div class="artwork" aria-label="Minh họa mẫu"></div>',
     templateCard: item => `<article class="template-card">${item.title}</article>`,
   });
-  return home();
+  return home() + marketingFaq();
 }
 
 const css = readFileSync(new URL('../../web/css/marketing.css', import.meta.url), 'utf8');
@@ -32,7 +32,7 @@ test('Trang chủ giới thiệu lợi ích thật, có CTA và FAQ dùng HTML n
   assert.match(html, /href="\/pricing"/);
   assert.match(html, /id="how-it-works"/);
   assert.match(html, /aria-labelledby="mkt-experience-title"/);
-  assert.match(html, /Không bắt người nhận đăng ký/);
+  assert.match(html, /mở quà bằng đường link hợp lệ mà không cần tài khoản/);
   assert.match(html, /<details class="mkt-faq__item">/);
   assert.match(html, /gói Creator Pro.*chưa mở bán/i);
   assert.match(html, /đừng thanh toán lại/);

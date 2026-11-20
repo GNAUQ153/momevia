@@ -31,7 +31,7 @@
 .pricing-card ul { list-style: none; padding: 0; margin: 0 0 27px; display: grid; gap: 12px; }
 .pricing-card li { display: flex; gap: 9px; color: #40344d; font-size: 13px; line-height: 1.55; }
 .pricing-card li svg { width: 17px; height: 17px; flex: none; color: #6d40cf; margin-top: 2px; }
-.pricing-card .btn { display: flex; margin-top: auto; justify-content: center; text-align: center; min-height: 46px; }
+.pricing-card .btn { display: flex; order: 1; margin-top: auto; justify-content: center; text-align: center; min-height: 46px; }
 .pricing-faq { max-width: 830px; margin: 68px auto 0; }
 .pricing-faq h2 { font-size: clamp(25px, 3vw, 32px); text-align: center; margin-bottom: 22px; }
 .pricing-faq details { border-bottom: 1px solid #e6ddec; padding: 15px 0; }
@@ -52,6 +52,8 @@
   .nav-toggle { display: flex !important; }
   .mobile-nav:not([hidden]) {
     display: block;
+    max-height: calc(100svh - 84px);
+    overflow: auto;
     padding: 7px 22px 20px;
     border-top: 1px solid var(--line);
     background: #fff;
@@ -60,78 +62,14 @@
 }
 
 @media (max-width: 680px) {
-  /* The original reading order is unchanged. CSS grid moves the animated card
-     next to the headline (green-box position) rather than far below the CTAs. */
-  .hero-grid {
-    display: grid;
-    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
-    grid-template-areas:
-      'eyebrow eyebrow'
-      'headline visual'
-      'description description'
-      'buttons buttons'
-      'proof proof';
-    align-items: center;
-    column-gap: clamp(8px, 2.6vw, 17px);
-    row-gap: 18px;
-    padding-block: 35px 42px;
-    min-height: 0;
-  }
-  .hero-copy { display: contents; }
-  .hero-copy .eyebrow { grid-area: eyebrow; justify-self: start; }
-  .hero-copy h1 {
-    grid-area: headline;
-    align-self: center;
-    min-width: 0;
-    margin: 0;
-    font-size: clamp(29px, 6.8vw, 42px);
-    line-height: 1.16;
-    letter-spacing: -.047em;
-  }
-  .hero-copy h1 em { white-space: normal; }
-  .hero-copy > p { grid-area: description; max-width: 550px; margin: 0; font-size: 15px; line-height: 1.7; }
-  .hero-buttons { grid-area: buttons; margin: 0; gap: 11px; }
-  .hero-buttons .btn { min-height: 46px; font-size: 13px; }
-  .hero-proof { grid-area: proof; margin: 1px 0 0; flex-wrap: wrap; gap: 9px 12px; }
-  .hero-proof > span { font-size: 12px; line-height: 1.55; }
-  .hero-display {
-    grid-area: visual;
-    align-self: center;
-    width: 100%;
-    height: auto;
-    min-height: clamp(185px, 42vw, 275px);
-    margin: 0;
-  }
-  .hero-display::before { inset: 2%; }
-  .hero-orbit { display: none; }
-  .hero-card-frame {
-    width: min(218px, 96%);
-    padding: 6px;
-    border-radius: 16px;
-    box-shadow: 0 14px 35px rgba(99, 52, 195, .21);
-  }
-  .hero-artwork { border-radius: 11px; }
-  .hero-artwork .artwork__content strong { font-size: clamp(13px, 3vw, 24px); }
-  .hero-artwork .artwork__content em { font-size: clamp(7px, 1.7vw, 11px); }
-  .hero-card-caption { padding: 6px 1px 0; font-size: 6px; letter-spacing: .08em; }
-  .hero-tiny-spark { display: none; }
-  .pricing-intro { margin-bottom: 27px; }
+  .pricing-page { padding-top: 24px; }
+  .pricing-intro { margin-bottom: 16px; }
   .pricing-intro p { font-size: 14px; }
   .pricing-grid { grid-template-columns: 1fr; gap: 14px; }
   .pricing-card:last-child { grid-column: auto; }
-  .pricing-card { padding: 25px 22px; }
+  .pricing-card { padding: 18px; }
   .pricing-card__desc { min-height: 0; }
+  .pricing-card .btn { order: 0; margin: 0 0 15px; }
+  .pricing-card ul { margin-bottom: 0; }
   .pricing-faq { margin-top: 44px; }
-}
-@media (max-width: 390px) {
-  .hero-grid { grid-template-columns: minmax(0, 1.5fr) minmax(0, .95fr); row-gap: 16px; }
-  .hero-copy h1 { font-size: clamp(27px, 7.4vw, 30px); }
-  .hero-display { min-height: 174px; }
-  .hero-card-frame { width: 100%; padding: 4px; }
-  .hero-card-caption { display: none; }
-  .hero-buttons { flex-direction: column; }
-  .hero-buttons .btn { width: 100%; font-size: 14px; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .hero-card-frame { animation: none; transform: rotate(2deg); }
 }

@@ -26,9 +26,8 @@ export function thumbnail(document, models, box, { width, height, background, as
   return frame;
 }
 
-export function sceneThumbnail(document, scene, { width = 42, assetUrl } = {}) {
+export function sceneThumbnail(document, scene, { width = 42, assetUrl, indexed = new Map(document.elements.map(model => [model.id, model])) } = {}) {
   const size = document.artboard.baseSize;
-  const indexed = new Map(document.elements.map(model => [model.id, model]));
   return thumbnail(document, scene.elementIds.map(id => indexed.get(id)), {
     left: 0, top: 0, right: size.width, bottom: size.height,
   }, { width, height: size.height * width / size.width, background: scene.background.color, assetUrl, surfaceEffect: scene.effects?.surface });

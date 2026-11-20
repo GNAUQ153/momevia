@@ -73,7 +73,7 @@ function interactionSvg(node, images) {
     (p.kind === 'event-countdown' ? labelSvg('00 : 00 : 00',16,123,w-32,25) : '');
 }
 
-export function previewSvg(document, sceneId = document.entrySceneId, images = new Map()) {
+export function previewSvg(document, sceneId = document.entrySceneId, images = new Map(), { serifWoff2 } = {}) {
   validateDocument(document, { mode: 'publish', requiredBindings: [] });
   const scene = document.scenes.find(s => s.id === sceneId), size = document.artboard.baseSize;
   const nodes = new Map(document.elements.map(element => [element.id, element]));
@@ -121,6 +121,12 @@ export function previewSvg(document, sceneId = document.entrySceneId, images = n
   const grain = scene.effects?.surface?.id === 'S03' || content.includes('url(#canvas-paper-grain)');
   const pattern = grain ? '<defs><pattern id="canvas-paper-grain" width="5" height="5" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r=".6" fill="#452962" opacity=".10"/></pattern></defs>' : '';
   const sceneGrain = scene.effects?.surface?.id === 'S03' ? '<rect width="100%" height="100%" fill="url(#canvas-paper-grain)"/>' : '';
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${size.width}" height="${size.height}" viewBox="0 0 ${size.width} ${size.height}" role="img" aria-label="Bản xem trước mẫu quà Momevia">${pattern}<rect width="100%" height="100%" fill="${scene.background.color}"/>${sceneGrain}${content}</svg>\n`;
+  const embeddedSerif = serifWoff2 && content.includes('Georgia,serif') &&
+    /^[a-z0-9+/=]+$/i.test(serifWoff2);
+  const font = embeddedSerif ? `<style>@font-face{font-family:"Momevia Cover";src:url(data:font/woff2;base64,${serifWoff2}) format("woff2")}</style>` : '';
+  const artwork = embeddedSerif
+    ? content.replaceAll('font-family="Georgia,serif"', 'font-family="Momevia Cover,Times New Roman,serif"').normalize('NFC')
+    : content;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${size.width}" height="${size.height}" viewBox="0 0 ${size.width} ${size.height}" role="img" aria-label="Bản xem trước mẫu quà Momevia">${font}${pattern}<rect width="100%" height="100%" fill="${scene.background.color}"/>${sceneGrain}${artwork}</svg>\n`;
 }
 

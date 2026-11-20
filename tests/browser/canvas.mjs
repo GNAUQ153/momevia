@@ -321,11 +321,25 @@ export async function runCanvasBrowser(base, expiredSlug) {
     // Broken save + route and Back guards leave the editor and recovery intact.
     await page.route('**/api/designs/designs/*/save', route => route.abort('internetdisconnected'));
     await field('binding.message').fill('Bản chưa có ACK mạng'); await control('save').click();
-    await page.locator('.editor-save-status').filter({ hasText: 'Mất kết nối' }).waitFor();
+    const saveStatus = page.locator('.editor-save-status[data-tone="warning"]');
+    const saveHint = page.locator('.editor-save-hint');
+    const locale = page.locator('.editor-top-actions [data-locale-select]');
+    await saveStatus.filter({ hasText: 'Mất kết nối' }).waitFor();
+    await saveHint.filter({ hasText: 'Có bản nháp tạm' }).waitFor();
+    await locale.selectOption('en');
+    await saveStatus.filter({ hasText: 'Offline' }).waitFor();
+    await saveHint.filter({ hasText: 'A temporary draft is available in this tab' }).waitFor();
+    assert.match(await saveStatus.getAttribute('title'), /A temporary draft/);
+    assert.equal(await field('binding.message').inputValue(), 'Bản chưa có ACK mạng');
+    await locale.selectOption('vi');
+    await saveStatus.filter({ hasText: 'Mất kết nối' }).waitFor();
     page.once('dialog', dialog => dialog.dismiss()); await control('studio').click(); assert.equal(new URL(page.url()).pathname, designPath);
     page.once('dialog', dialog => dialog.dismiss()); await page.evaluate(() => globalThis.history.back());
     await page.waitForURL(`**${designPath}`); assert.equal(await field('binding.message').inputValue(), 'Bản chưa có ACK mạng');
-    await page.unroute('**/api/designs/designs/*/save'); await control('retry-save').click(); await page.locator('.editor-save-status').filter({ hasText: 'Đã lưu' }).waitFor(); completed.push('offline/retry and internal/Back navigation guard');
+    await page.unroute('**/api/designs/designs/*/save'); await control('retry-save').click();
+    await page.locator('.editor-save-status[data-tone="saved"]').filter({ hasText: 'Đã lưu trên máy chủ' }).waitFor();
+    await saveHint.filter({ hasText: 'Lần lưu được xác nhận' }).waitFor();
+    completed.push('offline feedback in VI/EN, retry, and internal/Back navigation guard');
 
     for (const width of [320, 375, 390, 768, 1024, 1440]) {
       await page.setViewportSize({ width, height: 950 });

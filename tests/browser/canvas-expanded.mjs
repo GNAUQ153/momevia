@@ -141,6 +141,8 @@ export async function runExpandedBrowser(base, cookie, {cards, controls}, artifa
     const stage = page.locator('.editor-artboard');
     const active = () => stage.locator('.editor-stage-element');
     const dialog = page.getByRole('dialog',{name:'Xem trước món quà'});
+    // Keyboard input needs the destination scene to be interactive after its transition.
+    const interactiveScene = dialog.locator('.gift-runtime-stage:not([inert])');
     const close = () => dialog.locator('[data-editor-action="preview-close"]').click();
     const save = async () => { await control('save').click(); await page.locator('.editor-save-status').filter({hasText:'Đã lưu'}).waitFor(); };
     const draft = async () => {
@@ -407,7 +409,7 @@ export async function runExpandedBrowser(base, cookie, {cards, controls}, artifa
       await control('preview').click();
       if (card.key === 'birthday') {
         await dialog.getByRole('button',{name:'Mở món quà',...exact}).click();
-        await dialog.getByRole('button',{name:'Thắp nến',...exact}).press('Enter');
+        await interactiveScene.getByRole('button',{name:'Thắp nến',...exact}).press('Enter');
         await dialog.getByText('Chúc điều bạn ước sẽ thành hiện thực.').waitFor();
         await dialog.getByRole('button',{name:'Gửi lời hồi đáp',...exact}).click();
         await dialog.getByLabel('Lời đáp',exact).fill('Lời đáp xem thử QA');
@@ -415,16 +417,15 @@ export async function runExpandedBrowser(base, cookie, {cards, controls}, artifa
         await dialog.getByText(/Đã mô phỏng lời đáp/).waitFor();
       } else if (card.key === 'anniversary') {
         await dialog.getByRole('button',{name:'Mở album',...exact}).click();
-        await dialog.getByRole('button',{name:'Sau',...exact}).press('Space');
+        await interactiveScene.getByRole('button',{name:'Sau',...exact}).press('Space');
         await dialog.getByAltText('Phong cảnh minh hoạ 2').waitFor();
         await dialog.getByRole('button',{name:'So sánh hai ảnh',...exact}).click();
-        const compare = dialog.getByRole('slider');
+        const compare = interactiveScene.getByRole('slider');
         await compare.press('ArrowLeft');
         assert.equal(await compare.inputValue(),'49');
       } else {
         await dialog.getByRole('button',{name:'Mở lời cảm ơn',...exact}).click();
-        await dialog.locator('.gift-runtime-stage:not([inert])').waitFor();
-        await dialog.getByRole('button',{name:'Lật thẻ',...exact}).press('Enter');
+        await interactiveScene.getByRole('button',{name:'Lật thẻ',...exact}).press('Enter');
         await dialog.getByText(/Bạn kiên nhẫn lắng nghe/).waitFor();
         await dialog.getByRole('button',{name:'Đọc lại lời nhắn',...exact}).click();
         await dialog.getByRole('button',{name:'Xem lại từ đầu',...exact}).click();

@@ -1,6 +1,7 @@
-import { HttpError } from '../../shared/http.mjs';
+import { localizedError } from '../../shared/http.mjs';
 import { RateLimiter } from '../../shared/rate-limit.mjs';
 import { createMomoProvider, createPayOsProvider } from './providers.mjs';
+import { canonicalText } from '../../../web/js/shared/locale.js';
 
 export function paymentMethods(env = process.env) {
   if (env.PAYMENT_ENABLED !== 'true' || env.CHECKOUT_STORAGE !== 'mysql'
@@ -13,10 +14,10 @@ export function paymentMethods(env = process.env) {
   const methods = [];
   if (live
     && env.PAYOS_CLIENT_ID && env.PAYOS_API_KEY && env.PAYOS_CHECKSUM_KEY)
-    methods.push({ id: 'payos', label: 'Chuyển khoản / VietQR' });
+    methods.push({ id: 'payos', label: canonicalText('payment.methods.payos') });
   if ((live || sandbox)
     && env.MOMO_PARTNER_CODE && env.MOMO_ACCESS_KEY && env.MOMO_SECRET_KEY)
-    methods.push({ id: 'momo', label: 'Ví MoMo' });
+    methods.push({ id: 'momo', label: canonicalText('payment.methods.momo') });
   return methods;
 }
 
@@ -36,12 +37,12 @@ export class PaymentService {
   }
   methods() { return paymentMethods(this.env); }
   requireReady(name) {
-    if (!this.methods().some(x => x.id === name)) throw new HttpError(503, 'Phương thức thanh toán chưa sẵn sàng.');
+    if (!this.methods().some(x => x.id === name)) throw localizedError(503, 'errors.payment.method');
     if (this.env.NODE_ENV === 'production' && this.env.PAYMENT_ENV !== 'production')
-      throw new HttpError(503, 'Không cho phép thanh toán thử nghiệm trên môi trường production.');
+      throw localizedError(503, 'errors.payment.testDisabled');
     const base = new URL(this.env.PUBLIC_BASE_URL || 'http://localhost:4100');
     if (base.protocol !== 'https:' || !base.hostname.includes('.'))
-      throw new HttpError(503, 'Thanh toán cần PUBLIC_BASE_URL là HTTPS công khai để nhận webhook.');
+      throw localizedError(503, 'errors.payment.url');
     return base;
   }
   async create(user, templateId, method) {
@@ -49,20 +50,20 @@ export class PaymentService {
     const template = await this.catalog.getTemplate(templateId);
     const amount = template.price;
     if (!Number.isSafeInteger(amount) || amount < 1000 || amount > 500000)
-      throw new HttpError(400, 'Giá mẫu phải trong khoảng 1.000–500.000 VND cho thanh toán trực tuyến.');
+      throw localizedError(400, 'errors.payment.priceRange');
     if (this.env.CHECKOUT_STORAGE !== 'mysql' || this.env.IDENTITY_STORAGE !== 'mysql' || this.env.CATALOG_STORAGE !== 'mysql')
-      throw new HttpError(503, 'Thanh toán yêu cầu Checkout, Identity và Catalog đều lưu MySQL.');
+      throw localizedError(503, 'errors.payment.storage');
     if (this.checkout && await this.checkout.hasLicense(user.sub, templateId))
-      throw new HttpError(409, 'Bạn đã có quyền sử dụng mẫu này.');
+      throw localizedError(409, 'errors.payment.alreadyLicensed');
     // One pending or paid intent for each buyer/template; requests from the browser cannot set paid status.
     const intent = await this.repository.createPending({
       userId: user.sub, templateId, title: template.title, amount, provider: method,
       isTest: this.env.PAYMENT_ENV !== 'production',
     });
     // A stale/settled intent is not a new checkout; never return it as a successful create.
-    if (intent.status !== 'pending') throw new HttpError(409, 'Giao dịch trước đã kết thúc. Liên hệ hỗ trợ để đối soát trước khi thanh toán lại.');
+    if (intent.status !== 'pending') throw localizedError(409, 'errors.payment.previousClosed');
     // Check the provider BEFORE returning any cached checkout link.
-    if (intent.provider !== method) throw new HttpError(409, 'Đã có đơn đang chờ thanh toán theo phương thức khác. Vui lòng hoàn tất hoặc liên hệ hỗ trợ để đối soát.');
+    if (intent.provider !== method) throw localizedError(409, 'errors.payment.otherMethod');
     if (intent.checkoutUrl) return intent;
     const provider = this.provider(method);
     const urls = {
@@ -82,14 +83,14 @@ export class PaymentService {
     // Disabling NEW live checkouts must not discard signed callbacks from payments
     // already in flight. Still reject sandbox callbacks on a production deployment.
     if (this.env.NODE_ENV === 'production' && this.env.PAYMENT_ENV !== 'production')
-      throw new HttpError(503, 'Webhook thanh toán thử nghiệm bị từ chối trên production.');
+      throw localizedError(503, 'errors.payment.productionWebhook');
     const event = await this.provider(providerName).verifyWebhook(body);
-    if (event.provider !== providerName) throw new HttpError(400, 'Sai nhà cung cấp thanh toán.');
+    if (event.provider !== providerName) throw localizedError(400, 'errors.payment.providerMismatch');
     return this.repository.settleVerified(event);
   }
   async status(user, orderId) {
     const record = await this.repository.forUser(orderId, user.sub);
-    if (!record) throw new HttpError(404, 'Không tìm thấy giao dịch.');
+    if (!record) throw localizedError(404, 'errors.payment.notFound');
     // Pending payment links can remain valid at a bank after our page times out.
     // Do NOT release unique checkout locks by timer: require provider reconciliation.
     const pendingSince = record.createdAt || null;
@@ -99,18 +100,18 @@ export class PaymentService {
       orderId: record.orderId, status: record.status, method: record.provider,
       amountVnd: record.amount, checkoutUrl: record.checkoutUrl,
       pendingSince, needsReview,
-      ...(needsReview ? { notice: 'Giao dịch chờ xác nhận lâu. Nếu đã thanh toán, không thanh toán lại; liên hệ hỗ trợ kèm mã đơn để đối soát.' } : {})
+      ...(needsReview ? { notice: canonicalText('payment.status.longPending') } : {})
     };
   }
   // Administrative payment review is read-only. Authorization uses the session
   // resolved by Identity; never accept a role supplied by the browser.
   requireAdmin(user) {
-    if (user?.role !== 'admin') throw new HttpError(403, 'Chỉ quản trị viên được xem đối soát thanh toán.');
+    if (user?.role !== 'admin') throw localizedError(403, 'errors.payment.adminReview');
   }
   reviewLimit(value) {
     if (value === undefined || value === null || value === '') return 50;
     if (!/^[1-9][0-9]{0,2}$/.test(String(value)) || Number(value) > 100)
-      throw new HttpError(400, 'Giới hạn kết quả cần là số từ 1 đến 100.');
+      throw localizedError(400, 'errors.payment.reviewLimit');
     return Number(value);
   }
   async pendingReview(admin, limit) {
@@ -120,28 +121,28 @@ export class PaymentService {
   async reconciliationHistory(admin, orderId, limit) {
     this.requireAdmin(admin);
     if (typeof orderId !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(orderId))
-      throw new HttpError(400, 'Mã đơn không hợp lệ.');
+      throw localizedError(400, 'errors.payment.invalidOrder');
     return this.repository.reconciliationHistory(orderId, this.reviewLimit(limit));
   }
   async reconcile(user, orderId) {
     // Ownership MUST be checked before any provider request or rate-limit consumption.
     const intent = await this.repository.forUser(orderId, user.sub);
-    if (!intent) throw new HttpError(404, 'Không tìm thấy giao dịch.');
+    if (!intent) throw localizedError(404, 'errors.payment.notFound');
     if (intent.status === 'paid') return { payment: await this.status(user, orderId), providerState: 'paid' };
     if (intent.status !== 'pending' || !intent.checkoutUrl || !intent.code)
-      throw new HttpError(409, 'Giao dịch không ở trạng thái có thể đối soát tự động.');
-    if (!['momo', 'payos'].includes(intent.provider)) throw new HttpError(503, 'Nhà cung cấp không được hỗ trợ.');
+      throw localizedError(409, 'errors.payment.reviewState');
+    if (!['momo', 'payos'].includes(intent.provider)) throw localizedError(503, 'errors.payment.providerUnsupported');
     // Queries of existing checkouts are allowed while NEW payments are disabled,
     // but NEVER cross sandbox/live boundaries or ignore the original order mode.
     if (intent.isTest == null || Boolean(intent.isTest) !== (this.env.PAYMENT_ENV === 'sandbox')
       || !['sandbox', 'production'].includes(this.env.PAYMENT_ENV)
       || (this.env.NODE_ENV === 'production' && intent.isTest))
-      throw new HttpError(503, 'Môi trường đối soát không khớp giao dịch ban đầu.');
+      throw localizedError(503, 'errors.payment.reviewEnvironment');
     if (!this.reconcileLimiter.consume(`${user.sub}:${orderId}`))
-      throw new HttpError(429, 'Vui lòng đợi 30 giây trước khi đối soát lại.');
+      throw localizedError(429, 'errors.payment.reviewCooldown');
     const adapter = this.provider(intent.provider);
     if (!adapter || typeof adapter.queryStatus !== 'function')
-      throw new HttpError(503, 'Nhà cung cấp chưa hỗ trợ truy vấn trạng thái.');
+      throw localizedError(503, 'errors.payment.reviewUnavailable');
     // Record only safe audit metadata, never the provider response body, tokens or signatures.
     const audit = async outcome => {
       if (typeof this.repository.recordReconciliation === 'function') {
@@ -160,13 +161,13 @@ export class PaymentService {
     }
     if (!result || !['paid', 'pending', 'terminal_review'].includes(result.state)) {
       await audit('invalid_response');
-      throw new HttpError(502, 'Kết quả đối soát từ nhà cung cấp không hợp lệ.');
+      throw localizedError(502, 'errors.payment.reviewResult');
     }
     if (result.state === 'paid') {
       if (result.provider !== intent.provider || result.code !== intent.code
         || result.amount !== intent.amount || result.currency !== 'VND' || !result.reference) {
         await audit('mismatch');
-        throw new HttpError(502, 'Giao dịch trả về không khớp dữ liệu thanh toán.');
+        throw localizedError(502, 'errors.payment.reviewMismatch');
       }
       try {
         await this.repository.settleVerified({ ...result, success: true });
@@ -182,13 +183,13 @@ export class PaymentService {
     return {
       payment, providerState: result.state,
       ...(result.state === 'terminal_review'
-        ? { notice: 'Nhà cung cấp báo giao dịch không hoàn tất. Vui lòng liên hệ hỗ trợ để kiểm tra trước khi thanh toán lại.' }
+        ? { notice: canonicalText('payment.status.terminal') }
         : {})
     };
   }
   async receipt(user, orderId) {
     const result = await this.repository.receipt(orderId, user.sub);
-    if (!result) throw new HttpError(404, 'Biên nhận chưa sẵn có hoặc không thuộc tài khoản.');
+    if (!result) throw localizedError(404, 'errors.payment.receiptUnavailable');
     return result;
   }
 }

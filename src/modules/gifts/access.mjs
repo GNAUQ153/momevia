@@ -1,5 +1,5 @@
 import { timingSafeEqual } from 'node:crypto';
-import { HttpError } from '../../shared/http.mjs';
+import { localizedError } from '../../shared/http.mjs';
 import { randomId } from '../../shared/security.mjs';
 import { giftLinkPermissions } from '../../../web/js/shared/gift-permissions.js';
 
@@ -11,9 +11,7 @@ export function giftStatus(gift) {
 export function requireActiveGift(gift) {
   const status = giftStatus(gift);
   if (status === 'active') return;
-  const error = new HttpError(410, status === 'revoked'
-    ? 'Người gửi đã ngừng chia sẻ món quà này.'
-    : 'Món quà đã hết thời gian hoạt động.');
+  const error = localizedError(410, status === 'revoked' ? 'errors.gift.revoked' : 'errors.gift.expired');
   error.code = status === 'revoked' ? 'GIFT_REVOKED' : 'GIFT_EXPIRED';
   throw error;
 }
@@ -24,7 +22,7 @@ export function createGiftAccess(input) {
     || !['link', 'invite'].includes(input.open)
     || !['link', 'invite', 'disabled'].includes(input.send)
     || !['link', 'invite', 'sender'].includes(input.read)) {
-    throw new HttpError(422, 'Chọn đầy đủ phạm vi mở quà, gửi và đọc hồi đáp.');
+    throw localizedError(422, 'errors.gift.accessOptions');
   }
   const access = { open: input.open, send: input.send, read: input.read };
   return { access, ...(Object.values(access).includes('invite') ? { inviteToken: randomId(32) } : {}) };
@@ -38,6 +36,6 @@ export function requireGiftPermission(gift, invite, permission = 'canOpen') {
     && timingSafeEqual(Buffer.from(token), Buffer.from(invite)));
   const permissions = giftLinkPermissions(gift.access, invited);
   if (!permissions.canOpen || !permissions[permission])
-    throw new HttpError(403, 'Bạn không có quyền thực hiện thao tác này. Hãy dùng đường link người gửi đã cấp.');
+    throw localizedError(403, 'errors.gift.permission');
   return permissions;
 }

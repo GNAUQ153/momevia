@@ -139,6 +139,9 @@ test('C26 actual legacy CLI on a copied code-only fixture fails before SQL/provi
   // Copy only these source trees; no workspace .env, node_modules or services data.
   fs.cpSync(path.join(workspace, 'database/scripts'), path.join(codeRoot, 'database/scripts'), { recursive: true });
   fs.cpSync(path.join(workspace, 'src'), path.join(codeRoot, 'src'), { recursive: true });
+  fs.cpSync(path.join(workspace, 'web/js/shared'), path.join(codeRoot, 'web/js/shared'), { recursive: true });
+  fs.cpSync(path.join(workspace, 'web/assets/locales'), path.join(codeRoot, 'web/assets/locales'), { recursive: true });
+  fs.copyFileSync(path.join(workspace, 'package.json'), path.join(codeRoot, 'package.json'));
   const aggregateDirectory = path.join(codeRoot, 'services/designs/data'); fs.mkdirSync(aggregateDirectory, { recursive: true }); fs.copyFileSync(path.join(f.source, 'canvas.json'), path.join(aggregateDirectory, 'canvas.json'));
   for (const name of ['import-gifts-checkout.mjs', 'prepare-import.mjs']) {
     const result = spawnSync(process.execPath, [path.join(codeRoot, 'database/scripts', name)], { cwd: codeRoot, encoding: 'utf8', timeout: 15000, env: { ...process.env, PAYMENT_ENABLED: 'false', PAYMENT_LIVE_ENABLED: 'false' } });

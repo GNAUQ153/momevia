@@ -1,5 +1,5 @@
 import { createHmac, timingSafeEqual, randomUUID } from 'node:crypto';
-import { HttpError } from '../../shared/http.mjs';
+import { localizedError } from '../../shared/http.mjs';
 
 const hmac = (key, content) => createHmac('sha256', key).update(content).digest('hex');
 function equalHex(a, b) {
@@ -13,11 +13,11 @@ function equalHex(a, b) {
 export function parsePayOsInquiry(result, { code, amount, providerPaymentId }) {
   if (String(result?.orderCode) !== String(code) || Number(result?.amount) !== amount
     || (providerPaymentId && String(result?.id) !== String(providerPaymentId)))
-    throw new HttpError(502, 'Thông tin đối soát payOS không khớp đơn hàng.');
+    throw localizedError(502, 'errors.payment.payOsMismatch');
   const state = String(result.status || '').toUpperCase();
   if (state === 'PAID') {
     if (Number(result.amountPaid) !== amount || !result.id || String(result.id).length > 191)
-      throw new HttpError(502, 'payOS chưa xác nhận đủ tiền hoặc thiếu mã tham chiếu.');
+      throw localizedError(502, 'errors.payment.payOsIncomplete');
     return {
       state: 'paid', provider: 'payos', code: String(code),
       amount, currency: 'VND', reference: String(result.id)
@@ -31,13 +31,13 @@ export function parsePayOsInquiry(result, { code, amount, providerPaymentId }) {
 export function createPayOsProvider(env = process.env) {
   const { PAYOS_CLIENT_ID: clientId, PAYOS_API_KEY: apiKey, PAYOS_CHECKSUM_KEY: checksumKey } = env;
   if (![clientId, apiKey, checksumKey].every(x => typeof x === 'string' && x.length >= 8))
-    throw new HttpError(503, 'Chưa cấu hình kênh payOS merchant.');
+    throw localizedError(503, 'errors.payment.payOsConfig');
   let sdk;
   async function instance() {
     if (!sdk) {
       let PayOS;
       try { ({ PayOS } = await import('@payos/node')); }
-      catch { throw new HttpError(503, 'Cần cài npm package @payos/node cho thanh toán payOS.'); }
+      catch { throw localizedError(503, 'errors.payment.payOsPackage'); }
       sdk = new PayOS({ clientId, apiKey, checksumKey });
     }
     return sdk;
@@ -57,12 +57,12 @@ export function createPayOsProvider(env = process.env) {
     async queryStatus({ code, amount, providerPaymentId }) {
       let result;
       try { result = await (await instance()).paymentRequests.get(Number(code)); }
-      catch { throw new HttpError(503, 'Không truy vấn được trạng thái từ payOS.'); }
+      catch { throw localizedError(503, 'errors.payment.payOsInquiry'); }
       return parsePayOsInquiry(result, { code, amount, providerPaymentId });
     },
     async verifyWebhook(body) {
       const data = await (await instance()).webhooks.verify(body);
-      if (!data?.orderCode || !Number.isSafeInteger(Number(data.amount))) throw new HttpError(400, 'payOS webhook thiếu thông tin.');
+      if (!data?.orderCode || !Number.isSafeInteger(Number(data.amount))) throw localizedError(400, 'errors.payment.payOsWebhook');
       return {
         code: String(data.orderCode), amount: Number(data.amount),
         reference: String(data.reference || data.paymentLinkId || ''),
@@ -77,7 +77,7 @@ export function createPayOsProvider(env = process.env) {
 export function createMomoProvider(env = process.env, http = fetch) {
   const { MOMO_PARTNER_CODE: partnerCode, MOMO_ACCESS_KEY: accessKey, MOMO_SECRET_KEY: secretKey } = env;
   if (![partnerCode, accessKey, secretKey].every(x => typeof x === 'string' && x.length >= 4))
-    throw new HttpError(503, 'Chưa cấu hình merchant MoMo.');
+    throw localizedError(503, 'errors.payment.momoConfig');
   const production = env.PAYMENT_ENV === 'production';
   const endpoint = production ? 'https://payment.momo.vn/v2/gateway/api/create'
     : 'https://test-payment.momo.vn/v2/gateway/api/create';
@@ -97,7 +97,7 @@ export function createMomoProvider(env = process.env, http = fetch) {
         signal: AbortSignal.timeout(30_000),
       });
       const result = await response.json();
-      if (!response.ok || result.resultCode !== 0 || !result.payUrl) throw new HttpError(502, 'MoMo không tạo được giao dịch.');
+      if (!response.ok || result.resultCode !== 0 || !result.payUrl) throw localizedError(502, 'errors.payment.momoCreate');
       const url = new URL(result.payUrl);
       if (url.protocol !== 'https:' || !/(^|\.)momo\.vn$/.test(url.hostname)) throw new Error('MoMo URL không hợp lệ.');
       return { checkoutUrl: url.href, qrPayload: result.qrCodeUrl || '', providerPaymentId: String(result.requestId || code) };
@@ -116,17 +116,17 @@ export function createMomoProvider(env = process.env, http = fetch) {
         });
         if (!response.ok) throw Error('MoMo HTTP error');
         result = await response.json();
-      } catch { throw new HttpError(503, 'Không truy vấn được trạng thái từ MoMo.'); }
+      } catch { throw localizedError(503, 'errors.payment.momoInquiry'); }
       // The authenticated HTTPS inquiry must match ALL identity and monetary fields.
       if (result?.partnerCode !== partnerCode || String(result?.orderId) !== String(code)
         || result?.requestId !== requestId || !Number.isSafeInteger(Number(result?.amount))
         || Number(result.amount) !== amount)
-        throw new HttpError(502, 'Thông tin đối soát MoMo không khớp đơn hàng.');
+        throw localizedError(502, 'errors.payment.momoMismatch');
       const resultCode = Number(result.resultCode);
       if (resultCode === 0) {
         const reference = String(result.transId || '');
         if (!/^[0-9]{1,30}$/.test(reference) || reference === '0')
-          throw new HttpError(502, 'MoMo chưa cung cấp mã giao dịch hợp lệ.');
+          throw localizedError(502, 'errors.payment.momoReference');
         return {
           state: 'paid', provider: 'momo', code: String(code),
           amount, currency: 'VND', reference
@@ -139,13 +139,13 @@ export function createMomoProvider(env = process.env, http = fetch) {
       return { state: 'pending' };
     },
     async verifyWebhook(body) {
-      if (body.partnerCode !== partnerCode || !body.signature) throw new HttpError(400, 'MoMo IPN không hợp lệ.');
+      if (body.partnerCode !== partnerCode || !body.signature) throw localizedError(400, 'errors.payment.momoIpn');
       const fields = ['accessKey', 'amount', 'extraData', 'message', 'orderId', 'orderInfo', 'orderType', 'partnerCode',
         'payType', 'requestId', 'responseTime', 'resultCode', 'transId'];
       const values = { ...body, accessKey };
-      if (fields.some(k => values[k] === undefined || values[k] === null)) throw new HttpError(400, 'MoMo IPN thiếu trường.');
+      if (fields.some(k => values[k] === undefined || values[k] === null)) throw localizedError(400, 'errors.payment.momoIpnFields');
       const payload = fields.map(k => `${k}=${values[k]}`).join('&');
-      if (!equalHex(hmac(secretKey, payload), body.signature)) throw new HttpError(400, 'MoMo IPN sai chữ ký.');
+      if (!equalHex(hmac(secretKey, payload), body.signature)) throw localizedError(400, 'errors.payment.momoIpnSignature');
       return {
         code: String(body.orderId), amount: Number(body.amount),
         reference: String(body.transId), currency: 'VND', provider: 'momo',

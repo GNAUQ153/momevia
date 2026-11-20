@@ -1,11 +1,11 @@
-import { HttpError, parseJson, sendJson } from '../../shared/http.mjs';
+import { parseJson, sendJson, localizedError } from '../../shared/http.mjs';
 import { currentUser } from '../../shared/security.mjs';
 import { clientIp } from '../../shared/proxy.mjs';
 
 export function registerRoutes(router, { config, globalAttempts, service, resolveUser = currentUser }) {
   router.on('GET', '/health', ({res}) => sendJson(res, 200, { name: 'support', ok: true }));
   router.on('POST', '/requests', async ({req, res}) => {
-    if (!globalAttempts.consume('all')) throw new HttpError(429, 'Hệ thống đang nhận nhiều yêu cầu. Vui lòng thử lại sau.');
+    if (!globalAttempts.consume('all')) throw localizedError(429, 'errors.support.busy');
     const user = await resolveUser(req, config.jwtSecret, false);
     const data = await parseJson(req, 8192);
     const result = await service.create(data, user, clientIp(req));

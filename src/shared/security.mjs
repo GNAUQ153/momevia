@@ -1,5 +1,5 @@
 import { createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
-import { HttpError, internalFetch } from './http.mjs';
+import { internalFetch, localizedError } from './http.mjs';
 import { environment } from './config.mjs';
 
 export function signSession(user, secret, ttlSeconds = 7 * 24 * 3600) {
@@ -44,10 +44,10 @@ export async function currentUser(req, secret, required = true) {
       });
       user = result.user;
     } catch {
-      throw new HttpError(503, 'Không thể kiểm tra phiên đăng nhập. Vui lòng thử lại.');
+      throw localizedError(503, 'errors.sessionUnavailable');
     }
   }
-  if (!user && required) throw new HttpError(401, 'Vui lòng đăng nhập để tiếp tục.');
+  if (!user && required) throw localizedError(401, 'errors.unauthorized');
   return user;
 }
 
@@ -65,9 +65,9 @@ export function cookie(name, value, maxAge = 600) {
 
 export function randomId(bytes = 18) { return randomBytes(bytes).toString('base64url'); }
 export function sanitizeText(value, max = 160) {
-  if (typeof value !== 'string') throw new HttpError(400, 'Trường văn bản không hợp lệ.');
+  if (typeof value !== 'string') throw localizedError(400, 'errors.invalidText');
   const trimmed = value.replace(/[\x00-\x08\x0b\x0c\x0e-\x1f]/g, '').trim();
-  if (!trimmed || trimmed.length > max) throw new HttpError(400, `Nội dung bắt buộc từ 1 đến ${max} ký tự.`);
+  if (!trimmed || trimmed.length > max) throw localizedError(400, 'errors.textLength', { max });
   return trimmed;
 }
 export function sanitizeOptionalText(value, max = 160) {

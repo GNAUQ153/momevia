@@ -1,6 +1,6 @@
 import http from 'node:http';
 import { environment } from '../shared/config.mjs';
-import { HttpError, sendError, serverTimeouts } from '../shared/http.mjs';
+import { HttpError, sendError, serverTimeouts, localizedError } from '../shared/http.mjs';
 import { isInternalRoute } from '../shared/proxy.mjs';
 import { sessionToken } from '../shared/security.mjs';
 import { staticFile } from '../gateway/static.mjs';
@@ -30,7 +30,7 @@ export async function createHttpApp(config = environment(), { paymentProviders, 
   // Phiên và role được xác nhận từ Identity module tại mỗi request, kể cả sau khi logout.
   const resolveUser = async (req, _secret, required = true) => {
     const user = await identity.sessions.find(sessionToken(req));
-    if (!user && required) throw new HttpError(401, 'Vui lòng đăng nhập để tiếp tục.');
+    if (!user && required) throw localizedError(401, 'errors.unauthorized');
     return user;
   };
   const catalog = await catalogApp(config, { resolveUser });

@@ -1,4 +1,5 @@
 import http from 'node:http';
+import { canonicalText } from '../../web/js/shared/locale.js';
 
 export const serverTimeouts = Object.freeze({
   headersTimeout: 10_000, requestTimeout: 30_000, keepAliveTimeout: 5_000,
@@ -12,14 +13,18 @@ export class HttpError extends Error {
   }
 }
 
+export function localizedError(status, messageKey, messageParams) {
+  return Object.assign(new HttpError(status, canonicalText(messageKey, messageParams)), { messageKey, messageParams });
+}
+
 export async function parseJson(request, maxBytes = 3_500_000) {
-  if (!request.headers['content-type']?.startsWith('application/json')) throw new HttpError(415, 'Yêu cầu phải dùng application/json.');
-  if (Number(request.headers['content-length']) > maxBytes) throw new HttpError(413, 'Dữ liệu gửi lên vượt quá giới hạn.');
+  if (!request.headers['content-type']?.startsWith('application/json')) throw localizedError(415, 'errors.contentType');
+  if (Number(request.headers['content-length']) > maxBytes) throw localizedError(413, 'errors.payloadTooLarge');
   const chunks = [];
   let size = 0;
   for await (const part of request) {
     size += part.length;
-    if (size > maxBytes) throw new HttpError(413, 'Dữ liệu gửi lên vượt quá giới hạn.');
+    if (size > maxBytes) throw localizedError(413, 'errors.payloadTooLarge');
     chunks.push(part);
   }
   try {
@@ -27,7 +32,7 @@ export async function parseJson(request, maxBytes = 3_500_000) {
     if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('Expected object');
     return value;
   } catch {
-    throw new HttpError(400, 'Dữ liệu JSON không hợp lệ.');
+    throw localizedError(400, 'errors.invalidJson');
   }
 }
 
@@ -45,8 +50,9 @@ export function sendError(res, error) {
   if (res.headersSent) return res.end();
   const status = error instanceof HttpError || (error.name === 'CanvasValidationError' && error.status === 422) ? error.status : 500;
   if (status === 500) console.error(error);
-  sendJson(res, status, { error: status === 500 ? 'Máy chủ gặp lỗi. Vui lòng thử lại.' : error.message,
+  sendJson(res, status, { error: status === 500 ? canonicalText('errors.server') : error.message,
     ...(status !== 500 && error.code ? { code: error.code, message: error.message, details: error.details || [] } : {}),
+    ...(status === 500 ? { messageKey: 'errors.server' } : error.messageKey ? { messageKey: error.messageKey, messageParams: error.messageParams } : {}),
     ...(error.code === 'AUTHORIZATION_UNAVAILABLE' ? { authorization: { status: 'unavailable', reasonCodes: ['AUTHORIZATION_UNAVAILABLE'] } } : {}) });
 }
 
@@ -72,7 +78,7 @@ export class Router {
       const parsedUrl = url ?? new URL(req.url, 'http://localhost');
       const routePath = pathname ?? parsedUrl.pathname;
       const entry = this.handlers.find(handler => handler.method === req.method && handler.regex.test(routePath));
-      if (!entry) return sendJson(res, 404, { error: 'Không tìm thấy tài nguyên.' });
+      if (!entry) return sendJson(res, 404, { error: canonicalText('errors.notFound'), messageKey: 'errors.notFound' });
       const match = routePath.match(entry.regex);
       const params = Object.fromEntries(entry.fields.map((field, i) => [field, decodeURIComponent(match[i + 1])]));
       return await entry.fn({ req, res, url: parsedUrl, params });
@@ -94,7 +100,9 @@ export async function internalFetch(url, key, options = {}) {
     signal: AbortSignal.timeout(4000),
   });
   const body = await response.json().catch(() => ({}));
-  if (!response.ok) throw new HttpError(response.status, body.error || 'Dịch vụ nội bộ không khả dụng.');
+  if (!response.ok) throw Object.assign(new HttpError(response.status, body.error || 'Dịch vụ nội bộ không khả dụng.'), {
+    messageKey: body.messageKey, messageParams: body.messageParams,
+  });
   return body;
 }
 

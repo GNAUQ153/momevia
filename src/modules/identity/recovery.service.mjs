@@ -1,7 +1,8 @@
 import { createHmac, randomInt, timingSafeEqual } from 'node:crypto';
-import { HttpError } from '../../shared/http.mjs';
+import { localizedError } from '../../shared/http.mjs';
+import { serverText } from '../../shared/locale.mjs';
 
-const codeInvalid = () => new HttpError(422, 'Mã không hợp lệ, đã dùng hoặc đã hết hạn.');
+const codeInvalid = () => localizedError(422, 'errors.invalidRecoveryCode');
 export const recoveryTtlMs = 15 * 60_000;
 
 export function recoveryMailer(config) {
@@ -24,7 +25,7 @@ export class RecoveryService {
     Object.assign(this, { users, credentials, secret, sendMail, now });
   }
   requireMail() {
-    if (!this.sendMail) throw new HttpError(503, 'Email khôi phục đang tạm tắt. Vui lòng liên hệ hỗ trợ.');
+    if (!this.sendMail) throw localizedError(503, 'errors.recoveryDisabled');
   }
   async byEmail(email) {
     const address = this.credentials.normalizeEmail(email);
@@ -34,7 +35,7 @@ export class RecoveryService {
   digest(user, purpose, code) {
     return createHmac('sha256', this.secret).update(JSON.stringify([user.id, user.email, purpose, code])).digest('hex');
   }
-  async start(user, purpose) {
+  async start(user, purpose, locale = 'vi') {
     this.requireMail();
     if (user?.provider !== 'email' || !user.email) return;
     const code = String(randomInt(0, 100_000_000)).padStart(8, '0');
@@ -48,12 +49,15 @@ export class RecoveryService {
     });
     if (!challenge) return;
     // Keep relay latency out of the public request for both known and unknown accounts.
-    void this.deliver(user, purpose, code, challenge);
+    void this.deliver(user, purpose, code, challenge, locale);
   }
-  async deliver(user, purpose, code, challenge) {
+  async deliver(user, purpose, code, challenge, locale) {
     try {
-      await this.sendMail({ to: user.email, subject: purpose === 'reset' ? 'Mã đặt lại mật khẩu Momevia' : 'Mã xác minh email Momevia',
-        text: `Mã Momevia của bạn là ${code}. Mã dùng một lần và có hiệu lực trong 15 phút.` });
+      await this.sendMail({
+        to: user.email,
+        subject: serverText(locale, purpose === 'reset' ? 'mail.recovery.resetSubject' : 'mail.recovery.verifySubject'),
+        text: serverText(locale, 'mail.recovery.code', { code, minutes: recoveryTtlMs / 60_000 }),
+      });
     } catch {
       try {
         await this.users.mutate(user.id, current => current.recoveryChallenge?.digest === challenge.digest ? { recoveryChallenge: null } : null);

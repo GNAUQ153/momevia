@@ -407,11 +407,13 @@ body.is-designing #main {
   background: #ea477c;
 }
 .editor-guide-x {
+  left: 0;
   top: 0;
   bottom: 0;
   width: 1px;
 }
 .editor-guide-y {
+  top: 0;
   left: 0;
   right: 0;
   height: 1px;

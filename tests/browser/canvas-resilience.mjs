@@ -3,6 +3,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {randomUUID} from 'node:crypto';
 import {chromium} from 'playwright';
+import {createElement} from '../../web/js/shared/canvas/index.js';
+import {syntheticPhoto} from '../integration/canvas-expanded.mjs';
 
 const deferred=()=>{let resolve;const promise=new Promise(done=>{resolve=done;});return {promise,resolve};};
 const json=(route,value,status=200)=>route.fulfill({status,contentType:'application/json',body:JSON.stringify(value)});
@@ -86,6 +88,47 @@ export async function runCanvasResilience(base){
     await api('/auth/logout',{});await login(senderA);
     page.on('dialog',acceptRecovery);await open(designA);await page.waitForFunction(value=>globalThis.document.querySelector('[data-editor-field="binding.message"]')?.value===value,privateText);page.off('dialog',acceptRecovery);await save();
     completed.push('C07/C08 recovery keys owner/design scoped; same-origin account B cannot read A draft or recovery UI');
+
+    const fabricDraft=await create('Fabric lifetime QA');
+    const fabricPath=`/designs/designs/${fabricDraft.id}`;
+    const imageResponse=await context.request.post(base+'/api'+fabricPath+'/assets',{
+      data:await syntheticPhoto(0),
+      headers:{'content-type':'image/png','x-mutation-id':randomUUID()},
+    });
+    assert.equal(imageResponse.status(),201);
+    const {asset}=await imageResponse.json();
+    fabricDraft.document.assets.push({assetId:asset.id,kind:'image'});
+    fabricDraft.document.elements.push(createElement('image',{id:'late-image',props:{assetId:asset.id}}));
+    fabricDraft.document.scenes[0].elementIds.push('late-image');
+    await api(fabricPath+'/save',{title:fabricDraft.title,document:fabricDraft.document,expectedRevision:fabricDraft.revision,mutationId:randomUUID()});
+    await open(fabricDraft);
+    await page.locator('.editor-stage-element[data-element-id="late-image"] img').evaluate(node=>node.decode());
+    const lateAsset='**'+fabricPath+'/assets/'+asset.id;
+    for(const closeBy of ['button','escape','route']){
+      const arrived=gate(),release=gate(),finished=gate();
+      await page.route(lateAsset,async route=>{
+        arrived.resolve();
+        await release.promise;
+        try { await route.continue(); } catch { /* The dialog aborted its asset load. */ }
+        finally { finished.resolve(); }
+      });
+      await control('advanced-design').evaluate(node=>{node.click();node.click();});
+      await bounded(arrived.promise,'Fabric image request');
+      const fabric=page.locator('.editor-fabric-dialog[open]');
+      assert.equal(await fabric.count(),1);
+      if(closeBy==='button') await fabric.locator('[data-editor-action="fabric-close"]').last().click();
+      else if(closeBy==='escape') await page.keyboard.press('Escape');
+      else {
+        await control('studio').evaluate(node=>node.click());
+        await page.waitForURL('**/studio');
+      }
+      await fabric.waitFor({state:'detached'});
+      release.resolve();
+      await bounded(finished.promise,'aborted Fabric image release');
+      await page.unroute(lateAsset);
+    }
+    assert.equal((await api(fabricPath)).design.revision,fabricDraft.revision+1);
+    completed.push('Fabric double-open yields one modal, Close, Escape and route disposal dismiss before image response with no save');
 
     const catalog=(await api('/catalog/templates')).templates,paid=catalog.find(template=>template.price>0);
     assert(paid,'paid seed fixture');

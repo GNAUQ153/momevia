@@ -148,6 +148,13 @@ export async function checkContextualCanvas({ page, base, browser, context, arti
   const frame = await layer(first).boundingBox();
   await page.mouse.move(frame.x + frame.width / 2, frame.y + frame.height / 2);
   await page.mouse.down();
+  await layer(first).evaluate(node => {
+    for (const type of ['pointerdown', 'pointercancel', 'lostpointercapture']) {
+      node.dispatchEvent(new globalThis.PointerEvent(type, {
+        bubbles: true, pointerId: 71, pointerType: 'touch', button: 0,
+      }));
+    }
+  });
   await page.mouse.move(frame.x + frame.width / 2 + 27, frame.y + frame.height / 2 + 12, { steps: 6 });
   await page.mouse.up();
   assert.notEqual(await layer(first).evaluate(node => node.style.left), originalX);

@@ -80,7 +80,6 @@
 
 .editor-workspace button.editor-discovery-chip:hover {
   border-color: #6844cf;
-  transform: translateY(-1px);
 }
 
 .editor-workspace button.editor-discovery-chip:focus-visible {
@@ -125,7 +124,6 @@
 .editor-workspace button[data-block]:hover {
   border-color: #bea5ef;
   box-shadow: 0 6px 14px rgb(71 42 126 / 10%);
-  transform: translateY(-2px);
 }
 
 .editor-workspace button[data-block]:focus-visible {

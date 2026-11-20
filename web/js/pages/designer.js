@@ -95,6 +95,7 @@ export function mountDesigner(
   let libraryTab = "content", fitted = true, stageObserver;
   let discoveryMode = "all";
   let inlineFabricSession = null;
+  let modalFabric = null;
   let inlineFabricOpening = false;
   // Bộ nhớ lịch sử chỉ lưu ID element, không lưu dữ liệu hoặc nội dung thiệp.
   let recentBlocks = (() => {
@@ -293,7 +294,15 @@ export function mountDesigner(
     workspace.classList.toggle("is-quick", quickMode);
     const mode = workspace.querySelector('[data-editor-action="toggle-mode"]');
     if (mode) setText(mode, message(quickMode ? "editor.mode.editLayout" : "editor.mode.quick"));
-    setText(workspace.querySelector('[data-editor-action="preview"]'), message(quickMode ? "editor.mode.recipientPreview" : "editor.actions.preview"));
+    const preview = workspace.querySelector('[data-editor-action="preview"]');
+    const save = workspace.querySelector('[data-editor-action="save"]');
+    setText(preview, message(quickMode ? "editor.mode.recipientPreview" : "editor.actions.preview"));
+    preview.classList.toggle("editor-primary", quickMode);
+    if (quickMode) {
+      workspace.querySelector('[data-editor-action="undo"]').before(preview, save);
+    } else {
+      workspace.querySelector('[data-editor-action="redo"]').after(save, preview);
+    }
     setAttr(workspace.querySelector(".editor-library"), "aria-label", message(quickMode ? "editor.mode.quickLabel" : "editor.tools"));
     const sceneBar = workspace.querySelector(".editor-scene-bar");
     const next = workspace.querySelector(quickMode ? ".editor-stage-scroll" : ".editor-mobile-dock");
@@ -674,10 +683,40 @@ export function mountDesigner(
       }),
     );
   }
+  const sceneThumbs = new Map();
   function renderScenes() {
     const host = main.querySelector(".editor-scenes");
     if (!host) return;
     const doc = store.get().document;
+    const indexed = quickMode ? null : new Map(doc.elements.map(model => [model.id, model]));
+    const structure = JSON.stringify([quickMode, design.policy?.kind, doc.entrySceneId, doc.scenes.map(({ id, name }) => [id, name])]);
+    function updateThumbnail(card, scene) {
+      if (quickMode) return;
+      const models = scene.elementIds.map(id => indexed.get(id));
+      const bindings = models.map(model => doc.bindings[model?.props.textBinding]?.value);
+      const signature = JSON.stringify([doc.artboard.baseSize, scene.background, scene.effects?.surface, models, bindings]);
+      const cached = sceneThumbs.get(scene.id);
+      const thumbnail = cached?.signature === signature
+        ? cached.thumbnail : sceneThumbnail(doc, scene, { assetUrl, indexed });
+      sceneThumbs.set(scene.id, { signature, thumbnail });
+      const current = card.querySelector(".editor-thumbnail");
+      if (current === thumbnail) return;
+      if (current) current.replaceWith(thumbnail);
+      else card.prepend(thumbnail);
+    }
+    if (host.dataset.structure === structure) {
+      for (const [index, wrapper] of [...host.children].entries()) {
+        const scene = doc.scenes[index];
+        const card = wrapper.firstElementChild;
+        const selected = scene.id === sceneId;
+        card.classList.toggle("is-selected", selected);
+        card.setAttribute("aria-pressed", String(selected));
+        updateThumbnail(card, scene);
+      }
+      return;
+    }
+    host.dataset.structure = structure;
+    for (const id of sceneThumbs.keys()) if (!doc.scenes.some(scene => scene.id === id)) sceneThumbs.delete(id);
     const active = document.activeElement;
     const focusedId = host.contains(active) ? active.closest("[data-scene]")?.dataset.scene : null;
     const openId = host.querySelector("details[open]")?.closest("[data-scene]").dataset.scene;
@@ -689,7 +728,7 @@ export function mountDesigner(
         "data-id": scene.id, "aria-pressed": selected,
         class: `editor-scene-choice${selected ? " is-selected" : ""}`,
       });
-      if (!quickMode) card.append(sceneThumbnail(doc, scene, { assetUrl }));
+      updateThumbnail(card, scene);
       card.append(node("span", { class: "editor-scene-name" }, scene.name));
       if (entry && !quickMode) card.append(node("span", { class: "editor-scene-entry" }, message("editor.scene.entry")));
       const summary = node("summary", { "aria-label": `Tùy chọn cảnh ${scene.name}` });
@@ -1197,6 +1236,7 @@ export function mountDesigner(
   }
   async function initialize(loaded) {
     if (disposed) return;
+    sceneThumbs.clear();
     unsubscribe?.();
     session?.dispose();
     stage?.dispose();
@@ -1776,6 +1816,7 @@ export function mountDesigner(
       return;
     }
     if (!store) return;
+    if (modalFabric && (name === "advanced-design" || name === "fabric-studio" || name === "inline-fabric")) return;
     // Khi Fabric nhúng đang mở, chỉ Áp dụng/Hủy trong Fabric mới được thay document.
     if (inlineFabricSession || inlineFabricOpening) {
       throw new Error("Hãy Áp dụng hoặc Hủy chế độ chỉnh trực tiếp trước khi dùng công cụ khác.");
@@ -1817,6 +1858,7 @@ export function mountDesigner(
           policy: design.policy,
           assetUrl,
           inlineHost: mount,
+          signal,
           onApply: patch => {
             assertInlineFabricRevision(initialSequence, store.sequence, editingScene, sceneId, disposed);
             commit(value => {
@@ -1825,7 +1867,7 @@ export function mountDesigner(
           },
           onClose: restore,
         });
-        if (!studio?.dialog?.open) throw new Error("Không mở được vùng Fabric trực tiếp.");
+        if (!studio?.dialog?.open) return;
         if (disposed) {
           studio.close();
           return;
@@ -1846,27 +1888,32 @@ export function mountDesigner(
       // Người dùng vào từ chế độ nhanh sẽ được chuyển sang chế độ bố cục có quyền chỉnh.
       if (quickMode && name === "advanced-design") switchMode();
       if (quickMode) throw new Error("Hãy chuyển sang chế độ chỉnh bố cục trước khi mở Fabric Studio.");
-      const { openFabricStudio } = await import("../features/canvas-editor/fabric-studio.js");
+      const token = modalFabric = {};
       const initialSequence = store.sequence;
-      const studio = await openFabricStudio({
-        snapshot: structuredClone(store.get().document),
-        sceneId,
-        policy: design.policy,
-        assetUrl,
-        onApply: (patch) => {
-          if (store.sequence !== initialSequence)
-            throw new Error("Nháp đã đổi trong lúc mở Fabric Studio. Hãy mở lại để tránh ghi đè.");
-          commit(value => {
-            // Chỉ persist metadata và bố cục qua schema Momevia; không lưu Fabric JSON.
-            value.document = applyFabricWorkspacePatch(value.document, sceneId, patch, design.policy);
-          }, "Fabric Studio: chỉnh lớp và bố cục");
-        },
-        onClose: () => {
-          for (const item of dialogs)
-            if (item.classList.contains("editor-fabric-dialog")) dialogs.delete(item);
-        },
-      });
-      if (studio?.dialog && studio.dialog.open) dialogs.add(studio.dialog);
+      const editingScene = sceneId;
+      const restore = () => { if (modalFabric === token) modalFabric = null; };
+      try {
+        const { openFabricStudio } = await import("../features/canvas-editor/fabric-studio.js");
+        if (signal.aborted || modalFabric !== token) return;
+        await openFabricStudio({
+          snapshot: structuredClone(store.get().document),
+          sceneId: editingScene,
+          policy: design.policy,
+          assetUrl,
+          signal,
+          onApply: (patch) => {
+            if (store.sequence !== initialSequence || editingScene !== sceneId || signal.aborted)
+              throw new Error("Nháp đã đổi trong lúc mở Fabric Studio. Hãy mở lại để tránh ghi đè.");
+            commit(value => {
+              value.document = applyFabricWorkspacePatch(value.document, editingScene, patch, design.policy);
+            }, "Fabric Studio: chỉnh lớp và bố cục");
+          },
+          onClose: restore,
+        });
+      } catch (error) {
+        restore();
+        throw error;
+      }
       return;
     }
     if (name === "toggle-mode") {
@@ -2629,7 +2676,7 @@ export function mountDesigner(
     });
   }
   function beforeLeave() {
-    if (inlineFabricOpening || inlineFabricSession) {
+    if (inlineFabricSession) {
       return window.confirm("Thay đổi trong Fabric chưa được Áp dụng và sẽ bị hủy khi rời trang. Bạn vẫn muốn rời đi?");
     }
     return (

@@ -55,7 +55,7 @@ function staticPreview(fabric, model) {
   });
 }
 
-async function makeFabricObject(fabric, model, assetUrl) {
+async function makeFabricObject(fabric, model, assetUrl, signal) {
   const options = shapeOptions(model);
   const props = model.props;
   let object;
@@ -85,7 +85,8 @@ async function makeFabricObject(fabric, model, assetUrl) {
     const url = assetUrl(props.assetId);
     if (typeof url === 'string' && /^\/api\/designs\/designs\/[\w-]+\/assets\/[\w-]+$/.test(url)) {
       try {
-        object = await fabric.FabricImage.fromURL(url, { crossOrigin: 'anonymous' });
+        object = await fabric.FabricImage.fromURL(url, { crossOrigin: 'anonymous', signal });
+        if (signal.aborted) { object.dispose(); return; }
         object.set({
           ...options,
           // Giữ kích thước ảnh gốc; scale mới đại diện đúng bố cục Momevia.
@@ -96,6 +97,7 @@ async function makeFabricObject(fabric, model, assetUrl) {
           objectCaching: true,
         });
       } catch {
+        if (signal.aborted) return;
         // Ảnh lỗi không bao giờ được thay thế trong document gốc.
         object = staticPreview(fabric, model);
         object.momeviaMissingImage = true;
@@ -111,13 +113,15 @@ async function makeFabricObject(fabric, model, assetUrl) {
   return object;
 }
 
-export async function openFabricStudio({ snapshot, sceneId, policy, assetUrl, onApply, onClose = () => { }, inlineHost = null }) {
+export async function openFabricStudio({ snapshot, sceneId, policy, assetUrl, onApply, onClose = () => { }, inlineHost = null, signal }) {
   let fabric;
   try {
     fabric = await import('../../vendor/fabric.mjs');
   } catch {
+    if (signal?.aborted) return;
     throw new Error(t("editor.fabric.errors.bundle"));
   }
+  if (signal?.aborted) return;
   if (!fabric.Canvas || !fabric.Rect || !fabric.Textbox) throw new Error(t("editor.fabric.errors.version"));
   if (policy?.kind === 'creator-template') throw new Error(t("editor.fabric.errors.locked"));
   // Chỉ cho nhúng Fabric vào vùng artboard của Canvas Designer, không nhúng vào trang công khai.
@@ -200,20 +204,33 @@ export async function openFabricStudio({ snapshot, sceneId, policy, assetUrl, on
   let properties;
   let fitObserver;
   let closed = false;
-  function close() { if (dialog.open) dialog.close(); else cleanup(); }
+  const work = new AbortController();
+  const apply = footer.querySelector('[data-editor-action="fabric-apply"]');
+  apply.disabled = true;
+  actions.inert = true;
+  function close() {
+    if (dialog.open) dialog.close();
+    cleanup();
+  }
   function cleanup() {
     if (closed) return;
     closed = true;
+    work.abort();
+    signal?.removeEventListener('abort', close);
     fitObserver?.disconnect();
     inspector?.dispose();
     quickbar?.dispose();
     properties?.dispose();
-    try { void canvas?.dispose(); } catch { /* Đóng editor cũ vẫn phải thành công. */ }
+    try { void canvas?.dispose()?.catch(() => {}); } catch { /* Đóng editor cũ vẫn phải thành công. */ }
     dialog.remove();
     onClose();
   }
   dialog.addEventListener('close', cleanup, { once: true });
   dialog.addEventListener('cancel', event => { event.preventDefault(); close(); });
+  dialog.addEventListener('click', event => {
+    if (event.target.closest('[data-editor-action="fabric-close"]')) close();
+  });
+  signal?.addEventListener('abort', close, { once: true });
   if (embedded) dialog.addEventListener('keydown', event => {
     if (event.key === 'Escape') {
       event.preventDefault();
@@ -249,9 +266,15 @@ export async function openFabricStudio({ snapshot, sceneId, policy, assetUrl, on
       selection: false,
     });
     for (const element of view.elements) {
-      if (closed) return { dialog, close };
-      canvas.add(await makeFabricObject(fabric, element, assetUrl));
+      const object = await makeFabricObject(fabric, element, assetUrl, work.signal);
+      if (closed || signal?.aborted) {
+        object?.dispose();
+        return { dialog, close };
+      }
+      if (object) canvas.add(object);
     }
+    apply.disabled = false;
+    actions.inert = false;
     // Đồng bộ bảng layer và đối tượng Canvas, không thêm metadata lạ vào tài liệu.
     const byId = new Map(canvas.getObjects().map(item => [item.momeviaId, item]));
     const layerList = layersPanel.querySelector('.fabric-layer-list');
@@ -475,7 +498,6 @@ export async function openFabricStudio({ snapshot, sceneId, policy, assetUrl, on
         return;
       }
 
-      if (action === 'fabric-close') { close(); return; }
       if (closed || !canvas) return;
       const selected = canvas.getActiveObject();
       if (action?.startsWith('align-')) {

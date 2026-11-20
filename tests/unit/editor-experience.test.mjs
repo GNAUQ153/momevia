@@ -51,7 +51,8 @@ test('Trình chỉnh Canvas gắn nút thao tác vào handler bảo vệ và gi�
   assert.match(designer, /if \(name === "advanced-design" \|\| name === "fabric-studio"\)/);
   assert.match(designer, /if \(quickMode && name === "advanced-design"\) switchMode\(\)/);
   assert.match(designer, /if \(!canOpenAdvancedEditor\(design\.policy\)\)/);
-  assert.match(designer, /applyFabricWorkspacePatch\(value\.document, sceneId, patch, design\.policy\)/);
+  assert.match(designer, /applyFabricWorkspacePatch\(value\.document, editingScene, patch, design\.policy\)/);
+  assert.match(designer, /editingScene !== sceneId/);
   assert.match(designer, /store\.sequence !== initialSequence/);
   assert.doesNotMatch(designer, /saveFabricJSON|document\.fabricState\s*=/);
 });

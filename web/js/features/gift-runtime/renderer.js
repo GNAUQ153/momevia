@@ -2,7 +2,7 @@ import { STICKERS } from "../../shared/canvas/index.js";
 import { message as label, setAttr, setText, t } from "../../core/i18n.js";
 import { masks, vectorParts } from "../../shared/canvas/artwork.js";
 import { renderInteraction } from "./interactions.js";
-import { applySurface, playReaction } from "./effects.js";
+import { applySurface, finishTypewriter, playReaction } from "./effects.js";
 
 const svgNamespace = "http://www.w3.org/2000/svg";
 let clipSequence = 0;
@@ -71,6 +71,27 @@ export function resolveText(node, document) {
     ? document.bindings[node.props.textBinding]?.value || ""
     : node.props.text || "";
 }
+
+// The system preview regenerates the same document structure with translated copy.
+export function updateElementCopy(node, model, document) {
+  const { type, props: p, accessibility: a = {} } = model;
+  if (type === "text") {
+    finishTypewriter(node);
+    node.textContent = resolveText(model, document);
+  } else if (["button", "envelope", "gift-box"].includes(type)) {
+    setText(node.querySelector(".gift-runtime-control-label"), p.label || a.label || label("gift.runtime.continue"));
+    setAttr(node, "aria-label", a.label || p.label || label("gift.runtime.continue"));
+  } else if (type === "reply") {
+    setText(node.querySelector("h2"), p.title || label("gift.reply.send"));
+    setText(node.querySelector(".gift-runtime-submit"), p.submitLabel || label("gift.reply.send"));
+    setAttr(node, "aria-label", a.label || p.title || label("gift.reply.title"));
+  } else if (type === "image") {
+    const caption = node.querySelector(".gift-runtime-photo-caption");
+    if (caption) caption.textContent = p.caption || "";
+    const image = node.querySelector("img");
+    if (image) image.alt = a.decorative ? "" : a.alt || "";
+  }
+}
 export function textFont(token) {
   return token === "heading" ? "var(--font-display)" :
     token === "serif" ? "var(--font-serif)" : "var(--font-body)";
@@ -124,20 +145,23 @@ export function renderElement(
   const { type, props: p, accessibility: a = {} } = model;
   const vector = vectorParts(model);
   const pendingControls = new WeakSet();
-  function activate(control, event, action, wait) {
+  function activate(control, event, action, actions) {
     if (signal?.aborted || pendingControls.has(control) || control.getAttribute("aria-disabled") === "true") return;
     const preset = !previewFamily || previewFamily === "reaction" ? model.effects?.reaction : null;
-    if (!wait) action();
-    const played = playReaction(control, preset, motion, signal, event);
-    if (!played) {
-      if (wait) action();
+    if (actions?.length) {
+      onAction(actions, intentSignal => {
+        const played = playReaction(control, preset, motion, intentSignal, event);
+        if (!played) return;
+        pendingControls.add(control);
+        return played.finally(() => pendingControls.delete(control));
+      });
       return;
     }
+    action?.();
+    const played = playReaction(control, preset, motion, signal, event);
+    if (!played) return;
     pendingControls.add(control);
-    void played.then(() => {
-      pendingControls.delete(control);
-      if (wait && !signal?.aborted) action();
-    });
+    void played.finally(() => pendingControls.delete(control));
   }
   let node;
   if (vector) {
@@ -246,12 +270,12 @@ export function renderElement(
     else if (mode !== "thumbnail")
       node.addEventListener(
         "click",
-        event => activate(node, event, () => onAction(model.actions || []), true),
+        event => activate(node, event, null, model.actions),
         signal ? { signal } : {},
       );
   } else if (type === "interaction") {
     node = renderInteraction(model, {
-      mode, signal, onAction, activate, renderArt: drawVector,
+      mode, signal, activate, renderArt: drawVector,
       renderPhoto: photo => renderElement({
         id: photo.id, type: "image",
         props: { assetId: photo.assetId, fit: "cover", focalPoint: photo.focalPoint, optional: true },

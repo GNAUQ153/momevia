@@ -1,4 +1,5 @@
-import { attr, createLocaleControl, text, t } from '../../core/i18n.js';
+import { attr, createLocaleControl, onLocaleChange, text, t } from '../../core/i18n.js';
+import { isSystemTemplate } from '../../shared/template-copy.js';
 import { templateField, templateValue } from './template-copy.js';
 
 export function templatePreviewDialog(template) {
@@ -22,8 +23,11 @@ export function mountTemplatePreview(host, template, { api, onOpen }) {
   const playerHost = dialog.querySelector('.template-preview-player');
   const lifecycle = new AbortController();
   const options = { signal: lifecycle.signal };
-  let opener, attempt, player;
+  let opener, attempt, player, localizedPreview;
   const endpoint = template.versionId && `/catalog/templates/${encodeURIComponent(template.id)}/versions/${encodeURIComponent(template.versionId)}`;
+  const removeLocaleListener = onLocaleChange(() => {
+    if (dialog.open && player && localizedPreview) player.updatePreviewCopy(localizedPreview(template, t));
+  });
   dialog.querySelector('.template-preview-toolbar').prepend(createLocaleControl());
 
   function clear() {
@@ -42,15 +46,17 @@ export function mountTemplatePreview(host, template, { api, onOpen }) {
     reset.hidden = true;
     playerHost.setAttribute('aria-busy', 'true');
     try {
-      const [{ mountPlayer }, document] = await Promise.all([
+      const [{ mountPlayer }, source] = await Promise.all([
         import('../gift-runtime/index.js'),
         endpoint
           ? api.get(endpoint, { signal }).then(({ version }) => version.document)
-          : import('../../shared/canvas/presets.js').then(module => module.templatePreviewDocument(template, t)),
+          : import('../../shared/canvas/presets.js'),
       ]);
       if (signal.aborted || !dialog.open) return;
+      localizedPreview = isSystemTemplate(template) ? source.templatePreviewDocument : null;
       player = mountPlayer(playerHost, {
-        document, mode: 'preview',
+        document: endpoint ? source : source.templatePreviewDocument(template, isSystemTemplate(template) ? t : undefined),
+        mode: 'preview',
         assetUrl: endpoint ? id => `/api${endpoint}/assets/${encodeURIComponent(id)}` : undefined,
       });
       reset.hidden = false;
@@ -85,5 +91,5 @@ export function mountTemplatePreview(host, template, { api, onOpen }) {
     if (opener?.isConnected) opener.focus();
   }, options);
   dialog.addEventListener('submit', event => event.stopPropagation(), options);
-  return { dispose() { lifecycle.abort(); clear(); if (dialog.open) dialog.close(); } };
+  return { dispose() { removeLocaleListener(); lifecycle.abort(); clear(); if (dialog.open) dialog.close(); } };
 }

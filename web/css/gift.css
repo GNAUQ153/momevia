@@ -482,6 +482,9 @@
   filter: drop-shadow(0 15px 16px rgba(88,58,87,.13));
   animation: gentle-float 4.5s ease-in-out infinite;
 }
+@media (prefers-reduced-motion: reduce) {
+  .envelope-scene, .surprise-halo { animation: none !important; }
+}
 .envelope-scene__body {
   position: absolute;
   inset: 35px 0 0;

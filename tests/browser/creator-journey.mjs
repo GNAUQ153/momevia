@@ -138,8 +138,11 @@ export async function runCreatorJourney(base) {
     const seasonalShelf = phone.locator('.seasonal-shelf');
     await seasonalShelf.waitFor();
     assert(await visibleInViewport(phone, seasonalShelf), 'Bộ sưu tập mùa lễ phải xuất hiện trong màn hình đầu');
+    assert.equal(await seasonalShelf.getAttribute('open'), null);
+    await seasonalShelf.locator('summary').click();
     await phone.locator('.seasonal-shelf__card').first().waitFor();
     await capture(phone, 'catalog-390');
+    await seasonalShelf.locator('summary').click();
     const firstCard = phone.locator('#catalog-grid .template-card').first();
     await firstCard.waitFor();
     await firstCard.scrollIntoViewIfNeeded();
@@ -172,11 +175,22 @@ export async function runCreatorJourney(base) {
     assert(await phone.evaluate(() => globalThis.document.documentElement.scrollWidth <= globalThis.innerWidth));
     await heading.evaluate(item => { item.textContent = item.textContent.slice(0, item.textContent.length / 5); });
     const previewVersion = `**/api/catalog/templates/${id}/versions/${v1}`;
+    let versionRequests = 0;
+    phone.on('request', request => {
+      if (request.url().endsWith(`/api/catalog/templates/${id}/versions/${v1}`)) versionRequests++;
+    });
     await phone.route(previewVersion, route => route.fulfill({ status: 503 }), { times: 1 });
     await phone.getByRole('button', { name: 'Xem thử' }).click();
     await phone.getByRole('dialog').getByRole('alert').getByText('Chưa mở được bản xem thử.').waitFor();
     await phone.getByRole('dialog').getByRole('button', { name: 'Thử lại' }).click();
     await phone.locator('.template-preview-player').getByText('Mai', { exact: true }).waitFor();
+    const previewLocale = phone.getByRole('dialog').locator('[data-locale-select]');
+    await previewLocale.selectOption('en');
+    await phone.waitForFunction(() => globalThis.document.documentElement.lang === 'en');
+    await phone.locator('.template-preview-player').getByText('Mai', { exact: true }).waitFor();
+    assert.equal(versionRequests, 2);
+    await previewLocale.selectOption('vi');
+    await phone.waitForFunction(() => globalThis.document.documentElement.lang === 'vi');
     await loaded(phone);
     await phone.getByRole('button', { name: 'Đóng', exact: true }).click();
     let releasePreview;

@@ -9,7 +9,7 @@ function node(tag, css, text) {
   return element;
 }
 
-export function renderInteraction(model, { mode, signal, onAction, renderPhoto, renderArt, activate }) {
+export function renderInteraction(model, { mode, signal, renderPhoto, renderArt, activate }) {
   const { kind, color, entries, photos, eventAt, timeZone } = model.props;
   const spec = interactionKinds[kind];
   const root = node("section", `gift-runtime-interaction gift-runtime-${kind}`);
@@ -17,11 +17,11 @@ export function renderInteraction(model, { mode, signal, onAction, renderPhoto, 
   setAttr(root, "aria-label", label(`gift.interactions.kind.${kind}`));
   const live = mode === "preview" || mode === "public";
   const listen = (target, event, handle) => target.addEventListener(event, handle, { signal });
-  const button = (label, action, css = "") => {
+  const button = (label, action, css = "", navigation) => {
     const control = node(live ? "button" : "span", `gift-interaction-button ${css}`, label);
     if (live) {
       control.type = "button";
-      listen(control, "click", event => activate(control, event, () => action(event), kind === "scene-choices"));
+      listen(control, "click", event => activate(control, event, () => action?.(event), navigation));
     }
     return control;
   };
@@ -48,7 +48,7 @@ export function renderInteraction(model, { mode, signal, onAction, renderPhoto, 
     if (live) toggle.setAttribute("aria-pressed", "false");
     root.append(symbol(spec.icon), back, toggle);
   } else if (kind === "scene-choices") {
-    root.append(...entries.map((entry, i) => button(entry.heading, () => onAction([model.actions[i]]), "gift-interaction-door")));
+    root.append(...entries.map((entry, i) => button(entry.heading, null, "gift-interaction-door", [model.actions[i]])));
   } else if (kind === "scratch-ticket") {
     const covered = node("div", "gift-scratch-area");
     const message = status(first.body);

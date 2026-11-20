@@ -2,10 +2,11 @@ body.is-playing-gift #site-header, body.is-playing-gift #site-footer, body.is-pl
 body.is-playing-gift #main { min-height: 100dvh; }
 .gift-runtime { width: 100%; max-width: 720px; margin: 0 auto; color: var(--ink); }
 .gift-runtime-stage { position: relative; width: 100%; overflow: hidden; border-radius: 24px; isolation: isolate; }
-.gift-runtime-stage > [data-runtime-element] { box-sizing: border-box; margin: 0; overflow-wrap: anywhere; }
+.gift-scene-content { position: absolute; inset: 0; }
+.gift-scene-content > [data-runtime-element] { box-sizing: border-box; margin: 0; overflow-wrap: anywhere; }
 .gift-runtime-text { white-space: pre-wrap; margin: 0; }
 .gift-runtime-drop-cap::first-letter { float: left; font-size: 2.55em; line-height: .9; padding-inline-end: .14em; }
-.gift-runtime-stage > :is(.gift-runtime-vector-box, .gift-runtime-shape, .gift-runtime-sticker) { pointer-events: none; }
+.gift-scene-content > :is(.gift-runtime-vector-box, .gift-runtime-shape, .gift-runtime-sticker) { pointer-events: none; }
 .gift-runtime-vector { display: block; width: 100%; height: 100%; overflow: visible; }
 .gift-runtime-image { overflow: hidden; background: #f2edf7; }
 .gift-runtime-image img { width: 100%; height: 100%; display: block; }
@@ -108,8 +109,11 @@ span.gift-comparison-range { min-height: 6px; background: #674392; border-radius
 .gift-reaction-R01 { top: 23%; left: 5%; width: 90%; height: 32%; clip-path: polygon(0 0,100% 0,50% 100%); }
 .gift-reaction-R02 { width: 74%; height: 19%; left: 13%; top: 27%; background: #f7ce73; }
 .gift-reaction-burst { font-size: 24px; color: #a16b24; text-shadow: 0 0 3px #fff8cf; }
-.gift-typewriter-accessible { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
-.gift-typewriter-overlay { white-space: pre-wrap; }
+.gift-typewriter-accessible, .gift-typewriter-rest { color: transparent; }
+.gift-typewriter-accessible { display: block; }
+.gift-typewriter-overlay { position: absolute; inset: 0; pointer-events: none; }
+.gift-runtime-drop-cap[data-gift-effect="E03"]::first-letter { float: none; font-size: inherit; line-height: inherit; padding: 0; }
+.gift-runtime-drop-cap :is(.gift-typewriter-accessible, .gift-typewriter-overlay)::first-letter { float: left; font-size: 2.55em; line-height: .9; padding-inline-end: .14em; }
 .gift-typewriter-skip, .gift-motion-control { min-height: 36px; padding: 5px 10px; border-radius: 8px; background: #fffaf6; color: #32243b; border: 1px solid #9474a1; font: 600 14px var(--font-body); }
-.gift-typewriter-skip { display: block; }
-.gift-motion-control { min-height: 44px; margin-block: 0 8px; }
+.gift-motion-toolbar { display: flex; gap: 8px; margin-block: 0 8px; align-items: stretch; }
+.gift-motion-toolbar button { min-height: 44px; }

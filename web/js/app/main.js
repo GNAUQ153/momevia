@@ -1116,12 +1116,16 @@ async function handleAction(action, element) {
     return;
   }
   if (action === "open-gift") {
-    document.getElementById("recipient-card")?.classList.add("is-surprise");
+    const card = document.getElementById("recipient-card");
+    card?.classList.add("is-surprise");
+    focusVisibleTarget(card?.querySelector(".recipient-surprise h2"));
     return;
   }
   if (action === "reveal-gift") {
-    document.getElementById("recipient-card")?.classList.remove("is-surprise");
-    document.getElementById("recipient-card")?.classList.add("is-open");
+    const card = document.getElementById("recipient-card");
+    card?.classList.remove("is-surprise");
+    card?.classList.add("is-open");
+    focusVisibleTarget(card?.querySelector(".recipient-opened h1"));
     return;
   }
   if (action === "copy-link") return copyText(element);

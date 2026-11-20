@@ -90,6 +90,16 @@ export async function runHomeBrowser(base) {
           const coverName = await stage.getAttribute('aria-label');
           await entry.tap();
           assert.notEqual(await stage.getAttribute('aria-label'), coverName);
+          const back = stage.locator('[data-runtime-element="memory-back"]');
+          await back.waitFor();
+          const modelNode = await back.elementHandle();
+          const previewLanguage = dialog.locator('[data-locale-select]');
+          await previewLanguage.selectOption('en');
+          await stage.getByText('A memory', { exact: true }).waitFor();
+          assert.equal(await stage.getAttribute('aria-label'), 'Memory');
+          assert.equal(await back.evaluate((node, original) => node === original, modelNode), true);
+          await previewLanguage.selectOption(language);
+          await page.waitForFunction(value => globalThis.document.documentElement.lang === value, language);
           if (process.env.BROWSER_ARTIFACT_DIR) await page.screenshot({ path: path.join(process.env.BROWSER_ARTIFACT_DIR, `home-preview-${language}-390.png`) });
           await page.keyboard.press('Escape');
           await dialog.waitFor({ state: 'hidden' });

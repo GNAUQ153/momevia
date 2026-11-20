@@ -1,3 +1,10 @@
+## Unreleased — Phase 6.3b: Read-only Conflict Review (2026-11-20)
+
+- So sánh song song bản Canvas đang mở và bản được tải từ máy chủ ở chế độ chỉ đọc: phiên bản, tên, cảnh, layer, ảnh, bindings và thiết lập khác.
+- Nhận biết thay đổi nội dung layer ngay cả khi tổng số layer không đổi; khu vực cá nhân hóa chỉ hiển thị tối đa 8 mục để không tràn giao diện.
+- Tiếp tục dùng API GET, quyền owner, CAS và hộp xác nhận tải bản máy chủ hiện có; không thêm chức năng merge hoặc ghi đè mới.
+- UI responsive, bàn phím/ARIA, từ điển tiếng Việt/tiếng Anh và unit tests; không chỉnh sửa session.js hoặc repository.
+
 ## Unreleased — Phase 6.1a: Designer Modularity & Release Safety
 
 - Tách cấu hình thanh công cụ, tiện ích hiển thị/zoom và bộ chọn ảnh từ `designer.js` thành module độc lập `designer-helpers.js`, không thay đổi API hoặc state.

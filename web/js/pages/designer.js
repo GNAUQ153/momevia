@@ -34,6 +34,8 @@ import {
   readableInk,
 } from "../features/canvas-editor/designer-helpers.js";
 import { createSaveSession } from "../features/canvas-editor/session.js";
+import { openRecoveryCenter } from "../features/canvas-editor/recovery-center.js";
+import { renderCanvasConflictReview } from "../features/canvas-editor/conflict-review.js";
 import { describeSaveFeedback } from "../features/canvas-editor/save-feedback.js";
 import { hasPendingEditorWork, historyShortcut } from "../features/canvas-editor/editor-guards.js";
 import { createStage } from "../features/canvas-editor/stage.js";
@@ -428,6 +430,7 @@ export function mountDesigner(
     const tools = node(
       "div",
       { class: "editor-top-actions" },
+      button("Bản nháp", "recovery-center", { class: "editor-recovery-entry", title: "Kiểm tra trạng thái và sao lưu bản nháp" }),
       createLocaleControl(),
       iconButton(message("editor.actions.undo"), "undo", "undo"),
       iconButton(message("editor.actions.redo"), "redo", "redo"),
@@ -1981,37 +1984,27 @@ export function mountDesigner(
       }
       return;
     }
+    /* phase63a: recovery dashboard */
+    if (name === "recovery-center") {
+      const dialog = openRecoveryCenter({
+        session, store, design,
+        onRetry: () => action("retry-save", target),
+        onCompare: () => action("server-view", target),
+        onReload: () => action("server-reload", target),
+        onError: warn,
+      });
+      dialogs.add(dialog);
+      dialog.addEventListener("close", () => dialogs.delete(dialog), { once: true });
+      return;
+    }
     if (name === "server-view") {
       const current = (
         await request(`/designs/designs/${encodeURIComponent(design.id)}`)
       ).design;
-      const dialog = node(
-        "dialog",
-        { class: "editor-preview-dialog", "aria-label": "Bản máy chủ" },
-        node("h2", {}, `Bản máy chủ · revision ${current.revision}`),
-        node(
-          "p",
-          {},
-          "Nội dung cục bộ vẫn được giữ trong editor. Chỉ dùng bản máy chủ khi bạn chủ động bỏ các thay đổi cục bộ.",
-        ),
-        node(
-          "pre",
-          { class: "editor-document-comparison" },
-          JSON.stringify(
-            {
-              title: current.title,
-              bindings: current.document.bindings,
-              scenes: current.document.scenes.map((item) => ({
-                id: item.id,
-                name: item.name,
-              })),
-            },
-            null,
-            2,
-          ),
-        ),
-        button("Đóng", "comparison-close"),
-      );
+      // Phase 6.3b: read-only structural comparison; no save/reload/mutation.
+      const dialog = renderCanvasConflictReview({
+        local: store.get(), remote: current, localRevision: session.revision,
+      });
       document.body.append(dialog);
       dialogs.add(dialog);
       const close = trapDialog(dialog, () => dialogs.delete(dialog));

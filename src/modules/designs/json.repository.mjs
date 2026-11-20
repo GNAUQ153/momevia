@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { randomUUID } from 'node:crypto';
+import { replaceFileWithRetry } from '../../shared/atomic-file.mjs';
 import { canvasError, owned } from './errors.mjs';
 import { requireGiftPermission } from '../gifts/access.mjs';
 import { checkReplyReplay } from '../gifts/replies.mjs';
@@ -29,7 +30,7 @@ export class JsonDesignRepository {
     try {
       fd = fs.openSync(temporary, 'wx');
       fs.writeFileSync(fd, JSON.stringify(state)); fs.fsyncSync(fd); fs.closeSync(fd); fd = undefined;
-      this.fault('beforeCommit'); fs.renameSync(temporary, this.filepath); this.fault('afterCommit');
+      this.fault('beforeCommit'); replaceFileWithRetry(temporary, this.filepath); this.fault('afterCommit');
     } finally { if (fd !== undefined) fs.closeSync(fd); }
   }
   async exclusive(work) {

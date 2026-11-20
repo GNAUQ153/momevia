@@ -39,7 +39,8 @@
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 24px;
-  align-items: center;
+  /* Giữ hai cột Hero cùng chiều cao để khoảng cách giữa các section ổn định. */
+  align-items: stretch;
 }
 
 .mkt-hero__intro {
@@ -505,5 +506,12 @@
   .mkt-section * {
     animation: none;
     transition: none;
+  }
+}
+
+/* Khoảng cách đầu mục Mẫu thiệp thống nhất trên màn hình từ tablet rộng. */
+@media (min-width: 681px) {
+  .is-home .mkt-featured {
+    padding-top: clamp(16px, 1.5vw, 20px);
   }
 }

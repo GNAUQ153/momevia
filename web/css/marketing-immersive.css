@@ -27,10 +27,12 @@
   position: relative;
   grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
   gap: clamp(26px, 5vw, 86px);
-  align-items: center;
+  align-items: stretch;
 }
 
 .is-home .mkt-hero__intro {
+  /* Cột chữ căn giữa, cột hình giãn cùng hàng để không tạo khoảng hở bên dưới. */
+  align-self: center;
   overflow: visible;
   padding: clamp(14px, 2vw, 28px) 0;
   border: 0;
@@ -182,7 +184,8 @@
 .is-home .mkt-stage .mkt-hero__cover {
   position: relative;
   z-index: 2;
-  width: min(250px, 65%);
+  /* 768px: giữ thiệp đủ rộng dù vùng xem trước nằm ở cột hẹp. */
+  width: clamp(180px, 65%, 250px);
   overflow: hidden;
   border: 6px solid #fff;
   border-radius: 22px;

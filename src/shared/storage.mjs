@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { randomUUID } from 'node:crypto';
+import { replaceFileWithRetry } from './atomic-file.mjs';
 
 // Mỗi microservice sở hữu tệp lưu trữ riêng; chỉ phục vụ phát triển và demo MVP.
 // Khi triển khai thực tế cần thay bằng database riêng có giao dịch ACID.
@@ -15,8 +16,23 @@ export class JsonRepository {
   }
   write(data) {
     const temp = `${this.filepath}.${randomUUID()}.tmp`;
-    fs.writeFileSync(temp, JSON.stringify(data, null, 2), 'utf8');
-    fs.renameSync(temp, this.filepath);
+
+    try {
+      // Giữ tệp tạm cạnh tệp chính để thao tác đổi tên nằm cùng ổ đĩa.
+      fs.writeFileSync(temp, JSON.stringify(data, null, 2), {
+        encoding: 'utf8',
+        mode: 0o600,
+      });
+      replaceFileWithRetry(temp, this.filepath);
+    } catch (error) {
+      // Nếu thay thế thất bại, giữ nguyên tệp JSON cũ và dọn tệp tạm.
+      try {
+        fs.rmSync(temp, { force: true });
+      } catch {
+        // Không che khuất lỗi ghi/đổi tên gốc bằng lỗi dọn dẹp.
+      }
+      throw error;
+    }
   }
   all() { return this.read(); }
   get(id) { return this.read().find(item => item.id === id); }

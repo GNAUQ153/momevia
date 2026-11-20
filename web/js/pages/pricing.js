@@ -33,7 +33,8 @@ export function pricingPage() {
     <div class="pricing-grid">${tiers.map(tier => `<article class="pricing-card${tier.featured ? ' pricing-card--featured' : ''}">
       <span class="pricing-card__badge">${tier.badge}</span><h2>${tier.name}</h2>
       <p class="pricing-card__price">${tier.price}</p><p class="pricing-card__desc">${tier.description}</p>
-      <ul>${features(tier.benefits)}</ul><a href="${tier.href}" data-link class="btn ${tier.featured ? 'btn--dark' : 'btn--outline'}">${tier.action} ${icon('arrow', 17)}</a>
+      <a href="${tier.href}" data-link class="btn ${tier.featured ? 'btn--dark' : 'btn--outline'}">${tier.action} ${icon('arrow', 17)}</a>
+      <ul>${features(tier.benefits)}</ul>
     </article>`).join('')}</div>
     <div class="pricing-faq"><h2>${text("pricing.faq.title")}</h2>
       <details><summary>${text("pricing.faq.subscription.question")}</summary><p>${text("pricing.faq.subscription.answer")}</p></details>

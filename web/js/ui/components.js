@@ -38,9 +38,9 @@ export function createComponents({ state }) {
 
   function templateCard(template, { compact = false } = {}) {
     const title = templateField(template, 'title');
-    return `<article class="template-card${compact ? ' card template-card--home' : ''}">
+    return `<article class="template-card${compact ? ' card template-card--home' : ''}" data-template-id="${e(template.id)}">
       <a href="/template/${encodeURIComponent(template.id)}" data-link class="template-card__visual" ${attr('aria-label', 'catalog.actions.viewNamed', { title: templateValue(template, 'title') })}>
-        ${artwork(template, "", { eager: compact })}
+        ${artwork(template)}
         ${compact ? '' : `<span class="template-card__view">${icon("eye", 16)} ${text('catalog.actions.view')}</span>`}
       </a>
       ${favoriteButton(template.id)}

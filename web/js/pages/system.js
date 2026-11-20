@@ -9,7 +9,7 @@ export function createSystemViews({ buttonLink }) {
   }
 
   function loadingPage() {
-    return `<section class="section"><div class="container"><div class="centered-loading"><span class="loading-spinner"></span> ${text('system.loading')}</div></div></section>`;
+    return `<section class="section"><div class="container"><div class="centered-loading" role="status"><span class="loading-spinner" aria-hidden="true"></span> ${text('system.loading')}</div></div></section>`;
   }
 
   return { errorPage, loadingPage };

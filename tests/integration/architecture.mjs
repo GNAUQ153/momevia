@@ -130,6 +130,8 @@ async function startFixture() {
   if(process.argv.includes('--browser')) {
     const {runLocaleBrowser}=await import('../browser/locale.mjs');
     await runLocaleBrowser(base);
+    const {runHomeBrowser}=await import('../browser/home.mjs');
+    await runHomeBrowser(base);
     const {runBrowserSmoke}=await import('../browser/smoke.mjs');
     await runBrowserSmoke(base);
   }

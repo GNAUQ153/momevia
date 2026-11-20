@@ -52,7 +52,22 @@ export function createCatalogViews({
     const shelf = document.querySelector('.seasonal-shelf');
     if (shelf) shelf.hidden = hasFilters();
     const { result, cards } = catalogResultMarkup();
-    if (grid) grid.innerHTML = cards;
+    const fragment = document.createElement("template");
+    fragment.innerHTML = cards;
+    const retained = new Map([...grid.children].map(node => [node.dataset.templateId, node]));
+    grid.classList.add("catalog-grid--updated");
+    const next = [...fragment.content.children].map(candidate => {
+      const current = retained.get(candidate.dataset.templateId);
+      return current?.isEqualNode(candidate) ? current : candidate;
+    });
+    const keep = new Set(next);
+    for (const child of [...grid.children]) if (!keep.has(child)) child.remove();
+    for (const [index, child] of next.entries()) {
+      const atIndex = grid.children[index] || null;
+      if (child === atIndex) continue;
+      if (child.parentNode === grid && grid.moveBefore) grid.moveBefore(child, atIndex);
+      else grid.insertBefore(child, atIndex);
+    }
     if (count) setText(count, message("catalog.results.count", { count: result.total }));
     if (range) setText(range, result.total ? message("catalog.results.range", result) : message("catalog.results.empty"));
     if (navigation) navigation.innerHTML = paginationMarkup(result, "catalog");
@@ -61,16 +76,17 @@ export function createCatalogViews({
   function seasonalShelf() {
     const seasonal = featuredSeasons(state.templates);
     if (!seasonal.length) return '';
-    return `<section class="seasonal-shelf" aria-labelledby="seasonal-shelf-title" ${hasFilters() ? 'hidden' : ''}>
-      <div class="seasonal-shelf__heading">
+    return `<details class="seasonal-shelf" aria-labelledby="seasonal-shelf-title" ${hasFilters() ? 'hidden' : ''} ${globalThis.matchMedia?.('(max-width: 680px)').matches ? '' : 'open'}>
+      <summary class="seasonal-shelf__heading">
         <h2 id="seasonal-shelf-title">${text("catalog.seasonal.title")}</h2>
-        <button type="button" class="seasonal-shelf__hint" data-action="filter-seasonal">${text("catalog.seasonal.action")}</button>
-      </div>
+        ${icon("chevron-down", 18)}
+      </summary>
+      <button type="button" class="seasonal-shelf__hint" data-action="filter-seasonal">${text("catalog.seasonal.action")}</button>
       <div class="seasonal-shelf__grid">${seasonal.map(template => `<a class="seasonal-shelf__card" href="/template/${encodeURIComponent(template.id)}" data-link>
         <img ${templateCover(template.id)} width="390" height="844" loading="lazy" ${attr('alt', 'catalog.seasonal.cover', { title: templateValue(template, 'title') })}/>
         <div><span>${isInSeason(template) ? text('catalog.seasonal.inSeason') : template.season ? templateField(template, 'season') : text('catalog.seasonal.collection')}</span><strong>${templateField(template, 'title')}</strong></div>
       </a>`).join('')}</div>
-    </section>`;
+    </details>`;
   }
 
   function explore({ catalogFailed = false } = {}) {
@@ -140,7 +156,7 @@ export function createCatalogViews({
     </div></section><section class="section"><div class="container">
       <div class="dashboard-heading"><h2>${text('catalog.saved.count', { count: templates.length })}</h2>${buttonLink("/explore", text("catalog.saved.explore"))}</div>
       ${templates.length
-        ? `<p class="catalog-range">${text('catalog.results.range', pageData)}</p>
+        ? `<p class="catalog-range" id="catalog-range" tabindex="-1">${text('catalog.results.range', pageData)}</p>
         <div class="template-grid">${pageData.items.map(templateCard).join("")}</div>${paginationMarkup(pageData, "favorites")}`
         : `<div class="empty-state empty-state--panel">${icon("heart", 36)}<h3>${text("catalog.saved.empty")}</h3>
         <p>${text("catalog.saved.emptyHelp")}</p>${buttonLink("/explore", text("catalog.saved.browse"))}</div>`

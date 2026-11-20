@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import path from 'node:path';
 import { chromium } from 'playwright';
 
-const screens = [[1440, 900], [1024, 768], [820, 1180], [768, 1024], [390, 844], [320, 740]];
+const screens = [[1614, 1040], [1440, 900], [1024, 768], [820, 1180], [768, 1024], [390, 844], [320, 740]];
 
 export async function runHomeBrowser(base) {
   const browser = await chromium.launch({ channel: process.env.BROWSER_CHANNEL || undefined });
@@ -30,6 +30,8 @@ export async function runHomeBrowser(base) {
           assert.equal(await page.locator('html').getAttribute('data-type'), 'software');
           assert.equal(await page.locator('main > section').count(), 3);
           assert.equal(await page.locator('footer #mkt-faq-title').count(), 1);
+          const brand = await page.locator('#site-header .brand').boundingBox();
+          assert(brand.height >= 44, `${width}: brand tap target`);
           const [headingBox, primaryBox, previewBox, coverBox] = await Promise.all([
             hero.getByRole('heading', { level: 1 }).boundingBox(), primary.boundingBox(), preview.boundingBox(), cover.boundingBox(),
           ]);
@@ -42,8 +44,33 @@ export async function runHomeBrowser(base) {
           else assert(headingBox.x + headingBox.width < frame.x, `${width}: artwork and heading have distinct columns`);
           assert.equal(await page.evaluate(() => globalThis.document.documentElement.scrollWidth), width);
           assert.equal(await cover.evaluate(node => globalThis.getComputedStyle(node).animationName), 'none');
+          const cards = page.locator('#home-featured-gifts .template-card');
+          await cards.first().waitFor();
+          const [featuredTitle, howTitle, cardsTail] = await Promise.all([
+            page.locator('.mkt-featured__heading h2').boundingBox(),
+            page.locator('#mkt-experience-title').boundingBox(),
+            cards.evaluateAll(items => Math.max(...items.map(item => item.getBoundingClientRect().bottom))),
+          ]);
+          const frameGap = featuredTitle.y - Math.max(frame.y + frame.height, previewBox.y + previewBox.height);
+          const cardsGap = howTitle.y - cardsTail;
+          for (const [label, gap] of [['hero → featured', frameGap], ['featured → how-to', cardsGap]]) {
+            assert(gap >= 30 && gap <= (width <= 900 ? 80 : 120), `${width}×${height} ${language} ${label}: ${gap}px`);
+          }
+          const footerStep = await page.locator('footer .footer-column a').evaluateAll(items =>
+            items[1].getBoundingClientRect().top - items[0].getBoundingClientRect().top);
+          assert(footerStep >= 28 && footerStep <= 44, `${width}×${height} ${language} footer link spacing: ${footerStep}px`);
           if (width === 1440) {
             const selector = page.locator('.nav-actions [data-locale-select]');
+            const options = await selector.locator('option').allTextContents();
+            assert.deepEqual(options, ['VI', 'EN']);
+            if (await selector.evaluate(node => node.ownerDocument.defaultView.CSS.supports('appearance', 'base-select'))) {
+              await selector.click();
+              await selector.and(page.locator('select:open')).waitFor();
+              assert.equal(await selector.evaluate(node => node.ownerDocument.defaultView.getComputedStyle(node, '::picker(select)').appearance), 'base-select');
+              await page.keyboard.press('Escape');
+              await selector.and(page.locator('select:open')).waitFor({ state: 'hidden' });
+              assert.equal(await selector.inputValue(), language);
+            }
             const otherLanguage = language === 'vi' ? 'en' : 'vi';
             await selector.selectOption(otherLanguage);
             await page.waitForFunction(value => globalThis.document.documentElement.lang === value, otherLanguage);
@@ -87,23 +114,90 @@ export async function runHomeBrowser(base) {
           assert.equal(await question.evaluate(node => node.parentElement.open), false);
         }
         await page.goto(base + '/#how-it-works');
-        await page.waitForFunction(() => globalThis.scrollY > globalThis.innerHeight);
+        await waitForHowHeading(page);
         await page.locator('.mkt-hero a[href="/explore"]').click();
         await page.locator('#template-search').waitFor();
         assert.equal(await page.locator('html').getAttribute('data-type'), null);
         await page.goBack();
-        await page.waitForFunction(() => globalThis.location.hash === '#how-it-works' && globalThis.scrollY > globalThis.innerHeight);
+        await waitForHowHeading(page);
         await verifyCatalog(context, page, base);
+        for (const width of [1440, 390]) {
+          await page.setViewportSize({ width, height: 900 });
+          await page.goto(base);
+          await page.locator('.mkt-hero h1').waitFor();
+          const homeHeader = await headerSnapshot(page);
+          await page.goto(base + '/explore');
+          await page.locator('#template-search').waitFor();
+          assert.deepEqual(await headerSnapshot(page), homeHeader, `${language} ${width}: shared header styling and links`);
+        }
         assert.deepEqual(errors, []);
       } finally { await context.close(); }
     }
-    console.log('PASS Browser home VI/EN: six viewports, first-screen actions, real cover and preview interaction, Escape and focus, Back and how-it-works, reduced motion.');
+    const motionPage = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+    await motionPage.goto(base);
+    const intro = motionPage.locator('.mkt-hero__intro');
+    await motionPage.waitForFunction(() => globalThis.document.getAnimations()
+      .some(animation => animation.animationName === 'mkt-glass-sheen' && animation.playState === 'finished'));
+    await intro.hover();
+    await motionPage.waitForFunction(() => globalThis.document.getAnimations()
+      .some(animation => animation.animationName === 'mkt-glass-sheen' && animation.playState === 'running'));
+    const title = motionPage.locator('[data-moment="liquid-type"] h2');
+    const filter = motionPage.locator('filter[id^="mo-lt-"]');
+    await filter.waitFor({ state: 'attached' });
+    await title.scrollIntoViewIfNeeded();
+    const box = await title.boundingBox();
+    await motionPage.mouse.move(box.x + 10, box.y + 20);
+    await motionPage.mouse.move(box.x + 110, box.y + 24, { steps: 4 });
+    await motionPage.waitForFunction(() => globalThis.document.querySelector('[data-moment="liquid-type"] h2').style.filter.includes('mo-lt-'));
+    await motionPage.emulateMedia({ reducedMotion: 'reduce' });
+    await filter.waitFor({ state: 'detached' });
+    assert.equal(await title.evaluate(node => node.style.filter), '');
+    await motionPage.emulateMedia({ reducedMotion: 'no-preference' });
+    await filter.waitFor({ state: 'attached' });
+    await motionPage.locator('.mkt-hero a[href="/explore"]').click();
+    await filter.waitFor({ state: 'detached' });
+    await motionPage.close();
+    console.log('PASS Browser home VI/EN: seven viewports, compact section gaps, first-screen actions, preview, Escape and focus, Back and how-it-works, reduced motion.');
   } finally { await browser.close(); }
 }
 
+function headerSnapshot(page) {
+  return page.locator('#site-header').evaluate(header => {
+    const view = header.ownerDocument.defaultView;
+    const style = view.getComputedStyle(header);
+    const nav = header.querySelector('.nav-inner');
+    const current = header.querySelector('.nav-links a.is-active');
+    const underline = view.getComputedStyle(current, '::after');
+    return {
+      height: header.offsetHeight,
+      position: style.position,
+      backdrop: style.backdropFilter,
+      background: style.backgroundColor,
+      font: style.fontFamily,
+      width: nav.offsetWidth,
+      underline: underline.backgroundImage,
+      transition: view.getComputedStyle(current).transition,
+      links: [...header.querySelectorAll('.nav-links a')].map(link => link.getAttribute('href')),
+    };
+  });
+}
+
+function waitForHowHeading(page) {
+  return page.waitForFunction(() => {
+    if (globalThis.location.hash !== '#how-it-works' || globalThis.scrollY === 0) return false;
+    const heading = globalThis.document.getElementById('mkt-experience-title')?.getBoundingClientRect();
+    const header = globalThis.document.getElementById('site-header')?.getBoundingClientRect();
+    return heading && header && heading.top >= header.bottom - 1 && heading.bottom <= globalThis.innerHeight;
+  });
+}
+
 async function verifyCatalog(context, page, base) {
+  await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(base + '/pricing');
   const freeLink = page.locator('a[href="/explore?free=1"]');
+  await freeLink.waitFor();
+  const freeBox = await freeLink.boundingBox();
+  assert(freeBox.y >= 0 && freeBox.y + freeBox.height <= 844);
   const directUrl = new URL(await freeLink.getAttribute('href'), base).href;
   const tab = await context.newPage();
   try {
@@ -137,6 +231,22 @@ async function verifyCatalog(context, page, base) {
   await page.waitForURL('**/pricing');
   await page.goto(base + '/explore');
   assert.equal(await free.isChecked(), false);
+  const first = page.locator('#catalog-grid .template-card').first();
+  const firstBox = await first.boundingBox();
+  assert(firstBox.y < 844);
+  const shelfSummary = shelf.locator('summary');
+  assert.equal(await shelf.getAttribute('open'), null);
+  await shelfSummary.tap();
+  assert.notEqual(await shelf.getAttribute('open'), null);
+  await shelfSummary.press('Enter');
+  await search.fill('midnight bloom');
+  const retained = await first.elementHandle();
+  await search.fill('MIDNIGHT BLOOM');
+  assert.equal(await first.evaluate((node, original) => node === original, retained), true);
+  assert.equal(await first.evaluate(node => globalThis.getComputedStyle(node).animationName), 'none');
+  await search.fill('');
+  await page.locator('#catalog-pagination [data-page="2"]').first().press('Enter');
+  await page.waitForFunction(() => globalThis.document.activeElement?.id === 'catalog-range');
   await page.route('**/api/catalog/templates', route => route.fulfill({ status: 503 }), { times: 1 });
   await page.reload();
   await page.getByRole('alert').locator('[data-action="retry-catalog"]').click();

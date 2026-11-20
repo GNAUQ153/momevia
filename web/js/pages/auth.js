@@ -65,6 +65,7 @@ export function createAuthViews({ state, buttonLink }) {
         ${!state.providers.google || !state.providers.zalo ? `<p class="auth-provider-note">${text("auth.providers.disabled")}</p>` : ""}
         <p class="auth-switch">${registering ? text("auth.register.haveAccount") : text("auth.login.noAccount")} <a href="${registering ? "/login" : "/register"}" data-link>${registering ? text("auth.login.switch") : text("auth.register.switch")}</a></p>
         <p class="auth-policy-note">${text("auth.policies.prefix")} <a href="/policies/general" data-link>${text("auth.policies.general")}</a> ${text("auth.policies.conjunction")} <a href="/policies/privacy" data-link>${text("shell.footer.privacy")}</a>.</p>
+        <button type="button" class="btn btn--outline auth-support" data-action="support">${text("common.actions.support")}</button>
       </div>
     </div></section>`;
   }

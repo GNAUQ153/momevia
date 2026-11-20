@@ -1,5 +1,7 @@
 import { api, errorCopy, escapeHtml as e } from "../core/api.js";
 import { attr, initializeLocale, localeControl, message, onLocaleChange, setAttr, setText, t, text } from "../core/i18n.js";
+import { clearAuthReturn, rememberAuthReturn, takeAuthReturn } from "../core/auth-return.js";
+import { focusVisibleTarget, scrollBehavior } from "../core/motion.js";
 import { icon } from "../ui/icons.js";
 import { paginateTemplates } from "../features/catalog/filter.js";
 import { legalPages, legalPage } from "../pages/policies.js";
@@ -150,16 +152,22 @@ function commitCatalogFilters() {
   activeUrl = url.pathname + url.search + url.hash;
   history.replaceState(history.state, '', activeUrl);
 }
+let toastTimer;
 function toast(copy, type = "success") {
   const host = document.getElementById("toast-host");
-  const item = document.createElement("div");
-  item.className = `toast toast--${type}`;
-  item.innerHTML = `${icon(type === "success" ? "check-circle" : "shield", 18)} <span></span>`;
-  setText(item.querySelector('span'), copy);
-  host.replaceChildren(item);
-  setTimeout(() => {
-    if (item.parentNode) item.remove();
-  }, 4800);
+  let item = host.firstElementChild;
+  if (!item) {
+    item = document.createElement("div");
+    host.append(item);
+  }
+  const className = `toast toast--${type}`;
+  if (item.className !== className) {
+    item.className = className;
+    item.innerHTML = `${icon(type === "success" ? "check-circle" : "shield", 18)} <span></span>`;
+  }
+  setText(item.querySelector("span"), copy);
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => item.remove(), 4800);
 }
 async function openCanvasCheckout(context) {
   try { sessionStorage.setItem(checkoutDraftModeKey(context.design.id), context.mode); } catch { /* Optional cache. */ }
@@ -195,11 +203,31 @@ async function openCanvasCheckout(context) {
     );
   }
 }
-function requireLogin(path) {
+function requireLogin(path, favoriteId) {
   if (state.user) return true;
-  state.afterLogin = path;
+  rememberAuthReturn(path, favoriteId);
   navigate("/login");
   return false;
+}
+
+async function finishAuthentication(user, notice, { defaultTarget = "/studio" } = {}) {
+  if (!user) return false;
+  if (state.user !== user) setUser(user);
+  const intent = takeAuthReturn();
+  if (!intent && !defaultTarget) return false;
+  const generation = renderGeneration;
+  if (intent?.favoriteId) {
+    await Promise.resolve(loadFavorites()).catch(() => {});
+    if (state.user === user && !state.favorites.has(intent.favoriteId)) {
+      await saveFavorite(intent.favoriteId, true).catch(error => {
+        toast(errorCopy(error, message("system.error.action")), "error");
+      });
+    }
+  }
+  if (generation !== renderGeneration || state.user !== user) return true;
+  if (notice) toast(notice);
+  navigate(intent?.path || defaultTarget, { replace: true });
+  return true;
 }
 function loadStudioSection(name, endpoint, view, signal) {
   const section = document.getElementById(`studio-${name}-section`);
@@ -275,6 +303,7 @@ function mountHome() {
 }
 async function render() {
   const isHome = location.pathname === '/';
+  const isAuth = /^\/(login|register|recover|verify-email)\/?$/.test(location.pathname);
   updatePageMetadata();
   updatePageType(isHome);
   if (!isHome) loadAppFonts();
@@ -285,6 +314,7 @@ async function render() {
   canvasCheckout = null;
   document.body.classList.remove("is-designing", "is-playing-gift");
   document.body.classList.toggle("is-home", isHome);
+  document.body.classList.toggle("is-auth", isAuth);
   document.documentElement.classList.toggle("m-enter", isHome);
   document.getElementById('announcement').hidden = location.pathname.startsWith('/g/');
   refreshNav();
@@ -487,9 +517,10 @@ async function render() {
       main.innerHTML = successPage(result.gift);
     } else if (route === "studio") {
       if (!state.user) {
-        main.innerHTML = errorPage(message("studio.login"));
-        setTimeout(() => requireLogin("/studio"), 50);
+        requireLogin("/studio");
       } else {
+        if (new URLSearchParams(location.search).get("login") === "success" &&
+            await finishAuthentication(state.user, null, { defaultTarget: null })) return;
         const lifetime = new AbortController();
         main.innerHTML = dashboard();
         const disposeStudioSpace = mountStudioSpace(main);
@@ -503,8 +534,7 @@ async function render() {
       }
     } else if (route === "favorites") {
       if (!state.user) {
-        main.innerHTML = errorPage(message("catalog.saved.login"));
-        setTimeout(() => requireLogin("/favorites"), 50);
+        requireLogin("/favorites");
       } else main.innerHTML = favoritesPage();
     } else if (route === "creator") {
       let templates = [];
@@ -550,9 +580,10 @@ async function render() {
     else if (route === 'pricing') main.innerHTML = pricingPage();
     else if (route === "recover" || route === "verify-email")
       main.innerHTML = recoveryPage({ verify: route === "verify-email", googleUnlinked: new URLSearchParams(location.search).get("google") === "unlinked" });
-    else if (route === "login" || route === "register")
+    else if (route === "login" || route === "register") {
+      if (state.user && await finishAuthentication(state.user, null, { defaultTarget: null })) return;
       main.innerHTML = authPage(route);
-    else if (route === "policies" && legalPages[id])
+    } else if (route === "policies" && legalPages[id])
       main.innerHTML = legalPage(id);
     else main.innerHTML = errorPage(message("system.error.notFound"));
     const anchor = location.hash.slice(1);
@@ -561,7 +592,7 @@ async function render() {
         () =>
           document
             .getElementById(anchor)
-            ?.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' }),
+            ?.scrollIntoView({ behavior: scrollBehavior() }),
         30,
       );
   } catch (error) {
@@ -765,15 +796,13 @@ async function handleAction(action, element) {
   if (action === "register") return navigate("/register");
   if (action === "support") return openSupport();
   if (action === "back-to-top") {
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({ top: 0, behavior: scrollBehavior() });
     return;
   }
   if (action === "toggle-favorite") {
     const templateId = element.dataset.id;
     if (!state.user) {
-      state.pendingFavoriteId = templateId;
-      state.afterLogin = location.pathname + location.search + location.hash;
-      navigate("/login");
+      requireLogin(location.pathname + location.search + location.hash, templateId);
       return;
     }
     element.disabled = true;
@@ -826,6 +855,7 @@ async function handleAction(action, element) {
     routeController?.dispose?.();
     routeController = null;
     await api.post("/auth/logout");
+    clearAuthReturn();
     setUser(null);
     toast(message("auth.logout.done"));
     navigate("/");
@@ -876,9 +906,7 @@ async function handleAction(action, element) {
       if (state.catalogPage === result.page) return;
       state.catalogPage = result.page;
       commitCatalogFilters();
-      document
-        .getElementById("catalog-range")
-        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+      focusVisibleTarget(document.getElementById("catalog-range"), { block: "start" });
     } else if (list === "favorites" && Number.isInteger(page)) {
       const templates = state.templates.filter((item) =>
         state.favorites.has(item.id),
@@ -886,11 +914,9 @@ async function handleAction(action, element) {
       const result = paginateTemplates(templates, page);
       if (state.favoritePage === result.page) return;
       state.favoritePage = result.page;
-      render().then(() =>
-        document
-          .querySelector(".dashboard-heading")
-          ?.scrollIntoView({ behavior: "smooth", block: "start" }),
-      );
+      render().then(() => {
+        if (location.pathname === "/favorites") focusVisibleTarget(document.getElementById("catalog-range"), { block: "start" });
+      });
     }
     return;
   }
@@ -1161,6 +1187,7 @@ document.addEventListener("click", async (event) => {
       return;
     event.preventDefault();
     const url = new URL(link.href);
+    if (link.classList.contains("auth-back")) clearAuthReturn();
     navigate(url.pathname + url.search + url.hash);
   }
 });
@@ -1271,9 +1298,7 @@ document.addEventListener("submit", async (event) => {
         setText(document.getElementById("recovery-notice"), message(verify ? "auth.verify.checkMail" : "auth.recovery.checkMail"));
         confirm.elements.code.focus();
       } else {
-        setUser(result.user);
-        toast(t(verify ? "auth.verify.flash" : "auth.recovery.flash"));
-        navigate("/studio");
+        await finishAuthentication(result.user, message(verify ? "auth.verify.flash" : "auth.recovery.flash"));
       }
     } else if (form.id === "register-form" || form.id === "email-login-form") {
       if (
@@ -1285,36 +1310,23 @@ document.addEventListener("submit", async (event) => {
       const endpoint =
         form.id === "register-form" ? "/auth/register" : "/auth/login";
       const result = await api.post(endpoint, data);
-      setUser(result.user);
-      await loadFavorites();
-      if (state.pendingFavoriteId) {
-        await saveFavorite(state.pendingFavoriteId, true);
-        state.pendingFavoriteId = null;
-      }
-      toast(
+      await finishAuthentication(result.user,
         form.id === "register-form"
           ? message("auth.register.done")
           : message("auth.login.done"),
       );
-      const target = state.afterLogin || "/studio";
-      state.afterLogin = null;
-      navigate(target);
     } else if (form.id === "demo-login-form") {
-      let deviceId = localStorage.getItem("momevia-demo-device");
-      if (!deviceId) {
-        deviceId = crypto.randomUUID();
+      let deviceId = crypto.randomUUID();
+      try {
+        deviceId = localStorage.getItem("momevia-demo-device") || deviceId;
         localStorage.setItem("momevia-demo-device", deviceId);
-      }
+      } catch { /* A demo session can start without a persistent device ID. */ }
       const result = await api.post("/auth/demo", {
         name: data.name,
         deviceId,
       });
-      setUser(result.user);
       closeModal();
-      toast(message('auth.demo.greeting', { name: result.user.name }));
-      const target = state.afterLogin || "/studio";
-      state.afterLogin = null;
-      navigate(target);
+      await finishAuthentication(result.user, message('auth.demo.greeting', { name: result.user.name }));
     } else if (form.id === "admin-login-form") {
       const result = await api.post("/auth/demo-admin", { code: data.code });
       setUser(result.user);
@@ -1367,7 +1379,7 @@ document.addEventListener("submit", async (event) => {
     if (inlineError) {
       setText(inlineError, errorCopy(error, message("system.error.submit")));
       inlineError.hidden = false;
-      inlineError.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      inlineError.scrollIntoView({ behavior: scrollBehavior(), block: "nearest" });
     } else toast(errorCopy(error, message("system.error.request")), "error");
   } finally {
     if (submit) submit.disabled = false;

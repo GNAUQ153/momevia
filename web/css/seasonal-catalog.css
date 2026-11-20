@@ -10,11 +10,18 @@
 .seasonal-shelf__heading {
   display: flex;
   justify-content: space-between;
-  align-items: end;
+  align-items: center;
   flex-wrap: wrap;
   gap: 14px;
-  margin-bottom: 22px;
+  list-style: none;
+  min-height: 44px;
+  cursor: pointer;
 }
+
+.seasonal-shelf__heading::-webkit-details-marker { display: none; }
+.seasonal-shelf[open] .seasonal-shelf__heading svg { rotate: 180deg; }
+.seasonal-shelf__grid { margin-top: 14px; }
+.seasonal-shelf__hint { min-height: 44px; }
 
 .seasonal-shelf__eyebrow {
   display: block;
@@ -91,9 +98,11 @@
   overflow-wrap: anywhere;
 }
 
-.seasonal-shelf__card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 30px rgba(36, 19, 65, 0.12);
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .seasonal-shelf__card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 30px rgba(36, 19, 65, 0.12);
+  }
 }
 
 .seasonal-shelf__card:focus-visible,
@@ -114,9 +123,12 @@
 
 @media (max-width: 480px) {
   .seasonal-shelf {
-    padding: 17px;
+    margin-bottom: 16px;
+    padding: 3px 14px;
     border-radius: 18px;
   }
+
+  .seasonal-shelf[open] { padding-bottom: 14px; }
 
   .seasonal-shelf__card img {
     height: 170px;

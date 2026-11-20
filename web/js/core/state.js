@@ -9,8 +9,6 @@ export const state = {
   catalogPage: 1,
   favoritePage: 1,
   photoDataUrl: null,
-  afterLogin: null,
   purchased: new Set(),
   favorites: new Set(),
-  pendingFavoriteId: null,
 };

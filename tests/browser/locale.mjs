@@ -99,6 +99,26 @@ export async function runLocaleBrowser(base) {
       Object.defineProperty(globalThis, 'localStorage', { get() { throw new DOMException('Blocked', 'SecurityError'); } });
     });
     const mobilePage = await mobile.newPage();
+    for (const route of ['/login', '/register', '/recover']) {
+      await mobilePage.goto(base + route);
+      const supportTrigger = mobilePage.locator('main [data-action="support"]');
+      await supportTrigger.waitFor();
+      const policies = mobilePage.locator('main .auth-policy-note a, footer a[href="/policies/privacy"]');
+      for (const link of await policies.all()) {
+        await link.scrollIntoViewIfNeeded();
+        assert.equal(await link.evaluate(element => {
+          const rect = element.getClientRects()[0];
+          const hit = element.ownerDocument.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2);
+          return Boolean(hit && element.contains(hit));
+        }), true, route + ' policy link is not covered');
+        await link.focus();
+        assert.equal(await link.evaluate(element => element.ownerDocument.activeElement === element), true);
+      }
+      await supportTrigger.press('Enter');
+      await mobilePage.getByRole('dialog').waitFor();
+      await mobilePage.keyboard.press('Escape');
+      await mobilePage.getByRole('dialog').waitFor({ state: 'hidden' });
+    }
     await mobilePage.goto(login);
     await mobilePage.getByRole('button', { name: 'Mở menu' }).click();
     await mobilePage.locator('#mobile-nav [data-locale-select]').selectOption('en');

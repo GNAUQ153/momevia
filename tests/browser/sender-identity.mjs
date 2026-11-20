@@ -66,10 +66,40 @@ export async function runSenderIdentity(base) {
     assert(version);
     await sender.page.getByRole('link', { name: 'Dùng mẫu' }).click();
     await sender.page.waitForURL('**/login');
+    const secondTab = await sender.page.context().newPage();
+    await secondTab.goto(base + '/create/hai-phong-bi?mode=layout');
+    await secondTab.waitForURL('**/login');
+    await sender.page.reload();
     await sender.page.locator('#email-login-form input[name="email"]').fill(senderProfile.email);
+    await sender.page.locator('#email-login-form input[name="password"]').fill('WrongPassword123');
+    await sender.page.locator('#email-login-form button[type="submit"]').click();
+    await sender.page.locator('#email-login-form [role="alert"]').waitFor();
     await sender.page.locator('#email-login-form input[name="password"]').fill('SyntheticOnly123');
     await sender.page.locator('#email-login-form button[type="submit"]').click();
+    await sender.page.waitForURL('**/design/*');
+    await secondTab.reload();
+    await secondTab.waitForURL('**/design/*');
+    const secondDraft = await sender.api(`/designs/designs/${idOf(secondTab)}`);
+    assert.equal(secondDraft.design.source.templateId, 'hai-phong-bi');
+    assert.equal(new URL(secondTab.url()).searchParams.get('mode'), null, 'Layout mode stays selected in the second tab.');
+    await secondTab.close();
+    const blockedContext = await browser.newContext({ viewport: { width: 390, height: 844 } });
+    try {
+      await blockedContext.addInitScript(() => {
+        Object.defineProperty(globalThis, 'sessionStorage', { get() { throw new DOMException('Blocked', 'SecurityError'); } });
+      });
+      const blockedPage = await blockedContext.newPage();
+      await blockedPage.goto(base + '/create/hai-phong-bi?mode=quick');
+      await blockedPage.waitForURL('**/login');
+      await blockedPage.locator('#email-login-form input[name="email"]').fill(senderProfile.email);
+      await blockedPage.locator('#email-login-form input[name="password"]').fill('SyntheticOnly123');
+      await blockedPage.locator('#email-login-form button[type="submit"]').click();
+      await blockedPage.waitForURL('**/design/*?mode=quick');
+      const res = await blockedContext.request.get(base + `/api/designs/designs/${idOf(blockedPage)}`);
+      assert.equal((await res.json()).design.source.templateId, 'hai-phong-bi');
+    } finally { await blockedContext.close(); }
     const input = sender.page.locator('[data-editor-field="binding.message"]');
+    assert.equal(new URL(sender.page.url()).searchParams.get('mode'), 'quick');
     const greeting = 'Một lời chúc do Sender viết.';
     await input.fill(greeting);
     const locale = sender.page.locator('.editor-top-actions [data-locale-select]');

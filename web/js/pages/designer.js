@@ -34,6 +34,7 @@ import {
   readableInk,
 } from "../features/canvas-editor/designer-helpers.js";
 import { createSaveSession } from "../features/canvas-editor/session.js";
+import { describeSaveFeedback } from "../features/canvas-editor/save-feedback.js";
 import { hasPendingEditorWork, historyShortcut } from "../features/canvas-editor/editor-guards.js";
 import { createStage } from "../features/canvas-editor/stage.js";
 import { applyFabricWorkspacePatch } from "../features/canvas-editor/fabric-workspace.js";
@@ -150,18 +151,30 @@ export function mountDesigner(
     const blockers = main.querySelector(".editor-preflight");
     if (blockers) blockers.hidden = true;
   }
-  function markStatus(message) {
+  function renderSaveFeedback({ label, tone, detail = "" }) {
     const status = main.querySelector(".editor-save-status");
-    if (status) setText(status, message);
+    if (status) {
+      setText(status, label);
+      status.dataset.tone = tone;
+      setAttr(status, "title", detail);
+    }
+    const hint = main.querySelector(".editor-save-hint");
+    if (hint) {
+      setText(hint, detail);
+      hint.hidden = !detail;
+    }
+  }
+  function markStatus(key, tone) {
+    renderSaveFeedback({ label: message(key), tone });
   }
   function saveStatus(info) {
+    renderSaveFeedback(describeSaveFeedback(info, message));
     if (info.status === "clean") clearError();
     if (info.revision > design.revision) {
       design.reviewTemplateDefaults = false;
       const note = main.querySelector(".editor-template-defaults");
       if (note) note.hidden = true;
     }
-    markStatus(info.status === "clean" ? message("editor.status.clean", { revision: info.revision }) : message(`editor.status.${info.status}`));
     const actions = main.querySelector(".editor-session-actions");
     if (!actions) return;
     actions.hidden = ![
@@ -259,12 +272,11 @@ export function mountDesigner(
       }
     };
   }
-  const statusNode = () =>
-    node(
-      "span",
-      { class: "editor-save-status", role: "status", "aria-live": "polite" },
-      "Đã lưu",
-    );
+  const statusNode = () => node(
+    "div", { class: "editor-save-group" },
+    node("span", { class: "editor-save-status", "data-tone": "saved", role: "status", "aria-live": "polite" }),
+    node("span", { class: "editor-save-hint", hidden: true }),
+  );
 
   function quickPhotoFrame() {
     if (design.policy?.kind === "creator-template")
@@ -1281,7 +1293,7 @@ export function mountDesigner(
         }
       } else session.clearRecovery();
     }
-    if (!session.dirty) markStatus(message("editor.status.clean", { revision: session.revision }));
+    if (!session.dirty) renderSaveFeedback(describeSaveFeedback(session, message));
     fit();
   }
   async function create(presetId, source) {
@@ -1404,7 +1416,7 @@ export function mountDesigner(
       );
     const frameUpload = isLegacyFrame(store.get().document.elements.find(element => element.id === elementId));
     assetPending = true;
-    markStatus(message("editor.status.photo"));
+    markStatus("editor.status.photo", "pending");
     try {
       const result = await request(
         `/designs/designs/${encodeURIComponent(design.id)}/assets`,
@@ -1426,7 +1438,7 @@ export function mountDesigner(
       renderInspector();
     } finally {
       assetPending = false;
-      if (!disposed) markStatus(session.dirty ? message("editor.status.dirty") : message("editor.status.clean", { revision: session.revision }));
+      if (!disposed) renderSaveFeedback(describeSaveFeedback(session, message));
     }
   }
   function openPreview(effectPreview) {
@@ -1612,7 +1624,7 @@ export function mountDesigner(
     control.disabled = true;
     try {
       const saved = await flushSave();
-      markStatus(message("editor.status.checking"));
+      markStatus("editor.status.checking", "saving");
       const preflight = await request(
         `/designs/designs/${encodeURIComponent(design.id)}/preflight`,
         { expectedRevision: saved.revision },
@@ -1626,7 +1638,7 @@ export function mountDesigner(
         return;
       }
       if (preflight.authorization.status === "needs_template_license") {
-        markStatus(message("editor.status.license"));
+        markStatus("editor.status.license", "warning");
         if (!onCheckout)
           throw new Error(t("editor.preflight.license"));
         publishing = false;
@@ -1660,7 +1672,7 @@ export function mountDesigner(
       } catch {
         /* Optional cache. */
       }
-      markStatus(message("editor.status.publishing"));
+      markStatus("editor.status.publishing", "saving");
       const result = await request("/gifts/gifts/from-design", {
         designId: design.id,
         expectedRevision: saved.revision,
@@ -1684,7 +1696,7 @@ export function mountDesigner(
       if (!disposed) {
         control.disabled = false;
         if (session.status === "clean")
-          markStatus(message("editor.status.clean", { revision: session.revision }));
+          renderSaveFeedback(describeSaveFeedback(session, message));
       }
     }
   }

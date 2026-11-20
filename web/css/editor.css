@@ -61,11 +61,47 @@ body.is-designing #main {
 .editor-title:focus {
   border-bottom-color: var(--purple);
 }
-.editor-save-status {
+.editor-save-group {
   grid-column: 2;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 10px;
+  row-gap: 3px;
+  min-width: 0;
+}
+.editor-save-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   font-size: 12px;
-  color: var(--muted);
+  font-weight: 650;
+  color: #236d52;
   min-height: 18px;
+}
+.editor-save-status::before {
+  content: '';
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 100%;
+  background: currentColor;
+}
+.editor-save-status[data-tone="pending"],
+.editor-save-status[data-tone="saving"] { color: #7049a6; }
+.editor-save-status[data-tone="warning"] { color: #995d09; }
+.editor-save-status[data-tone="danger"] { color: #a13345; }
+.editor-save-hint {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .editor-save-status[data-tone="saving"]::before {
+    animation: editor-status-pulse 1.2s ease-in-out infinite alternate;
+  }
+  @keyframes editor-status-pulse { to { opacity: .3; } }
 }
 .editor-top-actions,
 .editor-control-row,

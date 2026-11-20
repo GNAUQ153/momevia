@@ -32,6 +32,7 @@ import {
   readableInk,
 } from "../features/canvas-editor/designer-helpers.js";
 import { createSaveSession } from "../features/canvas-editor/session.js";
+import { describeSaveFeedback } from "../features/canvas-editor/save-feedback.js";
 import { hasPendingEditorWork, historyShortcut } from "../features/canvas-editor/editor-guards.js";
 import { createStage } from "../features/canvas-editor/stage.js";
 import { applyFabricWorkspacePatch } from "../features/canvas-editor/fabric-workspace.js";
@@ -149,18 +150,33 @@ export function mountDesigner(
   }
   function markStatus(message) {
     const status = main.querySelector(".editor-save-status");
-    if (status) status.textContent = message;
+    if (status) {
+      status.textContent = message;
+      status.dataset.tone = message.startsWith('Đã lưu') ? 'saved'
+        : message.startsWith('Đang') ? 'saving' : 'pending';
+    }
+    const hint = main.querySelector('.editor-save-hint');
+    if (hint) hint.hidden = true;
   }
   function saveStatus(info) {
+    const feedback = describeSaveFeedback(info);
+    const saveNode = main.querySelector('.editor-save-status');
+    const detailNode = main.querySelector('.editor-save-hint');
+    if (saveNode) {
+      saveNode.textContent = feedback.label;
+      saveNode.dataset.tone = feedback.tone;
+      saveNode.title = feedback.detail;
+    }
+    if (detailNode) {
+      detailNode.textContent = feedback.detail;
+      detailNode.hidden = !feedback.detail;
+    }
     if (info.status === "clean") clearError();
     if (info.revision > design.revision) {
       design.reviewTemplateDefaults = false;
       const note = main.querySelector(".editor-template-defaults");
       if (note) note.hidden = true;
     }
-    markStatus(
-      `${info.message}${info.status === "clean" ? ` · r${info.revision}` : ""}`,
-    );
     const actions = main.querySelector(".editor-session-actions");
     if (!actions) return;
     actions.hidden = ![
@@ -258,12 +274,11 @@ export function mountDesigner(
       }
     };
   }
-  const statusNode = () =>
-    node(
-      "span",
-      { class: "editor-save-status", role: "status", "aria-live": "polite" },
-      "Đã lưu",
-    );
+  const statusNode = () => node(
+    'div', { class: 'editor-save-group' },
+    node('span', { class: 'editor-save-status', 'data-tone': 'saved', role: 'status', 'aria-live': 'polite' }, 'Đã lưu'),
+    node('span', { class: 'editor-save-hint', hidden: true }),
+  );
 
   function quickPhotoFrame() {
     if (design.policy?.kind === "creator-template")
@@ -1240,7 +1255,12 @@ export function mountDesigner(
         }
       } else session.clearRecovery();
     }
-    if (!session.dirty) markStatus(`Đã lưu · r${session.revision}`);
+    if (!session.dirty) saveStatus({
+      status: session.status,
+      revision: session.revision,
+      lastSavedAt: session.lastSavedAt,
+      recoveryPersisted: session.recoveryPersisted,
+    });
     fit();
   }
   async function create(presetId, source) {

@@ -26,6 +26,7 @@ export function createSaveSession({
   makeId = () => globalThis.crypto.randomUUID(),
   makeTabId = () => globalThis.crypto.randomUUID(),
   tabEventTarget = globalThis.window,
+  isOnline = () => globalThis.navigator?.onLine !== false,
 }) {
   let revision = design.revision,
     documentHash = design.documentHash;
@@ -35,6 +36,7 @@ export function createSaveSession({
     timer = null,
     pending = null,
     flight = null;
+  let recoveryPersisted = false, lastSavedAt = null;
   // sessionStorage được cô lập theo tab; tránh tab B xóa nháp chưa lưu của tab A.
   const key = `momevia:canvas:recovery:v2:${userId}:${design.id}`;
   const legacyKey = `momevia:canvas:recovery:v1:${userId}:${design.id}`;
@@ -59,8 +61,11 @@ export function createSaveSession({
     },
   });
   function recovery() {
+    // Không tuyên bố "đã lưu bản cục bộ" khi trình duyệt từ chối sessionStorage.
+    recoveryPersisted = false;
     try {
-      recoveryStorage?.setItem(
+      if (typeof recoveryStorage?.setItem !== 'function') return;
+      recoveryStorage.setItem(
         key,
         JSON.stringify({
           designId: design.id,
@@ -72,8 +77,9 @@ export function createSaveSession({
           savedAt: Date.now(),
         }),
       );
+      recoveryPersisted = true;
     } catch {
-      /* Storage blocked/full: server remains authoritative. */
+      /* Storage blocked/full: do not claim local backup is present. */
     }
   }
   function setStatus(next, error) {
@@ -85,6 +91,8 @@ export function createSaveSession({
       revision,
       documentHash,
       error,
+      recoveryPersisted,
+      lastSavedAt,
     });
   }
   function dirty() {
@@ -92,11 +100,23 @@ export function createSaveSession({
   }
   function schedule() {
     clearTimeout(timer);
+    /* phase62b: guarded autosave */
+    if (disposed || ["conflict", "session-expired", "offline", "error"].includes(status) ||
+        (!pending && !dirty())) return;
+    if (!isOnline()) {
+      setStatus("offline");
+      return;
+    }
     if (!disposed && !["conflict", "session-expired"].includes(status))
       timer = setTimeout(() => save().catch(() => {}), debounceMs);
   }
   const unsubscribe = store.subscribe(() => {
     recovery();
+    /* phase62b: preserve offline/conflict state */
+    if (["conflict", "session-expired", "offline", "error"].includes(status)) {
+      setStatus(status);
+      return;
+    }
     if (!["conflict", "session-expired"].includes(status))
       setStatus(flight ? "saving" : dirty() ? "dirty" : "clean");
     schedule();
@@ -138,6 +158,7 @@ export function createSaveSession({
         if (latestOtherRevision > ack.savedRevision) throw otherTabConflict();
         revision = ack.savedRevision;
         documentHash = ack.documentHash;
+        lastSavedAt = Date.now();
         saved = snapshot;
         pending = null;
         tabSync.announce(revision);
@@ -145,6 +166,7 @@ export function createSaveSession({
         else {
           try {
             recoveryStorage?.removeItem(key);
+            recoveryPersisted = false;
             // Chỉ dọn bản cache V1 cũ sau khi máy chủ đã ACK đầy đủ.
             storage?.removeItem(legacyKey);
           } catch {
@@ -153,17 +175,17 @@ export function createSaveSession({
         }
       } catch (error) {
         if (disposed) throw error;
+        recovery();
         setStatus(
           error.status === 409
             ? "conflict"
             : error.status === 401
               ? "session-expired"
-              : error.status === 0 || globalThis.navigator?.onLine === false
+              : error.status === 0 || !isOnline()
                 ? "offline"
                 : "error",
           error,
         );
-        recovery();
         throw error;
       }
     }
@@ -201,6 +223,12 @@ export function createSaveSession({
     get status() {
       return status;
     },
+    get recoveryPersisted() {
+      return recoveryPersisted;
+    },
+    get lastSavedAt() {
+      return lastSavedAt;
+    },
     get dirty() {
       return dirty() || Boolean(pending) || Boolean(flight);
     },
@@ -229,7 +257,7 @@ export function createSaveSession({
       schedule();
     },
     clearRecovery() {
-      try { recoveryStorage?.removeItem(key); } catch { /* Optional cache. */ }
+      try { recoveryStorage?.removeItem(key); recoveryPersisted = false; } catch { /* Optional cache. */ }
       try { storage?.removeItem(legacyKey); } catch { /* Optional cache. */ }
     },
     dispose() {

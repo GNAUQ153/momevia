@@ -4,6 +4,7 @@ import { canvasError } from './errors.mjs';
 import { designView, giftSummary } from './designs.service.mjs';
 import { imageBody } from './assets.service.mjs';
 import { giftOwnerLinks } from '../gifts/links.mjs';
+import { requestLocale } from '../../shared/locale.mjs';
 
 export function streamAsset(res, file) {
   res.writeHead(200, { 'content-type': file.contentType, 'cache-control': 'private, no-store', 'x-content-type-options': 'nosniff' });
@@ -19,7 +20,8 @@ export function registerDesignRoutes(router, { service, assets, resolveUser, con
     const designs = await service.list(await user(req), offset, limit);
     sendJson(res, 200, { designs, nextOffset: designs.length === limit ? offset + limit : null });
   });
-  router.on('POST', '/designs', async ({ req, res }) => sendJson(res, 201, await service.create(await writeUser(req), await parseJson(req, 16384))));
+  router.on('POST', '/designs', async ({ req, res }) => sendJson(res, 201,
+    await service.create(await writeUser(req), await parseJson(req, 16384), { locale: requestLocale(req) })));
   router.on('GET', '/designs/:id', async ({ req, res, params }) => sendJson(res, 200, { design: designView(await service.get(await user(req), params.id)) }));
   router.on('POST', '/designs/:id/save', async ({ req, res, params }) => sendJson(res, 200, await service.save(await writeUser(req), params.id, await parseJson(req, 600000))));
   router.on('POST', '/designs/:id/duplicate', async ({ req, res, params }) => sendJson(res, 201, await service.duplicate(await writeUser(req), params.id, await parseJson(req, 4096))));

@@ -4,6 +4,8 @@ import { sanitizeText, sanitizeOptionalText } from '../../shared/security.mjs';
 import { createDocument, isPhotoFrame } from '../../../web/js/shared/canvas/index.js';
 import { visibleBindingKeys } from '../../../web/js/shared/canvas/personalization.js';
 import { searchText } from '../../../web/js/features/catalog/filter.js';
+import { templateFieldKey } from '../../../web/js/shared/template-copy.js';
+import { serverText } from '../../shared/locale.mjs';
 
 const publicFields = ['id', 'title', 'subtitle', 'theme', 'style', 'price', 'scenes', 'effect', 'creator', 'featured', 'category', 'status', 'createdAt', 'isSeasonal', 'season', 'availableFrom', 'availableTo'];
 export function publicTemplate(template) {
@@ -33,11 +35,18 @@ export class CatalogService {
     const visible = await Promise.all(items.map(item => this.isPublic(item)));
     return items.filter((_, index) => visible[index]).map(publicTemplate);
   }
-  async search({ q = '', style = '' }) {
+  async search({ q = '', style = '', locale = 'vi' }) {
     let items = await this.publicList();
     q = searchText(q.trim());
-    if (q) items = items.filter(item => [item.title, item.subtitle, item.creator, item.style, item.category].some(value => searchText(value).includes(q)));
-    if (style && style !== 'Tất cả') items = items.filter(item => item.style === style);
+    if (q) items = items.filter(item => {
+      const fields = ['title', 'subtitle', 'creator', 'style', 'category'];
+      return fields.some(field => {
+        if (searchText(item[field]).includes(q)) return true;
+        const key = templateFieldKey(item, field);
+        return key && searchText(serverText(locale, key)).includes(q);
+      });
+    });
+    if (style && style !== 'all' && style !== 'Tất cả') items = items.filter(item => item.style === style);
     return items;
   }
   async publishedIds() { return new Set((await this.publicList()).map(template => template.id)); }

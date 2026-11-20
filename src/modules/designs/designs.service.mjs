@@ -4,14 +4,19 @@ import path from 'node:path';
 import { validateDocument, canonicalStringify, createDocument, duplicateDocument, assetIds, publicDocument } from '../../../web/js/shared/canvas/index.js';
 import { runtimeVersionFor } from '../../../web/js/shared/canvas/schema.js';
 import { photoSlots } from '../../../web/js/shared/canvas/interactions.js';
-import { bindingLabels, clearTemplateBindingDefaults, lockedVisibleNames } from '../../../web/js/shared/canvas/personalization.js';
+import { clearTemplateBindingDefaults, lockedVisibleNames } from '../../../web/js/shared/canvas/personalization.js';
 import { cleanGiftLayout } from '../../../web/js/shared/canvas/clean-layout.js';
 import { randomId } from '../../shared/security.mjs';
 import { canvasError, fields, owned, revision, uuid } from './errors.mjs';
 import { createGiftAccess, giftStatus } from '../gifts/access.mjs';
+import { serverText } from '../../shared/locale.mjs';
+import { isSystemTemplate, templateFieldKey } from '../../../web/js/shared/template-copy.js';
 
 export const hash = value => `sha256:${createHash('sha256').update(canonicalStringify(value)).digest('hex')}`;
 const copy = value => structuredClone(value);
+const preflightCopy = (path, code, messageKey, messageParams) => ({
+  path, code, message: serverText('vi', messageKey, messageParams), messageKey, messageParams,
+});
 function title(value) {
   if (typeof value !== 'string' || !value.trim() || value.length > 120) throw canvasError(422, 'INVALID_TITLE', 'Tên thiết kế từ 1–120 ký tự.');
   return value.trim();
@@ -21,7 +26,9 @@ export function designView(d) {
   const reviewTemplateDefaults = d.source.kind === 'template' && d.source.templateVersionId && d.provenance?.adapter === 'creator-v1'
     && d.policy?.kind === 'creator-template' && clearTemplateBindingDefaults(document, d.policy.editableBindings);
   return { id: d.id, title: d.title, source: copy(d.source), policy: copy(d.policy), purpose: d.provenance?.purpose, revision: d.revision, schemaVersion: document.schemaVersion, document, documentHash: d.documentHash,
-    ...(reviewTemplateDefaults ? { reviewTemplateDefaults } : {}), createdAt: d.createdAt, updatedAt: d.updatedAt };
+    ...(reviewTemplateDefaults ? { reviewTemplateDefaults } : {}),
+    ...(d.provenance?.startingLocale ? { startingLocale: d.provenance.startingLocale } : {}),
+    createdAt: d.createdAt, updatedAt: d.updatedAt };
 }
 export const designSummary = d => ({ id: d.id, title: d.title, revision: d.revision, sourceKind: d.source.kind, updatedAt: d.updatedAt, createdAt: d.createdAt });
 export function giftSummary(gift) {
@@ -66,7 +73,7 @@ export class DesignsService {
     if (input.templateVersionId && input.templateVersionId !== templateVersionId) throw canvasError(409, 'TEMPLATE_VERSION_CONFLICT', 'Mẫu đã thay đổi. Mở lại mẫu để tiếp tục.');
     return { source: { kind: 'template', templateId: template.id, templateVersionId }, provenance: { adapter: 'legacy-v1', templateHash }, template };
   }
-  async create(user, input, { sourceFor = () => this.source(input.source), requestHash = hash(input) } = {}) {
+  async create(user, input, { sourceFor = () => this.source(input.source), requestHash = hash(input), locale } = {}) {
     this.requireEdit(); fields(input, ['source', 'presetId', 'mutationId', 'title', 'purpose']); uuid(input.mutationId);
     if (input.purpose !== undefined && (input.purpose !== 'creator' || input.source?.kind !== 'blank' || !['creator','admin'].includes(user.role)))
       throw canvasError(403, 'CREATOR_REQUIRED', 'Chỉ Creator được tạo nháp mẫu.');
@@ -74,7 +81,10 @@ export class DesignsService {
     if (previous) return { ...previous, design: designView(previous.design) };
     if (input.presetId !== undefined && !['blank', 'envelope-basic', 'celebration'].includes(input.presetId)) throw canvasError(422, 'INVALID_PRESET', 'Bố cục chưa được hỗ trợ.');
     const resolved = await sourceFor();
-    const document = validateDocument(resolved.document || resolved.version?.document || createDocument({ presetId: input.presetId || (resolved.template ? 'envelope-basic' : 'blank'), template: resolved.template }));
+    const localize = (key, params) => serverText(locale ?? 'vi', key, params);
+    const document = validateDocument(resolved.document || resolved.version?.document || createDocument({
+      presetId: input.presetId || (resolved.template ? 'envelope-basic' : 'blank'), template: resolved.template, localize,
+    }));
     const now = new Date().toISOString();
     const id = randomUUID();
     const assets = [];
@@ -96,8 +106,13 @@ export class DesignsService {
       policy = { kind: 'creator-template', editableBindings: resolved.version.bindings, photoId,
         lockedElements: Object.fromEntries(document.elements.map(element => [element.id, { editableProps: element.id === photoId ? ['assetId'] : [] }])) };
     }
-    const record = { id, ownerId: user.sub, title: title(input.title || (resolved.template ? `Quà từ ${resolved.template.title}`.slice(0, 120) : 'Món quà của tôi')),
-      source: resolved.source, provenance: { ...resolved.provenance, ...(input.purpose ? { purpose: input.purpose } : {}) }, policy, revision: 1, schemaVersion: document.schemaVersion,
+    const templateTitleKey = templateFieldKey(resolved.template, 'title');
+    const templateTitle = templateTitleKey ? localize(templateTitleKey) : resolved.template?.title;
+    const defaultTitle = templateTitle ? localize('templates.draft.from', { title: templateTitle }).slice(0, 120)
+      : localize('templates.draft.untitled');
+    const record = { id, ownerId: user.sub, title: title(input.title || defaultTitle),
+      source: resolved.source, provenance: { ...resolved.provenance, ...(input.purpose ? { purpose: input.purpose } : {}),
+        ...(locale && isSystemTemplate(resolved.template) ? { startingLocale: locale } : {}) }, policy, revision: 1, schemaVersion: document.schemaVersion,
       document, documentHash: hash(document), createdAt: now, updatedAt: now, archivedAt: null };
     validateDocument(document);
     const result = await this.repository.create(user.sub, input.mutationId, requestHash, record, assets);
@@ -186,7 +201,7 @@ export class DesignsService {
     const blockers = []; let authorization = { status: 'allowed', reasonCodes: [] }; let template = null;
     const { document, reviewTemplateDefaults } = designView(design);
     const editable = design.policy?.kind === 'creator-template' ? design.policy.editableBindings : null;
-    if (reviewTemplateDefaults) blockers.push({ path: 'document.bindings', code: 'REVIEW_TEMPLATE_DEFAULTS', message: 'Xem lại nội dung sau khi bỏ chữ minh họa của mẫu cũ, rồi lưu bản nháp để gửi.' });
+    if (reviewTemplateDefaults) blockers.push(preflightCopy('document.bindings', 'REVIEW_TEMPLATE_DEFAULTS', 'editor.preflight.reviewDefaults'));
     try { validateDocument(document, { mode: 'publish', requiredBindings: [] }); } catch (error) { blockers.push(...(error.details || [{ path: 'document', code: 'INVALID_DOCUMENT', message: error.message }])); }
     // Apply this rule to new publications. Existing gift snapshots use the reader's structural validation.
     const { bindings, elements } = document;
@@ -198,7 +213,7 @@ export class DesignsService {
       }
       return element.type !== 'image' || Boolean(element.props.assetId || element.props.caption?.trim());
     });
-    if (!hasContent) blockers.push({ path: 'document.elements', code: 'EMPTY_DESIGN', message: 'Thiết kế chưa có nội dung hiển thị. Hãy chèn lời chúc, thêm ảnh hoặc hiện một lớp trước khi xuất bản.' });
+    if (!hasContent) blockers.push(preflightCopy('document.elements', 'EMPTY_DESIGN', 'editor.preflight.empty'));
     if (design.source.kind === 'template') {
       try {
         template = design.provenance?.adapter === 'creator-v1'
@@ -214,18 +229,21 @@ export class DesignsService {
     }
     for (const id of assetIds(design.document)) {
       const a = await getAsset(id);
-      if (!a || a.ownerId !== design.ownerId || a.status !== 'ready' || !this.assetExists(a)) blockers.push({ path: `assets.${id}`, code: 'ASSET_NOT_READY', message: 'Ảnh chưa sẵn sàng.' });
+      if (!a || a.ownerId !== design.ownerId || a.status !== 'ready' || !this.assetExists(a))
+        blockers.push(preflightCopy(`assets.${id}`, 'ASSET_NOT_READY', 'editor.preflight.asset'));
     }
-    if (authorization.status !== 'allowed') blockers.push({ path: 'source', code: authorization.reasonCodes[0], message: 'Thiết kế chưa có quyền xuất bản.' });
+    if (authorization.status !== 'allowed') blockers.push(preflightCopy('source', authorization.reasonCodes[0], 'editor.preflight.permission'));
     const values = design.document.bindings;
     for (const [key, max] of [['recipientName', 60], ['senderName', 60], ['message', 1000]]) {
       if (editable && !editable.includes(key)) continue;
       const v = values[key]?.value;
-      if (typeof v !== 'string' || !v.trim() || v.length > max) blockers.push({ path: `bindings.${key}`, code: 'BINDING_REQUIRED', message: `Điền ${bindingLabels[key].toLocaleLowerCase('vi')} (tối đa ${max} ký tự).` });
+      if (typeof v !== 'string' || !v.trim() || v.length > max)
+        blockers.push(preflightCopy(`bindings.${key}`, 'BINDING_REQUIRED', 'editor.preflight.binding',
+          { binding: { format: 'message', key: `catalog.personalization.${key}` }, max }));
     }
     return { designId: design.id, revision: design.revision, documentHash: hash(design.document), authorization, canPublish: authorization.status === 'allowed' && blockers.length === 0,
       blockers, warnings: editable && lockedVisibleNames(document, editable).length
-        ? [{ path: 'document.bindings', code: 'LOCKED_NAMES_OMITTED', message: 'Lớp tên bị khóa của mẫu cũ sẽ để trống khi gửi.' }] : [],
+        ? [preflightCopy('document.bindings', 'LOCKED_NAMES_OMITTED', 'editor.preflight.lockedNames')] : [],
       summary: { sceneCount: document.scenes.length, assetCount: assetIds(document).length }, ...(template ? { template: { id: template.id, title: template.title, price: template.price } } : {}) };
   }
   assetPath(asset) {

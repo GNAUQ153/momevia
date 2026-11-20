@@ -94,9 +94,16 @@ test('an optional polaroid photo keeps frame layout, crop, reading IDs and capti
 });
 
 test('managed cover SVGs match validated layouts and escape text without scripts/remote media', () => {
+  const serifWoff2 = fs.readFileSync(new URL('../../web/assets/fonts/lora-cover.woff2', import.meta.url)).toString('base64');
+  const fontRule = `<style>@font-face{font-family:"Momevia Cover";src:url(data:font/woff2;base64,${serifWoff2}) format("woff2")}</style>`;
   for (const id of Object.keys(BASIC_TEMPLATES)) {
-    const svg = previewSvg(templatePreviewDocument({ id }));
+    const doc = templatePreviewDocument({ id });
+    const defaultSvg = previewSvg(doc);
+    const svg = previewSvg(doc, undefined, undefined, { serifWoff2 });
     assert.equal(fs.readFileSync(new URL(`../../web/assets/basic-templates/${id}.svg`, import.meta.url), 'utf8'), svg);
+    assert.equal(svg.includes(fontRule), defaultSvg.includes('Georgia,serif'));
+    assert.doesNotMatch(svg.replace(fontRule, ''), /<style|url\(["']?(?:https?:|data:)/i);
+    assert.doesNotMatch(defaultSvg, /Momevia Cover/);
     assert.doesNotMatch(svg, /<script|foreignObject|onload=|href=|style=/i);
     assert.equal(/viewBox="0 0 390 844"/.test(svg), true);
   }

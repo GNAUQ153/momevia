@@ -15,7 +15,7 @@ const descriptors = {
 };
 function freeze(value) { if (value && typeof value === 'object') { Object.values(value).forEach(freeze); Object.freeze(value); } return value; }
 export const registry = freeze(descriptors);
-export const STICKERS = freeze({ heart: '♥', star: '★', flower: '✿', sparkles: '✦', balloon: '🎈', cake: '🎂', gift: '🎁',
+export const STICKERS = freeze({ heart: '♥', star: '★', flower: '✿', sparkles: '✦', balloon: '', cake: '', gift: '',
   ...Object.fromEntries(Object.keys(stickerArt).map(key => [key, ''])) });
 export const FONT_TOKENS = ['body', 'heading', 'serif'];
 export const BINDINGS = ['recipientName', 'senderName', 'message'];

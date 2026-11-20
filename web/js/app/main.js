@@ -14,6 +14,7 @@ import { templateValue } from "../features/catalog/template-copy.js";
 import { createComponents } from "../ui/components.js";
 import { createLayout } from "../ui/layout.js";
 import { createHomeViews, homeDemo } from "../pages/home.js";
+import { mountMarketingMotion } from "../features/marketing/scene-motion.js";
 import { mountTemplatePreview } from "../features/catalog/template-preview.js";
 import { createCatalogViews } from "../pages/catalog.js";
 import { createGiftViews } from "../pages/gifts.js";
@@ -257,6 +258,7 @@ function mountHome() {
     sheen.currentTime = sheen.effect.getTiming().delay;
     sheen.play();
   }, { signal });
+  const disposeMarketingMotion = mountMarketingMotion(main, { signal });
   const preview = mountTemplatePreview(main, homeDemo, { api, onOpen: loadAppFonts });
   const featured = main.querySelector('#home-featured-gifts');
   async function loadFeatured() {
@@ -296,6 +298,7 @@ function mountHome() {
   preference.addEventListener("change", syncMoment, { signal });
   return { dispose() {
     lifetime.abort();
+    disposeMarketingMotion();
     preview.dispose();
     removeLocaleListener();
     moment.__moment?.destroy?.();

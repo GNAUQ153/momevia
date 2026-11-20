@@ -1,6 +1,6 @@
 # Thành phần mã nguồn mở và tài nguyên bên ngoài
 
-1. **Lucide Icons** — bộ icon SVG mã nguồn mở, MIT License. Website: https://lucide.dev/ . License: https://lucide.dev/license . File sử dụng các SVG path: `web/js/icons.js`, có chú thích nguồn ngay đầu file. Dự án không phân phối font icon bên ngoài.
+1. **Lucide Icons** — bộ icon SVG mã nguồn mở, ISC License (một số hình kế thừa Feather theo MIT). Website: https://lucide.dev/ . License: https://lucide.dev/license . File sử dụng các SVG path: `web/js/icons.js`, có chú thích nguồn ngay đầu file. Dự án không phân phối font icon bên ngoài.
 2. **Node.js** — runtime JavaScript (MIT và nhiều giấy phép thành phần), người dùng tự tải tại https://nodejs.org/ . Không đóng gói Node trong ZIP.
 3. **Google OAuth 2.0** — API đăng nhập bên ngoài, phụ thuộc điều khoản của Google; https://developers.google.com/identity/protocols/oauth2/web-server . Không phải thư viện mã nguồn mở đóng gói.
 4. **Zalo Social API v4** — API đăng nhập ngoài, phụ thuộc điều khoản của Zalo; https://docs.zaloplatforms.com/docs/Social/social-api/tham-khao/user-access-token-v4 . Không phải thư viện mã nguồn mở đóng gói.

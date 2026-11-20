@@ -248,12 +248,10 @@ export function renderElement(
     if (mode !== "thumbnail") node.type = "button";
     node.style.backgroundColor = p.color;
     if (type !== "button") {
-      const illustration = navigationArt[model.effects?.reaction?.id];
-      const icon = element(
-        "span",
-        illustration ? "gift-runtime-control-icon gift-control-illustration" : "gift-runtime-control-icon",
-        illustration ? undefined : type === "envelope" ? "✉" : "🎁",
-      );
+      // SVG cục bộ thay glyph emoji để biểu tượng giống nhau trên mọi hệ điều hành.
+      const illustration = navigationArt[model.effects?.reaction?.id]
+        || (type === "envelope" ? navigationArt.R01 : navigationArt.R02);
+      const icon = element("span", "gift-runtime-control-icon gift-control-illustration");
       icon.setAttribute("aria-hidden", "true");
       if (illustration) icon.append(drawVector(illustration, {stretch:true}));
       node.append(icon);

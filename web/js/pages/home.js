@@ -16,17 +16,36 @@ export function createHomeViews({ state, buttonLink, templateCard }) {
   function hero() {
     return `<section class="hero hero--split mkt-hero" data-enter><div class="container wrap"><div class="hero-text mkt-hero__layout">
       <div class="mkt-hero__intro">
+        <span class="mkt-hero__eyebrow">${icon("sparkles", 17)} ${text("home.hero.eyebrow")}</span>
         <h1>${text("home.hero.title")}</h1>
         <p class="hero__lead">${text("home.hero.description")}</p>
         <div class="mkt-actions">
           ${buttonLink("/explore", text("home.hero.cta"), "mkt-primary")}
           <button type="button" class="btn mkt-secondary" data-template-preview aria-haspopup="dialog">${icon("eye", 18)} ${text("home.hero.preview")}</button>
         </div>
+        <ul class="mkt-hero__benefits">
+          <li>${icon("check-circle", 17)} ${text("home.hero.proof.design")}</li>
+          <li>${icon("check-circle", 17)} ${text("home.hero.proof.account")}</li>
+        </ul>
+        <a class="mkt-hero__scroll" href="#how-it-works">${text("home.hero.how")} ${icon("chevron-down", 17)}</a>
       </div>
-      <div class="mkt-hero__frame hero__window" data-visual data-enter-media>
+      <div class="mkt-hero__frame hero__window mkt-stage" data-visual data-enter-media data-mkt-tilt>
+        <div class="mkt-stage__atmosphere" aria-hidden="true">
+          <span class="mkt-stage__orb mkt-stage__orb--first"></span>
+          <span class="mkt-stage__orb mkt-stage__orb--second"></span>
+          <span class="mkt-stage__ring"></span>
+        </div>
+        <div class="mkt-stage__note" aria-hidden="true">
+          <span>${text("home.hero.note.caption")}</span>
+          <strong>${text("home.hero.note.title")}</strong>
+        </div>
         <button type="button" class="mkt-hero__cover" data-template-preview aria-haspopup="dialog" ${attr("aria-label", "home.hero.preview")}>
           <img ${templateCover(homeDemo.id)} alt="" width="390" height="844" fetchpriority="high" />
         </button>
+        <div class="mkt-stage__reply" aria-hidden="true">
+          <span>${text("home.hero.reply.caption")}</span>
+          <strong>${icon("heart", 15)} ${text("home.hero.reply.title")}</strong>
+        </div>
       </div>
       </div>
       ${templatePreviewDialog(homeDemo)}
@@ -51,7 +70,7 @@ export function createHomeViews({ state, buttonLink, templateCard }) {
   }
 
   function steps() {
-    return `<section id="how-it-works" class="mkt-section mkt-how" aria-labelledby="mkt-experience-title" data-moment="liquid-type" data-moment-opts='{"strength": 0.35}'><div class="container wrap">
+    return `<section id="how-it-works" class="mkt-section mkt-how" data-mkt-reveal aria-labelledby="mkt-experience-title" data-moment="liquid-type" data-moment-opts='{"strength": 0.35}'><div class="container wrap">
       <h2 id="mkt-experience-title" class="mo-lt__type">${text("home.steps.heading")}</h2>
       <div class="mkt-how__body">
         <ol class="mkt-steps">${["choose", "personalize", "send"].map((step, index) => `<li>
@@ -88,7 +107,7 @@ export function createHomeViews({ state, buttonLink, templateCard }) {
 
   function home({ catalogStatus = "ready" } = {}) {
     return `${hero()}
-      <section class="mkt-section mkt-featured" aria-labelledby="mkt-featured-title"><div class="container wrap">
+      <section class="mkt-section mkt-featured" aria-labelledby="mkt-featured-title" data-mkt-reveal><div class="container wrap">
         <div class="mkt-featured__heading"><h2 id="mkt-featured-title">${text("home.featured.title")}</h2>
         ${buttonLink("/explore", text("home.featured.all"), "mkt-secondary")}</div>
         <div id="home-featured-gifts">${featuredGifts(catalogStatus)}</div>

@@ -4,6 +4,10 @@ import { extendedArt } from "./decorative-art-55.js";
 export const stickerArt = Object.freeze({
   ...decorativeArt,
   ...extendedArt,
+  // Ba sticker legacy được vẽ bằng vector để không phụ thuộc font emoji của máy.
+  balloon: ['M50 8C27 8 17 28 22 48c5 18 19 26 28 33 9-7 23-15 28-33C83 28 73 8 50 8Z', 'M50 80l-6 6h12Z M50 86c-9 6 10 6 0 13'],
+  cake: ['M17 48h66v40H17Z M13 40c12-8 20 8 30 0 12-8 17 8 28 0 10-7 16 5 16 8H13Z', 'M36 40V22m14 18V16m14 24V22M32 20h8m6-6h8m6 6h8M16 71h68'],
+  gift: ['M16 39h68v53H16Z M9 25h82v17H9Z', 'M50 25v67M50 25C22 23 27 1 46 15l4 10c4-20 29-14 25 0H50Z'],
   'ribbon-bow': ['M49 49C37 43 12 24 12 41S32 64 50 52C70 65 88 57 88 41S63 42 51 49Z', 'M45 54 29 85l18-8 5 9 2-32 14 31 6-11 12 4-24-26'],
   'wax-seal': ['M50 8 61 13 72 13 79 24 90 30 90 45 95 55 86 66 82 80 69 83 60 93 46 90 32 93 25 84 13 78 13 64 5 52 11 41 12 26 24 21 32 10 43 13Z', 'M50 68C12 46 45 25 50 44 56 25 88 46 50 68Z'],
   'paper-crane': ['M8 62 56 26 58 54 84 22 95 34 85 36 75 67 52 76 44 62Z', 'M44 62 56 26 52 76M58 54 75 67'],

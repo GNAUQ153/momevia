@@ -6,7 +6,7 @@ export const interactionKinds = Object.freeze({
   "photo-comparison": { label: "Thanh kéo so sánh ảnh", slots: 2, minimumPhotos: 2, icon: "◫", size: [337, 304] },
   "scene-choices": { label: "Hai cửa chọn câu chuyện", fields: [["Nhãn cửa thứ nhất"], ["Nhãn cửa thứ hai"]], targets: 2, icon: "▯", size: [332, 180] },
   "wish-pick": { label: "Chọn một điều ước", fields: Array.from({length:3}, (_, i) => [`Lựa chọn ${i+1}`, `Lời chúc ${i+1}`]), icon: "✧", size: [334, 182] },
-  "light-a-candle": { label: "Chạm thắp nến", fields: [["Nhãn nút", "Lời ước"]], icon: "🕯", size: [230, 187] },
+  "light-a-candle": { label: "Chạm thắp nến", fields: [["Nhãn nút", "Lời ước"]], icon: "✧", size: [230, 187] },
   "heart-puzzle": { label: "Ghép ba mảnh tim", fields: [["Nhãn mở ngay", "Lời nhắn"]], icon: "♥", size: [293, 199] },
   "event-countdown": { label: "Đồng hồ đếm ngược tới hẹn", fields: [["Tên cuộc hẹn", "Lời chúc khi tới hẹn"]], clock: true, icon: "◷", size: [325, 186] },
 });

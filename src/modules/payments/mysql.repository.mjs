@@ -3,12 +3,16 @@ import { MySqlClient } from '../../infrastructure/mysql/client.mjs';
 import { localizedError } from '../../shared/http.mjs';
 import { mysqlDate } from '../identity/mysql.repositories.mjs';
 import { canonicalText } from '../../../web/js/shared/locale.js';
+import { FinanceReport } from './finance-report.mjs';
 
 const fromJson = value => typeof value === 'string' ? JSON.parse(value) : (value || {});
 const receiptNo = id => `MV-RC-${id.replace(/-/g, '').toUpperCase()}`;
 
 export class MySqlPaymentRepository {
-  constructor(client = new MySqlClient()) { this.client = client; }
+  constructor(client = new MySqlClient()) { this.client = client; this.finance = new FinanceReport(client); }
+
+  async creatorStatement(creatorId, limit) { return this.finance.creatorStatement(creatorId, limit); }
+  async adminFinance() { return this.finance.adminOverview(); }
 
   async createPending({ userId, templateId, title, amount, provider, isTest }) {
     const now = new Date().toISOString();
@@ -126,8 +130,10 @@ export class MySqlPaymentRepository {
     if (!Number.isSafeInteger(amount) || amount <= 0 || currency !== 'VND' || !reference || reference.length > 191)
       throw localizedError(400, 'errors.payment.invalidTransaction');
     return this.client.withTransaction(async tx => {
-      const [matches] = await tx.execute(`SELECT p.*, o.user_id,o.template_id,o.is_test,o.status AS order_status
+      const [matches] = await tx.execute(`SELECT p.*,o.user_id,o.template_id,o.is_test,
+        o.creator_amount_vnd,o.status AS order_status,t.creator_id AS seller_id
         FROM payment_intents p JOIN orders o ON o.id=p.order_id
+        LEFT JOIN templates t ON t.id=o.template_id
         WHERE p.provider=? AND p.provider_order_code=? FOR UPDATE`, [provider, code]);
       const item = matches[0];
       if (!item) throw localizedError(404, 'errors.payment.orderNotFound');
@@ -149,6 +155,13 @@ export class MySqlPaymentRepository {
       await tx.execute(`INSERT INTO payment_receipts
         (order_id,receipt_no,provider,provider_reference,amount_vnd) VALUES (?,?,?,?,?)`,
         [item.order_id, receiptNo(item.order_id), provider, reference, amount]);
+      // Ghim Creator tại thời điểm xác nhận thanh toán, trong cùng transaction.
+      // UUID order là khóa sale duy nhất: webhook lặp không được ghi doanh thu lần hai.
+      if (item.seller_id && Number(item.creator_amount_vnd) > 0) {
+        await tx.execute(`INSERT INTO creator_ledger
+          (id,order_id,creator_id,amount_vnd,category) VALUES (?,?,?,?,'sale')`,
+          [item.order_id, item.order_id, item.seller_id, Number(item.creator_amount_vnd)]);
+      }
       return { settled: true, replay: false, orderId: item.order_id };
     });
   }

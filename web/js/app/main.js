@@ -542,13 +542,19 @@ async function render() {
     } else if (route === "creator") {
       let templates = [];
       let legacy = [];
+      let statement = null;
       if (state.user && ["creator", "admin"].includes(state.user.role)) {
-        const [current, previous] = await Promise.all([api.get("/catalog/creator/workspaces"), api.get("/catalog/creator/templates")]);
+        const [current, previous, financeResult] = await Promise.all([
+          api.get("/catalog/creator/workspaces"),
+          api.get("/catalog/creator/templates"),
+          api.get("/checkout/payments/creator/statement?limit=20").catch(() => null),
+        ]);
         templates = current.templates;
         legacy = previous.templates;
+        statement = financeResult?.statement || null;
       }
       if (generation !== renderGeneration) return;
-      main.innerHTML = creatorPage(templates, legacy);
+      main.innerHTML = creatorPage(templates, legacy, statement);
     } else if (route === "admin") {
       if (state.user?.role !== "admin")
         main.innerHTML = errorPage(message("admin.access"));
@@ -561,10 +567,13 @@ async function render() {
         const lifetime = new AbortController();
         routeController = { dispose: () => lifetime.abort() };
         try {
-          const { orders } = await api.get("/checkout/payments/admin/review?limit=100", { signal: lifetime.signal });
+          const [{ orders }, financeResult] = await Promise.all([
+            api.get("/checkout/payments/admin/review?limit=100", { signal: lifetime.signal }),
+            api.get("/checkout/payments/admin/finance", { signal: lifetime.signal }).catch(() => null),
+          ]);
           if (generation !== renderGeneration) return;
           adminPaymentOrders = Array.isArray(orders) ? orders : [];
-          main.innerHTML = adminPaymentsPage(adminPaymentOrders);
+          main.innerHTML = adminPaymentsPage(adminPaymentOrders, { finance: financeResult?.finance || null });
         } catch (error) {
           if (generation !== renderGeneration || error.name === "AbortError") return;
           adminPaymentOrders = [];

@@ -53,13 +53,32 @@ export function paymentAuditRows(attempts) {
   </li>`).join('')}</ol>`;
 }
 
-export function adminPaymentsPage(orders = [], { error = null } = {}) {
+export function adminFinancePanel(finance) {
+  if (!finance) return `<p role="status">${text('finance.unavailable')}</p>`;
+  return `<section class="finance-panel" aria-label="${text('finance.admin.title')}">
+    <h2>${text('finance.admin.title')}</h2>
+    <div class="finance-panel__groups">${['live', 'sandbox'].map(group => {
+      const data = finance.summary[group];
+      return `<article class="finance-panel__group"><h3>${text('finance.group.' + group)}</h3>
+        <p>${text('finance.orders', { count: data.orders })}</p>
+        <div class="finance-metric"><span>${text('finance.gross')}</span><strong>${priceText(data.grossVnd)}</strong></div>
+        <div class="finance-metric"><span>${text('finance.platform')}</span><strong>${priceText(data.platformFeeVnd)}</strong></div>
+        <div class="finance-metric"><span>${text('finance.creatorShare')}</span><strong>${priceText(data.creatorVnd)}</strong></div>
+      </article>`;
+    }).join('')}</div>
+    ${finance.missingSaleEntries ? `<p role="status">${text('finance.admin.missing', { count: finance.missingSaleEntries })}</p>` : ''}
+    <p class="finance-panel__notice" role="note">${text('finance.disclaimer')}</p>
+  </section>`;
+}
+
+export function adminPaymentsPage(orders = [], { error = null, finance = null } = {}) {
   const list = Array.isArray(orders) ? orders : [];
   return `<section class="section admin-payments"><div class="container">
     <p><a href="/admin" data-link>${text("admin.payments.back")}</a></p>
     <div class="admin-payments__heading"><div><h1>${text("shell.pages.adminPayments")}</h1>
       <p>${text("admin.payments.intro")}</p></div>
       <button class="btn btn--outline" type="button" data-action="admin-payment-refresh">${text("admin.payments.refresh")}</button></div>
+    ${adminFinancePanel(finance)}
     <div class="admin-payments__summary"><strong>${error ? '—' : list.length}</strong><span>${text("admin.payments.summary")}</span></div>
     <div class="admin-payments__notice" role="note">${text("admin.payments.notice")}</div>
     ${error ? `<p role="alert">${typeof error === 'string' ? e(error) : text(error.key, error.params)}</p>` : ''}

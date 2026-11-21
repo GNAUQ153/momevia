@@ -24,6 +24,15 @@ export function registerPaymentRoutes(router, { service, config, resolveUser = c
     const user = await resolveUser(req, config.jwtSecret);
     sendJson(res, 200, { receipt: await service.receipt(user, params.orderId) });
   });
+  // Báo cáo chỉ đọc. Không nhận role/creatorId do client tự khai.
+  router.on('GET', '/payments/creator/statement', async ({ req, res, url }) => {
+    const creator = await resolveUser(req, config.jwtSecret);
+    sendJson(res, 200, { statement: await service.creatorStatement(creator, url.searchParams.get('limit')) });
+  });
+  router.on('GET', '/payments/admin/finance', async ({ req, res }) => {
+    const admin = await resolveUser(req, config.jwtSecret);
+    sendJson(res, 200, { finance: await service.adminFinance(admin) });
+  });
   // Admin-only inspection endpoints: no manual paid status, cancellation or retry unlock.
   router.on('GET', '/payments/admin/review', async ({ req, res, url }) => {
     const admin = await resolveUser(req, config.jwtSecret);

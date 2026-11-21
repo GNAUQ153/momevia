@@ -96,12 +96,12 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các commit gần nhất trên `main`:**
 
+- `4c01398` — Merge pull request #15 from GNAUQ153/plan/event-card-redesign (2026-11-21)
+- `4f04bf7` — test: mock refund request lookup in Canvas fixture (2026-11-21)
 - `ffb8cdf` — feat: add role-scoped finance CSV exports (2026-11-21)
 - `6ae6b19` — test: isolate Fabric image loading in resilience regression (2026-11-21)
 - `1c2b15d` — feat: add read-only finance reconciliation exceptions (2026-11-21)
 - `608c54c` — feat: add read-only creator finance reporting (2026-11-21)
-- `a06ae06` — test: fix home browser regression for 3D journey (2026-11-21)
-- `be3ea06` — feat: improve UI UX, localization and security (2026-11-21)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

@@ -53,7 +53,7 @@ export function createHomeViews({ state, buttonLink, templateCard }) {
         </div>
       </div>
       <div class="mkt-hero__rotation" role="group" ${attr('aria-label', 'home.hero.slides')}>
-        ${homeDemos.map((template, index) => `<button type="button" class="mkt-hero__slide" data-hero-select="${index}" aria-pressed="${index === 0}" ${attr('aria-label', `templates.${template.id}.title`)}><span aria-hidden="true"></span></button>`).join('')}
+        ${homeDemos.map((template, index) => `<button type="button" class="mkt-hero__slide" data-hero-select="${index}" aria-pressed="${index === 0}" ${attr('aria-label', `templates.${template.id}.title`)}><span aria-hidden="true"><span data-hero-progress></span></span></button>`).join('')}
       </div>
       </div>
       </div>

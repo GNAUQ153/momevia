@@ -5,6 +5,18 @@ const artwork = ['wedding-memory', 'birthday', 'graduation'];
 const active = page => page.locator('.mkt-hero').getAttribute('data-hero-template');
 const waitForTemplate = (page, id) => page.waitForFunction(value =>
   globalThis.document.querySelector('.mkt-hero')?.dataset.heroTemplate === value, id);
+const progressState = page => page.locator('[aria-pressed="true"] [data-hero-progress]').evaluate(node => {
+  const animation = node.getAnimations()[0];
+  return {
+    time: Number(animation?.currentTime), state: animation?.playState,
+    duration: animation?.effect.getTiming().duration, easing: animation?.effect.getTiming().easing,
+    scale: new globalThis.DOMMatrixReadOnly(globalThis.getComputedStyle(node).transform).a,
+  };
+});
+async function finishProgress(page, id) {
+  await page.locator('[aria-pressed="true"] [data-hero-progress]').evaluate(node => node.getAnimations()[0].finish());
+  await waitForTemplate(page, id);
+}
 
 export async function runHeroTemplatesBrowser(browser, base) {
   for (const language of ['vi', 'en']) {
@@ -28,6 +40,7 @@ export async function runHeroTemplatesBrowser(browser, base) {
         await selector.click();
         await waitForTemplate(page, id);
         assert.equal(await selector.getAttribute('aria-pressed'), 'true');
+        assert.equal(await selector.locator('[data-hero-progress]').evaluate(node => node.getAnimations().length), 0, 'Reduced motion uses a static selected indicator');
         const image = cover.locator('[data-active="true"]');
         assert.match(await image.getAttribute('src'), new RegExp(`${language === 'en' ? '/en' : ''}/${id}\\.svg`));
         assert(await image.evaluate(node => parseFloat(globalThis.getComputedStyle(node).transitionDuration) <= 0.001), 'Reduced motion makes manual changes immediate');
@@ -49,7 +62,6 @@ export async function runHeroTemplatesBrowser(browser, base) {
     const page = await context.newPage();
     const errors = [];
     page.on('pageerror', error => errors.push(error.message));
-    await page.clock.install();
     await page.goto(base);
     await waitForTemplate(page, ids[0]);
     await page.locator('[data-hero-image]').evaluateAll(images => Promise.all(images.map(image => image.decode())));
@@ -58,40 +70,66 @@ export async function runHeroTemplatesBrowser(browser, base) {
       return { properties: style.transitionProperty.split(', '), duration: parseFloat(style.transitionDuration) };
     });
     assert(transition.duration > 0 && transition.properties.includes('opacity') && transition.properties.includes('transform'), 'Normal motion bridges cover changes with a visible transition');
+    const firstProgress = await progressState(page);
+    assert.equal(firstProgress.duration, 5000);
+    assert.equal(firstProgress.easing, 'linear');
+    await page.locator('[aria-pressed="true"] [data-hero-progress]').evaluate(node => {
+      const animation = node.getAnimations()[0];
+      animation.pause();
+      animation.currentTime = 2500;
+    });
+    assert(Math.abs((await progressState(page)).scale - 0.5) < 0.01, 'Half the duration fills half the track');
+    assert.equal(await active(page), ids[0], 'Partial fill does not change the cover');
     for (const id of [ids[1], ids[2], ids[0]]) {
-      await page.clock.fastForward(5100);
-      await waitForTemplate(page, id);
+      await finishProgress(page, id);
+      assert((await progressState(page)).time < 1000, 'Next cover starts a fresh progress cycle');
     }
     const cover = page.locator('.mkt-hero__cover');
     await cover.focus();
-    await page.clock.fastForward(5100);
-    await waitForTemplate(page, ids[1]);
+    await finishProgress(page, ids[1]);
     await page.keyboard.press('Enter');
     const dialog = page.getByRole('dialog');
     await dialog.locator('[data-runtime-element="event-photo-birthday"]').waitFor();
-    await page.clock.fastForward(11000);
+    assert.equal((await progressState(page)).state, 'paused', 'Preview pauses the same progress clock');
     assert.equal(await active(page), ids[1], 'Open player freezes its corresponding cover');
     await page.keyboard.press('Escape');
     await dialog.waitFor({ state: 'hidden' });
     await page.waitForFunction(() => globalThis.document.activeElement?.matches('.mkt-hero__cover'));
     await cover.evaluate(node => node.blur());
     await page.mouse.move(0, 0);
-    // Let modal focus/visibility callbacks settle before advancing the rotation clock.
-    await page.clock.runFor(300);
-    await page.clock.fastForward(5100);
-    await waitForTemplate(page, ids[2]);
+    await page.waitForFunction(() => globalThis.document.querySelector('[aria-pressed="true"] [data-hero-progress]')?.getAnimations()[0]?.playState === 'running');
+    await finishProgress(page, ids[2]);
     await cover.hover();
-    await page.clock.fastForward(5100);
-    await waitForTemplate(page, ids[0]);
+    await finishProgress(page, ids[0]);
     await page.mouse.move(0, 0);
+
+    await page.locator('footer').scrollIntoViewIfNeeded();
+    await page.waitForFunction(() => globalThis.document.querySelector('[aria-pressed="true"] [data-hero-progress]')?.getAnimations()[0]?.playState === 'paused');
+    const offscreenTime = (await progressState(page)).time;
+    await cover.scrollIntoViewIfNeeded();
+    await page.waitForFunction(() => globalThis.document.querySelector('[aria-pressed="true"] [data-hero-progress]')?.getAnimations()[0]?.playState === 'running');
+    assert((await progressState(page)).time >= offscreenTime, 'Returning to the cover resumes rather than resets progress');
+
+    await page.locator('[aria-pressed="true"] [data-hero-progress]').evaluate(node => { node.getAnimations()[0].currentTime = 4000; });
+    await page.locator('[data-hero-select="2"]').click();
+    await waitForTemplate(page, ids[2]);
+    assert((await progressState(page)).time < 1000, 'Clicking another track restarts its five seconds');
+    const previous = await page.locator('[aria-pressed="true"] [data-hero-progress]').evaluateHandle(node => node.getAnimations()[0]);
+    await page.locator('[data-hero-select="2"]').click();
+    await page.waitForFunction(old => {
+      const animation = globalThis.document.querySelector('[aria-pressed="true"] [data-hero-progress]').getAnimations()[0];
+      return animation && animation !== old;
+    }, previous);
+    assert((await progressState(page)).time < 1000, 'Clicking the selected track also restarts the clock');
+
     await page.emulateMedia({ reducedMotion: 'reduce' });
-    await page.clock.fastForward(11000);
-    assert.equal(await active(page), ids[0], 'Reduced motion stops automatic changes');
+    await page.waitForFunction(() => [...globalThis.document.querySelectorAll('[data-hero-progress]')].every(node => node.getAnimations().length === 0));
+    assert.equal(await page.locator('[data-hero-progress]').evaluateAll(nodes => nodes.flatMap(node => node.getAnimations()).length), 0);
+    assert.equal(await active(page), ids[2], 'Reduced motion keeps the selected cover');
     await page.locator('[data-hero-select="0"]').click();
     await waitForTemplate(page, ids[0]);
     await page.locator('.mkt-actions a[href="/explore"]').click();
     await page.waitForURL('**/explore');
-    await page.clock.fastForward(11000);
     assert.deepEqual(errors, [], 'No callbacks update a disposed hero');
 
     // A missing alternate cover never replaces the working cover or its player.
@@ -99,10 +137,23 @@ export async function runHeroTemplatesBrowser(browser, base) {
     await page.goto(base);
     await waitForTemplate(page, ids[0]);
     await page.locator('[data-hero-select="1"]').click();
-    await page.clock.fastForward(1000);
     assert.equal(await active(page), ids[0]);
     await page.locator('.mkt-hero__cover').click();
     await page.getByRole('dialog').locator('[data-runtime-element="open-memory"]').waitFor();
   } finally { await context.close(); }
-  console.log('PASS Hero covers: three indicators below artwork, matching players VI/EN, stable mobile artboard, autoplay including focus/hover, reduced motion, disposal and failed-image fallback.');
+
+  const timed = await browser.newPage({ viewport: { width: 390, height: 844 }, reducedMotion: 'no-preference' });
+  try {
+    await timed.goto(base);
+    await waitForTemplate(timed, ids[0]);
+    await timed.waitForFunction(() => {
+      const fill = globalThis.document.querySelector('[data-hero-select="0"] [data-hero-progress]');
+      const scale = fill && new globalThis.DOMMatrixReadOnly(globalThis.getComputedStyle(fill).transform).a;
+      return scale > 0.2 && scale < 0.8;
+    });
+    assert.equal(await active(timed), ids[0], 'Real time shows an intermediate fill before the cover changes');
+    await waitForTemplate(timed, ids[1]);
+    assert((await progressState(timed)).time < 1000, 'Natural animation completion advances the cover and resets progress');
+  } finally { await timed.close(); }
+  console.log('PASS Hero covers: matching players VI/EN, five-second linear progress, half-fill, natural completion, clickable reset, preview pause/resume, reduced motion and failed-image fallback.');
 }

@@ -465,14 +465,25 @@
 }
 
 .mkt-hero__slide > span {
+  position: relative;
+  overflow: hidden;
   width: 32px;
   height: 4px;
   border-radius: 4px;
   background: #b2a1c8;
 }
 
-.mkt-hero__slide[aria-pressed="true"] > span {
+.mkt-hero__slide [data-hero-progress] {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
   background: #6039a5;
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+
+.mkt-hero__slide[aria-pressed="true"] [data-hero-progress] {
+  transform: scaleX(1);
 }
 
 .mkt-hero__rotation button:focus-visible {

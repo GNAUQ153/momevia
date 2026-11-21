@@ -1,7 +1,10 @@
 import { message, onLocaleChange, setAttr } from '../../core/i18n.js';
 import { templateValue } from '../catalog/template-copy.js';
 
-// Only the three cover layers transition. The live player is loaded on demand.
+const duration = 5000;
+
+// One native animation clocks both the progress fill and the next cover.
+// The live player is loaded on demand.
 export function mountHeroTemplates(host, templates) {
   const root = host.querySelector('.mkt-hero');
   const cover = root.querySelector('.mkt-hero__cover');
@@ -11,15 +14,35 @@ export function mountHeroTemplates(host, templates) {
   const reduce = matchMedia('(prefers-reduced-motion: reduce)');
   const lifetime = new AbortController();
   const options = { signal: lifetime.signal };
-  let index = 0, timer, generation = 0, visible = true;
+  let index = 0, progress, generation = 0, visible = true;
 
   function canRotate() {
     return !lifetime.signal.aborted && !reduce.matches &&
       !document.hidden && visible && !dialog.open;
   }
   function schedule() {
-    clearTimeout(timer);
-    if (canRotate()) timer = setTimeout(() => void select((index + 1) % templates.length, true), 5000);
+    if (!canRotate()) {
+      progress?.pause();
+      if (reduce.matches) resetProgress();
+      return;
+    }
+    if (progress && Number(progress.currentTime) >= duration) {
+      void select((index + 1) % templates.length, true);
+      return;
+    }
+    if (!progress) {
+      const animation = progress = selectors[index].querySelector('[data-hero-progress]').animate(
+        [{ transform: 'scaleX(0)' }, { transform: 'scaleX(1)' }],
+        { duration, easing: 'linear', fill: 'forwards' },
+      );
+      animation.onfinish = () => {
+        if (progress === animation && canRotate()) void select((index + 1) % templates.length, true);
+      };
+    } else if (progress.playState === 'paused') progress.play();
+  }
+  function resetProgress() {
+    progress?.cancel();
+    progress = null;
   }
   function update() {
     root.dataset.heroTemplate = templates[index].id;
@@ -30,14 +53,18 @@ export function mountHeroTemplates(host, templates) {
     }
   }
   async function select(next, automatic = false) {
-    clearTimeout(timer);
+    progress?.pause();
     const request = ++generation;
     try {
       await images[next].decode();
       if (request !== generation || lifetime.signal.aborted || (automatic && !canRotate())) return;
+      resetProgress();
       index = next;
       update();
-    } catch { /* Keep the current cover and preview if another cover cannot load. */ }
+    } catch {
+      // Retry on a new full cycle, avoiding a tight loop after a failed image.
+      if (request === generation) resetProgress();
+    }
     finally { if (request === generation) schedule(); }
   }
   selectors.forEach((button, position) => button.addEventListener('click', () => void select(position), options));
@@ -60,7 +87,7 @@ export function mountHeroTemplates(host, templates) {
     dispose() {
       lifetime.abort();
       ++generation;
-      clearTimeout(timer);
+      resetProgress();
       observer.disconnect();
       removeLocaleListener();
     },

@@ -1,3 +1,9 @@
+## Unreleased — Tiến trình chuyển mẫu ở trang chủ (2026-11-21)
+
+- Thanh đang chọn chạy từ trái sang phải trong 5 giây; chính thao tác hoàn tất tiến trình kích hoạt mẫu kế tiếp, không dùng hai bộ đếm riêng.
+- Bấm thanh bất kỳ để chọn mẫu và đếm lại từ đầu; dừng/tiếp tục cùng tiến trình khi mở preview, ẩn tab hoặc rời vùng hiển thị. Chế độ giảm chuyển động vẫn cho chọn mẫu thủ công.
+- Kiểm chứng build, check, 459 unit tests và bộ test:browser; có kiểm tra tiến trình chạy thật trên khung điện thoại, nửa thanh, tự chuyển đủ vòng, chọn lại thanh và tiếp tục sau preview/rời màn hình.
+
 ## Unreleased — Thanh chọn mẫu và demo cập nhật theo file (2026-11-21)
 
 - Đưa ba vạch chọn mẫu ra dưới khung thiệp, bỏ nút tạm dừng; bìa tự chuyển kể cả khi đang rê chuột hoặc giữ focus. Giữ preview đúng mẫu và hỗ trợ giảm chuyển động.

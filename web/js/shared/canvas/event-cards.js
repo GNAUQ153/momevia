@@ -1,5 +1,6 @@
 import { eventMediaId, EVENT_ARTWORK_LABEL } from './event-media.js';
-// Three V1 Originals. Photographs, wording and controls stay separate editable layers.
+import { expandEventStory } from './event-story.js';
+// Photographs, wording and controls stay separate editable layers.
 export const EVENT_CARD_IDS = ['birthday-radiance', 'hai-phong-bi', 'proud-of-you'];
 
 export function paintEventCard(id, doc, { shape, line, text, binding, action, add }, p, localize) {
@@ -95,6 +96,7 @@ export function paintEventCard(id, doc, { shape, line, text, binding, action, ad
     action(1, 'button', 'to-message', copy('toReply'), [60, 746, 270, 72], 'scene-message');
     reply();
   }
+  expandEventStory(id, doc, { add, text, binding, action, shape }, p, localize);
   const names = {
     'cake-bottom': 'Thân bánh', 'cake-top': 'Tầng bánh', 'cake-plate': 'Đĩa bánh', 'cake-icing': 'Lớp kem',
     'name-ribbon': 'Dải giấy tên', 'ring-one': 'Nhẫn xanh', 'ring-two': 'Nhẫn mâm xôi',

@@ -219,7 +219,7 @@ try {
   });
   if (process.argv.includes('--browser')) {
     const { runExpandedBrowser } = await import('../browser/canvas-expanded.mjs');
-    await check('172 UI cards, 24 effects, touch/keyboard, and three public V2 QA cards', () =>
+    await check('172 UI cards, 33 effects, touch/keyboard, and three public V2 QA cards', () =>
       runExpandedBrowser(base, owner.cookie, expanded, expandedArtifacts));
     const { runSenderIdentity } = await import('../browser/sender-identity.mjs');
     await check('Creator template identity is isolated from preview data', () => runSenderIdentity(base));

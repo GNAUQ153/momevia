@@ -17,7 +17,7 @@ export function templateSearchFields(template) {
     .map(field => templateFieldKey(template, field)).filter(Boolean).map(key => t(key));
 }
 
-const coverRevision = 5;
+const coverRevision = 6;
 export function templateCover(id) {
   return attr('src', 'templates.assets.cover', { id: encodeURIComponent(id), revision: coverRevision });
 }

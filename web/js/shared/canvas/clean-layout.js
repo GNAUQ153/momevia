@@ -1,6 +1,7 @@
 import { clearTemplateBindingDefaults } from './personalization.js';
 import { duplicateDocument } from './schema.js';
 import { EVENT_ARTWORK_LABEL } from './event-media.js';
+import { canonicalText } from '../locale.js';
 
 export function cleanGiftLayout(snapshot, { sharedImages = new Map() } = {}) {
   const document = structuredClone(snapshot);
@@ -40,7 +41,13 @@ export function cleanGiftLayout(snapshot, { sharedImages = new Map() } = {}) {
         photo.alt = '';
         photo.caption = '';
       }
-      if (element.props.kind === 'event-countdown') element.props.eventAt = null;
+      if (element.props.kind === 'event-countdown') {
+        element.props.eventAt = null;
+        if (element.props.optional) element.props.entries[0] = {
+          heading: canonicalText(`templates.story.${element.props.clockMode === 'elapsed' ? 'elapsed' : 'countdown'}`),
+          body: canonicalText('templates.story.clockArrived'),
+        };
+      }
     }
   }
   return duplicateDocument(document);

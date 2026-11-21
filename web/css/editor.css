@@ -1107,3 +1107,9 @@ body.is-designing #main {
     animation: none !important;
   }
 }
+.editor-event-fields { min-width: 0; margin: 16px 0; padding: 14px; border: 1px solid #DCCDBA; border-radius: 12px; background: #FFFCF6; }
+.editor-event-fields legend { font-weight: 650; font-size: 15px; }
+.editor-event-fields input[type="file"] { width: 100%; max-width: 100%; font-size: 12px; }
+.editor-event-photo { border-top: 1px solid #E4D8CA; padding-block: 8px; }
+.editor-event-photo summary { min-height: 44px; cursor: pointer; display: list-item; align-content: center; font-weight: 600; }
+.editor-event-photo img { display: block; object-fit: cover; border: 6px solid white; box-shadow: 0 2px 7px #44263822; margin-bottom: 12px; }

@@ -25,10 +25,10 @@ test('Bộ 10 mẫu có ID duy nhất, giá và danh mục rõ, 3 cảnh Canvas 
     assert(Number.isInteger(template.price) && template.price >= 0);
     assert(BASIC_TEMPLATES[id]);
     const doc = createDocument({ template });
-    assert.equal(doc.scenes.length, 3);
+    assert.equal(doc.scenes.length, ['birthday-radiance', 'proud-of-you'].includes(id) ? 5 : 3);
     assert(doc.elements.length >= 20);
     assert(doc.elements.some(item => item.type === 'reply'));
-    const opener = doc.elements.find(item => doc.scenes[0].elementIds.includes(item.id) && item.actions?.some(action => action.targetSceneId === 'scene-surprise'));
+    const opener = doc.elements.find(item => doc.scenes[0].elementIds.includes(item.id) && item.actions?.some(action => action.targetSceneId === (['birthday-radiance', 'proud-of-you'].includes(id) ? 'scene-time' : 'scene-surprise')));
     assert(opener, 'Cover has a real control opening the wish scene');
     assert.equal(opener.type, ['birthday-radiance', 'proud-of-you'].includes(id) ? 'button' : 'envelope');
     assert.deepEqual(validateDocument(doc), doc);

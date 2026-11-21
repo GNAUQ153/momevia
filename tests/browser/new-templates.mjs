@@ -104,8 +104,12 @@ export async function runNewTemplates(base) {
       const entry = previewStage.getByRole('button', { name: branch, exact: true });
       await entry.focus();
       await page.keyboard.press('Enter');
-      await previewStage.getByText(branch, { exact: true }).waitFor();
+      await previewStage.getByRole('heading', { name: branch, exact: true }).waitFor();
       await previewStage.getByRole('button', { name: 'Về hai phong bì' }).click();
+      await page.waitForFunction(() => {
+        const stage = globalThis.document.querySelector('dialog.template-preview-dialog[open] .gift-runtime-stage');
+        return stage && !stage.inert && stage.querySelector('[data-runtime-element="open-memory"]');
+      });
     }
     await capture('two-envelopes-390.png');
   } finally { await browser.close(); }

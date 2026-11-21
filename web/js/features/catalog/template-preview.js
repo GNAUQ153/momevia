@@ -13,7 +13,7 @@ export function templatePreviewDialog(template) {
   </dialog>`;
 }
 
-export function mountTemplatePreview(host, template, { api, onOpen }) {
+export function mountTemplatePreview(host, template, { api, onOpen, autoOpen = false }) {
   const dialog = host.querySelector('.template-preview-dialog');
   const close = dialog.querySelector('[data-template-close]');
   const reset = dialog.querySelector('[data-template-reset]');
@@ -92,5 +92,6 @@ export function mountTemplatePreview(host, template, { api, onOpen }) {
     if (opener?.isConnected) opener.focus();
   }, options);
   dialog.addEventListener('submit', event => event.stopPropagation(), options);
+  if (autoOpen) queueMicrotask(() => { if (!lifecycle.signal.aborted) host.querySelector('[data-template-preview]')?.click(); });
   return { dispose() { removeLocaleListener(); lifecycle.abort(); clear(); if (dialog.open) dialog.close(); } };
 }

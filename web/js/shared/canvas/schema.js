@@ -45,7 +45,11 @@ function validateInteraction(p, path, assets, publishing) {
   const spec = interactionKinds[p.kind];
   const keys = ['kind', 'color', ...(spec.fields ? ['entries'] : []),
     ...(spec.slots ? ['photos'] : []), ...(spec.clock ? ['eventAt', 'timeZone'] : [])];
-  object(p, path, keys, keys);
+  const extras = [...(p.kind === 'swipe-album' ? ['optional', 'autoplay'] : []), ...(spec.clock ? ['optional', 'clockMode'] : [])];
+  object(p, path, [...keys, ...extras], keys);
+  if (own(p, 'optional')) boolean(p.optional, `${path}.optional`);
+  if (own(p, 'autoplay')) boolean(p.autoplay, `${path}.autoplay`);
+  if (own(p, 'clockMode')) enumeration(p.clockMode, `${path}.clockMode`, ['countdown', 'elapsed']);
   color(p.color, `${path}.color`);
   if (spec.fields) {
     array(p.entries, `${path}.entries`, spec.fields.length);
@@ -81,7 +85,7 @@ function validateInteraction(p, path, assets, publishing) {
       object(photo.focalPoint, `${q}.focalPoint`, ['x','y'], ['x','y']);
       for (const axis of ['x','y']) number(photo.focalPoint[axis], `${q}.focalPoint.${axis}`, 0, 1);
     }
-    if (publishing && p.photos.filter(photo => photo.assetId).length < spec.minimumPhotos) {
+    if (publishing && !p.optional && p.photos.filter(photo => photo.assetId).length < spec.minimumPhotos) {
       const missing = p.photos.findIndex(photo => !photo.assetId);
       fail(`${path}.photos.${missing}.assetId`, `${spec.label} cần ${spec.minimumPhotos} ảnh. Chọn ảnh cho ô ${missing+1}.`, 'INTERACTION_PHOTO_REQUIRED');
     }
@@ -91,7 +95,7 @@ function validateInteraction(p, path, assets, publishing) {
     if (!/^[A-Za-z][\w+-]*(?:\/[\w+-]+)*$/.test(p.timeZone)) fail(`${path}.timeZone`, 'Múi giờ không hợp lệ.');
     try { new Intl.DateTimeFormat('vi', {timeZone:p.timeZone}); }
     catch { fail(`${path}.timeZone`, 'Múi giờ không hợp lệ.'); }
-    if (p.eventAt !== null || publishing) {
+    if (p.eventAt !== null || (publishing && !p.optional)) {
       string(p.eventAt, `${path}.eventAt`, 24, 24);
       const time = new Date(p.eventAt);
       if (!Number.isFinite(time.getTime()) || time.toISOString() !== p.eventAt) fail(`${path}.eventAt`, 'Chọn ngày giờ hẹn hợp lệ.');

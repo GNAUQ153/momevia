@@ -5,10 +5,10 @@ const group = (label, prefix, names) => Object.freeze({
 
 export const effectFamilies = Object.freeze({
   surface: group('Kiểu bề mặt', 'S', ['Bóng đổ giấy','Viền kép','Vân giấy mịn','Viền sáng dịu']),
-  entrance: group('Khi xuất hiện', 'E', ['Hiện dần','Nổi nhẹ từ dưới','Đánh máy từng cụm chữ','Vẽ dần đường nét']),
-  emphasis: group('Nhấn mạnh', 'A', ['Tim đập hai nhịp','Nghiêng ảnh rồi trả về','Vệt sáng lướt','Gạch chân lan']),
-  transition: group('Khi vào cảnh', 'T', ['Hòa mờ giữa hai cảnh','Đẩy trang ngang','Lật trang giấy','Mở rèm đôi']),
-  ambience: group('Không khí', 'B', ['Pháo giấy một lượt','Cánh hoa rơi','Sao trôi','Đom đóm']),
+  entrance: group('Khi xuất hiện', 'E', ['Hiện dần','Nổi nhẹ từ dưới','Đánh máy từng cụm chữ','Vẽ dần đường nét','Ảnh ghép từ các mảnh','Ảnh hiện từ hạt tan']),
+  emphasis: group('Nhấn mạnh', 'A', ['Tim đập hai nhịp','Nghiêng ảnh rồi trả về','Vệt sáng lướt','Gạch chân lan','Ảnh xoay một vòng']),
+  transition: group('Khi vào cảnh', 'T', ['Hòa mờ giữa hai cảnh','Đẩy trang ngang','Lật trang giấy','Mở rèm đôi','Tan biến nhẹ','Nở rộ mở trang']),
+  ambience: group('Không khí', 'B', ['Pháo giấy một lượt','Cánh hoa rơi','Sao trôi','Đom đóm','Bong bóng bay','Bướm bay','Pháo hoa rực rỡ','Hoa nở rộ']),
   reaction: group('Khi kích hoạt', 'R', ['Mở nắp phong bì','Bật nắp hộp quà','Bung tia sao khi chạm','Ngọn nến bừng sáng']),
 });
 const movingControls = ['button','envelope','gift-box','interaction'];
@@ -24,8 +24,8 @@ export function effectsFor(family, element) {
     S02: ['image','shape','interaction'].includes(type),
     S03: ['shape','interaction','envelope','reply'].includes(type),
     S04: ['image','shape','sticker','line'].includes(type),
-    E03: type === 'text', E04: type === 'line',
-    A02: ['image','shape','interaction'].includes(type), A04: type === 'text',
+    E03: type === 'text', E04: type === 'line', E05: type === 'image', E06: type === 'image',
+    A02: ['image','shape','interaction'].includes(type), A04: type === 'text', A05: type === 'image',
     R01: type === 'envelope', R02: type === 'gift-box',
     R03: movingControls.includes(type) && !['event-countdown','photo-comparison'].includes(props.kind),
     R04: type === 'interaction' && props.kind === 'light-a-candle',

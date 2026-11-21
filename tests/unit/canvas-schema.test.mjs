@@ -14,7 +14,7 @@ function add(d, element) { d.elements.push(element); d.scenes[0].elementIds.push
 test('canvas schema is lossless, Unicode-safe and accepts all 24 presets without mutating templates', () => {
   const original = structuredClone(templates);
   for (const template of templates) {
-    const d = createDocument({ template }); assert.equal(d.scenes.length, 3);
+    const d = createDocument({ template }); assert.equal(d.scenes.length, template.scenes);
     for (const [key, b] of Object.entries(complete().bindings)) d.bindings[key] = b;
     assert.deepEqual(validateDocument(JSON.parse(JSON.stringify(d)), { mode: 'publish' }), d);
   }

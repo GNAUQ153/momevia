@@ -92,12 +92,12 @@ test('photo and action publish blockers identify the slot, and layout reuse clea
   assert.deepEqual(copy.elements.at(-1).actions.map(action=>action.targetSceneId),copy.scenes.slice(1).map(scene=>scene.id));
 });
 
-test('24 effect IDs have compatible validated, persisted and public configurations', () => {
+test('33 effect IDs have compatible validated, persisted and public configurations', () => {
   const ids = new Set();
   for (const [family,{presets}] of Object.entries(effectFamilies)) {
     for (const id of Object.keys(presets)) {
       ids.add(id);
-      const elementId = {E03:'heading',E04:'wave-line',A02:'arch-photo',A04:'quote-block',R01:'envelope',R02:'gift-box',R04:'light-a-candle'}[id]
+      const elementId = {E03:'heading',E04:'wave-line',E05:'arch-photo',E06:'arch-photo',A02:'arch-photo',A04:'quote-block',A05:'arch-photo',R01:'envelope',R02:'gift-box',R04:'light-a-candle'}[id]
         || (family==='surface' ? 'rectangle' : 'continue');
       const {document,elements} = forCard(elementId);
       const model = ['transition','ambience'].includes(family) ? document.scenes[0] :
@@ -112,7 +112,7 @@ test('24 effect IDs have compatible validated, persisted and public configuratio
       assert.equal(publicModel.effects[family].id,id);
     }
   }
-  assert.equal(ids.size,24);
+  assert.equal(ids.size,33);
   assert.equal(Object.keys(interactionKinds).length,10);
 });
 

@@ -92,6 +92,16 @@ export function updateElementCopy(node, model, document) {
     if (caption) caption.textContent = p.caption || "";
     const image = node.querySelector("img");
     if (image) image.alt = a.decorative ? "" : a.alt || "";
+  } else if (type === 'interaction' && p.optional) {
+    if (p.kind === 'event-countdown') {
+      node.querySelector('h3').textContent = p.entries[0].heading;
+      const arrival = node.querySelector('.gift-interaction-copy');
+      if (arrival?.textContent) arrival.textContent = p.entries[0].body;
+    } else if (p.kind === 'swipe-album') {
+      const photos = p.photos.filter(photo => photo.assetId);
+      const caption = node.querySelector('figcaption');
+      if (caption) caption.textContent = photos[Number(node.dataset.albumIndex || 0)]?.caption || '';
+    }
   }
 }
 export function textFont(token) {
@@ -276,7 +286,7 @@ export function renderElement(
       );
   } else if (type === "interaction") {
     node = renderInteraction(model, {
-      mode, signal, activate, renderArt: drawVector,
+      mode, signal, motion, activate, renderArt: drawVector,
       renderPhoto: photo => renderElement({
         id: photo.id, type: "image",
         props: { assetId: photo.assetId, fit: "cover", focalPoint: photo.focalPoint, optional: true },

@@ -23,7 +23,9 @@ export function publicTemplate(template) {
     }
   } else {
     const document = createDocument({ template });
-    view.personalization = { bindings: [...visibleBindingKeys(document)], photoFrames: document.elements.filter(isPhotoFrame).length, layout: true };
+    const albumSlots = document.elements.filter(e => e.type === 'interaction' && e.props.kind === 'swipe-album' && e.props.optional)
+      .reduce((count, e) => count + e.props.photos.length, 0);
+    view.personalization = { bindings: [...visibleBindingKeys(document)], photoFrames: document.elements.filter(isPhotoFrame).length + albumSlots, layout: true };
   }
   return view;
 }

@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { CredentialsService } from '../modules/identity/credentials.service.mjs';
+import { parseAllowedOrigins } from './request-origin.mjs';
 
 // Tải biến môi trường từ tệp .env ở thư mục gốc mà không cần thư viện ngoài.
 export function loadEnvironment() {
@@ -24,6 +25,7 @@ export function environment() {
   const demoEnabled = process.env.DEMO_AUTH_ENABLED === 'true' && process.env.NODE_ENV !== 'production';
   return {
     baseUrl: process.env.PUBLIC_BASE_URL || 'http://localhost:4100',
+    allowedOrigins: parseAllowedOrigins(process.env.ALLOWED_ORIGINS),
     jwtSecret: process.env.JWT_SECRET,
     internalKey: process.env.INTERNAL_SERVICE_KEY,
     demoEnabled,

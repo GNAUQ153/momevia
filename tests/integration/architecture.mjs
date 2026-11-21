@@ -92,6 +92,7 @@ async function startFixture() {
     'TEST_ACCOUNT_ROLE=creator',
   ].join('\n'));
   const env={...process.env, NODE_ENV:'test', PORT:String(port), PUBLIC_BASE_URL:base,
+    ALLOWED_ORIGINS:'https://qa-4110.asse.devtunnels.ms',
     IDENTITY_STORAGE:'json', CATALOG_STORAGE:'json', CHECKOUT_STORAGE:'json', GIFTS_STORAGE:'json', SUPPORT_STORAGE:'json', DESIGNS_STORAGE:'json',
     PAYMENT_ENABLED:'false', PAYMENT_LIVE_ENABLED:'false', CANVAS_READ_ENABLED:'true', CANVAS_EDIT_ENABLED:'true', CANVAS_PUBLISH_ENABLED:'true',
     JWT_SECRET:randomBytes(32).toString('hex'),INTERNAL_SERVICE_KEY:randomBytes(32).toString('hex'),
@@ -127,6 +128,23 @@ async function startFixture() {
   assert.equal(seededLogin.data.user.role, legacy ? 'sender' : 'creator');
   assert(!('passwordHash' in seededLogin.data.user));
   assert(!('testAccount' in seededLogin.data.user));
+  const loginBody = { email: legacy ? env.TEST_ACCOUNT_EMAIL : 'env-qa@example.test',
+    password: legacy ? env.TEST_ACCOUNT_PASSWORD : 'EnvFixturePass123' };
+  for (const origin of [base, `http://localhost:${port}`, 'https://qa-4110.asse.devtunnels.ms']) {
+    const login = await request(base, '/api/auth/login', { method: 'POST', body: loginBody, headers: { origin } });
+    assert.equal(login.status, 200, `Login through ${origin}`);
+    assert.equal((await request(base, '/api/auth/me', { cookie: sessionCookie(login) })).data.user.id, seededLogin.data.user.id);
+    assert.equal((await request(base, '/api/auth/logout', { method: 'POST', cookie: sessionCookie(login), headers: { origin } })).status, 200);
+  }
+  for (const origin of ['https://evil.example', `http://localhost:${port + 1}`, 'https://other-4110.asse.devtunnels.ms', 'null']) {
+    const denied = await request(base, '/api/auth/login', { method: 'POST', body: loginBody,
+      headers: { origin, 'x-forwarded-host': new URL(base).host, 'x-forwarded-proto': 'http' } });
+    assert.equal(denied.status, 403, `Reject ${origin}`);
+    assert.match(denied.headers['content-type'], /application\/json/);
+    assert.match(denied.data.error, /ALLOWED_ORIGINS/);
+    assert.equal(denied.headers['set-cookie'], undefined);
+  }
+  console.log('PASS  Login/logout through loopback aliases and configured tunnel; foreign origins rejected');
   if(process.argv.includes('--browser')) {
     const {runLocaleBrowser}=await import('../browser/locale.mjs');
     await runLocaleBrowser(base);

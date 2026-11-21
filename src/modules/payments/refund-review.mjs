@@ -9,6 +9,38 @@ export const refundReasons = Object.freeze([
 export const refundStates = Object.freeze([
   'submitted', 'in_review', 'awaiting_provider', 'closed_declined',
 ]);
+// Bộ lọc hàng đợi chỉ nhận giá trị đã định nghĩa; không ghép chuỗi client vào SQL.
+export const refundQueueFilters = Object.freeze([
+  'active', 'submitted', 'in_review', 'awaiting_provider', 'closed_declined', 'all',
+]);
+const queueCursorTimestamp = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{6}$/;
+
+export function readRefundQueueCursor(value, filter) {
+  if (value == null || value === '') return null;
+  if (typeof value !== 'string' || value.length > 256 || !/^[A-Za-z0-9_-]+$/.test(value))
+    throw localizedError(400, 'refund.queue.invalidCursor');
+  try {
+    const bytes = Buffer.from(value, 'base64url');
+    if (bytes.toString('base64url') !== value) throw new Error('Non-canonical cursor');
+    const cursor = JSON.parse(bytes.toString('utf8'));
+    if (!cursor || cursor.v !== 1 || cursor.filter !== filter
+      || typeof cursor.time !== 'string' || !queueCursorTimestamp.test(cursor.time)
+      || typeof cursor.id !== 'string' || !uuidPattern.test(cursor.id))
+      throw new Error('Malformed cursor');
+    return { time: cursor.time, id: cursor.id };
+  } catch {
+    throw localizedError(400, 'refund.queue.invalidCursor');
+  }
+}
+
+export function writeRefundQueueCursor(row, filter) {
+  if (!queueCursorTimestamp.test(String(row.page_created)) || !uuidPattern.test(String(row.id)))
+    throw new Error('Invalid database refund cursor fields');
+  return Buffer.from(JSON.stringify({
+    v: 1, filter, time: String(row.page_created), id: String(row.id),
+  })).toString('base64url');
+}
+
 const transitions = Object.freeze({
   submitted: ['in_review', 'closed_declined'],
   in_review: ['awaiting_provider', 'closed_declined'],
@@ -105,6 +137,31 @@ export class RefundReviewRepository {
     return rows.map(row => publicRefundRow(row, { admin: true }));
   }
 
+  async pageAdmin({ limit, filter, cursor }) {
+    const conditions = [];
+    const params = [];
+    if (filter === 'active') conditions.push("r.status IN ('submitted','in_review','awaiting_provider')");
+    else if (filter !== 'all') {
+      conditions.push('r.status=?');
+      params.push(filter);
+    }
+    if (cursor) {
+      conditions.push('(r.created_at < ? OR (r.created_at = ? AND r.id < ?))');
+      params.push(cursor.time, cursor.time, cursor.id);
+    }
+    const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
+    // LIMIT + 1 chỉ dùng để xác định còn trang sau, không trả thừa dữ liệu ra client.
+    const [rows] = await this.client.execute(`SELECT r.*,o.payment_provider,o.is_test,o.gross_vnd,
+      DATE_FORMAT(r.created_at,'%Y-%m-%d %H:%i:%s.%f') AS page_created
+      FROM refund_review_requests r JOIN orders o ON o.id=r.order_id
+      ${where} ORDER BY r.created_at DESC,r.id DESC LIMIT ?`, [...params, limit + 1]);
+    const page = rows.slice(0, limit);
+    return {
+      requests: page.map(row => publicRefundRow(row, { admin: true })),
+      nextCursor: rows.length > limit ? writeRefundQueueCursor(page.at(-1), filter) : null,
+    };
+  }
+
   async historyAdmin(requestId, limit) {
     const [rows] = await this.client.execute(`SELECT e.id,e.actor_id,e.from_status,
       e.to_status,e.note,e.created_at FROM refund_review_events e
@@ -167,6 +224,16 @@ export class RefundReviewService {
     this.requireAdmin(user);
     this.requireMySql();
     return this.repository.listAdmin(this.limit(limit));
+  }
+  async adminQueue(user, { limit, filter = 'active', cursor } = {}) {
+    this.requireAdmin(user);
+    this.requireMySql();
+    if (!refundQueueFilters.includes(filter))
+      throw localizedError(400, 'refund.queue.invalidFilter');
+    return this.repository.pageAdmin({
+      limit: this.limit(limit == null ? 20 : limit),
+      filter, cursor: readRefundQueueCursor(cursor, filter),
+    });
   }
   async adminHistory(user, requestId, limit) {
     this.requireAdmin(user);

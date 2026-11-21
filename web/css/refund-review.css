@@ -93,3 +93,22 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* Bộ lọc và phân trang giữ khả năng sử dụng trên màn hình nhỏ. */
+.refund-review__queue-tools {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-block: 1rem;
+}
+.refund-review__queue-tools label {
+  min-width: min(100%, 18rem);
+}
+.refund-review__pagination {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-block-start: 1.25rem;
+}

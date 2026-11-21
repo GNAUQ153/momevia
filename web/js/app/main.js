@@ -26,7 +26,7 @@ import { adminExceptionsCsv, creatorSalesCsv, exportFileName, downloadCsvFile } 
 import { createAuthViews } from "../pages/auth.js";
 import { pricingPage } from '../pages/pricing.js';
 import { paymentMethodText, paymentReceipt, paymentStatusPanel } from "../pages/payment-status.js";
-import { refundBuyerPanel, refundHistoryPanel } from "../pages/refund-review.js";
+import { refundBuyerPanel, refundHistoryPanel, refundAdminPanel } from "../pages/refund-review.js";
 import { recipientViralCta } from "../ui/recipient-viral.js";
 import { createSystemViews } from "../pages/system.js";
 
@@ -40,6 +40,26 @@ let routeController = null,
   favoritesLoad = null,
   disposeInbox = null;
 let adminPaymentOrders = [];
+// Cursor chỉ tồn tại trong phiên Admin hiện tại; khi đổi bộ lọc phải làm lại từ trang đầu.
+let refundQueue = { filter: 'active', cursors: [null], index: 0, nextCursor: null };
+async function loadAdminRefundQueue({ filter = refundQueue.filter, index = refundQueue.index, cursor = null } = {}) {
+  if (state.user?.role !== 'admin' || location.pathname !== '/admin/payments') return;
+  const host = document.querySelector('.refund-review--admin');
+  if (!host) return;
+  const current = host;
+  const query = new URLSearchParams({ filter, limit: '20' });
+  if (cursor) query.set('cursor', cursor);
+  const { page } = await api.get(`/checkout/payments/admin/refund-queue?${query}`);
+  if (!current.isConnected || location.pathname !== '/admin/payments' || state.user?.role !== 'admin') return;
+  refundQueue = {
+    filter, cursors: index === 0 ? [null] : refundQueue.cursors,
+    index, nextCursor: page.nextCursor,
+  };
+  current.outerHTML = refundAdminPanel(page.requests, {
+    filter, nextCursor: page.nextCursor, hasPrev: index > 0,
+  });
+}
+
 let historyIndex = 0,
   activeUrl = location.pathname + location.search + location.hash,
   restoringHistory = false;
@@ -576,6 +596,7 @@ async function render() {
         if (generation !== renderGeneration) return;
         routeController = mountReview(main, { version, endpoint, api, navigate });
       } else if (id === "payments" && segments.length === 2) {
+        refundQueue = { filter: 'active', cursors: [null], index: 0, nextCursor: null };
         const lifetime = new AbortController();
         routeController = { dispose: () => lifetime.abort() };
         try {
@@ -583,11 +604,13 @@ async function render() {
             api.get("/checkout/payments/admin/review?limit=100", { signal: lifetime.signal }),
             api.get("/checkout/payments/admin/finance", { signal: lifetime.signal }).catch(() => null),
             api.get("/checkout/payments/admin/finance/exceptions?limit=50", { signal: lifetime.signal }).catch(() => null),
-            api.get("/checkout/payments/admin/refund-requests?limit=50", { signal: lifetime.signal }).catch(() => null),
+            api.get("/checkout/payments/admin/refund-queue?filter=active&limit=20", { signal: lifetime.signal }).catch(() => null),
           ]);
           if (generation !== renderGeneration) return;
           adminPaymentOrders = Array.isArray(orders) ? orders : [];
-          main.innerHTML = adminPaymentsPage(adminPaymentOrders, { finance: financeResult?.finance || null, audit: auditResult?.audit || null, refunds: refundResult?.requests ?? null });
+          refundQueue.nextCursor = refundResult?.page?.nextCursor || null;
+          main.innerHTML = adminPaymentsPage(adminPaymentOrders, { finance: financeResult?.finance || null, audit: auditResult?.audit || null, refunds: refundResult?.page?.requests ?? null,
+            refundPage: { filter: 'active', nextCursor: refundQueue.nextCursor } });
         } catch (error) {
           if (generation !== renderGeneration || error.name === "AbortError") return;
           adminPaymentOrders = [];
@@ -802,6 +825,20 @@ async function handleAction(action, element) {
     } finally {
       if (element.isConnected) element.disabled = false;
     }
+    return;
+  }
+  if (action === 'admin-refund-next' || action === 'admin-refund-prev') {
+    if (state.user?.role !== 'admin') return;
+    const forward = action === 'admin-refund-next';
+    if (forward && !refundQueue.nextCursor) return;
+    if (!forward && refundQueue.index === 0) return;
+    const index = refundQueue.index + (forward ? 1 : -1);
+    const cursor = forward ? refundQueue.nextCursor : refundQueue.cursors[index];
+    element.disabled = true;
+    try {
+      await loadAdminRefundQueue({ index, cursor });
+      if (forward && refundQueue.index === index) refundQueue.cursors[index] = cursor;
+    } finally { if (element.isConnected) element.disabled = false; }
     return;
   }
   if (action === 'admin-refund-move') {
@@ -1293,6 +1330,16 @@ document.addEventListener("input", (event) => {
     updatePreview();
 });
 document.addEventListener("change", async (event) => {
+  if (event.target.id === 'admin-refund-filter') {
+    const filter = event.target.value;
+    event.target.disabled = true;
+    try {
+      await loadAdminRefundQueue({ filter, index: 0 });
+    } catch (error) {
+      toast(errorCopy(error, message('refund.queue.loadFailed')), 'error');
+    } finally { if (event.target.isConnected) event.target.disabled = false; }
+    return;
+  }
   if (["admin-payment-provider", "admin-payment-outcome"].includes(event.target.id)) {
     updateAdminPaymentList();
     return;

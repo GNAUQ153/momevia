@@ -208,6 +208,6 @@ test('Migration, routes và front-end có đầy đủ luồng và không thêm 
   assert.match(app, /form.id === 'refund-request-form'/);
   assert.match(app, /"refund-request-form",/); // Submit must be intercepted to avoid query-string PII.
   const adminView = await readFile(new URL('../../web/js/pages/admin-payments.js', import.meta.url), 'utf8');
-  assert.match(adminView, /refundAdminPanel\(refunds\)/);
+  assert.match(adminView, /refundAdminPanel\(refunds, refundPage\)/);
   assert.doesNotMatch(routes, /refund-execute|refund-provider|payout-execute/);
 });

@@ -42,13 +42,20 @@ export function refundBuyerPanel(payment, request, available = true) {
     </form></section>`;
 }
 
-export function refundAdminPanel(requests) {
+export function refundAdminPanel(requests, { filter = 'active', nextCursor = null, hasPrev = false } = {}) {
   const intro = `<header class="refund-review__heading"><h2>${text('refund.admin.title')}</h2>
     <p>${text('refund.admin.notice')}</p></header>`;
   if (!Array.isArray(requests)) return `<section class="refund-review refund-review--admin">${intro}
     <p role="status">${text('refund.unavailable')}</p></section>`;
+  const queueStates = ['active', 'submitted', 'in_review', 'awaiting_provider', 'closed_declined', 'all'];
+  const safeFilter = queueStates.includes(filter) ? filter : 'active';
   return `<section class="refund-review refund-review--admin">${intro}
-    <p role="status">${text('refund.admin.count', { count: requests.length })}</p>
+    <div class="refund-review__queue-tools">
+      <label for="admin-refund-filter">${text('refund.queue.filter')}
+        <select id="admin-refund-filter">${queueStates.map(value => `<option value="${value}" ${safeFilter === value ? 'selected' : ''}>${text('refund.queue.' + value)}</option>`).join('')}</select>
+      </label>
+      <p role="status">${text('refund.queue.pageCount', { count: requests.length })}</p>
+    </div>
     ${requests.length ? `<div class="refund-review__list">${requests.map(item => {
       const status = allowedStatuses.has(item.status) ? item.status : 'unknown';
       const choices = nextStatuses[status] || [];
@@ -69,7 +76,11 @@ export function refundAdminPanel(requests) {
         </div>` : ''}
         <button class="btn btn--outline" type="button" data-action="admin-refund-history" data-request-id="${e(item.id)}">${text('refund.admin.history')}</button>
       </article>`;
-    }).join('')}</div>` : `<p>${text('refund.admin.empty')}</p>`}
+    }).join('')}</div>` : `<p>${text('refund.queue.empty')}</p>`}
+    <nav class="refund-review__pagination" aria-label="${text('refund.queue.pagination')}">
+      ${hasPrev ? `<button class="btn btn--outline" type="button" data-action="admin-refund-prev">${text('refund.queue.previous')}</button>` : ''}
+      ${nextCursor ? `<button class="btn btn--outline" type="button" data-action="admin-refund-next">${text('refund.queue.next')}</button>` : ''}
+    </nav>
   </section>`;
 }
 

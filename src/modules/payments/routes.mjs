@@ -38,6 +38,14 @@ export function registerPaymentRoutes(router, { service, config, resolveUser = c
     const admin = await resolveUser(req, config.jwtSecret);
     sendJson(res, 200, { requests: await service.refundReview.adminList(admin, url.searchParams.get('limit')) });
   });
+  router.on('GET', '/payments/admin/refund-queue', async ({ req, res, url }) => {
+    const admin = await resolveUser(req, config.jwtSecret);
+    sendJson(res, 200, { page: await service.refundReview.adminQueue(admin, {
+      limit: url.searchParams.get('limit'),
+      filter: url.searchParams.get('filter') || 'active',
+      cursor: url.searchParams.get('cursor'),
+    }) });
+  });
   router.on('GET', '/payments/admin/refund-requests/:requestId/history', async ({ req, res, url, params }) => {
     const admin = await resolveUser(req, config.jwtSecret);
     sendJson(res, 200, { events: await service.refundReview.adminHistory(admin, params.requestId, url.searchParams.get('limit')) });

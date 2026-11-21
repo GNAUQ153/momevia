@@ -99,7 +99,7 @@ export function adminReconciliationPanel(audit) {
   </section>`;
 }
 
-export function adminPaymentsPage(orders = [], { error = null, finance = null, audit = null, refunds = null } = {}) {
+export function adminPaymentsPage(orders = [], { error = null, finance = null, audit = null, refunds = null, refundPage = {} } = {}) {
   const list = Array.isArray(orders) ? orders : [];
   return `<section class="section admin-payments"><div class="container">
     <p><a href="/admin" data-link>${text("admin.payments.back")}</a></p>
@@ -108,7 +108,7 @@ export function adminPaymentsPage(orders = [], { error = null, finance = null, a
       <button class="btn btn--outline" type="button" data-action="admin-payment-refresh">${text("admin.payments.refresh")}</button></div>
     ${adminFinancePanel(finance)}
     ${adminReconciliationPanel(audit)}
-    ${refundAdminPanel(refunds)}
+    ${refundAdminPanel(refunds, refundPage)}
     <div class="admin-payments__summary"><strong>${error ? '—' : list.length}</strong><span>${text("admin.payments.summary")}</span></div>
     <div class="admin-payments__notice" role="note">${text("admin.payments.notice")}</div>
     ${error ? `<p role="alert">${typeof error === 'string' ? e(error) : text(error.key, error.params)}</p>` : ''}

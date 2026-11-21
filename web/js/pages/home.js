@@ -44,9 +44,11 @@ export function createHomeViews({ state, buttonLink, templateCard }) {
           <span>${text("home.hero.note.caption")}</span>
           <strong>${text("home.hero.note.title")}</strong>
         </div>
+        <div class="mkt-stage__cards">
         <button type="button" class="mkt-hero__cover" data-template-preview aria-haspopup="dialog" ${attr("aria-label", "home.hero.preview")}>
           ${homeDemos.map((template, index) => `<img ${templateCover(template.id)} data-hero-image="${template.id}" data-active="${index === 0}" alt="" width="390" height="844" ${index === 0 ? 'fetchpriority="high"' : 'decoding="async"'} />`).join('')}
         </button>
+        </div>
         <div class="mkt-stage__reply" aria-hidden="true">
           <span>${text("home.hero.reply.caption")}</span>
           <strong>${icon("heart", 15)} ${text("home.hero.reply.title")}</strong>

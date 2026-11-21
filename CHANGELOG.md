@@ -1,3 +1,9 @@
+## Unreleased — Giữ note ngoài khung, chỉ cắt thiệp (2026-11-21)
+
+- Tách lớp cắt viền dành riêng cho các thiệp; hai note trở lại vị trí vắt qua mép khung. Trên điện thoại chỉ nhô nhẹ để chữ vẫn nằm trong màn hình.
+- Thêm nhòe nhẹ 1–2px vào lúc hé/chuyển thiệp, về nét hoàn toàn khi dừng; giữ chu kỳ 5 giây, hai giây hé mẫu và xoay 1,2 giây. Giảm chuyển động không dùng nhòe.
+- Build, check, 459 unit tests và test:browser đạt; có kiểm tra hai note vắt qua viền, lớp cắt riêng, mức nhòe và trở về nét. Đã rà ảnh desktop/320px trong `local/hero-templates/floating-notes-*.png`.
+
 ## Unreleased — Hé thiệp trong hai giây cuối (2026-11-21)
 
 - Giữ chu kỳ mỗi mẫu đúng 5 giây; từ giây thứ 3, mẫu tiếp theo hé dần ở phía sau bên phải theo cùng đồng hồ với thanh tiến trình.

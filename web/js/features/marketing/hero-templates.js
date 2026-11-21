@@ -23,9 +23,9 @@ export function mountHeroTemplates(host, templates) {
       peekImage = image;
       image.setAttribute('data-peeking', '');
       peek = image.animate([
-        { offset: 0, transform: 'rotate(18deg)', opacity: 0 },
-        { offset: 0.6, transform: 'rotate(18deg)', opacity: 0 },
-        { offset: 1, transform: 'rotate(12deg)', opacity: 0.72 },
+        { offset: 0, transform: 'rotate(18deg)', opacity: 0, filter: 'blur(2px)' },
+        { offset: 0.6, transform: 'rotate(18deg)', opacity: 0, filter: 'blur(2px)' },
+        { offset: 1, transform: 'rotate(12deg)', opacity: 0.72, filter: 'blur(1px)' },
       ], { duration, easing: 'linear', fill: 'forwards' });
       peek.currentTime = Number(clock.currentTime) || 0;
       if (!canRotate()) peek.pause();
@@ -90,6 +90,9 @@ export function mountHeroTemplates(host, templates) {
     }
   }
   async function select(next, automatic = false) {
+    // At the boundary, sample the teaser at the clock's exact endpoint rather
+    // than the compositor's previous frame (especially with a blur layer).
+    if (automatic && peek) peek.currentTime = duration;
     progress?.pause();
     peek?.pause();
     const request = ++generation;
@@ -103,6 +106,7 @@ export function mountHeroTemplates(host, templates) {
       update();
       held?.style.removeProperty('transform');
       held?.style.removeProperty('opacity');
+      held?.style.removeProperty('filter');
     } catch {
       // Retry on a new full cycle, avoiding a tight loop after a failed image.
       if (request === generation) resetProgress();

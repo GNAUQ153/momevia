@@ -40,10 +40,13 @@ async function verifyOrbit(page, previousId, nextId) {
     };
     const entering = newCard.getAnimations().find(animation => animation.transitionProperty === 'transform');
     const start = entering && new globalThis.DOMMatrixReadOnly(entering.effect.getKeyframes()[0].transform);
+    const blur = node => Number(globalThis.getComputedStyle(node).filter.match(/[\d.]+/)?.[0] || 0);
     const result = { old: centre(oldCard), next: centre(newCard), slot: centre(cover), oldAngle: angle(oldCard), newAngle: angle(newCard), count: animations.length,
+      oldBlur: blur(oldCard), newBlur: blur(newCard), inlineFilter: newCard.style.filter,
       duration: entering?.effect.getTiming().duration, startAngle: start && Math.atan2(start.b, start.a) * 180 / Math.PI,
       newZ: Number(globalThis.getComputedStyle(newCard).zIndex), oldZ: Number(globalThis.getComputedStyle(oldCard).zIndex) };
     for (const animation of animations) animation.finish();
+    result.settledBlur = blur(newCard);
     return result;
   }, [previousId, nextId]);
   assert(sample.count >= 4, 'Both complete cards animate transform and opacity');
@@ -51,7 +54,10 @@ async function verifyOrbit(page, previousId, nextId) {
   assert(sample.next.x > sample.slot.x && sample.next.y > sample.slot.y && sample.newAngle > 0, 'Next card rises along an arc from the lower right');
   assert(sample.newZ > sample.oldZ, 'Incoming card stays in front, including the last-to-first wrap');
   assert.equal(sample.duration, 1200, 'Orbit has a slower 1.2-second handoff');
-  assert(Math.abs(sample.startAngle - 12) < 0.1, 'Handoff continues from the teased angle without jumping back');
+  assert(Math.abs(sample.startAngle - 12) < 0.1, `Handoff continues from the teased angle without jumping back (${sample.startAngle}°)`);
+  assert(sample.oldBlur > 0 && sample.oldBlur <= 2 && sample.newBlur > 0 && sample.newBlur <= 2, 'Moving cards use only a gentle blur');
+  assert.equal(sample.settledBlur, 0, 'Selected card becomes completely sharp at rest');
+  assert.equal(sample.inlineFilter, '', 'Teaser blur is handed off without leaving inline styling');
 }
 
 export async function runHeroTemplatesBrowser(browser, base) {
@@ -66,10 +72,15 @@ export async function runHeroTemplatesBrowser(browser, base) {
       await waitForTemplate(page, ids[0]);
       const originalBox = await cover.boundingBox();
       const frame = await page.locator('.mkt-hero__frame').boundingBox();
-      assert(await page.locator('.mkt-hero__frame').evaluate(node => {
+      assert(await page.locator('.mkt-stage__cards').evaluate(node => {
         const style = globalThis.getComputedStyle(node);
         return ['hidden', 'clip'].includes(style.overflowX) && ['hidden', 'clip'].includes(style.overflowY);
-      }), 'The rounded frame clips moving cards and decorations on both axes');
+      }), 'The dedicated card layer clips moving cards on both axes');
+      const note = await page.locator('.mkt-stage__note').boundingBox();
+      const reply = await page.locator('.mkt-stage__reply').boundingBox();
+      assert(note.x < frame.x && note.x + note.width > frame.x, 'Left note straddles the frame');
+      assert(reply.x < frame.x + frame.width && reply.x + reply.width > frame.x + frame.width, 'Right note straddles the frame');
+      assert.equal(await page.locator('.mkt-stage__cards .mkt-stage__note, .mkt-stage__cards .mkt-stage__reply').count(), 0, 'Notes remain outside the card clipping layer');
       const controls = await page.locator('.mkt-hero__rotation').boundingBox();
       assert(controls.y >= frame.y + frame.height, 'The three indicators sit below the artwork');
       assert.equal(await page.locator('[data-hero-playback]').count(), 0, 'There is no pause button');
@@ -84,6 +95,7 @@ export async function runHeroTemplatesBrowser(browser, base) {
         const image = cover.locator('[data-active="true"]');
         assert.match(await image.getAttribute('src'), new RegExp(`${language === 'en' ? '/en' : ''}/${id}\\.svg`));
         assert(await image.evaluate(node => parseFloat(globalThis.getComputedStyle(node).transitionDuration) <= 0.001), 'Reduced motion makes manual changes immediate');
+        assert.equal(await image.evaluate(node => globalThis.getComputedStyle(node).filter), 'none', 'Reduced motion keeps the card sharp');
         const nextBox = await cover.boundingBox();
         assert(Math.abs(nextBox.height - originalBox.height) < 1, 'Changing cover keeps the artboard size');
         await cover.click();

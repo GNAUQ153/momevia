@@ -124,8 +124,8 @@
   place-items: center;
   position: relative;
   min-height: clamp(390px, 45vw, 600px);
-  padding: 42px 24px;
-  overflow: hidden;
+  padding: 0;
+  overflow: visible;
   isolation: isolate;
   border: 1px solid #ffffffa8;
   border-radius: 34px;
@@ -181,6 +181,19 @@
   box-shadow: 0 0 40px #ffffff70;
 }
 
+.is-home .mkt-stage__cards {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  align-self: stretch;
+  justify-self: stretch;
+  min-width: 0;
+  padding: 42px 24px;
+  overflow: hidden;
+  border-radius: inherit;
+}
+
 .is-home .mkt-stage .mkt-hero__cover {
   position: relative;
   z-index: 2;
@@ -234,14 +247,14 @@
 }
 
 .is-home .mkt-stage__note {
-  top: 4%;
-  left: 3%;
+  top: 12%;
+  left: -8%;
   transform: translateZ(85px) rotate(-8deg);
 }
 
 .is-home .mkt-stage__reply {
-  bottom: 4%;
-  right: 3%;
+  bottom: 12%;
+  right: -8%;
   transform: translateZ(92px) rotate(7deg);
 }
 
@@ -364,19 +377,22 @@
   }
 
   .is-home .mkt-stage__note {
-    left: 3%;
+    left: -4px;
   }
 
   .is-home .mkt-stage__reply {
-    right: 3%;
+    right: -4px;
   }
 }
 
 @media (max-width: 420px) {
   .is-home .mkt-stage {
     min-height: 390px;
-    padding: 28px 16px;
     border-radius: 22px;
+  }
+
+  .is-home .mkt-stage__cards {
+    padding: 28px 16px;
   }
 
   .is-home .mkt-stage__note,
@@ -441,6 +457,7 @@
   box-shadow: 0 31px 62px #2a1f4360, 0 0 0 1px #ffffffb8;
   pointer-events: none;
   opacity: 0;
+  filter: blur(2px);
   /* A pivot below the card makes the right-hand card rise to the apex. */
   transform-origin: 30% 140%;
   transform: rotate(18deg);
@@ -454,14 +471,15 @@
 .is-home .mkt-stage .mkt-hero__cover [data-exiting] {
   z-index: 1;
   transform: rotate(-18deg);
-  transition: opacity 1200ms var(--ease-in-out), transform 1200ms var(--ease-in-out);
+  transition: opacity 1200ms var(--ease-in-out), transform 1200ms var(--ease-in-out), filter 1200ms var(--ease-in-out);
 }
 
 .is-home .mkt-stage .mkt-hero__cover [data-active="true"] {
   z-index: 2;
   opacity: 1;
+  filter: blur(0px);
   transform: none;
-  transition: opacity 1200ms var(--ease-in-out), transform 1200ms var(--ease-in-out);
+  transition: opacity 1200ms var(--ease-in-out), transform 1200ms var(--ease-in-out), filter 1200ms var(--ease-in-out);
 }
 
 .mkt-hero__rotation {
@@ -513,6 +531,7 @@
 @media (prefers-reduced-motion: reduce) {
   .is-home .mkt-stage .mkt-hero__cover [data-hero-image] {
     transform: none;
+    filter: none;
     transition: none;
   }
 }

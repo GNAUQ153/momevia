@@ -89,18 +89,18 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Sua race condition trong `tests/browser/home.mjs`: sau khi doi viewport tu 1024px sang 1200px, Playwright cho menu `hidden` trong DOM va `aria-expanded=false`, khong chi cho CSS an menu.
-- Giu nguyen assertion va timeout 5 giay: neu listener `matchMedia` khong dong menu, bai kiem thu van fail. Khong thay doi giao dien, JavaScript production, API, Canvas hoac thanh toan.
-- CI run 44931895318 da PASS build, check, npm audit, 509 unit tests; browser regression fail tai dong 67. Can chay lai CI tren GitHub.
+- Điều chỉnh hàng grid của `.mkt-hero__artwork` bảo toàn chiều cao tối thiểu, tránh chỉ báo chọn thiệp lấn lên khung artwork khi không gian mobile bị giới hạn.
+- Browser regression tiếp tục bắt buộc điều khiển nằm dưới khung; bổ sung số đo và `gridTemplateRows` vào lỗi để hỗ trợ chẩn đoán CI.
+- Thêm kiểm thử cấu trúc CSS và assertion. Không thay đổi animation, chức năng Marketing Lab, API hoặc dữ liệu người dùng.
 
 **Các commit gần nhất trên `main`:**
 
+- `57008bf` — fix: keep marketing hero indicators below artwork on mobile (2026-11-22)
+- `3930b34` — perf: add repeatable marketing lab reports and comparison (2026-11-22)
 - `5f714b3` — test: wait for responsive navigation to finish closing (2026-11-22)
 - `ad9d498` — perf: pause offscreen marketing ambiance and add local lab metrics (2026-11-22)
 - `ea0fbef` — perf: batch marketing 3D pointer updates per frame (2026-11-22)
 - `86a7a0e` — feat: add accessible marketing hero playback controls (2026-11-22)
-- `173f21a` — feat: improve readable compact navigation on laptop (2026-11-22)
-- `11d7135` — fix: prevent brand header overflow on laptop widths (2026-11-21)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

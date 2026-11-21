@@ -1,11 +1,12 @@
 // Phase 5.6: cải thiện trang Không gian của tôi mà không thay đổi API hay nghiệp vụ.
 import { icon } from '../../ui/icons.js';
+import { attr, onLocaleChange, t, text } from '../../core/i18n.js';
 
 const TYPES = Object.freeze([
-  { id: 'all', label: 'Tất cả' },
-  { id: 'drafts', label: 'Bản nháp' },
-  { id: 'gifts', label: 'Quà đã gửi' },
-  { id: 'orders', label: 'Biên nhận' },
+  { id: 'all', key: 'studio.space.filter.all' },
+  { id: 'drafts', key: 'studio.space.filter.drafts' },
+  { id: 'gifts', key: 'studio.space.filter.gifts' },
+  { id: 'orders', key: 'studio.space.filter.orders' },
 ]);
 
 export function normalizeStudioSearch(value) {
@@ -32,49 +33,49 @@ function createSpaceVisual() {
   return `<div class="studio-space__visual" aria-hidden="true">
     <div class="studio-space__orbit studio-space__orbit--one"></div>
     <div class="studio-space__orbit studio-space__orbit--two"></div>
-    <div class="studio-space__visual-card studio-space__visual-card--back">${icon('heart', 24)}<span>Mỗi lời chúc là một kỷ niệm.</span></div>
-    <div class="studio-space__visual-card studio-space__visual-card--front">${icon('gift', 36)}<span>Made with Momevia</span></div>
+    <div class="studio-space__visual-card studio-space__visual-card--back">${icon('heart', 24)}<span>${text("studio.space.visual.memo")}</span></div>
+    <div class="studio-space__visual-card studio-space__visual-card--front">${icon('gift', 36)}<span>${text("studio.space.visual.brand")}</span></div>
     <div class="studio-space__visual-spark">${icon('sparkles', 27)}</div>
   </div>`;
 }
 
 function heroContent() {
   return `<div class="studio-space__hero-bottom">
-    <p>Thiết kế một lời nhắn thật riêng, hoàn thiện bản nháp và quản lý những món quà bạn đã gửi — tất cả ở một nơi.</p>
+    <p>${text("studio.space.hero.lead")}</p>
     <div class="studio-space__hero-actions">
-      <a class="btn btn--dark" href="/design/new" data-link>${icon('pencil', 18)} Tạo thiết kế mới</a>
-      <a class="btn btn--outline" href="/explore" data-link>${icon('layers', 18)} Khám phá mẫu</a>
+      <a class="btn btn--dark" href="/design/new" data-link>${icon('pencil', 18)} ${text("studio.space.hero.create")}</a>
+      <a class="btn btn--outline" href="/explore" data-link>${icon('layers', 18)} ${text("studio.space.hero.explore")}</a>
     </div>
   </div>`;
 }
 
 function toolbarContent() {
-  return `<nav class="studio-space__jump" aria-label="Đi tới khu vực của bạn">
-    <a href="#studio-space-drafts">${icon('pencil', 17)} Bản nháp</a>
-    <a href="#studio-space-gifts">${icon('gift', 17)} Đã gửi</a>
-    <a href="#studio-space-orders">${icon('credit-card', 17)} Biên nhận</a>
+  return `<nav class="studio-space__jump" ${attr("aria-label", "studio.space.jump.label")}>
+    <a href="#studio-space-drafts">${icon('pencil', 17)} ${text("studio.space.filter.drafts")}</a>
+    <a href="#studio-space-gifts">${icon('gift', 17)} ${text("studio.space.jump.gifts")}</a>
+    <a href="#studio-space-orders">${icon('credit-card', 17)} ${text("studio.space.filter.orders")}</a>
   </nav>
   <div class="studio-space__toolbar">
     <div class="studio-space__toolbar-copy">
-      <span class="studio-space__eyebrow">BỘ SƯU TẬP CỦA BẠN</span>
-      <h2>Quản lý kỷ niệm của bạn</h2>
-      <p>Tiếp tục thiết kế, tìm lại món quà và theo dõi hồi đáp.</p>
+      <span class="studio-space__eyebrow">${text("studio.space.toolbar.badge")}</span>
+      <h2>${text("studio.space.toolbar.title")}</h2>
+      <p>${text("studio.space.toolbar.intro")}</p>
     </div>
     <label class="studio-space__search">
-      <span class="visually-hidden">Tìm trong các mục đã tải</span>
+      <span class="visually-hidden">${text("studio.space.search.label")}</span>
       ${icon('search', 19)}
-      <input type="search" autocomplete="off" maxlength="100" placeholder="Tìm trong các mục đã tải..." data-studio-search />
+      <input type="search" autocomplete="off" maxlength="100" ${attr("placeholder", "studio.space.search.placeholder")} data-studio-search />
     </label>
   </div>
-  <div class="studio-space__filters" role="group" aria-label="Bộ lọc khu vực">
-    ${TYPES.map((type) => `<button type="button" class="studio-space__filter" data-studio-filter="${type.id}" aria-pressed="${type.id === 'all'}">${type.label}</button>`).join('')}
+  <div class="studio-space__filters" role="group" ${attr("aria-label", "studio.space.filter.label")}>
+    ${TYPES.map((type) => `<button type="button" class="studio-space__filter" data-studio-filter="${type.id}" aria-pressed="${type.id === 'all'}">${text(type.key)}</button>`).join('')}
   </div>
-  <p class="studio-space__result" role="status" aria-live="polite" data-studio-results>Đang tải nội dung của bạn…</p>
+  <p class="studio-space__result" role="status" aria-live="polite" data-studio-results>${text("studio.space.results.initial")}</p>
   <div class="studio-space__no-results" data-studio-empty hidden>
     ${icon('search', 29)}
-    <strong>Chưa có kết quả phù hợp</strong>
-    <p>Thử từ khóa khác hoặc chọn lại Tất cả. Tìm kiếm chỉ áp dụng cho các mục đã tải.</p>
-    <button type="button" class="btn btn--outline" data-studio-reset>Xóa bộ lọc</button>
+    <strong>${text("studio.space.empty.title")}</strong>
+    <p>${text("studio.space.empty.body")}</p>
+    <button type="button" class="btn btn--outline" data-studio-reset>${text("studio.space.empty.clear")}</button>
   </div>`;
 }
 
@@ -91,7 +92,7 @@ export function mountStudioSpace(root) {
   if (!heroInner) return () => {};
   hero.classList.add('studio-space__hero');
   heroInner.classList.add('studio-space__hero-inner');
-  heroInner.insertAdjacentHTML('afterbegin', `<span class="studio-space__eyebrow studio-space__eyebrow--light">${icon('sparkles', 16)} KHÔNG GIAN CỦA TÔI</span>`);
+  heroInner.insertAdjacentHTML('afterbegin', `<span class="studio-space__eyebrow studio-space__eyebrow--light">${icon('sparkles', 16)} ${text("studio.space.hero.badge")}</span>`);
   heroInner.insertAdjacentHTML('beforeend', heroContent() + createSpaceVisual());
 
   root.querySelector('.dashboard-section')?.classList.add('studio-space__main');
@@ -135,15 +136,15 @@ export function mountStudioSpace(root) {
     }
     const term = search.value.trim();
     if (loadFailed) {
-      result.textContent = 'Một khu vực chưa tải được. Bạn có thể thử lại ngay trong khu vực đó.';
+      result.textContent = t('studio.space.results.error');
     } else if (waiting) {
-      result.textContent = 'Đang tải dữ liệu…';
+      result.textContent = t('studio.space.results.loading');
     } else if (term) {
-      result.textContent = `${total} mục đã tải phù hợp với “${term}”.`;
+      result.textContent = t('studio.space.results.matching', { count: total, query: term });
     } else if (currentType !== 'all') {
-      result.textContent = `Đang xem ${TYPES.find((type) => type.id === currentType)?.label || 'nội dung'} · ${total} mục đã tải.`;
+      result.textContent = t('studio.space.results.filtered', { section: t(TYPES.find((type) => type.id === currentType)?.key || 'studio.space.filter.all'), count: total });
     } else {
-      result.textContent = 'Lọc nhanh những mục đã tải. Các mục khác có thể nằm ở trang tiếp theo.';
+      result.textContent = t('studio.space.results.default');
     }
     empty.hidden = !((term || currentType !== 'all') && total === 0 && !waiting && !loadFailed);
   };
@@ -171,9 +172,11 @@ export function mountStudioSpace(root) {
   for (const target of sections) {
     if (target.data) observer.observe(target.data, { childList: true, subtree: true });
   }
+  const disposeLocale = onLocaleChange(apply);
   apply();
 
   return () => {
+    disposeLocale();
     observer.disconnect();
     search.removeEventListener('input', onInput);
     toolbar.removeEventListener('click', onFilter);

@@ -1,0 +1,99 @@
+// Giao diện thư viện Canvas được tách khỏi session/lưu nháp.
+// Chỉ tạo DOM và lọc theo tên hiển thị; không tạo mutation hay thay đổi document.
+import { message, setText, t } from "../../core/i18n.js";
+import { createDocument } from "../../shared/canvas/index.js";
+import { node, button, field } from "./dom.js";
+import { bounds, catalog, matchesBlock, sampleBindings } from "./library.js";
+import { discoveryModes, filteredIds } from "./library-discovery.js";
+import { thumbnail } from "./thumbnail.js";
+
+export function createDiscoveryPanel({ policy, discoveryMode, signal }) {
+  const sample = sampleBindings(createDocument());
+  const cards = new Map();
+  const fillThumbnail = control => {
+    const block = cards.get(control);
+    if (!block || control.querySelector(".editor-thumbnail")) return;
+    const models = block.create();
+    control.prepend(thumbnail(sample, models, bounds(models), { width: 62, height: 48 }));
+  };
+  const lazy = new IntersectionObserver(entries => {
+    for (const { target, isIntersecting } of entries) {
+      if (!isIntersecting) continue;
+      fillThumbnail(target);
+      lazy.unobserve(target);
+    }
+  }, { rootMargin: "120px" });
+  signal.addEventListener("abort", () => lazy.disconnect(), { once: true });
+  const groups = catalog.map(({ label, items }, index) => node("section", { class: "editor-block-group", "data-block-group": index },
+    node("h3", {}, message(`editor.library.group.${index}`)),
+    node("div", { class: "editor-block-grid" }, ...items.map(block => {
+      const control = button("", "add", {
+        "data-block": block.id, "aria-label": message(`editor.library.item.${block.id}`),
+        disabled: policy?.kind === "creator-template",
+      });
+      cards.set(control, block);
+      control.append(node("span", {}, message(`editor.library.item.${block.id}`)));
+      lazy.observe(control);
+      return control;
+    })),
+  ));
+  return [
+    node("div", { class: "editor-discovery-heading" },
+      node("span", { class: "editor-discovery-eyebrow" }, message("editor.interface.libraryBadge")),
+      node("strong", {}, message("editor.interface.libraryTitle")),
+      node("p", {}, message("editor.interface.libraryDescription"))),
+    field(message("editor.interface.searchDecorations"), node("input", {
+      type: "search", "data-block-search": "", placeholder: message("editor.interface.searchPlaceholder"),
+      "aria-describedby": "editor-block-count",
+    })),
+    node("div", { class: "editor-discovery-filters", role: "group", "aria-label": message("editor.interface.libraryFilters") },
+      ...discoveryModes.map(mode => button(message(`editor.interface.discovery.${mode.id}`), "filter-blocks", {
+        class: "editor-discovery-chip", "data-filter-mode": mode.id,
+        "aria-pressed": mode.id === discoveryMode ? "true" : "false",
+      }))),
+    node("p", { class: "editor-discovery-count", id: "editor-block-count", role: "status", "aria-live": "polite" },
+      message("editor.interface.totalBlocks", { count: catalog.flatMap(group => group.items).length })),
+    field(message("editor.interface.group"), node("select", { "data-block-group-select": "" },
+      node("option", { value: "" }, message("editor.interface.allCount", { count: cards.size })),
+      ...catalog.map(({ label, items }, index) => node("option", { value: index }, message("editor.library.groupCount", { group: { format: "message", key: `editor.library.group.${index}` }, count: items.length }))))),
+    node("div", { class: "editor-help", "data-block-empty": "", hidden: true },
+      node("p", { role: "status" }, message("editor.interface.noBlocks")),
+      button(message("editor.interface.clearSearch"), "clear-block-search")),
+    ...groups,
+  ];
+}
+
+// Tên dịch chỉ phục vụ tìm kiếm/hiển thị, không được sửa block.title hoặc ID.
+export function matchesLocalizedBlock(block, search, translateLabel = t) {
+  if (matchesBlock(block, search)) return true;
+  const normalize = value => String(value).toLocaleLowerCase().normalize("NFD")
+    .replace(/\p{M}/gu, "").replaceAll("đ", "d");
+  const groupIndex = catalog.findIndex(group => group.label === block.group);
+  const translated = normalize(`${translateLabel(`editor.library.item.${block.id}`)} ${translateLabel(`editor.library.group.${groupIndex}`)}`);
+  return normalize(search).trim().split(/\s+/).every(word => translated.includes(word));
+}
+
+export function filterDiscoveryPanel(panel, { query, discoveryMode, recentBlocks }) {
+  if (!panel?.querySelector("[data-block-group-select]")) return;
+  const selectedGroup = panel.querySelector("[data-block-group-select]").value;
+  const allowed = filteredIds(catalog, {
+    query, group: selectedGroup, mode: discoveryMode, recent: recentBlocks,
+    matches: matchesLocalizedBlock,
+  });
+  for (const [index, { items }] of catalog.entries()) {
+    const section = panel.querySelector(`[data-block-group="${index}"]`);
+    let count = 0;
+    for (const [itemIndex, control] of [...section.querySelectorAll("[data-block]")].entries()) {
+      control.hidden = !allowed.has(items[itemIndex].id);
+      if (!control.hidden) count += 1;
+    }
+    section.hidden = count === 0;
+  }
+  setText(panel.querySelector("#editor-block-count"), message("editor.interface.filteredBlocks", { count: allowed.size, total: catalog.flatMap(group => group.items).length }));
+  const empty = panel.querySelector("[data-block-empty]");
+  empty.hidden = allowed.size !== 0;
+  setText(empty.querySelector("p"), message(discoveryMode === "recent" && recentBlocks.length === 0
+    ? "editor.interface.noRecent" : "editor.interface.noMatches"));
+  for (const chip of panel.querySelectorAll("[data-filter-mode]"))
+    chip.setAttribute("aria-pressed", String(chip.dataset.filterMode === discoveryMode));
+}

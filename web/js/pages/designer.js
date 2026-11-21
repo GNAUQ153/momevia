@@ -1,4 +1,4 @@
-import { captureTranslator, createLocaleControl, message, setAttr, setText, t } from "../core/i18n.js";
+import { captureTranslator, createLocaleControl, message, onLocaleChange, setAttr, setText, t } from "../core/i18n.js";
 import { errorCopy } from "../core/api.js";
 import {
   createElement,
@@ -15,7 +15,7 @@ import { mountPlayer } from "../features/gift-runtime/index.js";
 import { requiresCanvasV2 } from "../shared/canvas/schema.js";
 import { lines, masks, shapes } from "../shared/canvas/artwork.js";
 import { eventTimeFromLocal, interactionKinds, localEventTime, photoSlots } from "../shared/canvas/interactions.js";
-import { effectFamilies, effectsFor, elementEffectFamilies, sceneEffectFamilies } from "../shared/canvas/effects.js";
+import { effectsFor, elementEffectFamilies, sceneEffectFamilies } from "../shared/canvas/effects.js";
 import { textFont } from "../features/gift-runtime/renderer.js";
 import { bindingLabels, clearTemplateBindingDefaults, lockedVisibleNames, visibleBindingKeys } from "../shared/canvas/personalization.js";
 import { submissionChanges } from "../shared/canvas/submission.js";
@@ -45,7 +45,8 @@ import { createStage } from "../features/canvas-editor/stage.js";
 import { applyFabricWorkspacePatch } from "../features/canvas-editor/fabric-workspace.js";
 import { sceneThumbnail, thumbnail } from "../features/canvas-editor/thumbnail.js";
 import { bounds, catalog, fillPolaroid, isPolaroidPlaceholder, placeBlock, sampleBindings, stickerNames } from "../features/canvas-editor/library.js";
-import { addRecent, discoveryModes, filteredIds, readRecent, recentKey } from "../features/canvas-editor/library-discovery.js";
+import { addRecent, readRecent, recentKey } from "../features/canvas-editor/library-discovery.js";
+import { createDiscoveryPanel, filterDiscoveryPanel } from "../features/canvas-editor/discovery-panel.js";
 import { cropEditor } from "../features/canvas-editor/crop.js";
 import { canOpenAdvancedEditor, scenePositionLabel, selectionDescription } from "../features/canvas-editor/editor-experience.js";
 import { canStartInlineFabric, assertInlineFabricRevision } from "../features/canvas-editor/fabric-inline.js";
@@ -100,6 +101,13 @@ export function mountDesigner(
     creating = false;
   let libraryTab = "content", fitted = true, stageObserver;
   let discoveryMode = "all";
+  // Đổi ngôn ngữ không thay đổi nháp; chỉ cập nhật kết quả tìm và trạng thái bộ lọc.
+  const removeLocaleListener = onLocaleChange(() => {
+    if (disposed || !main.isConnected) return;
+    const search = main.querySelector('[data-block-search]');
+    if (search) filterBlocks(search.value);
+  });
+  signal.addEventListener('abort', removeLocaleListener, { once: true });
   let inlineFabricSession = null;
   let modalFabric = null;
   let inlineFabricOpening = false;
@@ -134,7 +142,7 @@ export function mountDesigner(
         }),
       ...extra,
     });
-    if (disposed) throw new DOMException("Editor đã đóng", "AbortError");
+    if (disposed) throw new DOMException(t("editor.error.closeDesign"), "AbortError");
     return result;
   }
   function warn(error) {
@@ -341,83 +349,11 @@ export function mountDesigner(
   }
 
   function blockLibrary() {
-    const sample = sampleBindings(createDocument());
-    const cards = new Map();
-    const fillThumbnail = control => {
-      const block = cards.get(control);
-      if (!block || control.querySelector(".editor-thumbnail")) return;
-      const models = block.create();
-      control.prepend(thumbnail(sample, models, bounds(models), { width: 62, height: 48 }));
-    };
-    const lazy = new IntersectionObserver(entries => {
-      for (const { target, isIntersecting } of entries) {
-        if (!isIntersecting) continue;
-        fillThumbnail(target);
-        lazy.unobserve(target);
-      }
-    }, { rootMargin: "120px" });
-    signal.addEventListener("abort", () => lazy.disconnect(), { once: true });
-    const groups = catalog.map(({ label, items }, index) => node("section", { class: "editor-block-group", "data-block-group": index },
-      node("h3", {}, label),
-      node("div", { class: "editor-block-grid" }, ...items.map(block => {
-        const control = button("", "add", {
-          "data-block": block.id, "aria-label": block.title,
-          disabled: design.policy?.kind === "creator-template",
-        });
-        cards.set(control, block);
-        control.append(node("span", {}, block.title));
-        lazy.observe(control);
-        return control;
-      })),
-    ));
-    return [
-      node("div", { class: "editor-discovery-heading" },
-        node("span", { class: "editor-discovery-eyebrow" }, "THƯ VIỆN MOMEVIA"),
-        node("strong", {}, "Tạo dấu ấn của riêng bạn"),
-        node("p", {}, "Hình vector sắc nét, đổi màu và thêm trực tiếp vào thiệp.")),
-      field("Tìm hình trang trí", node("input", {
-        type: "search", "data-block-search": "", placeholder: "Hoa, sinh nhật, du lịch...",
-        "aria-describedby": "editor-block-count",
-      })),
-      node("div", { class: "editor-discovery-filters", role: "group", "aria-label": "Bộ lọc thư viện" },
-        ...discoveryModes.map(mode => button(mode.label, "filter-blocks", {
-          class: "editor-discovery-chip", "data-filter-mode": mode.id,
-          "aria-pressed": mode.id === discoveryMode ? "true" : "false",
-        }))),
-      node("p", { class: "editor-discovery-count", id: "editor-block-count", role: "status", "aria-live": "polite" },
-        `${catalog.flatMap(group => group.items).length} elements có sẵn`),
-      field("Nhóm khối", node("select", { "data-block-group-select": "" },
-        node("option", { value: "" }, `Tất cả (${cards.size})`),
-        ...catalog.map(({ label, items }, index) => node("option", { value: index }, `${label} (${items.length})`)))),
-      node("div", { class: "editor-help", "data-block-empty": "", hidden: true },
-        node("p", { role: "status" }, "Không tìm thấy khối phù hợp."),
-        button("Xóa tìm kiếm", "clear-block-search")),
-      ...groups,
-    ];
+    return createDiscoveryPanel({ policy: design.policy, discoveryMode, signal });
   }
 
   function filterBlocks(query) {
-    const panel = main.querySelector("#editor-panel-add");
-    if (!panel?.querySelector("[data-block-group-select]")) return;
-    const selectedGroup = panel.querySelector("[data-block-group-select]").value;
-    const allowed = filteredIds(catalog, { query, group: selectedGroup, mode: discoveryMode, recent: recentBlocks });
-    for (const [index, { items }] of catalog.entries()) {
-      const section = panel.querySelector(`[data-block-group="${index}"]`);
-      let count = 0;
-      for (const [itemIndex, control] of [...section.querySelectorAll("[data-block]")].entries()) {
-        control.hidden = !allowed.has(items[itemIndex].id);
-        if (!control.hidden) count += 1;
-      }
-      section.hidden = count === 0;
-    }
-    panel.querySelector("#editor-block-count").textContent = `${allowed.size} kết quả trên ${catalog.flatMap(group => group.items).length} elements`;
-    const empty = panel.querySelector("[data-block-empty]");
-    empty.hidden = allowed.size !== 0;
-    empty.querySelector("p").textContent = discoveryMode === "recent" && recentBlocks.length === 0
-      ? "Chưa có hình vừa dùng. Chọn một hình từ thư viện để bắt đầu."
-      : "Không tìm thấy hình phù hợp. Thử từ khóa hoặc bộ lọc khác.";
-    for (const chip of panel.querySelectorAll("[data-filter-mode]"))
-      chip.setAttribute("aria-pressed", String(chip.dataset.filterMode === discoveryMode));
+    filterDiscoveryPanel(main.querySelector("#editor-panel-add"), { query, discoveryMode, recentBlocks });
   }
 
   function switchMode() {
@@ -434,7 +370,7 @@ export function mountDesigner(
     const tools = node(
       "div",
       { class: "editor-top-actions" },
-      button("Bản nháp", "recovery-center", { class: "editor-recovery-entry", title: "Kiểm tra trạng thái và sao lưu bản nháp" }),
+      button(message("editor.interface.draft"), "recovery-center", { class: "editor-recovery-entry", title: message("editor.interface.draftHint") }),
       createLocaleControl(),
       iconButton(message("editor.actions.undo"), "undo", "undo"),
       iconButton(message("editor.actions.redo"), "redo", "redo"),
@@ -483,7 +419,7 @@ export function mountDesigner(
         "nav",
         { class: "editor-library-tabs editor-layout-only", "aria-label": message("editor.tools") },
         ...Object.entries(libraryTabs).map(([key, label]) =>
-          button(label, "library-tab", { "data-tab": key, "aria-controls": `editor-panel-${key}` })),
+          button(message(`editor.interface.tab.${key}`), "library-tab", { "data-tab": key, "aria-controls": `editor-panel-${key}` })),
       ),
       node(
         "div",
@@ -599,13 +535,13 @@ export function mountDesigner(
     const inspector = node("aside", {
       class: "editor-inspector editor-layout-only",
       id: "editor-inspector",
-      "aria-label": "Chỉnh",
+      "aria-label": message("editor.interface.edit"),
     });
     const sceneBar = node(
       "section",
       { class: "editor-scene-bar", id: "editor-scene-bar", "aria-label": message("editor.scenes.label") },
       node("div", { class: "editor-panel-heading editor-layout-only" },
-        node("h2", {}, "Cảnh"),
+        node("h2", {}, message("editor.interface.scene")),
         iconButton(message("editor.scenes.close"), "close-sheet", "close", { class: "editor-sheet-close" })),
       node("div", { class: "editor-scenes" }),
       node(
@@ -617,10 +553,10 @@ export function mountDesigner(
     const dock = node(
       "nav",
       { class: "editor-mobile-dock editor-layout-only", "aria-label": message("editor.tools.panels") },
-      button("Thêm", "sheet-library", { "aria-controls": "editor-library", "aria-expanded": false }),
-      button("Lớp", "sheet-layers", { "aria-controls": "editor-library", "aria-expanded": false }),
-      button("Chỉnh", "sheet-inspector", { "aria-controls": "editor-inspector", "aria-expanded": false }),
-      button("Cảnh", "sheet-scenes", { "aria-controls": "editor-scene-bar", "aria-expanded": false }),
+      button(message("editor.interface.add"), "sheet-library", { "aria-controls": "editor-library", "aria-expanded": false }),
+      button(message("editor.interface.layers"), "sheet-layers", { "aria-controls": "editor-library", "aria-expanded": false }),
+      button(message("editor.interface.edit"), "sheet-inspector", { "aria-controls": "editor-inspector", "aria-expanded": false }),
+      button(message("editor.interface.scene"), "sheet-scenes", { "aria-controls": "editor-scene-bar", "aria-expanded": false }),
     );
     main.replaceChildren(
       node(
@@ -628,19 +564,19 @@ export function mountDesigner(
         { class: "editor-workspace" },
         top,
         design.policy?.kind === "creator-template" && lockedVisibleNames(design.document, design.policy.editableBindings).length
-          ? node("p", { class: "editor-help" }, "Lớp tên bị khóa của mẫu cũ sẽ để trống trong quà.")
+          ? node("p", { class: "editor-help" }, message("editor.interface.lockedNames"))
           : null,
         design.reviewTemplateDefaults
-          ? node("p", { class: "editor-help editor-template-defaults", role: "status" }, "Đã bỏ chữ minh họa của mẫu cũ. Hãy xem lại nội dung rồi chọn Lưu nháp trước khi gửi.")
+          ? node("p", { class: "editor-help editor-template-defaults", role: "status" }, message("editor.interface.defaultsCleared"))
           : null,
         node("div", { class: "editor-error", role: "alert", hidden: true }),
         node("div", { class: "editor-preflight", hidden: true }),
         node(
           "div",
           { class: "editor-session-actions", hidden: true },
-          button("Thử lưu lại", "retry-save"),
-          button("Xem bản máy chủ", "server-view"),
-          button("Dùng bản máy chủ", "server-reload"),
+          button(message("editor.interface.retrySave"), "retry-save"),
+          button(message("editor.interface.viewServer"), "server-view"),
+          button(message("editor.interface.useServer"), "server-reload"),
         ),
         node("div", { class: "editor-grid" }, sidebar, stageArea, inspector),
         sceneBar,
@@ -695,7 +631,10 @@ export function mountDesigner(
             "data-id": idValue,
             class: selection === idValue ? "is-selected" : "",
             "aria-pressed": selection === idValue,
-            "aria-label": `${label}${hidden ? ", đang ẩn" : ""}${locked ? ", có khóa" : ""}`,
+            "aria-label": message("editor.interface.layerLabel", {
+              name: label, hidden: hidden ? { format: "message", key: "editor.interface.layerHidden" } : "",
+              locked: locked ? { format: "message", key: "editor.interface.layerLocked" } : "",
+            }),
           },
         );
         if (hidden || locked) {
@@ -755,12 +694,12 @@ export function mountDesigner(
       updateThumbnail(card, scene);
       card.append(node("span", { class: "editor-scene-name" }, scene.name));
       if (entry && !quickMode) card.append(node("span", { class: "editor-scene-entry" }, message("editor.scene.entry")));
-      const summary = node("summary", { "aria-label": `Tùy chọn cảnh ${scene.name}` });
+      const summary = node("summary", { "aria-label": message("editor.interface.sceneMenu", { name: scene.name }) });
       summary.innerHTML = icon("more", 18);
       const menu = node("details", { class: "editor-scene-menu editor-layout-only" },
         summary,
         node("div", { class: "editor-scene-menu-actions" }, ...sceneActions.map(([label, action]) =>
-          button(label, action, {
+          button(message(`editor.interface.sceneAction.${action}`), action, {
             "data-id": scene.id, disabled:
               action === "scene-up" && index === 0 ||
               action === "scene-down" && index === doc.scenes.length - 1 ||
@@ -798,7 +737,7 @@ export function mountDesigner(
         const linked = images.filter(image => image.props.assetId === assetId);
         const models = linked.length ? linked : [createElement("image", { props: { assetId } })];
         return models.map(model => {
-          const control = button(`Dùng ảnh · ${model.name || index + 1}`, "reuse-asset", {
+          const control = button(message("editor.interface.usePhoto", { name: model.name || index + 1 }), "reuse-asset", {
             "data-id": assetId, class: "editor-asset-choice", disabled: !canReuse,
           });
           control.prepend(thumbnail(doc, [{ ...model, visible: true }], bounds([model]), { width: 58, height: 52, assetUrl }));
@@ -811,7 +750,7 @@ export function mountDesigner(
         node(
           "p",
           { class: "editor-help" },
-          "Thêm khối ảnh rồi chọn tệp từ thiết bị.",
+          message("editor.interface.emptyAssets"),
         ),
       );
   }
@@ -823,19 +762,19 @@ export function mountDesigner(
       const preset = model.effects?.[family];
       const prefix = `effect.${family}.`;
       return [node("fieldset", { class: "editor-effect-settings" },
-        node("legend", {}, family === 'ambience' && model.effects?.celebrations ? message('editor.celebrations.once') : effectFamilies[family].label),
-        select("Hiệu ứng", prefix + "id", preset?.id, [["", "Tắt"], ...options]),
-        preset && family !== "surface" ? select("Tốc độ", prefix + "speed", preset.speed || "normal",
-          [["slow", "Chậm"], ["normal", "Vừa"], ["fast", "Nhanh"]]) : null,
-        preset && family === "entrance" ? select("Độ trễ", prefix + "delay", preset.delay || 0,
+        node("legend", {}, family === 'ambience' && model.effects?.celebrations ? message('editor.celebrations.once') : message(`editor.effects.family.${family}`)),
+        select(message("editor.interface.effects"), prefix + "id", preset?.id, [["", message("editor.interface.effectOff")], ...options.map(([id]) => [id, message(`editor.effects.preset.${id}`)])]),
+        preset && family !== "surface" ? select(message("editor.interface.speed"), prefix + "speed", preset.speed || "normal",
+          [["slow", message("editor.interface.slow")], ["normal", message("editor.interface.normal")], ["fast", message("editor.interface.fast")]]) : null,
+        preset && family === "entrance" ? select(message("editor.interface.delay"), prefix + "delay", preset.delay || 0,
           [[0, "Ngay"], [150, "150 ms"], [300, "300 ms"]]) : null,
-        preset && family === "ambience" ? select("Mật độ", prefix + "density", preset.density || "normal",
-          [["sparse", "Thưa"], ["normal", "Vừa"]]) : null,
-        preset && ["S02", "S04"].includes(preset.id) ? input("Màu viền", prefix + "color",
+        preset && family === "ambience" ? select(message("editor.interface.density"), prefix + "density", preset.density || "normal",
+          [["sparse", message("editor.interface.sparse")], ["normal", message("editor.interface.normal")]]) : null,
+        preset && ["S02", "S04"].includes(preset.id) ? input(message("editor.interface.stroke"), prefix + "color",
           preset.color || (preset.id === "S02" ? "#6D488A" : "#F3DA97"), { type: "color" }) : null,
         preset ? node("div", { class: "editor-control-row" },
-          button("Xem thử", "effect-preview", { "data-family": family }),
-          button("Bỏ hiệu ứng", "effect-remove", { "data-family": family })) : null,
+          button(message("editor.interface.preview"), "effect-preview", { "data-family": family }),
+          button(message("editor.interface.removeEffect"), "effect-remove", { "data-family": family })) : null,
       )];
     });
     if (!element) fields.push(celebrationFields(model));
@@ -843,18 +782,20 @@ export function mountDesigner(
   }
   function interactionFields(model) {
     const p = model.props, spec = interactionKinds[p.kind], doc = store.get().document;
-    const fields = [input("Màu nền khối", "props.color", p.color, { type: "color" })];
+    const fields = [input(message("editor.interface.blockBackground"), "props.color", p.color, { type: "color" })];
     for (const [i, entry] of (p.entries || []).entries()) {
-      fields.push(input(spec.fields[i][0], `entry.${i}.heading`, entry.heading, { maxlength: 120 }));
-      if (spec.fields[i][1]) fields.push(field(spec.fields[i][1], node("textarea", {
+      fields.push(input(message(`editor.interactionField.${p.kind}.${i}.0`), `entry.${i}.heading`, entry.heading, { maxlength: 120 }));
+      if (spec.fields[i][1]) fields.push(field(message(`editor.interactionField.${p.kind}.${i}.1`), node("textarea", {
         "data-editor-field": `entry.${i}.body`, maxlength: LIMITS.text, rows: 3,
       }, entry.body)));
     }
     for (const [i, action] of (model.actions || []).entries())
-      fields.push(select(`Cảnh đích cửa ${i + 1}`, `door.${i}`, action.targetSceneId,
-        [["", "Chọn cảnh"], ...doc.scenes.map(scene => [scene.id, scene.name])]));
+      fields.push(select(message("editor.interface.doorTarget", { index: i + 1 }), `door.${i}`, action.targetSceneId,
+        [["", message("editor.interface.chooseScene")], ...doc.scenes.map(scene => [scene.id, scene.name])]));
     for (const [i, photo] of (p.photos || []).entries()) {
-      const label = p.kind === "photo-comparison" ? (i ? "Ảnh sau" : "Ảnh trước") : `Ảnh ${i + 1}`;
+      const labelKey = p.kind === "photo-comparison"
+        ? `editor.interface.${i ? 'photoAfter' : 'photoBefore'}` : "editor.interface.photoNumber";
+      const label = message(labelKey, p.kind === "photo-comparison" ? undefined : { index: i + 1 });
       const picture = createElement("image", {
         id: photo.id, layout: model.layout,
         props: { assetId: photo.assetId, focalPoint: photo.focalPoint }, accessibility: { alt: photo.alt }
@@ -864,11 +805,13 @@ export function mountDesigner(
         if (slot) edit(slot);
       }, "Chỉnh ô ảnh");
       fields.push(node("fieldset", { class: "editor-interaction-photo" }, node("legend", {}, label),
-        imagePicker(photo.assetId ? `Thay ${label.toLowerCase()}` : `Chọn ${label.toLowerCase()}`, photo.id),
-        doc.assets.length ? select("Ảnh đã tải", `slot.${photo.id}.assetId`, photo.assetId,
-          [["", "Chưa có ảnh"], ...doc.assets.map(({ assetId }, index) => [assetId, `Ảnh đã tải ${index + 1}`])]) : null,
-        input("Mô tả ảnh", `slot.${photo.id}.alt`, photo.alt, { maxlength: LIMITS.accessibilityText }),
-        field("Chú thích ảnh", node("textarea", { "data-editor-field": `slot.${photo.id}.caption`, maxlength: LIMITS.text, rows: 2 }, photo.caption)),
+        imagePicker(message(photo.assetId ? "editor.interface.replaceNamedPhoto" : "editor.interface.chooseNamedPhoto", {
+          name: { format: "message", key: labelKey, params: { index: i + 1 } },
+        }), photo.id),
+        doc.assets.length ? select(message("editor.interface.photoUploaded"), `slot.${photo.id}.assetId`, photo.assetId,
+          [["", message("editor.interface.photoMissing")], ...doc.assets.map(({ assetId }, index) => [assetId, message("editor.interface.assetNumber", { index: index + 1 })])]) : null,
+        input(message("editor.interface.photoAlt"), `slot.${photo.id}.alt`, photo.alt, { maxlength: LIMITS.accessibilityText }),
+        field(message("editor.interface.caption"), node("textarea", { "data-editor-field": `slot.${photo.id}.caption`, maxlength: LIMITS.text, rows: 2 }, photo.caption)),
         photo.assetId ? cropEditor(picture, {
           document: doc, assetUrl,
           editable: !design.policy?.lockedElements?.[model.id],
@@ -876,7 +819,7 @@ export function mountDesigner(
           onPreview: () => { },
         }) : null,
         node("div", { class: "editor-layout-fields" },
-          ...["x", "y"].map((axis, index) => input(index ? "Nét dọc (%)" : "Nét ngang (%)",
+          ...["x", "y"].map((axis, index) => input(message(index ? "editor.interface.crop.vertical" : "editor.interface.crop.horizontal"),
             `slot.${photo.id}.${axis}`, toPercent(photo.focalPoint[axis]), { type: "number", min: 0, max: 100, step: .1 }))),
       ));
     }
@@ -884,8 +827,8 @@ export function mountDesigner(
       if (Object.hasOwn(p, 'clockMode')) fields.push(select(message('templates.story.dateMode'), 'props.clockMode', p.clockMode,
         [['countdown', message('templates.story.countdown')], ['elapsed', message('templates.story.elapsed')]]));
       const zones = new Set(["Asia/Ho_Chi_Minh", "UTC", p.timeZone, ...Intl.supportedValuesOf("timeZone")]);
-      fields.push(select("Múi giờ hẹn", "props.timeZone", p.timeZone, [...zones].map(zone => [zone, zone])),
-        input("Ngày giờ hẹn", "event-time", p.eventAt ? localEventTime(p.eventAt, p.timeZone) : "", { type: "datetime-local" }));
+      fields.push(select(message("editor.interface.timezone"), "props.timeZone", p.timeZone, [...zones].map(zone => [zone, zone])),
+        input(message("editor.interface.eventAt"), "event-time", p.eventAt ? localEventTime(p.eventAt, p.timeZone) : "", { type: "datetime-local" }));
     }
     if (Object.hasOwn(p, 'autoplay')) fields.push(field(message('templates.story.autoplay'), node('input', { type: 'checkbox', checked: p.autoplay, 'data-editor-field': 'props.autoplay' })));
     return fields;
@@ -910,43 +853,43 @@ export function mountDesigner(
         node(
           "h2",
           {},
-          element ? element.name || registry[element.type].label : "Chỉnh cảnh",
+          element ? element.name || registry[element.type].label : message("editor.interface.sceneEdit"),
         ),
-        iconButton("Đóng bảng chỉnh", "close-sheet", "close", { class: "editor-sheet-close" }),
+        iconButton(message("editor.interface.closeInspector"), "close-sheet", "close", { class: "editor-sheet-close" }),
       ),
     ];
     if (!element) {
       children.push(
-        input("Tên cảnh", "scene.name", scene.name, { maxlength: 100 }),
-        input("Màu nền", "scene.color", scene.background.color, {
+        input(message("editor.interface.sceneName"), "scene.name", scene.name, { maxlength: 100 }),
+        input(message("editor.interface.background"), "scene.color", scene.background.color, {
           type: "color",
         }),
         ...effectFields(scene),
         node(
           "p",
           { class: "editor-help" },
-          "Chọn phần tử trên khung hoặc trong bảng lớp để chỉnh. Phím mũi tên di chuyển; Shift tăng bước.",
+          message("editor.interface.sceneHint"),
         ),
       );
     } else {
       const { props, layout } = element;
       children.push(
-        input("Tên lớp", "element.name", element.name || "", {
+        input(message("editor.interface.layerName"), "element.name", element.name || "", {
           maxlength: 100,
         }),
-        element.type === "image" ? imagePicker(props.assetId ? "Thay ảnh" : "Chọn ảnh") : null,
+        element.type === "image" ? imagePicker(message(props.assetId ? "editor.interface.replacePhoto" : "editor.interface.choosePhoto")) : null,
       );
       if (element.type === "text") {
         children.push(
-          select("Nội dung", "textBinding", props.textBinding || "", [
-            ["", "Văn bản riêng"],
+          select(message("editor.interface.content"), "textBinding", props.textBinding || "", [
+            ["", message("editor.interface.customText")],
             ...Object.entries(bindingLabels),
           ]),
         );
         if (!props.textBinding)
           children.push(
             field(
-              "Văn bản",
+              message("editor.interface.text"),
               node(
                 "textarea",
                 { "data-editor-field": "props.text", rows: 4, maxlength: LIMITS.text },
@@ -959,33 +902,33 @@ export function mountDesigner(
             node(
               "p",
               { class: "editor-help" },
-              `Dùng chung trường ${bindingLabels[props.textBinding]} trong các cảnh.`,
+              message("editor.interface.linkedField", { field: { format: "message", key: `editor.binding.${props.textBinding}` } }),
             ),
           );
         children.push(
-          textOptions(element) ? button("Sửa trên thiệp", "inline-text") : null,
-          node("div", { class: "editor-font-options", role: "group", "aria-label": "Kiểu chữ" },
-            ...[["body", "Thân bài"], ["heading", "Tiêu đề"], ["serif", "Có chân"]].map(([token, label]) => {
+          textOptions(element) ? button(message("editor.interface.editOnCard"), "inline-text") : null,
+          node("div", { class: "editor-font-options", role: "group", "aria-label": message("editor.interface.fontStyle") },
+            ...["body", "heading", "serif"].map(token => {
               const sample = node("span", { "aria-hidden": "true" }, "Aa");
               sample.style.fontFamily = textFont(token);
               const control = button("", "text-font", {
-                "data-font": token, "aria-label": `Kiểu chữ ${label.toLowerCase()}`,
+                "data-font": token, "aria-label": message("editor.interface.fontNamed", { name: { format: "message", key: `editor.interface.font.${token}` } }),
                 "aria-pressed": (props.fontToken || "body") === token,
               });
-              control.append(sample, node("span", {}, label));
+              control.append(sample, node("span", {}, message(`editor.interface.font.${token}`)));
               return control;
             })),
-          input("Cỡ chữ", "props.fontSize", props.fontSize, {
+          input(message("editor.interface.fontSize"), "props.fontSize", props.fontSize, {
             type: "number",
             min: 10,
             max: 160,
           }),
-          input("Giãn dòng", "props.lineHeight", props.lineHeight ?? 1.4, {
+          input(message("editor.interface.lineHeight"), "props.lineHeight", props.lineHeight ?? 1.4, {
             type: "number", min: 1, max: 3, step: 0.05,
           }),
-          node("div", { class: "editor-control-row", role: "group", "aria-label": "Căn chữ" },
-            ...[["left", "trái"], ["center", "giữa"], ["right", "phải"]].map(([align, label]) =>
-              iconButton(`Căn chữ ${label}`, "text-align", `align-${align}`, {
+          node("div", { class: "editor-control-row", role: "group", "aria-label": message("editor.interface.textAlign") },
+            ...["left", "center", "right"].map(align =>
+              iconButton(message("editor.interface.alignNamed", { name: { format: "message", key: `editor.interface.align.${align}` } }), "text-align", `align-${align}`, {
                 "data-align": align, "aria-pressed": props.align === align,
               }))),
         );
@@ -1007,7 +950,7 @@ export function mountDesigner(
         if (["color", "strokeColor"].includes(key))
           children.push(
             input(
-              key === "color" ? "Màu sắc" : "Màu viền",
+              message(key === "color" ? "editor.interface.color" : "editor.interface.stroke"),
               `props.${key}`,
               props[key],
               { type: "color" },
@@ -1016,7 +959,7 @@ export function mountDesigner(
         else if (["radius", "strokeWidth"].includes(key))
           children.push(
             input(
-              key === "radius" ? "Bo góc" : "Độ dày nét",
+              message(key === "radius" ? "editor.interface.radius" : "editor.interface.strokeWidth"),
               `props.${key}`,
               props[key],
               { type: "number", min: 0, max: key === "radius" ? 512 : 40 },
@@ -1024,41 +967,41 @@ export function mountDesigner(
           );
         else if (key === "kind")
           children.push(
-            select("Hình", "props.kind", props.kind, [
-              ["rectangle", "Chữ nhật"],
-              ["ellipse", "Bầu dục"],
-              ["line", "Đường kẻ"],
-              ...Object.keys(shapes).map((id, i) => [id, ["Tam giác", "Hình thoi", "Lục giác", "Hình vòm", "Ruy băng", "Khung thoại"][i]]),
+            select(message("editor.interface.shape"), "props.kind", props.kind, [
+              ["rectangle", message("editor.interface.shapeRectangle")],
+              ["ellipse", message("editor.interface.shapeEllipse")],
+              ["line", message("editor.interface.shapeLine")],
+              ...Object.keys(shapes).map((id, i) => [id, message(`editor.interface.shape.${["triangle", "diamond", "hexagon", "arch", "ribbon", "bubble"][i]}`)]),
             ]),
           );
         else if (key === "mask" && props.mask)
-          children.push(select("Mặt nạ ảnh", "props.mask", props.mask,
-            Object.keys(masks).map((id, i) => [id, ["Ảnh tròn", "Ảnh vòm", "Ảnh trái tim", "Mép giấy xé"][i]])));
+          children.push(select(message("editor.interface.imageMask"), "props.mask", props.mask,
+            Object.keys(masks).map((id, i) => [id, message(`editor.interface.mask.${["round", "arch", "heart", "torn"][i]}`)])));
         else if (key === "caption" && Object.hasOwn(props, key))
-          children.push(field("Chú thích ảnh", node("textarea", { "data-editor-field": "props.caption", maxlength: LIMITS.text, rows: 3 }, props.caption)));
+          children.push(field(message("editor.interface.caption"), node("textarea", { "data-editor-field": "props.caption", maxlength: LIMITS.text, rows: 3 }, props.caption)));
         else if (key === "pattern" && props.pattern)
-          children.push(select("Kiểu nét", "props.pattern", props.pattern,
-            Object.keys(lines).map((id, i) => [id, ["Vòng cung", "Chỉ may", "Mũi tên cong", "Sóng", "Ngoặc", "Bốn góc"][i]])));
+          children.push(select(message("editor.interface.linePattern"), "props.pattern", props.pattern,
+            Object.keys(lines).map((id, i) => [id, message(`editor.interface.pattern.${["arc", "stitch", "arrow", "wave", "brace", "corners"][i]}`)])));
         else if (key === "fit")
           children.push(
-            select("Khung ảnh", "props.fit", props.fit, [
-              ["cover", "Lấp khung"],
-              ["contain", "Vừa ảnh"],
+            select(message("editor.interface.photoFrame"), "props.fit", props.fit, [
+              ["cover", message("editor.interface.fitCover")],
+              ["contain", message("editor.interface.fitContain")],
             ]),
           );
         else if (key === "stickerId")
           children.push(
             select(
-              "Sticker",
+              message("editor.interface.sticker"),
               "props.stickerId",
               props.stickerId,
-              Object.entries(stickerNames),
+              Object.entries(stickerNames).map(([id, title]) => [id, title]),
             ),
           );
         else if (!["preset", "pattern", "mask", "caption", "optional"].includes(key))
           children.push(
             input(
-              { label: "Nhãn nút", title: "Tiêu đề", submitLabel: "Nhãn gửi" }[
+              { label: message("editor.interface.label.button"), title: message("editor.interface.label.title"), submitLabel: message("editor.interface.label.submitLabel") }[
               key
               ] || key,
               `props.${key}`,
@@ -1071,7 +1014,7 @@ export function mountDesigner(
         const focal = props.focalPoint || { x: 0.5, y: 0.5 };
         children.push(
           field(
-            "Mô tả ảnh",
+            message("editor.interface.photoAlt"),
             node("textarea", {
               "data-editor-field": "accessibility.alt", rows: 2, maxlength: LIMITS.accessibilityText,
               disabled: Boolean(element.accessibility.decorative),
@@ -1081,7 +1024,7 @@ export function mountDesigner(
           node("label", { class: "editor-checkbox" }, node("input", {
             type: "checkbox", "data-editor-field": "accessibility.decorative",
             checked: Boolean(element.accessibility.decorative),
-          }), "Ảnh trang trí"),
+          }), message("editor.interface.decorativePhoto")),
           props.assetId ? cropEditor(element, {
             document: store.get().document,
             assetUrl,
@@ -1095,33 +1038,33 @@ export function mountDesigner(
               renderInspector();
             }),
           }) : null,
-          props.assetId && !policy ? node("p", { class: "editor-help" }, "Kéo điểm trên ảnh hoặc nhập vị trí bằng bàn phím.") : null,
+          props.assetId && !policy ? node("p", { class: "editor-help" }, message("editor.interface.cropHint")) : null,
           node("div", { class: "editor-layout-fields" },
-            input("Ngang (%)", "crop.x", toPercent(focal.x), { type: "number", min: 0, max: 100, step: 0.1, "aria-label": "Điểm nét ngang (%)" }),
-            input("Dọc (%)", "crop.y", toPercent(focal.y), { type: "number", min: 0, max: 100, step: 0.1, "aria-label": "Điểm nét dọc (%)" })),
-          button("Đặt lại crop", "crop-reset"),
+            input(message("editor.interface.crop.horizontal"), "crop.x", toPercent(focal.x), { type: "number", min: 0, max: 100, step: 0.1, "aria-label": message("editor.interface.crop.focusX") }),
+            input(message("editor.interface.crop.vertical"), "crop.y", toPercent(focal.y), { type: "number", min: 0, max: 100, step: 0.1, "aria-label": message("editor.interface.crop.focusY") })),
+          button(message("editor.interface.cropReset"), "crop-reset"),
         );
       }
       if (isPolaroidPlaceholder(element)) {
-        children.push(imagePicker("Thêm ảnh vào Polaroid"),
-          node("p", { class: "editor-help" }, "Ảnh tùy chọn. Chọn lớp chú thích để sửa chữ."));
+        children.push(imagePicker(message("editor.interface.polaroidAdd")),
+          node("p", { class: "editor-help" }, message("editor.interface.polaroidHelp")));
       }
       if (isLegacyFrame(element)) {
-        children.push(field('Thêm ảnh vào khung', node('input', { type: 'file', accept: 'image/png,image/jpeg,image/webp', 'data-editor-field': 'upload' })), node('p', { class: 'editor-help' }, 'Chọn ảnh để thay cảnh minh họa. Khung và góc xoay được giữ nguyên.'));
+        children.push(field(message("editor.interface.addFramePhoto"), node('input', { type: 'file', accept: 'image/png,image/jpeg,image/webp', 'data-editor-field': 'upload' })), node("p", { class: "editor-help" }, message("editor.interface.addFrameHint")));
       }
       if (registry[element.type].actions.length) {
         const action = element.actions?.[0];
         children.push(
-          select("Tương tác", "action.type", action?.type || "goToScene", [
-            ["goToScene", "Chuyển cảnh"],
-            ["replay", "Phát lại từ đầu"],
+          select(message("editor.interface.interaction"), "action.type", action?.type || "goToScene", [
+            ["goToScene", message("editor.interface.nextScene")],
+            ["replay", message("editor.interface.replay")],
           ]),
         );
         if (action?.type !== "replay") {
           const doc = store.get().document;
           const destination = doc.scenes.find(scene => scene.id === action?.targetSceneId);
           children.push(node("details", { class: "editor-target-picker" },
-            node("summary", {}, destination ? `Cảnh đích · ${destination.name}` : "Chọn cảnh đích"),
+            node("summary", {}, destination ? message("editor.interface.targetScene", { name: destination.name }) : message("editor.interface.chooseTarget")),
             node("div", { class: "editor-target-scenes" }, ...doc.scenes.map(scene => {
               const choice = button("", "action-target", {
                 "data-id": scene.id,
@@ -1131,7 +1074,7 @@ export function mountDesigner(
               return choice;
             }))));
           if (!destination) children.push(node("p", { class: "editor-help" },
-            "Chọn cảnh đích để nút hoạt động khi người nhận mở thiệp."));
+            message("editor.interface.targetHint")));
         }
       }
       children.push(...effectFields(element, element));
@@ -1139,9 +1082,9 @@ export function mountDesigner(
         node(
           "details",
           { class: "editor-geometry" },
-          node("summary", {}, "Vị trí và kích thước"),
+          node("summary", {}, message("editor.interface.geometry")),
           node("div", { class: "editor-layout-fields" },
-            ...[["x", "X"], ["y", "Y"], ["width", "Rộng"], ["height", "Cao"], ["rotation", "Xoay °"]]
+            ...[["x", "X"], ["y", "Y"], ["width", message("editor.interface.geometry.width")], ["height", message("editor.interface.geometry.height")], ["rotation", message("editor.interface.geometry.rotation")]]
               .map(([key, label]) => input(label, `layout.${key}`, Number(layout[key].toFixed(2)), {
                 type: "number",
                 min: key === "width" || key === "height" ? 1 : key === "rotation" ? -360 : -LIMITS.coordinate,
@@ -1149,31 +1092,31 @@ export function mountDesigner(
                 step: 1,
               })),
           ),
-          node("div", { class: "editor-control-row", role: "group", "aria-label": "Vị trí phần tử trên thiệp" },
-            button("Căn giữa theo chiều ngang", "center"),
-            button("Vào khung", "inside"),
+          node("div", { class: "editor-control-row", role: "group", "aria-label": message("editor.interface.positionGroup") },
+            button(message("editor.interface.centerHorizontal"), "center"),
+            button(message("editor.interface.inside"), "inside"),
           ),
         ),
-        input("Độ mờ (%)", "element.opacity", toPercent(1 - (element.opacity ?? 1)), {
+        input(message("editor.interface.opacity"), "element.opacity", toPercent(1 - (element.opacity ?? 1)), {
           type: "number",
           min: 0,
           max: 100,
           step: 1,
-          title: "0% hiện rõ, 100% trong suốt",
+          title: message("editor.interface.opacityHint"),
         }),
         node(
           "div",
           { class: "editor-control-row" },
-          iconButton("Hiển thị lớp", "layer-visibility", element.visible === false ? "eye-off" : "eye", {
+          iconButton(message("editor.interface.layerShow"), "layer-visibility", element.visible === false ? "eye-off" : "eye", {
             "aria-pressed": element.visible !== false,
           }),
-          iconButton("Khóa lớp", "layer-lock", element.locked ? "lock" : "unlock", {
+          iconButton(message("editor.interface.layerLock"), "layer-lock", element.locked ? "lock" : "unlock", {
             "aria-pressed": Boolean(element.locked),
           }),
-          button("Đưa trước", "layer-up"),
-          button("Đưa sau", "layer-down"),
-          button("Nhân bản", "element-duplicate"),
-          button("Xóa", "element-delete"),
+          button(message("editor.interface.layerUp"), "layer-up"),
+          button(message("editor.interface.layerDown"), "layer-down"),
+          button(message("editor.interface.duplicate"), "element-duplicate"),
+          button(message("editor.interface.delete"), "element-delete"),
         ),
       );
       const size = store.get().document.artboard.baseSize;
@@ -1187,7 +1130,7 @@ export function mountDesigner(
           node(
             "p",
             { class: "editor-help" },
-            "Phần tử vượt khung thiết kế. Dùng “Vào khung” hoặc chỉnh tọa độ/kích thước để đưa nội dung về vùng xem.",
+            message("editor.interface.outsideCanvas"),
           ),
         );
     }
@@ -1201,7 +1144,7 @@ export function mountDesigner(
         node(
           "p",
           { class: "editor-help" },
-          "Vùng mẫu có khóa. Chỉ những thuộc tính được cho phép mới chỉnh được.",
+          message("editor.interface.lockedTemplate"),
         ),
         host.children[1] || null,
       );
@@ -1299,7 +1242,7 @@ export function mountDesigner(
     ) {
       if (
         window.confirm(
-          "Có bản chỉnh sửa cục bộ chưa được xác nhận. Khôi phục bản này? Bản máy chủ vẫn được giữ khi có xung đột.",
+           t("editor.interface.savingRecoveryConfirm"),
         )
       ) {
         try {
@@ -1534,7 +1477,7 @@ export function mountDesigner(
       type: "checkbox", value: key, checked: !previous || previous.bindings.includes(key), name: "binding",
     })));
     const photo = select(message("editor.submission.photo"), "template-photo", images.some(image => image.id === previous?.photoId) ? previous.photoId : "",
-      [["", "Không có"], ...images.map((image, index) => [image.id, `${image.name || "Ảnh"} (${index + 1})`])]);
+      [["", message("editor.interface.none")], ...images.map((image, index) => [image.id, `${image.name || "Ảnh"} (${index + 1})`])]);
     const photoSelect = photo.querySelector("select");
     const scenes = snapshot.document.scenes;
     const cover = select(message("editor.submission.cover"), "template-cover",
@@ -1564,7 +1507,7 @@ export function mountDesigner(
     const updateChanges = () => {
       const selection = current();
       identityWarning.textContent = lockedVisibleNames(snapshot.document, selection.bindings).length
-        ? "Mở quyền sửa các lớp tên đang hiển thị hoặc quay lại và đổi chúng thành chữ cố định trung tính." : "";
+        ? t("editor.interface.reviewIdentity") : "";
       changes.replaceChildren(...submissionChanges(previous, selection).map(change => node("li", {}, change)));
     };
     form.addEventListener("input", updateChanges, { signal });
@@ -1613,8 +1556,8 @@ export function mountDesigner(
       const values = Object.values(access);
       descriptions.replaceChildren();
       if (!values.every(Boolean)) return;
-      descriptions.append(node("p", {}, `Link thường. ${giftLinkDescription(access, false)}`));
-      if (values.includes("invite")) descriptions.append(node("p", {}, `Link mời. ${giftLinkDescription(access, true)}`));
+      descriptions.append(node("p", {}, message("editor.interface.normalLink", { description: giftLinkDescription(access, false) })));
+      if (values.includes("invite")) descriptions.append(node("p", {}, message("editor.interface.inviteLink", { description: giftLinkDescription(access, true) })));
     }, { signal });
     const dialog = node("dialog", { class: "editor-preview-dialog", "aria-label": message("editor.access.title") }, form);
     return new Promise(resolve => {
@@ -1849,18 +1792,18 @@ export function mountDesigner(
     if (modalFabric && (name === "advanced-design" || name === "fabric-studio" || name === "inline-fabric")) return;
     // Khi Fabric nhúng đang mở, chỉ Áp dụng/Hủy trong Fabric mới được thay document.
     if (inlineFabricSession || inlineFabricOpening) {
-      throw new Error("Hãy Áp dụng hoặc Hủy chế độ chỉnh trực tiếp trước khi dùng công cụ khác.");
+      throw new Error(t("editor.error.inlinePending"));
     }
     if (name === "inline-fabric") {
       if (!canOpenAdvancedEditor(design.policy))
-        throw new Error("Bạn không có quyền thay đổi bố cục mẫu này.");
+        throw new Error(t("editor.error.layoutDenied"));
       if (quickMode) switchMode();
       if (!canStartInlineFabric(design.policy, quickMode))
-        throw new Error("Chỉ có thể chỉnh trực tiếp ở chế độ bố cục được phép.");
+        throw new Error(t("editor.error.inlineNotAllowed"));
       closeSheet();
       const mount = main.querySelector(".editor-inline-mount");
       const stageScroll = main.querySelector(".editor-stage-scroll");
-      if (!mount || !stageScroll) throw new Error("Không tìm thấy vùng thiết kế trực tiếp.");
+      if (!mount || !stageScroll) throw new Error(t("editor.error.noStage"));
       const editingScene = sceneId;
       const initialSequence = store.sequence;
       const previousTrigger = target;
@@ -1914,10 +1857,10 @@ export function mountDesigner(
     }
     if (name === "advanced-design" || name === "fabric-studio") {
       if (!canOpenAdvancedEditor(design.policy))
-        throw new Error("Mẫu hiện tại không cho phép thay đổi bố cục nâng cao.");
+        throw new Error(t("editor.error.fabricLocked"));
       // Người dùng vào từ chế độ nhanh sẽ được chuyển sang chế độ bố cục có quyền chỉnh.
       if (quickMode && name === "advanced-design") switchMode();
-      if (quickMode) throw new Error("Hãy chuyển sang chế độ chỉnh bố cục trước khi mở Fabric Studio.");
+      if (quickMode) throw new Error(t("editor.error.quickFabric"));
       const token = modalFabric = {};
       const initialSequence = store.sequence;
       const editingScene = sceneId;
@@ -1933,7 +1876,7 @@ export function mountDesigner(
           signal,
           onApply: (patch) => {
             if (store.sequence !== initialSequence || editingScene !== sceneId || signal.aborted)
-              throw new Error("Nháp đã đổi trong lúc mở Fabric Studio. Hãy mở lại để tránh ghi đè.");
+              throw new Error(t("editor.error.fabricOutdated"));
             commit(value => {
               value.document = applyFabricWorkspacePatch(value.document, editingScene, patch, design.policy);
             }, "Fabric Studio: chỉnh lớp và bố cục");
@@ -2031,7 +1974,7 @@ export function mountDesigner(
     if (name === "server-reload") {
       if (
         !window.confirm(
-          "Dùng bản máy chủ sẽ bỏ nội dung và lịch sử chỉnh sửa cục bộ hiện tại. Tiếp tục?",
+          t("editor.interface.reloadConfirm"),
         )
       )
         return;
@@ -2104,7 +2047,7 @@ export function mountDesigner(
       const starter = key && t(key);
       const message = store.get().document.bindings.message.value;
       const next = message ? `${message}\n${starter}` : starter;
-      if (next.length > 1000) throw new Error("Lời chúc vượt 1.000 ký tự. Hãy rút ngắn trước khi chèn.");
+      if (next.length > 1000) throw new Error(t("editor.error.tooLong"));
       commit(value => { value.document.bindings.message.value = next; }, "Chèn câu mở đầu");
       const control = main.querySelector('[data-editor-field="binding.message"]');
       control.focus();
@@ -2257,7 +2200,7 @@ export function mountDesigner(
     }
     if (name === "scene-delete") {
       if (store.get().document.scenes.length === 1)
-        throw new Error("Thiết kế cần ít nhất một cảnh.");
+        throw new Error(t("editor.error.noScene"));
       const original = currentScene(),
         refs = store
           .get()
@@ -2268,11 +2211,11 @@ export function mountDesigner(
           );
       if (refs.length)
         throw new Error(
-          `Cảnh đang được tham chiếu bởi: ${refs.map((item) => item.name || registry[item.type].label).join(", ")}. Đổi cảnh đích của các nút trước khi xóa.`,
+          t("editor.error.sceneReferences", { names: refs.map((item) => item.name || registry[item.type].label).join(", ") }),
         );
       if (
         !window.confirm(
-          `Xóa cảnh “${original.name}” và ${original.elementIds.length} phần tử? Có thể hoàn tác trong phiên này.`,
+          t("editor.error.deleteScene", { name: original.name, count: original.elementIds.length }),
         )
       )
         return;
@@ -2290,7 +2233,7 @@ export function mountDesigner(
       renderAll();
       return;
     }
-    if (!selected()) throw new Error("Chọn một phần tử trước.");
+    if (!selected()) throw new Error(t("editor.error.noSelection"));
     if (name === "inline-text") {
       closeSheet();
       stage.editText(selection);
@@ -2301,7 +2244,7 @@ export function mountDesigner(
         document.elements.find(item => item.id === selection).actions = [
           { on: "activate", type: "goToScene", targetSceneId: target.dataset.id },
         ];
-      }, "Chọn cảnh đích");
+      }, t("editor.interface.chooseTarget"));
       renderInspector();
       main.querySelector(".editor-target-picker summary")?.focus();
       return;
@@ -2438,7 +2381,7 @@ export function mountDesigner(
       control.type === "number" &&
       (!Number.isFinite(value) || control.value === "")
     )
-      throw new Error("Nhập một số hữu hạn.");
+      throw new Error(t("editor.error.invalidNumber"));
     commit(
       (next) => {
         if (key === "title") {
@@ -2737,17 +2680,17 @@ export function mountDesigner(
   }
   function beforeLeave() {
     if (inlineFabricSession) {
-      return window.confirm("Thay đổi trong Fabric chưa được Áp dụng và sẽ bị hủy khi rời trang. Bạn vẫn muốn rời đi?");
+      return window.confirm(t("editor.interface.leaveFabric"));
     }
     return (
       !hasUnsaved() ||
       window.confirm(
-        "Thiết kế còn thay đổi chưa được xác nhận. Rời trang và giữ bản phục hồi cục bộ? Chọn Hủy để lưu trước.",
+        t("editor.interface.leaveDraft"),
       )
     );
   }
   const ready = (async () => {
-    if (!ownerId) throw new Error("Đăng nhập để thiết kế món quà.");
+    if (!ownerId) throw new Error(t("editor.interface.notReady"));
     if (id)
       await initialize(
         (await request(`/designs/designs/${encodeURIComponent(id)}`)).design,
@@ -2764,7 +2707,7 @@ export function mountDesigner(
           { class: "editor-load-failed", role: "alert" },
           error.message,
         ),
-        button("Thử mở lại", "load-retry"),
+        button(message("editor.interface.loadingRetry"), "load-retry"),
       );
   });
   return {

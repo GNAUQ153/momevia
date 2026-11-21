@@ -27,3 +27,30 @@
 .recovery-center__button[hidden] { display:none; }
 @media(max-width:520px) { .recovery-center__grid { grid-template-columns:1fr; } .recovery-center__actions { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); } .recovery-center__button { width:100%; } }
 @media(prefers-reduced-motion: reduce) { .recovery-center * { animation:none!important; transition:none!important; } }
+
+/* Công cụ ngôn ngữ luôn nằm trong dialog để có thể đổi VI/EN khi đang khôi phục. */
+.recovery-center__head-controls {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.recovery-center__head-controls .locale-control {
+  max-width: 112px;
+}
+
+.recovery-center__head-controls .recovery-center__button {
+  white-space: nowrap;
+}
+
+@media (max-width: 520px) {
+  .recovery-center__head {
+    align-items: flex-start;
+  }
+
+  .recovery-center__head-controls {
+    flex-direction: column;
+    align-items: flex-end;
+  }
+}

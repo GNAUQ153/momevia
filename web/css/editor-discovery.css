@@ -188,3 +188,32 @@
     transform: none;
   }
 }
+
+/* Nhãn dài tiếng Anh giữ nguyên độ rộng bảng, không gây cuộn ngang. */
+.editor-block-grid {
+  min-width: 0;
+}
+
+.editor-block-grid [data-block] > span {
+  overflow-wrap: anywhere;
+  text-wrap: balance;
+}
+
+.editor-discovery-filters .editor-discovery-chip {
+  max-width: 100%;
+  line-height: 1.45;
+}
+
+@media (prefers-reduced-motion: no-preference) and (hover: hover) {
+  .editor-workspace button[data-block]:hover {
+    transform: translateY(-2px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .editor-workspace button[data-block],
+  .editor-workspace button.editor-discovery-chip {
+    transition: none;
+    transform: none;
+  }
+}

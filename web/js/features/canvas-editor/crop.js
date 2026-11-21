@@ -1,3 +1,4 @@
+import { message } from "../../core/i18n.js";
 import { applyFocalPoint, renderElement } from "../gift-runtime/renderer.js";
 import { node } from "./dom.js";
 import { CROP_ANCHORS, activeCropAnchor, getCropAnchor, normalizeFocalPoint } from "./crop-presets.js";
@@ -21,13 +22,13 @@ export function cropEditor(model, { document, assetUrl, editable, onPreview, onC
   let pointer = null, point = initial, frame = 0, sample, activeAnchor;
   // Các nút nằm ngoài vùng kéo crop nên không cản thao tác pointer/touch.
   const grid = node("div", {
-    class: "editor-crop-presets", role: "group", "aria-label": "Chọn nhanh trọng tâm ảnh",
+    class: "editor-crop-presets", role: "group", "aria-label": message("editor.crop.choose"),
   });
   for (const anchor of CROP_ANCHORS) {
     grid.append(node("button", {
       class: "editor-crop-presets__button", type: "button",
-      "aria-label": `Lấy nét: ${anchor.label}`, "aria-pressed": "false",
-      "data-crop-anchor": anchor.id, title: anchor.label,
+      "aria-label": message("editor.crop.focus", { name: { format: "message", key: `editor.crop.anchor.${anchor.id}` } }), "aria-pressed": "false",
+      "data-crop-anchor": anchor.id, title: message(`editor.crop.anchor.${anchor.id}`),
     }, node("span", { class: "editor-crop-presets__dot", "aria-hidden": "true" })));
   }
   const buttons = [...grid.querySelectorAll("button[data-crop-anchor]")];
@@ -87,7 +88,7 @@ export function cropEditor(model, { document, assetUrl, editable, onPreview, onC
   viewport.addEventListener("lostpointercapture", cancel);
   const panel = node("div", { class: "editor-crop-panel", "data-crop-for": model.id },
     viewport,
-    node("p", { class: "editor-crop-presets__caption", text: "Chọn nhanh vị trí ảnh" }),
+    node("p", { class: "editor-crop-presets__caption", text: message("editor.crop.caption") }),
     grid);
   grid.addEventListener("click", event => {
     const button = event.target.closest("button[data-crop-anchor]");

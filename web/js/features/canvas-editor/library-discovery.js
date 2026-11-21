@@ -29,13 +29,13 @@ export function addRecent(previous, id, catalog) {
   return [id, ...previous.filter(current => current !== id && valid.has(current))].slice(0, maxRecent);
 }
 
-export function filteredIds(catalog, { query = "", group = "", mode = "all", recent = [] } = {}) {
+export function filteredIds(catalog, { query = "", group = "", mode = "all", recent = [], matches = matchesBlock } = {}) {
   const selected = group === "" ? null : Number(group);
   const recentSet = new Set(recent);
   return new Set(catalog.flatMap(({ label, items }, index) => {
     if (selected !== null && index !== selected) return [];
     return items.filter(block => {
-      if (!matchesBlock(block, query)) return false;
+      if (!matches(block, query)) return false;
       if (mode === "new") return block.id.startsWith("m55-");
       if (mode === "recent") return recentSet.has(block.id);
       if (mode === "season") return seasonalWords.some(word => label.includes(word));

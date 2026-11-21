@@ -1,3 +1,4 @@
+import { message, setAttr, t } from "../../core/i18n.js";
 import { renderElement, applyLayout, resolveText, applyFocalPoint, textFont } from "../gift-runtime/renderer.js";
 import { applySurface } from "../gift-runtime/effects.js";
 import { logicalPoint, gestureLayout, snapLayout } from "./store.js";
@@ -26,7 +27,7 @@ export function createStage(
   const artboard = node("div", {
     class: "editor-artboard",
     tabindex: 0,
-    "aria-label": "Vùng thiết kế. Chọn phần tử hoặc dùng bảng lớp.",
+    "aria-label": message("editor.stage.edit"),
   });
   surround.append(artboard);
   host.replaceChildren(surround);
@@ -54,7 +55,7 @@ export function createStage(
     artboard.style.backgroundColor = scene.background.color;
     applySurface(artboard, scene.effects?.surface);
     const readOnly = isReadOnly();
-    artboard.setAttribute("aria-label", readOnly ? scene.name : "Vùng thiết kế. Chọn phần tử hoặc dùng bảng lớp.");
+    setAttr(artboard, "aria-label", readOnly ? scene.name : message("editor.stage.edit"));
     for (const element of doc.elements.filter((item) => scene.elementIds.includes(item.id))) {
       if (readOnly && element.visible === false) continue;
       const id = element.id;
@@ -71,7 +72,7 @@ export function createStage(
       item.classList.add("editor-stage-element");
       item.setAttribute("tabindex", "-1");
       if (!readOnly && element.actions?.some(action => action.type === "goToScene" && !action.targetSceneId))
-        item.append(node("span", { class: "editor-unlinked-action" }, "Chọn cảnh đích trong Chỉnh"));
+        item.append(node("span", { class: "editor-unlinked-action" }, message("editor.stage.missingTarget")));
       if (selected) {
         selectionOutline = node("span", {
           class: "editor-selection-outline",
@@ -263,7 +264,7 @@ export function createStage(
               (item) => item.id === current.id,
             ).layout = current.latest;
           },
-          current.mode === "move" ? "Di chuyển" : "Đổi kích thước",
+          t(current.mode === "move" ? "editor.stage.move" : "editor.stage.resize"),
         );
       if (!changed) render();
     },

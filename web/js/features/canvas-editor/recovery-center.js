@@ -1,3 +1,4 @@
+import { createLocaleControl, message, setAttr, setText } from '../../core/i18n.js';
 // Phase 6.3a: UI-only recovery dashboard. Never bypasses server CAS/ACL.
 // Browser-only APIs are invoked from openRecoveryCenter; pure helpers are Node-testable.
 
@@ -68,9 +69,9 @@ export function makeRecoveryExport({ designId, revision, draft, now = new Date()
 function dom(tag, options = {}, ...children) {
   const el = document.createElement(tag);
   for (const [name, value] of Object.entries(options)) {
-    if (name === 'text') el.textContent = value;
+    if (name === 'text') setText(el, value);
     else if (name === 'class') el.className = value;
-    else if (value !== undefined && value !== null) el.setAttribute(name, String(value));
+    else if (value !== undefined && value !== null) setAttr(el, name, value);
   }
   el.append(...children.filter(child => child !== undefined && child !== null));
   return el;
@@ -79,8 +80,11 @@ function control(label, action, kind = '') {
   return dom('button', { type: 'button', class: `recovery-center__button ${kind}`, 'data-recovery-action': action, text: label });
 }
 function timeLabel(ms) {
-  if (!ms) return 'Chưa có xác nhận trong phiên này';
-  return new Date(ms).toLocaleString('vi-VN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' });
+  if (!ms) return { format: 'message', key: 'editor.recovery.noTime' };
+  return {
+    format: 'date', value: ms,
+    options: { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' },
+  };
 }
 
 export function openRecoveryCenter({ session, store, design, onRetry, onCompare, onReload, onError = () => {} }) {
@@ -88,41 +92,41 @@ export function openRecoveryCenter({ session, store, design, onRetry, onCompare,
     throw new TypeError('Canvas chưa sẵn sàng để xem bản nháp.');
   const previousFocus = document.activeElement;
   const headingId = 'momevia-recovery-title';
-  const title = dom('h2', { id: headingId, text: 'Trung tâm bảo vệ bản nháp' });
+  const title = dom('h2', { id: headingId, text: message('editor.recovery.title') });
   const badge = dom('span', { class: 'recovery-center__badge' });
   const state = dom('p', { class: 'recovery-center__state' });
   const current = dom('p', {});
   const local = dom('p', {});
   const info = dom('p', { class: 'recovery-center__message', role: 'status', 'aria-live': 'polite' });
-  const retry = control('Thử lưu lại', 'retry', 'recovery-center__button--primary');
-  const compare = control('Xem bản máy chủ', 'compare');
-  const reload = control('Tải bản máy chủ', 'reload');
-  const exportButton = control('Tải bản sao JSON', 'export');
-  const refreshButton = control('Cập nhật', 'refresh');
-  const closeButton = control('Đóng', 'close');
+  const retry = control(message('editor.recovery.retry'), 'retry', 'recovery-center__button--primary');
+  const compare = control(message('editor.recovery.compare'), 'compare');
+  const reload = control(message('editor.recovery.reload'), 'reload');
+  const exportButton = control(message('editor.recovery.export'), 'export');
+  const refreshButton = control(message('editor.recovery.refresh'), 'refresh');
+  const closeButton = control(message('editor.recovery.close'), 'close');
   const dialog = dom('dialog', { class: 'recovery-center', 'aria-labelledby': headingId },
     dom('div', { class: 'recovery-center__head' },
-      dom('div', {}, dom('p', { class: 'recovery-center__eyebrow', text: 'MOMEVIA · CANVAS' }), title), closeButton),
+      dom('div', {}, dom('p', { class: 'recovery-center__eyebrow', text: 'MOMEVIA · CANVAS' }), title),
+      dom('div', { class: 'recovery-center__head-controls' }, createLocaleControl(), closeButton)),
     dom('div', { class: 'recovery-center__overview' }, badge, state),
     dom('div', { class: 'recovery-center__grid' },
-      dom('div', { class: 'recovery-center__panel' }, dom('h3', { text: 'Bản máy chủ' }), current),
-      dom('div', { class: 'recovery-center__panel' }, dom('h3', { text: 'Bản cục bộ trong tab' }), local)),
-    dom('p', { class: 'recovery-center__note', text: 'Tệp JSON có thể chứa lời chúc và dữ liệu riêng tư; chỉ tải khi cần. Tệp không bao gồm ảnh gốc và chưa hỗ trợ nhập ngược tự động.' }),
+      dom('div', { class: 'recovery-center__panel' }, dom('h3', { text: message('editor.recovery.serverTitle') }), current),
+      dom('div', { class: 'recovery-center__panel' }, dom('h3', { text: message('editor.recovery.localTitle') }), local)),
+    dom('p', { class: 'recovery-center__note', text: message('editor.recovery.privacy') }),
     info,
     dom('div', { class: 'recovery-center__actions' }, refreshButton, retry, compare, reload, exportButton));
   const render = () => {
     const overview = recoveryOverview(session);
-    badge.textContent = overview.label;
+    setText(badge, message(`editor.recovery.status.${recoveryTones[overview.status] ? overview.status : 'unknown'}`));
     badge.dataset.tone = overview.tone;
-    state.textContent = overview.hasUnsaved
-      ? 'Bản chỉnh sửa đang mở chưa được xác nhận đầy đủ trên máy chủ.'
-      : 'Không phát hiện thay đổi chưa đồng bộ trong phiên đang mở.';
-    current.textContent = `Phiên bản: ${overview.revision === null ? 'không rõ' : `r${overview.revision}`} · Lần lưu: ${timeLabel(overview.lastSavedAt)}`;
-    local.textContent = overview.hasRecovery
-      ? `Có bản tạm · cập nhật ${timeLabel(overview.recoverySavedAt)}. Đây không phải bản sao đã lưu trên máy chủ.`
-      : overview.hasUnsaved
-        ? 'Không tìm thấy bản tạm. Tránh đóng tab khi chưa lưu thành công.'
-        : 'Không có bản tạm cần khôi phục.';
+    setText(state, message(overview.hasUnsaved ? 'editor.recovery.unsaved' : 'editor.recovery.synced'));
+    setText(current, message('editor.recovery.serverSummary', {
+      revision: overview.revision === null ? { format: 'message', key: 'editor.recovery.unknownRevision' } : `r${overview.revision}`,
+      time: timeLabel(overview.lastSavedAt),
+    }));
+    setText(local, overview.hasRecovery
+      ? message('editor.recovery.localSaved', { time: timeLabel(overview.recoverySavedAt) })
+      : message(overview.hasUnsaved ? 'editor.recovery.localMissing' : 'editor.recovery.localEmpty'));
     retry.hidden = !overview.canRetry;
     compare.hidden = !overview.canCompare;
     reload.hidden = !overview.canCompare;
@@ -140,7 +144,7 @@ export function openRecoveryCenter({ session, store, design, onRetry, onCompare,
     const action = event.target.closest('[data-recovery-action]')?.dataset.recoveryAction;
     if (!action || closed) return;
     if (action === 'close') { close(); return; }
-    if (action === 'refresh') { render(); info.textContent = 'Đã cập nhật trạng thái hiện tại.'; return; }
+    if (action === 'refresh') { render(); setText(info, message('editor.recovery.notice.refreshed')); return; }
     if (action === 'export') {
       try {
         const { json, filename } = makeRecoveryExport({
@@ -153,21 +157,21 @@ export function openRecoveryCenter({ session, store, design, onRetry, onCompare,
           anchor.click();
           anchor.remove();
         } finally { setTimeout(() => URL.revokeObjectURL(objectUrl), 1000); }
-        info.textContent = 'Đã yêu cầu tải bản sao JSON. Hãy lưu tệp ở nơi riêng tư.';
+        setText(info, message('editor.recovery.notice.exported'));
       } catch {
-        info.textContent = 'Không thể xuất bản sao trên thiết bị này. Hãy giữ tab mở.';
+        setText(info, message('editor.recovery.notice.exportFailed'));
       }
       return;
     }
     try {
       if (action === 'retry' && typeof onRetry === 'function') {
         await onRetry();
-        if (!closed) { render(); info.textContent = 'Đã hoàn tất yêu cầu thử lưu. Kiểm tra trạng thái mới.'; }
+        if (!closed) { render(); setText(info, message('editor.recovery.notice.retried')); }
       }
       if (action === 'compare' && typeof onCompare === 'function') { close(); await onCompare(); }
       if (action === 'reload' && typeof onReload === 'function') { close(); await onReload(); }
     } catch (error) {
-      if (!closed) info.textContent = 'Thao tác chưa thành công. Nội dung đang chỉnh sửa vẫn được giữ.';
+      if (!closed) setText(info, message('editor.recovery.notice.actionFailed'));
       onError(error);
     }
   });

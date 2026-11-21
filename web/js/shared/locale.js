@@ -14,7 +14,7 @@ export function currency(locale, value) {
 function formatParameter(dictionary, locale, value) {
   if (!value || typeof value !== 'object') return String(value ?? '');
   switch (value.format) {
-    case 'message': return translate(dictionary, locale, value.key);
+    case 'message': return translate(dictionary, locale, value.key, value.params);
     case 'messages': return value.keys.map(key => translate(dictionary, locale, key)).join(', ');
     case 'currency': return currency(locale, value.value);
     case 'number': return new Intl.NumberFormat(localeTag(locale)).format(value.value);

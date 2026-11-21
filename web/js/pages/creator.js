@@ -32,14 +32,31 @@ export function creatorFinancePanel(statement) {
   </div></section>`;
 }
 
+// Chỉ hiển thị phản hồi của phiên bản mới nhất; không biến đổi dữ liệu gốc.
+export function creatorReviewFeedback(templates = []) {
+  return templates.flatMap(template => {
+    const versions = Array.isArray(template.versions) ? template.versions : [];
+    const latest = versions.reduce((current, candidate) =>
+      !current || Number(candidate.revision) > Number(current.revision) ? candidate : current, null);
+    if (latest?.status !== 'changes_requested' || !String(latest.reason || '').trim()) return [];
+    return [{ title: String(template.title || ''), reason: String(latest.reason) }];
+  });
+}
+
 export function createCreatorViews({ state }) {
   function creatorPage(templates = [], legacy = [], statement = null) {
     const creator =
       state.user && ["creator", "admin"].includes(state.user.role);
+    const feedback = creator ? creatorReviewFeedback(templates) : [];
     return `<section class="creator-hero"><div class="container creator-hero__inner"><div><span class="eyebrow">${text("creator.eyebrow")}</span><h1>${text("creator.title")}<br><em>${text("creator.emphasis")}</em></h1><p>${text("creator.description")}</p>
         ${creator ? `<a href="#creator-form" class="btn btn--light">${text("creator.actions.new")} ${icon("arrow", 18)}</a>` : `<p class="helper-text">${state.user ? text("creator.access.requestRole") : text("creator.access.login")}</p>`}
         <div class="creator-perks"><span>${icon("check-circle", 17)} ${text("creator.perks.free")}</span><span>${icon("check-circle", 17)} ${text("creator.perks.review")}</span><span>${icon("check-circle", 17)} ${text("creator.perks.management")}</span></div>
       </div><div class="creator-art">${icon("pencil", 120)}<span>${icon("sparkles", 62)}</span></div></div></section>
+      ${feedback.length ? `<div class="container role-workspace__review-wrap"><section class="role-workspace__review-notice" role="status" aria-labelledby="creator-review-notice-title" data-creator-review-notice>
+        <div class="role-workspace__review-header"><h2 id="creator-review-notice-title">${text('creator.status.changes_requested')}</h2>
+          <a class="btn btn--outline" href="#creator-list">${text('role.creator.templatesLink')}</a></div>
+        <ul>${feedback.map(item => `<li><strong>${e(item.title)}</strong><p>${e(item.reason)}</p></li>`).join('')}</ul>
+      </section></div>` : ''}
       ${creator ? `<div class="container role-workspace__navigation-wrap">${roleQuickLinks([
         { href: '#creator-form', labelKey: 'role.creator.createLink', iconName: 'pencil' },
         { href: '#creator-list', labelKey: 'role.creator.templatesLink', iconName: 'layers' },

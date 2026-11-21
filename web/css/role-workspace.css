@@ -206,3 +206,62 @@
     transform: none;
   }
 }
+
+/* Phản hồi chỉnh sửa phiên bản cần luôn hiển thị, không phụ thuộc danh sách phía dưới. */
+.role-workspace__review-wrap {
+  margin-top: 24px;
+}
+
+.role-workspace__review-notice {
+  padding: clamp(18px, 3vw, 28px);
+  border: 1px solid var(--ui-panel-border, #dbcdec);
+  border-left: 4px solid var(--purple);
+  border-radius: var(--radius-md);
+  background: #faf7ff;
+  box-shadow: var(--shadow-soft);
+}
+
+.role-workspace__review-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.role-workspace__review-header h2 {
+  margin: 0;
+  color: var(--ink);
+  font-size: clamp(20px, 2.4vw, 27px);
+}
+
+.role-workspace__review-header .btn {
+  min-height: 44px;
+}
+
+.role-workspace__review-notice ul {
+  display: grid;
+  gap: 10px;
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.role-workspace__review-notice li {
+  min-width: 0;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  background: #fff;
+  overflow-wrap: anywhere;
+}
+
+.role-workspace__review-notice li p {
+  margin: 5px 0 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.role-workspace__review-header a:focus-visible {
+  outline: 3px solid var(--ui-focus-ring, #6136df);
+  outline-offset: 3px;
+}

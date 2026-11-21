@@ -1,3 +1,10 @@
+## Unreleased — Creator review feedback visibility & CI regression (2026-11-21)
+
+- Hiển thị phản hồi yêu cầu sửa mẫu của Admin ở khu vực thông báo độc lập trên trang Creator, liên kết tới danh sách mẫu; chỉ lấy phiên bản mới nhất để tránh hiển thị yêu cầu đã xử lý.
+- Giữ nguyên thông tin gốc và escape an toàn lý do duyệt; tái sử dụng khóa VI/EN có sẵn, không làm thay đổi trạng thái mẫu hoặc API.
+- Cập nhật Canvas/MySQL browser regression để kiểm tra lý do sửa mẫu thực sự hiển thị, thay vì chỉ tồn tại trong DOM; thêm unit test về phiên bản và XSS.
+- Không sửa dữ liệu, Canvas JSON, thanh toán hoặc migration; CI trên GitHub cần được xác nhận sau khi áp dụng.
+
 ## Unreleased — Role Workspace Navigation & Dashboard Accessibility (2026-11-21)
 
 - Thêm module dùng chung `role-workspace.js` cho điều hướng nhanh và số lượng bản ghi đã tải của Admin/Creator; không hiển thị số lượng tải được như tổng toàn hệ thống.

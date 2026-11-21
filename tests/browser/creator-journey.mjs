@@ -361,7 +361,12 @@ export async function runCreatorJourney(base) {
     ]);
     assert.deepEqual([verdictA.status(), verdictB.status()].sort(), [200, 409]);
     await page.goto(base + '/creator');
-    await page.getByText(/Kiểm tra lại bố cục bìa/).waitFor();
+    // Xác nhận phản hồi của Admin hiển thị trong khu vực thông báo Creator.
+    // Không chấp nhận text chỉ tồn tại trong DOM nhưng bị ẩn khỏi người dùng.
+    const reviewFeedback = page.locator('[data-creator-review-notice]');
+    await reviewFeedback.getByText(/Kiểm tra lại bố cục bìa/).waitFor({ state: 'visible' });
+    assert.equal(await reviewFeedback.isVisible(), true);
+    assert.equal(await page.locator('#creator-list .my-gift-detail').filter({ hasText: /Kiểm tra lại bố cục bìa/ }).count() > 0, true);
     const newDemo = await page.context().request.post(`${base}/api${designEndpoint}/assets`, {
       data: await image('#5c9074'),
       headers: { 'content-type': 'image/png', 'x-mutation-id': randomUUID() },

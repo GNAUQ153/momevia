@@ -28,7 +28,9 @@ export async function runHomeBrowser(base) {
           await image.evaluate(img => img.decode());
           assert.equal(await page.locator('html').getAttribute('lang'), language);
           assert.equal(await page.locator('html').getAttribute('data-type'), 'software');
-          assert.equal(await page.locator('main > section').count(), 3);
+          assert.equal(await page.locator('main > section').count(), 4);
+          assert.equal(await page.locator('main > .mkt-journey').count(), 1);
+          assert.equal(await page.locator('.mkt-journey [data-mkt-step]').count(), 5);
           assert.equal(await page.locator('footer #mkt-faq-title').count(), 1);
           const brand = await page.locator('#site-header .brand').boundingBox();
           assert(brand.height >= 44, `${width}: brand tap target`);
@@ -46,16 +48,22 @@ export async function runHomeBrowser(base) {
           assert.equal(await cover.evaluate(node => globalThis.getComputedStyle(node).animationName), 'none');
           const cards = page.locator('#home-featured-gifts .template-card');
           await cards.first().waitFor();
-          const [featuredTitle, howTitle, cardsTail] = await Promise.all([
+          const [featuredTitle, journeyTitle, howTitle, cardsTail, journeySection] = await Promise.all([
             page.locator('.mkt-featured__heading h2').boundingBox(),
+            page.locator('#mkt-journey-title').boundingBox(),
             page.locator('#mkt-experience-title').boundingBox(),
             cards.evaluateAll(items => Math.max(...items.map(item => item.getBoundingClientRect().bottom))),
+            page.locator('main > .mkt-journey').boundingBox(),
           ]);
           const frameGap = featuredTitle.y - Math.max(frame.y + frame.height, previewBox.y + previewBox.height);
-          const cardsGap = howTitle.y - cardsTail;
-          for (const [label, gap] of [['hero → featured', frameGap], ['featured → how-to', cardsGap]]) {
-            assert(gap >= 30 && gap <= (width <= 900 ? 80 : 120), `${width}×${height} ${language} ${label}: ${gap}px`);
-          }
+          const featuredToJourneyGap = journeyTitle.y - cardsTail;
+          const journeyToHowGap = howTitle.y - (journeySection.y + journeySection.height);
+          assert(frameGap >= 30 && frameGap <= (width <= 900 ? 80 : 120),
+            `${width}×${height} ${language} hero → featured: ${frameGap}px`);
+          assert(featuredToJourneyGap >= 30 && featuredToJourneyGap <= 220,
+            `${width}×${height} ${language} featured → journey: ${featuredToJourneyGap}px`);
+          assert(journeyToHowGap >= 20 && journeyToHowGap <= 100,
+            `${width}×${height} ${language} journey → how-to: ${journeyToHowGap}px`);
           const footerStep = await page.locator('footer .footer-column a').evaluateAll(items =>
             items[1].getBoundingClientRect().top - items[0].getBoundingClientRect().top);
           assert(footerStep >= 28 && footerStep <= 44, `${width}×${height} ${language} footer link spacing: ${footerStep}px`);
@@ -78,6 +86,14 @@ export async function runHomeBrowser(base) {
             await page.waitForFunction(value => globalThis.document.documentElement.lang === value, language);
           }
           if (width !== 390) continue;
+          const journey = page.locator('main > .mkt-journey');
+          for (const step of ['create', 'share', 'open', 'reply', 'keep']) {
+            const button = journey.locator(`[data-mkt-step="${step}"]`);
+            await button.click();
+            assert.equal(await button.getAttribute('aria-pressed'), 'true');
+            assert.equal(await journey.locator('[data-mkt-journey-scene]').getAttribute('data-stage'), step);
+            assert.equal(await journey.locator(`[data-mkt-panel="${step}"]`).isVisible(), true);
+          }
           assert.match(await image.getAttribute('src'), language === 'en' ? /\/en\/hai-phong-bi.svg/ : /templates\/hai-phong-bi.svg/);
           assert(!requests.some(request => request.url().includes('/gift-runtime/index.js')), 'Guest landing leaves the player unloaded');
           const dialog = page.getByRole('dialog');

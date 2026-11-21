@@ -88,7 +88,8 @@ export async function runHeroTemplatesBrowser(browser, base) {
       }), 'Notes stay in front of the card and remain still with reduced motion');
       const controls = await page.locator('.mkt-hero__rotation').boundingBox();
       assert(controls.y >= frame.y + frame.height, 'The three indicators sit below the artwork');
-      assert.equal(await page.locator('[data-hero-playback]').count(), 0, 'There is no pause button');
+      assert.equal(await page.locator('[data-hero-playback]').count(), 1, 'Slideshow includes a manual pause control');
+      assert.equal(await page.locator('[data-hero-playback]').isVisible(), false, 'Reduced motion hides redundant playback controls');
       for (const [index, id] of ids.entries()) {
         const selector = page.locator(`[data-hero-select="${index}"]`);
         const box = await selector.boundingBox();
@@ -145,6 +146,18 @@ export async function runHeroTemplatesBrowser(browser, base) {
     const firstProgress = await progressState(page);
     assert.equal(firstProgress.duration, 5000);
     assert.equal(firstProgress.easing, 'linear');
+    const playback = page.locator('[data-hero-playback]');
+    assert.equal(await playback.isVisible(), true, 'Autoplay has a visible pause control');
+    await playback.click();
+    await page.waitForFunction(() => globalThis.document.querySelector('[aria-pressed="true"] [data-hero-progress]')?.getAnimations()[0]?.playState === 'paused');
+    assert.equal(await playback.getAttribute('aria-label'), 'Tiếp tục chuyển mẫu');
+    assert.equal(await playback.getAttribute('data-state'), 'paused');
+    assert(await page.locator('.mkt-stage__note, .mkt-stage__reply').evaluateAll(notes => notes.every(note => note.getAnimations()[0]?.playState === 'paused')), 'Pause freezes both notes');
+    await page.waitForTimeout(260);
+    assert.equal(await active(page), ids[0], 'Manual pause keeps the chosen sample');
+    await playback.click();
+    await page.waitForFunction(() => globalThis.document.querySelector('[aria-pressed="true"] [data-hero-progress]')?.getAnimations()[0]?.playState === 'running');
+    assert.equal(await playback.getAttribute('data-state'), 'playing');
     await page.locator('[aria-pressed="true"] [data-hero-progress]').evaluate(node => {
       const animation = node.getAnimations()[0];
       animation.pause();

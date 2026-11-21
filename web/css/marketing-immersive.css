@@ -528,6 +528,56 @@
   outline-offset: 2px;
 }
 
+/* Nút dừng chủ động cho chuyển mẫu tự động; không làm đổi bố cục thiệp. */
+.mkt-hero__rotation {
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.mkt-hero__rotation .mkt-hero__playback {
+  display: inline-flex;
+  gap: 6px;
+  width: auto;
+  min-height: 44px;
+  padding: 0 12px;
+  margin-left: 6px;
+  border: 1px solid #cbb5e3;
+  border-radius: 999px;
+  background: #ffffffed;
+  color: #48257f;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.mkt-hero__rotation .mkt-hero__playback:hover {
+  background: #f0e9fc;
+}
+
+.mkt-hero__playback[data-state="playing"] .mkt-hero__playback-play,
+.mkt-hero__playback[data-state="paused"] .mkt-hero__playback-pause {
+  display: none;
+}
+
+@media (max-width: 420px) {
+  .mkt-hero__rotation button {
+    width: 44px;
+  }
+
+  .mkt-hero__rotation .mkt-hero__playback {
+    margin-left: 0;
+    padding: 0 10px;
+    font-size: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mkt-hero__rotation .mkt-hero__playback {
+    display: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .is-home .mkt-stage .mkt-hero__cover [data-hero-image] {
     transform: none;

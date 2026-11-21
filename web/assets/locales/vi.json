@@ -1587,6 +1587,8 @@
   "home.hero.note.title": "Một điều thật riêng",
   "home.hero.preview": "Mở thử món quà",
   "home.hero.slides": "Ba mẫu thiệp để mở thử",
+  "home.hero.pauseSlides": "Tạm dừng chuyển mẫu",
+  "home.hero.resumeSlides": "Tiếp tục chuyển mẫu",
   "home.hero.openTemplate": "Mở thử: {title}",
   "home.hero.proof.account": "Người nhận không cần tài khoản",
   "home.hero.proof.design": "Không cần biết thiết kế",

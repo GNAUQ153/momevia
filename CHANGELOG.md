@@ -1,3 +1,9 @@
+## Unreleased — Điều khiển chuyển mẫu Hero dành cho accessibility (2026-11-22)
+
+- Bổ sung nút Tạm dừng/Tiếp tục dễ chạm cho vòng thiệp 3D ở trang chủ; dừng đồng thời progress, thiệp hé và các note nổi, giữ nguyên mẫu và khả năng chọn/xem thử thủ công.
+- Nút đổi nhãn VI/EN theo ngôn ngữ đang chọn và giữ trạng thái khi người dùng chuyển ngôn ngữ. Khi hệ điều hành bật giảm chuyển động, autoplay đã tắt nên ẩn điều khiển không cần thiết.
+- Bổ sung unit test và browser regression; không sửa API, lưu trữ, quyền truy cập, JSON Canvas hoặc giao dịch. Cần xác minh build/CI sau khi áp dụng.
+
 ## Unreleased — Header responsive dễ đọc trên laptop (2026-11-21)
 
 - Ở 901–1150px, chuyển các link dài của header sang menu thu gọn có chữ 15px thay cho ép liên kết 12px; giữ viewport không tràn ngang, gồm trường hợp 1024px.

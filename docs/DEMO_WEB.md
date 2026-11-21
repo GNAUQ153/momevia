@@ -5,11 +5,17 @@ npm ci
 npm run demo:web
 ```
 
-Mở [localhost:4110](http://localhost:4110) hoặc [127.0.0.1:4110](http://127.0.0.1:4110). Cả hai địa chỉ hỗ trợ đăng nhập; cookie phiên riêng theo hostname nên cần đăng nhập lại khi đổi địa chỉ. Lệnh build web và chạy một backend JSON riêng, chỉ nghe loopback. Giữ terminal mở khi thử. Ctrl+C dừng demo. Cùng cổng mở lại dữ liệu và bản mã đã sao lúc tạo profile. Để dựng từ mã nguồn mới hoặc dùng cổng trống khác:
+Mở [localhost:4110](http://localhost:4110) hoặc [127.0.0.1:4110](http://127.0.0.1:4110). Cả hai địa chỉ hỗ trợ đăng nhập; cookie phiên riêng theo hostname nên cần đăng nhập lại khi đổi địa chỉ. Lệnh build web và chạy một backend JSON riêng, chỉ nghe loopback. Giữ terminal mở khi thử. Ctrl+C dừng demo. Mỗi lần chạy đều lấy mã nguồn mới và giữ dữ liệu đã tạo ở cùng cổng. Để dùng cổng trống khác:
 
 ```powershell
 npm run demo:web -- --port 4112
 ```
+
+Mặc định script theo dõi `web`, `src`, `dev.mjs`, `package.json` và hai helper `web-demo-client.js`, `web-demo-server.mjs`. Lưu HTML/CSS/JS/ảnh sẽ cập nhật bản demo; sửa backend sẽ tự khởi động lại backend thử. Tài khoản, phiên, ảnh tải lên, nháp, quà và các URL đã tạo không bị sao lại hay seed lại. File nguồn bị xóa cũng được gỡ khỏi bản mã demo. Nếu sửa chính launcher `web-demo.mjs` hoặc bộ đồng bộ `web-demo-sync.mjs`, hãy dừng rồi chạy lại lệnh demo.
+
+Trang chủ, thư viện, chi tiết mẫu, bảng giá và giới thiệu tự tải lại sau cập nhật. Khi đang nhập vào ô hoặc mở preview, việc tải lại đợi tới lúc bạn rời ô/đóng preview. Các trang chỉnh thiệp, đăng nhập, quản trị và quà người nhận **không tự tải lại**; hãy lưu công việc rồi tải lại bằng trình duyệt. Tài nguyên demo dùng `no-store` để tránh giữ mã/ảnh cũ. Ứng dụng thông thường giữ chính sách cache hiện có.
+
+Để tắt theo dõi file, dùng `npm run demo:web -- --no-watch`. Lần khởi động sau vẫn cập nhật mã mới. Chế độ `--prepare` chỉ chuẩn bị/kiểm tra rồi dừng, không theo dõi file. Thay đổi dependency trong `package.json` cần cài dependency trước; script không tự chạy cài đặt.
 
 Khi dùng **Ports → Forwarded Address** của VS Code, cho phép URL HTTPS đầy đủ của cổng đó khi khởi động (thay URL ví dụ bên dưới bằng địa chỉ của bạn):
 

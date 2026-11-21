@@ -33,6 +33,7 @@ export function createHomeViews({ state, buttonLink, templateCard }) {
         </ul>
         <a class="mkt-hero__scroll" href="#how-it-works">${text("home.hero.how")} ${icon("chevron-down", 17)}</a>
       </div>
+      <div class="mkt-hero__artwork">
       <div class="mkt-hero__frame hero__window mkt-stage" data-visual data-enter-media data-mkt-tilt>
         <div class="mkt-stage__atmosphere" aria-hidden="true">
           <span class="mkt-stage__orb mkt-stage__orb--first"></span>
@@ -46,14 +47,14 @@ export function createHomeViews({ state, buttonLink, templateCard }) {
         <button type="button" class="mkt-hero__cover" data-template-preview aria-haspopup="dialog" ${attr("aria-label", "home.hero.preview")}>
           ${homeDemos.map((template, index) => `<img ${templateCover(template.id)} data-hero-image="${template.id}" data-active="${index === 0}" alt="" width="390" height="844" ${index === 0 ? 'fetchpriority="high"' : 'decoding="async"'} />`).join('')}
         </button>
-        <div class="mkt-hero__rotation" role="group" ${attr('aria-label', 'home.hero.slides')}>
-          ${homeDemos.map((template, index) => `<button type="button" class="mkt-hero__slide" data-hero-select="${index}" aria-pressed="${index === 0}" ${attr('aria-label', `templates.${template.id}.title`)}><span aria-hidden="true"></span></button>`).join('')}
-          <button type="button" class="mkt-hero__playback" data-hero-playback ${attr('aria-label', 'home.hero.pause')}><span data-hero-pause-icon aria-hidden="true">${icon('pause', 16)}</span><span data-hero-play-icon aria-hidden="true" hidden>${icon('play', 16)}</span></button>
-        </div>
         <div class="mkt-stage__reply" aria-hidden="true">
           <span>${text("home.hero.reply.caption")}</span>
           <strong>${icon("heart", 15)} ${text("home.hero.reply.title")}</strong>
         </div>
+      </div>
+      <div class="mkt-hero__rotation" role="group" ${attr('aria-label', 'home.hero.slides')}>
+        ${homeDemos.map((template, index) => `<button type="button" class="mkt-hero__slide" data-hero-select="${index}" aria-pressed="${index === 0}" ${attr('aria-label', `templates.${template.id}.title`)}><span aria-hidden="true"></span></button>`).join('')}
+      </div>
       </div>
       </div>
       ${templatePreviewDialog(homeDemo)}

@@ -19,6 +19,7 @@ test('Static server trả 404 cho thư mục, trả 200 cho tài nguyên hợp l
     }
     const sheet = await fetch(`${base}/css/marketing-immersive.css`);
     assert.equal(sheet.status, 200);
+    assert.equal(sheet.headers.get('cache-control'), 'public, max-age=300');
     assert.match(sheet.headers.get('content-security-policy'), /object-src 'none'/);
     const head = await fetch(`${base}/css/marketing-immersive.css`, { method: 'HEAD' });
     assert.equal(head.status, 200);
@@ -26,4 +27,15 @@ test('Static server trả 404 cho thư mục, trả 200 cho tài nguyên hợp l
   } finally {
     await new Promise(resolve => server.close(resolve));
   }
+});
+
+test('isolated demo can opt out of static caching without changing the default', async () => {
+  const server = createServer((req, res) => staticFile(req, res, new URL(req.url, 'http://localhost'), { cacheControl: 'no-store' }));
+  server.listen(0, '127.0.0.1');
+  await once(server, 'listening');
+  try {
+    const response = await fetch(`http://127.0.0.1:${server.address().port}/js/pages/home.js`);
+    assert.equal(response.status, 200);
+    assert.equal(response.headers.get('cache-control'), 'no-store');
+  } finally { await new Promise(resolve => server.close(resolve)); }
 });

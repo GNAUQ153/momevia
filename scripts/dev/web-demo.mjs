@@ -3,16 +3,18 @@ import net from 'node:net';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
 import { once } from 'node:events';
-import { randomBytes } from 'node:crypto';
+import { randomBytes, randomUUID } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { setTimeout as delay } from 'node:timers/promises';
 import { parseArgs } from 'node:util';
 import { seedWebDemo } from './web-demo-fixture.mjs';
 import { parseAllowedOrigins } from '../../src/shared/request-origin.mjs';
+import { publishDemoRevision, syncWebDemo, watchWebDemo } from './web-demo-sync.mjs';
 
 const { values } = parseArgs({ options: {
   port: { type: 'string', default: '4110' },
   prepare: { type: 'boolean', default: false },
+  'no-watch': { type: 'boolean', default: false },
   'allowed-origin': { type: 'string', multiple: true, default: [] },
 } });
 const port = Number(values.port);
@@ -43,10 +45,10 @@ if (!prepared) {
     sender: account('sender', 'Minh Khôi · Sender'),
   });
   fs.mkdirSync(appDir);
-  for (const name of ['src', 'web', 'package.json', 'dev.mjs'])
-    fs.cpSync(path.join(root, name), path.join(appDir, name), { recursive: true });
-  fs.symlinkSync(path.join(root, 'node_modules'), path.join(appDir, 'node_modules'), 'junction');
 }
+syncWebDemo(root, appDir);
+if (!fs.existsSync(path.join(appDir, 'node_modules')))
+  fs.symlinkSync(path.join(root, 'node_modules'), path.join(appDir, 'node_modules'), 'junction');
 const runtime = readJson('runtime.json');
 const accounts = readJson('tai-khoan-demo.json');
 const env = {
@@ -63,14 +65,33 @@ const env = {
   TEST_ACCOUNT_EMAIL: accounts.admin.email, TEST_ACCOUNT_PASSWORD: accounts.admin.password,
   CANVAS_EDIT_ENABLED: 'true', CANVAS_PUBLISH_ENABLED: 'true', CANVAS_READ_ENABLED: 'true', GIFT_TTL_DAYS: '365',
 };
-const child = spawn(process.execPath, ['dev.mjs'], { cwd: appDir, env, stdio: 'inherit', windowsHide: true });
-const exited = once(child, 'exit');
-const stop = () => { if (child.exitCode === null && child.signalCode === null) child.kill(); };
+let child, exited, stopping = false, finish, disposeWatch, debounce;
+let refreshWork = Promise.resolve();
+const done = new Promise(resolve => { finish = resolve; });
+function launch() {
+  child = spawn(process.execPath, [fileURLToPath(new URL('./web-demo-server.mjs', import.meta.url))], {
+    cwd: appDir, env, stdio: ['inherit', 'inherit', 'inherit', 'ipc'], windowsHide: true,
+  });
+  exited = once(child, 'exit');
+  // Keep watch mode alive after a syntax error so saving the fix can restart it.
+  child.on('error', error => console.error('Demo:', error.message));
+}
+async function stopChild() {
+  const current = child, ended = exited;
+  if (!current || current.exitCode !== null || current.signalCode !== null) return;
+  if (current.connected) current.send('demo-stop', () => {});
+  const force = setTimeout(() => current.kill(), 11_000);
+  try { await ended; } finally { clearTimeout(force); }
+}
+const stop = () => { stopping = true; finish(); };
+const messageStop = message => { if (message === 'demo-stop') stop(); };
+process.on('message', messageStop);
 process.once('SIGINT', stop);
 process.once('SIGTERM', stop);
 
 async function ready() {
   for (let i = 0; i < 40; i++) {
+    if (stopping || child.exitCode !== null || child.signalCode !== null) throw new Error('Máy chủ demo đã dừng.');
     const payload = await fetch(base + '/api/designs/health', { signal: AbortSignal.timeout(1500) })
       .then(response => response.ok ? response.json() : null).catch(() => null);
     if (payload?.ok && payload.profile.mode === 'json') return;
@@ -80,16 +101,49 @@ async function ready() {
 }
 
 try {
+  launch();
   await Promise.race([ready(), exited.then(() => { throw new Error('Máy chủ demo đã dừng khi khởi động.'); })]);
   if (!prepared) writeJson('trang-thai-demo.json', await seedWebDemo({ base, accounts, appDir }));
+  publishDemoRevision(appDir, randomUUID());
   console.log(`Momevia Web Demo: ${base}\nTài khoản và link các bước: ${demoDir}`);
   if (!values.prepare) {
-    const [code] = await exited;
-    if (code) process.exitCode = code;
+    if (!values['no-watch']) {
+      const changed = new Set();
+      disposeWatch = watchWebDemo(root, file => {
+        changed.add(file);
+        clearTimeout(debounce);
+        debounce = setTimeout(() => {
+          const batch = [...changed];
+          changed.clear();
+          refreshWork = refreshWork.then(async () => {
+            if (stopping) return;
+            syncWebDemo(root, appDir);
+            if (batch.some(file => !file.startsWith('web' + path.sep))) {
+              await stopChild();
+              if (stopping) return;
+              launch();
+              await ready();
+            }
+            if (!stopping) publishDemoRevision(appDir, randomUUID());
+            console.log('Demo đã cập nhật mã nguồn mới; giữ nguyên dữ liệu thử.');
+          }).catch(error => console.error('Chưa cập nhật demo:', error.message));
+        }, 200);
+      }, error => console.error('Không theo dõi được file demo:', error.message));
+      console.log('Tự cập nhật khi lưu file. Trang giới thiệu tự tải lại; trang đang chỉnh thiệp giữ nguyên cho tới khi bạn tải lại.');
+      await done;
+    } else {
+      const result = await Promise.race([exited, done.then(() => [0])]);
+      if (result[0]) process.exitCode = result[0];
+    }
   }
 } finally {
-  stop();
-  await exited;
+  stopping = true;
+  clearTimeout(debounce);
+  disposeWatch?.();
+  await refreshWork;
+  await stopChild();
   process.removeListener('SIGINT', stop);
   process.removeListener('SIGTERM', stop);
+  process.removeListener('message', messageStop);
+  if (process.connected) process.disconnect();
 }

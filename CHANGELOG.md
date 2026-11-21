@@ -1,3 +1,9 @@
+## Unreleased — Thanh chọn mẫu và demo cập nhật theo file (2026-11-21)
+
+- Đưa ba vạch chọn mẫu ra dưới khung thiệp, bỏ nút tạm dừng; bìa tự chuyển kể cả khi đang rê chuột hoặc giữ focus. Giữ preview đúng mẫu và hỗ trợ giảm chuyển động.
+- Demo lấy mã mới mỗi lần khởi động và mặc định theo dõi file; tự tải lại trang giới thiệu/thư viện khi an toàn và khởi động lại backend thử khi mã backend đổi. Giữ tài khoản, phiên, ảnh, nháp và quà demo; không tự tải lại trang đang chỉnh thiệp.
+- Đã kiểm chứng build, check, 459 unit tests, test:templates, test:browser và test:demo:browser. Kịch bản demo dùng dữ liệu cô lập, xác nhận cập nhật trình duyệt, giữ preview/Canvas đang mở và giữ snapshot/nháp sau restart.
+
 ## Unreleased — Ba mẫu thiệp luân phiên ở trang chủ (2026-11-21)
 
 - Khung xem thử đầu trang luân phiên thiệp cưới, sinh nhật và tốt nghiệp mỗi 5 giây; chuyển bìa bằng opacity/transform, giữ nguyên kích thước khung.

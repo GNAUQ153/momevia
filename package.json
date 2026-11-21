@@ -17,6 +17,7 @@
     "test": "node --test tests/unit/*.test.mjs",
     "test:architecture": "node tests/integration/architecture.mjs",
     "test:browser": "node tests/integration/architecture.mjs --browser",
+    "test:demo:browser": "node tests/integration/web-demo.mjs",
     "test:canvas": "node tests/integration/canvas.mjs",
     "test:canvas:browser": "node tests/integration/canvas.mjs --browser",
     "test:canvas:mysql": "node tests/integration/canvas-mysql.mjs",

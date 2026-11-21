@@ -56,7 +56,8 @@ export async function runHomeBrowser(base) {
             cards.evaluateAll(items => Math.max(...items.map(item => item.getBoundingClientRect().bottom))),
             page.locator('main > .mkt-journey').boundingBox(),
           ]);
-          const frameGap = featuredTitle.y - Math.max(frame.y + frame.height, previewBox.y + previewBox.height);
+          const artwork = await hero.locator('.mkt-hero__artwork').boundingBox();
+          const frameGap = featuredTitle.y - Math.max(artwork.y + artwork.height, previewBox.y + previewBox.height);
           const featuredToJourneyGap = journeyTitle.y - cardsTail;
           const journeyToHowGap = howTitle.y - (journeySection.y + journeySection.height);
           assert(frameGap >= 30 && frameGap <= (width <= 900 ? 80 : 120),

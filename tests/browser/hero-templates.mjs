@@ -17,6 +17,10 @@ export async function runHeroTemplatesBrowser(browser, base) {
       const dialog = page.getByRole('dialog');
       await waitForTemplate(page, ids[0]);
       const originalBox = await cover.boundingBox();
+      const frame = await page.locator('.mkt-hero__frame').boundingBox();
+      const controls = await page.locator('.mkt-hero__rotation').boundingBox();
+      assert(controls.y >= frame.y + frame.height, 'The three indicators sit below the artwork');
+      assert.equal(await page.locator('[data-hero-playback]').count(), 0, 'There is no pause button');
       for (const [index, id] of ids.entries()) {
         const selector = page.locator(`[data-hero-select="${index}"]`);
         const box = await selector.boundingBox();
@@ -37,7 +41,6 @@ export async function runHeroTemplatesBrowser(browser, base) {
         await page.waitForFunction(() => globalThis.document.activeElement?.matches('.mkt-hero__cover'));
         assert.equal(await cover.evaluate(node => node === globalThis.document.activeElement), true);
       }
-      assert.equal(await page.locator('[data-hero-playback]').isDisabled(), true);
     } finally { await context.close(); }
   }
 
@@ -59,17 +62,10 @@ export async function runHeroTemplatesBrowser(browser, base) {
       await page.clock.fastForward(5100);
       await waitForTemplate(page, id);
     }
-    const playback = page.locator('[data-hero-playback]');
-    await playback.click();
-    await page.clock.fastForward(11000);
-    assert.equal(await active(page), ids[0], 'Explicit pause persists');
-    await playback.click();
-    await page.clock.fastForward(5100);
-    await waitForTemplate(page, ids[1]);
     const cover = page.locator('.mkt-hero__cover');
     await cover.focus();
-    await page.clock.fastForward(11000);
-    assert.equal(await active(page), ids[1], 'Focused preview does not change under the keyboard');
+    await page.clock.fastForward(5100);
+    await waitForTemplate(page, ids[1]);
     await page.keyboard.press('Enter');
     const dialog = page.getByRole('dialog');
     await dialog.locator('[data-runtime-element="event-photo-birthday"]').waitFor();
@@ -85,12 +81,12 @@ export async function runHeroTemplatesBrowser(browser, base) {
     await page.clock.fastForward(5100);
     await waitForTemplate(page, ids[2]);
     await cover.hover();
-    await page.clock.fastForward(11000);
-    assert.equal(await active(page), ids[2], 'Pointer hover pauses cover rotation');
+    await page.clock.fastForward(5100);
+    await waitForTemplate(page, ids[0]);
     await page.mouse.move(0, 0);
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.clock.fastForward(11000);
-    assert.equal(await active(page), ids[2], 'Reduced motion stops automatic changes');
+    assert.equal(await active(page), ids[0], 'Reduced motion stops automatic changes');
     await page.locator('[data-hero-select="0"]').click();
     await waitForTemplate(page, ids[0]);
     await page.locator('.mkt-actions a[href="/explore"]').click();
@@ -108,5 +104,5 @@ export async function runHeroTemplatesBrowser(browser, base) {
     await page.locator('.mkt-hero__cover').click();
     await page.getByRole('dialog').locator('[data-runtime-element="open-memory"]').waitFor();
   } finally { await context.close(); }
-  console.log('PASS Hero covers: all three matching players VI/EN, stable mobile artboard, autoplay loop, pause/resume, focus, hover, reduced motion, disposal and failed-image fallback.');
+  console.log('PASS Hero covers: three indicators below artwork, matching players VI/EN, stable mobile artboard, autoplay including focus/hover, reduced motion, disposal and failed-image fallback.');
 }

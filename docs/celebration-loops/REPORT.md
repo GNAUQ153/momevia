@@ -34,6 +34,6 @@ Chuyển động dùng cơ chế WAAPI và token tốc độ sẵn có; không v
 - PASS: MySQL 8.4.13 cô lập, gồm 13 ca gốc và tạo/lưu/phát hành/ghim ảnh/tặng lại cả ba mẫu với cấu hình mới.
 - PASS: toàn bộ `test:canvas:browser` trên bản nguồn đã commit `65eaa54` cộng thay đổi web của lượt này. Bản sao cô lập chỉ điều chỉnh sao chép dependency để theo junction Windows; không đổi bất kỳ assertion nào.
 
-Lượt `test:canvas:browser` chạy trực tiếp trên thư mục làm việc chung hiện dừng ở `tests/integration/canvas.mjs:167`: ca kiểm nguồn gọi mong 403 nhưng nhận 201. Các tệp backend kiểm nguồn gọi đang có thay đổi ngoài phạm vi; chúng được giữ nguyên, không stage hoặc sửa để làm test xanh. Bộ kiểm riêng cho hiệu ứng và bản hồi quy cô lập nêu trên đã đạt.
+Ở mốc kiểm trước, `test:canvas:browser` trên thư mục làm việc chung dừng ở `tests/integration/canvas.mjs:167`: ca nguồn gọi mong 403 nhưng nhận 201. **Đã khắc phục ngày 21/11/2026 theo yêu cầu tiếp theo**: đồng bộ kiểm thử với alias loopback, giữ chặn origin lạ và chạy lại toàn bộ bộ kiểm trên mã hiện tại. Xem [báo cáo kiểm thử tổng](../ORIGIN_REGRESSION_QA_2026-11-21.md).
 
 Nguồn được đối chiếu trực tiếp ở schema/effects dùng chung, bộ chỉnh Designer, vòng đời player và scheduler. Áp dụng hướng dẫn về mẫu chỉnh sửa được, chuyển động và hiệu năng đã dùng ở các lượt trước. Không push hoặc triển khai máy chủ. Bản xem thử 4182 dùng dữ liệu thử riêng.

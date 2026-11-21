@@ -36,5 +36,12 @@
     "B07",
     "B08"
   ],
-  "physicalDeviceTested": false
+  "physicalDeviceTested": false,
+  "resolution": {
+    "result": "PASS",
+    "date": "2026-11-21",
+    "testedCodeCommit": "0f465e5",
+    "originFixCommit": "dde2429",
+    "report": "../ORIGIN_REGRESSION_QA_2026-11-21.md"
+  }
 }

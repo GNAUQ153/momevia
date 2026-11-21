@@ -1,0 +1,64 @@
+[
+  {
+    "id": "birthday-radiance",
+    "result": "PASS",
+    "observedEffects": [
+      "E02",
+      "E05",
+      "B07",
+      "A05",
+      "T01",
+      "B05",
+      "T03",
+      "B06",
+      "E03",
+      "T06",
+      "B08",
+      "T05",
+      "A02"
+    ],
+    "frames": 321,
+    "output": "docs/event-cards-expanded/birthday-radiance-motion.gif"
+  },
+  {
+    "id": "hai-phong-bi",
+    "result": "PASS",
+    "observedEffects": [
+      "E02",
+      "E06",
+      "B06",
+      "A02",
+      "T03",
+      "B08",
+      "E03",
+      "T01",
+      "B05",
+      "T06",
+      "T05",
+      "B07"
+    ],
+    "frames": 358,
+    "output": "docs/event-cards-expanded/hai-phong-bi-motion.gif"
+  },
+  {
+    "id": "proud-of-you",
+    "result": "PASS",
+    "observedEffects": [
+      "E02",
+      "E05",
+      "B07",
+      "A05",
+      "T01",
+      "B05",
+      "T03",
+      "B06",
+      "E03",
+      "A02",
+      "T06",
+      "B08",
+      "T05"
+    ],
+    "frames": 322,
+    "output": "docs/event-cards-expanded/proud-of-you-motion.gif"
+  }
+]

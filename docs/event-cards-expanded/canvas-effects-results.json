@@ -1,0 +1,56 @@
+[
+  {
+    "family": "entrance",
+    "id": "E05",
+    "result": "PASS",
+    "check": "Chosen in Canvas, saved through API, and rendered by effect-specific preview"
+  },
+  {
+    "family": "entrance",
+    "id": "E06",
+    "result": "PASS",
+    "check": "Chosen in Canvas, saved through API, and rendered by effect-specific preview"
+  },
+  {
+    "family": "emphasis",
+    "id": "A05",
+    "result": "PASS",
+    "check": "Chosen in Canvas, saved through API, and rendered by effect-specific preview"
+  },
+  {
+    "family": "transition",
+    "id": "T05",
+    "result": "PASS",
+    "check": "Chosen in Canvas, saved through API, and rendered by effect-specific preview"
+  },
+  {
+    "family": "transition",
+    "id": "T06",
+    "result": "PASS",
+    "check": "Chosen in Canvas, saved through API, and rendered by effect-specific preview"
+  },
+  {
+    "family": "ambience",
+    "id": "B05",
+    "result": "PASS",
+    "check": "Chosen in Canvas, saved through API, and rendered by effect-specific preview"
+  },
+  {
+    "family": "ambience",
+    "id": "B06",
+    "result": "PASS",
+    "check": "Chosen in Canvas, saved through API, and rendered by effect-specific preview"
+  },
+  {
+    "family": "ambience",
+    "id": "B07",
+    "result": "PASS",
+    "check": "Chosen in Canvas, saved through API, and rendered by effect-specific preview"
+  },
+  {
+    "family": "ambience",
+    "id": "B08",
+    "result": "PASS",
+    "check": "Chosen in Canvas, saved through API, and rendered by effect-specific preview"
+  }
+]

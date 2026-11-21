@@ -1,0 +1,17 @@
+[
+  {
+    "id": "birthday-radiance",
+    "result": "PASS",
+    "check": "one-click live preview opens 5/6 scenes with active animations at fresh loopback origin"
+  },
+  {
+    "id": "hai-phong-bi",
+    "result": "PASS",
+    "check": "one-click live preview opens 5/6 scenes with active animations at fresh loopback origin"
+  },
+  {
+    "id": "proud-of-you",
+    "result": "PASS",
+    "check": "one-click live preview opens 5/6 scenes with active animations at fresh loopback origin"
+  }
+]

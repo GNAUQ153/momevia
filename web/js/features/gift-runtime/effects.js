@@ -1,4 +1,5 @@
 import { effectSpeed } from "../../shared/canvas/effects.js";
+import { celebrate, photoFragments } from './celebrations.js';
 
 const duration = preset => effectSpeed[preset.speed || "normal"];
 const standard = "cubic-bezier(.22,.61,.36,1)";
@@ -94,7 +95,9 @@ export async function playElement(node, model, motion, signal, only, registerTyp
       E02: [{opacity:0,translate:"0 18px"},{opacity,translate:"0 0"}],
       E04: [{clipPath:"inset(0 100% 0 0)"},{clipPath:"inset(0 0 0 0)"}],
     }[entrance.id];
-    if (entrance.id === "E03") {
+    if (['E05','E06'].includes(entrance.id)) {
+      await photoFragments(node,entrance,motion,signal);
+    } else if (entrance.id === "E03") {
       await playTypewriter(node, entrance, motion, signal, registerTypewriter);
     } else {
       await motion.run(node, frames, {duration:duration(entrance),delay:entrance.delay||0,fill:"backwards"}, signal);
@@ -103,7 +106,9 @@ export async function playElement(node, model, motion, signal, only, registerTyp
   }
   if (!emphasis || (only && only !== "emphasis") || signal?.aborted || !motion.enabled()) return;
   node.dataset.giftEffect = emphasis.id;
-  if (emphasis.id === "A01" || emphasis.id === "A02") {
+  if (emphasis.id === 'A05') {
+    await motion.run(node,[{rotate:'0deg'},{rotate:'360deg'}],{duration:duration(emphasis)*2},signal);
+  } else if (emphasis.id === "A01" || emphasis.id === "A02") {
     const frames = emphasis.id === "A01"
       ? [1,1.055,1,1.05,1].map(scale => ({scale}))
       : ["0deg","-4deg","3deg","0deg"].map(rotate => ({rotate}));
@@ -144,15 +149,19 @@ export function sceneTransition(stage, incoming, previous, preset, motion, signa
     T02: [{translate:"0 0"},{translate:"-100% 0"}],
     T03: [{transform:"perspective(700px) rotateY(0deg)"},{transform:"perspective(700px) rotateY(-93deg)",opacity:.1}],
     T04: [{opacity:1},{opacity:1}],
+    T05: [{opacity:1,transform:'scale(1)'},{opacity:0,transform:'scale(1.04) translateY(-8px)'}],
+    T06: [{opacity:1},{opacity:0}],
   }[preset.id];
   if (preset.id === "T02") {
     void motion.run(incoming, [{ translate: "100% 0" }, { translate: "0 0" }], { duration: ms }, signal);
   }
+  if (preset.id === 'T06') void motion.run(incoming,[{clipPath:'circle(8% at 50% 50%)',opacity:.5},{clipPath:'circle(100% at 50% 50%)',opacity:1}],{duration:ms},signal);
   return motion.run(previous,frames,{duration:ms},signal,() => previous.remove());
 }
 
 export function playAmbience(stage,preset,motion,signal) {
   if (!preset || !motion.enabled()) return;
+  if (['B05','B06','B07','B08'].includes(preset.id)) return celebrate(stage,preset,motion,signal);
   const layer = decoration("gift-ambience");
   layer.dataset.giftEffect = preset.id;
   stage.append(layer);

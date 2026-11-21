@@ -1,6 +1,7 @@
 import { attr, createLocaleControl, onLocaleChange, text, t } from '../../core/i18n.js';
 import { isSystemTemplate } from '../../shared/template-copy.js';
 import { templateField, templateValue } from './template-copy.js';
+import { eventMediaUrl } from '../../shared/canvas/event-media.js';
 
 export function templatePreviewDialog(template) {
   return `<dialog class="template-preview-dialog" ${attr('aria-label', 'catalog.detail.previewLabel', { title: templateValue(template, 'title') })}>
@@ -12,7 +13,7 @@ export function templatePreviewDialog(template) {
   </dialog>`;
 }
 
-export function mountTemplatePreview(host, template, { api, onOpen }) {
+export function mountTemplatePreview(host, template, { api, onOpen, autoOpen = false }) {
   const dialog = host.querySelector('.template-preview-dialog');
   const close = dialog.querySelector('[data-template-close]');
   const reset = dialog.querySelector('[data-template-reset]');
@@ -57,7 +58,7 @@ export function mountTemplatePreview(host, template, { api, onOpen }) {
       player = mountPlayer(playerHost, {
         document: endpoint ? source : source.templatePreviewDocument(template, isSystemTemplate(template) ? t : undefined),
         mode: 'preview',
-        assetUrl: endpoint ? id => `/api${endpoint}/assets/${encodeURIComponent(id)}` : undefined,
+        assetUrl: endpoint ? id => `/api${endpoint}/assets/${encodeURIComponent(id)}` : eventMediaUrl,
       });
       reset.hidden = false;
       note.hidden = true;
@@ -91,5 +92,6 @@ export function mountTemplatePreview(host, template, { api, onOpen }) {
     if (opener?.isConnected) opener.focus();
   }, options);
   dialog.addEventListener('submit', event => event.stopPropagation(), options);
+  if (autoOpen) queueMicrotask(() => { if (!lifecycle.signal.aborted) host.querySelector('[data-template-preview]')?.click(); });
   return { dispose() { removeLocaleListener(); lifecycle.abort(); clear(); if (dialog.open) dialog.close(); } };
 }

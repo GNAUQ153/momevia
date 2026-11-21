@@ -11,6 +11,7 @@ import { AssetsService } from '../../src/modules/designs/assets.service.mjs';
 import { GiftService } from '../../src/modules/gifts/gifts.service.mjs';
 import { createElement } from '../../web/js/shared/canvas/index.js';
 import { templates } from '../../src/modules/catalog/seed.mjs';
+import { publicTemplate } from '../../src/modules/catalog/catalog.service.mjs';
 
 const status = expected => error => error.status === expected;
 const user = { sub: '93008d06-73eb-40c2-9c5a-26c19a4de0f5', role: 'sender' };
@@ -99,6 +100,66 @@ test('tặng lại từ bố cục riêng strips text, descriptions, IDs, photos
     assert(!JSON.stringify(clean).includes(privateValue));
   assert.equal((await f.service.regift(user, gift, intent)).design.id, clean.id);
   assert.equal((await f.repository.findBySlug(gift.slug)).recipientName, 'Nguyễn Mai');
+});
+
+test('old system gift fingerprints regift their own clean layout, with current authorization and retry identity', async t => {
+  const f = fixture(t);
+  const baseline = JSON.parse(fs.readFileSync(new URL('../fixtures/event-cards-before.json', import.meta.url)));
+  let extraPrice = 0, systemOwned = true;
+  f.service.catalog.reusableVersion = async () => null;
+  f.service.catalog.getTemplate = async id => ({ ...publicTemplate(templates.find(t => t.id === id)), systemOwned, price: extraPrice });
+  for (const [id, oldDocument] of Object.entries(baseline.documents)) {
+    const snapshot = structuredClone(oldDocument);
+    snapshot.bindings.message.value = 'Private old greeting';
+    snapshot.elements[0].layout.x += 4;
+    const old = structuredClone(snapshot);
+    const gift = { id: randomUUID(), templateId: id, templateVersionId: randomUUID(), documentSnapshot: snapshot };
+    // Strict new-from-template creation still rejects a stale source version.
+    await assert.rejects(f.service.create(user, { source: { kind: 'template', templateId: id, templateVersionId: gift.templateVersionId }, mutationId: randomUUID() }), error => error.code === 'TEMPLATE_VERSION_CONFLICT');
+    const input = { mutationId: randomUUID() };
+    const { design } = await f.service.regift(user, gift, input);
+    assert.equal((await f.service.regift(user, gift, input)).design.id, design.id);
+    assert.equal(design.source.templateId, id);
+    assert.notEqual(design.source.templateVersionId, gift.templateVersionId);
+    assert(!JSON.stringify(design).includes('Private old greeting'));
+    assert.deepEqual(design.document.elements.map(e => e.layout), snapshot.elements.map(e => e.layout));
+    assert(Object.values(design.document.bindings).every(b => b.value === ''));
+    assert.deepEqual(snapshot, old);
+    extraPrice = 12345;
+    await assert.rejects(f.service.regift(user, gift, { mutationId: randomUUID() }), error => error.code === 'TEMPLATE_LICENSE_REQUIRED');
+    extraPrice = 0; systemOwned = false;
+    await assert.rejects(f.service.regift(user, gift, { mutationId: randomUUID() }), error => error.code === 'TEMPLATE_VERSION_CONFLICT');
+    systemOwned = true;
+  }
+});
+
+test('photographic Originals own and pin immutable images; regift retains only known artwork and removes private uploads', async t => {
+  const f = fixture(t);
+  f.service.catalog.reusableVersion = async () => null;
+  f.service.catalog.getTemplate = async id => publicTemplate(templates.find(t => t.id === id));
+  for (const templateId of ['birthday-radiance','hai-phong-bi','proud-of-you']) {
+    const d = await create(f, { kind: 'template', templateId });
+    assert.equal(d.document.assets.length, 1);
+    const art = await f.repository.getAsset(user.sub, d.document.assets[0].assetId);
+    assert(art && f.service.assetExists(art)); assert.equal(art.designId, d.id);
+    const privatePhoto = await f.assets.upload(user, d.id, randomUUID(), await image());
+    const input = saveInput(d);
+    input.document.assets.push({ assetId: privatePhoto.id, kind: 'image' });
+    const node = createElement('image', { props: { assetId: privatePhoto.id }, accessibility: { alt: 'Private personal photograph' } });
+    input.document.elements.push(node); input.document.scenes[0].elementIds.push(node.id);
+    await f.service.save(user, d.id, input);
+    const current = designView(await f.service.get(user, d.id));
+    const { gift } = await f.service.publish(user, publicationInput(current));
+    const { design: clean } = await f.service.regift(user, gift, { mutationId: randomUUID() });
+    assert.equal(clean.document.assets.length, 1);
+    assert.notEqual(clean.document.assets[0].assetId, art.id);
+    const copied = await f.repository.getAsset(user.sub, clean.document.assets[0].assetId);
+    assert.equal(copied.contentHash, art.contentHash); assert(f.service.assetExists(copied));
+    assert.equal(clean.document.elements.filter(e => e.type === 'image').length, d.document.elements.filter(e => e.type === 'image').length);
+    assert(!JSON.stringify(clean).includes('Private personal photograph'));
+    assert(!JSON.stringify(clean).includes(privatePhoto.id));
+    assert.deepEqual((await f.repository.findBySlug(gift.slug)).documentSnapshot, gift.documentSnapshot);
+  }
 });
 
 test('create replay recovers committed result while source catalog is unavailable; duplicate replay after source archive', async t => {

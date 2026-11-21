@@ -151,7 +151,7 @@ try{
   await check('C02 catalog has 24 presets, free template publishes and data stays intact',async()=>{
     const originals=JSON.stringify((await json('/api/catalog/templates')).templates);
     assert.equal(JSON.parse(originals).length,24);
-    for(const template of templates){const d=await create({kind:'template',templateId:template.id});assert.equal(d.source.templateId,template.id);assert.equal(d.document.scenes.length,3);}
+    for(const template of templates){const d=await create({kind:'template',templateId:template.id});assert.equal(d.source.templateId,template.id);assert.equal(d.document.scenes.length,template.scenes,template.id);}
     const free=await create({kind:'template',templateId:'confetti'});const saved=await save(free,fill(free));assert.equal((await preflight(saved)).canPublish,true);
     await post('/api/gifts/gifts/from-design',cookie,publishBody(saved),201);
     assert.equal(JSON.stringify((await json('/api/catalog/templates')).templates),originals);

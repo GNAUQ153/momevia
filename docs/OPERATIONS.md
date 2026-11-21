@@ -4,6 +4,8 @@
 
 Chạy `npm ci`, `npm run build` rồi `npm start`. Ứng dụng mặc định nghe ở localhost:4100. Khi chạy sau reverse proxy, đặt `HOST`, `PORT`, `PUBLIC_BASE_URL` và HTTPS theo địa chỉ thực tế. Hai khóa `JWT_SECRET` và `INTERNAL_SERVICE_KEY` phải khác nhau và dài ít nhất 32 ký tự. Duy trì khóa phiên khi khởi động lại. Kiểm tra `/api/designs/health`, quà legacy và quà canvas qua địa chỉ chia sẻ đã cấu hình.
 
+`localhost`, `127.0.0.1` và `[::1]` được chấp nhận thay thế nhau trên cùng giao thức/cổng nếu URL cấu hình là loopback, kể cả production. Dùng `ALLOWED_ORIGINS` để thêm các URL truy cập cụ thể, phân cách bằng dấu phẩy (ví dụ Forwarded Address HTTPS của VS Code); không dùng wildcard. Các origin công khai phải khớp `PUBLIC_BASE_URL` hoặc danh sách đã khai báo chính xác; không tự quy đổi tên miền công khai thành loopback. Không suy ra nguồn tin cậy từ header proxy do client gửi.
+
 `.env.example` ghi các cờ runtime. Có thể cấp một tài khoản QA khi startup bằng nhóm `TEST_ACCOUNT_*`, với vai trò `sender`, `creator` hoặc `admin`. Dùng email riêng cho tài khoản opt-in. Tắt cờ ngừng khởi tạo thêm tài khoản. [Web demo nhiều vai trò](DEMO_WEB.md)
 
 ## Lưu trữ, migration và khôi phục

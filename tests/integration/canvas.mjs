@@ -21,6 +21,7 @@ async function launch(extra = {}) {
     IDENTITY_STORAGE: 'json', CATALOG_STORAGE: 'json', CHECKOUT_STORAGE: 'json', GIFTS_STORAGE: 'json', SUPPORT_STORAGE: 'json', DESIGNS_STORAGE: 'json',
     PAYMENT_ENABLED: 'false', PAYMENT_LIVE_ENABLED: 'false', CANVAS_READ_ENABLED: 'true', CANVAS_EDIT_ENABLED: 'true', CANVAS_PUBLISH_ENABLED: 'true',
     TEST_ACCOUNT_ENABLED: 'false', ...extra };
+  env.ALLOWED_ORIGINS = 'https://canvas-qa.example.test';
   // Session keys stay fixed across restart so the replay caller is the same owner.
   if (launch.secrets) Object.assign(env, launch.secrets); else launch.secrets = { JWT_SECRET: env.JWT_SECRET, INTERNAL_SERVICE_KEY: env.INTERNAL_SERVICE_KEY };
   child = spawn(process.execPath, ['fixture.mjs'], { cwd: fixture, env, windowsHide: true, stdio: ['ignore', 'pipe', 'pipe'] });
@@ -163,8 +164,22 @@ try {
     const alias = base.replace('127.0.0.1', 'localhost');
     const template = (await request('/catalog/templates')).data.templates.find(item => item.price === 0);
     const body = { templateId: template.id, recipientName: 'Mai legacy', senderName: 'An', message: 'Quà cũ vẫn mở được.' };
-    const blocked = await request('/gifts/gifts', { cookie: owner.cookie, body, headers: { origin: alias } });
-    assert.equal(blocked.status, 403);
+    const before = (await request('/gifts/gifts/mine', { cookie: owner.cookie })).data.gifts.length;
+    const port = new URL(base).port;
+    for (const origin of ['https://evil.example', `http://localhost:${port === '4100' ? '4101' : '4100'}`,
+      `https://localhost:${port}`, `http://localhost.evil.example:${port}`, 'https://other-qa.example.test', 'null']) {
+      const blocked = await request('/gifts/gifts', { cookie: owner.cookie, body, headers: { origin,
+        'x-forwarded-host': new URL(base).host, 'x-forwarded-proto': 'http', forwarded: `host=${new URL(base).host};proto=http` } });
+      assert.equal(blocked.status, 403, origin);
+      assert.match(blocked.headers.get('content-type'), /application\/json/);
+      assert.equal(blocked.headers.get('set-cookie'), null);
+    }
+    assert.equal((await request('/gifts/gifts/mine', { cookie: owner.cookie })).data.gifts.length, before, 'rejected writes create no gifts');
+    for (const origin of [alias, 'https://canvas-qa.example.test']) {
+      const allowed = await request('/gifts/gifts', { cookie: owner.cookie, body, headers: { origin } });
+      assert.equal(allowed.status, 201, origin);
+      assert.equal(allowed.data.gift.url, `${base}/g/${allowed.data.gift.slug}`);
+    }
     const created = await request('/gifts/gifts', { cookie: owner.cookie, body, headers: { origin: base } });
     assert.equal(created.status, 201);
     const { gifts } = (await request('/gifts/gifts/mine', { cookie: owner.cookie })).data;
@@ -174,6 +189,16 @@ try {
       const loaded = await fetch(`${alias}/api/gifts/gifts/${gift.slug}`);
       assert.equal((await loaded.json()).gift.url, gift.url);
     }
+    // Exercise the real production configuration with the same persisted owner
+    // and session keys. Loopback aliases stay equivalent in production too.
+    await stop(); await launch({ NODE_ENV: 'production' });
+    const productionAlias = base.replace('127.0.0.1', 'localhost');
+    assert.equal((await request('/gifts/gifts', { cookie: owner.cookie, body, headers: { origin: productionAlias } })).status, 201);
+    assert.equal((await request('/gifts/gifts', { cookie: owner.cookie, body, headers: { origin: 'https://evil.example' } })).status, 403);
+    assert.equal((await request('/gifts/gifts', { cookie: owner.cookie, body, headers: { origin: productionAlias.replace('http:', 'https:') } })).status, 403);
+    assert.equal((await request('/gifts/gifts', { cookie: owner.cookie, body, headers: { origin: base } })).status, 201);
+    assert.equal((await request('/gifts/gifts', { cookie: owner.cookie, body, headers: { origin: 'https://canvas-qa.example.test' } })).status, 201);
+    await stop(); await launch();
   });
   await check('C21 anonymous reply contract and count', async () => {
     const replies = await Promise.all([request(`/gifts/gifts/${published.slug}/replies`, { body: { name: 'Mai', message: 'Cảm ơn bạn!' } }), request(`/gifts/gifts/${published.slug}/replies`, { body: { message: 'Rất vui!' } })]);
@@ -219,7 +244,7 @@ try {
   });
   if (process.argv.includes('--browser')) {
     const { runExpandedBrowser } = await import('../browser/canvas-expanded.mjs');
-    await check('172 UI cards, 24 effects, touch/keyboard, and three public V2 QA cards', () =>
+    await check('172 UI cards, 33 effects, touch/keyboard, and three public V2 QA cards', () =>
       runExpandedBrowser(base, owner.cookie, expanded, expandedArtifacts));
     const { runSenderIdentity } = await import('../browser/sender-identity.mjs');
     await check('Creator template identity is isolated from preview data', () => runSenderIdentity(base));

@@ -9,12 +9,13 @@ function node(tag, css, text) {
   return element;
 }
 
-export function renderInteraction(model, { mode, signal, renderPhoto, renderArt, activate }) {
+export function renderInteraction(model, { mode, signal, motion, renderPhoto, renderArt, activate }) {
   const { kind, color, entries, photos, eventAt, timeZone } = model.props;
   const spec = interactionKinds[kind];
   const root = node("section", `gift-runtime-interaction gift-runtime-${kind}`);
   root.style.backgroundColor = color;
   setAttr(root, "aria-label", label(`gift.interactions.kind.${kind}`));
+  if (kind === 'event-countdown' && model.props.clockMode === 'elapsed') setAttr(root, 'aria-label', label('templates.story.elapsed'));
   const live = mode === "preview" || mode === "public";
   const listen = (target, event, handle) => target.addEventListener(event, handle, { signal });
   const button = (label, action, css = "", navigation) => {
@@ -116,24 +117,49 @@ export function renderInteraction(model, { mode, signal, renderPhoto, renderArt,
     }
   } else if (kind === "swipe-album") {
     const available = photos.filter(photo => photo.assetId);
-    const pages = available.length ? available : photos;
+    const pages = available.length ? available : model.props.optional ? [photos[0]] : photos;
+    if (model.props.optional) root.classList.add('gift-album-story');
     const frame = node("figure", "gift-album-frame");
     const picture = node("div", "gift-interaction-picture");
     const caption = node("figcaption", "gift-interaction-copy");
     const indicator = status("");
     let index = 0, start;
-    const setPage = target => {
+    const setPage = (target, automatic = false) => {
       if (target < 0 || target >= pages.length) return;
       index = target;
-      picture.replaceChildren(renderPhoto(pages[index]));
+      root.dataset.albumIndex = String(index);
+      picture.replaceChildren(!available.length && model.props.optional
+        ? node('p', 'gift-album-empty', label('gift.interactions.albumEmpty')) : renderPhoto(pages[index]));
+      if (automatic && motion?.enabled()) void motion.run(picture, [{ transform: 'perspective(700px) rotateY(-24deg) scale(.96)', opacity: .2 }, { transform: 'perspective(700px) rotateY(0deg) scale(1)', opacity: 1 }], { duration: 450 }, signal);
       caption.textContent = pages[index].caption;
       caption.hidden = !pages[index].caption;
       setText(indicator, label("gift.interactions.albumPage", { index: index + 1, total: pages.length }));
       before.setAttribute("aria-disabled", String(index === 0));
       after.setAttribute("aria-disabled", String(index === pages.length-1));
     };
-    const before = button(label("catalog.pagination.prev"), () => setPage(index - 1));
-    const after = button(label("gift.interactions.next"), () => setPage(index + 1));
+    let playing = false, clock;
+    const preference = globalThis.matchMedia?.('(prefers-reduced-motion: reduce)');
+    const syncPlay = () => {
+      if (!play) return;
+      setText(play, label(playing ? 'gift.interactions.albumPause' : 'gift.interactions.albumPlay'));
+      play.setAttribute('aria-pressed', String(playing));
+      play.disabled = Boolean(preference?.matches);
+    };
+    const stop = () => { playing = false; clearInterval(clock); syncPlay(); };
+    const manual = target => { stop(); setPage(target); };
+    const before = button(label("catalog.pagination.prev"), () => manual(index - 1));
+    const after = button(label("gift.interactions.next"), () => manual(index + 1));
+    const play = model.props.autoplay ? button(label('gift.interactions.albumPlay'), () => {
+      if (playing) stop(); else startPlayback();
+    }, 'gift-album-play') : null;
+    function startPlayback() {
+      if (!live || available.length < 2 || preference?.matches || motion?.enabled() === false) return syncPlay();
+      clearInterval(clock); playing = true; syncPlay();
+      clock = setInterval(() => {
+        if (globalThis.document.hidden || root.contains(globalThis.document.activeElement) || root.matches(':hover')) return;
+        setPage((index + 1) % pages.length, true);
+      }, 5000);
+    }
     if (live) {
       listen(picture, "pointerdown", event => {
         if (event.button !== 0 || start) return;
@@ -143,7 +169,7 @@ export function renderInteraction(model, { mode, signal, renderPhoto, renderArt,
       listen(picture, "pointerup", event => {
         if (start?.id !== event.pointerId) return;
         const dx = event.clientX - start.x, dy = event.clientY - start.y;
-        if (Math.abs(dx) > 35 && Math.abs(dx) > Math.abs(dy)) setPage(index + (dx < 0 ? 1 : -1));
+        if (Math.abs(dx) > 35 && Math.abs(dx) > Math.abs(dy)) manual(index + (dx < 0 ? 1 : -1));
         start = null;
       });
       for (const name of ["pointercancel","lostpointercapture"])
@@ -151,14 +177,21 @@ export function renderInteraction(model, { mode, signal, renderPhoto, renderArt,
       listen(root,"keydown",event => {
         if (!["ArrowLeft","ArrowRight"].includes(event.key)) return;
         event.preventDefault();
-        setPage(index + (event.key === "ArrowRight" ? 1 : -1));
+        manual(index + (event.key === "ArrowRight" ? 1 : -1));
       });
     }
     frame.append(picture,caption);
     const pager = node("div", "gift-album-controls");
     pager.append(before,indicator,after);
     root.append(frame,pager);
+    if (play) { play.hidden = available.length < 2; root.append(play); }
     setPage(0);
+    if (model.props.autoplay && live) {
+      startPlayback();
+      preference?.addEventListener('change', stop, { signal });
+      const untrack = motion?.track(stop);
+      signal?.addEventListener('abort', () => { stop(); untrack?.(); }, { once: true });
+    }
   } else if (kind === "photo-comparison") {
     const figure = node("div", "gift-interaction-picture gift-comparison-picture");
     const after = renderPhoto(photos[1]), before = renderPhoto(photos[0]);
@@ -248,6 +281,7 @@ export function renderInteraction(model, { mode, signal, renderPhoto, renderArt,
     build();
     root.append(assembled,pieces,skip,message);
   } else {
+    if (model.props.optional) root.classList.add('gift-event-story');
     const heading = node("h3", "", first.heading);
     const date = node("time", "gift-event-date");
     const countdown = node("p", "gift-countdown-time", "00 : 00 : 00");
@@ -260,8 +294,10 @@ export function renderInteraction(model, { mode, signal, renderPhoto, renderArt,
       }));
       let clock;
       const tick = () => {
-        const seconds = Math.max(0, Math.ceil((Date.parse(eventAt) - Date.now()) / 1000));
-        if (!seconds) {
+        const elapsed = model.props.clockMode === 'elapsed';
+        const delta = (elapsed ? Date.now() - Date.parse(eventAt) : Date.parse(eventAt) - Date.now()) / 1000;
+        const seconds = Math.max(0, elapsed ? Math.floor(delta) : Math.ceil(delta));
+        if (!seconds && !elapsed) {
           countdown.hidden = true;
           arrival.textContent = first.body;
           clearInterval(clock);
@@ -272,10 +308,13 @@ export function renderInteraction(model, { mode, signal, renderPhoto, renderArt,
           count: units[0], clock: units.slice(1).map(unit => String(unit).padStart(2, "0")).join(":"),
         }));
       };
-      if (Date.parse(eventAt) > Date.now()) clock = setInterval(tick, 1000);
+      if (model.props.clockMode === 'elapsed' || Date.parse(eventAt) > Date.now()) clock = setInterval(() => { if (!globalThis.document.hidden) tick(); }, 1000);
       signal?.addEventListener("abort", () => clearInterval(clock), {once:true});
       tick();
-    } else setText(date, label(live ? "gift.interactions.noDate" : "gift.interactions.datePreview"));
+    } else {
+      if (model.props.optional) countdown.hidden = true;
+      setText(date, label(model.props.optional ? 'gift.interactions.optionalDate' : live ? "gift.interactions.noDate" : "gift.interactions.datePreview"));
+    }
   }
   return root;
 }

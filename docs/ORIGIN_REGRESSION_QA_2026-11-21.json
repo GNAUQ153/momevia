@@ -1,0 +1,72 @@
+{
+  "date": "2026-11-21",
+  "testedCodeCommit": "0f465e539be061465d48bbcd77f98659bd4a2605",
+  "branch": "plan/event-card-redesign",
+  "platform": "win32",
+  "node": "v24.14.0",
+  "browser": "Edge / Playwright 1.65.1",
+  "originPolicy": {
+    "loopbackAliases": [
+      "localhost",
+      "127.0.0.1",
+      "[::1]"
+    ],
+    "allEnvironments": true,
+    "sameProtocolAndPort": true,
+    "publicOrigins": "exact allowlist",
+    "spoofedProxyHeaders": "rejected"
+  },
+  "checks": {
+    "build": "PASS",
+    "sourceCheck": "PASS",
+    "audit": {
+      "result": "PASS",
+      "vulnerabilities": 0
+    },
+    "unit": {
+      "result": "PASS",
+      "count": 384
+    },
+    "templates": "PASS",
+    "canvasApi": "PASS",
+    "canvasBrowser": "PASS",
+    "browserArchitecture": "PASS",
+    "legacyArchitecture": "PASS",
+    "mysqlAdapters": {
+      "result": "PASS",
+      "cases": 13
+    },
+    "mysqlApiBrowser": {
+      "result": "PASS",
+      "cases": 20
+    },
+    "restore": {
+      "result": "PASS",
+      "versions": [
+        1,
+        2
+      ],
+      "migrations": 9,
+      "mediaParity": true
+    },
+    "freshDemoCli": "PASS",
+    "releasePackage": "PASS",
+    "releaseSmoke": [
+      "check",
+      "unit",
+      "architecture",
+      "templates",
+      "canvas"
+    ]
+  },
+  "externalProviderRequests": 0,
+  "merchantLive": "NOT RUN",
+  "otherCIMatrixPlatforms": "NOT RUN",
+  "productionDataTouched": false,
+  "push": false,
+  "newCommitsBeforeReport": [
+    "dde2429",
+    "f5a238a",
+    "0f465e5"
+  ]
+}

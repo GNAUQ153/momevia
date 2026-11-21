@@ -5,11 +5,19 @@ npm ci
 npm run demo:web
 ```
 
-Mở [127.0.0.1:4110](http://127.0.0.1:4110). Lệnh build web và chạy một backend JSON riêng, chỉ nghe loopback. Giữ terminal mở khi thử. Ctrl+C dừng demo. Cùng cổng mở lại dữ liệu và bản mã đã sao lúc tạo profile. Để dựng từ mã nguồn mới hoặc dùng cổng trống khác:
+Mở [localhost:4110](http://localhost:4110) hoặc [127.0.0.1:4110](http://127.0.0.1:4110). Cả hai địa chỉ hỗ trợ đăng nhập; cookie phiên riêng theo hostname nên cần đăng nhập lại khi đổi địa chỉ. Lệnh build web và chạy một backend JSON riêng, chỉ nghe loopback. Giữ terminal mở khi thử. Ctrl+C dừng demo. Cùng cổng mở lại dữ liệu và bản mã đã sao lúc tạo profile. Để dựng từ mã nguồn mới hoặc dùng cổng trống khác:
 
 ```powershell
 npm run demo:web -- --port 4112
 ```
+
+Khi dùng **Ports → Forwarded Address** của VS Code, cho phép URL HTTPS đầy đủ của cổng đó khi khởi động (thay URL ví dụ bên dưới bằng địa chỉ của bạn):
+
+```powershell
+npm run demo:web -- --port 4112 --allowed-origin "https://your-tunnel-4112.asse.devtunnels.ms"
+```
+
+Có thể lặp lại `--allowed-origin` cho nhiều URL hoặc đặt `ALLOWED_ORIGINS` trong môi trường. Server không tự tin `Host`/`X-Forwarded-Host` và không cho phép toàn bộ domain tunnel. Các URL khác vẫn bị chặn. Với ứng dụng thông thường, đặt `PUBLIC_BASE_URL` theo địa chỉ chia sẻ chính để các link quà tạo mới dùng đúng domain; `ALLOWED_ORIGINS` chỉ thêm địa chỉ được phép thao tác, không đổi link quà đã có.
 
 `local/web-demo-<cổng>/tai-khoan-demo.json` chứa mật khẩu ngẫu nhiên. `trang-thai-demo.json` chứa URL của các bước. Khóa phiên, tài khoản, dữ liệu và ảnh được tạo trong profile riêng. Demo tắt merchant và OAuth.
 

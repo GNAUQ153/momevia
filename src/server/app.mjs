@@ -2,6 +2,7 @@ import http from 'node:http';
 import { environment } from '../shared/config.mjs';
 import { HttpError, sendError, serverTimeouts, localizedError } from '../shared/http.mjs';
 import { isInternalRoute } from '../shared/proxy.mjs';
+import { requireRequestOrigin } from '../shared/request-origin.mjs';
 import { sessionToken } from '../shared/security.mjs';
 import { staticFile } from '../gateway/static.mjs';
 import { createApp as identityApp } from '../modules/identity/app.mjs';
@@ -105,9 +106,7 @@ export async function createHttpApp(config = environment(), { paymentProviders, 
         if (!['GET', 'HEAD', 'POST'].includes(req.method)) {
           res.writeHead(405); return res.end();
         }
-        if (req.method === 'POST' && req.headers.origin && req.headers.origin !== config.baseUrl) {
-          res.writeHead(403); return res.end('Cross-origin request blocked');
-        }
+        if (req.method === 'POST') requireRequestOrigin(req, config);
         // Không tin header do trình duyệt/client tự khai khi server nhận trực tiếp.
         for (const name of ['x-forwarded-for', 'x-real-ip', 'forwarded', 'x-service-key']) {
           delete req.headers[name];

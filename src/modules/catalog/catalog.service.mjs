@@ -6,10 +6,14 @@ import { visibleBindingKeys } from '../../../web/js/shared/canvas/personalizatio
 import { searchText } from '../../../web/js/features/catalog/filter.js';
 import { templateFieldKey } from '../../../web/js/shared/template-copy.js';
 import { serverText } from '../../shared/locale.mjs';
+import { eventMetadata } from './event-metadata.mjs';
 
 const publicFields = ['id', 'title', 'subtitle', 'theme', 'style', 'price', 'scenes', 'effect', 'creator', 'featured', 'category', 'status', 'createdAt', 'isSeasonal', 'season', 'availableFrom', 'availableTo'];
 export function publicTemplate(template) {
+  template = eventMetadata(template);
   const view = Object.fromEntries(publicFields.filter(key => Object.hasOwn(template, key)).map(key => [key, template[key]]));
+  if (template.creatorId === 'system' && template.creator === 'Momevia Originals' && !template.versionId && !template.creatorDesignId)
+    view.systemOwned = true;
   if (template.versionId) {
     view.versionId = template.versionId;
     const version = template.versions.find(item => item.id === template.versionId);
@@ -19,7 +23,9 @@ export function publicTemplate(template) {
     }
   } else {
     const document = createDocument({ template });
-    view.personalization = { bindings: [...visibleBindingKeys(document)], photoFrames: document.elements.filter(isPhotoFrame).length, layout: true };
+    const albumSlots = document.elements.filter(e => e.type === 'interaction' && e.props.kind === 'swipe-album' && e.props.optional)
+      .reduce((count, e) => count + e.props.photos.length, 0);
+    view.personalization = { bindings: [...visibleBindingKeys(document)], photoFrames: document.elements.filter(isPhotoFrame).length + albumSlots, layout: true };
   }
   return view;
 }

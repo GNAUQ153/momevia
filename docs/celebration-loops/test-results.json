@@ -1,0 +1,47 @@
+{
+  "date": "2026-11-21",
+  "implementationCommit": "155a642",
+  "liveBase": "http://127.0.0.1:4182",
+  "checks": {
+    "unit": {
+      "result": "PASS",
+      "count": 384
+    },
+    "build": "PASS",
+    "check": "PASS",
+    "templates": "PASS",
+    "loopLifecycleAndCanvasPersistence": "PASS",
+    "mysql": "PASS",
+    "canvasBrowserOnCommittedBaselineAndCurrentWeb": "PASS",
+    "canvasBrowserInSharedWorkingTree": {
+      "result": "FAIL",
+      "location": "tests/integration/canvas.mjs:167",
+      "expected": 403,
+      "actual": 201,
+      "scope": "Existing request-origin backend edits outside this feature were preserved"
+    }
+  },
+  "legacyOneShotPreserved": true,
+  "concurrentLayersBound": 4,
+  "sceneOnly": true,
+  "controls": [
+    "enabled",
+    "speed",
+    "density",
+    "loop"
+  ],
+  "effects": [
+    "B05",
+    "B06",
+    "B07",
+    "B08"
+  ],
+  "physicalDeviceTested": false,
+  "resolution": {
+    "result": "PASS",
+    "date": "2026-11-21",
+    "testedCodeCommit": "0f465e5",
+    "originFixCommit": "dde2429",
+    "report": "../ORIGIN_REGRESSION_QA_2026-11-21.md"
+  }
+}

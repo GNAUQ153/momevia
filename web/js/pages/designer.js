@@ -22,6 +22,9 @@ import { submissionChanges } from "../shared/canvas/submission.js";
 import { giftLinkDescription } from "../shared/gift-permissions.js";
 import { framePhoto, MEMORY_TEMPLATE_ID, memoryGreetingStarterKeys } from "../shared/canvas/basic-templates.js";
 import { materializeTemplateStart } from '../features/canvas-editor/template-start.js';
+import { createEventFields, updateEventFields, storyAlbum, storyClock } from '../features/canvas-editor/event-fields.js';
+import { celebrationFields } from '../features/canvas-editor/celebration-fields.js';
+import { CELEBRATION_IDS, celebrationSettings } from '../shared/canvas/effects.js';
 import { createEditorStore } from "../features/canvas-editor/store.js";
 import {
   zoomLevels,
@@ -290,8 +293,9 @@ export function mountDesigner(
   }
   function quickTemplateText(document) {
     const id = design.source.templateId;
-    const name = id === MEMORY_TEMPLATE_ID ? "Chú thích ảnh" : id === "hai-phong-bi" ? "Nội dung kỷ niệm" : null;
-    return name ? document.elements.find(element => element.type === "text" && element.name === name && Object.hasOwn(element.props, "text")) : null;
+    if (id === "hai-phong-bi") return document.elements.find(element => element.type === "text" && element.id === "envelope-memory")
+      || document.elements.find(element => element.type === "text" && element.name === "Nội dung kỷ niệm");
+    return id === MEMORY_TEMPLATE_ID ? document.elements.find(element => element.type === "text" && element.name === "Chú thích ảnh" && Object.hasOwn(element.props, "text")) : null;
   }
 
   function syncDraftUrl() {
@@ -511,11 +515,16 @@ export function mountDesigner(
               ),
           ),
         node("div", { class: "editor-quick-only" },
+          design.policy?.kind === 'sender-basic' && ['birthday-radiance','hai-phong-bi','proud-of-you'].includes(design.source.templateId) ? createEventFields(store.get().document) : null,
           design.source.templateId === MEMORY_TEMPLATE_ID ? node("div", { class: "editor-greeting-starters" },
             node("p", { class: "editor-help" }, message("editor.quick.startGreeting")),
             ...memoryGreetingStarterKeys.map((key, index) => button(message(key), "greeting-starter", { "data-index": index })),
           ) : null,
-          quickTemplateText(store.get().document) ? input(
+          design.source.templateId === "hai-phong-bi" && quickTemplateText(store.get().document) ? field(
+            message("templates.hai-phong-bi.memoryField"), node("textarea", {
+              "data-editor-field": "quick-template-text", maxlength: LIMITS.text, rows: 6,
+            }, quickTemplateText(store.get().document).props.text),
+          ) : quickTemplateText(store.get().document) ? input(
             quickTemplateText(store.get().document).name, "quick-template-text", quickTemplateText(store.get().document).props.text, { maxlength: 500 },
           ) : null,
           node("div", { class: "editor-quick-photo", hidden: true },
@@ -808,13 +817,13 @@ export function mountDesigner(
   }
   function effectFields(model, element) {
     const categories = element ? elementEffectFamilies : sceneEffectFamilies;
-    return categories.flatMap(family => {
-      const options = effectsFor(family, element);
+    const fields = categories.flatMap(family => {
+      const options = effectsFor(family, element).filter(([id]) => !(family === 'ambience' && model.effects?.celebrations && CELEBRATION_IDS.includes(id)));
       if (!options.length) return [];
       const preset = model.effects?.[family];
       const prefix = `effect.${family}.`;
       return [node("fieldset", { class: "editor-effect-settings" },
-        node("legend", {}, effectFamilies[family].label),
+        node("legend", {}, family === 'ambience' && model.effects?.celebrations ? message('editor.celebrations.once') : effectFamilies[family].label),
         select("Hiệu ứng", prefix + "id", preset?.id, [["", "Tắt"], ...options]),
         preset && family !== "surface" ? select("Tốc độ", prefix + "speed", preset.speed || "normal",
           [["slow", "Chậm"], ["normal", "Vừa"], ["fast", "Nhanh"]]) : null,
@@ -829,6 +838,8 @@ export function mountDesigner(
           button("Bỏ hiệu ứng", "effect-remove", { "data-family": family })) : null,
       )];
     });
+    if (!element) fields.push(celebrationFields(model));
+    return fields;
   }
   function interactionFields(model) {
     const p = model.props, spec = interactionKinds[p.kind], doc = store.get().document;
@@ -870,10 +881,13 @@ export function mountDesigner(
       ));
     }
     if (spec.clock) {
+      if (Object.hasOwn(p, 'clockMode')) fields.push(select(message('templates.story.dateMode'), 'props.clockMode', p.clockMode,
+        [['countdown', message('templates.story.countdown')], ['elapsed', message('templates.story.elapsed')]]));
       const zones = new Set(["Asia/Ho_Chi_Minh", "UTC", p.timeZone, ...Intl.supportedValuesOf("timeZone")]);
       fields.push(select("Múi giờ hẹn", "props.timeZone", p.timeZone, [...zones].map(zone => [zone, zone])),
         input("Ngày giờ hẹn", "event-time", p.eventAt ? localEventTime(p.eventAt, p.timeZone) : "", { type: "datetime-local" }));
     }
+    if (Object.hasOwn(p, 'autoplay')) fields.push(field(message('templates.story.autoplay'), node('input', { type: 'checkbox', checked: p.autoplay, 'data-editor-field': 'props.autoplay' })));
     return fields;
   }
   function renderInspector() {
@@ -1220,6 +1234,7 @@ export function mountDesigner(
     renderScenes();
     renderAssets();
     main.querySelector(".editor-quick-photo").hidden = !quickPhotoFrame();
+    updateEventFields(main, doc, assetUrl);
     const removePhoto = main.querySelector('[data-editor-action="remove-frame-photo"]');
     if (removePhoto) removePhoto.hidden = !framePhoto(doc, quickPhotoFrame());
     const quickText = main.querySelector('[data-editor-field="quick-template-text"]');
@@ -2096,6 +2111,15 @@ export function mountDesigner(
       control.setSelectionRange(next.length, next.length);
       return;
     }
+    if (name === 'event-remove-photo') {
+      commit(next => {
+        const photo = storyAlbum(next.document)?.props.photos.find(p => p.id === target.dataset.slot);
+        if (photo) { photo.assetId = null; photo.alt = ''; photo.caption = ''; }
+        const used = new Set(assetIds(next.document));
+        next.document.assets = next.document.assets.filter(a => used.has(a.assetId));
+      }, 'Bỏ ảnh khỏi album');
+      return;
+    }
     if (name === "remove-frame-photo") {
       const photo = framePhoto(store.get().document, quickPhotoFrame());
       if (!photo) return;
@@ -2109,6 +2133,10 @@ export function mountDesigner(
     }
     if (name === "preview") {
       openPreview();
+      return;
+    }
+    if (name === 'celebration-preview') {
+      openPreview({ family: 'ambience', sceneId: currentScene().id, celebrationId: target.dataset.celebration });
       return;
     }
     if (name === "effect-preview") {
@@ -2387,10 +2415,14 @@ export function mountDesigner(
       snap = control.checked;
       return;
     }
-    if (key === "upload" || key === "quick-photo") {
-      const target = key === "quick-photo" ? quickPhotoFrame()?.id : selection;
+    if (key === "upload" || key === "quick-photo" || key === 'event-photo') {
+      const target = key === 'event-photo' ? control.dataset.target : key === "quick-photo" ? quickPhotoFrame()?.id : selection;
       try {
         if (target) await upload(control.files?.[0], target, control.dataset.slot);
+        if (key === 'event-photo') commit(next => {
+          const album = storyAlbum(next.document), photo = album?.props.photos.find(p => p.id === control.dataset.slot);
+          if (photo?.assetId && !photo.alt) photo.alt = t('templates.story.photo', { index: album.props.photos.indexOf(photo) + 1 });
+        }, 'Mô tả ảnh kỷ niệm');
       } finally {
         control.value = "";
       }
@@ -2422,6 +2454,19 @@ export function mountDesigner(
           if (text) text.props.text = value;
           return;
         }
+        if (key.startsWith('event-date.') || key.startsWith('event-zone.')) {
+          const clock = storyClock(next.document, key.split('.')[1]);
+          if (clock) {
+            if (key.startsWith('event-date.')) clock.props.eventAt = value ? eventTimeFromLocal(value, clock.props.timeZone) : null;
+            else clock.props.timeZone = value;
+          }
+          return;
+        }
+        if (key.startsWith('event-caption.') || key.startsWith('event-alt.')) {
+          const photo = storyAlbum(next.document)?.props.photos.find(p => p.id === key.split('.')[1]);
+          if (photo) photo[key.startsWith('event-alt.') ? 'alt' : 'caption'] = value;
+          return;
+        }
         if (key === "scene.name") {
           next.document.scenes.find((item) => item.id === sceneId).name = value;
           return;
@@ -2430,6 +2475,16 @@ export function mountDesigner(
           next.document.scenes.find(
             (item) => item.id === sceneId,
           ).background.color = value;
+          return;
+        }
+        if (key.startsWith('celebration.')) {
+          const [, id, property] = key.split('.');
+          const scene = next.document.scenes.find(s => s.id === sceneId);
+          scene.effects ??= {};
+          const settings = celebrationSettings(scene.effects);
+          if (CELEBRATION_IDS.includes(scene.effects.ambience?.id)) delete scene.effects.ambience;
+          settings[id][property] = value;
+          scene.effects.celebrations = settings;
           return;
         }
         if (key.startsWith("effect.")) {
@@ -2518,7 +2573,7 @@ export function mountDesigner(
     );
     if (["textBinding", "action.type", "props.fit", "props.radius", "props.timeZone", "accessibility.decorative"].includes(key) ||
       key.endsWith(".assetId") || (key.startsWith("effect.") && key.endsWith(".id")) ||
-      key.startsWith("crop.")) renderInspector();
+      key.startsWith("crop.") || key.startsWith('celebration.')) renderInspector();
   }
   main.addEventListener(
     "click",

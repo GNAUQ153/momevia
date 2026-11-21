@@ -2,6 +2,8 @@ import { createElement } from './registry.js';
 import { validateDocument } from './schema.js';
 import { createBasicTemplate } from './basic-templates.js';
 import { canonicalText } from '../locale.js';
+import { EVENT_CARD_IDS } from './event-cards.js';
+import { eventMediaId } from './event-media.js';
 
 const palettes = {
   violet: ['#F5EFFF', '#6136DF'], sunshine: ['#FFF8DE', '#906320'], rose: ['#FFF0F4', '#B93863'], navy: ['#EAF0FF', '#233F85'], peach: ['#FFF0E8', '#AA5735'], sage: ['#ECF7EF', '#34744D'], coral: ['#FFF0EB', '#BE4D51'], sky: ['#EAF8FF', '#326C9D'], lilac: ['#F5EFFF', '#7757A2'], cream: ['#FFF7EE', '#8B5D37'], amber: ['#FFF6DE', '#956D22'], mint: ['#E8FFF7', '#217760'],
@@ -48,5 +50,20 @@ export function templatePreviewDocument(template, localize = canonicalText) {
   doc.bindings.recipientName.value = localize('templates.preview.recipient');
   doc.bindings.senderName.value = localize('templates.preview.sender');
   doc.bindings.message.value = localize('templates.preview.greeting');
+  if (EVENT_CARD_IDS.includes(template?.id)) {
+    for (const [binding, field] of [['recipientName', 'previewRecipient'], ['message', 'previewMessage']])
+      doc.bindings[binding].value = localize(`templates.${template.id}.${field}`);
+    const memory = doc.elements.find(element => element.id === 'envelope-memory');
+    if (memory) memory.props.text = localize('templates.hai-phong-bi.previewMemory');
+    const album = doc.elements.find(e => e.id === 'event-album');
+    const occasion = { 'birthday-radiance': 'birthday', 'hai-phong-bi': 'wedding', 'proud-of-you': 'graduation' }[template.id];
+    if (album) for (const [i, key] of [`${occasion}-album`, occasion].entries()) {
+      const assetId = eventMediaId(key);
+      if (!doc.assets.some(a => a.assetId === assetId)) doc.assets.push({ assetId, kind: 'image' });
+      Object.assign(album.props.photos[i], { assetId, alt: localize('templates.story.samplePhoto'), caption: localize(`templates.story.${i ? 'sampleDetail' : 'samplePhoto'}`), focalPoint: { x: .5, y: !i && occasion !== 'birthday' ? 0 : .5 } });
+    }
+    for (const e of doc.elements.filter(e => e.type === 'interaction' && e.props.kind === 'event-countdown'))
+      e.props.eventAt = e.props.clockMode === 'elapsed' ? '2021-08-14T02:00:00.000Z' : '2026-12-31T12:00:00.000Z';
+  }
   return validateDocument(doc, { mode: 'publish' });
 }

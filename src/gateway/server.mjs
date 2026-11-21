@@ -1,7 +1,8 @@
 import http from 'node:http';
 import { environment } from '../shared/config.mjs';
 import { isInternalRoute } from '../shared/proxy.mjs';
-import { serverTimeouts } from '../shared/http.mjs';
+import { serverTimeouts, sendError } from '../shared/http.mjs';
+import { requireRequestOrigin } from '../shared/request-origin.mjs';
 import { proxy } from './proxy.mjs';
 import { staticFile } from './static.mjs';
 
@@ -27,9 +28,7 @@ http.createServer(serverTimeouts, (req, res) => {
         res.writeHead(405); return res.end();
       }
       // Bảo vệ các thao tác ghi khỏi yêu cầu cross-origin qua cookie phiên.
-      if (req.method === 'POST' && req.headers.origin && req.headers.origin !== config.baseUrl) {
-        res.writeHead(403); return res.end('Cross-origin request blocked');
-      }
+      if (req.method === 'POST') requireRequestOrigin(req, config);
       return proxy(req, res, service[1], route + url.search);
     }
     if (!['GET', 'HEAD'].includes(req.method)) {
@@ -37,6 +36,7 @@ http.createServer(serverTimeouts, (req, res) => {
     }
     staticFile(req, res, url);
   } catch(error) {
+    if (error.status) return sendError(res, error);
     res.writeHead(400); res.end('Invalid request');
   }
 }).listen(4100, '127.0.0.1', () => console.log('[gateway] http://localhost:4100'));

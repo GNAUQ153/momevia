@@ -3,6 +3,7 @@ import { message, setAttr, setText, t } from "../../core/i18n.js";
 import { focusVisibleTarget } from "../../core/motion.js";
 import { renderElement, applyLayout, updateElementCopy } from "./renderer.js";
 import { applySurface, createMotion, playAmbience, playElement, playReaction, sceneTransition } from "./effects.js";
+import { playCelebrations } from './celebrations.js';
 export { renderElement, applyLayout, resolveText } from "./renderer.js";
 
 export function mountPlayer(
@@ -47,7 +48,7 @@ export function mountPlayer(
   setAttr(navigation, "aria-label", message("gift.player.scenes"));
   const lifetime = new AbortController();
   const preference = globalThis.matchMedia("(prefers-reduced-motion: reduce)");
-  let motionOff = false;
+  let motionOff = false, resumeCelebrations = () => {};
   const motion = createMotion(() => !preference.matches && !motionOff);
   const motionControl = globalThis.document.createElement("button");
   motionControl.type = "button";
@@ -67,6 +68,7 @@ export function mountPlayer(
     motionControl.setAttribute("aria-pressed", String(!motion.enabled()));
     motionControl.disabled = preference.matches;
     if (!motion.enabled()) motion.cancel();
+    else resumeCelebrations();
   };
   motionControl.addEventListener("click", () => {
     motionOff = !motionOff;
@@ -179,7 +181,19 @@ export function mountPlayer(
     layout();
     const transitionDone = sceneTransition(stage, sceneContent, previous, transition, motion, signal);
     if (transitionDone) stage.inert = true;
-    if (!family || family === "ambience") void playAmbience(stage, scene.effects?.ambience, motion, signal);
+    resumeCelebrations = () => {};
+    if (!family || family === 'ambience') {
+      const target = effectPreview?.celebrationId;
+      const settings = target ? { [target]: scene.effects?.celebrations?.[target] } : scene.effects?.celebrations;
+      const ambience = scene.effects?.ambience;
+      if (!target && ambience && !Object.hasOwn(settings || {}, ambience.id)) void playAmbience(stage, ambience, motion, signal);
+      let stop = () => {};
+      resumeCelebrations = () => {
+        stop();
+        if (!signal.aborted && !disposed) stop = playCelebrations(stage, settings, motion, signal);
+      };
+      resumeCelebrations();
+    }
     for (const {node,model} of nodes) {
       if (!family || (effectPreview.elementId === model.id && ["emphasis","entrance"].includes(family))) {
         const animate = () => {

@@ -1,0 +1,1347 @@
+{
+  "schemaVersion": 2,
+  "registryVersion": 2,
+  "artboard": {
+    "baseSize": {
+      "width": 390,
+      "height": 844
+    },
+    "layoutMode": "responsive-scene",
+    "safeInsets": {
+      "top": 24,
+      "right": 24,
+      "bottom": 24,
+      "left": 24
+    }
+  },
+  "entrySceneId": "scene-cover",
+  "bindings": {
+    "recipientName": {
+      "type": "text",
+      "value": ""
+    },
+    "senderName": {
+      "type": "text",
+      "value": ""
+    },
+    "message": {
+      "type": "text",
+      "value": ""
+    }
+  },
+  "assets": [
+    {
+      "assetId": "event-wedding-09fd28f280bf",
+      "kind": "image"
+    }
+  ],
+  "elements": [
+    {
+      "id": "ring-one",
+      "type": "shape",
+      "elementVersion": 1,
+      "layout": {
+        "x": 153,
+        "y": 46,
+        "width": 51,
+        "height": 51,
+        "rotation": 0
+      },
+      "props": {
+        "kind": "ellipse",
+        "color": "#FFF8EB",
+        "strokeColor": "#47715C",
+        "strokeWidth": 4,
+        "radius": 0
+      },
+      "accessibility": {
+        "decorative": true
+      },
+      "name": "Nhẫn xanh"
+    },
+    {
+      "id": "ring-two",
+      "type": "shape",
+      "elementVersion": 1,
+      "layout": {
+        "x": 187,
+        "y": 46,
+        "width": 51,
+        "height": 51,
+        "rotation": 0
+      },
+      "props": {
+        "kind": "ellipse",
+        "color": "#FFF8EB",
+        "strokeColor": "#963851",
+        "strokeWidth": 4,
+        "radius": 0
+      },
+      "accessibility": {
+        "decorative": true
+      },
+      "name": "Nhẫn mâm xôi"
+    },
+    {
+      "id": "cover-title",
+      "type": "text",
+      "elementVersion": 1,
+      "layout": {
+        "x": 35,
+        "y": 116,
+        "width": 320,
+        "height": 82,
+        "rotation": 0
+      },
+      "props": {
+        "text": "Mừng ngày\nchung đôi",
+        "fontToken": "serif",
+        "fontSize": 32,
+        "align": "center",
+        "color": "#442638",
+        "lineHeight": 1.25
+      },
+      "accessibility": {
+        "role": "heading",
+        "level": 1
+      },
+      "name": "Tiêu đề bìa",
+      "effects": {
+        "entrance": {
+          "id": "E02",
+          "speed": "fast"
+        }
+      }
+    },
+    {
+      "id": "text-recipient",
+      "type": "text",
+      "elementVersion": 1,
+      "layout": {
+        "x": 40,
+        "y": 214,
+        "width": 310,
+        "height": 78,
+        "rotation": 0
+      },
+      "props": {
+        "fontToken": "serif",
+        "fontSize": 24,
+        "align": "center",
+        "color": "#442638",
+        "textBinding": "recipientName",
+        "lineHeight": 1.55
+      },
+      "accessibility": {
+        "role": "paragraph"
+      },
+      "name": "Tên người nhận"
+    },
+    {
+      "id": "event-photo-wedding-memory",
+      "type": "image",
+      "elementVersion": 1,
+      "layout": {
+        "x": 36,
+        "y": 300,
+        "width": 318,
+        "height": 130,
+        "rotation": -2
+      },
+      "props": {
+        "assetId": "event-wedding-09fd28f280bf",
+        "fit": "contain",
+        "focalPoint": {
+          "x": 0.5,
+          "y": 0.5
+        },
+        "radius": 0
+      },
+      "accessibility": {
+        "alt": "Ảnh kỷ niệm",
+        "decorative": true,
+        "label": "Momevia Original artwork v1"
+      },
+      "name": "Ảnh phong bì kỷ niệm",
+      "effects": {
+        "entrance": {
+          "id": "E06",
+          "speed": "normal",
+          "delay": 0
+        },
+        "emphasis": {
+          "id": "A02",
+          "speed": "slow"
+        }
+      }
+    },
+    {
+      "id": "open-memory",
+      "type": "button",
+      "elementVersion": 1,
+      "layout": {
+        "x": 65,
+        "y": 427,
+        "width": 260,
+        "height": 64,
+        "rotation": 0
+      },
+      "props": {
+        "label": "Một kỷ niệm",
+        "color": "#963851"
+      },
+      "accessibility": {
+        "label": "Một kỷ niệm"
+      },
+      "actions": [
+        {
+          "on": "activate",
+          "type": "goToScene",
+          "targetSceneId": "scene-surprise"
+        }
+      ],
+      "name": "Mở kỷ niệm",
+      "effects": {
+        "reaction": {
+          "id": "R03",
+          "speed": "fast"
+        }
+      }
+    },
+    {
+      "id": "event-photo-wedding-wish",
+      "type": "image",
+      "elementVersion": 1,
+      "layout": {
+        "x": 36,
+        "y": 511,
+        "width": 318,
+        "height": 130,
+        "rotation": 2
+      },
+      "props": {
+        "assetId": "event-wedding-09fd28f280bf",
+        "fit": "contain",
+        "focalPoint": {
+          "x": 0.5,
+          "y": 0.5
+        },
+        "radius": 0
+      },
+      "accessibility": {
+        "alt": "Ảnh kỷ niệm",
+        "decorative": true,
+        "label": "Momevia Original artwork v1"
+      },
+      "name": "Ảnh phong bì lời chúc",
+      "effects": {
+        "entrance": {
+          "id": "E06",
+          "speed": "normal",
+          "delay": 0
+        },
+        "emphasis": {
+          "id": "A02",
+          "speed": "slow"
+        }
+      }
+    },
+    {
+      "id": "open-wish",
+      "type": "button",
+      "elementVersion": 1,
+      "layout": {
+        "x": 65,
+        "y": 638,
+        "width": 260,
+        "height": 64,
+        "rotation": 0
+      },
+      "props": {
+        "label": "Một lời chúc",
+        "color": "#963851"
+      },
+      "accessibility": {
+        "label": "Một lời chúc"
+      },
+      "actions": [
+        {
+          "on": "activate",
+          "type": "goToScene",
+          "targetSceneId": "scene-message"
+        }
+      ],
+      "name": "Mở lời mừng cưới",
+      "effects": {
+        "reaction": {
+          "id": "R03",
+          "speed": "fast"
+        }
+      }
+    },
+    {
+      "id": "open-journey",
+      "type": "button",
+      "elementVersion": 1,
+      "layout": {
+        "x": 65,
+        "y": 725,
+        "width": 260,
+        "height": 64,
+        "rotation": 0
+      },
+      "props": {
+        "label": "Xem hành trình & album",
+        "color": "#963851"
+      },
+      "accessibility": {
+        "label": "Xem hành trình & album"
+      },
+      "actions": [
+        {
+          "on": "activate",
+          "type": "goToScene",
+          "targetSceneId": "scene-time"
+        }
+      ],
+      "name": "Hai phong bì mừng cưới · Trang trí 30",
+      "effects": {
+        "reaction": {
+          "id": "R03",
+          "speed": "fast"
+        }
+      }
+    },
+    {
+      "id": "cover-note",
+      "type": "text",
+      "elementVersion": 1,
+      "layout": {
+        "x": 47,
+        "y": 803,
+        "width": 296,
+        "height": 32,
+        "rotation": 0
+      },
+      "props": {
+        "text": "Hai lá thư. Mở lá nào trước cũng được.",
+        "fontToken": "body",
+        "fontSize": 15,
+        "align": "center",
+        "color": "#442638",
+        "lineHeight": 1.25
+      },
+      "accessibility": {
+        "role": "paragraph"
+      },
+      "name": "Lời dẫn"
+    },
+    {
+      "id": "story-paper-1",
+      "type": "shape",
+      "elementVersion": 1,
+      "layout": {
+        "x": 22,
+        "y": 30,
+        "width": 346,
+        "height": 757,
+        "rotation": 0
+      },
+      "props": {
+        "kind": "rectangle",
+        "color": "#FFF8EB",
+        "strokeColor": "#DDCEBA",
+        "strokeWidth": 1,
+        "radius": 3
+      },
+      "accessibility": {
+        "decorative": true
+      },
+      "name": "Hai phong bì mừng cưới · Trang trí 36",
+      "effects": {
+        "surface": {
+          "id": "S03"
+        }
+      }
+    },
+    {
+      "id": "memory-heading",
+      "type": "text",
+      "elementVersion": 1,
+      "layout": {
+        "x": 43,
+        "y": 75,
+        "width": 304,
+        "height": 80,
+        "rotation": 0
+      },
+      "props": {
+        "text": "Một kỷ niệm",
+        "fontToken": "serif",
+        "fontSize": 34,
+        "align": "center",
+        "color": "#442638",
+        "lineHeight": 1.25
+      },
+      "accessibility": {
+        "role": "heading",
+        "level": 1
+      },
+      "name": "Hai phong bì mừng cưới · Trang trí 11",
+      "effects": {
+        "entrance": {
+          "id": "E02",
+          "speed": "fast"
+        }
+      }
+    },
+    {
+      "id": "memory-margin",
+      "type": "shape",
+      "elementVersion": 1,
+      "layout": {
+        "x": 26,
+        "y": 180,
+        "width": 2,
+        "height": 575,
+        "rotation": 0
+      },
+      "props": {
+        "kind": "rectangle",
+        "color": "#F4C9C4",
+        "strokeColor": "#6136DF",
+        "strokeWidth": 0,
+        "radius": 0
+      },
+      "accessibility": {
+        "decorative": true
+      },
+      "name": "Hai phong bì mừng cưới · Trang trí 10"
+    },
+    {
+      "id": "envelope-memory",
+      "type": "text",
+      "elementVersion": 1,
+      "layout": {
+        "x": 48,
+        "y": 199,
+        "width": 294,
+        "height": 320,
+        "rotation": 0
+      },
+      "props": {
+        "text": "",
+        "fontToken": "body",
+        "fontSize": 22,
+        "align": "left",
+        "color": "#442638",
+        "lineHeight": 1.25
+      },
+      "accessibility": {
+        "role": "paragraph"
+      },
+      "name": "Nội dung kỷ niệm",
+      "effects": {
+        "entrance": {
+          "id": "E03",
+          "speed": "slow"
+        }
+      }
+    },
+    {
+      "id": "event-photo-wedding-keepsake",
+      "type": "image",
+      "elementVersion": 1,
+      "layout": {
+        "x": 116,
+        "y": 529,
+        "width": 158,
+        "height": 86,
+        "rotation": -5
+      },
+      "props": {
+        "assetId": "event-wedding-09fd28f280bf",
+        "fit": "contain",
+        "focalPoint": {
+          "x": 0.5,
+          "y": 0.5
+        },
+        "radius": 0
+      },
+      "accessibility": {
+        "alt": "Ảnh kỷ niệm",
+        "decorative": true,
+        "label": "Momevia Original artwork v1"
+      },
+      "name": "Lá thư giữ kỷ niệm",
+      "effects": {
+        "entrance": {
+          "id": "E06",
+          "speed": "normal",
+          "delay": 0
+        },
+        "emphasis": {
+          "id": "A02",
+          "speed": "slow"
+        }
+      }
+    },
+    {
+      "id": "memory-to-time",
+      "type": "button",
+      "elementVersion": 1,
+      "layout": {
+        "x": 62,
+        "y": 634,
+        "width": 266,
+        "height": 64,
+        "rotation": 0
+      },
+      "props": {
+        "label": "Xem hành trình & album",
+        "color": "#963851"
+      },
+      "accessibility": {
+        "label": "Xem hành trình & album"
+      },
+      "actions": [
+        {
+          "on": "activate",
+          "type": "goToScene",
+          "targetSceneId": "scene-time"
+        }
+      ],
+      "name": "Hai phong bì mừng cưới · Trang trí 35",
+      "effects": {
+        "reaction": {
+          "id": "R03",
+          "speed": "fast"
+        }
+      }
+    },
+    {
+      "id": "memory-back",
+      "type": "button",
+      "elementVersion": 1,
+      "layout": {
+        "x": 62,
+        "y": 711,
+        "width": 266,
+        "height": 72,
+        "rotation": 0
+      },
+      "props": {
+        "label": "Về hai phong bì",
+        "color": "#963851"
+      },
+      "accessibility": {
+        "label": "Về hai phong bì"
+      },
+      "actions": [
+        {
+          "on": "activate",
+          "type": "goToScene",
+          "targetSceneId": "scene-cover"
+        }
+      ],
+      "name": "Hai phong bì mừng cưới · Trang trí 14",
+      "effects": {
+        "reaction": {
+          "id": "R03",
+          "speed": "fast"
+        }
+      }
+    },
+    {
+      "id": "story-paper-2",
+      "type": "shape",
+      "elementVersion": 1,
+      "layout": {
+        "x": 22,
+        "y": 30,
+        "width": 346,
+        "height": 757,
+        "rotation": 0
+      },
+      "props": {
+        "kind": "rectangle",
+        "color": "#FFF8EB",
+        "strokeColor": "#DDCEBA",
+        "strokeWidth": 1,
+        "radius": 3
+      },
+      "accessibility": {
+        "decorative": true
+      },
+      "name": "Hai phong bì mừng cưới · Trang trí 37",
+      "effects": {
+        "surface": {
+          "id": "S03"
+        }
+      }
+    },
+    {
+      "id": "message-heading",
+      "type": "text",
+      "elementVersion": 1,
+      "layout": {
+        "x": 42,
+        "y": 55,
+        "width": 306,
+        "height": 75,
+        "rotation": 0
+      },
+      "props": {
+        "text": "Một lời chúc",
+        "fontToken": "serif",
+        "fontSize": 34,
+        "align": "center",
+        "color": "#442638",
+        "lineHeight": 1.25
+      },
+      "accessibility": {
+        "role": "heading",
+        "level": 1
+      },
+      "name": "Tiêu đề lời chúc",
+      "effects": {
+        "entrance": {
+          "id": "E02",
+          "speed": "fast"
+        }
+      }
+    },
+    {
+      "id": "text-message",
+      "type": "text",
+      "elementVersion": 1,
+      "layout": {
+        "x": 42,
+        "y": 162,
+        "width": 306,
+        "height": 194,
+        "rotation": 0
+      },
+      "props": {
+        "fontToken": "body",
+        "fontSize": 21,
+        "align": "left",
+        "color": "#442638",
+        "textBinding": "message",
+        "lineHeight": 1.55
+      },
+      "accessibility": {
+        "role": "paragraph"
+      },
+      "name": "Lời chúc",
+      "effects": {
+        "entrance": {
+          "id": "E03",
+          "speed": "slow"
+        }
+      }
+    },
+    {
+      "id": "message-from-label",
+      "type": "text",
+      "elementVersion": 1,
+      "layout": {
+        "x": 42,
+        "y": 378,
+        "width": 306,
+        "height": 30,
+        "rotation": 0
+      },
+      "props": {
+        "text": "Thương mến gửi hai bạn,",
+        "fontToken": "body",
+        "fontSize": 16,
+        "align": "right",
+        "color": "#442638",
+        "lineHeight": 1.25
+      },
+      "accessibility": {
+        "role": "paragraph"
+      },
+      "name": "Lời ký tên"
+    },
+    {
+      "id": "text-sender",
+      "type": "text",
+      "elementVersion": 1,
+      "layout": {
+        "x": 42,
+        "y": 416,
+        "width": 306,
+        "height": 65,
+        "rotation": 0
+      },
+      "props": {
+        "fontToken": "body",
+        "fontSize": 21,
+        "align": "right",
+        "color": "#442638",
+        "textBinding": "senderName",
+        "lineHeight": 1.55
+      },
+      "accessibility": {
+        "role": "paragraph"
+      },
+      "name": "Tên người gửi"
+    },
+    {
+      "id": "wish-back",
+      "type": "button",
+      "elementVersion": 1,
+      "layout": {
+        "x": 62,
+        "y": 512,
+        "width": 266,
+        "height": 72,
+        "rotation": 0
+      },
+      "props": {
+        "label": "Về hai phong bì",
+        "color": "#963851"
+      },
+      "accessibility": {
+        "label": "Về hai phong bì"
+      },
+      "actions": [
+        {
+          "on": "activate",
+          "type": "goToScene",
+          "targetSceneId": "scene-cover"
+        }
+      ],
+      "name": "Hai phong bì mừng cưới · Trang trí 19",
+      "effects": {
+        "reaction": {
+          "id": "R03",
+          "speed": "fast"
+        }
+      }
+    },
+    {
+      "id": "wish-to-time",
+      "type": "button",
+      "elementVersion": 1,
+      "layout": {
+        "x": 62,
+        "y": 641,
+        "width": 266,
+        "height": 72,
+        "rotation": 0
+      },
+      "props": {
+        "label": "Xem hành trình & album",
+        "color": "#963851"
+      },
+      "accessibility": {
+        "label": "Xem hành trình & album"
+      },
+      "actions": [
+        {
+          "on": "activate",
+          "type": "goToScene",
+          "targetSceneId": "scene-time"
+        }
+      ],
+      "name": "Hai phong bì mừng cưới · Trang trí 34",
+      "effects": {
+        "reaction": {
+          "id": "R03",
+          "speed": "fast"
+        }
+      }
+    },
+    {
+      "id": "time-heading",
+      "type": "text",
+      "elementVersion": 1,
+      "layout": {
+        "x": 36,
+        "y": 65,
+        "width": 318,
+        "height": 94,
+        "rotation": 0
+      },
+      "props": {
+        "text": "Từ ngày ấy,\nđến ngày chung đôi.",
+        "fontToken": "serif",
+        "fontSize": 31,
+        "align": "center",
+        "color": "#442638",
+        "lineHeight": 1.25
+      },
+      "accessibility": {
+        "role": "heading",
+        "level": 1
+      },
+      "name": "Hai phong bì mừng cưới · Trang trí 21",
+      "effects": {
+        "entrance": {
+          "id": "E02",
+          "speed": "fast"
+        }
+      }
+    },
+    {
+      "id": "time-intro",
+      "type": "text",
+      "elementVersion": 1,
+      "layout": {
+        "x": 42,
+        "y": 174,
+        "width": 306,
+        "height": 72,
+        "rotation": 0
+      },
+      "props": {
+        "text": "Hai dấu mốc nhỏ, kể tiếp một hành trình thật dài.",
+        "fontToken": "body",
+        "fontSize": 17,
+        "align": "center",
+        "color": "#442638",
+        "lineHeight": 1.25
+      },
+      "accessibility": {
+        "role": "paragraph"
+      },
+      "name": "Hai phong bì mừng cưới · Trang trí 22"
+    },
+    {
+      "id": "event-countdown",
+      "type": "interaction",
+      "elementVersion": 1,
+      "layout": {
+        "x": 30,
+        "y": 286,
+        "width": 330,
+        "height": 153,
+        "rotation": 0
+      },
+      "props": {
+        "color": "#FFFCF6",
+        "kind": "event-countdown",
+        "entries": [
+          {
+            "heading": "Đếm tới ngày đặc biệt",
+            "body": "Chúc mừng ngày chung đôi. Hành trình mới bắt đầu!"
+          }
+        ],
+        "eventAt": null,
+        "timeZone": "Asia/Ho_Chi_Minh",
+        "clockMode": "countdown",
+        "optional": true
+      },
+      "accessibility": {},
+      "name": "Đếm ngược tới ngày",
+      "effects": {
+        "surface": {
+          "id": "S01"
+        },
+        "entrance": {
+          "id": "E02",
+          "speed": "fast",
+          "delay": 0
+        }
+      }
+    },
+    {
+      "id": "event-elapsed",
+      "type": "interaction",
+      "elementVersion": 1,
+      "layout": {
+        "x": 30,
+        "y": 466,
+        "width": 330,
+        "height": 153,
+        "rotation": 0
+      },
+      "props": {
+        "color": "#FFFCF6",
+        "kind": "event-countdown",
+        "entries": [
+          {
+            "heading": "Từ ngày hai bạn chọn",
+            "body": "Cùng nhau, mỗi ngày đều đáng nhớ."
+          }
+        ],
+        "eventAt": null,
+        "timeZone": "Asia/Ho_Chi_Minh",
+        "clockMode": "elapsed",
+        "optional": true
+      },
+      "accessibility": {},
+      "name": "Thời gian đã qua",
+      "effects": {
+        "surface": {
+          "id": "S01"
+        },
+        "entrance": {
+          "id": "E02",
+          "speed": "fast",
+          "delay": 150
+        }
+      }
+    },
+    {
+      "id": "time-next",
+      "type": "button",
+      "elementVersion": 1,
+      "layout": {
+        "x": 60,
+        "y": 721,
+        "width": 270,
+        "height": 72,
+        "rotation": 0
+      },
+      "props": {
+        "label": "Mở album kỷ niệm",
+        "color": "#963851"
+      },
+      "accessibility": {
+        "label": "Mở album kỷ niệm"
+      },
+      "actions": [
+        {
+          "on": "activate",
+          "type": "goToScene",
+          "targetSceneId": "scene-album"
+        }
+      ],
+      "name": "Hai phong bì mừng cưới · Trang trí 25",
+      "effects": {
+        "reaction": {
+          "id": "R03",
+          "speed": "fast"
+        }
+      }
+    },
+    {
+      "id": "album-heading",
+      "type": "text",
+      "elementVersion": 1,
+      "layout": {
+        "x": 35,
+        "y": 62,
+        "width": 320,
+        "height": 90,
+        "rotation": 0
+      },
+      "props": {
+        "text": "Chuyện của hai bạn,\nkể bằng những tấm ảnh.",
+        "fontToken": "serif",
+        "fontSize": 31,
+        "align": "center",
+        "color": "#442638",
+        "lineHeight": 1.25
+      },
+      "accessibility": {
+        "role": "heading",
+        "level": 1
+      },
+      "name": "Hai phong bì mừng cưới · Trang trí 26",
+      "effects": {
+        "entrance": {
+          "id": "E02",
+          "speed": "fast"
+        }
+      }
+    },
+    {
+      "id": "album-intro",
+      "type": "text",
+      "elementVersion": 1,
+      "layout": {
+        "x": 42,
+        "y": 171,
+        "width": 306,
+        "height": 74,
+        "rotation": 0
+      },
+      "props": {
+        "text": "Một khoảnh khắc, một nụ cười, một chỗ để giữ lại ngày vui.",
+        "fontToken": "body",
+        "fontSize": 17,
+        "align": "center",
+        "color": "#442638",
+        "lineHeight": 1.25
+      },
+      "accessibility": {
+        "role": "paragraph"
+      },
+      "name": "Hai phong bì mừng cưới · Trang trí 27"
+    },
+    {
+      "id": "event-album",
+      "type": "interaction",
+      "elementVersion": 1,
+      "layout": {
+        "x": 26,
+        "y": 277,
+        "width": 338,
+        "height": 358,
+        "rotation": 0
+      },
+      "props": {
+        "color": "#FFFCF6",
+        "kind": "swipe-album",
+        "optional": true,
+        "autoplay": true,
+        "photos": [
+          {
+            "id": "event-photo-slot-1",
+            "assetId": null,
+            "alt": "",
+            "caption": "",
+            "focalPoint": {
+              "x": 0.5,
+              "y": 0.5
+            }
+          },
+          {
+            "id": "event-photo-slot-2",
+            "assetId": null,
+            "alt": "",
+            "caption": "",
+            "focalPoint": {
+              "x": 0.5,
+              "y": 0.5
+            }
+          },
+          {
+            "id": "event-photo-slot-3",
+            "assetId": null,
+            "alt": "",
+            "caption": "",
+            "focalPoint": {
+              "x": 0.5,
+              "y": 0.5
+            }
+          }
+        ]
+      },
+      "accessibility": {},
+      "name": "Album ảnh của bạn",
+      "effects": {
+        "surface": {
+          "id": "S01"
+        },
+        "entrance": {
+          "id": "E02",
+          "speed": "fast"
+        }
+      }
+    },
+    {
+      "id": "album-next",
+      "type": "button",
+      "elementVersion": 1,
+      "layout": {
+        "x": 60,
+        "y": 746,
+        "width": 270,
+        "height": 72,
+        "rotation": 0
+      },
+      "props": {
+        "label": "Gửi một lời hồi đáp",
+        "color": "#963851"
+      },
+      "accessibility": {
+        "label": "Gửi một lời hồi đáp"
+      },
+      "actions": [
+        {
+          "on": "activate",
+          "type": "goToScene",
+          "targetSceneId": "scene-reply"
+        }
+      ],
+      "name": "Hai phong bì mừng cưới · Trang trí 29",
+      "effects": {
+        "reaction": {
+          "id": "R03",
+          "speed": "fast"
+        }
+      }
+    },
+    {
+      "id": "reply-heading",
+      "type": "text",
+      "elementVersion": 1,
+      "layout": {
+        "x": 35,
+        "y": 64,
+        "width": 320,
+        "height": 108,
+        "rotation": 0
+      },
+      "props": {
+        "text": "Hai lá thư,\nmột lời nhắn lại.",
+        "fontToken": "serif",
+        "fontSize": 31,
+        "align": "center",
+        "color": "#442638",
+        "lineHeight": 1.25
+      },
+      "accessibility": {
+        "role": "heading",
+        "level": 1
+      },
+      "name": "Tiêu đề hồi đáp",
+      "effects": {
+        "entrance": {
+          "id": "E02",
+          "speed": "fast"
+        }
+      }
+    },
+    {
+      "id": "reply-intro",
+      "type": "text",
+      "elementVersion": 1,
+      "layout": {
+        "x": 42,
+        "y": 191,
+        "width": 306,
+        "height": 75,
+        "rotation": 0
+      },
+      "props": {
+        "text": "Nhắn một lời cho người gửi hoặc trở về đọc lại hai lá thư.",
+        "fontToken": "body",
+        "fontSize": 18,
+        "align": "center",
+        "color": "#442638",
+        "lineHeight": 1.25
+      },
+      "accessibility": {
+        "role": "paragraph"
+      },
+      "name": "Lời mời hồi đáp"
+    },
+    {
+      "id": "reply-card",
+      "type": "reply",
+      "elementVersion": 1,
+      "layout": {
+        "x": 24,
+        "y": 302,
+        "width": 342,
+        "height": 310,
+        "rotation": 0
+      },
+      "props": {
+        "title": "Một lời nhắn từ đôi bạn",
+        "submitLabel": "Gửi lời đáp"
+      },
+      "accessibility": {
+        "label": "Gửi lời đáp cho người tặng"
+      },
+      "name": "Khối hồi đáp"
+    },
+    {
+      "id": "replay-gift",
+      "type": "button",
+      "elementVersion": 1,
+      "layout": {
+        "x": 65,
+        "y": 735,
+        "width": 260,
+        "height": 72,
+        "rotation": 0
+      },
+      "props": {
+        "label": "Về hai phong bì",
+        "color": "#963851"
+      },
+      "accessibility": {
+        "label": "Về hai phong bì"
+      },
+      "actions": [
+        {
+          "on": "activate",
+          "type": "replay"
+        }
+      ],
+      "name": "Xem lại món quà",
+      "effects": {
+        "reaction": {
+          "id": "R03",
+          "speed": "fast"
+        }
+      }
+    }
+  ],
+  "scenes": [
+    {
+      "id": "scene-cover",
+      "name": "Mở quà",
+      "background": {
+        "kind": "solid",
+        "color": "#FFF8EB"
+      },
+      "elementIds": [
+        "ring-one",
+        "ring-two",
+        "cover-title",
+        "text-recipient",
+        "event-photo-wedding-memory",
+        "open-memory",
+        "event-photo-wedding-wish",
+        "open-wish",
+        "cover-note",
+        "open-journey"
+      ],
+      "effects": {
+        "transition": {
+          "id": "T01",
+          "speed": "normal"
+        },
+        "ambience": {
+          "id": "B06",
+          "speed": "normal",
+          "density": "sparse"
+        }
+      }
+    },
+    {
+      "id": "scene-surprise",
+      "name": "Kỷ niệm",
+      "background": {
+        "kind": "solid",
+        "color": "#FFF8EB"
+      },
+      "elementIds": [
+        "story-paper-1",
+        "memory-margin",
+        "memory-heading",
+        "envelope-memory",
+        "event-photo-wedding-keepsake",
+        "memory-back",
+        "memory-to-time"
+      ],
+      "effects": {
+        "transition": {
+          "id": "T03",
+          "speed": "normal"
+        },
+        "ambience": {
+          "id": "B08",
+          "speed": "normal",
+          "density": "sparse"
+        }
+      }
+    },
+    {
+      "id": "scene-message",
+      "name": "Một lời chúc",
+      "background": {
+        "kind": "solid",
+        "color": "#FFF8EB"
+      },
+      "elementIds": [
+        "story-paper-2",
+        "message-heading",
+        "text-message",
+        "message-from-label",
+        "text-sender",
+        "wish-back",
+        "wish-to-time"
+      ],
+      "effects": {
+        "transition": {
+          "id": "T03",
+          "speed": "normal"
+        }
+      }
+    },
+    {
+      "id": "scene-time",
+      "name": "Thời gian",
+      "background": {
+        "kind": "solid",
+        "color": "#FFF8EB"
+      },
+      "elementIds": [
+        "time-heading",
+        "time-intro",
+        "event-countdown",
+        "event-elapsed",
+        "time-next"
+      ],
+      "effects": {
+        "transition": {
+          "id": "T01",
+          "speed": "normal"
+        },
+        "ambience": {
+          "id": "B05",
+          "speed": "normal",
+          "density": "sparse"
+        }
+      }
+    },
+    {
+      "id": "scene-album",
+      "name": "Album ảnh",
+      "background": {
+        "kind": "solid",
+        "color": "#FFF8EB"
+      },
+      "elementIds": [
+        "album-heading",
+        "album-intro",
+        "event-album",
+        "album-next"
+      ],
+      "effects": {
+        "transition": {
+          "id": "T06",
+          "speed": "slow"
+        },
+        "ambience": {
+          "id": "B08",
+          "speed": "normal",
+          "density": "sparse"
+        }
+      }
+    },
+    {
+      "id": "scene-reply",
+      "name": "Lời hồi đáp",
+      "background": {
+        "kind": "solid",
+        "color": "#FFF8EB"
+      },
+      "elementIds": [
+        "reply-card",
+        "reply-heading",
+        "reply-intro",
+        "replay-gift"
+      ],
+      "effects": {
+        "transition": {
+          "id": "T05",
+          "speed": "normal"
+        },
+        "ambience": {
+          "id": "B07",
+          "speed": "normal",
+          "density": "sparse"
+        }
+      }
+    }
+  ],
+  "responsive": {
+    "textOverflow": "expand-flow",
+    "sceneOverflow": "scroll",
+    "desktop": {
+      "maxContentWidth": 600,
+      "align": "center"
+    }
+  }
+}

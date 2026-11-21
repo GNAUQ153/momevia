@@ -100,12 +100,16 @@ export async function runNewTemplates(base) {
     const preview = page.locator('dialog.template-preview-dialog[open]');
     await preview.waitFor({ state: 'visible' });
     const previewStage = preview.locator('.gift-runtime-stage');
-    for (const branch of ['Một điều mình chúc bạn', 'Một kỷ niệm', 'Một kỷ niệm', 'Một điều mình chúc bạn']) {
+    for (const branch of ['Một lời chúc', 'Một kỷ niệm', 'Một kỷ niệm', 'Một lời chúc']) {
       const entry = previewStage.getByRole('button', { name: branch, exact: true });
       await entry.focus();
       await page.keyboard.press('Enter');
-      await previewStage.getByText(branch, { exact: true }).waitFor();
+      await previewStage.getByRole('heading', { name: branch, exact: true }).waitFor();
       await previewStage.getByRole('button', { name: 'Về hai phong bì' }).click();
+      await page.waitForFunction(() => {
+        const stage = globalThis.document.querySelector('dialog.template-preview-dialog[open] .gift-runtime-stage');
+        return stage && !stage.inert && stage.querySelector('[data-runtime-element="open-memory"]');
+      });
     }
     await capture('two-envelopes-390.png');
   } finally { await browser.close(); }

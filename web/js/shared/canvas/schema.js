@@ -1,7 +1,7 @@
 import { registry, STICKERS, FONT_TOKENS, BINDINGS, LIMITS } from './registry.js';
 import { lines, masks, originalStickerIds, shapes } from './artwork.js';
 import { interactionKinds, photoSlots } from './interactions.js';
-import { effectsFor, effectSpeed, elementEffectFamilies, sceneEffectFamilies } from './effects.js';
+import { effectsFor, effectSpeed, elementEffectFamilies, sceneEffectFamilies, CELEBRATION_IDS } from './effects.js';
 
 export const CANVAS_VERSIONS = Object.freeze([1, 2]);
 export const runtimeVersionFor = document => document.schemaVersion;
@@ -45,7 +45,11 @@ function validateInteraction(p, path, assets, publishing) {
   const spec = interactionKinds[p.kind];
   const keys = ['kind', 'color', ...(spec.fields ? ['entries'] : []),
     ...(spec.slots ? ['photos'] : []), ...(spec.clock ? ['eventAt', 'timeZone'] : [])];
-  object(p, path, keys, keys);
+  const extras = [...(p.kind === 'swipe-album' ? ['optional', 'autoplay'] : []), ...(spec.clock ? ['optional', 'clockMode'] : [])];
+  object(p, path, [...keys, ...extras], keys);
+  if (own(p, 'optional')) boolean(p.optional, `${path}.optional`);
+  if (own(p, 'autoplay')) boolean(p.autoplay, `${path}.autoplay`);
+  if (own(p, 'clockMode')) enumeration(p.clockMode, `${path}.clockMode`, ['countdown', 'elapsed']);
   color(p.color, `${path}.color`);
   if (spec.fields) {
     array(p.entries, `${path}.entries`, spec.fields.length);
@@ -81,7 +85,7 @@ function validateInteraction(p, path, assets, publishing) {
       object(photo.focalPoint, `${q}.focalPoint`, ['x','y'], ['x','y']);
       for (const axis of ['x','y']) number(photo.focalPoint[axis], `${q}.focalPoint.${axis}`, 0, 1);
     }
-    if (publishing && p.photos.filter(photo => photo.assetId).length < spec.minimumPhotos) {
+    if (publishing && !p.optional && p.photos.filter(photo => photo.assetId).length < spec.minimumPhotos) {
       const missing = p.photos.findIndex(photo => !photo.assetId);
       fail(`${path}.photos.${missing}.assetId`, `${spec.label} cần ${spec.minimumPhotos} ảnh. Chọn ảnh cho ô ${missing+1}.`, 'INTERACTION_PHOTO_REQUIRED');
     }
@@ -91,7 +95,7 @@ function validateInteraction(p, path, assets, publishing) {
     if (!/^[A-Za-z][\w+-]*(?:\/[\w+-]+)*$/.test(p.timeZone)) fail(`${path}.timeZone`, 'Múi giờ không hợp lệ.');
     try { new Intl.DateTimeFormat('vi', {timeZone:p.timeZone}); }
     catch { fail(`${path}.timeZone`, 'Múi giờ không hợp lệ.'); }
-    if (p.eventAt !== null || publishing) {
+    if (p.eventAt !== null || (publishing && !p.optional)) {
       string(p.eventAt, `${path}.eventAt`, 24, 24);
       const time = new Date(p.eventAt);
       if (!Number.isFinite(time.getTime()) || time.toISOString() !== p.eventAt) fail(`${path}.eventAt`, 'Chọn ngày giờ hẹn hợp lệ.');
@@ -101,9 +105,21 @@ function validateInteraction(p, path, assets, publishing) {
 
 function validateEffects(effects, path, model) {
   const families = model ? elementEffectFamilies : sceneEffectFamilies;
-  object(effects,path,families);
+  object(effects,path,model ? families : [...families, 'celebrations']);
   for (const [family, preset] of Object.entries(effects)) {
     const q = `${path}.${family}`;
+    if (family === 'celebrations') {
+      object(preset,q,CELEBRATION_IDS);
+      for (const [id, settings] of Object.entries(preset)) {
+        const at = `${q}.${id}`;
+        object(settings,at,['enabled','speed','density','loop'],['enabled']);
+        boolean(settings.enabled,`${at}.enabled`);
+        if (own(settings,'speed')) enumeration(settings.speed,`${at}.speed`,Object.keys(effectSpeed));
+        if (own(settings,'density')) enumeration(settings.density,`${at}.density`,['sparse','normal','dense']);
+        if (own(settings,'loop')) boolean(settings.loop,`${at}.loop`);
+      }
+      continue;
+    }
     const option = { surface: 'color', entrance: 'delay', ambience: 'density' }[family];
     object(preset,q,['id', ...(family === 'surface' ? [] : ['speed']), ...(option ? [option] : [])],['id']);
     enumeration(preset.id,`${q}.id`, effectsFor(family, model).map(([id]) => id));

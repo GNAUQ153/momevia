@@ -23,8 +23,8 @@ export const COLLECTION_2027 = Object.freeze({
     note: canonicalText('templates.velvet-valentine-2027.note'), font: 'serif',
   },
   'birthday-radiance': {
-    motif: 'birthday-cake', name: canonicalText('templates.birthday-radiance.name'), bg: '#6A539E', paper: '#FFF6EB', ink: '#FFF7E8',
-    accent: '#F8D58A', detail: '#F2B5B8', button: '#7553B1', headline: canonicalText('templates.birthday-radiance.headline'),
+    motif: 'birthday-cake', name: canonicalText('templates.birthday-radiance.name'), bg: '#FFF5DC', paper: '#FFF5DC', ink: '#362644',
+    accent: '#F56C60', detail: '#41BCAF', button: '#68374B', headline: canonicalText('templates.birthday-radiance.headline'),
     note: canonicalText('templates.birthday-radiance.note'), font: 'heading',
   },
   'thank-you-bloom': {
@@ -33,9 +33,9 @@ export const COLLECTION_2027 = Object.freeze({
     note: canonicalText('templates.thank-you-bloom.note'), font: 'serif',
   },
   'proud-of-you': {
-    motif: 'congrats', name: canonicalText('templates.proud-of-you.name'), bg: '#152D49', paper: '#FFFBF0', ink: '#F7E9C6',
-    accent: '#E6C57A', detail: '#85ACC1', button: '#40678C', headline: canonicalText('templates.proud-of-you.headline'),
-    note: canonicalText('templates.proud-of-you.note'), font: 'serif',
+    motif: 'congrats', name: canonicalText('templates.proud-of-you.name'), bg: '#172849', paper: '#FFF8E7', ink: '#FFF8E7',
+    accent: '#FFC857', detail: '#79CEEF', button: '#315B82', headline: canonicalText('templates.proud-of-you.headline'),
+    note: canonicalText('templates.proud-of-you.note'), font: 'heading',
   },
   'faraway-hug': {
     motif: 'distance', name: canonicalText('templates.faraway-hug.name'), bg: '#DDEBF5', paper: '#FFFEFA', ink: '#395776',

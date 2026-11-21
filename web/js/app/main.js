@@ -349,7 +349,7 @@ async function render() {
         ? templateDetail(template, { catalogReturn: history.state?.catalogReturn })
         : errorPage(message("catalog.detail.unavailable"));
       if (template && main.querySelector('[data-template-preview]')) {
-        routeController = mountTemplatePreview(main, template, { api });
+        routeController = mountTemplatePreview(main, template, { api, autoOpen: new URLSearchParams(location.search).get('preview') === '1' });
       }
     } else if (
       (route === "create" || route === "design") &&

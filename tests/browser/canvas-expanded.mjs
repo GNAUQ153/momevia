@@ -6,7 +6,7 @@ import { effectFamilies } from '../../web/js/shared/canvas/effects.js';
 import { syntheticPhoto } from '../integration/canvas-expanded.mjs';
 
 const exact = { exact:true };
-const effectCard = {E03:'heading', E04:'wave-line', A02:'arch-photo', A04:'heading',
+const effectCard = {E03:'heading', E04:'wave-line', E05:'arch-photo', E06:'arch-photo', A02:'arch-photo', A04:'heading', A05:'arch-photo',
   R01:'envelope', R02:'gift-box', R03:'continue', R04:'light-a-candle'};
 const routes = (context,base) => context.route('**/*',route=>new URL(route.request().url()).origin===base ? route.continue() : route.abort());
 
@@ -264,7 +264,7 @@ export async function runExpandedBrowser(base, cookie, {cards, controls}, artifa
       }
     }
     await save();
-    console.log('PASS Browser 24 hiệu ứng cấu hình, lưu, Xem thử và Tắt');
+    console.log('PASS Browser 33 hiệu ứng cấu hình, lưu, Xem thử và Tắt');
 
     await page.locator('[data-block="arch-photo"]').click();
     const image = stage.locator('.gift-runtime-photo');

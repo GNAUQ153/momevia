@@ -4,6 +4,7 @@ import { masks, vectorParts } from "../../shared/canvas/artwork.js";
 import { renderInteraction } from "./interactions.js";
 import { applySurface, finishTypewriter, playReaction } from "./effects.js";
 import { EVENT_MEDIA, eventMediaUrl, EVENT_ARTWORK_LABEL } from '../../shared/canvas/event-media.js';
+import { mountRuntimeImage } from './image-state.js';
 
 const svgNamespace = "http://www.w3.org/2000/svg";
 let clipSequence = 0;
@@ -151,6 +152,7 @@ export function renderElement(
     signal,
     motion,
     previewFamily,
+    imagePriority = false,
     onReply = () => {},
   } = {},
 ) {
@@ -209,24 +211,10 @@ export function renderElement(
     }
     if (url) {
       const img = element("img");
-      img.src = url;
       img.alt = a.decorative ? "" : a.alt || "";
-      img.loading = "lazy";
-      img.decoding = "async";
       img.style.objectFit = p.fit || "cover";
       applyFocalPoint(img, p.focalPoint);
-      img.addEventListener(
-        "error",
-        () => {
-          if (signal?.aborted) return;
-          img.remove();
-          frame.append(
-            element("span", "gift-runtime-placeholder", label("gift.runtime.imageError")),
-          );
-        },
-        signal ? { signal } : {},
-      );
-      frame.append(img);
+      mountRuntimeImage(img, frame, { url, signal, priority: imagePriority });
     } else if (framed) {
       frame.append(drawVector([
         {d:"M0 0H100V100H0Z",fill:"#EBDEF4"},

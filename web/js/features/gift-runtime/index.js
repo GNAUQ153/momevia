@@ -120,12 +120,17 @@ export function mountPlayer(
     stage.style.backgroundColor = scene.background.color;
     applySurface(stage, scene.effects?.surface);
     const nodes = [];
+    let firstContentPhoto = true;
     // Layer order changes stacking, while document order preserves reading and Tab.
     const sceneIds = new Set(scene.elementIds);
     for (const model of document.elements.filter((e) => sceneIds.has(e.id))) {
       if (model.visible === false) continue;
+      const imagePriority = firstContentPhoto && model.type === "image" &&
+        Boolean(model.props?.assetId) && model.accessibility?.decorative !== true;
+      if (imagePriority) firstContentPhoto = false;
       const node = renderElement(model, {
         document,
+        imagePriority,
         assetUrl,
         mode,
         replyAdapter,

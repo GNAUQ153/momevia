@@ -1,3 +1,11 @@
+## Unreleased — Recipient Image Loading & Resilience (2026-11-21)
+
+- Tách vòng đời tải ảnh của Canvas Player vào `image-state.js`, gắn listener trước `src` để bắt cả lỗi ảnh từ cache; không thay đổi allowlist URL hoặc API.
+- Có trạng thái loading/ready/error và placeholder dịch VI/EN; `AbortSignal` ngăn phản hồi ảnh thuộc cảnh đã rời đi làm thay đổi DOM.
+- Ưu tiên ảnh nội dung đầu tiên của cảnh, giữ ảnh còn lại ở chế độ lazy; giảm chuyển động shimmer theo `prefers-reduced-motion`.
+- Bổ sung 5 unit test cho ảnh cache, lỗi sớm, ưu tiên tải, abort và DOM đã tháo; tài liệu `docs/RECIPIENT_IMAGE_RESILIENCE.md`.
+- Không thay đổi dữ liệu Canvas, quyền truy cập, thanh toán hay metadata của quà; phải kiểm thử browser/mobile và CI trên môi trường triển khai.
+
 ## Unreleased — Recipient Canvas Player Navigation & Mobile UX (2026-11-21)
 
 - Sửa browser regression Canvas: xác minh focus qua `node.ownerDocument.activeElement` trong callback Playwright, không tham chiếu biến DOM toàn cục từ Node.js.

@@ -89,19 +89,19 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- So sánh song song bản Canvas đang mở và bản được tải từ máy chủ ở chế độ chỉ đọc: phiên bản, tên, cảnh, layer, ảnh, bindings và thiết lập khác.
-- Nhận biết thay đổi nội dung layer ngay cả khi tổng số layer không đổi; khu vực cá nhân hóa chỉ hiển thị tối đa 8 mục để không tràn giao diện.
-- Tiếp tục dùng API GET, quyền owner, CAS và hộp xác nhận tải bản máy chủ hiện có; không thêm chức năng merge hoặc ghi đè mới.
-- UI responsive, bàn phím/ARIA, từ điển tiếng Việt/tiếng Anh và unit tests; không chỉnh sửa session.js hoặc repository.
+- Chuyển nhãn, thông báo và lỗi hiển thị của bảng thuộc tính Fabric Studio sang hệ thống VI/EN dùng chung; đổi ngôn ngữ ngay trong dialog mà không sửa bản nháp, geometry hoặc Undo/Redo.
+- Giữ nguyên tên lớp và nội dung do người dùng nhập, escape an toàn qua DOM `textContent`; cải thiện nhãn dài trên điện thoại.
+- Thêm `npm run changelog:check` để phát hiện commit có sửa source nhưng quên đưa `CHANGELOG.md` vào staging; quy trình áp dụng chung khi phát triển song song trên `main`.
+- Bổ sung unit test cho bản dịch Fabric Inspector, kiểm soát lỗi UI và quy tắc changelog; không thay đổi API, database hay thanh toán.
 
 **Các commit gần nhất trên `main`:**
 
+- `859fbe0` — feat: localize Fabric inspector and track changelog changes (2026-11-21)
 - `ede4a2a` — feat: localize Canvas Designer and refactor discovery UI (2026-11-21)
 - `08c3e02` — feat: add paginated admin refund review queue (2026-11-21)
 - `727ac61` — feat: complete refund review integration (2026-11-21)
 - `39e461f` — fix: reject conflicting refund review resubmissions (2026-11-21)
 - `4c01398` — Merge pull request #15 from GNAUQ153/plan/event-card-redesign (2026-11-21)
-- `4f04bf7` — test: mock refund request lookup in Canvas fixture (2026-11-21)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

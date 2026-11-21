@@ -5,6 +5,7 @@ import { BASIC_TEMPLATES, templatePreviewDocument } from '../../web/js/shared/ca
 
 import { previewSvg } from '../../web/js/shared/canvas/cover-svg.js';
 import { serverText } from '../../src/shared/locale.mjs';
+import { builtinCoverImages } from '../../src/modules/designs/builtin-media.mjs';
 export { previewSvg };
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
@@ -14,7 +15,8 @@ export function buildTemplatePreviews() {
   const english = path.join(directory, 'en');
   fs.mkdirSync(english, { recursive: true });
   const serifWoff2 = fs.readFileSync(path.join(root, 'web/assets/fonts/lora-cover.woff2')).toString('base64');
-  const cover = doc => previewSvg(doc, undefined, undefined, { serifWoff2 });
+  const images = builtinCoverImages();
+  const cover = doc => previewSvg(doc, undefined, images, { serifWoff2 });
   for (const id of Object.keys(BASIC_TEMPLATES)) {
     fs.writeFileSync(path.join(directory, `${id}.svg`), cover(templatePreviewDocument({ id })), 'utf8');
     fs.writeFileSync(path.join(english, `${id}.svg`),

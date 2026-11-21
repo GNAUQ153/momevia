@@ -11,6 +11,8 @@ import { canvasError, fields, owned, revision, uuid } from './errors.mjs';
 import { createGiftAccess, giftStatus } from '../gifts/access.mjs';
 import { serverText } from '../../shared/locale.mjs';
 import { isSystemTemplate, templateFieldKey } from '../../../web/js/shared/template-copy.js';
+import { materializeBuiltinMedia } from './builtin-media.mjs';
+import { EVENT_MEDIA } from '../../../web/js/shared/canvas/event-media.js';
 
 export const hash = value => `sha256:${createHash('sha256').update(canonicalStringify(value)).digest('hex')}`;
 const copy = value => structuredClone(value);
@@ -88,6 +90,7 @@ export class DesignsService {
     const now = new Date().toISOString();
     const id = randomUUID();
     const assets = [];
+    if (!resolved.version) assets.push(...materializeBuiltinMedia(document, { ownerId: user.sub, designId: id, mediaRoot: this.mediaRoot, createdAt: now }));
     let policy = { kind: 'sender-basic', lockedElements: {} };
     if (resolved.version) {
       const mapping = new Map();
@@ -129,7 +132,29 @@ export class DesignsService {
           return { source, provenance: { adapter: 'blank' }, document: cleanGiftLayout(gift.documentSnapshot) };
         }
         const previous = source.templateVersionId && await this.catalog.reusableVersion(source.templateId, source.templateVersionId);
-        const resolved = previous ? { source, ...previous, provenance: { adapter: 'creator-v1', price: previous.template.price } } : await this.source(source);
+        // Approved Creator versions keep their existing version/lock policy. A built-in
+        // legacy version is a fingerprint, not an archived Catalog version. Resolve its
+        // current authorization without demanding an obsolete fingerprint, then reuse
+        // the gift's own layout with personal content removed. Never downgrade a
+        // Creator version or an unknown source on a conflict.
+        let resolved;
+        if (previous) resolved = { source, ...previous, provenance: { adapter: 'creator-v1', price: previous.template.price } };
+        else {
+          const current = await this.catalog.getTemplate(source.templateId);
+          const systemSnapshot = gift.documentSnapshot && current.systemOwned === true && current.creator === 'Momevia Originals'
+            && !current.versionId && isSystemTemplate(current);
+          resolved = await this.source(systemSnapshot ? { kind: 'template', templateId: source.templateId } : source);
+          if (systemSnapshot) {
+            const sharedImages = new Map();
+            for (const ref of gift.documentSnapshot.assets) {
+              const asset = await this.repository.getAsset(user.sub, ref.assetId);
+              const known = asset?.ownerId === user.sub && asset.status === 'ready'
+                && Object.keys(EVENT_MEDIA).find(id => asset.contentHash === `sha256:${EVENT_MEDIA[id].sha256}`);
+              if (known) sharedImages.set(ref.assetId, known);
+            }
+            resolved.document = cleanGiftLayout(gift.documentSnapshot, { sharedImages });
+          }
+        }
         if (resolved.template.price > 0 && !await this.checkout.hasLicense(user.sub, source.templateId))
           throw canvasError(402, 'TEMPLATE_LICENSE_REQUIRED', 'Cần quyền dùng mẫu còn hiệu lực để tạo lượt tặng mới.');
         return resolved;

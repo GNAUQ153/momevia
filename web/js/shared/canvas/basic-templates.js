@@ -3,6 +3,7 @@ import { templateCopyKey } from '../template-copy.js';
 import { createElement } from './registry.js';
 import { validateDocument } from './schema.js';
 import { COLLECTION_2027, paintCollectionCover } from './collection-2027.js';
+import { paintEventCard } from './event-cards.js';
 
 // Built-in editable compositions, not Creator-approved versions or new products.
 // Existing IDs, prices and provenance stay with Catalog; only new starting layouts change.
@@ -21,7 +22,7 @@ export const BASIC_TEMPLATES = Object.freeze({
   afterglow: { motif: 'sunset', name: canonicalText('templates.afterglow.name'), bg: '#F4DDD4', paper: '#FFFAF0', ink: '#714A43', accent: '#DBA276', detail: '#D38C9D', button: '#945B59', headline: canonicalText('templates.afterglow.headline'), note: canonicalText('templates.afterglow.note'), font: 'serif' },
   'tiny-celebration': { motif: 'gift', name: canonicalText('templates.tiny-celebration.name'), bg: '#E0EFE7', paper: '#F7FAF2', ink: '#315D50', accent: '#82B29C', detail: '#C8DCC1', button: '#477B67', headline: canonicalText('templates.tiny-celebration.headline'), note: canonicalText('templates.tiny-celebration.note'), font: 'heading' },
   'mot-ky-niem': { motif: 'memory', name: canonicalText('templates.mot-ky-niem.name'), bg: '#F2EDE3', paper: '#FFF9EC', ink: '#273C40', accent: '#738E86', detail: '#C98461', button: '#355658', headline: canonicalText('templates.mot-ky-niem.headline'), note: canonicalText('templates.mot-ky-niem.note'), font: 'serif' },
-  'hai-phong-bi': { motif: 'two-letters', name: canonicalText('templates.hai-phong-bi.name'), bg: '#EDE8F4', paper: '#FFF9F4', ink: '#38294B', accent: '#AA80B9', detail: '#C78672', button: '#664579', headline: canonicalText('templates.hai-phong-bi.headline'), font: 'serif' },
+  'hai-phong-bi': { motif: 'two-letters', name: canonicalText('templates.hai-phong-bi.name'), bg: '#FFF8EB', paper: '#FFF8EB', ink: '#442638', accent: '#F4C9C4', detail: '#47715C', button: '#963851', headline: canonicalText('templates.hai-phong-bi.headline'), font: 'serif' },
   ...COLLECTION_2027,
 });
 export const MEMORY_TEMPLATE_ID = 'mot-ky-niem';
@@ -78,6 +79,8 @@ export function createBasicTemplate(template, localize = canonicalText) {
     line(scene, `${prefix}-stem`, [x - height / 2, y + height / 2, height, 2, -90], color, 2);
     for (let i = 0; i < 4; i++) shape(scene, `${prefix}-leaf-${i}`, [x + (i % 2 ? 4 : -14), y + i * 28, 17, 42, i % 2 ? 33 : -33], i % 2 ? color : p.detail);
   };
+
+  if (paintEventCard(template.id, doc, { shape, line, text, binding, action, add }, p, localize)) return validateDocument(doc);
 
   if (p.motif === 'memory') {
     doc.scenes[0].background.color = p.paper;

@@ -16,7 +16,7 @@
 .inbox-filter { display: inline-flex; align-items: center; gap: .5rem; min-height: 44px; }
 .template-card__info p.template-card__capabilities { white-space: normal; overflow-wrap: anywhere; line-height: 1.4; }
 .page-banner.page-banner--dashboard { padding-block: clamp(1.25rem, 4vw, 3rem); }
-.template-preview-dialog { width:min(94vw,760px);max-height:94dvh;border:1px solid var(--line);border-radius:20px;padding:20px;background:var(--paper);color:var(--ink);overflow:auto; }
+.template-preview-dialog { width:min(94vw,760px);max-height:94dvh;border:1px solid var(--line);border-radius:20px;padding:20px;background:var(--paper);color:var(--ink);overflow:auto;scroll-padding-top:84px; }
 .template-preview-dialog::backdrop { background:#221a3988; }
 .template-preview-toolbar { display:flex;align-items:center;gap:8px;position:sticky;top:-20px;z-index:2;padding:12px 0;background:var(--paper); }
 .template-preview-toolbar h2 { flex:1;font:600 20px var(--font-display);margin:0; }
@@ -24,7 +24,7 @@
 .template-preview-note { font-size:13px;color:var(--muted);margin:0 0 16px; }
 .template-preview-player { max-width:560px;margin:auto; }
 .template-preview-dialog :focus-visible { outline:3px solid var(--purple);outline-offset:3px; }
-@media(max-width:480px) { .template-preview-dialog{width:96vw;padding:12px;border-radius:14px}.template-preview-toolbar{top:-12px;flex-wrap:wrap}.template-preview-toolbar h2{flex-basis:100%;font-size:18px}.template-preview-toolbar button{flex:1;font-size:12px;padding:8px}.template-preview-player{width:100%} }
+@media(max-width:480px) { .template-preview-dialog{width:96vw;padding:12px;border-radius:14px;scroll-padding-top:160px}.template-preview-toolbar{top:-12px;flex-wrap:wrap}.template-preview-toolbar h2{flex-basis:100%;font-size:18px}.template-preview-toolbar button{flex:1;font-size:12px;padding:8px}.template-preview-player{width:100%} }
 @media(prefers-reduced-motion:reduce) { .template-preview-dialog * { animation:none!important;transition:none!important;scroll-behavior:auto!important; } }
 .template-review-grid { display: grid; gap: 24px; align-items: start; }
 .template-review-controls { display: grid; gap: 24px; }

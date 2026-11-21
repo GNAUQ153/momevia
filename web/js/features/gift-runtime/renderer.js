@@ -3,6 +3,7 @@ import { message as label, setAttr, setText, t } from "../../core/i18n.js";
 import { masks, vectorParts } from "../../shared/canvas/artwork.js";
 import { renderInteraction } from "./interactions.js";
 import { applySurface, finishTypewriter, playReaction } from "./effects.js";
+import { EVENT_MEDIA, eventMediaUrl, EVENT_ARTWORK_LABEL } from '../../shared/canvas/event-media.js';
 
 const svgNamespace = "http://www.w3.org/2000/svg";
 let clipSequence = 0;
@@ -62,6 +63,7 @@ function element(tag, className, text) {
 function imageUrl(value, mode) {
   if (typeof value !== "string" || value.includes("\\")) return null;
   if (/^\/api\/(?:designs|gifts)\//.test(value)) return value;
+  if (['preview', 'thumbnail'].includes(mode) && Object.keys(EVENT_MEDIA).some(id => eventMediaUrl(id) === value)) return value;
   if (mode === "preview" && (/^\/api\/catalog\/(?:admin\/)?templates\/[\w-]+\/versions\/[\w-]+\/assets\/[\w-]+$/.test(value)
     || /^data:image\/(?:png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/.test(value))) return value;
   return null;
@@ -183,6 +185,7 @@ export function renderElement(
     node.style.color = p.color || "#32243B";
   } else if (type === "image") {
     node = element("div", "gift-runtime-image");
+    if (a.decorative && a.label === EVENT_ARTWORK_LABEL) node.style.backgroundColor = "transparent";
     const url = p.assetId ? imageUrl(assetUrl(p.assetId), mode) : null;
     const framed = p.optional || p.mask || p.caption !== undefined;
     const frame = framed ? element("div", "gift-runtime-photo-frame") : node;

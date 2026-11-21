@@ -9,6 +9,7 @@ import sharp from 'sharp';
 import { createDocument, publicDocument, canonicalStringify, BASIC_TEMPLATES, insertPhotoFrame } from '../../web/js/shared/canvas/index.js';
 import { materializeTemplateStart } from '../../web/js/features/canvas-editor/template-start.js';
 import { templates, addedSystemTemplates } from '../../src/modules/catalog/seed.mjs';
+import { builtinMedia } from '../../src/modules/designs/builtin-media.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const temporaryRoot = fs.realpathSync(os.tmpdir());
@@ -51,7 +52,7 @@ async function fixture(name, legacy = false, existingTemplates) {
     const response = await fetch(`${base}/api/designs/designs/${designId}/assets`, { method: 'POST', headers: { cookie, 'content-type': 'image/png', 'x-mutation-id': randomUUID() }, body: bytes });
     const result = await response.json(); assert.equal(response.status, 201, JSON.stringify(result)); return result.asset;
   };
-  return { base, request, upload };
+  return { base, request, upload, cookie };
 }
 
 try {
@@ -60,7 +61,20 @@ try {
   assert.equal(catalog.length, 24); let published = 0;
   for (const template of catalog) {
     const mutationId = randomUUID(); const created = await current.request('/designs/designs', { source: { kind: 'template', templateId: template.id }, presetId: 'envelope-basic', mutationId }, 201);
-    let d = created.design; assert.deepEqual(d.document, createDocument({ template })); assert.equal(d.source.templateId, template.id); assert.equal(d.source.kind, 'template');
+    let d = created.design;
+    const expectedPreset = createDocument({ template });
+    assert.equal(d.document.assets.length, expectedPreset.assets.length);
+    for (const [index, ref] of expectedPreset.assets.entries()) {
+      const media = builtinMedia(ref.assetId), original = ref.assetId, owned = d.document.assets[index].assetId;
+      assert(media, 'Only known bundled assets may be materialized');
+      assert.match(owned, /^[0-9a-f-]{36}$/); assert.notEqual(original, owned);
+      const response = await fetch(`${current.base}/api/designs/designs/${d.id}/assets/${owned}`, { headers: { cookie: current.cookie } });
+      assert.equal(response.status, 200); assert.deepEqual(Buffer.from(await response.arrayBuffer()), media.bytes);
+      assert.equal((await fetch(`${current.base}/api/designs/designs/${d.id}/assets/${owned}`)).status, 401);
+      ref.assetId = owned;
+      for (const element of expectedPreset.elements) if (element.type === 'image' && element.props.assetId === original) element.props.assetId = owned;
+    }
+    assert.deepEqual(d.document, expectedPreset); assert.equal(d.source.templateId, template.id); assert.equal(d.source.kind, 'template');
     const originalSource = structuredClone(d.source);
     d.document.bindings.recipientName.value = 'Nguyễn Mai'; d.document.bindings.senderName.value = 'Trần An'; d.document.bindings.message.value = `Lời chúc thử nghiệm mẫu ${template.title}, giữ đầy đủ dấu tiếng Việt.`;
     await current.request(`/designs/designs/${d.id}/save`, { expectedRevision: d.revision, mutationId: randomUUID(), title: d.title, document: d.document });

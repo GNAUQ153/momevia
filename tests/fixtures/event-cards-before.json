@@ -1,0 +1,2902 @@
+{
+  "commit": "6c09d33",
+  "templates": [
+    {
+      "id": "midnight-bloom",
+      "title": "Midnight Bloom",
+      "subtitle": "Một khu vườn dành riêng cho người ấy",
+      "theme": "violet",
+      "style": "Lãng mạn",
+      "price": 59000,
+      "scenes": 3,
+      "effect": "Bung nở",
+      "creator": "Momevia Originals",
+      "featured": true,
+      "category": "Sinh nhật",
+      "creatorId": "system",
+      "status": "published",
+      "createdAt": "2026-11-01T00:00:00.000Z",
+      "documentHash": "62b49156fd6fad58a35a7e324f06b97c3d2479d0af772be174d59612fb80fd81"
+    },
+    {
+      "id": "sunny-wishes",
+      "title": "Sunny Wishes",
+      "subtitle": "Gửi một ngày rực rỡ và ngọt ngào",
+      "theme": "sunshine",
+      "style": "Tươi vui",
+      "price": 0,
+      "scenes": 3,
+      "effect": "Lật thiệp",
+      "creator": "Momevia Originals",
+      "featured": true,
+      "category": "Sinh nhật",
+      "creatorId": "system",
+      "status": "published",
+      "createdAt": "2026-11-01T00:00:00.000Z",
+      "documentHash": "68833fce01e4f6bbe644d8ab2548112c6539c32c04f354a720ace7703088f142"
+    },
+    {
+      "id": "love-letter",
+      "title": "The Love Letter",
+      "subtitle": "Đôi điều nhỏ dành cho người đặc biệt",
+      "theme": "rose",
+      "style": "Tình cảm",
+      "price": 79000,
+      "scenes": 3,
+      "effect": "Mở thư",
+      "creator": "Momevia Originals",
+      "featured": true,
+      "category": "Sinh nhật",
+      "creatorId": "system",
+      "status": "published",
+      "createdAt": "2026-11-01T00:00:00.000Z",
+      "documentHash": "c038770af58a16e115ac5673962cf117313c313ff4e1247b5e7f747781a80a44"
+    },
+    {
+      "id": "starlight",
+      "title": "Starlight Night",
+      "subtitle": "Ước một điều, nhận ngàn vì sao",
+      "theme": "navy",
+      "style": "Kỳ ảo",
+      "price": 59000,
+      "scenes": 3,
+      "effect": "Ánh sao",
+      "creator": "Momevia Originals",
+      "category": "Sinh nhật",
+      "creatorId": "system",
+      "status": "published",
+      "createdAt": "2026-11-01T00:00:00.000Z",
+      "documentHash": "32c513128d79f840586861a91987e0feddfcdc47114763654eaf6fbcd4e530fe"
+    },
+    {
+      "id": "peachy-day",
+      "title": "Peachy Day",
+      "subtitle": "Một chút dịu dàng trong ngày mới",
+      "theme": "peach",
+      "style": "Tối giản",
+      "price": 39000,
+      "scenes": 3,
+      "effect": "Tan chảy",
+      "creator": "Momevia Originals",
+      "category": "Sinh nhật",
+      "creatorId": "system",
+      "status": "published",
+      "createdAt": "2026-11-01T00:00:00.000Z",
+      "documentHash": "a4f987a968b26dd17d1c8858148727d7971ae6a6c34c0d798a3ac37a3017b8d8"
+    },
+    {
+      "id": "greenhouse",
+      "title": "Little Greenhouse",
+      "subtitle": "Gieo những điều tốt đẹp",
+      "theme": "sage",
+      "style": "Thiên nhiên",
+      "price": 39000,
+      "scenes": 3,
+      "effect": "Bung nở",
+      "creator": "Momevia Originals",
+      "category": "Sinh nhật",
+      "creatorId": "system",
+      "status": "published",
+      "createdAt": "2026-11-01T00:00:00.000Z",
+      "documentHash": "ccf603ac15a9b74e05219aff589bc0d23da1618c52eb5b33d32e38ffa1f870c7"
+    },
+    {
+      "id": "confetti",
+      "title": "Make a Wish",
+      "subtitle": "Mở tiệc ngay trong lòng bàn tay",
+      "theme": "coral",
+      "style": "Tươi vui",
+      "price": 0,
+      "scenes": 3,
+      "effect": "Pháo giấy",
+      "creator": "Momevia Originals",
+      "category": "Sinh nhật",
+      "creatorId": "system",
+      "status": "published",
+      "createdAt": "2026-11-01T00:00:00.000Z",
+      "documentHash": "714b0671773af21ec12277601eba514396c5a2bc47d970bb7839826130fd4e6b"
+    },
+    {
+      "id": "cloud-nine",
+      "title": "On Cloud Nine",
+      "subtitle": "Cảm xúc nhẹ như một áng mây",
+      "theme": "sky",
+      "style": "Tối giản",
+      "price": 39000,
+      "scenes": 3,
+      "effect": "Trôi mây",
+      "creator": "Momevia Originals",
+      "category": "Sinh nhật",
+      "creatorId": "system",
+      "status": "published",
+      "createdAt": "2026-11-01T00:00:00.000Z",
+      "documentHash": "dd5996e31be1513185c924f812e654b967a97dd071be1b73ade75f84f013ed53"
+    },
+    {
+      "id": "lavender",
+      "title": "Lavender Field",
+      "subtitle": "Dịu dàng như những mùa nhớ",
+      "theme": "lilac",
+      "style": "Lãng mạn",
+      "price": 59000,
+      "scenes": 3,
+      "effect": "Bung nở",
+      "creator": "Momevia Originals",
+      "category": "Sinh nhật",
+      "creatorId": "system",
+      "status": "published",
+      "createdAt": "2026-11-01T00:00:00.000Z",
+      "documentHash": "89d489cacd57e35f0e3ac814ba30a7e62eb3dd359a6a5eb37b689fdc6dd566f2"
+    },
+    {
+      "id": "polaroid",
+      "title": "Captured Moments",
+      "subtitle": "Tập hợp những khoảnh khắc đáng yêu",
+      "theme": "cream",
+      "style": "Hoài niệm",
+      "price": 79000,
+      "scenes": 3,
+      "effect": "Lật ảnh",
+      "creator": "Momevia Originals",
+      "category": "Sinh nhật",
+      "creatorId": "system",
+      "status": "published",
+      "createdAt": "2026-11-01T00:00:00.000Z",
+      "documentHash": "22bef68534bf22dfdfbd3f96a7c4037b00ae659ab4668c843f90b17eda034b21"
+    },
+    {
+      "id": "afterglow",
+      "title": "Afterglow",
+      "subtitle": "Mọi điều đẹp đều có ánh sáng riêng",
+      "theme": "amber",
+      "style": "Kỳ ảo",
+      "price": 59000,
+      "scenes": 3,
+      "effect": "Ánh sáng",
+      "creator": "Momevia Originals",
+      "category": "Sinh nhật",
+      "creatorId": "system",
+      "status": "published",
+      "createdAt": "2026-11-01T00:00:00.000Z",
+      "documentHash": "c604abf718dbcbae3771b96827684c64df71b03d54824a27e19ca543877e43a0"
+    },
+    {
+      "id": "tiny-celebration",
+      "title": "Tiny Celebration",
+      "subtitle": "Dành cho những niềm vui thật lớn",
+      "theme": "mint",
+      "style": "Tươi vui",
+      "price": 0,
+      "scenes": 3,
+      "effect": "Bật mí",
+      "creator": "Momevia Originals",
+      "category": "Sinh nhật",
+      "creatorId": "system",
+      "status": "published",
+      "createdAt": "2026-11-01T00:00:00.000Z",
+      "documentHash": "dbaa432c7a15b7df39caf8d2396c959f2534963f415270818e425251aa7e9766"
+    },
+    {
+      "id": "mot-ky-niem",
+      "title": "Một kỷ niệm của hai mình",
+      "subtitle": "Gửi một tấm ảnh, một dòng chú thích và lời chúc sinh nhật.",
+      "theme": "cream",
+      "style": "Hoài niệm",
+      "price": 0,
+      "scenes": 3,
+      "effect": "Mở thư",
+      "creator": "Momevia Originals",
+      "category": "Sinh nhật",
+      "creatorId": "system",
+      "status": "published",
+      "createdAt": "2026-11-01T00:00:00.000Z",
+      "documentHash": "ad730dea77653eaa9aebea27c023cc896b5c9b9af0025cff493562b0ddb8e4b2"
+    },
+    {
+      "id": "hai-phong-bi",
+      "title": "Hai phong bì",
+      "subtitle": "Người nhận tự chọn mở kỷ niệm hay lời chúc trước.",
+      "theme": "lilac",
+      "style": "Tình cảm",
+      "price": 0,
+      "scenes": 3,
+      "effect": "Mở thư",
+      "creator": "Momevia Originals",
+      "category": "Sinh nhật",
+      "creatorId": "system",
+      "status": "published",
+      "createdAt": "2026-11-01T00:00:00.000Z",
+      "documentHash": "da91d5256c7921c4f798320d46039365df5048f038cc8ef151ff0f9da1f11a71"
+    },
+    {
+      "id": "winter-wishes-2026",
+      "title": "Winter Wishes",
+      "subtitle": "Thiệp Giáng sinh trong khu vườn tuyết và ánh đèn vàng.",
+      "theme": "sage",
+      "style": "Lễ hội",
+      "category": "Giáng sinh",
+      "price": 0,
+      "scenes": 3,
+      "effect": "Mở món quà",
+      "creator": "Momevia Originals",
+      "isSeasonal": true,
+      "season": "Giáng sinh 2026",
+      "availableFrom": "2026-11-10",
+      "availableTo": "2026-12-26",
+      "featured": true,
+      "creatorId": "system",
+      "status": "published",
+      "createdAt": "2026-11-01T00:00:00.000Z",
+      "documentHash": "12c7aaa44c92e521e647c8911759e727bf41eff5aa186ade637c61f679cfc440"
+    },
+    {
+      "id": "new-year-spark-2027",
+      "title": "Midnight Countdown",
+      "subtitle": "Chào năm mới 2027 bằng ánh pháo hoa và những ước nguyện.",
+      "theme": "navy",
+      "style": "Lễ hội",
+      "category": "Năm mới",
+      "price": 0,
+      "scenes": 3,
+      "effect": "Pháo hoa",
+      "creator": "Momevia Originals",
+      "isSeasonal": true,
+      "season": "Năm mới 2027",
+      "availableFrom": "2026-12-20",
+      "availableTo": "2027-01-07",
+      "featured": true,
+      "creatorId": "system",
+      "status": "published",
+      "createdAt": "2026-11-01T00:00:00.000Z",
+      "documentHash": "a28bba627476793d35d52a37d1cede40592999061eba5278247790f8e64d97c4"
+    },
+    {
+      "id": "spring-blessing-2027",
+      "title": "Spring Blessing",
+      "subtitle": "Gửi lời chúc Tết 2027 cùng hoa mai, hoa đào và sắc xuân.",
+      "theme": "coral",
+      "style": "Lễ hội",
+      "category": "Tết Nguyên đán",
+      "price": 0,
+      "scenes": 3,
+      "effect": "Mở lì xì",
+      "creator": "Momevia Originals",
+      "isSeasonal": true,
+      "season": "Tết Nguyên đán 2027",
+      "availableFrom": "2027-01-15",
+      "availableTo": "2027-02-22",
+      "featured": true,
+      "creatorId": "system",
+      "status": "published",
+      "createdAt": "2026-11-01T00:00:00.000Z",
+      "documentHash": "5b792ef86da5d8a3d7c34f23a1c702735970ba4b08d812a68f9852e4eed63069"
+    },
+    {
+      "id": "velvet-valentine-2027",
+      "title": "Velvet Valentine",
+      "subtitle": "Lá thư tình mang dấu niêm phong dành riêng cho người ấy.",
+      "theme": "rose",
+      "style": "Lễ hội",
+      "category": "Valentine",
+      "price": 0,
+      "scenes": 3,
+      "effect": "Mở thư",
+      "creator": "Momevia Originals",
+      "isSeasonal": true,
+      "season": "Valentine 2027",
+      "availableFrom": "2027-02-01",
+      "availableTo": "2027-02-15",
+      "featured": true,
+      "creatorId": "system",
+      "status": "published",
+      "createdAt": "2026-11-01T00:00:00.000Z",
+      "documentHash": "6219794b7675bfe7972bea14dbb47d5d6df1ee992a6df708aac93de2ac2c7687"
+    },
+    {
+      "id": "birthday-radiance",
+      "title": "Birthday Radiance",
+      "subtitle": "Chiếc bánh sinh nhật, những ngọn nến và lời chúc ấm áp.",
+      "theme": "lilac",
+      "style": "Tươi vui",
+      "category": "Sinh nhật",
+      "price": 0,
+      "scenes": 3,
+      "effect": "Thắp nến",
+      "creator": "Momevia Originals",
+      "creatorId": "system",
+      "status": "published",
+      "createdAt": "2026-11-01T00:00:00.000Z",
+      "documentHash": "afa166f53edd8750ecda82ff91ded63b0521d8a8ba847ec9b9e9b5ff35cea6ca"
+    },
+    {
+      "id": "thank-you-bloom",
+      "title": "Thank You Bloom",
+      "subtitle": "Một bó hoa tinh tế thay lời biết ơn.",
+      "theme": "sage",
+      "style": "Thiên nhiên",
+      "category": "Cảm ơn",
+      "price": 0,
+      "scenes": 3,
+      "effect": "Hoa nở",
+      "creator": "Momevia Originals",
+      "creatorId": "system",
+      "status": "published",
+      "createdAt": "2026-11-01T00:00:00.000Z",
+      "documentHash": "2f8f0b1a57c94de99190ca3e3349c41a88fbdbea38abf0978650a4f544715f8c"
+    },
+    {
+      "id": "proud-of-you",
+      "title": "Proud of You",
+      "subtitle": "Dành cho cột mốc tốt nghiệp, thăng chức và thành công.",
+      "theme": "navy",
+      "style": "Thanh lịch",
+      "category": "Chúc mừng",
+      "price": 0,
+      "scenes": 3,
+      "effect": "Huy chương",
+      "creator": "Momevia Originals",
+      "creatorId": "system",
+      "status": "published",
+      "createdAt": "2026-11-01T00:00:00.000Z",
+      "documentHash": "f465ad2dc8b2476cce98d0753655ee24f3e356391e65e6be1bd9fc48bbc0347f"
+    },
+    {
+      "id": "faraway-hug",
+      "title": "Faraway Hug",
+      "subtitle": "Mang lời nhớ tới người ở xa qua chiếc máy bay giấy.",
+      "theme": "sky",
+      "style": "Tình cảm",
+      "category": "Bạn bè",
+      "price": 0,
+      "scenes": 3,
+      "effect": "Máy bay giấy",
+      "creator": "Momevia Originals",
+      "creatorId": "system",
+      "status": "published",
+      "createdAt": "2026-11-01T00:00:00.000Z",
+      "documentHash": "b6b60c0508254af1130289ae0c1b02701c501fd1cc6f8876b7fcc39c86fd0cf8"
+    },
+    {
+      "id": "gentle-apology",
+      "title": "Gentle Apology",
+      "subtitle": "Một lời xin lỗi chân thành trong phong thư giấy mộc.",
+      "theme": "cream",
+      "style": "Tối giản",
+      "category": "Xin lỗi",
+      "price": 0,
+      "scenes": 3,
+      "effect": "Mở thư",
+      "creator": "Momevia Originals",
+      "creatorId": "system",
+      "status": "published",
+      "createdAt": "2026-11-01T00:00:00.000Z",
+      "documentHash": "3057e04cb42c01f19c46d8d6d0c4d68e77c595acd9b07cbe5d4344850711e959"
+    },
+    {
+      "id": "calm-light",
+      "title": "Calm Light",
+      "subtitle": "Lời động viên dịu dàng trong buổi bình minh.",
+      "theme": "mint",
+      "style": "Thiên nhiên",
+      "category": "Động viên",
+      "price": 0,
+      "scenes": 3,
+      "effect": "Ánh sáng",
+      "creator": "Momevia Originals",
+      "creatorId": "system",
+      "status": "published",
+      "createdAt": "2026-11-01T00:00:00.000Z",
+      "documentHash": "b9a22cf1ecabf14a8c67940958e6cf537d6ffc12ebc0549f90a06cd6ef59be4d"
+    }
+  ],
+  "documents": {
+    "birthday-radiance": {
+      "schemaVersion": 1,
+      "registryVersion": 1,
+      "artboard": {
+        "baseSize": {
+          "width": 390,
+          "height": 844
+        },
+        "layoutMode": "responsive-scene",
+        "safeInsets": {
+          "top": 24,
+          "right": 24,
+          "bottom": 24,
+          "left": 24
+        }
+      },
+      "entrySceneId": "scene-cover",
+      "bindings": {
+        "recipientName": {
+          "type": "text",
+          "value": ""
+        },
+        "senderName": {
+          "type": "text",
+          "value": ""
+        },
+        "message": {
+          "type": "text",
+          "value": ""
+        }
+      },
+      "assets": [],
+      "elements": [
+        {
+          "id": "birthday-halo",
+          "type": "shape",
+          "elementVersion": 1,
+          "layout": {
+            "x": 61,
+            "y": 15,
+            "width": 267,
+            "height": 267,
+            "rotation": 0
+          },
+          "props": {
+            "kind": "ellipse",
+            "color": "#7D67B0",
+            "strokeColor": "#6136DF",
+            "strokeWidth": 0,
+            "radius": 0
+          },
+          "accessibility": {
+            "decorative": true
+          },
+          "name": "Sinh nhật rực rỡ · Trang trí 1"
+        },
+        {
+          "id": "cake-plate",
+          "type": "shape",
+          "elementVersion": 1,
+          "layout": {
+            "x": 79,
+            "y": 281,
+            "width": 232,
+            "height": 12,
+            "rotation": 0
+          },
+          "props": {
+            "kind": "rectangle",
+            "color": "#F6E2C5",
+            "strokeColor": "#6136DF",
+            "strokeWidth": 0,
+            "radius": 6
+          },
+          "accessibility": {
+            "decorative": true
+          },
+          "name": "Sinh nhật rực rỡ · Trang trí 2"
+        },
+        {
+          "id": "cake-bottom",
+          "type": "shape",
+          "elementVersion": 1,
+          "layout": {
+            "x": 107,
+            "y": 202,
+            "width": 176,
+            "height": 73,
+            "rotation": 0
+          },
+          "props": {
+            "kind": "rectangle",
+            "color": "#EBA9BB",
+            "strokeColor": "#6136DF",
+            "strokeWidth": 0,
+            "radius": 15
+          },
+          "accessibility": {
+            "decorative": true
+          },
+          "name": "Sinh nhật rực rỡ · Trang trí 3"
+        },
+        {
+          "id": "cake-top",
+          "type": "shape",
+          "elementVersion": 1,
+          "layout": {
+            "x": 126,
+            "y": 147,
+            "width": 137,
+            "height": 58,
+            "rotation": 0
+          },
+          "props": {
+            "kind": "rectangle",
+            "color": "#FFF1D3",
+            "strokeColor": "#6136DF",
+            "strokeWidth": 0,
+            "radius": 15
+          },
+          "accessibility": {
+            "decorative": true
+          },
+          "name": "Sinh nhật rực rỡ · Trang trí 4"
+        },
+        {
+          "id": "cake-icing",
+          "type": "shape",
+          "elementVersion": 1,
+          "layout": {
+            "x": 126,
+            "y": 144,
+            "width": 137,
+            "height": 16,
+            "rotation": 0
+          },
+          "props": {
+            "kind": "rectangle",
+            "color": "#F6C9D0",
+            "strokeColor": "#6136DF",
+            "strokeWidth": 0,
+            "radius": 12
+          },
+          "accessibility": {
+            "decorative": true
+          },
+          "name": "Sinh nhật rực rỡ · Trang trí 5"
+        },
+        {
+          "id": "cake-candle-0",
+          "type": "shape",
+          "elementVersion": 1,
+          "layout": {
+            "x": 155,
+            "y": 107,
+            "width": 9,
+            "height": 39,
+            "rotation": 0
+          },
+          "props": {
+            "kind": "rectangle",
+            "color": "#F2D080",
+            "strokeColor": "#6136DF",
+            "strokeWidth": 0,
+            "radius": 3
+          },
+          "accessibility": {
+            "decorative": true
+          },
+          "name": "Sinh nhật rực rỡ · Trang trí 6"
+        },
+        {
+          "id": "cake-flame-0",
+          "type": "shape",
+          "elementVersion": 1,
+          "layout": {
+            "x": 155,
+            "y": 86,
+            "width": 10,
+            "height": 17,
+            "rotation": 0
+          },
+          "props": {
+            "kind": "ellipse",
+            "color": "#F7E8AE",
+            "strokeColor": "#6136DF",
+            "strokeWidth": 0,
+            "radius": 0
+          },
+          "accessibility": {
+            "decorative": true
+          },
+          "name": "Sinh nhật rực rỡ · Trang trí 7"
+        },
+        {
+          "id": "cake-candle-1",
+          "type": "shape",
+          "elementVersion": 1,
+          "layout": {
+            "x": 190,
+            "y": 107,
+            "width": 9,
+            "height": 39,
+            "rotation": 0
+          },
+          "props": {
+            "kind": "rectangle",
+            "color": "#F2D080",
+            "strokeColor": "#6136DF",
+            "strokeWidth": 0,
+            "radius": 3
+          },
+          "accessibility": {
+            "decorative": true
+          },
+          "name": "Sinh nhật rực rỡ · Trang trí 8"
+        },
+        {
+          "id": "cake-flame-1",
+          "type": "shape",
+          "elementVersion": 1,
+          "layout": {
+            "x": 190,
+            "y": 86,
+            "width": 10,
+            "height": 17,
+            "rotation": 0
+          },
+          "props": {
+            "kind": "ellipse",
+            "color": "#F7E8AE",
+            "strokeColor": "#6136DF",
+            "strokeWidth": 0,
+            "radius": 0
+          },
+          "accessibility": {
+            "decorative": true
+          },
+          "name": "Sinh nhật rực rỡ · Trang trí 9"
+        },
+        {
+          "id": "cake-candle-2",
+          "type": "shape",
+          "elementVersion": 1,
+          "layout": {
+            "x": 225,
+            "y": 107,
+            "width": 9,
+            "height": 39,
+            "rotation": 0
+          },
+          "props": {
+            "kind": "rectangle",
+            "color": "#F2D080",
+            "strokeColor": "#6136DF",
+            "strokeWidth": 0,
+            "radius": 3
+          },
+          "accessibility": {
+            "decorative": true
+          },
+          "name": "Sinh nhật rực rỡ · Trang trí 10"
+        },
+        {
+          "id": "cake-flame-2",
+          "type": "shape",
+          "elementVersion": 1,
+          "layout": {
+            "x": 225,
+            "y": 86,
+            "width": 10,
+            "height": 17,
+            "rotation": 0
+          },
+          "props": {
+            "kind": "ellipse",
+            "color": "#F7E8AE",
+            "strokeColor": "#6136DF",
+            "strokeWidth": 0,
+            "radius": 0
+          },
+          "accessibility": {
+            "decorative": true
+          },
+          "name": "Sinh nhật rực rỡ · Trang trí 11"
+        },
+        {
+          "id": "cake-confetti-0",
+          "type": "shape",
+          "elementVersion": 1,
+          "layout": {
+            "x": 10,
+            "y": 18,
+            "width": 5,
+            "height": 11,
+            "rotation": -75
+          },
+          "props": {
+            "kind": "rectangle",
+            "color": "#F8D58A",
+            "strokeColor": "#6136DF",
+            "strokeWidth": 0,
+            "radius": 2
+          },
+          "accessibility": {
+            "decorative": true
+          },
+          "name": "Sinh nhật rực rỡ · Trang trí 12"
+        },
+        {
+          "id": "cake-confetti-1",
+          "type": "shape",
+          "elementVersion": 1,
+          "layout": {
+            "x": 81,
+            "y": 69,
+            "width": 6,
+            "height": 11,
+            "rotation": -47
+          },
+          "props": {
+            "kind": "rectangle",
+            "color": "#F2B5B8",
+            "strokeColor": "#6136DF",
+            "strokeWidth": 0,
+            "radius": 2
+          },
+          "accessibility": {
+            "decorative": true
+          },
+          "name": "Sinh nhật rực rỡ · Trang trí 13"
+        },
+        {
+          "id": "cake-confetti-2",
+          "type": "shape",
+          "elementVersion": 1,
+          "layout": {
+            "x": 152,
+            "y": 120,
+            "width": 7,
+            "height": 11,
+            "rotation": -19
+          },
+          "props": {
+            "kind": "rectangle",
+            "color": "#F8D58A",
+            "strokeColor": "#6136DF",
+            "strokeWidth": 0,
+            "radius": 2
+          },
+          "accessibility": {
+            "decorative": true
+          },
+          "name": "Sinh nhật rực rỡ · Trang trí 14"
+        },
+        {
+          "id": "cake-confetti-3",
+          "type": "shape",
+          "elementVersion": 1,
+          "layout": {
+            "x": 223,
+            "y": 171,
+            "width": 5,
+            "height": 11,
+            "rotation": 9
+          },
+          "props": {
+            "kind": "rectangle",
+            "color": "#F2B5B8",
+            "strokeColor": "#6136DF",
+            "strokeWidth": 0,
+            "radius": 2
+          },
+          "accessibility": {
+            "decorative": true
+          },
+          "name": "Sinh nhật rực rỡ · Trang trí 15"
+        },
+        {
+          "id": "cake-confetti-4",
+          "type": "shape",
+          "elementVersion": 1,
+          "layout": {
+            "x": 294,
+            "y": 222,
+            "width": 6,
+            "height": 11,
+            "rotation": 37
+          },
+          "props": {
+            "kind": "rectangle",
+            "color": "#F8D58A",
+            "strokeColor": "#6136DF",
+            "strokeWidth": 0,
+            "radius": 2
+          },
+          "accessibility": {
+            "decorative": true
+          },
+          "name": "Sinh nhật rực rỡ · Trang trí 16"
+        },
+        {
+          "id": "cake-confetti-5",
+          "type": "shape",
+          "elementVersion": 1,
+          "layout": {
+            "x": 13,
+            "y": 273,
+            "width": 7,
+            "height": 11,
+            "rotation": 65
+          },
+          "props": {
+            "kind": "rectangle",
+            "color": "#F2B5B8",
+            "strokeColor": "#6136DF",
+            "strokeWidth": 0,
+            "radius": 2
+          },
+          "accessibility": {
+            "decorative": true
+          },
+          "name": "Sinh nhật rực rỡ · Trang trí 17"
+        },
+        {
+          "id": "cake-confetti-6",
+          "type": "shape",
+          "elementVersion": 1,
+          "layout": {
+            "x": 84,
+            "y": 54,
+            "width": 5,
+            "height": 11,
+            "rotation": -57
+          },
+          "props": {
+            "kind": "rectangle",
+            "color": "#F8D58A",
+            "strokeColor": "#6136DF",
+            "strokeWidth": 0,
+            "radius": 2
+          },
+          "accessibility": {
+            "decorative": true
+          },
+          "name": "Sinh nhật rực rỡ · Trang trí 18"
+        },
+        {
+          "id": "cake-confetti-7",
+          "type": "shape",
+          "elementVersion": 1,
+          "layout": {
+            "x": 155,
+            "y": 105,
+            "width": 6,
+            "height": 11,
+            "rotation": -29
+          },
+          "props": {
+            "kind": "rectangle",
+            "color": "#F2B5B8",
+            "strokeColor": "#6136DF",
+            "strokeWidth": 0,
+            "radius": 2
+          },
+          "accessibility": {
+            "decorative": true
+          },
+          "name": "Sinh nhật rực rỡ · Trang trí 19"
+        },
+        {
+          "id": "cake-confetti-8",
+          "type": "shape",
+          "elementVersion": 1,
+          "layout": {
+            "x": 226,
+            "y": 156,
+            "width": 7,
+            "height": 11,
+            "rotation": -1
+          },
+          "props": {
+            "kind": "rectangle",
+            "color": "#F8D58A",
+            "strokeColor": "#6136DF",
+            "strokeWidth": 0,
+            "radius": 2
+          },
+          "accessibility": {
+            "decorative": true
+          },
+          "name": "Sinh nhật rực rỡ · Trang trí 20"
+        },
+        {
+          "id": "cake-confetti-9",
+          "type": "shape",
+          "elementVersion": 1,
+          "layout": {
+            "x": 297,
+            "y": 207,
+            "width": 5,
+            "height": 11,
+            "rotation": 27
+          },
+          "props": {
+            "kind": "rectangle",
+            "color": "#F2B5B8",
+            "strokeColor": "#6136DF",
+            "strokeWidth": 0,
+            "radius": 2
+          },
+          "accessibility": {
+            "decorative": true
+          },
+          "name": "Sinh nhật rực rỡ · Trang trí 21"
+        },
+        {
+          "id": "cake-confetti-10",
+          "type": "shape",
+          "elementVersion": 1,
+          "layout": {
+            "x": 16,
+            "y": 258,
+            "width": 6,
+            "height": 11,
+            "rotation": 55
+          },
+          "props": {
+            "kind": "rectangle",
+            "color": "#F8D58A",
+            "strokeColor": "#6136DF",
+            "strokeWidth": 0,
+            "radius": 2
+          },
+          "accessibility": {
+            "decorative": true
+          },
+          "name": "Sinh nhật rực rỡ · Trang trí 22"
+        },
+        {
+          "id": "cake-confetti-11",
+          "type": "shape",
+          "elementVersion": 1,
+          "layout": {
+            "x": 87,
+            "y": 39,
+            "width": 7,
+            "height": 11,
+            "rotation": -67
+          },
+          "props": {
+            "kind": "rectangle",
+            "color": "#F2B5B8",
+            "strokeColor": "#6136DF",
+            "strokeWidth": 0,
+            "radius": 2
+          },
+          "accessibility": {
+            "decorative": true
+          },
+          "name": "Sinh nhật rực rỡ · Trang trí 23"
+        },
+        {
+          "id": "cake-confetti-12",
+          "type": "shape",
+          "elementVersion": 1,
+          "layout": {
+            "x": 158,
+            "y": 90,
+            "width": 5,
+            "height": 11,
+            "rotation": -39
+          },
+          "props": {
+            "kind": "rectangle",
+            "color": "#F8D58A",
+            "strokeColor": "#6136DF",
+            "strokeWidth": 0,
+            "radius": 2
+          },
+          "accessibility": {
+            "decorative": true
+          },
+          "name": "Sinh nhật rực rỡ · Trang trí 24"
+        },
+        {
+          "id": "cake-confetti-13",
+          "type": "shape",
+          "elementVersion": 1,
+          "layout": {
+            "x": 229,
+            "y": 141,
+            "width": 6,
+            "height": 11,
+            "rotation": -11
+          },
+          "props": {
+            "kind": "rectangle",
+            "color": "#F2B5B8",
+            "strokeColor": "#6136DF",
+            "strokeWidth": 0,
+            "radius": 2
+          },
+          "accessibility": {
+            "decorative": true
+          },
+          "name": "Sinh nhật rực rỡ · Trang trí 25"
+        },
+        {
+          "id": "cake-confetti-14",
+          "type": "shape",
+          "elementVersion": 1,
+          "layout": {
+            "x": 300,
+            "y": 192,
+            "width": 7,
+            "height": 11,
+            "rotation": 17
+          },
+          "props": {
+            "kind": "rectangle",
+            "color": "#F8D58A",
+            "strokeColor": "#6136DF",
+            "strokeWidth": 0,
+            "radius": 2
+          },
+          "accessibility": {
+            "decorative": true
+          },
+          "name": "Sinh nhật rực rỡ · Trang trí 26"
+        },
+        {
+          "id": "cake-confetti-15",
+          "type": "shape",
+          "elementVersion": 1,
+          "layout": {
+            "x": 19,
+            "y": 243,
+            "width": 5,
+            "height": 11,
+            "rotation": 45
+          },
+          "props": {
+            "kind": "rectangle",
+            "color": "#F2B5B8",
+            "strokeColor": "#6136DF",
+            "strokeWidth": 0,
+            "radius": 2
+          },
+          "accessibility": {
+            "decorative": true
+          },
+          "name": "Sinh nhật rực rỡ · Trang trí 27"
+        },
+        {
+          "id": "cake-confetti-16",
+          "type": "shape",
+          "elementVersion": 1,
+          "layout": {
+            "x": 90,
+            "y": 24,
+            "width": 6,
+            "height": 11,
+            "rotation": 73
+          },
+          "props": {
+            "kind": "rectangle",
+            "color": "#F8D58A",
+            "strokeColor": "#6136DF",
+            "strokeWidth": 0,
+            "radius": 2
+          },
+          "accessibility": {
+            "decorative": true
+          },
+          "name": "Sinh nhật rực rỡ · Trang trí 28"
+        },
+        {
+          "id": "cake-confetti-17",
+          "type": "shape",
+          "elementVersion": 1,
+          "layout": {
+            "x": 161,
+            "y": 75,
+            "width": 7,
+            "height": 11,
+            "rotation": -49
+          },
+          "props": {
+            "kind": "rectangle",
+            "color": "#F2B5B8",
+            "strokeColor": "#6136DF",
+            "strokeWidth": 0,
+            "radius": 2
+          },
+          "accessibility": {
+            "decorative": true
+          },
+          "name": "Sinh nhật rực rỡ · Trang trí 29"
+        },
+        {
+          "id": "cover-title",
+          "type": "text",
+          "elementVersion": 1,
+          "layout": {
+            "x": 38,
+            "y": 342,
+            "width": 314,
+            "height": 123,
+            "rotation": 0
+          },
+          "props": {
+            "text": "Hôm nay là\nngày của bạn!",
+            "fontToken": "heading",
+            "fontSize": 31,
+            "align": "center",
+            "color": "#FFF7E8",
+            "lineHeight": 1.25
+          },
+          "accessibility": {
+            "role": "heading",
+            "level": 1
+          },
+          "name": "Tiêu đề bìa"
+        },
+        {
+          "id": "text-recipient",
+          "type": "text",
+          "elementVersion": 1,
+          "layout": {
+            "x": 43,
+            "y": 478,
+            "width": 304,
+            "height": 56,
+            "rotation": 0
+          },
+          "props": {
+            "fontToken": "body",
+            "fontSize": 21,
+            "align": "center",
+            "color": "#FFF7E8",
+            "textBinding": "recipientName",
+            "lineHeight": 1.55
+          },
+          "accessibility": {
+            "role": "paragraph"
+          },
+          "name": "Tên người nhận"
+        },
+        {
+          "id": "open-gift",
+          "type": "envelope",
+          "elementVersion": 1,
+          "layout": {
+            "x": 55,
+            "y": 548,
+            "width": 280,
+            "height": 126,
+            "rotation": 0
+          },
+          "props": {
+            "preset": "classic",
+            "label": "Mở món quà",
+            "color": "#7553B1"
+          },
+          "accessibility": {
+            "label": "Mở món quà"
+          },
+          "actions": [
+            {
+              "on": "activate",
+              "type": "goToScene",
+              "targetSceneId": "scene-surprise"
+            }
+          ],
+          "name": "Mở món quà"
+        },
+        {
+          "id": "cover-note",
+          "type": "text",
+          "elementVersion": 1,
+          "layout": {
+            "x": 44,
+            "y": 705,
+            "width": 302,
+            "height": 62,
+            "rotation": 0
+          },
+          "props": {
+            "text": "Thêm một tuổi, thêm muôn điều rực rỡ.",
+            "fontToken": "body",
+            "fontSize": 15,
+            "align": "center",
+            "color": "#FFF7E8",
+            "lineHeight": 1.25
+          },
+          "accessibility": {
+            "role": "paragraph"
+          },
+          "name": "Lời dẫn"
+        },
+        {
+          "id": "message-paper",
+          "type": "shape",
+          "elementVersion": 1,
+          "layout": {
+            "x": 22,
+            "y": 34,
+            "width": 346,
+            "height": 723,
+            "rotation": 0
+          },
+          "props": {
+            "kind": "rectangle",
+            "color": "#FFF6EB",
+            "strokeColor": "#6136DF",
+            "strokeWidth": 0,
+            "radius": 24
+          },
+          "accessibility": {
+            "decorative": true
+          },
+          "name": "Nền thiệp"
+        },
+        {
+          "id": "message-heading",
+          "type": "text",
+          "elementVersion": 1,
+          "layout": {
+            "x": 48,
+            "y": 70,
+            "width": 294,
+            "height": 54,
+            "rotation": 0
+          },
+          "props": {
+            "text": "Một lời chúc dành riêng",
+            "fontToken": "heading",
+            "fontSize": 27,
+            "align": "center",
+            "color": "#42354A",
+            "lineHeight": 1.25
+          },
+          "accessibility": {
+            "role": "heading",
+            "level": 1
+          },
+          "name": "Tiêu đề lời chúc"
+        },
+        {
+          "id": "message-to",
+          "type": "text",
+          "elementVersion": 1,
+          "layout": {
+            "x": 49,
+            "y": 145,
+            "width": 292,
+            "height": 56,
+            "rotation": 0
+          },
+          "props": {
+            "fontToken": "body",
+            "fontSize": 24,
+            "align": "center",
+            "color": "#42354A",
+            "textBinding": "recipientName",
+            "lineHeight": 1.55
+          },
+          "accessibility": {
+            "role": "paragraph"
+          },
+          "name": "Dành tặng"
+        },
+        {
+          "id": "message-rule",
+          "type": "line",
+          "elementVersion": 1,
+          "layout": {
+            "x": 150,
+            "y": 221,
+            "width": 90,
+            "height": 2,
+            "rotation": 0
+          },
+          "props": {
+            "color": "#F8D58A",
+            "strokeWidth": 1
+          },
+          "accessibility": {
+            "decorative": true
+          },
+          "name": "Đường phân cách"
+        },
+        {
+          "id": "text-message",
+          "type": "text",
+          "elementVersion": 1,
+          "layout": {
+            "x": 49,
+            "y": 261,
+            "width": 292,
+            "height": 244,
+            "rotation": 0
+          },
+          "props": {
+            "fontToken": "body",
+            "fontSize": 21,
+            "align": "center",
+            "color": "#42354A",
+            "textBinding": "message",
+            "lineHeight": 1.55
+          },
+          "accessibility": {
+            "role": "paragraph"
+          },
+          "name": "Lời chúc"
+        },
+        {
+          "id": "message-from-label",
+          "type": "text",
+          "elementVersion": 1,
+          "layout": {
+            "x": 49,
+            "y": 538,
+            "width": 292,
+            "height": 33,
+            "rotation": 0
+          },
+          "props": {
+            "text": "Thương mến,",
+            "fontToken": "serif",
+            "fontSize": 17,
+            "align": "right",
+            "color": "#42354A",
+            "lineHeight": 1.25
+          },
+          "accessibility": {
+            "role": "paragraph"
+          },
+          "name": "Lời ký tên"
+        },
+        {
+          "id": "text-sender",
+          "type": "text",
+          "elementVersion": 1,
+          "layout": {
+            "x": 49,
+            "y": 585,
+            "width": 292,
+            "height": 53,
+            "rotation": 0
+          },
+          "props": {
+            "fontToken": "body",
+            "fontSize": 21,
+            "align": "right",
+            "color": "#42354A",
+            "textBinding": "senderName",
+            "lineHeight": 1.55
+          },
+          "accessibility": {
+            "role": "paragraph"
+          },
+          "name": "Tên người gửi"
+        },
+        {
+          "id": "to-message",
+          "type": "button",
+          "elementVersion": 1,
+          "layout": {
+            "x": 75,
+            "y": 680,
+            "width": 240,
+            "height": 52,
+            "rotation": 0
+          },
+          "props": {
+            "label": "Gửi một lời hồi đáp",
+            "color": "#7553B1"
+          },
+          "accessibility": {
+            "label": "Gửi một lời hồi đáp"
+          },
+          "actions": [
+            {
+              "on": "activate",
+              "type": "goToScene",
+              "targetSceneId": "scene-message"
+            }
+          ],
+          "name": "Mở phần hồi đáp"
+        },
+        {
+          "id": "reply-heading",
+          "type": "text",
+          "elementVersion": 1,
+          "layout": {
+            "x": 34,
+            "y": 65,
+            "width": 322,
+            "height": 104,
+            "rotation": 0
+          },
+          "props": {
+            "text": "Niềm vui được nối dài.",
+            "fontToken": "heading",
+            "fontSize": 34,
+            "align": "center",
+            "color": "#FFF7E8",
+            "lineHeight": 1.25
+          },
+          "accessibility": {
+            "role": "heading",
+            "level": 1
+          },
+          "name": "Tiêu đề hồi đáp"
+        },
+        {
+          "id": "reply-intro",
+          "type": "text",
+          "elementVersion": 1,
+          "layout": {
+            "x": 42,
+            "y": 186,
+            "width": 306,
+            "height": 70,
+            "rotation": 0
+          },
+          "props": {
+            "text": "Nếu muốn, hãy gửi lại người tặng một lời nhắn.",
+            "fontToken": "body",
+            "fontSize": 18,
+            "align": "center",
+            "color": "#FFF7E8",
+            "lineHeight": 1.25
+          },
+          "accessibility": {
+            "role": "paragraph"
+          },
+          "name": "Lời mời hồi đáp"
+        },
+        {
+          "id": "reply-card",
+          "type": "reply",
+          "elementVersion": 1,
+          "layout": {
+            "x": 24,
+            "y": 292,
+            "width": 342,
+            "height": 310,
+            "rotation": 0
+          },
+          "props": {
+            "title": "Lời hồi đáp của bạn",
+            "submitLabel": "Gửi lời đáp"
+          },
+          "accessibility": {
+            "label": "Gửi lời đáp cho người tặng"
+          },
+          "name": "Khối hồi đáp"
+        },
+        {
+          "id": "replay-gift",
+          "type": "button",
+          "elementVersion": 1,
+          "layout": {
+            "x": 88,
+            "y": 674,
+            "width": 214,
+            "height": 52,
+            "rotation": 0
+          },
+          "props": {
+            "label": "Xem lại món quà",
+            "color": "#7553B1"
+          },
+          "accessibility": {
+            "label": "Xem lại món quà"
+          },
+          "actions": [
+            {
+              "on": "activate",
+              "type": "replay"
+            }
+          ],
+          "name": "Xem lại món quà"
+        }
+      ],
+      "scenes": [
+        {
+          "id": "scene-cover",
+          "name": "Mở quà",
+          "background": {
+            "kind": "solid",
+            "color": "#6A539E"
+          },
+          "elementIds": [
+            "birthday-halo",
+            "cake-plate",
+            "cake-bottom",
+            "cake-top",
+            "cake-icing",
+            "cake-candle-0",
+            "cake-flame-0",
+            "cake-candle-1",
+            "cake-flame-1",
+            "cake-candle-2",
+            "cake-flame-2",
+            "cake-confetti-0",
+            "cake-confetti-1",
+            "cake-confetti-2",
+            "cake-confetti-3",
+            "cake-confetti-4",
+            "cake-confetti-5",
+            "cake-confetti-6",
+            "cake-confetti-7",
+            "cake-confetti-8",
+            "cake-confetti-9",
+            "cake-confetti-10",
+            "cake-confetti-11",
+            "cake-confetti-12",
+            "cake-confetti-13",
+            "cake-confetti-14",
+            "cake-confetti-15",
+            "cake-confetti-16",
+            "cake-confetti-17",
+            "cover-title",
+            "text-recipient",
+            "open-gift",
+            "cover-note"
+          ]
+        },
+        {
+          "id": "scene-surprise",
+          "name": "Lời chúc",
+          "background": {
+            "kind": "solid",
+            "color": "#FFF6EB"
+          },
+          "elementIds": [
+            "message-paper",
+            "message-heading",
+            "message-to",
+            "message-rule",
+            "text-message",
+            "message-from-label",
+            "text-sender",
+            "to-message"
+          ]
+        },
+        {
+          "id": "scene-message",
+          "name": "Hồi đáp",
+          "background": {
+            "kind": "solid",
+            "color": "#6A539E"
+          },
+          "elementIds": [
+            "reply-heading",
+            "reply-intro",
+            "reply-card",
+            "replay-gift"
+          ]
+        }
+      ],
+      "responsive": {
+        "textOverflow": "expand-flow",
+        "sceneOverflow": "scroll",
+        "desktop": {
+          "maxContentWidth": 600,
+          "align": "center"
+        }
+      }
+    },
+    "hai-phong-bi": {
+      "schemaVersion": 1,
+      "registryVersion": 1,
+      "artboard": {
+        "baseSize": {
+          "width": 390,
+          "height": 844
+        },
+        "layoutMode": "responsive-scene",
+        "safeInsets": {
+          "top": 24,
+          "right": 24,
+          "bottom": 24,
+          "left": 24
+        }
+      },
+      "entrySceneId": "scene-cover",
+      "bindings": {
+        "recipientName": {
+          "type": "text",
+          "value": ""
+        },
+        "senderName": {
+          "type": "text",
+          "value": ""
+        },
+        "message": {
+          "type": "text",
+          "value": ""
+        }
+      },
+      "assets": [],
+      "elements": [
+        {
+          "id": "cover-title",
+          "type": "text",
+          "elementVersion": 1,
+          "layout": {
+            "x": 36,
+            "y": 62,
+            "width": 318,
+            "height": 103,
+            "rotation": 0
+          },
+          "props": {
+            "text": "Bạn muốn mở gì trước?",
+            "fontToken": "serif",
+            "fontSize": 36,
+            "align": "center",
+            "color": "#38294B",
+            "lineHeight": 1.25
+          },
+          "accessibility": {
+            "role": "heading",
+            "level": 1
+          },
+          "name": "Tiêu đề bìa"
+        },
+        {
+          "id": "text-recipient",
+          "type": "text",
+          "elementVersion": 1,
+          "layout": {
+            "x": 44,
+            "y": 180,
+            "width": 302,
+            "height": 56,
+            "rotation": 0
+          },
+          "props": {
+            "fontToken": "body",
+            "fontSize": 24,
+            "align": "center",
+            "color": "#38294B",
+            "textBinding": "recipientName",
+            "lineHeight": 1.55
+          },
+          "accessibility": {
+            "role": "paragraph"
+          },
+          "name": "Tên người nhận"
+        },
+        {
+          "id": "open-memory",
+          "type": "envelope",
+          "elementVersion": 1,
+          "layout": {
+            "x": 49,
+            "y": 274,
+            "width": 292,
+            "height": 153,
+            "rotation": -2
+          },
+          "props": {
+            "preset": "classic",
+            "label": "Một kỷ niệm",
+            "color": "#664579"
+          },
+          "accessibility": {
+            "label": "Một kỷ niệm"
+          },
+          "actions": [
+            {
+              "on": "activate",
+              "type": "goToScene",
+              "targetSceneId": "scene-surprise"
+            }
+          ],
+          "name": "Hai phong bì · Trang trí 3"
+        },
+        {
+          "id": "open-wish",
+          "type": "envelope",
+          "elementVersion": 1,
+          "layout": {
+            "x": 49,
+            "y": 502,
+            "width": 292,
+            "height": 153,
+            "rotation": 2
+          },
+          "props": {
+            "preset": "classic",
+            "label": "Một điều mình chúc bạn",
+            "color": "#664579"
+          },
+          "accessibility": {
+            "label": "Một điều mình chúc bạn"
+          },
+          "actions": [
+            {
+              "on": "activate",
+              "type": "goToScene",
+              "targetSceneId": "scene-message"
+            }
+          ],
+          "name": "Hai phong bì · Trang trí 4"
+        },
+        {
+          "id": "memory-heading",
+          "type": "text",
+          "elementVersion": 1,
+          "layout": {
+            "x": 42,
+            "y": 67,
+            "width": 306,
+            "height": 83,
+            "rotation": 0
+          },
+          "props": {
+            "text": "Một kỷ niệm",
+            "fontToken": "serif",
+            "fontSize": 37,
+            "align": "center",
+            "color": "#38294B",
+            "lineHeight": 1.25
+          },
+          "accessibility": {
+            "role": "paragraph"
+          },
+          "name": "Hai phong bì · Trang trí 5"
+        },
+        {
+          "id": "envelope-memory",
+          "type": "text",
+          "elementVersion": 1,
+          "layout": {
+            "x": 44,
+            "y": 191,
+            "width": 302,
+            "height": 220,
+            "rotation": 0
+          },
+          "props": {
+            "text": "Có những chuyện mỗi lần nhớ lại, mình vẫn mỉm cười.",
+            "fontToken": "serif",
+            "fontSize": 24,
+            "align": "left",
+            "color": "#38294B",
+            "lineHeight": 1.25
+          },
+          "accessibility": {
+            "role": "paragraph"
+          },
+          "name": "Nội dung kỷ niệm"
+        },
+        {
+          "id": "memory-back",
+          "type": "button",
+          "elementVersion": 1,
+          "layout": {
+            "x": 77,
+            "y": 629,
+            "width": 236,
+            "height": 56,
+            "rotation": 0
+          },
+          "props": {
+            "label": "Về hai phong bì",
+            "color": "#664579"
+          },
+          "accessibility": {
+            "label": "Về hai phong bì"
+          },
+          "actions": [
+            {
+              "on": "activate",
+              "type": "goToScene",
+              "targetSceneId": "scene-cover"
+            }
+          ],
+          "name": "Hai phong bì · Trang trí 7"
+        },
+        {
+          "id": "message-heading",
+          "type": "text",
+          "elementVersion": 1,
+          "layout": {
+            "x": 39,
+            "y": 55,
+            "width": 312,
+            "height": 99,
+            "rotation": 0
+          },
+          "props": {
+            "text": "Một điều mình chúc bạn",
+            "fontToken": "serif",
+            "fontSize": 32,
+            "align": "center",
+            "color": "#38294B",
+            "lineHeight": 1.25
+          },
+          "accessibility": {
+            "role": "paragraph"
+          },
+          "name": "Tiêu đề lời chúc"
+        },
+        {
+          "id": "text-message",
+          "type": "text",
+          "elementVersion": 1,
+          "layout": {
+            "x": 41,
+            "y": 172,
+            "width": 308,
+            "height": 204,
+            "rotation": 0
+          },
+          "props": {
+            "fontToken": "body",
+            "fontSize": 21,
+            "align": "left",
+            "color": "#38294B",
+            "textBinding": "message",
+            "lineHeight": 1.55
+          },
+          "accessibility": {
+            "role": "paragraph"
+          },
+          "name": "Lời chúc"
+        },
+        {
+          "id": "text-sender",
+          "type": "text",
+          "elementVersion": 1,
+          "layout": {
+            "x": 41,
+            "y": 406,
+            "width": 308,
+            "height": 51,
+            "rotation": 0
+          },
+          "props": {
+            "fontToken": "body",
+            "fontSize": 21,
+            "align": "right",
+            "color": "#38294B",
+            "textBinding": "senderName",
+            "lineHeight": 1.55
+          },
+          "accessibility": {
+            "role": "paragraph"
+          },
+          "name": "Tên người gửi"
+        },
+        {
+          "id": "wish-back",
+          "type": "button",
+          "elementVersion": 1,
+          "layout": {
+            "x": 77,
+            "y": 488,
+            "width": 236,
+            "height": 56,
+            "rotation": 0
+          },
+          "props": {
+            "label": "Về hai phong bì",
+            "color": "#664579"
+          },
+          "accessibility": {
+            "label": "Về hai phong bì"
+          },
+          "actions": [
+            {
+              "on": "activate",
+              "type": "goToScene",
+              "targetSceneId": "scene-cover"
+            }
+          ],
+          "name": "Hai phong bì · Trang trí 11"
+        },
+        {
+          "id": "reply-card",
+          "type": "reply",
+          "elementVersion": 1,
+          "layout": {
+            "x": 24,
+            "y": 568,
+            "width": 342,
+            "height": 235,
+            "rotation": 0
+          },
+          "props": {
+            "title": "Gửi lời đáp",
+            "submitLabel": "Gửi lời đáp"
+          },
+          "accessibility": {
+            "label": "Gửi lời đáp cho người tặng"
+          },
+          "name": "Khối hồi đáp"
+        }
+      ],
+      "scenes": [
+        {
+          "id": "scene-cover",
+          "name": "Mở quà",
+          "background": {
+            "kind": "solid",
+            "color": "#EDE8F4"
+          },
+          "elementIds": [
+            "cover-title",
+            "text-recipient",
+            "open-memory",
+            "open-wish"
+          ]
+        },
+        {
+          "id": "scene-surprise",
+          "name": "Kỷ niệm",
+          "background": {
+            "kind": "solid",
+            "color": "#FFF9F4"
+          },
+          "elementIds": [
+            "memory-heading",
+            "envelope-memory",
+            "memory-back"
+          ]
+        },
+        {
+          "id": "scene-message",
+          "name": "Điều mình chúc bạn",
+          "background": {
+            "kind": "solid",
+            "color": "#EDE8F4"
+          },
+          "elementIds": [
+            "message-heading",
+            "text-message",
+            "text-sender",
+            "wish-back",
+            "reply-card"
+          ]
+        }
+      ],
+      "responsive": {
+        "textOverflow": "expand-flow",
+        "sceneOverflow": "scroll",
+        "desktop": {
+          "maxContentWidth": 600,
+          "align": "center"
+        }
+      }
+    },
+    "proud-of-you": {
+      "schemaVersion": 1,
+      "registryVersion": 1,
+      "artboard": {
+        "baseSize": {
+          "width": 390,
+          "height": 844
+        },
+        "layoutMode": "responsive-scene",
+        "safeInsets": {
+          "top": 24,
+          "right": 24,
+          "bottom": 24,
+          "left": 24
+        }
+      },
+      "entrySceneId": "scene-cover",
+      "bindings": {
+        "recipientName": {
+          "type": "text",
+          "value": ""
+        },
+        "senderName": {
+          "type": "text",
+          "value": ""
+        },
+        "message": {
+          "type": "text",
+          "value": ""
+        }
+      },
+      "assets": [],
+      "elements": [
+        {
+          "id": "congrats-halo",
+          "type": "shape",
+          "elementVersion": 1,
+          "layout": {
+            "x": 78,
+            "y": 28,
+            "width": 234,
+            "height": 234,
+            "rotation": 0
+          },
+          "props": {
+            "kind": "ellipse",
+            "color": "#1D3F5C",
+            "strokeColor": "#6136DF",
+            "strokeWidth": 0,
+            "radius": 0
+          },
+          "accessibility": {
+            "decorative": true
+          },
+          "name": "Tự hào về bạn · Trang trí 1"
+        },
+        {
+          "id": "award-leaf-l-0",
+          "type": "shape",
+          "elementVersion": 1,
+          "layout": {
+            "x": 64,
+            "y": 266,
+            "width": 17,
+            "height": 36,
+            "rotation": -34
+          },
+          "props": {
+            "kind": "ellipse",
+            "color": "#E6C57A",
+            "strokeColor": "#6136DF",
+            "strokeWidth": 0,
+            "radius": 0
+          },
+          "accessibility": {
+            "decorative": true
+          },
+          "name": "Tự hào về bạn · Trang trí 2"
+        },
+        {
+          "id": "award-leaf-r-0",
+          "type": "shape",
+          "elementVersion": 1,
+          "layout": {
+            "x": 309,
+            "y": 266,
+            "width": 17,
+            "height": 36,
+            "rotation": 34
+          },
+          "props": {
+            "kind": "ellipse",
+            "color": "#E6C57A",
+            "strokeColor": "#6136DF",
+            "strokeWidth": 0,
+            "radius": 0
+          },
+          "accessibility": {
+            "decorative": true
+          },
+          "name": "Tự hào về bạn · Trang trí 3"
+        },
+        {
+          "id": "award-leaf-l-1",
+          "type": "shape",
+          "elementVersion": 1,
+          "layout": {
+            "x": 77,
+            "y": 230,
+            "width": 17,
+            "height": 36,
+            "rotation": -34
+          },
+          "props": {
+            "kind": "ellipse",
+            "color": "#E6C57A",
+            "strokeColor": "#6136DF",
+            "strokeWidth": 0,
+            "radius": 0
+          },
+          "accessibility": {
+            "decorative": true
+          },
+          "name": "Tự hào về bạn · Trang trí 4"
+        },
+        {
+          "id": "award-leaf-r-1",
+          "type": "shape",
+          "elementVersion": 1,
+          "layout": {
+            "x": 296,
+            "y": 230,
+            "width": 17,
+            "height": 36,
+            "rotation": 34
+          },
+          "props": {
+            "kind": "ellipse",
+            "color": "#E6C57A",
+            "strokeColor": "#6136DF",
+            "strokeWidth": 0,
+            "radius": 0
+          },
+          "accessibility": {
+            "decorative": true
+          },
+          "name": "Tự hào về bạn · Trang trí 5"
+        },
+        {
+          "id": "award-leaf-l-2",
+          "type": "shape",
+          "elementVersion": 1,
+          "layout": {
+            "x": 90,
+            "y": 194,
+            "width": 17,
+            "height": 36,
+            "rotation": -34
+          },
+          "props": {
+            "kind": "ellipse",
+            "color": "#E6C57A",
+            "strokeColor": "#6136DF",
+            "strokeWidth": 0,
+            "radius": 0
+          },
+          "accessibility": {
+            "decorative": true
+          },
+          "name": "Tự hào về bạn · Trang trí 6"
+        },
+        {
+          "id": "award-leaf-r-2",
+          "type": "shape",
+          "elementVersion": 1,
+          "layout": {
+            "x": 283,
+            "y": 194,
+            "width": 17,
+            "height": 36,
+            "rotation": 34
+          },
+          "props": {
+            "kind": "ellipse",
+            "color": "#E6C57A",
+            "strokeColor": "#6136DF",
+            "strokeWidth": 0,
+            "radius": 0
+          },
+          "accessibility": {
+            "decorative": true
+          },
+          "name": "Tự hào về bạn · Trang trí 7"
+        },
+        {
+          "id": "award-leaf-l-3",
+          "type": "shape",
+          "elementVersion": 1,
+          "layout": {
+            "x": 103,
+            "y": 158,
+            "width": 17,
+            "height": 36,
+            "rotation": -34
+          },
+          "props": {
+            "kind": "ellipse",
+            "color": "#E6C57A",
+            "strokeColor": "#6136DF",
+            "strokeWidth": 0,
+            "radius": 0
+          },
+          "accessibility": {
+            "decorative": true
+          },
+          "name": "Tự hào về bạn · Trang trí 8"
+        },
+        {
+          "id": "award-leaf-r-3",
+          "type": "shape",
+          "elementVersion": 1,
+          "layout": {
+            "x": 270,
+            "y": 158,
+            "width": 17,
+            "height": 36,
+            "rotation": 34
+          },
+          "props": {
+            "kind": "ellipse",
+            "color": "#E6C57A",
+            "strokeColor": "#6136DF",
+            "strokeWidth": 0,
+            "radius": 0
+          },
+          "accessibility": {
+            "decorative": true
+          },
+          "name": "Tự hào về bạn · Trang trí 9"
+        },
+        {
+          "id": "award-leaf-l-4",
+          "type": "shape",
+          "elementVersion": 1,
+          "layout": {
+            "x": 116,
+            "y": 122,
+            "width": 17,
+            "height": 36,
+            "rotation": -34
+          },
+          "props": {
+            "kind": "ellipse",
+            "color": "#E6C57A",
+            "strokeColor": "#6136DF",
+            "strokeWidth": 0,
+            "radius": 0
+          },
+          "accessibility": {
+            "decorative": true
+          },
+          "name": "Tự hào về bạn · Trang trí 10"
+        },
+        {
+          "id": "award-leaf-r-4",
+          "type": "shape",
+          "elementVersion": 1,
+          "layout": {
+            "x": 257,
+            "y": 122,
+            "width": 17,
+            "height": 36,
+            "rotation": 34
+          },
+          "props": {
+            "kind": "ellipse",
+            "color": "#E6C57A",
+            "strokeColor": "#6136DF",
+            "strokeWidth": 0,
+            "radius": 0
+          },
+          "accessibility": {
+            "decorative": true
+          },
+          "name": "Tự hào về bạn · Trang trí 11"
+        },
+        {
+          "id": "award-leaf-l-5",
+          "type": "shape",
+          "elementVersion": 1,
+          "layout": {
+            "x": 129,
+            "y": 86,
+            "width": 17,
+            "height": 36,
+            "rotation": -34
+          },
+          "props": {
+            "kind": "ellipse",
+            "color": "#E6C57A",
+            "strokeColor": "#6136DF",
+            "strokeWidth": 0,
+            "radius": 0
+          },
+          "accessibility": {
+            "decorative": true
+          },
+          "name": "Tự hào về bạn · Trang trí 12"
+        },
+        {
+          "id": "award-leaf-r-5",
+          "type": "shape",
+          "elementVersion": 1,
+          "layout": {
+            "x": 244,
+            "y": 86,
+            "width": 17,
+            "height": 36,
+            "rotation": 34
+          },
+          "props": {
+            "kind": "ellipse",
+            "color": "#E6C57A",
+            "strokeColor": "#6136DF",
+            "strokeWidth": 0,
+            "radius": 0
+          },
+          "accessibility": {
+            "decorative": true
+          },
+          "name": "Tự hào về bạn · Trang trí 13"
+        },
+        {
+          "id": "award-medal",
+          "type": "shape",
+          "elementVersion": 1,
+          "layout": {
+            "x": 143,
+            "y": 74,
+            "width": 104,
+            "height": 104,
+            "rotation": 0
+          },
+          "props": {
+            "kind": "ellipse",
+            "color": "#E6C57A",
+            "strokeColor": "#6136DF",
+            "strokeWidth": 0,
+            "radius": 0
+          },
+          "accessibility": {
+            "decorative": true
+          },
+          "name": "Tự hào về bạn · Trang trí 14"
+        },
+        {
+          "id": "award-medal-core",
+          "type": "shape",
+          "elementVersion": 1,
+          "layout": {
+            "x": 158,
+            "y": 89,
+            "width": 74,
+            "height": 74,
+            "rotation": 0
+          },
+          "props": {
+            "kind": "ellipse",
+            "color": "#254462",
+            "strokeColor": "#6136DF",
+            "strokeWidth": 0,
+            "radius": 0
+          },
+          "accessibility": {
+            "decorative": true
+          },
+          "name": "Tự hào về bạn · Trang trí 15"
+        },
+        {
+          "id": "award-star-horizontal",
+          "type": "line",
+          "elementVersion": 1,
+          "layout": {
+            "x": 172,
+            "y": 125,
+            "width": 46,
+            "height": 2,
+            "rotation": 0
+          },
+          "props": {
+            "color": "#E6C57A",
+            "strokeWidth": 2
+          },
+          "accessibility": {
+            "decorative": true
+          },
+          "name": "Tự hào về bạn · Trang trí 16"
+        },
+        {
+          "id": "award-star-vertical",
+          "type": "line",
+          "elementVersion": 1,
+          "layout": {
+            "x": 195,
+            "y": 102,
+            "width": 46,
+            "height": 2,
+            "rotation": 90
+          },
+          "props": {
+            "color": "#E6C57A",
+            "strokeWidth": 2
+          },
+          "accessibility": {
+            "decorative": true
+          },
+          "name": "Tự hào về bạn · Trang trí 17"
+        },
+        {
+          "id": "award-ribbon-left",
+          "type": "shape",
+          "elementVersion": 1,
+          "layout": {
+            "x": 155,
+            "y": 180,
+            "width": 35,
+            "height": 94,
+            "rotation": 14
+          },
+          "props": {
+            "kind": "rectangle",
+            "color": "#85ACC1",
+            "strokeColor": "#6136DF",
+            "strokeWidth": 0,
+            "radius": 2
+          },
+          "accessibility": {
+            "decorative": true
+          },
+          "name": "Tự hào về bạn · Trang trí 18"
+        },
+        {
+          "id": "award-ribbon-right",
+          "type": "shape",
+          "elementVersion": 1,
+          "layout": {
+            "x": 200,
+            "y": 181,
+            "width": 35,
+            "height": 94,
+            "rotation": -14
+          },
+          "props": {
+            "kind": "rectangle",
+            "color": "#D6A65A",
+            "strokeColor": "#6136DF",
+            "strokeWidth": 0,
+            "radius": 2
+          },
+          "accessibility": {
+            "decorative": true
+          },
+          "name": "Tự hào về bạn · Trang trí 19"
+        },
+        {
+          "id": "cover-title",
+          "type": "text",
+          "elementVersion": 1,
+          "layout": {
+            "x": 38,
+            "y": 342,
+            "width": 314,
+            "height": 123,
+            "rotation": 0
+          },
+          "props": {
+            "text": "Thật tự hào\nvề bạn hôm nay.",
+            "fontToken": "serif",
+            "fontSize": 31,
+            "align": "center",
+            "color": "#F7E9C6",
+            "lineHeight": 1.25
+          },
+          "accessibility": {
+            "role": "heading",
+            "level": 1
+          },
+          "name": "Tiêu đề bìa"
+        },
+        {
+          "id": "text-recipient",
+          "type": "text",
+          "elementVersion": 1,
+          "layout": {
+            "x": 43,
+            "y": 478,
+            "width": 304,
+            "height": 56,
+            "rotation": 0
+          },
+          "props": {
+            "fontToken": "body",
+            "fontSize": 21,
+            "align": "center",
+            "color": "#F7E9C6",
+            "textBinding": "recipientName",
+            "lineHeight": 1.55
+          },
+          "accessibility": {
+            "role": "paragraph"
+          },
+          "name": "Tên người nhận"
+        },
+        {
+          "id": "open-gift",
+          "type": "envelope",
+          "elementVersion": 1,
+          "layout": {
+            "x": 55,
+            "y": 548,
+            "width": 280,
+            "height": 126,
+            "rotation": 0
+          },
+          "props": {
+            "preset": "classic",
+            "label": "Mở món quà",
+            "color": "#40678C"
+          },
+          "accessibility": {
+            "label": "Mở món quà"
+          },
+          "actions": [
+            {
+              "on": "activate",
+              "type": "goToScene",
+              "targetSceneId": "scene-surprise"
+            }
+          ],
+          "name": "Mở món quà"
+        },
+        {
+          "id": "cover-note",
+          "type": "text",
+          "elementVersion": 1,
+          "layout": {
+            "x": 44,
+            "y": 705,
+            "width": 302,
+            "height": 62,
+            "rotation": 0
+          },
+          "props": {
+            "text": "Mọi cố gắng đều xứng đáng được ghi nhớ.",
+            "fontToken": "body",
+            "fontSize": 15,
+            "align": "center",
+            "color": "#F7E9C6",
+            "lineHeight": 1.25
+          },
+          "accessibility": {
+            "role": "paragraph"
+          },
+          "name": "Lời dẫn"
+        },
+        {
+          "id": "message-paper",
+          "type": "shape",
+          "elementVersion": 1,
+          "layout": {
+            "x": 22,
+            "y": 34,
+            "width": 346,
+            "height": 723,
+            "rotation": 0
+          },
+          "props": {
+            "kind": "rectangle",
+            "color": "#FFFBF0",
+            "strokeColor": "#6136DF",
+            "strokeWidth": 0,
+            "radius": 24
+          },
+          "accessibility": {
+            "decorative": true
+          },
+          "name": "Nền thiệp"
+        },
+        {
+          "id": "message-heading",
+          "type": "text",
+          "elementVersion": 1,
+          "layout": {
+            "x": 48,
+            "y": 70,
+            "width": 294,
+            "height": 54,
+            "rotation": 0
+          },
+          "props": {
+            "text": "Một lời chúc dành riêng",
+            "fontToken": "serif",
+            "fontSize": 27,
+            "align": "center",
+            "color": "#42354A",
+            "lineHeight": 1.25
+          },
+          "accessibility": {
+            "role": "heading",
+            "level": 1
+          },
+          "name": "Tiêu đề lời chúc"
+        },
+        {
+          "id": "message-to",
+          "type": "text",
+          "elementVersion": 1,
+          "layout": {
+            "x": 49,
+            "y": 145,
+            "width": 292,
+            "height": 56,
+            "rotation": 0
+          },
+          "props": {
+            "fontToken": "body",
+            "fontSize": 24,
+            "align": "center",
+            "color": "#42354A",
+            "textBinding": "recipientName",
+            "lineHeight": 1.55
+          },
+          "accessibility": {
+            "role": "paragraph"
+          },
+          "name": "Dành tặng"
+        },
+        {
+          "id": "message-rule",
+          "type": "line",
+          "elementVersion": 1,
+          "layout": {
+            "x": 150,
+            "y": 221,
+            "width": 90,
+            "height": 2,
+            "rotation": 0
+          },
+          "props": {
+            "color": "#E6C57A",
+            "strokeWidth": 1
+          },
+          "accessibility": {
+            "decorative": true
+          },
+          "name": "Đường phân cách"
+        },
+        {
+          "id": "text-message",
+          "type": "text",
+          "elementVersion": 1,
+          "layout": {
+            "x": 49,
+            "y": 261,
+            "width": 292,
+            "height": 244,
+            "rotation": 0
+          },
+          "props": {
+            "fontToken": "body",
+            "fontSize": 21,
+            "align": "center",
+            "color": "#42354A",
+            "textBinding": "message",
+            "lineHeight": 1.55
+          },
+          "accessibility": {
+            "role": "paragraph"
+          },
+          "name": "Lời chúc"
+        },
+        {
+          "id": "message-from-label",
+          "type": "text",
+          "elementVersion": 1,
+          "layout": {
+            "x": 49,
+            "y": 538,
+            "width": 292,
+            "height": 33,
+            "rotation": 0
+          },
+          "props": {
+            "text": "Thương mến,",
+            "fontToken": "serif",
+            "fontSize": 17,
+            "align": "right",
+            "color": "#42354A",
+            "lineHeight": 1.25
+          },
+          "accessibility": {
+            "role": "paragraph"
+          },
+          "name": "Lời ký tên"
+        },
+        {
+          "id": "text-sender",
+          "type": "text",
+          "elementVersion": 1,
+          "layout": {
+            "x": 49,
+            "y": 585,
+            "width": 292,
+            "height": 53,
+            "rotation": 0
+          },
+          "props": {
+            "fontToken": "body",
+            "fontSize": 21,
+            "align": "right",
+            "color": "#42354A",
+            "textBinding": "senderName",
+            "lineHeight": 1.55
+          },
+          "accessibility": {
+            "role": "paragraph"
+          },
+          "name": "Tên người gửi"
+        },
+        {
+          "id": "to-message",
+          "type": "button",
+          "elementVersion": 1,
+          "layout": {
+            "x": 75,
+            "y": 680,
+            "width": 240,
+            "height": 52,
+            "rotation": 0
+          },
+          "props": {
+            "label": "Gửi một lời hồi đáp",
+            "color": "#40678C"
+          },
+          "accessibility": {
+            "label": "Gửi một lời hồi đáp"
+          },
+          "actions": [
+            {
+              "on": "activate",
+              "type": "goToScene",
+              "targetSceneId": "scene-message"
+            }
+          ],
+          "name": "Mở phần hồi đáp"
+        },
+        {
+          "id": "reply-heading",
+          "type": "text",
+          "elementVersion": 1,
+          "layout": {
+            "x": 34,
+            "y": 65,
+            "width": 322,
+            "height": 104,
+            "rotation": 0
+          },
+          "props": {
+            "text": "Niềm vui được nối dài.",
+            "fontToken": "serif",
+            "fontSize": 34,
+            "align": "center",
+            "color": "#F7E9C6",
+            "lineHeight": 1.25
+          },
+          "accessibility": {
+            "role": "heading",
+            "level": 1
+          },
+          "name": "Tiêu đề hồi đáp"
+        },
+        {
+          "id": "reply-intro",
+          "type": "text",
+          "elementVersion": 1,
+          "layout": {
+            "x": 42,
+            "y": 186,
+            "width": 306,
+            "height": 70,
+            "rotation": 0
+          },
+          "props": {
+            "text": "Nếu muốn, hãy gửi lại người tặng một lời nhắn.",
+            "fontToken": "body",
+            "fontSize": 18,
+            "align": "center",
+            "color": "#F7E9C6",
+            "lineHeight": 1.25
+          },
+          "accessibility": {
+            "role": "paragraph"
+          },
+          "name": "Lời mời hồi đáp"
+        },
+        {
+          "id": "reply-card",
+          "type": "reply",
+          "elementVersion": 1,
+          "layout": {
+            "x": 24,
+            "y": 292,
+            "width": 342,
+            "height": 310,
+            "rotation": 0
+          },
+          "props": {
+            "title": "Lời hồi đáp của bạn",
+            "submitLabel": "Gửi lời đáp"
+          },
+          "accessibility": {
+            "label": "Gửi lời đáp cho người tặng"
+          },
+          "name": "Khối hồi đáp"
+        },
+        {
+          "id": "replay-gift",
+          "type": "button",
+          "elementVersion": 1,
+          "layout": {
+            "x": 88,
+            "y": 674,
+            "width": 214,
+            "height": 52,
+            "rotation": 0
+          },
+          "props": {
+            "label": "Xem lại món quà",
+            "color": "#40678C"
+          },
+          "accessibility": {
+            "label": "Xem lại món quà"
+          },
+          "actions": [
+            {
+              "on": "activate",
+              "type": "replay"
+            }
+          ],
+          "name": "Xem lại món quà"
+        }
+      ],
+      "scenes": [
+        {
+          "id": "scene-cover",
+          "name": "Mở quà",
+          "background": {
+            "kind": "solid",
+            "color": "#152D49"
+          },
+          "elementIds": [
+            "congrats-halo",
+            "award-leaf-l-0",
+            "award-leaf-r-0",
+            "award-leaf-l-1",
+            "award-leaf-r-1",
+            "award-leaf-l-2",
+            "award-leaf-r-2",
+            "award-leaf-l-3",
+            "award-leaf-r-3",
+            "award-leaf-l-4",
+            "award-leaf-r-4",
+            "award-leaf-l-5",
+            "award-leaf-r-5",
+            "award-medal",
+            "award-medal-core",
+            "award-star-horizontal",
+            "award-star-vertical",
+            "award-ribbon-left",
+            "award-ribbon-right",
+            "cover-title",
+            "text-recipient",
+            "open-gift",
+            "cover-note"
+          ]
+        },
+        {
+          "id": "scene-surprise",
+          "name": "Lời chúc",
+          "background": {
+            "kind": "solid",
+            "color": "#FFFBF0"
+          },
+          "elementIds": [
+            "message-paper",
+            "message-heading",
+            "message-to",
+            "message-rule",
+            "text-message",
+            "message-from-label",
+            "text-sender",
+            "to-message"
+          ]
+        },
+        {
+          "id": "scene-message",
+          "name": "Hồi đáp",
+          "background": {
+            "kind": "solid",
+            "color": "#152D49"
+          },
+          "elementIds": [
+            "reply-heading",
+            "reply-intro",
+            "reply-card",
+            "replay-gift"
+          ]
+        }
+      ],
+      "responsive": {
+        "textOverflow": "expand-flow",
+        "sceneOverflow": "scroll",
+        "desktop": {
+          "maxContentWidth": 600,
+          "align": "center"
+        }
+      }
+    }
+  }
+}

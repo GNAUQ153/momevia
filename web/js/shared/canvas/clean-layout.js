@@ -1,11 +1,17 @@
 import { clearTemplateBindingDefaults } from './personalization.js';
 import { duplicateDocument } from './schema.js';
+import { EVENT_ARTWORK_LABEL } from './event-media.js';
 
-export function cleanGiftLayout(snapshot) {
+export function cleanGiftLayout(snapshot, { sharedImages = new Map() } = {}) {
   const document = structuredClone(snapshot);
   clearTemplateBindingDefaults(document);
   document.assets = [];
-  document.elements = document.elements.filter(element => element.type !== 'image');
+  document.elements = document.elements.filter(element => element.type !== 'image' || sharedImages.has(element.props.assetId));
+  for (const element of document.elements.filter(e => e.type === 'image')) {
+    element.props.assetId = sharedImages.get(element.props.assetId);
+    delete element.props.caption;
+    if (!document.assets.some(a => a.assetId === element.props.assetId)) document.assets.push({ assetId: element.props.assetId, kind: 'image' });
+  }
   const ids = new Set(document.elements.map(element => element.id));
   for (const [index, scene] of document.scenes.entries()) {
     scene.name = `Cảnh ${index + 1}`;
@@ -16,6 +22,7 @@ export function cleanGiftLayout(snapshot) {
     delete element.locked;
     const { role, level } = element.accessibility;
     element.accessibility = { ...(role ? { role } : {}), ...(level ? { level } : {}) };
+    if (element.type === 'image') element.accessibility = { decorative: true, label: EVENT_ARTWORK_LABEL };
     if (element.type === 'text' && Object.hasOwn(element.props, 'text')) element.props.text = '';
     if (['button', 'envelope', 'gift-box'].includes(element.type))
       element.props.label = element.actions?.some(action => action.type === 'replay') ? 'Xem lại' : 'Tiếp tục';

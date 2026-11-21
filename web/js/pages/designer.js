@@ -290,8 +290,9 @@ export function mountDesigner(
   }
   function quickTemplateText(document) {
     const id = design.source.templateId;
-    const name = id === MEMORY_TEMPLATE_ID ? "Chú thích ảnh" : id === "hai-phong-bi" ? "Nội dung kỷ niệm" : null;
-    return name ? document.elements.find(element => element.type === "text" && element.name === name && Object.hasOwn(element.props, "text")) : null;
+    if (id === "hai-phong-bi") return document.elements.find(element => element.type === "text" && element.id === "envelope-memory")
+      || document.elements.find(element => element.type === "text" && element.name === "Nội dung kỷ niệm");
+    return id === MEMORY_TEMPLATE_ID ? document.elements.find(element => element.type === "text" && element.name === "Chú thích ảnh" && Object.hasOwn(element.props, "text")) : null;
   }
 
   function syncDraftUrl() {
@@ -515,7 +516,11 @@ export function mountDesigner(
             node("p", { class: "editor-help" }, message("editor.quick.startGreeting")),
             ...memoryGreetingStarterKeys.map((key, index) => button(message(key), "greeting-starter", { "data-index": index })),
           ) : null,
-          quickTemplateText(store.get().document) ? input(
+          design.source.templateId === "hai-phong-bi" && quickTemplateText(store.get().document) ? field(
+            message("templates.hai-phong-bi.memoryField"), node("textarea", {
+              "data-editor-field": "quick-template-text", maxlength: LIMITS.text, rows: 6,
+            }, quickTemplateText(store.get().document).props.text),
+          ) : quickTemplateText(store.get().document) ? input(
             quickTemplateText(store.get().document).name, "quick-template-text", quickTemplateText(store.get().document).props.text, { maxlength: 500 },
           ) : null,
           node("div", { class: "editor-quick-photo", hidden: true },

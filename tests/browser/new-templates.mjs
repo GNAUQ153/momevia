@@ -100,7 +100,7 @@ export async function runNewTemplates(base) {
     const preview = page.locator('dialog.template-preview-dialog[open]');
     await preview.waitFor({ state: 'visible' });
     const previewStage = preview.locator('.gift-runtime-stage');
-    for (const branch of ['Một điều mình chúc bạn', 'Một kỷ niệm', 'Một kỷ niệm', 'Một điều mình chúc bạn']) {
+    for (const branch of ['Một lời chúc', 'Một kỷ niệm', 'Một kỷ niệm', 'Một lời chúc']) {
       const entry = previewStage.getByRole('button', { name: branch, exact: true });
       await entry.focus();
       await page.keyboard.press('Enter');

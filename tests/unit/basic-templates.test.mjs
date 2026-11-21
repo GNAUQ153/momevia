@@ -6,6 +6,7 @@ import { templates, addedSystemTemplates } from '../../src/modules/catalog/seed.
 import { BASIC_TEMPLATES, createDocument, createBasicTemplate, templatePreviewDocument, validateDocument, canonicalStringify, duplicateDocument, insertPhotoFrame, LIMITS } from '../../web/js/shared/canvas/index.js';
 import { materializeTemplateStart } from '../../web/js/features/canvas-editor/template-start.js';
 import { previewSvg } from '../../scripts/build/template-previews.mjs';
+import { builtinCoverImages } from '../../src/modules/designs/builtin-media.mjs';
 
 const fill = d => { for (const [key, value] of Object.entries({ recipientName: 'Nguyễn Mai', senderName: 'Trần An', message: 'Chúc một tuổi mới bình an và thật nhiều niềm vui.' })) d.bindings[key].value = value; return d; };
 function contrast(a, b) {
@@ -42,8 +43,8 @@ test('free memory cover and two-envelope branching validate independently', () =
   assert.equal(memory.assets.length, 0);
   assert(memory.elements.some(item => item.id === 'photo-caption'));
   const cover = envelopes.scenes.find(scene => scene.id === envelopes.entrySceneId);
-  const forward = envelopes.elements.filter(item => cover.elementIds.includes(item.id) && item.type === 'envelope');
-  assert.deepEqual(forward.map(item => item.props.label), ['Một kỷ niệm', 'Một điều mình chúc bạn']);
+  const forward = envelopes.elements.filter(item => cover.elementIds.includes(item.id) && ['open-memory','open-wish'].includes(item.id));
+  assert.deepEqual(forward.map(item => item.props.label), ['Một kỷ niệm', 'Một lời chúc']);
   assert.equal(new Set(forward.map(item => item.actions[0].targetSceneId)).size, 2);
   for (const envelope of forward) {
     const destination = envelopes.scenes.find(scene => scene.id === envelope.actions[0].targetSceneId);
@@ -94,17 +95,18 @@ test('an optional polaroid photo keeps frame layout, crop, reading IDs and capti
 });
 
 test('managed cover SVGs match validated layouts and escape text without scripts/remote media', () => {
+  const images = builtinCoverImages();
   const serifWoff2 = fs.readFileSync(new URL('../../web/assets/fonts/lora-cover.woff2', import.meta.url)).toString('base64');
   const fontRule = `<style>@font-face{font-family:"Momevia Cover";src:url(data:font/woff2;base64,${serifWoff2}) format("woff2")}</style>`;
   for (const id of Object.keys(BASIC_TEMPLATES)) {
     const doc = templatePreviewDocument({ id });
     const defaultSvg = previewSvg(doc);
-    const svg = previewSvg(doc, undefined, undefined, { serifWoff2 });
+    const svg = previewSvg(doc, undefined, images, { serifWoff2 });
     assert.equal(fs.readFileSync(new URL(`../../web/assets/basic-templates/${id}.svg`, import.meta.url), 'utf8'), svg);
     assert.equal(svg.includes(fontRule), defaultSvg.includes('Georgia,serif'));
     assert.doesNotMatch(svg.replace(fontRule, ''), /<style|url\(["']?(?:https?:|data:)/i);
     assert.doesNotMatch(defaultSvg, /Momevia Cover/);
-    assert.doesNotMatch(svg, /<script|foreignObject|onload=|href=|style=/i);
+    assert.doesNotMatch(svg.replace(/href="data:image\/webp;base64,[A-Za-z0-9+/=]+"/g, ''), /<script|foreignObject|onload=|href=|style=/i);
     assert.equal(/viewBox="0 0 390 844"/.test(svg), true);
   }
   const doc = templatePreviewDocument({ id: 'love-letter' }); doc.bindings.recipientName.value = '<script>alert(1)</script>';

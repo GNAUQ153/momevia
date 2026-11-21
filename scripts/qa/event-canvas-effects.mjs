@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import { chromium } from 'playwright';
 import { randomUUID } from 'node:crypto';
 const base=process.env.EVENT_STORY_BASE_URL||'http://127.0.0.1:4178';
-assert.match(base,/^http:\/\/127\.0\.0\.1:(4178|4180)$/);
+assert.match(base,/^http:\/\/127\.0\.0\.1:(4178|4180|4182)$/);
 const browser=await chromium.launch({channel:'msedge',headless:true});
 const results=[];
 try {
@@ -20,11 +20,18 @@ try {
       await p.locator('[data-editor-action="library-tab"][data-tab="layers"]').click();
       await p.locator('.editor-layers [data-id="event-photo-birthday"]').click();
     } else await p.locator('[data-editor-action="scene-select"]').first().click();
-    await field(`effect.${family}.id`).selectOption('');await field(`effect.${family}.id`).selectOption(id);
-    await field(`effect.${family}.speed`).selectOption('slow');await save();
+    if(family==='ambience') {
+      await field(`celebration.${id}.enabled`).check();
+      await field(`celebration.${id}.speed`).selectOption('slow');
+    } else {
+      await field(`effect.${family}.id`).selectOption('');await field(`effect.${family}.id`).selectOption(id);
+      await field(`effect.${family}.speed`).selectOption('slow');
+    }
+    await save();
     const d=(await api('/designs/designs/'+design.id)).design;
-    assert.equal((scope==='image'?d.document.elements.find(e=>e.id==='event-photo-birthday'):d.document.scenes[0]).effects[family].id,id);
-    await p.locator(`[data-editor-action="effect-preview"][data-family="${family}"]`).click();
+    const effect=(scope==='image'?d.document.elements.find(e=>e.id==='event-photo-birthday'):d.document.scenes[0]).effects;
+    if(family==='ambience')assert.equal(effect.celebrations[id].enabled,true);else assert.equal(effect[family].id,id);
+    await p.locator(family==='ambience'?`[data-editor-action="celebration-preview"][data-celebration="${id}"]`:`[data-editor-action="effect-preview"][data-family="${family}"]`).click();
     const dialog=p.locator('dialog.editor-preview-dialog[open]');await dialog.waitFor();
     await dialog.locator(`[data-gift-effect="${id}"]`).first().waitFor();
     if(id==='E05'||id==='E06')await dialog.locator('.gift-photo-fragment').first().waitFor();
@@ -36,7 +43,7 @@ try {
   }
   await p.reload();await p.locator('.editor-workspace').waitFor();
   const d=(await api('/designs/designs/'+design.id)).design;
-  assert.equal(d.document.scenes[0].effects.ambience.id,'B08');
+  assert.equal(d.document.scenes[0].effects.celebrations.B08.enabled,true);
   assert.equal(d.document.elements.find(e=>e.id==='event-photo-birthday').effects.entrance.id,'E06');
   assert.equal(d.document.elements.find(e=>e.id==='event-photo-birthday').effects.emphasis.id,'A05');
   await p.locator('[data-editor-action="scene-select"]').first().click();

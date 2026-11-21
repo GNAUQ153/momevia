@@ -62,6 +62,11 @@ try {
         if(cloned.contentHash!==asset.contentHash||cloned.id===asset.id)throw new Error('Regift did not own its artwork');
       }
       console.log('PASS MySQL: all 3 photographic templates create/save/publish/pin and regift known artwork through real transactions.');
-    }finally{await client.close();fs.rmSync(mediaRoot,{recursive:true,force:true});}
+    }finally{
+      await client.close();
+      const relative=path.relative(fs.realpathSync(os.tmpdir()),fs.realpathSync(mediaRoot));
+      if(!/^momevia-event-media-qa-/.test(relative)||relative.includes(path.sep)||path.isAbsolute(relative))throw new Error('Refuse unexpected QA media cleanup path');
+      fs.rmSync(mediaRoot,{recursive:true,force:true});
+    }
   } finally {await connection.end();}
 } finally { docker(['stop',name]); }

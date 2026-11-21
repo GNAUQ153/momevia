@@ -1,3 +1,10 @@
+## Unreleased — Designer History i18n & Fabric UI Tokens (2026-11-21)
+
+- Chuẩn hóa 28 khóa VI/EN cho nhãn và lịch sử thao tác Canvas Designer; tên thành phần trong thông báo thêm element lấy từ từ điển nhưng không sửa dữ liệu mẫu đã lưu.
+- Thêm `npm run i18n:audit` để lập danh sách ứng viên chuỗi tiếng Việt trên các trang và Canvas; `npm run check` chặn chuỗi UI tiếng Việt mới trong `designer.js` ngoài sáu giá trị nguồn được giải thích.
+- Chuẩn hóa token focus, biên panel, thời gian tương tác và vùng bấm tối thiểu 44px cho Fabric Quickbar, Inspector và Style Properties; giữ `prefers-reduced-motion`.
+- Thêm 5 bài kiểm thử chuyên biệt và `docs/I18N_AUDIT.md` nêu rõ phần đã kiểm chứng và giới hạn. Không đổi Canvas schema, dữ liệu người dùng, API, database, thanh toán hay quà đã phát hành.
+
 ## Unreleased — Fabric Quickbar & Style Properties i18n (2026-11-21)
 
 - Chuyển nhãn nút, tooltip, `aria-label`, trạng thái và thông báo lỗi của Quickbar/Style Properties sang VI/EN theo cùng giao diện, đổi ngôn ngữ ngay trong Fabric Studio.

@@ -261,7 +261,7 @@ export function mountDesigner(
     if (design.policy?.lockedElements?.[element.id] && (!binding || !design.policy.editableBindings?.includes(binding))) return null;
     return binding
       ? { label: bindingLabels[binding], maxlength: binding === "message" ? 1000 : 60 }
-      : { label: "Chữ trên thiệp", maxlength: LIMITS.text };
+      : { label: t("editor.designer.cardText"), maxlength: LIMITS.text };
   }
 
   function commitInlineText(elementId, value) {
@@ -271,7 +271,7 @@ export function mountDesigner(
         if (!textOptions(element)) return;
         if (element.props.textBinding) document.bindings[element.props.textBinding].value = value;
         else element.props.text = value;
-      }, "Sửa chữ trên thiệp");
+      }, t("editor.history.editCardText"));
     } catch (error) {
       warn(error);
     }
@@ -803,7 +803,7 @@ export function mountDesigner(
       const editPhoto = edit => commit(({ document }) => {
         const slot = document.elements.find(item => item.id === model.id)?.props.photos.find(item => item.id === photo.id);
         if (slot) edit(slot);
-      }, "Chỉnh ô ảnh");
+      }, t("editor.history.editPhotoSlot"));
       fields.push(node("fieldset", { class: "editor-interaction-photo" }, node("legend", {}, label),
         imagePicker(message(photo.assetId ? "editor.interface.replaceNamedPhoto" : "editor.interface.chooseNamedPhoto", {
           name: { format: "message", key: labelKey, params: { index: i + 1 } },
@@ -1034,7 +1034,7 @@ export function mountDesigner(
               commit(({ document }) => {
                 const image = document.elements.find(item => item.id === element.id);
                 if (image?.type === "image") image.props.focalPoint = point;
-              }, "Chỉnh điểm lấy nét");
+              }, t("editor.history.editFocalPoint"));
               renderInspector();
             }),
           }) : null,
@@ -1390,7 +1390,7 @@ export function mountDesigner(
       );
       if (result.asset.status !== "ready")
         throw new Error(t("editor.upload.notReady"));
-      commit(value => assignImage(value, elementId, result.asset.id, slotId), "Thay ảnh");
+      commit(value => assignImage(value, elementId, result.asset.id, slotId), t("editor.history.replacePhoto"));
       if (frameUpload && !quickMode && selection === elementId) {
         const doc = store.get().document;
         const frame = doc.elements.find(element => element.id === elementId);
@@ -1477,7 +1477,7 @@ export function mountDesigner(
       type: "checkbox", value: key, checked: !previous || previous.bindings.includes(key), name: "binding",
     })));
     const photo = select(message("editor.submission.photo"), "template-photo", images.some(image => image.id === previous?.photoId) ? previous.photoId : "",
-      [["", message("editor.interface.none")], ...images.map((image, index) => [image.id, `${image.name || "Ảnh"} (${index + 1})`])]);
+      [["", message("editor.interface.none")], ...images.map((image, index) => [image.id, `${image.name || t("editor.designer.photo")} (${index + 1})`])]);
     const photoSelect = photo.querySelector("select");
     const scenes = snapshot.document.scenes;
     const cover = select(message("editor.submission.cover"), "template-cover",
@@ -1712,7 +1712,7 @@ export function mountDesigner(
         next = index + delta;
       if (next >= 0 && next < list.length)
         [list[index], list[next]] = [list[next], list[index]];
-    }, "Sắp xếp cảnh");
+    }, t("editor.history.reorderScenes"));
   }
   function openSheet(kind, trigger) {
     if (!mobile.matches || quickMode) return;
@@ -1836,7 +1836,7 @@ export function mountDesigner(
             assertInlineFabricRevision(initialSequence, store.sequence, editingScene, sceneId, disposed);
             commit(value => {
               value.document = applyFabricWorkspacePatch(value.document, editingScene, patch, design.policy);
-            }, "Fabric trực tiếp: chỉnh bố cục và layer");
+            }, t("editor.history.fabricInline"));
           },
           onClose: restore,
         });
@@ -1879,7 +1879,7 @@ export function mountDesigner(
               throw new Error(t("editor.error.fabricOutdated"));
             commit(value => {
               value.document = applyFabricWorkspacePatch(value.document, editingScene, patch, design.policy);
-            }, "Fabric Studio: chỉnh lớp và bố cục");
+            }, t("editor.history.fabricDialog"));
           },
           onClose: restore,
         });
@@ -1924,7 +1924,7 @@ export function mountDesigner(
     if (name === "reuse-asset") {
       const assetId = target.dataset.id;
       if (selected()?.type === "image" || isPhotoFrame(selected()) || isPolaroidPlaceholder(selected())) {
-        commit(value => assignImage(value, selection, assetId), "Dùng ảnh đã tải");
+        commit(value => assignImage(value, selection, assetId), t("editor.history.useUploadedPhoto"));
         renderInspector();
       }
       else {
@@ -1937,7 +1937,7 @@ export function mountDesigner(
           value.document.scenes
             .find((item) => item.id === sceneId)
             .elementIds.push(image.id);
-        }, "Thêm ảnh đã tải");
+        }, t("editor.history.addUploadedPhoto"));
         choose(image.id);
       }
       return;
@@ -2048,7 +2048,7 @@ export function mountDesigner(
       const message = store.get().document.bindings.message.value;
       const next = message ? `${message}\n${starter}` : starter;
       if (next.length > 1000) throw new Error(t("editor.error.tooLong"));
-      commit(value => { value.document.bindings.message.value = next; }, "Chèn câu mở đầu");
+      commit(value => { value.document.bindings.message.value = next; }, t("editor.history.insertOpening"));
       const control = main.querySelector('[data-editor-field="binding.message"]');
       control.focus();
       control.setSelectionRange(next.length, next.length);
@@ -2060,7 +2060,7 @@ export function mountDesigner(
         if (photo) { photo.assetId = null; photo.alt = ''; photo.caption = ''; }
         const used = new Set(assetIds(next.document));
         next.document.assets = next.document.assets.filter(a => used.has(a.assetId));
-      }, 'Bỏ ảnh khỏi album');
+      }, t("editor.history.removeAlbumPhoto"));
       return;
     }
     if (name === "remove-frame-photo") {
@@ -2091,7 +2091,7 @@ export function mountDesigner(
         const model = document.elements.find(item => item.id === selection) || document.scenes.find(scene => scene.id === sceneId);
         delete model.effects[target.dataset.family];
         if (!Object.keys(model.effects).length) delete model.effects;
-      }, "Bỏ hiệu ứng");
+      }, t("editor.history.removeEffect"));
       renderInspector();
       return;
     }
@@ -2122,7 +2122,7 @@ export function mountDesigner(
         value.document.scenes
           .find((item) => item.id === scene.id)
           .elementIds.push(...models.map(item => item.id));
-      }, `Chèn ${block.title.toLowerCase()}`);
+      }, t("editor.history.insertBlock", { name: { format: "message", key: `editor.library.item.${block.id}` } }));
       choose(models.at(-1).id);
       if (!insertingGreeting) {
         recentBlocks = addRecent(recentBlocks, block.id, catalog);
@@ -2149,7 +2149,7 @@ export function mountDesigner(
             background: { kind: "solid", color: "#FFF7EE" },
             elementIds: [],
           }),
-        "Thêm cảnh",
+        t("editor.history.addScene"),
       );
       sceneId = nextId;
       choose(null);
@@ -2182,7 +2182,7 @@ export function mountDesigner(
           0,
           copy,
         );
-      }, "Nhân bản cảnh");
+      }, t("editor.history.duplicateScene"));
       sceneId = nextId;
       choose(null);
       renderScenes();
@@ -2195,7 +2195,7 @@ export function mountDesigner(
     if (name === "scene-entry") {
       commit((value) => {
         value.document.entrySceneId = sceneId;
-      }, "Đổi cảnh mở đầu");
+      }, t("editor.history.changeEntryScene"));
       return;
     }
     if (name === "scene-delete") {
@@ -2228,7 +2228,7 @@ export function mountDesigner(
         );
         if (value.document.entrySceneId === sceneId)
           value.document.entrySceneId = value.document.scenes[0].id;
-      }, "Xóa cảnh");
+      }, t("editor.history.deleteScene"));
       selection = null;
       renderAll();
       return;
@@ -2283,7 +2283,7 @@ export function mountDesigner(
               Math.min(item.layout.y, size.height - item.layout.height),
             );
         },
-        name === "center" ? "Căn giữa" : "Đưa vào khung",
+        name === "center" ? t("editor.history.centerLayer") : t("editor.history.fitLayer"),
       );
       renderInspector();
       return;
@@ -2293,7 +2293,7 @@ export function mountDesigner(
         value.document.elements.find(
           (item) => item.id === selection,
         ).props.focalPoint = { x: 0.5, y: 0.5 };
-      }, "Đặt lại crop");
+      }, t("editor.history.resetCrop"));
       renderInspector();
       return;
     }
@@ -2306,7 +2306,7 @@ export function mountDesigner(
           scene.elementIds = scene.elementIds.filter(
             (idValue) => idValue !== selection,
           );
-      }, "Xóa phần tử");
+      }, t("editor.history.deleteElement"));
       selection = null;
       renderInspector();
       return;
@@ -2324,7 +2324,7 @@ export function mountDesigner(
         value.document.scenes
           .find((item) => item.id === sceneId)
           .elementIds.push(nextId);
-      }, "Nhân bản phần tử");
+      }, t("editor.history.duplicateElement"));
       choose(nextId);
       return;
     }
@@ -2337,7 +2337,7 @@ export function mountDesigner(
           next = index + (name === "layer-up" ? 1 : -1);
         if (next >= 0 && next < list.length)
           [list[index], list[next]] = [list[next], list[index]];
-      }, "Sắp xếp lớp");
+      }, t("editor.history.reorderLayers"));
       return;
     }
   }
@@ -2365,7 +2365,7 @@ export function mountDesigner(
         if (key === 'event-photo') commit(next => {
           const album = storyAlbum(next.document), photo = album?.props.photos.find(p => p.id === control.dataset.slot);
           if (photo?.assetId && !photo.alt) photo.alt = t('templates.story.photo', { index: album.props.photos.indexOf(photo) + 1 });
-        }, 'Mô tả ảnh kỷ niệm');
+        }, t("editor.history.describeMemoryPhoto"));
       } finally {
         control.value = "";
       }
@@ -2506,7 +2506,7 @@ export function mountDesigner(
         )
           item.accessibility.label = value;
       },
-      "Chỉnh thuộc tính",
+      t("editor.history.editProperties"),
       {
         merge:
           event.type === "input" || event.type === "compositionend"
@@ -2660,7 +2660,7 @@ export function mountDesigner(
           if (event.key === "ArrowRight") layout.x += step;
           if (event.key === "ArrowUp") layout.y -= step;
           if (event.key === "ArrowDown") layout.y += step;
-        }, "Di chuyển bằng phím");
+        }, t("editor.history.keyboardMove"));
         renderInspector();
       }
     }),

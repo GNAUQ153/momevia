@@ -40,6 +40,11 @@
   --white: #ffffff;
   --success: #167957;
   --error: #ba3053;
+  /* Token điều khiển chung cho Canvas/Creator/Admin: một nguồn cấu hình. */
+  --ui-control-min-height: 44px;
+  --ui-panel-border: #dfd7ec;
+  --ui-focus-ring: #7247c8;
+  --ui-control-ease: 160ms ease;
   --radius-sm: 10px;
   --radius-md: 18px;
   --radius-lg: 26px;

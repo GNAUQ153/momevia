@@ -8,7 +8,7 @@
   },
   "scripts": {
     "build": "node scripts/build/web.mjs",
-    "check": "node scripts/quality/check-source.mjs",
+    "check": "node scripts/quality/check-source.mjs && node scripts/quality/check-ui-i18n.mjs --check",
     "changelog:check": "node scripts/quality/check-changelog.mjs --staged",
     "package": "node scripts/release/package.mjs",
     "verify:package": "node scripts/release/verify.mjs dist/release",
@@ -37,7 +37,8 @@
     "db:verify": "node database/scripts/mysql-verify.mjs",
     "test:database": "node --test tests/unit/mysql-*.test.mjs",
     "db:import:identity-catalog": "node database/scripts/import-identity-catalog.mjs",
-    "db:import:gifts-checkout": "node database/scripts/import-gifts-checkout.mjs"
+    "db:import:gifts-checkout": "node database/scripts/import-gifts-checkout.mjs",
+    "i18n:audit": "node scripts/quality/check-ui-i18n.mjs --report"
   },
   "dependencies": {
     "@payos/node": "2.0.6",

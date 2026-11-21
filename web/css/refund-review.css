@@ -1,0 +1,95 @@
+/* Hồ sơ hoàn tiền nội bộ: responsive, không gán màu xanh cho trạng thái chưa hoàn tiền. */
+.refund-review {
+  margin-block: 2rem;
+  padding: clamp(1rem, 2vw, 1.5rem);
+  border: 1px solid var(--border, #dad8e0);
+  border-radius: 1rem;
+  background: var(--surface, #fff);
+}
+.refund-review__heading {
+  margin-bottom: 1.25rem;
+}
+.refund-review__heading p,
+.refund-review > p {
+  color: var(--muted, #5a5865);
+  line-height: 1.6;
+}
+.refund-review form,
+.refund-review__actions {
+  display: grid;
+  gap: 1rem;
+  max-width: 48rem;
+}
+.refund-review label {
+  display: grid;
+  gap: 0.4rem;
+  font-weight: 600;
+}
+.refund-review select,
+.refund-review textarea {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  border: 1px solid var(--border, #dad8e0);
+  border-radius: 0.7rem;
+  padding: 0.75rem;
+  background: var(--surface, #fff);
+  color: inherit;
+  font: inherit;
+}
+.refund-review :is(select, textarea):focus-visible {
+  outline: 3px solid #9472d2;
+  outline-offset: 2px;
+}
+.refund-review__summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  gap: 0.6rem 1rem;
+  overflow-wrap: anywhere;
+}
+.refund-review__list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 25rem), 1fr));
+  gap: 1rem;
+}
+.refund-review__card {
+  min-width: 0;
+  padding: 1rem;
+  border: 1px solid var(--border, #dad8e0);
+  border-radius: 0.9rem;
+  overflow-wrap: anywhere;
+}
+.refund-review__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+.refund-review__card > p {
+  margin-block: 0.6rem;
+}
+.refund-review__detail {
+  white-space: pre-wrap;
+}
+.refund-review__actions {
+  margin-block: 1rem;
+}
+.refund-review__history {
+  padding-inline-start: 1.5rem;
+}
+.refund-review__history li {
+  margin-block: 0.9rem;
+  overflow-wrap: anywhere;
+}
+.refund-review__history p {
+  white-space: pre-wrap;
+}
+@media (max-width: 600px) {
+  .refund-review__summary {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .refund-review__list {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

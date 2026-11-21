@@ -1,5 +1,6 @@
 import { attr, priceText, text } from "../core/i18n.js";
 import { escapeHtml as e } from '../core/api.js';
+import { refundAdminPanel } from './refund-review.js';
 
 const dateValue = value => value && Number.isFinite(new Date(value).getTime())
   ? { format: 'date', value, options: { dateStyle: 'medium', timeStyle: 'medium' } }
@@ -58,14 +59,14 @@ export function adminFinancePanel(finance) {
   return `<section class="finance-panel" aria-label="${text('finance.admin.title')}">
     <h2>${text('finance.admin.title')}</h2>
     <div class="finance-panel__groups">${['live', 'sandbox'].map(group => {
-      const data = finance.summary[group];
-      return `<article class="finance-panel__group"><h3>${text('finance.group.' + group)}</h3>
+    const data = finance.summary[group];
+    return `<article class="finance-panel__group"><h3>${text('finance.group.' + group)}</h3>
         <p>${text('finance.orders', { count: data.orders })}</p>
         <div class="finance-metric"><span>${text('finance.gross')}</span><strong>${priceText(data.grossVnd)}</strong></div>
         <div class="finance-metric"><span>${text('finance.platform')}</span><strong>${priceText(data.platformFeeVnd)}</strong></div>
         <div class="finance-metric"><span>${text('finance.creatorShare')}</span><strong>${priceText(data.creatorVnd)}</strong></div>
       </article>`;
-    }).join('')}</div>
+  }).join('')}</div>
     ${finance.missingSaleEntries ? `<p role="status">${text('finance.admin.missing', { count: finance.missingSaleEntries })}</p>` : ''}
     <p class="finance-panel__notice" role="note">${text('finance.disclaimer')}</p>
   </section>`;
@@ -91,14 +92,14 @@ export function adminReconciliationPanel(audit) {
         <span>${priceText(Number(row.amountVnd))}</span>
         <span>${text('common.values.date', { date: dateValue(row.createdAt) })}</span></div>
       <ul class="finance-audit__issues">${(Array.isArray(row.issues) ? row.issues : [])
-        .filter(issue => auditIssueKeys.has(issue))
-        .map(issue => `<li>${text('finance.audit.issue.' + issue)}</li>`).join('')}</ul>
+      .filter(issue => auditIssueKeys.has(issue))
+      .map(issue => `<li>${text('finance.audit.issue.' + issue)}</li>`).join('')}</ul>
     </article>`).join('')}</div>` : `<p>${text('finance.audit.empty')}</p>`}
     <p class="finance-panel__notice" role="note">${text('finance.audit.disclaimer')}</p>
   </section>`;
 }
 
-export function adminPaymentsPage(orders = [], { error = null, finance = null, audit = null } = {}) {
+export function adminPaymentsPage(orders = [], { error = null, finance = null, audit = null, refunds = null } = {}) {
   const list = Array.isArray(orders) ? orders : [];
   return `<section class="section admin-payments"><div class="container">
     <p><a href="/admin" data-link>${text("admin.payments.back")}</a></p>
@@ -107,6 +108,7 @@ export function adminPaymentsPage(orders = [], { error = null, finance = null, a
       <button class="btn btn--outline" type="button" data-action="admin-payment-refresh">${text("admin.payments.refresh")}</button></div>
     ${adminFinancePanel(finance)}
     ${adminReconciliationPanel(audit)}
+    ${refundAdminPanel(refunds)}
     <div class="admin-payments__summary"><strong>${error ? '—' : list.length}</strong><span>${text("admin.payments.summary")}</span></div>
     <div class="admin-payments__notice" role="note">${text("admin.payments.notice")}</div>
     ${error ? `<p role="alert">${typeof error === 'string' ? e(error) : text(error.key, error.params)}</p>` : ''}

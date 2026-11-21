@@ -65,7 +65,7 @@ export function checkLocales() {
   const localizedViews = [
     'pages/admin-payments.js', 'pages/admin.js', 'pages/auth.js', 'pages/catalog.js',
     'pages/creator.js', 'pages/home.js', 'pages/payment-status.js', 'pages/policies.js',
-    'pages/pricing.js', 'pages/system.js', 'ui/layout.js', 'ui/recipient-viral.js',
+    'pages/pricing.js', 'pages/refund-review.js', 'pages/system.js', 'ui/layout.js', 'ui/recipient-viral.js',
   ];
   const brands = new Set(['momevia', 'Momevia', 'MoMo', 'payOS / VietQR']);
   const literal = /<(?:h[1-6]|p|button|a|label|span|summary|strong|small|option)\b[^>]*>\s*([^<${>]+?)\s*<\/|\b(?:aria-label|title|placeholder|alt)="([^"${}]+)"/g;

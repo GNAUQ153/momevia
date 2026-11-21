@@ -5,12 +5,13 @@ import { mysqlDate } from '../identity/mysql.repositories.mjs';
 import { canonicalText } from '../../../web/js/shared/locale.js';
 import { FinanceReport } from './finance-report.mjs';
 import { ReconciliationAudit } from './reconciliation-audit.mjs';
+import { RefundReviewRepository } from './refund-review.mjs';
 
 const fromJson = value => typeof value === 'string' ? JSON.parse(value) : (value || {});
 const receiptNo = id => `MV-RC-${id.replace(/-/g, '').toUpperCase()}`;
 
 export class MySqlPaymentRepository {
-  constructor(client = new MySqlClient()) { this.client = client; this.finance = new FinanceReport(client); this.audit = new ReconciliationAudit(client); }
+  constructor(client = new MySqlClient()) { this.client = client; this.finance = new FinanceReport(client); this.audit = new ReconciliationAudit(client); this.refunds = new RefundReviewRepository(client); }
 
   async creatorStatement(creatorId, limit) { return this.finance.creatorStatement(creatorId, limit); }
   async adminFinance() { return this.finance.adminOverview(); }

@@ -7,6 +7,7 @@ const requiredTables = [
   'template_entitlements', 'creator_ledger', 'outbox_events',
   'payment_intents', 'payment_checkout_keys', 'payment_receipts',
   'payment_reconciliation_attempts',
+  'refund_review_requests', 'refund_review_events',
 ];
 
 loadEnvironment();
@@ -28,8 +29,8 @@ try {
   }
   const [migrations] = await client.execute('SELECT version FROM schema_migrations ORDER BY version');
   const versions = migrations.map(row => row.version);
-  if (!versions.includes('009_payment_reconciliation_audit') || !versions.includes('001_initial') || !versions.includes('002_support_user_bridge') || !versions.includes('003_identity_catalog') || !versions.includes('004_gifts_checkout') || !versions.includes('005_payment_receipts')) {
-    throw new Error('Thiếu migration Payment Lifecycle 009 hoặc một trong các migration nền tảng 001–005.');
+  if (!versions.includes('010_refund_review') || !versions.includes('009_payment_reconciliation_audit') || !versions.includes('001_initial') || !versions.includes('002_support_user_bridge') || !versions.includes('003_identity_catalog') || !versions.includes('004_gifts_checkout') || !versions.includes('005_payment_receipts')) {
+    throw new Error('Thiếu migration Refund Review 010 hoặc một trong các migration nền tảng.');
   }
   const [bridge] = await client.execute(`
     SELECT column_name AS name FROM information_schema.columns
@@ -46,7 +47,9 @@ try {
            (SELECT COUNT(*) FROM orders) AS orders_count,
            (SELECT COUNT(*) FROM demo_purchases) AS demo_purchases_count,
            (SELECT COUNT(*) FROM payment_receipts) AS payment_receipts_count,
-           (SELECT COUNT(*) FROM payment_intents) AS payment_intents_count
+           (SELECT COUNT(*) FROM payment_intents) AS payment_intents_count,
+           (SELECT COUNT(*) FROM refund_review_requests) AS refund_requests_count,
+           (SELECT COUNT(*) FROM refund_review_events) AS refund_events_count
   `);
   console.log('PASS — MySQL Schema', versions);
   console.log('Số bản ghi:', counts[0]);

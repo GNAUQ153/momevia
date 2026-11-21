@@ -2,6 +2,7 @@ import { localizedError } from '../../shared/http.mjs';
 import { RateLimiter } from '../../shared/rate-limit.mjs';
 import { createMomoProvider, createPayOsProvider } from './providers.mjs';
 import { canonicalText } from '../../../web/js/shared/locale.js';
+import { RefundReviewService } from './refund-review.mjs';
 
 export function paymentMethods(env = process.env) {
   if (env.PAYMENT_ENABLED !== 'true' || env.CHECKOUT_STORAGE !== 'mysql'
@@ -24,6 +25,7 @@ export function paymentMethods(env = process.env) {
 export class PaymentService {
   constructor({ repository, catalog, checkout, env = process.env, providers = null, reconcileLimiter = null }) {
     Object.assign(this, { repository, catalog, checkout, env, providers });
+    this.refundReview = new RefundReviewService({ repository: repository.refunds, env });
     // One lookup per buyer/order/30 seconds; limits provider API abuse in a single-process deployment.
     this.reconcileLimiter = reconcileLimiter || new RateLimiter({ limit: 1, windowMs: 30_000, maxKeys: 5000 });
     this.ownsReconcileLimiter = !reconcileLimiter;

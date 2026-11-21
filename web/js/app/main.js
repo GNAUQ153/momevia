@@ -26,6 +26,7 @@ import { adminExceptionsCsv, creatorSalesCsv, exportFileName, downloadCsvFile } 
 import { createAuthViews } from "../pages/auth.js";
 import { pricingPage } from '../pages/pricing.js';
 import { paymentMethodText, paymentReceipt, paymentStatusPanel } from "../pages/payment-status.js";
+import { refundBuyerPanel, refundHistoryPanel } from "../pages/refund-review.js";
 import { recipientViralCta } from "../ui/recipient-viral.js";
 import { createSystemViews } from "../pages/system.js";
 
@@ -494,9 +495,19 @@ async function render() {
         } catch (error) {
           contextError = error.message;
         }
+        let refundRequest = null;
+        let refundAvailable = false;
+        if (payment.status === 'paid') {
+          try {
+            const response = await api.get(`/checkout/payments/orders/${encodeURIComponent(id)}/refund-request`);
+            refundRequest = response.request;
+            refundAvailable = true;
+          } catch { /* Không coi lỗi API là danh sách yêu cầu rỗng. */ }
+        }
         if (generation !== renderGeneration) return;
         main.innerHTML = `<section class="section"><div class="container"><div class="success-card">
           ${paymentStatusPanel(payment)}
+          ${refundBuyerPanel(payment, refundRequest, refundAvailable)}
           ${receipt ? paymentReceipt(receipt) : ""}
           ${receiptError ? `<p role="alert">${text('payment.receipt.loadError', { error: receiptError })}</p><button class="btn btn--outline" data-action="refresh-payment">${text('payment.receipt.retry')}</button>` : ""}
           ${resumeContext ? `<p><a class="btn btn--dark" href="${e(checkoutDraftPath(resumeContext))}" data-link>${text('payment.context.resume')}</a></p>${resumeContext.changed ? `<p>${text('payment.context.changed')}</p>` : ''}` : ''}
@@ -568,14 +579,15 @@ async function render() {
         const lifetime = new AbortController();
         routeController = { dispose: () => lifetime.abort() };
         try {
-          const [{ orders }, financeResult, auditResult] = await Promise.all([
+          const [{ orders }, financeResult, auditResult, refundResult] = await Promise.all([
             api.get("/checkout/payments/admin/review?limit=100", { signal: lifetime.signal }),
             api.get("/checkout/payments/admin/finance", { signal: lifetime.signal }).catch(() => null),
             api.get("/checkout/payments/admin/finance/exceptions?limit=50", { signal: lifetime.signal }).catch(() => null),
+            api.get("/checkout/payments/admin/refund-requests?limit=50", { signal: lifetime.signal }).catch(() => null),
           ]);
           if (generation !== renderGeneration) return;
           adminPaymentOrders = Array.isArray(orders) ? orders : [];
-          main.innerHTML = adminPaymentsPage(adminPaymentOrders, { finance: financeResult?.finance || null, audit: auditResult?.audit || null });
+          main.innerHTML = adminPaymentsPage(adminPaymentOrders, { finance: financeResult?.finance || null, audit: auditResult?.audit || null, refunds: refundResult?.requests ?? null });
         } catch (error) {
           if (generation !== renderGeneration || error.name === "AbortError") return;
           adminPaymentOrders = [];
@@ -790,6 +802,31 @@ async function handleAction(action, element) {
     } finally {
       if (element.isConnected) element.disabled = false;
     }
+    return;
+  }
+  if (action === 'admin-refund-move') {
+    if (state.user?.role !== 'admin') return;
+    const card = element.closest('[data-refund-item]');
+    const status = card?.querySelector('[data-refund-next]')?.value;
+    const note = card?.querySelector('[data-refund-note]')?.value.trim() || '';
+    if (!status || note.length < 10) return toast(message('refund.admin.noteRequired'), 'error');
+    element.disabled = true;
+    try {
+      await api.post(`/checkout/payments/admin/refund-requests/${encodeURIComponent(element.dataset.requestId)}/transition`, {
+        expectedStatus: element.dataset.expectedStatus, status, note,
+      });
+      toast(message('refund.admin.updated'));
+      await render();
+    } finally { if (element.isConnected) element.disabled = false; }
+    return;
+  }
+  if (action === 'admin-refund-history') {
+    if (state.user?.role !== 'admin') return;
+    element.disabled = true;
+    try {
+      const { events } = await api.get(`/checkout/payments/admin/refund-requests/${encodeURIComponent(element.dataset.requestId)}/history?limit=50`);
+      if (element.isConnected) openModal(`<h2>${text('refund.admin.history')}</h2>${refundHistoryPanel(events)}`);
+    } finally { if (element.isConnected) element.disabled = false; }
     return;
   }
   if (action === "admin-payment-refresh") return render();
@@ -1311,6 +1348,7 @@ document.addEventListener("submit", async (event) => {
       "creator-template-form",
       "admin-login-form",
       "reject-form",
+      "refund-request-form",
       "support-form",
       "recovery-request-form",
       "recovery-confirm-form",
@@ -1327,7 +1365,14 @@ document.addEventListener("submit", async (event) => {
   if (submit) submit.disabled = true;
   try {
     const data = Object.fromEntries(new FormData(form));
-    if (form.id === "recovery-request-form" || form.id === "recovery-confirm-form") {
+    if (form.id === 'refund-request-form') {
+      await api.post(`/checkout/payments/orders/${encodeURIComponent(form.dataset.orderId)}/refund-request`, {
+        reasonCode: data.reasonCode,
+        detail: String(data.detail || '').trim(),
+      });
+      toast(message('refund.buyer.received'));
+      await render();
+    } else if (form.id === "recovery-request-form" || form.id === "recovery-confirm-form") {
       const verify = form.dataset.verify === "true";
       const requestCode = form.id === "recovery-request-form";
       const result = await api.post(`/auth/${verify ? "verify-email" : "recover"}/${requestCode ? "request" : "confirm"}`, data);

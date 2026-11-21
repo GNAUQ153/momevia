@@ -24,6 +24,29 @@ export function registerPaymentRoutes(router, { service, config, resolveUser = c
     const user = await resolveUser(req, config.jwtSecret);
     sendJson(res, 200, { receipt: await service.receipt(user, params.orderId) });
   });
+  // Yêu cầu hoàn tiền chỉ là hồ sơ rà soát; API không chạm vào provider hoặc ledger.
+  router.on('GET', '/payments/orders/:orderId/refund-request', async ({ req, res, params }) => {
+    const user = await resolveUser(req, config.jwtSecret);
+    sendJson(res, 200, { request: await service.refundReview.buyerGet(user, params.orderId) });
+  });
+  router.on('POST', '/payments/orders/:orderId/refund-request', async ({ req, res, params }) => {
+    const user = await resolveUser(req, config.jwtSecret);
+    const data = await parseJson(req, 2048);
+    sendJson(res, 201, { request: await service.refundReview.buyerCreate(user, params.orderId, data) });
+  });
+  router.on('GET', '/payments/admin/refund-requests', async ({ req, res, url }) => {
+    const admin = await resolveUser(req, config.jwtSecret);
+    sendJson(res, 200, { requests: await service.refundReview.adminList(admin, url.searchParams.get('limit')) });
+  });
+  router.on('GET', '/payments/admin/refund-requests/:requestId/history', async ({ req, res, url, params }) => {
+    const admin = await resolveUser(req, config.jwtSecret);
+    sendJson(res, 200, { events: await service.refundReview.adminHistory(admin, params.requestId, url.searchParams.get('limit')) });
+  });
+  router.on('POST', '/payments/admin/refund-requests/:requestId/transition', async ({ req, res, params }) => {
+    const admin = await resolveUser(req, config.jwtSecret);
+    const data = await parseJson(req, 2048);
+    sendJson(res, 200, { request: await service.refundReview.adminMove(admin, params.requestId, data) });
+  });
   // Báo cáo chỉ đọc. Không nhận role/creatorId do client tự khai.
   router.on('GET', '/payments/creator/statement', async ({ req, res, url }) => {
     const creator = await resolveUser(req, config.jwtSecret);

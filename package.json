@@ -40,7 +40,8 @@
     "db:import:identity-catalog": "node database/scripts/import-identity-catalog.mjs",
     "db:import:gifts-checkout": "node database/scripts/import-gifts-checkout.mjs",
     "i18n:audit": "node scripts/quality/check-ui-i18n.mjs --report",
-    "perf:marketing": "node scripts/quality/measure-marketing.mjs"
+    "perf:marketing": "node scripts/quality/measure-marketing.mjs",
+    "perf:marketing:compare": "node scripts/quality/compare-marketing.mjs"
   },
   "dependencies": {
     "@payos/node": "2.0.6",

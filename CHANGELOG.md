@@ -1,3 +1,10 @@
+## Unreleased — Marketing lab đo lặp và so sánh before/after (2026-11-22)
+
+- Nâng `npm run perf:marketing` từ một lượt sang ba lượt cho từng tổ hợp viewport/VI/EN, có thể cấu hình 1–5 lượt bằng `MOMEVIA_PERF_RUNS`.
+- Ghi báo cáo v2 gồm mẫu gốc, median/p75, số lỗi JavaScript và số lượt tràn ngang; không biến LCP/FCP thiếu thành 0.
+- Thêm thẻ báo cáo `MOMEVIA_PERF_TAG` và lệnh `npm run perf:marketing:compare` để đối chiếu trước/sau cùng cấu hình, không gửi dữ liệu người dùng hoặc số liệu ra ngoài.
+- Bổ sung unit test thống kê, xử lý dữ liệu thiếu và so sánh; không thay đổi frontend production/API/Canvas/database/payment. Các số đo vẫn là lab, không thay thế Core Web Vitals thực tế.
+
 ## Unreleased — Fix browser test for desktop navigation breakpoint (2026-11-22)
 
 - Sua race condition trong `tests/browser/home.mjs`: sau khi doi viewport tu 1024px sang 1200px, Playwright cho menu `hidden` trong DOM va `aria-expanded=false`, khong chi cho CSS an menu.

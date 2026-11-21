@@ -28,6 +28,15 @@ test('Animation môi trường chỉ chạy khi Hero hoạt động và tự t�
 test('Công cụ lab chỉ đo máy local, không gửi số liệu ra dịch vụ ngoài', () => {
   const src = read('../../scripts/quality/measure-marketing.mjs');
   assert.match(src, /\['127\.0\.0\.1', 'localhost', '\[::1\]'\]/);
-  assert.match(src, /dist\/reports\/marketing-lab\.json/);
+  assert.match(src, /dist\/reports\/marketing-lab/);
+  assert.match(src, /MOMEVIA_PERF_TAG/);
   assert.doesNotMatch(src, /sendBeacon\(|analytics\.google|fetch\(/);
+});
+
+
+test('Công cụ đo có lặp mẫu VI/EN và sinh bảng tổng hợp, không chỉ một số đo', () => {
+  const src = read('../../scripts/quality/measure-marketing.mjs');
+  assert.match(src, /MOMEVIA_PERF_RUNS/);
+  assert.match(src, /summarizeMarketingSamples\(result\.samples\)/);
+  assert.match(src, /const browser = await chromium\.launch/);
 });

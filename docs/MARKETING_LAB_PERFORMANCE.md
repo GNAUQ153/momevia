@@ -1,3 +1,20 @@
+## Bổ sung: đo lặp và so sánh before/after (22/11/2026)
+
+Mỗi tổ hợp ngôn ngữ (VI/EN) và viewport (390/1024/1440px) mặc định đo **3 lượt** trong context trình duyệt mới. Báo cáo phiên bản 2 gồm các mẫu gốc và bảng **median/p75** để tránh ra quyết định từ một lần chạy nhiễu. `p75` được nội suy tuyến tính trên các giá trị hợp lệ, không tự đổi dữ liệu thiếu thành 0.
+
+Ví dụ với Git Bash, sau khi đã chạy `npm run dev` ở Terminal khác:
+
+```bash
+MOMEVIA_PERF_TAG=before MOMEVIA_PERF_RUNS=3 npm run perf:marketing
+# Sửa source và kiểm tra lại bằng cùng máy/cùng browser, trong điều kiện tương đương.
+MOMEVIA_PERF_TAG=after MOMEVIA_PERF_RUNS=3 npm run perf:marketing
+npm run perf:marketing:compare -- dist/reports/marketing-lab-before.json dist/reports/marketing-lab-after.json
+```
+
+`MOMEVIA_PERF_RUNS` chấp nhận 1–5, mặc định 3. `MOMEVIA_PERF_TAG` chỉ chấp nhận a-z, 0-9, `_` và `-` để tránh ghi file ra ngoài thư mục `dist/reports`. Nếu không có tag, file vẫn là `dist/reports/marketing-lab.json` để tương thích với công cụ cũ.
+
+Khi so sánh, số dương là thời gian/CLS tăng (có thể xấu đi), số âm là giảm (có thể tốt hơn). Không đưa phép so sánh lab thành CI performance gate vì số đo còn biến động theo máy, tải ảnh, cache và môi trường. Browser regression hiện tại vẫn chặn JavaScript exception và tràn ngang.
+
 # Marketing Hero — Quản lý hiệu ứng nền và đo hiệu năng local
 
 ## Phạm vi (22/11/2026)

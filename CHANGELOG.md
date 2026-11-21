@@ -1,3 +1,10 @@
+## Unreleased — Header responsive dễ đọc trên laptop (2026-11-21)
+
+- Ở 901–1150px, chuyển các link dài của header sang menu thu gọn có chữ 15px thay cho ép liên kết 12px; giữ viewport không tràn ngang, gồm trường hợp 1024px.
+- Bổ sung navigation landmark có nhãn i18n, focus-visible và 48px vùng chạm; có chuyển động mở ngắn, tắt khi người dùng chọn giảm chuyển động.
+- Tự đóng menu khi cửa sổ trở lại desktop rộng, bảo toàn trạng thái `aria-expanded` và focus hợp lệ.
+- Bổ sung browser regression cho hai ngôn ngữ, mở/đóng bằng Escape, typography và resize. Không chỉnh API, dữ liệu quà, Canvas, thanh toán.
+
 ## Unreleased — Fix brand navigation overflow (2026-11-21)
 
 - Sửa xung đột độ ưu tiên CSS của menu laptop 901–1150px: giữ cỡ chữ responsive 12px thay vì bị `brand-system.css` đặt lại thành 14px.

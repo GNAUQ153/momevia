@@ -46,6 +46,28 @@ export async function runHomeBrowser(base) {
           if (width <= 680) assert(previewBox.y + previewBox.height <= frame.y, `${width}: mobile actions precede the artwork`);
           else assert(headingBox.x + headingBox.width < frame.x, `${width}: artwork and heading have distinct columns`);
           assert.equal(await page.evaluate(() => globalThis.document.documentElement.scrollWidth), width);
+          if (width === 1024) {
+            const toggle = page.locator('#site-header [data-action="toggle-menu"]');
+            const compactMenu = page.locator('#mobile-nav');
+            assert.equal(await page.locator('#site-header .nav-links').isVisible(), false, 'desktop links collapse at 1024px');
+            assert.equal(await toggle.isVisible(), true, 'compact menu button is visible');
+            await toggle.click();
+            await compactMenu.waitFor({ state: 'visible' });
+            assert.equal(await toggle.getAttribute('aria-expanded'), 'true');
+            assert.equal(await compactMenu.locator('a[href="/about"]').isVisible(), true);
+            const compactFontSize = await compactMenu.locator('a[href="/about"]').evaluate(node => parseFloat(node.ownerDocument.defaultView.getComputedStyle(node).fontSize));
+            assert(compactFontSize >= 14, 'compact navigation text stays readable');
+            await toggle.press('Escape');
+            await compactMenu.waitFor({ state: 'hidden' });
+            assert.equal(await toggle.getAttribute('aria-expanded'), 'false');
+            await toggle.click();
+            await compactMenu.waitFor({ state: 'visible' });
+            await page.setViewportSize({ width: 1200, height });
+            await compactMenu.waitFor({ state: 'hidden' });
+            assert.equal(await toggle.getAttribute('aria-expanded'), 'false', 'menu closes when desktop nav returns');
+            await page.setViewportSize({ width, height });
+          }
+
           assert.equal(await cover.evaluate(node => globalThis.getComputedStyle(node).animationName), 'none');
           const cards = page.locator('#home-featured-gifts .template-card');
           await cards.first().waitFor();

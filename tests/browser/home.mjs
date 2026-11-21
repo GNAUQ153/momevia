@@ -63,6 +63,13 @@ export async function runHomeBrowser(base) {
             await toggle.click();
             await compactMenu.waitFor({ state: 'visible' });
             await page.setViewportSize({ width: 1200, height });
+            // CSS co the an menu truoc khi listener matchMedia cap nhat aria-expanded.
+            // Cho ca hidden DOM va ARIA; van fail neu ung dung khong dong menu.
+            await page.waitForFunction(() => {
+              const nav = globalThis.document.getElementById('mobile-nav');
+              const button = globalThis.document.querySelector('#site-header [data-action="toggle-menu"]');
+              return nav?.hidden === true && button?.getAttribute('aria-expanded') === 'false';
+            }, null, { timeout: 5000 });
             await compactMenu.waitFor({ state: 'hidden' });
             assert.equal(await toggle.getAttribute('aria-expanded'), 'false', 'menu closes when desktop nav returns');
             await page.setViewportSize({ width, height });

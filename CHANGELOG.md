@@ -1,3 +1,9 @@
+## Unreleased — Fix browser test for desktop navigation breakpoint (2026-11-22)
+
+- Sua race condition trong `tests/browser/home.mjs`: sau khi doi viewport tu 1024px sang 1200px, Playwright cho menu `hidden` trong DOM va `aria-expanded=false`, khong chi cho CSS an menu.
+- Giu nguyen assertion va timeout 5 giay: neu listener `matchMedia` khong dong menu, bai kiem thu van fail. Khong thay doi giao dien, JavaScript production, API, Canvas hoac thanh toan.
+- CI run 44931895318 da PASS build, check, npm audit, 509 unit tests; browser regression fail tai dong 67. Can chay lai CI tren GitHub.
+
 ## Unreleased — Marketing ambient visibility & local performance lab (2026-11-22)
 
 - Đồng bộ hai quầng sáng CSS với trạng thái Hero: dừng khi người dùng pause, preview mở, hero ngoài viewport hoặc tab ẩn; tiếp tục khi tương tác trở lại. Không sửa mẫu thiệp hoặc logic chuyển cảnh.

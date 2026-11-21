@@ -81,6 +81,11 @@ export async function runHeroTemplatesBrowser(browser, base) {
       assert(note.x < frame.x && note.x + note.width > frame.x, 'Left note straddles the frame');
       assert(reply.x < frame.x + frame.width && reply.x + reply.width > frame.x + frame.width, 'Right note straddles the frame');
       assert.equal(await page.locator('.mkt-stage__cards .mkt-stage__note, .mkt-stage__cards .mkt-stage__reply').count(), 0, 'Notes remain outside the card clipping layer');
+      assert(await page.locator('.mkt-stage').evaluate(node => {
+        const layer = Number(globalThis.getComputedStyle(node.querySelector('.mkt-stage__cards')).zIndex);
+        return [...node.querySelectorAll('.mkt-stage__note, .mkt-stage__reply')].every(note =>
+          Number(globalThis.getComputedStyle(note).zIndex) > layer && note.getAnimations().length === 0);
+      }), 'Notes stay in front of the card and remain still with reduced motion');
       const controls = await page.locator('.mkt-hero__rotation').boundingBox();
       assert(controls.y >= frame.y + frame.height, 'The three indicators sit below the artwork');
       assert.equal(await page.locator('[data-hero-playback]').count(), 0, 'There is no pause button');
@@ -118,6 +123,16 @@ export async function runHeroTemplatesBrowser(browser, base) {
     await waitForTemplate(page, ids[0]);
     await page.locator('[data-hero-image]').evaluateAll(images => Promise.all(images.map(image => image.decode())));
     await page.locator('[data-peeking]').waitFor({ state: 'attached' });
+    const noteMotion = await page.locator('.mkt-stage__note, .mkt-stage__reply').evaluateAll(notes => notes.map(note => {
+      const animation = note.getAnimations()[0];
+      animation.pause(); animation.currentTime = 2500;
+      const rest = note.getBoundingClientRect();
+      animation.currentTime = 4000;
+      const moving = note.getBoundingClientRect();
+      return { duration: animation.effect.getTiming().duration, dx: moving.x - rest.x, dy: moving.y - rest.y };
+    }));
+    assert.equal(noteMotion.length, 2);
+    assert(noteMotion.every(note => note.duration === 5000 && Math.abs(note.dx) > 0.1 && Math.abs(note.dx) < 8 && Math.abs(note.dy) < 8), 'Both notes move gently within the same five-second cycle');
     const transition = await page.locator('[data-hero-image]').first().evaluate(node => {
       const style = globalThis.getComputedStyle(node);
       return { properties: style.transitionProperty.split(', '), duration: parseFloat(style.transitionDuration) };
@@ -157,6 +172,7 @@ export async function runHeroTemplatesBrowser(browser, base) {
     await dialog.locator('[data-runtime-element="event-photo-birthday"]').waitFor();
     assert.equal((await progressState(page)).state, 'paused', 'Preview pauses the same progress clock');
     assert.equal(await page.locator('[data-peeking]').evaluate(node => node.getAnimations()[0].playState), 'paused', 'Preview also pauses the teaser');
+    assert(await page.locator('.mkt-stage__note, .mkt-stage__reply').evaluateAll(notes => notes.every(note => note.getAnimations()[0]?.playState === 'paused')), 'Preview pauses both floating notes');
     assert.equal(await active(page), ids[1], 'Open player freezes its corresponding cover');
     await page.keyboard.press('Escape');
     await dialog.waitFor({ state: 'hidden' });
@@ -164,6 +180,7 @@ export async function runHeroTemplatesBrowser(browser, base) {
     await cover.evaluate(node => node.blur());
     await page.mouse.move(0, 0);
     await page.waitForFunction(() => globalThis.document.querySelector('[aria-pressed="true"] [data-hero-progress]')?.getAnimations()[0]?.playState === 'running');
+    assert(await page.locator('.mkt-stage__note, .mkt-stage__reply').evaluateAll(notes => notes.every(note => note.getAnimations()[0]?.playState === 'running')), 'Closing preview resumes the notes');
     await finishProgress(page, ids[2]);
     await cover.hover();
     await finishProgress(page, ids[0]);
@@ -192,6 +209,7 @@ export async function runHeroTemplatesBrowser(browser, base) {
     await page.waitForFunction(() => [...globalThis.document.querySelectorAll('[data-hero-progress]')].every(node => node.getAnimations().length === 0));
     assert.equal(await page.locator('[data-hero-progress]').evaluateAll(nodes => nodes.flatMap(node => node.getAnimations()).length), 0);
     assert.equal(await page.locator('[data-peeking]').count(), 0, 'Reduced motion removes the teaser');
+    assert.equal(await page.locator('.mkt-stage__note, .mkt-stage__reply').evaluateAll(notes => notes.flatMap(note => note.getAnimations()).length), 0, 'Reduced motion removes note motion');
     assert.equal(await active(page), ids[2], 'Reduced motion keeps the selected cover');
     await page.locator('[data-hero-select="0"]').click();
     await waitForTemplate(page, ids[0]);

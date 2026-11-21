@@ -1,3 +1,9 @@
+## Unreleased — Note chuyển động theo nhịp thiệp (2026-11-21)
+
+- Hai note nghiêng tối đa 1 độ và dịch nhẹ 2–4px theo đồng hồ 5 giây của thiệp, dừng/tiếp tục cùng preview và hỗ trợ giảm chuyển động.
+- Giữ note vắt qua viền và nổi phía trước thiệp chính theo lựa chọn cuối; không thay đổi vị trí nghỉ, lớp cắt thiệp hoặc thanh chọn mẫu.
+- Build, check, 459 unit tests và test:browser đạt; browser kiểm chứng độ dịch nhỏ, chu kỳ chung 5 giây, pause/resume, lớp hiển thị phía trước và chế độ giảm chuyển động.
+
 ## Unreleased — Giữ note ngoài khung, chỉ cắt thiệp (2026-11-21)
 
 - Tách lớp cắt viền dành riêng cho các thiệp; hai note trở lại vị trí vắt qua mép khung. Trên điện thoại chỉ nhô nhẹ để chữ vẫn nằm trong màn hình.

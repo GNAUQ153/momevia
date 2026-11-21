@@ -10,11 +10,33 @@ export function mountHeroTemplates(host, templates) {
   const cover = root.querySelector('.mkt-hero__cover');
   const images = [...cover.querySelectorAll('[data-hero-image]')];
   const selectors = [...root.querySelectorAll('[data-hero-select]')];
+  const notes = [...root.querySelectorAll('.mkt-stage__note, .mkt-stage__reply')];
   const dialog = root.querySelector('.template-preview-dialog');
   const reduce = matchMedia('(prefers-reduced-motion: reduce)');
   const lifetime = new AbortController();
   const options = { signal: lifetime.signal };
   let index = 0, progress, peek, peekImage, generation = 0, visible = true;
+  let noteMotions = [], noteStarts;
+
+  function moveNotes(clock) {
+    const easing = getComputedStyle(root).getPropertyValue('--ease-in-out').trim();
+    noteMotions = notes.map((note, position) => {
+      const rest = getComputedStyle(note).transform;
+      const direction = position === 0 ? -1 : 1;
+      const outward = `translate3d(${direction * 4}px, ${direction * 2}px, 0) rotate(${direction}deg) ${rest}`;
+      const motion = note.animate([
+        { offset: 0, transform: noteStarts?.[position] || rest, easing },
+        { offset: 0.1, transform: outward, easing },
+        { offset: 0.24, transform: rest },
+        { offset: 0.6, transform: rest, easing },
+        { offset: 1, transform: outward },
+      ], { duration, easing: 'linear', fill: 'forwards' });
+      motion.currentTime = Number(clock.currentTime) || 0;
+      if (clock.startTime !== null) motion.startTime = clock.startTime;
+      return motion;
+    });
+    noteStarts = null;
+  }
 
   function preparePeek(clock) {
     const image = images[(index + 1) % templates.length];
@@ -52,6 +74,7 @@ export function mountHeroTemplates(host, templates) {
     if (!canRotate()) {
       progress?.pause();
       peek?.pause();
+      noteMotions.forEach(motion => motion.pause());
       if (reduce.matches) resetProgress();
       return;
     }
@@ -68,15 +91,23 @@ export function mountHeroTemplates(host, templates) {
         if (progress === animation && canRotate()) void select((index + 1) % templates.length, true);
       };
       preparePeek(animation);
+      moveNotes(animation);
     } else if (progress.playState === 'paused') {
       progress.play();
       if (peek) {
         peek.currentTime = Number(progress.currentTime) || 0;
         peek.play();
       }
+      noteMotions.forEach(motion => {
+        motion.currentTime = Number(progress.currentTime) || 0;
+        motion.play();
+      });
     }
   }
-  function resetProgress() {
+  function resetProgress(keepNotePose = false) {
+    noteStarts = keepNotePose ? notes.map(note => getComputedStyle(note).transform) : null;
+    noteMotions.forEach(motion => motion.cancel());
+    noteMotions = [];
     progress?.cancel();
     progress = null;
     clearPeek();
@@ -93,14 +124,16 @@ export function mountHeroTemplates(host, templates) {
     // At the boundary, sample the teaser at the clock's exact endpoint rather
     // than the compositor's previous frame (especially with a blur layer).
     if (automatic && peek) peek.currentTime = duration;
+    if (automatic) noteMotions.forEach(motion => { motion.currentTime = duration; });
     progress?.pause();
     peek?.pause();
+    noteMotions.forEach(motion => motion.pause());
     const request = ++generation;
     try {
       await images[next].decode();
       if (request !== generation || lifetime.signal.aborted || (automatic && !canRotate())) return;
       const held = clearPeek(next !== index && images[next] === peekImage);
-      resetProgress();
+      resetProgress(true);
       if (next !== index) images.forEach((image, position) => image.toggleAttribute('data-exiting', position === index));
       index = next;
       update();

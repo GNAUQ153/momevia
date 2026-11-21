@@ -138,8 +138,11 @@ async function checkRecipientDependencies(browser, base, canvasGift, legacyGift,
 
     await page.goto(base + `/g/${legacyGift.slug}`);
     await page.getByRole('heading', { name: legacyGift.recipientName, exact: true }).waitFor();
+    assert.equal(await page.locator('[data-recipient-stage="sealed"]').getAttribute('aria-current'), 'step');
     await page.locator('[data-action="open-gift"]').click();
+    assert.equal(await page.locator('[data-recipient-stage="surprise"]').getAttribute('aria-current'), 'step');
     await page.locator('[data-action="reveal-gift"]').click();
+    assert.equal(await page.locator('[data-recipient-stage="opened"]').getAttribute('aria-current'), 'step');
     await page.getByText(legacyGift.message, { exact: true }).waitFor();
     const legacyCta = page.getByRole('link', { name: /Tạo thiệp của riêng bạn/ });
     await legacyCta.waitFor();

@@ -2,6 +2,8 @@ import { attr, localeControl, text } from "../core/i18n.js";
 import { api, escapeHtml as e } from "../core/api.js";
 import { icon } from "../ui/icons.js";
 import { recipientViralCta } from "../ui/recipient-viral.js";
+import { recipientJourneyMarkup } from "../features/gifts/recipient-journey.js";
+import { roleQuickLinks } from "../ui/role-workspace.js";
 import { giftLinkDescriptionKeys } from "../shared/gift-permissions.js";
 
 export function createGiftViews({
@@ -73,6 +75,14 @@ export function createGiftViews({
     };
     return `<section class="success-section"><div class="container"><div class="success-card"><span class="success-emblem">${icon("check", 35)}</span>
       <h1>${text("gift.share.ready")}</h1>
+      <div class="sender-share-guide" role="group" ${attr('aria-label', 'gift.share.guide.label')}>
+        <ol>
+          <li><span aria-hidden="true">01</span><strong>${text('gift.share.guide.preview')}</strong></li>
+          <li><span aria-hidden="true">02</span><strong>${text('gift.share.guide.copy')}</strong></li>
+          <li><span aria-hidden="true">03</span><strong>${text('gift.share.guide.send')}</strong></li>
+        </ol>
+        <p>${text('gift.share.guide.hint')}</p>
+      </div>
       ${shareLink(primaryUrl, primaryInvited, true)}
       ${gift.inviteUrl ? shareLink(primaryInvited ? gift.url : gift.inviteUrl, !primaryInvited, false) : ''}
       ${gift.inviteUrl ? `<div class="success-foot">${icon("lock", 15)} ${text("gift.share.inviteNotice")}</div>` : ''}
@@ -83,6 +93,7 @@ export function createGiftViews({
     const permissions = gift.replyPermissions;
     return `<section class="recipient-page recipient-page--${e(gift.theme)}"><div class="recipient-backdrop recipient-backdrop--one"></div><div class="recipient-backdrop recipient-backdrop--two"></div>
       <div class="recipient-wrapper"><div class="recipient-preferences">${localeControl()}</div><div class="gift-topline"><span>${icon("sparkles", 17)} ${text("gift.legacy.eyebrow")}</span><span>${icon("lock", 14)} ${text("gift.legacy.private")}</span></div>
+        ${recipientJourneyMarkup()}
         <div class="recipient-card" id="recipient-card">
           <div class="recipient-sealed"><span class="recipient-sealed__subtitle">${text("gift.legacy.dedicated")}</span><h1>${e(gift.recipientName)}</h1><div class="envelope-scene"><span class="envelope-scene__letter"></span><span class="envelope-scene__body"></span><span class="envelope-scene__flap"></span><span class="envelope-scene__seal">${icon("heart", 24)}</span></div>
             <p>${text("gift.legacy.surprise")}</p><button class="btn btn--gift" data-action="open-gift">${text("gift.legacy.open")} ${icon("arrow", 18)}</button></div>
@@ -126,10 +137,15 @@ export function createGiftViews({
   function dashboard() {
     return `<section class="page-banner page-banner--dashboard"><div class="container"><h1>${text('studio.greeting')} <em>${e(state.user.name)}.</em></h1>
       ${state.providers?.recoveryEmail && state.user.provider === "email" && !state.user.emailVerified ? `<a href="/verify-email" data-link>${text("studio.verify")}</a>` : ''}</div></section>
-    <section class="section dashboard-section"><div class="container">
-      <section><div class="dashboard-heading"><h2>${text("studio.drafts.title")}</h2>${buttonLink("/design/new", text("studio.drafts.create"))}</div><div id="studio-drafts-section"></div></section>
-      <section><div class="dashboard-heading"><div><h2>${text("studio.gifts.title")}</h2></div><div class="dashboard-heading__actions"><a class="btn btn--outline" href="/favorites" data-link>${icon("heart", 17)} ${text('studio.gifts.favorites', { count: state.favorites.size })}</a>${buttonLink("/explore", text("studio.gifts.useTemplate"))}</div></div><div id="studio-gifts-section"></div></section>
-      <section><div class="dashboard-heading"><h2>${text("studio.orders.title")}</h2></div><div id="studio-orders-section"></div></section>
+    <section class="section dashboard-section role-workspace role-workspace--sender"><div class="container">
+      <div class="role-workspace__navigation-wrap">${roleQuickLinks([
+        { href: '#sender-drafts', labelKey: 'role.sender.draftsLink', iconName: 'pencil' },
+        { href: '#sender-gifts', labelKey: 'role.sender.giftsLink', iconName: 'gift' },
+        { href: '#sender-orders', labelKey: 'role.sender.ordersLink', iconName: 'layers' },
+      ])}</div>
+      <section class="role-workspace__section" id="sender-drafts" aria-labelledby="sender-drafts-heading"><div class="dashboard-heading"><h2 id="sender-drafts-heading">${text("studio.drafts.title")}</h2>${buttonLink("/design/new", text("studio.drafts.create"))}</div><div id="studio-drafts-section"></div></section>
+      <section class="role-workspace__section" id="sender-gifts" aria-labelledby="sender-gifts-heading"><div class="dashboard-heading"><div><h2 id="sender-gifts-heading">${text("studio.gifts.title")}</h2></div><div class="dashboard-heading__actions"><a class="btn btn--outline" href="/favorites" data-link>${icon("heart", 17)} ${text('studio.gifts.favorites', { count: state.favorites.size })}</a>${buttonLink("/explore", text("studio.gifts.useTemplate"))}</div></div><div id="studio-gifts-section"></div></section>
+      <section class="role-workspace__section" id="sender-orders" aria-labelledby="sender-orders-heading"><div class="dashboard-heading"><h2 id="sender-orders-heading">${text("studio.orders.title")}</h2></div><div id="studio-orders-section"></div></section>
     </div></section>`;
   }
   function studioDrafts({ designs, nextOffset }) {

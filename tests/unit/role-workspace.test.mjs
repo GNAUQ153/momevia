@@ -56,7 +56,7 @@ test('Role metric rejects invalid counts and never displays them as real totals'
 });
 
 test('Role-workspace dictionary has English labels and preserves matching keys', () => {
-  assert.equal(roleKeys.length, 14);
+  assert.equal(roleKeys.length, 17);
   for (const key of roleKeys) {
     assert.equal(typeof vi[key], 'string', key);
     assert.equal(typeof en[key], 'string', key);

@@ -1,3 +1,11 @@
+## Unreleased — Sender Sharing & Recipient Journey UX (2026-11-21)
+
+- Dashboard Sender có điều hướng nhanh tới bản nháp, quà và đơn hàng, tái sử dụng `roleQuickLinks` và ngữ nghĩa khu vực thống nhất với Admin/Creator.
+- Trang chia sẻ của Sender có hướng dẫn 3 bước, nhấn mạnh liên kết lời mời khi quà giới hạn truy cập; vẫn dùng quyền và URL từ API hiện có.
+- Trình xem thiệp legacy bổ sung tiến trình mở 3 bước, cập nhật ARIA và focus bằng module `recipient-journey.js`; không đổi Canvas JSON, quyền truy cập, nội dung lời chúc hoặc cơ chế gửi phản hồi.
+- Bổ sung nhãn VI/EN, giao diện responsive, hiệu ứng nhẹ có `prefers-reduced-motion` và kiểm thử cho luồng mở quà.
+- Không thay đổi API, database, thanh toán; Canvas public player mới không bị sửa trong đợt này.
+
 ## Unreleased — Creator review feedback visibility & CI regression (2026-11-21)
 
 - Hiển thị phản hồi yêu cầu sửa mẫu của Admin ở khu vực thông báo độc lập trên trang Creator, liên kết tới danh sách mẫu; chỉ lấy phiên bản mới nhất để tránh hiển thị yêu cầu đã xử lý.

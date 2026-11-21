@@ -242,3 +242,11 @@
 - Thêm unit tests cho CredentialsService và smoke test đăng ký API.
 
 **Chưa có:** xác minh email, quên mật khẩu, CAPTCHA, giới hạn login, liên kết tài khoản OAuth/email, backend database production, kiểm thử trình duyệt đầy đủ.
+
+## 2026-11-21 — Finance CSV exports (Beta, read-only)
+
+- Creator: xuất tối đa 100 giao dịch sale đã xác nhận gần nhất; dùng lại endpoint kiểm tra quyền hiện có.
+- Admin: xuất tối đa 100 đơn ngoại lệ đối soát gần nhất, giữ nguyên mã lỗi và phân tách live/sandbox.
+- CSV chỉ bao gồm cột cho phép, escape dấu nháy kép và phòng tránh CSV formula injection; không có tên, email, token hay reference nhà cung cấp.
+- Không thay đổi schema, thanh toán, webhook, ledger, hoàn tiền hoặc chi trả Creator.
+- Unit tests bổ sung cho phân quyền nguồn API, định dạng dữ liệu, UI hiển thị nút và lọc dữ liệu nhạy cảm.

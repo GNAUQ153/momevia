@@ -1,0 +1,138 @@
+/* Báo cáo tài chính chỉ đọc: tách khỏi CSS marketing và quản lý template. */
+.finance-panel {
+  padding-top: clamp(1.5rem, 3vw, 3rem);
+  padding-bottom: clamp(1.5rem, 3vw, 3rem);
+}
+.finance-panel__heading,
+.finance-audit__heading {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.25rem;
+  margin-bottom: 1.25rem;
+}
+.finance-panel__heading .btn,
+.finance-audit__heading .btn {
+  flex-shrink: 0;
+}
+.finance-panel__groups {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-block: 1rem;
+}
+.finance-panel__group {
+  padding: clamp(1rem, 2vw, 1.5rem);
+  border: 1px solid var(--border, #dad8e0);
+  border-radius: 1rem;
+  background: var(--surface, #fff);
+  min-width: 0;
+}
+.finance-panel__group h3 {
+  margin-bottom: 0.6rem;
+}
+.finance-metric {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding-block: 0.5rem;
+  border-bottom: 1px solid var(--border, #dad8e0);
+}
+.finance-metric strong {
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.finance-panel__notice {
+  font-size: 0.875rem;
+  opacity: 0.86;
+  max-width: 72ch;
+}
+@media (max-width: 640px) {
+  .finance-panel__groups {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Đối soát ngoại lệ: chỉ đọc; không có nút thao tác tài chính. */
+.finance-audit {
+  margin-block: 2rem;
+}
+.finance-audit__limit {
+  color: var(--muted, #5a5865);
+  font-size: 0.9rem;
+}
+.finance-audit__list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+  gap: 1rem;
+}
+.finance-audit__item {
+  border: 1px solid var(--border, #dad8e0);
+  background: var(--surface, #fff);
+  border-radius: 1rem;
+  padding: 1rem;
+  overflow-wrap: anywhere;
+}
+.finance-audit__top,
+.finance-audit__meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.4rem 1rem;
+}
+.finance-audit__meta {
+  font-size: 0.9rem;
+  margin-block: 0.5rem 0.8rem;
+}
+.finance-audit__issues {
+  padding-inline-start: 1.25rem;
+  margin-block: 0.4rem;
+}
+.finance-audit__issues li {
+  margin-block: 0.25rem;
+}
+.finance-recent {
+  margin-block: 1.5rem;
+}
+.finance-recent__list {
+  display: grid;
+  gap: 0.75rem;
+}
+.finance-recent__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--border, #dad8e0);
+  border-radius: 0.9rem;
+  background: var(--surface, #fff);
+  overflow-wrap: anywhere;
+}
+.finance-recent__row p {
+  margin-block: 0.3rem 0;
+  font-size: 0.85rem;
+}
+.finance-recent__amount {
+  display: grid;
+  justify-items: end;
+  gap: 0.3rem;
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+.finance-recent__amount span {
+  font-size: 0.8rem;
+}
+@media (max-width: 640px) {
+  .finance-recent__row {
+    align-items: start;
+    flex-direction: column;
+  }
+  .finance-recent__amount {
+    justify-items: start;
+    text-align: start;
+  }
+}

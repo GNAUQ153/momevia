@@ -22,6 +22,7 @@ import { mountStudioSpace } from "../features/studio/studio-space.js";
 import { createCreatorViews } from "../pages/creator.js";
 import { createAdminViews } from "../pages/admin.js";
 import { adminPaymentsPage, paymentReviewRows, paymentAuditRows, filterPendingReviews } from "../pages/admin-payments.js";
+import { adminExceptionsCsv, creatorSalesCsv, exportFileName, downloadCsvFile } from "../features/finance/export-csv.js";
 import { createAuthViews } from "../pages/auth.js";
 import { pricingPage } from '../pages/pricing.js';
 import { paymentMethodText, paymentReceipt, paymentStatusPanel } from "../pages/payment-status.js";
@@ -542,13 +543,19 @@ async function render() {
     } else if (route === "creator") {
       let templates = [];
       let legacy = [];
+      let statement = null;
       if (state.user && ["creator", "admin"].includes(state.user.role)) {
-        const [current, previous] = await Promise.all([api.get("/catalog/creator/workspaces"), api.get("/catalog/creator/templates")]);
+        const [current, previous, financeResult] = await Promise.all([
+          api.get("/catalog/creator/workspaces"),
+          api.get("/catalog/creator/templates"),
+          api.get("/checkout/payments/creator/statement?limit=20").catch(() => null),
+        ]);
         templates = current.templates;
         legacy = previous.templates;
+        statement = financeResult?.statement || null;
       }
       if (generation !== renderGeneration) return;
-      main.innerHTML = creatorPage(templates, legacy);
+      main.innerHTML = creatorPage(templates, legacy, statement);
     } else if (route === "admin") {
       if (state.user?.role !== "admin")
         main.innerHTML = errorPage(message("admin.access"));
@@ -561,10 +568,14 @@ async function render() {
         const lifetime = new AbortController();
         routeController = { dispose: () => lifetime.abort() };
         try {
-          const { orders } = await api.get("/checkout/payments/admin/review?limit=100", { signal: lifetime.signal });
+          const [{ orders }, financeResult, auditResult] = await Promise.all([
+            api.get("/checkout/payments/admin/review?limit=100", { signal: lifetime.signal }),
+            api.get("/checkout/payments/admin/finance", { signal: lifetime.signal }).catch(() => null),
+            api.get("/checkout/payments/admin/finance/exceptions?limit=50", { signal: lifetime.signal }).catch(() => null),
+          ]);
           if (generation !== renderGeneration) return;
           adminPaymentOrders = Array.isArray(orders) ? orders : [];
-          main.innerHTML = adminPaymentsPage(adminPaymentOrders);
+          main.innerHTML = adminPaymentsPage(adminPaymentOrders, { finance: financeResult?.finance || null, audit: auditResult?.audit || null });
         } catch (error) {
           if (generation !== renderGeneration || error.name === "AbortError") return;
           adminPaymentOrders = [];
@@ -758,6 +769,29 @@ async function copyText(trigger) {
   }
 }
 async function handleAction(action, element) {
+  if (action === 'creator-finance-export' || action === 'admin-finance-export') {
+    const isAdmin = action === 'admin-finance-export';
+    if (isAdmin ? state.user?.role !== 'admin' : !['creator', 'admin'].includes(state.user?.role)) return;
+    element.disabled = true;
+    try {
+      // Luôn tải báo cáo mới, chỉ từ API đã xác thực; không nhận creatorId từ trình duyệt.
+      const result = await api.get(isAdmin
+        ? '/checkout/payments/admin/finance/exceptions?limit=100'
+        : '/checkout/payments/creator/statement?limit=100');
+      if (!element.isConnected) return;
+      const report = isAdmin ? result.audit : result.statement;
+      const records = isAdmin ? report?.records : report?.recent;
+      if (!Array.isArray(records) || !records.length) return toast(message('finance.export.empty'));
+      const csv = isAdmin ? adminExceptionsCsv(report) : creatorSalesCsv(report);
+      const kind = isAdmin ? 'admin-exceptions' : 'creator-sales';
+      downloadCsvFile(exportFileName(kind), csv);
+    } catch {
+      if (element.isConnected) toast(message('finance.export.error'), 'error');
+    } finally {
+      if (element.isConnected) element.disabled = false;
+    }
+    return;
+  }
   if (action === "admin-payment-refresh") return render();
   if (action === "admin-payment-audit") {
     const panel = element.closest(".payment-review-card")?.querySelector("[data-payment-audit]");

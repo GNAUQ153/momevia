@@ -124,6 +124,31 @@ export class PaymentService {
       throw localizedError(400, 'errors.payment.invalidOrder');
     return this.repository.reconciliationHistory(orderId, this.reviewLimit(limit));
   }
+  requireFinanceStorage() {
+    if (this.env.CHECKOUT_STORAGE !== 'mysql')
+      throw localizedError(503, 'errors.payment.storage');
+  }
+  requireCreator(user) {
+    if (!user?.sub || !['creator', 'admin'].includes(user.role))
+      throw localizedError(403, 'errors.forbidden');
+  }
+  async creatorStatement(user, limit) {
+    // Không nhận creatorId từ query hoặc body: chỉ đọc ledger của phiên đang đăng nhập.
+    this.requireCreator(user);
+    this.requireFinanceStorage();
+    return this.repository.creatorStatement(user.sub, this.reviewLimit(limit));
+  }
+  async adminFinance(user) {
+    this.requireAdmin(user);
+    this.requireFinanceStorage();
+    return this.repository.adminFinance();
+  }
+  async adminFinanceExceptions(user, limit) {
+    // Chỉ Admin được xem; không suy ra quyền hoàn tiền/chi trả.
+    this.requireAdmin(user);
+    this.requireFinanceStorage();
+    return this.repository.adminFinanceExceptions(this.reviewLimit(limit));
+  }
   async reconcile(user, orderId) {
     // Ownership MUST be checked before any provider request or rate-limit consumption.
     const intent = await this.repository.forUser(orderId, user.sub);

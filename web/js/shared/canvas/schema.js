@@ -1,7 +1,7 @@
 import { registry, STICKERS, FONT_TOKENS, BINDINGS, LIMITS } from './registry.js';
 import { lines, masks, originalStickerIds, shapes } from './artwork.js';
 import { interactionKinds, photoSlots } from './interactions.js';
-import { effectsFor, effectSpeed, elementEffectFamilies, sceneEffectFamilies } from './effects.js';
+import { effectsFor, effectSpeed, elementEffectFamilies, sceneEffectFamilies, CELEBRATION_IDS } from './effects.js';
 
 export const CANVAS_VERSIONS = Object.freeze([1, 2]);
 export const runtimeVersionFor = document => document.schemaVersion;
@@ -105,9 +105,21 @@ function validateInteraction(p, path, assets, publishing) {
 
 function validateEffects(effects, path, model) {
   const families = model ? elementEffectFamilies : sceneEffectFamilies;
-  object(effects,path,families);
+  object(effects,path,model ? families : [...families, 'celebrations']);
   for (const [family, preset] of Object.entries(effects)) {
     const q = `${path}.${family}`;
+    if (family === 'celebrations') {
+      object(preset,q,CELEBRATION_IDS);
+      for (const [id, settings] of Object.entries(preset)) {
+        const at = `${q}.${id}`;
+        object(settings,at,['enabled','speed','density','loop'],['enabled']);
+        boolean(settings.enabled,`${at}.enabled`);
+        if (own(settings,'speed')) enumeration(settings.speed,`${at}.speed`,Object.keys(effectSpeed));
+        if (own(settings,'density')) enumeration(settings.density,`${at}.density`,['sparse','normal','dense']);
+        if (own(settings,'loop')) boolean(settings.loop,`${at}.loop`);
+      }
+      continue;
+    }
     const option = { surface: 'color', entrance: 'delay', ambience: 'density' }[family];
     object(preset,q,['id', ...(family === 'surface' ? [] : ['speed']), ...(option ? [option] : [])],['id']);
     enumeration(preset.id,`${q}.id`, effectsFor(family, model).map(([id]) => id));

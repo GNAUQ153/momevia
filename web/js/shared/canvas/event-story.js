@@ -1,5 +1,6 @@
 // The expanded event experience is opt-in Canvas V2. Existing snapshots keep
 // their own scene graph, effects and media; no reader migration is performed.
+import { defaultCelebrations, CELEBRATION_IDS } from './effects.js';
 export function expandEventStory(id, doc, { add, text, action, shape }, p, localize) {
   const copy = key => localize(`templates.${id}.${key}`);
   const common = key => localize(`templates.story.${key}`);
@@ -98,6 +99,14 @@ export function expandEventStory(id, doc, { add, text, action, shape }, p, local
   doc.scenes[album].effects.ambience = { id: 'B08', speed: 'normal', density: 'sparse' };
   doc.scenes[1].effects.ambience = { id: wedding ? 'B08' : 'B06', speed: 'normal', density: 'sparse' };
   doc.scenes[reply].effects.ambience = { id: 'B07', speed: 'normal', density: 'sparse' };
+  for (const s of doc.scenes) {
+    const settings = s.effects.celebrations = defaultCelebrations();
+    const previous = s.effects.ambience;
+    if (previous && CELEBRATION_IDS.includes(previous.id)) {
+      settings[previous.id] = { enabled: true, speed: previous.speed || 'normal', density: previous.density || 'sparse', loop: true };
+      delete s.effects.ambience;
+    }
+  }
   if (!wedding) doc.scenes = [doc.scenes[0], doc.scenes[timer], doc.scenes[1], doc.scenes[album], doc.scenes[reply]];
   // Reading order stays top-to-bottom; scene.elementIds separately keeps z-order.
   const order = new Map(doc.scenes.flatMap((s, i) => s.elementIds.map(key => [key, i])));

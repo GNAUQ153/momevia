@@ -23,6 +23,8 @@ import { giftLinkDescription } from "../shared/gift-permissions.js";
 import { framePhoto, MEMORY_TEMPLATE_ID, memoryGreetingStarterKeys } from "../shared/canvas/basic-templates.js";
 import { materializeTemplateStart } from '../features/canvas-editor/template-start.js';
 import { createEventFields, updateEventFields, storyAlbum, storyClock } from '../features/canvas-editor/event-fields.js';
+import { celebrationFields } from '../features/canvas-editor/celebration-fields.js';
+import { CELEBRATION_IDS, celebrationSettings } from '../shared/canvas/effects.js';
 import { createEditorStore } from "../features/canvas-editor/store.js";
 import {
   zoomLevels,
@@ -815,13 +817,13 @@ export function mountDesigner(
   }
   function effectFields(model, element) {
     const categories = element ? elementEffectFamilies : sceneEffectFamilies;
-    return categories.flatMap(family => {
-      const options = effectsFor(family, element);
+    const fields = categories.flatMap(family => {
+      const options = effectsFor(family, element).filter(([id]) => !(family === 'ambience' && model.effects?.celebrations && CELEBRATION_IDS.includes(id)));
       if (!options.length) return [];
       const preset = model.effects?.[family];
       const prefix = `effect.${family}.`;
       return [node("fieldset", { class: "editor-effect-settings" },
-        node("legend", {}, effectFamilies[family].label),
+        node("legend", {}, family === 'ambience' && model.effects?.celebrations ? message('editor.celebrations.once') : effectFamilies[family].label),
         select("Hiệu ứng", prefix + "id", preset?.id, [["", "Tắt"], ...options]),
         preset && family !== "surface" ? select("Tốc độ", prefix + "speed", preset.speed || "normal",
           [["slow", "Chậm"], ["normal", "Vừa"], ["fast", "Nhanh"]]) : null,
@@ -836,6 +838,8 @@ export function mountDesigner(
           button("Bỏ hiệu ứng", "effect-remove", { "data-family": family })) : null,
       )];
     });
+    if (!element) fields.push(celebrationFields(model));
+    return fields;
   }
   function interactionFields(model) {
     const p = model.props, spec = interactionKinds[p.kind], doc = store.get().document;
@@ -2131,6 +2135,10 @@ export function mountDesigner(
       openPreview();
       return;
     }
+    if (name === 'celebration-preview') {
+      openPreview({ family: 'ambience', sceneId: currentScene().id, celebrationId: target.dataset.celebration });
+      return;
+    }
     if (name === "effect-preview") {
       openPreview({ family: target.dataset.family, elementId: selection, sceneId: currentScene().id });
       return;
@@ -2469,6 +2477,16 @@ export function mountDesigner(
           ).background.color = value;
           return;
         }
+        if (key.startsWith('celebration.')) {
+          const [, id, property] = key.split('.');
+          const scene = next.document.scenes.find(s => s.id === sceneId);
+          scene.effects ??= {};
+          const settings = celebrationSettings(scene.effects);
+          if (CELEBRATION_IDS.includes(scene.effects.ambience?.id)) delete scene.effects.ambience;
+          settings[id][property] = value;
+          scene.effects.celebrations = settings;
+          return;
+        }
         if (key.startsWith("effect.")) {
           const [, family, field] = key.split(".");
           const model = next.document.elements.find(item => item.id === selection) ||
@@ -2555,7 +2573,7 @@ export function mountDesigner(
     );
     if (["textBinding", "action.type", "props.fit", "props.radius", "props.timeZone", "accessibility.decorative"].includes(key) ||
       key.endsWith(".assetId") || (key.startsWith("effect.") && key.endsWith(".id")) ||
-      key.startsWith("crop.")) renderInspector();
+      key.startsWith("crop.") || key.startsWith('celebration.')) renderInspector();
   }
   main.addEventListener(
     "click",

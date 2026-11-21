@@ -33,3 +33,15 @@ export function effectsFor(family, element) {
   return options.filter(([id]) => allowed[id] ?? true);
 }
 export const effectSpeed = Object.freeze({slow:450, normal:320, fast:180});
+export const CELEBRATION_IDS = Object.freeze(['B05','B06','B07','B08']);
+export const defaultCelebrations = () => Object.fromEntries(CELEBRATION_IDS.map(id => [id,
+  { enabled: false, speed: 'normal', density: 'sparse', loop: true }]));
+// Reading older one-shot settings never changes their saved document or behavior.
+export function celebrationSettings(effects = {}) {
+  const settings = defaultCelebrations();
+  for (const id of CELEBRATION_IDS) if (effects.celebrations?.[id]) settings[id] = { ...settings[id], ...effects.celebrations[id] };
+  const old = effects.ambience;
+  if (old && CELEBRATION_IDS.includes(old.id) && !effects.celebrations?.[old.id])
+    settings[old.id] = { ...settings[old.id], enabled: true, loop: false, speed: old.speed || 'normal', density: old.density || 'normal' };
+  return settings;
+}

@@ -1,5 +1,5 @@
-import { effectSpeed } from '../../shared/canvas/effects.js';
-// Decorative, finite bursts. Motion owns every animation and cancels them when
+import { effectSpeed, CELEBRATION_IDS, defaultCelebrations } from '../../shared/canvas/effects.js';
+// Bounded bursts. Motion owns every animation and cancels them when
 // the scene closes or reduced motion is enabled; no per-frame JS or layout loop.
 const ns='http://www.w3.org/2000/svg';
 function decoration(css) { const n=document.createElement('span');n.className=css;n.setAttribute('aria-hidden','true');return n; }
@@ -19,7 +19,7 @@ function wingArt(flower=false) {
 
 export function celebrate(stage,preset,motion,signal) {
   const layer=decoration('gift-ambience gift-celebration');stage.append(layer);
-  const tasks=[],type=preset.id,count=preset.density==='sparse'?6:10;
+  const tasks=[],type=preset.id,count=preset.density==='sparse'?6:preset.density==='dense'?14:10;
   layer.dataset.giftEffect=type;
   const ms={fast:2300,normal:3000,slow:3800}[preset.speed||'normal'];
   const beat=effectSpeed[preset.speed||'normal'];
@@ -32,7 +32,7 @@ export function celebrate(stage,preset,motion,signal) {
     }
   } else for(let i=0;i<count;i++) {
     const n=decoration(type==='B05'?'gift-bubble':type==='B06'?'gift-butterfly':'gift-bloom');
-    n.style.left=`${i%2?83+(i%3)*4:3+(i%3)*3}%`;n.style.top=`${type==='B05'?70+i*4:12+(i*31)%70}%`;
+    n.style.left=`${i%2?83+(i%3)*4:3+(i%3)*3}%`;n.style.top=`${type==='B05'?70+(preset.density==='dense'?i%6:i)*4:12+(i*31)%70}%`;
     if(type!=='B05')n.append(wingArt(type==='B08'));
     const size=type==='B05'?18+i%3*7:type==='B06'?32+i%2*10:36+i%3*9;
     n.style.width=n.style.height=`${size}px`;layer.append(n);
@@ -43,6 +43,39 @@ export function celebrate(stage,preset,motion,signal) {
     tasks.push(motion.run(n,[{transform:type==='B08'?'scale(.6) rotate(-20deg)':'translate(0,0) scale(.95)',opacity:0},{opacity:.85,offset:.22},{transform:end,opacity:0}],{duration:ms,delay:i*95,fill:'backwards'},signal));
   }
   return Promise.all(tasks).finally(()=>layer.remove());
+}
+
+export function playCelebrations(stage,settings,motion,signal) {
+  const stops=[],defaults=defaultCelebrations();
+  for (const id of CELEBRATION_IDS) {
+    const preset={...defaults[id],...settings?.[id]};
+    if (!preset?.enabled || !motion.enabled() || signal?.aborted) continue;
+    let stopped=false,cycle=null,timer,untrack=()=>{};
+    const stop=()=>{
+      if (stopped) return;
+      stopped=true;clearTimeout(timer);cycle?.abort();
+      document.removeEventListener('visibilitychange',visible);
+      signal?.removeEventListener('abort',stop);untrack();
+    };
+    const start=()=>{
+      clearTimeout(timer);
+      if (stopped || cycle || signal?.aborted || !motion.enabled()) return;
+      if (!stage.isConnected) return stop();
+      if (document.hidden) return;
+      const active=cycle=new AbortController();
+      void celebrate(stage,{id,...preset},motion,active.signal).finally(()=>{
+        if (cycle===active) cycle=null;
+        if (stopped) return;
+        if (preset.loop===false) return stop();
+        if (!document.hidden) timer=setTimeout(start,effectSpeed[preset.speed||'normal']);
+      });
+    };
+    const visible=()=>{clearTimeout(timer);if(document.hidden)cycle?.abort();else start();};
+    document.addEventListener('visibilitychange',visible);
+    signal?.addEventListener('abort',stop,{once:true});untrack=motion.track(stop);
+    queueMicrotask(start);stops.push(stop);
+  }
+  return ()=>stops.forEach(stop=>stop());
 }
 
 export async function photoFragments(node,preset,motion,signal) {

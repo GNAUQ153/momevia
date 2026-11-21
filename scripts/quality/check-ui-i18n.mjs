@@ -6,6 +6,9 @@ import { fileURLToPath } from 'node:url';
 // Các chuỗi thuộc dữ liệu thiệp được cho phép có giải thích tường minh.
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const auditedFile = 'web/js/pages/designer.js';
+const appShellFile = 'web/js/app/main.js';
+// Tên bộ lọc danh mục được lưu trong catalog metadata, không phải nhãn UI.
+export const persistedShellCopy = new Set(['Lễ hội']);
 export const persistedCanvasCopy = new Set([
   'Nội dung kỷ niệm', // Nhận diện trường văn bản của mẫu cũ.
   'Chú thích ảnh', // Nhận diện slot của mẫu cũ.
@@ -67,6 +70,10 @@ export function checkDesignerCopy(source) {
   return readUiLiterals(source).filter(item => !persistedCanvasCopy.has(item.value));
 }
 
+export function checkAppShellCopy(source) {
+  return readUiLiterals(source).filter(item => !persistedShellCopy.has(item.value));
+}
+
 function walkJs(folder, output = []) {
   for (const entry of fs.readdirSync(folder, { withFileTypes: true })) {
     const full = path.join(folder, entry.name);
@@ -83,21 +90,25 @@ if (current) {
     console.error('Usage: node scripts/quality/check-ui-i18n.mjs [--check|--report]');
     process.exitCode = 2;
   } else if (mode === '--check') {
-    const violations = checkDesignerCopy(fs.readFileSync(path.join(root, auditedFile), 'utf8'));
-    for (const { line, value } of violations) console.error(`${auditedFile}:${line}: chuỗi UI chưa dịch: ${JSON.stringify(value.slice(0, 100))}`);
+    const violations = [
+      ...checkDesignerCopy(fs.readFileSync(path.join(root, auditedFile), 'utf8')).map(item => ({ ...item, file: auditedFile })),
+      ...checkAppShellCopy(fs.readFileSync(path.join(root, appShellFile), 'utf8')).map(item => ({ ...item, file: appShellFile })),
+    ];
+    for (const { file, line, value } of violations) console.error(`${file}:${line}: chuỗi UI chưa dịch: ${JSON.stringify(value.slice(0, 100))}`);
     if (violations.length) process.exitCode = 1;
-    else console.log('PASS Designer UI: không có chuỗi tiếng Việt mới ngoài 6 giá trị Canvas được lưu/đối chiếu.');
+    else console.log('PASS Designer & App Shell UI: không có chuỗi tiếng Việt ngoài giá trị Canvas/catalog đã giải thích.');
   } else {
     // Phạm vi toàn giao diện chỉ là danh sách ứng viên cần phân loại thủ công.
     // Không tự dịch tên thiệp, dữ liệu mẫu, từ khóa nghiệp vụ hay nội dung người dùng.
-    const folders = ['web/js/pages', 'web/js/features/canvas-editor'];
+    const folders = ['web/js/pages', 'web/js/features/canvas-editor', 'web/js/app'];
     let total = 0;
     for (const folder of folders) {
       for (const file of walkJs(path.join(root, folder))) {
         const relative = path.relative(root, file).replaceAll('\\', '/');
+        const source = fs.readFileSync(file, 'utf8');
         const matches = relative === auditedFile
-          ? checkDesignerCopy(fs.readFileSync(file, 'utf8'))
-          : readUiLiterals(fs.readFileSync(file, 'utf8'));
+          ? checkDesignerCopy(source)
+          : relative === appShellFile ? checkAppShellCopy(source) : readUiLiterals(source);
         if (!matches.length) continue;
         total += matches.length;
         console.log(`${relative}: ${matches.length} ứng viên`);

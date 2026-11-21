@@ -56,6 +56,7 @@ export function refundAdminPanel(requests, { filter = 'active', nextCursor = nul
       </label>
       <p role="status">${text('refund.queue.pageCount', { count: requests.length })}</p>
     </div>
+    <p class="refund-review__feedback" data-refund-queue-feedback role="status" aria-live="polite"></p>
     ${requests.length ? `<div class="refund-review__list">${requests.map(item => {
       const status = allowedStatuses.has(item.status) ? item.status : 'unknown';
       const choices = nextStatuses[status] || [];

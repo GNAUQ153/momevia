@@ -1,3 +1,10 @@
+## Bổ sung kiểm toán App Shell (21/11/2026)
+
+- `npm run check` nay kiểm tra thêm `web/js/app/main.js` ngoài `designer.js` và chặn nhãn giao diện tiếng Việt mới chưa gắn khóa dịch.
+- Chuỗi `Lễ hội` được giữ dưới dạng **giá trị metadata bộ lọc** chứ không phải nhãn giao diện; giao diện hiển thị của bộ lọc tiếp tục dùng từ điển. Không dịch dữ liệu đã lưu.
+- Đã sửa thuộc tính `alt` của ảnh xem trước và thông báo đối soát thanh toán để phản ứng với chuyển ngôn ngữ. Refund Queue có trạng thái tải/lỗi `aria-live` và bỏ qua phản hồi cũ khi người dùng đổi bộ lọc nhanh.
+- Xem `docs/GLOBAL_SHELL_UX_I18N.md` để kiểm thử thủ công và các giới hạn. Kiểm tra này **không** bảo đảm tất cả module frontend đã được dịch.
+
 # Kiểm toán ngôn ngữ UI — đợt Designer History & Fabric Design Tokens
 
 ## Phạm vi đã kiểm tra

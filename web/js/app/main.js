@@ -27,6 +27,7 @@ import { createAuthViews } from "../pages/auth.js";
 import { pricingPage } from '../pages/pricing.js';
 import { paymentMethodText, paymentReceipt, paymentStatusPanel } from "../pages/payment-status.js";
 import { refundBuyerPanel, refundHistoryPanel, refundAdminPanel } from "../pages/refund-review.js";
+import { createLatestRequest } from "../features/refund/latest-request.js";
 import { recipientViralCta } from "../ui/recipient-viral.js";
 import { createSystemViews } from "../pages/system.js";
 
@@ -42,22 +43,38 @@ let routeController = null,
 let adminPaymentOrders = [];
 // Cursor chỉ tồn tại trong phiên Admin hiện tại; khi đổi bộ lọc phải làm lại từ trang đầu.
 let refundQueue = { filter: 'active', cursors: [null], index: 0, nextCursor: null };
+const refundQueueRequests = createLatestRequest();
 async function loadAdminRefundQueue({ filter = refundQueue.filter, index = refundQueue.index, cursor = null } = {}) {
-  if (state.user?.role !== 'admin' || location.pathname !== '/admin/payments') return;
+  if (state.user?.role !== 'admin' || location.pathname !== '/admin/payments') return false;
   const host = document.querySelector('.refund-review--admin');
-  if (!host) return;
-  const current = host;
+  if (!host) return false;
+  const feedback = host.querySelector('[data-refund-queue-feedback]');
   const query = new URLSearchParams({ filter, limit: '20' });
   if (cursor) query.set('cursor', cursor);
-  const { page } = await api.get(`/checkout/payments/admin/refund-queue?${query}`);
-  if (!current.isConnected || location.pathname !== '/admin/payments' || state.user?.role !== 'admin') return;
-  refundQueue = {
-    filter, cursors: index === 0 ? [null] : refundQueue.cursors,
-    index, nextCursor: page.nextCursor,
-  };
-  current.outerHTML = refundAdminPanel(page.requests, {
-    filter, nextCursor: page.nextCursor, hasPrev: index > 0,
-  });
+  host.setAttribute('aria-busy', 'true');
+  if (feedback) setText(feedback, message('refund.queue.loading'));
+  return refundQueueRequests.run(
+    () => api.get(`/checkout/payments/admin/refund-queue?${query}`), {
+      onSuccess({ page }) {
+        if (!host.isConnected || location.pathname !== '/admin/payments' || state.user?.role !== 'admin') return;
+        if (!page || !Array.isArray(page.requests)) throw new Error('Invalid refund queue response');
+        const cursors = index === 0 ? [null] : [...refundQueue.cursors];
+        if (index > 0) cursors[index] = cursor;
+        refundQueue = { filter, cursors, index, nextCursor: page.nextCursor ?? null };
+        host.outerHTML = refundAdminPanel(page.requests, {
+          filter, nextCursor: refundQueue.nextCursor, hasPrev: index > 0,
+        });
+      },
+      onError() {
+        if (!host.isConnected) return;
+        if (feedback) setText(feedback, message('refund.queue.loadFailed'));
+        toast(message('refund.queue.loadFailed'), 'error');
+      },
+      onFinally() {
+        if (host.isConnected) host.removeAttribute('aria-busy');
+      },
+    },
+  );
 }
 
 let historyIndex = 0,
@@ -837,7 +854,6 @@ async function handleAction(action, element) {
     element.disabled = true;
     try {
       await loadAdminRefundQueue({ index, cursor });
-      if (forward && refundQueue.index === index) refundQueue.cursors[index] = cursor;
     } finally { if (element.isConnected) element.disabled = false; }
     return;
   }
@@ -1046,7 +1062,7 @@ async function handleAction(action, element) {
     element.disabled = true;
     try {
       const result = await api.post(`/checkout/payments/orders/${encodeURIComponent(orderId)}/reconcile`);
-      if (result.providerState === 'terminal_review') toast(result.notice || 'Giao dịch cần đối soát thủ công.');
+      if (result.providerState === 'terminal_review') toast(message('payment.status.manualReview'));
       else toast(result.payment.status === 'paid' ? message("payment.status.confirmed") : message("payment.status.unconfirmed"));
       await render();
     } finally { element.disabled = false; }
@@ -1376,7 +1392,7 @@ document.addEventListener("change", async (event) => {
       preview.replaceChildren();
       const img = document.createElement("img");
       img.src = state.photoDataUrl;
-      img.alt = "Ảnh xem trước";
+      setAttr(img, 'alt', message('gift.builder.photoPreview'));
       preview.appendChild(img);
     }
     document.querySelector(".photo-drop strong").textContent = file.name;

@@ -112,3 +112,30 @@
   flex-wrap: wrap;
   margin-block-start: 1.25rem;
 }
+
+/* Trạng thái tải và điều khiển hàng đợi sử dụng chung token giao diện. */
+.refund-review__feedback {
+  min-height: 1.4rem;
+  margin-block: 0.3rem 1rem;
+  color: var(--muted);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+.refund-review__queue-tools select,
+.refund-review__pagination .btn,
+.refund-review__actions .btn {
+  min-height: var(--ui-control-min-height, 44px);
+}
+.refund-review :is(select, textarea, button):focus-visible {
+  outline: 3px solid var(--ui-focus-ring, #7247c8);
+  outline-offset: 3px;
+}
+.refund-review[aria-busy="true"] .refund-review__list {
+  opacity: 0.65;
+  transition: opacity var(--ui-control-ease, 160ms ease);
+}
+@media (prefers-reduced-motion: reduce) {
+  .refund-review[aria-busy="true"] .refund-review__list {
+    transition: none;
+  }
+}

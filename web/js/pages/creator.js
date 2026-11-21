@@ -6,7 +6,9 @@ export function creatorFinancePanel(statement) {
   const renderMetric = (caption, value) => `<div class="finance-metric"><span>${text(caption)}</span><strong>${priceText(value)}</strong></div>`;
   return `<section class="section finance-panel"><div class="container">
     <div class="finance-panel__heading"><div><h2>${text('finance.creator.title')}</h2>
-      <p>${text('finance.creator.subtitle')}</p></div></div>
+      <p>${text('finance.creator.subtitle')}</p></div>
+      ${statement?.recent?.length ? `<button type="button" class="btn btn--outline" data-action="creator-finance-export">${text('finance.export.csv')}</button>` : ''}
+    </div>
     ${statement ? `<div class="finance-panel__groups">
       ${['live', 'sandbox'].map(group => `<article class="finance-panel__group">
         <h3>${text('finance.group.' + group)}</h3>

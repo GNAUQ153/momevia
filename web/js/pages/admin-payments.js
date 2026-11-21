@@ -75,12 +75,14 @@ export function adminFinancePanel(finance) {
 // Danh sách đối soát ngoại lệ: chỉ hiển thị các cờ sai lệch đã xác định ở máy chủ.
 const auditIssueKeys = new Set(['intent', 'receipt', 'entitlement', 'creatorSale', 'split']);
 export function adminReconciliationPanel(audit) {
-  const intro = `<h2>${text('finance.audit.title')}</h2><p>${text('finance.audit.intro')}</p>`;
+  const intro = `<div><h2>${text('finance.audit.title')}</h2><p>${text('finance.audit.intro')}</p></div>`;
   if (!audit) return `<section class="finance-audit" aria-label="${text('finance.audit.title')}">
-    ${intro}<p role="status">${text('finance.audit.unavailable')}</p></section>`;
+    <div class="finance-audit__heading">${intro}</div><p role="status">${text('finance.audit.unavailable')}</p></section>`;
   const records = Array.isArray(audit.records) ? audit.records : [];
   return `<section class="finance-audit" aria-label="${text('finance.audit.title')}">
-    ${intro}
+    <div class="finance-audit__heading">${intro}
+      ${records.length ? `<button class="btn btn--outline" type="button" data-action="admin-finance-export">${text('finance.export.csv')}</button>` : ''}
+    </div>
     <p class="finance-audit__limit" role="status">${text('finance.audit.scanned', { count: records.length, limit: Number(audit.scanLimit) })}</p>
     ${records.length ? `<div class="finance-audit__list">${records.map(row => `<article class="finance-audit__item">
       <div class="finance-audit__top"><strong>${text('finance.audit.order')} <code>${e(String(row.orderId || '').slice(0, 12))}</code></strong>

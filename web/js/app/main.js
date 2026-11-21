@@ -22,6 +22,7 @@ import { mountStudioSpace } from "../features/studio/studio-space.js";
 import { createCreatorViews } from "../pages/creator.js";
 import { createAdminViews } from "../pages/admin.js";
 import { adminPaymentsPage, paymentReviewRows, paymentAuditRows, filterPendingReviews } from "../pages/admin-payments.js";
+import { adminExceptionsCsv, creatorSalesCsv, exportFileName, downloadCsvFile } from "../features/finance/export-csv.js";
 import { createAuthViews } from "../pages/auth.js";
 import { pricingPage } from '../pages/pricing.js';
 import { paymentMethodText, paymentReceipt, paymentStatusPanel } from "../pages/payment-status.js";
@@ -768,6 +769,29 @@ async function copyText(trigger) {
   }
 }
 async function handleAction(action, element) {
+  if (action === 'creator-finance-export' || action === 'admin-finance-export') {
+    const isAdmin = action === 'admin-finance-export';
+    if (isAdmin ? state.user?.role !== 'admin' : !['creator', 'admin'].includes(state.user?.role)) return;
+    element.disabled = true;
+    try {
+      // Luôn tải báo cáo mới, chỉ từ API đã xác thực; không nhận creatorId từ trình duyệt.
+      const result = await api.get(isAdmin
+        ? '/checkout/payments/admin/finance/exceptions?limit=100'
+        : '/checkout/payments/creator/statement?limit=100');
+      if (!element.isConnected) return;
+      const report = isAdmin ? result.audit : result.statement;
+      const records = isAdmin ? report?.records : report?.recent;
+      if (!Array.isArray(records) || !records.length) return toast(message('finance.export.empty'));
+      const csv = isAdmin ? adminExceptionsCsv(report) : creatorSalesCsv(report);
+      const kind = isAdmin ? 'admin-exceptions' : 'creator-sales';
+      downloadCsvFile(exportFileName(kind), csv);
+    } catch {
+      if (element.isConnected) toast(message('finance.export.error'), 'error');
+    } finally {
+      if (element.isConnected) element.disabled = false;
+    }
+    return;
+  }
   if (action === "admin-payment-refresh") return render();
   if (action === "admin-payment-audit") {
     const panel = element.closest(".payment-review-card")?.querySelector("[data-payment-audit]");

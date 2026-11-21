@@ -89,18 +89,19 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Sửa xung đột độ ưu tiên CSS của menu laptop 901–1150px: giữ cỡ chữ responsive 12px thay vì bị `brand-system.css` đặt lại thành 14px.
-- Giữ nguyên bài kiểm thử `tests/browser/home.mjs` yêu cầu không tràn ngang ở viewport 1024px. Không ẩn overflow của trang và không thay đổi Canvas, API, dữ liệu hay logic thanh toán.
-- Build và browser regression trên GitHub CI/CD cần được xác nhận sau khi áp dụng.
+- Ở 901–1150px, chuyển các link dài của header sang menu thu gọn có chữ 15px thay cho ép liên kết 12px; giữ viewport không tràn ngang, gồm trường hợp 1024px.
+- Bổ sung navigation landmark có nhãn i18n, focus-visible và 48px vùng chạm; có chuyển động mở ngắn, tắt khi người dùng chọn giảm chuyển động.
+- Tự đóng menu khi cửa sổ trở lại desktop rộng, bảo toàn trạng thái `aria-expanded` và focus hợp lệ.
+- Bổ sung browser regression cho hai ngôn ngữ, mở/đóng bằng Escape, typography và resize. Không chỉnh API, dữ liệu quà, Canvas, thanh toán.
 
 **Các commit gần nhất trên `main`:**
 
+- `173f21a` — feat: improve readable compact navigation on laptop (2026-11-22)
 - `11d7135` — fix: prevent brand header overflow on laptop widths (2026-11-21)
 - `cca43e4` — feat: unify Momevia typography and brand UI (2026-11-21)
 - `54a4c83` — Merge pull request #18 from GNAUQ153:feat/event-templates-first (2026-11-21)
 - `3f877b3` — feat: improve Recipient image loading resilience (2026-11-21)
 - `970a3cb` — feat: complete Recipient Canvas Player UX (2026-11-21)
-- `3b44d9a` — test: fix Canvas focus assertion ESLint scope (2026-11-21)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

@@ -415,3 +415,54 @@
     animation: none;
   }
 }
+
+/* Phase 6.5 - ánh sáng tương tác cục bộ, không làm thay đổi kích thước Hero. */
+.is-home .mkt-stage::after {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  content: "";
+  opacity: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    circle 190px at var(--mkt-glow-x, 50%) var(--mkt-glow-y, 50%),
+    rgba(255, 255, 255, 0.46),
+    transparent 78%
+  );
+  transition: opacity 180ms ease-out;
+}
+
+.is-home .mkt-stage[data-mkt-pointer-active]::after {
+  opacity: 1;
+}
+
+.is-home .mkt-stage[data-mkt-pointer-active] {
+  will-change: transform;
+}
+
+/* Cho người dùng bàn phím biết rõ đang chọn nút xem thiệp. */
+.is-home .mkt-stage .mkt-hero__cover:focus-visible {
+  outline: 3px solid #5e35b8;
+  outline-offset: 6px;
+}
+
+.is-home .mkt-gift-grid .template-card--home:focus-within {
+  box-shadow: 0 0 0 3px rgba(94, 53, 184, 0.22), 0 20px 38px rgba(62, 37, 65, 0.15);
+}
+
+@media (hover: none), (pointer: coarse), (prefers-reduced-motion: reduce) {
+  .is-home .mkt-stage::after {
+    display: none;
+    transition: none;
+  }
+
+  .is-home .mkt-stage[data-mkt-pointer-active] {
+    will-change: auto;
+  }
+}
+
+/* Không giữ sẵn một lớp compositing GPU khi con trỏ không tương tác. */
+.is-home .mkt-stage:not([data-mkt-pointer-active]) {
+  will-change: auto;
+}

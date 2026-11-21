@@ -1,3 +1,5 @@
+import { message, setAttr, setText } from '../../core/i18n.js';
+
 // Phase 5.9: Bảng thuộc tính bố cục của Fabric Studio.
 // Chỉ sửa đối tượng Fabric tạm; bản nháp Momevia được cập nhật khi nhấn Áp dụng.
 const FIELDS = Object.freeze({
@@ -102,18 +104,45 @@ function element(tag, className, label = '') {
   return result;
 }
 
+// Lỗi tính toán giữ nguyên nội dung để tương thích test cũ; chỉ chuyển thông báo UI.
+export function inspectorErrorMessage(error) {
+  const detail = String(error?.message ?? '');
+  const invalidField = Object.entries(FIELDS).find(([, config]) =>
+    detail === `${config.label} không hợp lệ.`)?.[0];
+  if (invalidField) return message('editor.fabric.inspector.error.field', {
+    field: { format: 'message', key: `editor.fabric.inspector.field.${invalidField}` },
+  });
+  const errors = {
+    'Không đọc được kích thước của lớp đã chọn.': 'dimensions',
+    'Bố cục lớp không hợp lệ.': 'geometry',
+    'Thuộc tính lớp không được hỗ trợ.': 'unsupported',
+    'Vui lòng nhập một số hợp lệ.': 'number',
+    'Kích thước bản vẽ không hợp lệ.': 'artboard',
+    'Hướng căn giữa không hợp lệ.': 'direction',
+    'Không thể chỉnh sửa hình dạng này.': 'shape',
+    'Lớp này bị khóa hoặc không có quyền chỉnh sửa.': 'locked',
+    'Vui lòng chọn lớp được phép chỉnh sửa.': 'chooseEditable',
+  };
+  return message(`editor.fabric.inspector.error.${errors[detail] ?? 'generic'}`);
+}
+
 export function mountFabricInspector({ canvas, artboard, layerModels, canEdit }) {
   const panel = element('section', 'fabric-inspector');
-  panel.setAttribute('aria-label', 'Thuộc tính lớp đang chọn');
+  setAttr(panel, 'aria-label', message('editor.fabric.inspector.aria'));
   const heading = element('div', 'fabric-inspector__heading');
-  heading.append(element('strong', '', 'Thuộc tính lớp'));
-  const status = element('p', 'fabric-inspector__status', 'Chọn một lớp có thể chỉnh sửa.');
+  const title = element('strong', '');
+  setText(title, message('editor.fabric.inspector.heading'));
+  heading.append(title);
+  const status = element('p', 'fabric-inspector__status');
+  setText(status, message('editor.fabric.inspector.empty'));
   status.setAttribute('aria-live', 'polite');
   const fields = element('div', 'fabric-inspector__fields');
   const inputs = new Map();
   for (const [name, config] of Object.entries(FIELDS)) {
     const label = element('label', 'fabric-inspector__field');
-    label.append(element('span', '', config.label));
+    const fieldLabel = element('span', '');
+    setText(fieldLabel, message(`editor.fabric.inspector.field.${name}`));
+    label.append(fieldLabel);
     const input = element('input', 'fabric-inspector__input');
     input.type = 'number';
     input.step = '0.01';
@@ -126,15 +155,16 @@ export function mountFabricInspector({ canvas, artboard, layerModels, canEdit })
     inputs.set(name, input);
   }
   const actions = element('div', 'fabric-inspector__actions');
-  for (const [action, label] of [['horizontal', 'Giữa ngang'], ['vertical', 'Giữa dọc']]) {
-    const button = element('button', '', label);
+  for (const action of ['horizontal', 'vertical']) {
+    const button = element('button', '');
+    setText(button, message(`editor.fabric.inspector.center.${action}`));
     button.type = 'button';
     button.disabled = true;
     button.dataset.fabricInspectorCenter = action;
     actions.append(button);
   }
-  const help = element('p', 'fabric-inspector__help',
-    'Thay đổi tại đây chỉ được lưu sau khi chọn “Áp dụng vào thiết kế”.');
+  const help = element('p', 'fabric-inspector__help');
+  setText(help, message('editor.fabric.inspector.help'));
   heading.append(status);
   panel.append(heading, fields, actions, help);
 
@@ -144,9 +174,11 @@ export function mountFabricInspector({ canvas, artboard, layerModels, canEdit })
     const shape = active();
     const allowed = editable(shape);
     const model = shape?.momeviaId ? layerModels.get(shape.momeviaId) : null;
-    status.textContent = shape ?
-      `${model?.name || model?.accessibility?.label || model?.type || 'Lớp'}${allowed ? '' : ' · chỉ xem'}` :
-      'Chọn một lớp có thể chỉnh sửa.';
+    const name = model?.name || model?.accessibility?.label || model?.type ||
+      { format: 'message', key: 'editor.fabric.inspector.layer' };
+    setText(status, shape
+      ? message(allowed ? 'editor.fabric.inspector.selected' : 'editor.fabric.inspector.readOnly', { name })
+      : message('editor.fabric.inspector.empty'));
     let geometry = null;
     try { if (shape) geometry = readInspectorGeometry(shape); }
     catch { /* Hình minh họa không hỗ trợ nhập hình học. */ }
@@ -163,7 +195,7 @@ export function mountFabricInspector({ canvas, artboard, layerModels, canEdit })
     applyInspectorGeometry(shape, next);
     canvas.requestRenderAll();
     refresh();
-    status.textContent = 'Đã chỉnh bố cục · chưa áp dụng vào thiết kế';
+    setText(status, message('editor.fabric.inspector.changed'));
   }
   const onChange = event => {
     const input = event.target.closest('[data-fabric-inspector-field]');
@@ -174,7 +206,7 @@ export function mountFabricInspector({ canvas, artboard, layerModels, canEdit })
       update(updateInspectorField(readInspectorGeometry(shape), input.dataset.fabricInspectorField, input.value));
     } catch (error) {
       refresh();
-      status.textContent = error.message;
+      setText(status, inspectorErrorMessage(error));
     }
   };
   const onClick = event => {
@@ -186,7 +218,7 @@ export function mountFabricInspector({ canvas, artboard, layerModels, canEdit })
       update(centerInspectorGeometry(readInspectorGeometry(shape), button.dataset.fabricInspectorCenter, artboard));
     } catch (error) {
       refresh();
-      status.textContent = error.message;
+      setText(status, inspectorErrorMessage(error));
     }
   };
   fields.addEventListener('change', onChange);

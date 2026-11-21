@@ -1,3 +1,17 @@
+## Unreleased — Fabric Inspector i18n và quy trình CHANGELOG (2026-11-21)
+
+- Chuyển nhãn, thông báo và lỗi hiển thị của bảng thuộc tính Fabric Studio sang hệ thống VI/EN dùng chung; đổi ngôn ngữ ngay trong dialog mà không sửa bản nháp, geometry hoặc Undo/Redo.
+- Giữ nguyên tên lớp và nội dung do người dùng nhập, escape an toàn qua DOM `textContent`; cải thiện nhãn dài trên điện thoại.
+- Thêm `npm run changelog:check` để phát hiện commit có sửa source nhưng quên đưa `CHANGELOG.md` vào staging; quy trình áp dụng chung khi phát triển song song trên `main`.
+- Bổ sung unit test cho bản dịch Fabric Inspector, kiểm soát lỗi UI và quy tắc changelog; không thay đổi API, database hay thanh toán.
+
+## Unreleased — Tổng hợp các đợt phát triển đã tích hợp (2026-11-21)
+
+- Bổ sung quản lý doanh thu Creator/Admin, đối soát ngoại lệ, xuất CSV theo quyền và kiểm soát công thức khi mở CSV.
+- Bổ sung Refund Review: hồ sơ yêu cầu, lịch sử xử lý Admin, kiểm tra gửi lại khác nội dung và hàng đợi có lọc/phân trang; không tự hoàn tiền hoặc chi trả Creator.
+- Nâng cấp hành trình marketing và bản dịch Canvas Designer/Recovery Center, bao gồm thư viện 172 phần tử; tách module hiển thị và tìm kiếm thư viện.
+- Cập nhật kiểm thử trình duyệt cho Journey 3D, Fabric image load và route mock Refund; các bản cập nhật trước đã có lần CI/CD PASS trên `main`.
+
 ## Unreleased — Phase 6.3b: Read-only Conflict Review (2026-11-20)
 
 - So sánh song song bản Canvas đang mở và bản được tải từ máy chủ ở chế độ chỉ đọc: phiên bản, tên, cảnh, layer, ảnh, bindings và thiết lập khác.

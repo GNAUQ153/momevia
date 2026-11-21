@@ -39,6 +39,10 @@
   color: #3e3156;
 }
 
+.fabric-inspector__field span {
+  overflow-wrap: anywhere;
+}
+
 .fabric-inspector__input {
   display: block;
   box-sizing: border-box;
@@ -81,6 +85,8 @@
   color: #4d2c90;
   font-size: 12px;
   font-weight: 700;
+  overflow-wrap: anywhere;
+  text-wrap: balance;
 }
 
 .editor-fabric-dialog .fabric-inspector__actions button:not(:disabled):hover {

@@ -89,18 +89,19 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Chuyển nhãn nút, tooltip, `aria-label`, trạng thái và thông báo lỗi của Quickbar/Style Properties sang VI/EN theo cùng giao diện, đổi ngôn ngữ ngay trong Fabric Studio.
-- Giữ nguyên ID action/field, tên lớp do người dùng tạo, giới hạn geometry, quyền chỉnh sửa và thao tác Áp dụng/Hủy; không thay đổi database, thanh toán hay định dạng Canvas.
-- Củng cố responsive cho nhãn tiếng Anh dài, bổ sung kiểm thử khóa dịch, thao tác và trạng thái panel; ghi chú phạm vi kiểm tra vẫn cần browser CI.
+- Chuẩn hóa 28 khóa VI/EN cho nhãn và lịch sử thao tác Canvas Designer; tên thành phần trong thông báo thêm element lấy từ từ điển nhưng không sửa dữ liệu mẫu đã lưu.
+- Thêm `npm run i18n:audit` để lập danh sách ứng viên chuỗi tiếng Việt trên các trang và Canvas; `npm run check` chặn chuỗi UI tiếng Việt mới trong `designer.js` ngoài sáu giá trị nguồn được giải thích.
+- Chuẩn hóa token focus, biên panel, thời gian tương tác và vùng bấm tối thiểu 44px cho Fabric Quickbar, Inspector và Style Properties; giữ `prefers-reduced-motion`.
+- Thêm 5 bài kiểm thử chuyên biệt và `docs/I18N_AUDIT.md` nêu rõ phần đã kiểm chứng và giới hạn. Không đổi Canvas schema, dữ liệu người dùng, API, database, thanh toán hay quà đã phát hành.
 
 **Các commit gần nhất trên `main`:**
 
+- `f84c1fd` — feat: audit Designer i18n and unify Fabric UI tokens (2026-11-21)
 - `6658be1` — feat: localize Fabric quickbar and appearance controls (2026-11-21)
 - `859fbe0` — feat: localize Fabric inspector and track changelog changes (2026-11-21)
 - `ede4a2a` — feat: localize Canvas Designer and refactor discovery UI (2026-11-21)
 - `08c3e02` — feat: add paginated admin refund review queue (2026-11-21)
 - `727ac61` — feat: complete refund review integration (2026-11-21)
-- `39e461f` — fix: reject conflicting refund review resubmissions (2026-11-21)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

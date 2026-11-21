@@ -59,6 +59,7 @@ export function mountHeroTemplates(host, templates) {
       await images[next].decode();
       if (request !== generation || lifetime.signal.aborted || (automatic && !canRotate())) return;
       resetProgress();
+      if (next !== index) images.forEach((image, position) => image.toggleAttribute('data-exiting', position === index));
       index = next;
       update();
     } catch {

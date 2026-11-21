@@ -1,3 +1,9 @@
+## Unreleased — Chuyển thiệp theo cung tròn (2026-11-21)
+
+- Giữ nguyên khung xem ở trang chủ: thiệp cũ xoay ra bên trái, thiệp mới đi theo cung tròn từ góc phải phía dưới lên vị trí hiện tại. Cả viền giấy và bóng thiệp chuyển cùng ảnh trong 600ms, chỉ dùng transform/opacity.
+- Giữ tiến trình 5 giây, chọn mẫu bằng thanh, preview đúng mẫu, giảm chuyển động và khả năng ngắt chuyển cảnh khi chọn liên tiếp.
+- Build, check, 459 unit tests và test:browser đều đạt; browser xác nhận hướng xoay, vị trí thiệp mới phía trước khi lặp cuối → đầu và đường đi trên khung điện thoại. Ảnh soát giữa/cuối chuyển động nằm trong `local/hero-templates/`.
+
 ## Unreleased — Tiến trình chuyển mẫu ở trang chủ (2026-11-21)
 
 - Thanh đang chọn chạy từ trái sang phải trong 5 giây; chính thao tác hoàn tất tiến trình kích hoạt mẫu kế tiếp, không dùng hai bộ đếm riêng.

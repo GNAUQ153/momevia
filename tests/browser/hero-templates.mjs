@@ -18,6 +18,34 @@ async function finishProgress(page, id) {
   await waitForTemplate(page, id);
 }
 
+async function verifyOrbit(page, previousId, nextId) {
+  const sample = await page.locator('.mkt-hero__cover').evaluate((cover, ids) => {
+    const oldCard = cover.querySelector(`[data-hero-image="${ids[0]}"]`);
+    const newCard = cover.querySelector(`[data-hero-image="${ids[1]}"]`);
+    const animations = [oldCard, newCard].flatMap(card => card.getAnimations());
+    for (const animation of animations) {
+      animation.pause();
+      animation.currentTime = Number(animation.effect.getTiming().duration) * 0.25;
+    }
+    const centre = node => {
+      const box = node.getBoundingClientRect();
+      return { x: box.x + box.width / 2, y: box.y + box.height / 2 };
+    };
+    const angle = node => {
+      const matrix = new globalThis.DOMMatrixReadOnly(globalThis.getComputedStyle(node).transform);
+      return Math.atan2(matrix.b, matrix.a);
+    };
+    const result = { old: centre(oldCard), next: centre(newCard), slot: centre(cover), oldAngle: angle(oldCard), newAngle: angle(newCard), count: animations.length,
+      newZ: Number(globalThis.getComputedStyle(newCard).zIndex), oldZ: Number(globalThis.getComputedStyle(oldCard).zIndex) };
+    for (const animation of animations) animation.finish();
+    return result;
+  }, [previousId, nextId]);
+  assert(sample.count >= 4, 'Both complete cards animate transform and opacity');
+  assert(sample.old.x < sample.slot.x && sample.oldAngle < 0, 'Old card arcs out to the left');
+  assert(sample.next.x > sample.slot.x && sample.next.y > sample.slot.y && sample.newAngle > 0, 'Next card rises along an arc from the lower right');
+  assert(sample.newZ > sample.oldZ, 'Incoming card stays in front, including the last-to-first wrap');
+}
+
 export async function runHeroTemplatesBrowser(browser, base) {
   for (const language of ['vi', 'en']) {
     const context = await browser.newContext({ reducedMotion: 'reduce', viewport: { width: 390, height: 844 }, hasTouch: true });
@@ -80,8 +108,11 @@ export async function runHeroTemplatesBrowser(browser, base) {
     });
     assert(Math.abs((await progressState(page)).scale - 0.5) < 0.01, 'Half the duration fills half the track');
     assert.equal(await active(page), ids[0], 'Partial fill does not change the cover');
+    let previousId = ids[0];
     for (const id of [ids[1], ids[2], ids[0]]) {
       await finishProgress(page, id);
+      await verifyOrbit(page, previousId, id);
+      previousId = id;
       assert((await progressState(page)).time < 1000, 'Next cover starts a fresh progress cycle');
     }
     const cover = page.locator('.mkt-hero__cover');
@@ -153,7 +184,8 @@ export async function runHeroTemplatesBrowser(browser, base) {
     });
     assert.equal(await active(timed), ids[0], 'Real time shows an intermediate fill before the cover changes');
     await waitForTemplate(timed, ids[1]);
+    await verifyOrbit(timed, ids[0], ids[1]);
     assert((await progressState(timed)).time < 1000, 'Natural animation completion advances the cover and resets progress');
   } finally { await timed.close(); }
-  console.log('PASS Hero covers: matching players VI/EN, five-second linear progress, half-fill, natural completion, clickable reset, preview pause/resume, reduced motion and failed-image fallback.');
+  console.log('PASS Hero covers: left exit/right ascending arc on desktop/mobile, matching players VI/EN, five-second progress, natural completion, clickable reset, preview pause/resume, reduced motion and failed-image fallback.');
 }

@@ -1,0 +1,587 @@
+{
+  "schemaVersion": 1,
+  "registryVersion": 1,
+  "artboard": {
+    "baseSize": {
+      "width": 390,
+      "height": 844
+    },
+    "layoutMode": "responsive-scene",
+    "safeInsets": {
+      "top": 24,
+      "right": 24,
+      "bottom": 24,
+      "left": 24
+    }
+  },
+  "entrySceneId": "scene-cover",
+  "bindings": {
+    "recipientName": {
+      "type": "text",
+      "value": ""
+    },
+    "senderName": {
+      "type": "text",
+      "value": ""
+    },
+    "message": {
+      "type": "text",
+      "value": ""
+    }
+  },
+  "assets": [
+    {
+      "assetId": "event-birthday-859492553d0a",
+      "kind": "image"
+    }
+  ],
+  "elements": [
+    {
+      "id": "cover-kicker",
+      "type": "text",
+      "elementVersion": 1,
+      "layout": {
+        "x": 40,
+        "y": 40,
+        "width": 310,
+        "height": 30,
+        "rotation": 0
+      },
+      "props": {
+        "text": "HÔM NAY, MÌNH MỪNG BẠN",
+        "fontToken": "body",
+        "fontSize": 14,
+        "align": "center",
+        "color": "#362644",
+        "lineHeight": 1.25
+      },
+      "accessibility": {
+        "role": "paragraph"
+      },
+      "name": "Ước một điều đi! · Trang trí 1"
+    },
+    {
+      "id": "cover-title",
+      "type": "text",
+      "elementVersion": 1,
+      "layout": {
+        "x": 39,
+        "y": 93,
+        "width": 312,
+        "height": 116,
+        "rotation": 0
+      },
+      "props": {
+        "text": "Ước một\nđiều đi!",
+        "fontToken": "heading",
+        "fontSize": 43,
+        "align": "center",
+        "color": "#362644",
+        "lineHeight": 1.25
+      },
+      "accessibility": {
+        "role": "heading",
+        "level": 1
+      },
+      "name": "Tiêu đề bìa"
+    },
+    {
+      "id": "birthday-rule",
+      "type": "line",
+      "elementVersion": 1,
+      "layout": {
+        "x": 171,
+        "y": 214,
+        "width": 48,
+        "height": 2,
+        "rotation": 0
+      },
+      "props": {
+        "color": "#F56C60",
+        "strokeWidth": 3
+      },
+      "accessibility": {
+        "decorative": true
+      },
+      "name": "Ước một điều đi! · Trang trí 3"
+    },
+    {
+      "id": "event-photo-birthday",
+      "type": "image",
+      "elementVersion": 1,
+      "layout": {
+        "x": 18,
+        "y": 225,
+        "width": 354,
+        "height": 300,
+        "rotation": 0
+      },
+      "props": {
+        "assetId": "event-birthday-859492553d0a",
+        "fit": "contain",
+        "focalPoint": {
+          "x": 0.5,
+          "y": 0.5
+        },
+        "radius": 0
+      },
+      "accessibility": {
+        "alt": "Ảnh kỷ niệm",
+        "decorative": true,
+        "label": "Momevia Original artwork v1"
+      },
+      "name": "Ảnh bánh kem và nến"
+    },
+    {
+      "id": "name-ribbon",
+      "type": "shape",
+      "elementVersion": 1,
+      "layout": {
+        "x": 28,
+        "y": 544,
+        "width": 334,
+        "height": 94,
+        "rotation": 0
+      },
+      "props": {
+        "kind": "rectangle",
+        "color": "#FFD056",
+        "strokeColor": "#6136DF",
+        "strokeWidth": 0,
+        "radius": 5
+      },
+      "accessibility": {
+        "decorative": true
+      },
+      "name": "Dải giấy tên"
+    },
+    {
+      "id": "text-recipient",
+      "type": "text",
+      "elementVersion": 1,
+      "layout": {
+        "x": 43,
+        "y": 551,
+        "width": 304,
+        "height": 82,
+        "rotation": 0
+      },
+      "props": {
+        "fontToken": "body",
+        "fontSize": 23,
+        "align": "center",
+        "color": "#362644",
+        "textBinding": "recipientName",
+        "lineHeight": 1.55
+      },
+      "accessibility": {
+        "role": "paragraph"
+      },
+      "name": "Tên người nhận"
+    },
+    {
+      "id": "cover-note",
+      "type": "text",
+      "elementVersion": 1,
+      "layout": {
+        "x": 46,
+        "y": 661,
+        "width": 298,
+        "height": 48,
+        "rotation": 0
+      },
+      "props": {
+        "text": "Bánh đã sẵn. Điều ước là của bạn.",
+        "fontToken": "body",
+        "fontSize": 17,
+        "align": "center",
+        "color": "#362644",
+        "lineHeight": 1.25
+      },
+      "accessibility": {
+        "role": "paragraph"
+      },
+      "name": "Lời dẫn"
+    },
+    {
+      "id": "open-gift",
+      "type": "button",
+      "elementVersion": 1,
+      "layout": {
+        "x": 60,
+        "y": 737,
+        "width": 270,
+        "height": 72,
+        "rotation": 0
+      },
+      "props": {
+        "label": "Mở lời chúc",
+        "color": "#68374B"
+      },
+      "accessibility": {
+        "label": "Mở lời chúc"
+      },
+      "actions": [
+        {
+          "on": "activate",
+          "type": "goToScene",
+          "targetSceneId": "scene-surprise"
+        }
+      ],
+      "name": "Mở món quà"
+    },
+    {
+      "id": "message-ribbon",
+      "type": "shape",
+      "elementVersion": 1,
+      "layout": {
+        "x": 27,
+        "y": 46,
+        "width": 336,
+        "height": 13,
+        "rotation": 0
+      },
+      "props": {
+        "kind": "rectangle",
+        "color": "#41BCAF",
+        "strokeColor": "#6136DF",
+        "strokeWidth": 0,
+        "radius": 3
+      },
+      "accessibility": {
+        "decorative": true
+      },
+      "name": "Ước một điều đi! · Trang trí 9"
+    },
+    {
+      "id": "message-heading",
+      "type": "text",
+      "elementVersion": 1,
+      "layout": {
+        "x": 42,
+        "y": 88,
+        "width": 306,
+        "height": 83,
+        "rotation": 0
+      },
+      "props": {
+        "text": "Tuổi mới, thêm ngày vui.",
+        "fontToken": "heading",
+        "fontSize": 30,
+        "align": "center",
+        "color": "#362644",
+        "lineHeight": 1.25
+      },
+      "accessibility": {
+        "role": "heading",
+        "level": 1
+      },
+      "name": "Tiêu đề lời chúc"
+    },
+    {
+      "id": "message-to",
+      "type": "text",
+      "elementVersion": 1,
+      "layout": {
+        "x": 42,
+        "y": 192,
+        "width": 306,
+        "height": 70,
+        "rotation": 0
+      },
+      "props": {
+        "fontToken": "body",
+        "fontSize": 22,
+        "align": "center",
+        "color": "#362644",
+        "textBinding": "recipientName",
+        "lineHeight": 1.55
+      },
+      "accessibility": {
+        "role": "paragraph"
+      },
+      "name": "Dành tặng"
+    },
+    {
+      "id": "text-message",
+      "type": "text",
+      "elementVersion": 1,
+      "layout": {
+        "x": 42,
+        "y": 290,
+        "width": 306,
+        "height": 252,
+        "rotation": 0
+      },
+      "props": {
+        "fontToken": "body",
+        "fontSize": 21,
+        "align": "left",
+        "color": "#362644",
+        "textBinding": "message",
+        "lineHeight": 1.55
+      },
+      "accessibility": {
+        "role": "paragraph"
+      },
+      "name": "Lời chúc"
+    },
+    {
+      "id": "message-from-label",
+      "type": "text",
+      "elementVersion": 1,
+      "layout": {
+        "x": 42,
+        "y": 572,
+        "width": 306,
+        "height": 30,
+        "rotation": 0
+      },
+      "props": {
+        "text": "Cùng bạn đón tuổi mới,",
+        "fontToken": "body",
+        "fontSize": 16,
+        "align": "right",
+        "color": "#362644",
+        "lineHeight": 1.25
+      },
+      "accessibility": {
+        "role": "paragraph"
+      },
+      "name": "Lời ký tên"
+    },
+    {
+      "id": "text-sender",
+      "type": "text",
+      "elementVersion": 1,
+      "layout": {
+        "x": 42,
+        "y": 610,
+        "width": 306,
+        "height": 65,
+        "rotation": 0
+      },
+      "props": {
+        "fontToken": "body",
+        "fontSize": 21,
+        "align": "right",
+        "color": "#362644",
+        "textBinding": "senderName",
+        "lineHeight": 1.55
+      },
+      "accessibility": {
+        "role": "paragraph"
+      },
+      "name": "Tên người gửi"
+    },
+    {
+      "id": "to-message",
+      "type": "button",
+      "elementVersion": 1,
+      "layout": {
+        "x": 60,
+        "y": 737,
+        "width": 270,
+        "height": 72,
+        "rotation": 0
+      },
+      "props": {
+        "label": "Một lời đáp cho bạn",
+        "color": "#68374B"
+      },
+      "accessibility": {
+        "label": "Một lời đáp cho bạn"
+      },
+      "actions": [
+        {
+          "on": "activate",
+          "type": "goToScene",
+          "targetSceneId": "scene-message"
+        }
+      ],
+      "name": "Mở phần hồi đáp"
+    },
+    {
+      "id": "event-photo-birthday-reply",
+      "type": "image",
+      "elementVersion": 1,
+      "layout": {
+        "x": 286,
+        "y": 19,
+        "width": 76,
+        "height": 51,
+        "rotation": -8
+      },
+      "props": {
+        "assetId": "event-birthday-859492553d0a",
+        "fit": "contain",
+        "focalPoint": {
+          "x": 0.5,
+          "y": 0.5
+        },
+        "radius": 0
+      },
+      "accessibility": {
+        "alt": "Ảnh kỷ niệm",
+        "decorative": true,
+        "label": "Momevia Original artwork v1"
+      },
+      "name": "Bánh nhỏ cuối buổi tiệc"
+    },
+    {
+      "id": "reply-heading",
+      "type": "text",
+      "elementVersion": 1,
+      "layout": {
+        "x": 34,
+        "y": 80,
+        "width": 322,
+        "height": 104,
+        "rotation": 0
+      },
+      "props": {
+        "text": "Giữ lại chút vui\ncủa hôm nay.",
+        "fontToken": "heading",
+        "fontSize": 32,
+        "align": "center",
+        "color": "#362644",
+        "lineHeight": 1.25
+      },
+      "accessibility": {
+        "role": "heading",
+        "level": 1
+      },
+      "name": "Tiêu đề hồi đáp"
+    },
+    {
+      "id": "reply-intro",
+      "type": "text",
+      "elementVersion": 1,
+      "layout": {
+        "x": 42,
+        "y": 207,
+        "width": 306,
+        "height": 75,
+        "rotation": 0
+      },
+      "props": {
+        "text": "Một lời cảm ơn, một lời hẹn. Hoặc cùng xem lại chiếc bánh nhé.",
+        "fontToken": "body",
+        "fontSize": 18,
+        "align": "center",
+        "color": "#362644",
+        "lineHeight": 1.25
+      },
+      "accessibility": {
+        "role": "paragraph"
+      },
+      "name": "Lời mời hồi đáp"
+    },
+    {
+      "id": "reply-card",
+      "type": "reply",
+      "elementVersion": 1,
+      "layout": {
+        "x": 24,
+        "y": 320,
+        "width": 342,
+        "height": 300,
+        "rotation": 0
+      },
+      "props": {
+        "title": "Nhắn lại cho người gửi",
+        "submitLabel": "Gửi lời đáp"
+      },
+      "accessibility": {
+        "label": "Gửi lời đáp cho người tặng"
+      },
+      "name": "Khối hồi đáp"
+    },
+    {
+      "id": "replay-gift",
+      "type": "button",
+      "elementVersion": 1,
+      "layout": {
+        "x": 65,
+        "y": 714,
+        "width": 260,
+        "height": 72,
+        "rotation": 0
+      },
+      "props": {
+        "label": "Xem lại chiếc bánh",
+        "color": "#68374B"
+      },
+      "accessibility": {
+        "label": "Xem lại chiếc bánh"
+      },
+      "actions": [
+        {
+          "on": "activate",
+          "type": "replay"
+        }
+      ],
+      "name": "Xem lại món quà"
+    }
+  ],
+  "scenes": [
+    {
+      "id": "scene-cover",
+      "name": "Mở quà",
+      "background": {
+        "kind": "solid",
+        "color": "#FFF5DC"
+      },
+      "elementIds": [
+        "cover-kicker",
+        "cover-title",
+        "birthday-rule",
+        "event-photo-birthday",
+        "name-ribbon",
+        "text-recipient",
+        "cover-note",
+        "open-gift"
+      ]
+    },
+    {
+      "id": "scene-surprise",
+      "name": "Lời chúc",
+      "background": {
+        "kind": "solid",
+        "color": "#FFF5DC"
+      },
+      "elementIds": [
+        "message-ribbon",
+        "message-heading",
+        "message-to",
+        "text-message",
+        "message-from-label",
+        "text-sender",
+        "to-message"
+      ]
+    },
+    {
+      "id": "scene-message",
+      "name": "Hồi đáp",
+      "background": {
+        "kind": "solid",
+        "color": "#FFF5DC"
+      },
+      "elementIds": [
+        "event-photo-birthday-reply",
+        "reply-heading",
+        "reply-intro",
+        "reply-card",
+        "replay-gift"
+      ]
+    }
+  ],
+  "responsive": {
+    "textOverflow": "expand-flow",
+    "sceneOverflow": "scroll",
+    "desktop": {
+      "maxContentWidth": 600,
+      "align": "center"
+    }
+  }
+}

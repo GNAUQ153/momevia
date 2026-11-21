@@ -11,7 +11,7 @@ import { serverText } from '../../src/shared/locale.mjs';
 const before = JSON.parse(fs.readFileSync(new URL('../fixtures/event-cards-before.json', import.meta.url)));
 const ids = Object.keys(before.documents);
 
-test('21 other presets, metadata and VI/EN cover bytes stay unchanged from approved baseline', () => {
+test('21 other presets and metadata stay unchanged from approved baseline', () => {
   for (const old of before.templates.filter(t => !ids.includes(t.id))) {
     const { documentHash, ...metadata } = old;
     const template = templates.find(t => t.id === old.id);

@@ -1,0 +1,59 @@
+[
+  {
+    "id": "birthday-radiance",
+    "check": "English mobile quick edit/save/reload/publish; public 4 widths; touch targets >=44; normal motion CPU 4x",
+    "status": "PASS",
+    "slug": "p6I_NQsFSuCBSHo9vO1xEgGwWvTXiRmE",
+    "navigationToSecondFrameMs": [
+      21.3,
+      32.2,
+      32.3,
+      39.2,
+      25.6,
+      29.7
+    ],
+    "device": "Edge desktop emulation; not physical phone"
+  },
+  {
+    "id": "hai-phong-bi",
+    "check": "English mobile quick edit/save/reload/publish; public 4 widths; touch targets >=44; normal motion CPU 4x",
+    "status": "PASS",
+    "slug": "nNT2KAeU3ihRY9ADLj4GCM4OkEUyhhcR",
+    "navigationToSecondFrameMs": [
+      29,
+      31.4,
+      36.9,
+      29.9,
+      25.9,
+      30.5
+    ],
+    "device": "Edge desktop emulation; not physical phone"
+  },
+  {
+    "id": "proud-of-you",
+    "check": "English mobile quick edit/save/reload/publish; public 4 widths; touch targets >=44; normal motion CPU 4x",
+    "status": "PASS",
+    "slug": "PVQIutjRVzfkTj_9ZSKTJnyfG4AguvM0",
+    "navigationToSecondFrameMs": [
+      24.4,
+      31.9,
+      30.7,
+      31,
+      34.7,
+      26.4
+    ],
+    "device": "Edge desktop emulation; not physical phone"
+  },
+  {
+    "check": "All 3 old v3 covers cached in real browser HTTP cache; all current v5 covers fetched",
+    "status": "PASS",
+    "requests": {
+      "birthday-radiance?v=3": 1,
+      "hai-phong-bi?v=3": 1,
+      "proud-of-you?v=3": 1,
+      "birthday-radiance?v=5": 1,
+      "hai-phong-bi?v=5": 1,
+      "proud-of-you?v=5": 1
+    }
+  }
+]

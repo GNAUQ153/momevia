@@ -1,0 +1,78 @@
+[
+  {
+    "id": "birthday-radiance",
+    "check": "old draft / old gift / cleaned regift / replay",
+    "status": "PASS"
+  },
+  {
+    "id": "hai-phong-bi",
+    "check": "old draft / old gift / cleaned regift / replay",
+    "status": "PASS"
+  },
+  {
+    "id": "proud-of-you",
+    "check": "old draft / old gift / cleaned regift / replay",
+    "status": "PASS"
+  },
+  {
+    "id": "birthday-radiance",
+    "language": "vi",
+    "check": "explore / preview / 3 scenes / simulated reply / focus return",
+    "status": "PASS"
+  },
+  {
+    "id": "hai-phong-bi",
+    "language": "vi",
+    "check": "explore / preview / 3 scenes / simulated reply / focus return",
+    "status": "PASS"
+  },
+  {
+    "id": "proud-of-you",
+    "language": "vi",
+    "check": "explore / preview / 3 scenes / simulated reply / focus return",
+    "status": "PASS"
+  },
+  {
+    "id": "birthday-radiance",
+    "language": "en",
+    "check": "explore / preview / 3 scenes / simulated reply / focus return",
+    "status": "PASS"
+  },
+  {
+    "id": "hai-phong-bi",
+    "language": "en",
+    "check": "explore / preview / 3 scenes / simulated reply / focus return",
+    "status": "PASS"
+  },
+  {
+    "id": "proud-of-you",
+    "language": "en",
+    "check": "explore / preview / 3 scenes / simulated reply / focus return",
+    "status": "PASS"
+  },
+  {
+    "id": "birthday-radiance",
+    "check": "UI quick/layout / personalization / memory / decoration edit / save reload / publish / anonymous reply / replies disabled",
+    "status": "PASS",
+    "draftId": "c9d72642-291b-4aca-8366-b768e34c558a",
+    "slug": "E_7DQJ6eTpFAp4U4FLPd_WRa9IdbB9bl"
+  },
+  {
+    "id": "hai-phong-bi",
+    "check": "UI quick/layout / personalization / memory / decoration edit / save reload / publish / anonymous reply / replies disabled",
+    "status": "PASS",
+    "draftId": "4e220b04-0bbe-4ccc-a60a-ceb9ff2c4106",
+    "slug": "SfNsF1dT5GqaArF5TZGuXokgpNjbOljS"
+  },
+  {
+    "id": "proud-of-you",
+    "check": "UI quick/layout / personalization / memory / decoration edit / save reload / publish / anonymous reply / replies disabled",
+    "status": "PASS",
+    "draftId": "05456bbd-c8a7-4472-996c-5cf0db022637",
+    "slug": "bZFA923itsrFFD-2ukLVwyLAujM20w07"
+  },
+  {
+    "check": "3 templates × 2 locales × 4 widths × 3 scenes with long text",
+    "status": "PASS"
+  }
+]

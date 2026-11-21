@@ -7,7 +7,7 @@
 }
 
 @font-face {
-  font-family: "Momevia Lora";
+  font-family: "Lora";
   src: url("/assets/fonts/lora.woff2") format("woff2");
   font-style: normal;
   font-weight: 400 700;
@@ -15,7 +15,7 @@
 }
 
 @font-face {
-  font-family: "Momevia Lora";
+  font-family: "Lora";
   src: url("/assets/fonts/lora-italic.woff2") format("woff2");
   font-style: italic;
   font-weight: 400 700;
@@ -42,6 +42,11 @@
   --error: #ba3053;
   /* Token điều khiển chung cho Canvas/Creator/Admin: một nguồn cấu hình. */
   --ui-control-min-height: 44px;
+  --ui-text-base: 1rem;
+  --ui-text-small: 0.875rem;
+  --ui-text-caption: 0.8125rem;
+  --ui-text-lead: clamp(1rem, 1.3vw, 1.125rem);
+  --ui-transition: 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
   --ui-panel-border: #dfd7ec;
   --ui-focus-ring: #7247c8;
   --ui-control-ease: 160ms ease;
@@ -53,8 +58,8 @@
   --shadow-elevated: 0 26px 70px rgba(52, 26, 115, 0.18);
   --font-display: "Plus Jakarta Sans", "Inter", system-ui, -apple-system, sans-serif;
   --font-body: "Inter", system-ui, -apple-system, sans-serif;
-  --font-serif: "Momevia Lora", "Times New Roman", serif;
-  --font-shell: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --font-serif: "Lora", Georgia, serif;
+  --font-shell: "Inter", system-ui, -apple-system, sans-serif;
   --container: 1190px;
   --ease: cubic-bezier(.2, .8, .2, 1);
   --ease-in-out: cubic-bezier(.77, 0, .175, 1);

@@ -146,7 +146,7 @@ function loadAppFonts() {
   const fonts = document.createElement('link');
   fonts.id = 'app-fonts';
   fonts.rel = 'stylesheet';
-  fonts.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@400..800&family=Plus+Jakarta+Sans:wght@400..800&display=optional';
+  fonts.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@400..800&family=Plus+Jakarta+Sans:wght@400..800&display=swap';
   document.head.append(fonts);
 }
 onLocaleChange(() => {

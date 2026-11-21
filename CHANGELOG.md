@@ -1,3 +1,10 @@
+## Unreleased — Brand typography, responsive UI và đánh giá bảo mật (2026-11-21)
+
+- Chuẩn hóa font hệ thống theo Plus Jakarta Sans (display), Inter (body, navigation), Lora (serif); tải stylesheet Inter/Plus Jakarta Sans ở `web/index.html` cho cả trang chủ và các route, thay vì chỉ nạp trễ ở các route khác. Lora dùng `@font-face` từ tài nguyên có sẵn trong project.
+- Thêm `web/css/brand-system.css`: typography dễ đọc, màu tương phản, thẻ điều hành, CTA người nhận, focus và chuyển động 3D nhẹ chỉ trên thiết bị hỗ trợ hover. Tôn trọng `prefers-reduced-motion` và không áp dụng quy tắc mới lên nội dung thiệp Canvas do người dùng tự thiết kế.
+- Bổ sung unit test kiểm tra font, CSP cho nguồn font, cấu trúc CSS và bảo toàn giao diện song ngữ. Không thay đổi API, dữ liệu, thanh toán, role hoặc schema Canvas.
+- Đánh giá source/kiến trúc/bảo mật được ghi trong tài liệu `docs/CODE_REVIEW_20261121.md`. Kiểm thử sản phẩm, Core Web Vitals và browser thực tế vẫn phải chạy ở môi trường có đủ dependency.
+
 ## Unreleased — Tích hợp main vào mẫu sự kiện (2026-11-21)
 
 - Giữ đầy đủ nhật ký của cả hai nhánh khi giải quyết conflict PR #17.

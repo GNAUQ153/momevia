@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import path from 'node:path';
 import { chromium } from 'playwright';
+import { runHeroTemplatesBrowser } from './hero-templates.mjs';
 
 const screens = [[1614, 1040], [1440, 900], [1024, 768], [820, 1180], [768, 1024], [390, 844], [320, 740]];
 
@@ -24,7 +25,7 @@ export async function runHomeBrowser(base) {
           const primary = hero.locator('a[href="/explore"]');
           const preview = hero.locator('.mkt-actions [data-template-preview]');
           const cover = hero.locator('.mkt-hero__cover');
-          const image = cover.locator('img');
+          const image = cover.locator('img[data-active="true"]');
           await image.evaluate(img => img.decode());
           assert.equal(await page.locator('html').getAttribute('lang'), language);
           assert.equal(await page.locator('html').getAttribute('data-type'), 'software');
@@ -183,6 +184,7 @@ export async function runHomeBrowser(base) {
     await motionPage.locator('.mkt-hero a[href="/explore"]').click();
     await filter.waitFor({ state: 'detached' });
     await motionPage.close();
+    await runHeroTemplatesBrowser(browser, base);
     console.log('PASS Browser home VI/EN: seven viewports, compact section gaps, first-screen actions, preview, Escape and focus, Back and how-it-works, reduced motion.');
   } finally { await browser.close(); }
 }

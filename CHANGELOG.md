@@ -1,3 +1,9 @@
+## Unreleased — Ba mẫu thiệp luân phiên ở trang chủ (2026-11-21)
+
+- Khung xem thử đầu trang luân phiên thiệp cưới, sinh nhật và tốt nghiệp mỗi 5 giây; chuyển bìa bằng opacity/transform, giữ nguyên kích thước khung.
+- Thêm nút chọn mẫu, dừng/tiếp tục và nhãn VI/EN; mở preview đúng mẫu đang hiển thị. Dừng tự động khi đang xem preview, rê chuột, dùng bàn phím, rời vùng hiển thị hoặc ẩn tab; tôn trọng giảm chuyển động.
+- Kiểm chứng build, check, 455 unit tests, test:templates và test:browser trên dữ liệu cô lập; kiểm tra trang chủ VI/EN ở 7 kích thước 320–1614px. Kiểm tra chuyển ảnh, chọn mẫu, preview, pause/resume và ảnh lỗi bằng Chrome; chưa đo trên điện thoại thật.
+
 ## Unreleased — Global Shell UX & Refund Queue Resilience (2026-11-21)
 
 - Sửa hai chuỗi tiếng Việt cố định trong giao diện App Shell: thông báo đối soát thanh toán và alt ảnh xem trước; chuyển VI/EN ngay tại trang bằng hệ thống i18n.

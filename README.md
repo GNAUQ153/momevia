@@ -96,12 +96,12 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các commit gần nhất trên `main`:**
 
+- `608c54c` — feat: add read-only creator finance reporting (2026-11-21)
 - `a06ae06` — test: fix home browser regression for 3D journey (2026-11-21)
 - `be3ea06` — feat: improve UI UX, localization and security (2026-11-21)
 - `41de770` — feat(marketing): enhance hero 3d interaction and accessibility (2026-11-21)
 - `c9ce4da` — fix: stabilize responsive layout and JSON persistence on Windows (2026-11-21)
 - `b6e9eca` — feat: improve Momevia localization and user experience (2026-11-21)
-- `48175dd` — feat(canvas): add visual conflict review and recovery comparison (2026-11-20)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

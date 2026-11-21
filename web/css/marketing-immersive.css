@@ -125,7 +125,7 @@
   position: relative;
   min-height: clamp(390px, 45vw, 600px);
   padding: 42px 24px;
-  overflow: visible;
+  overflow: hidden;
   isolation: isolate;
   border: 1px solid #ffffffa8;
   border-radius: 34px;
@@ -234,14 +234,14 @@
 }
 
 .is-home .mkt-stage__note {
-  top: 12%;
-  left: -8%;
+  top: 4%;
+  left: 3%;
   transform: translateZ(85px) rotate(-8deg);
 }
 
 .is-home .mkt-stage__reply {
-  bottom: 12%;
-  right: -8%;
+  bottom: 4%;
+  right: 3%;
   transform: translateZ(92px) rotate(7deg);
 }
 
@@ -447,17 +447,21 @@
   transition: none;
 }
 
+.is-home .mkt-stage .mkt-hero__cover [data-peeking] {
+  z-index: 1;
+}
+
 .is-home .mkt-stage .mkt-hero__cover [data-exiting] {
   z-index: 1;
   transform: rotate(-18deg);
-  transition: opacity 600ms var(--ease), transform 600ms var(--ease);
+  transition: opacity 1200ms var(--ease-in-out), transform 1200ms var(--ease-in-out);
 }
 
 .is-home .mkt-stage .mkt-hero__cover [data-active="true"] {
   z-index: 2;
   opacity: 1;
   transform: none;
-  transition: opacity 600ms var(--ease), transform 600ms var(--ease);
+  transition: opacity 1200ms var(--ease-in-out), transform 1200ms var(--ease-in-out);
 }
 
 .mkt-hero__rotation {

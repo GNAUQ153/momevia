@@ -14,7 +14,10 @@ const progressState = page => page.locator('[aria-pressed="true"] [data-hero-pro
   };
 });
 async function finishProgress(page, id) {
-  await page.locator('[aria-pressed="true"] [data-hero-progress]').evaluate(node => node.getAnimations()[0].finish());
+  await page.evaluate(() => {
+    globalThis.document.querySelector('[data-peeking]')?.getAnimations().forEach(animation => animation.finish());
+    globalThis.document.querySelector('[aria-pressed="true"] [data-hero-progress]').getAnimations()[0].finish();
+  });
   await waitForTemplate(page, id);
 }
 
@@ -35,7 +38,10 @@ async function verifyOrbit(page, previousId, nextId) {
       const matrix = new globalThis.DOMMatrixReadOnly(globalThis.getComputedStyle(node).transform);
       return Math.atan2(matrix.b, matrix.a);
     };
+    const entering = newCard.getAnimations().find(animation => animation.transitionProperty === 'transform');
+    const start = entering && new globalThis.DOMMatrixReadOnly(entering.effect.getKeyframes()[0].transform);
     const result = { old: centre(oldCard), next: centre(newCard), slot: centre(cover), oldAngle: angle(oldCard), newAngle: angle(newCard), count: animations.length,
+      duration: entering?.effect.getTiming().duration, startAngle: start && Math.atan2(start.b, start.a) * 180 / Math.PI,
       newZ: Number(globalThis.getComputedStyle(newCard).zIndex), oldZ: Number(globalThis.getComputedStyle(oldCard).zIndex) };
     for (const animation of animations) animation.finish();
     return result;
@@ -44,6 +50,8 @@ async function verifyOrbit(page, previousId, nextId) {
   assert(sample.old.x < sample.slot.x && sample.oldAngle < 0, 'Old card arcs out to the left');
   assert(sample.next.x > sample.slot.x && sample.next.y > sample.slot.y && sample.newAngle > 0, 'Next card rises along an arc from the lower right');
   assert(sample.newZ > sample.oldZ, 'Incoming card stays in front, including the last-to-first wrap');
+  assert.equal(sample.duration, 1200, 'Orbit has a slower 1.2-second handoff');
+  assert(Math.abs(sample.startAngle - 12) < 0.1, 'Handoff continues from the teased angle without jumping back');
 }
 
 export async function runHeroTemplatesBrowser(browser, base) {
@@ -58,6 +66,10 @@ export async function runHeroTemplatesBrowser(browser, base) {
       await waitForTemplate(page, ids[0]);
       const originalBox = await cover.boundingBox();
       const frame = await page.locator('.mkt-hero__frame').boundingBox();
+      assert(await page.locator('.mkt-hero__frame').evaluate(node => {
+        const style = globalThis.getComputedStyle(node);
+        return ['hidden', 'clip'].includes(style.overflowX) && ['hidden', 'clip'].includes(style.overflowY);
+      }), 'The rounded frame clips moving cards and decorations on both axes');
       const controls = await page.locator('.mkt-hero__rotation').boundingBox();
       assert(controls.y >= frame.y + frame.height, 'The three indicators sit below the artwork');
       assert.equal(await page.locator('[data-hero-playback]').count(), 0, 'There is no pause button');
@@ -93,6 +105,7 @@ export async function runHeroTemplatesBrowser(browser, base) {
     await page.goto(base);
     await waitForTemplate(page, ids[0]);
     await page.locator('[data-hero-image]').evaluateAll(images => Promise.all(images.map(image => image.decode())));
+    await page.locator('[data-peeking]').waitFor({ state: 'attached' });
     const transition = await page.locator('[data-hero-image]').first().evaluate(node => {
       const style = globalThis.getComputedStyle(node);
       return { properties: style.transitionProperty.split(', '), duration: parseFloat(style.transitionDuration) };
@@ -106,6 +119,15 @@ export async function runHeroTemplatesBrowser(browser, base) {
       animation.pause();
       animation.currentTime = 2500;
     });
+    await page.locator('[data-peeking]').evaluate(node => {
+      const animation = node.getAnimations()[0];
+      animation.pause();
+      animation.currentTime = 2500;
+    });
+    assert.equal(await page.locator('[data-peeking]').evaluate(node => Number(globalThis.getComputedStyle(node).opacity)), 0, 'Next cover remains hidden during the first three seconds');
+    await page.locator('[data-peeking]').evaluate(node => { node.getAnimations()[0].currentTime = 4000; });
+    const hint = await page.locator('[data-peeking]').evaluate(node => ({ opacity: Number(globalThis.getComputedStyle(node).opacity), active: node.dataset.active }));
+    assert(hint.opacity > 0 && hint.opacity < 0.72 && hint.active === 'false', 'Last two seconds reveal a partial, non-selected next cover');
     assert(Math.abs((await progressState(page)).scale - 0.5) < 0.01, 'Half the duration fills half the track');
     assert.equal(await active(page), ids[0], 'Partial fill does not change the cover');
     let previousId = ids[0];
@@ -122,6 +144,7 @@ export async function runHeroTemplatesBrowser(browser, base) {
     const dialog = page.getByRole('dialog');
     await dialog.locator('[data-runtime-element="event-photo-birthday"]').waitFor();
     assert.equal((await progressState(page)).state, 'paused', 'Preview pauses the same progress clock');
+    assert.equal(await page.locator('[data-peeking]').evaluate(node => node.getAnimations()[0].playState), 'paused', 'Preview also pauses the teaser');
     assert.equal(await active(page), ids[1], 'Open player freezes its corresponding cover');
     await page.keyboard.press('Escape');
     await dialog.waitFor({ state: 'hidden' });
@@ -156,6 +179,7 @@ export async function runHeroTemplatesBrowser(browser, base) {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.waitForFunction(() => [...globalThis.document.querySelectorAll('[data-hero-progress]')].every(node => node.getAnimations().length === 0));
     assert.equal(await page.locator('[data-hero-progress]').evaluateAll(nodes => nodes.flatMap(node => node.getAnimations()).length), 0);
+    assert.equal(await page.locator('[data-peeking]').count(), 0, 'Reduced motion removes the teaser');
     assert.equal(await active(page), ids[2], 'Reduced motion keeps the selected cover');
     await page.locator('[data-hero-select="0"]').click();
     await waitForTemplate(page, ids[0]);
@@ -183,9 +207,14 @@ export async function runHeroTemplatesBrowser(browser, base) {
       return scale > 0.2 && scale < 0.8;
     });
     assert.equal(await active(timed), ids[0], 'Real time shows an intermediate fill before the cover changes');
+    await timed.waitForFunction(() => {
+      const image = globalThis.document.querySelector('[data-peeking]');
+      return image && Number(globalThis.getComputedStyle(image).opacity) > 0.05;
+    });
+    assert.equal(await active(timed), ids[0], 'Teaser appears before the five-second selection boundary');
     await waitForTemplate(timed, ids[1]);
     await verifyOrbit(timed, ids[0], ids[1]);
     assert((await progressState(timed)).time < 1000, 'Natural animation completion advances the cover and resets progress');
   } finally { await timed.close(); }
-  console.log('PASS Hero covers: left exit/right ascending arc on desktop/mobile, matching players VI/EN, five-second progress, natural completion, clickable reset, preview pause/resume, reduced motion and failed-image fallback.');
+  console.log('PASS Hero covers: three seconds clear/two seconds teaser, 1.2-second arc with continuous handoff, five-second boundary, matching players VI/EN, clickable reset, shared pause/resume and reduced motion.');
 }

@@ -1,3 +1,10 @@
+## Unreleased — Hé thiệp trong hai giây cuối (2026-11-21)
+
+- Giữ chu kỳ mỗi mẫu đúng 5 giây; từ giây thứ 3, mẫu tiếp theo hé dần ở phía sau bên phải theo cùng đồng hồ với thanh tiến trình.
+- Chuyển xoay chậm lại thành 1,2 giây với nhịp ease-in-out, tiếp nối ngay vị trí đang hé thay vì quay về điểm xuất phát. Giữ chọn mẫu bằng thanh, pause/resume khi xem preview và giảm chuyển động.
+- Cắt toàn bộ thiệp, bóng và họa tiết vượt viền bo góc của khung; đưa hai nhãn nổi vào trong viền để giữ nội dung dễ đọc.
+- Đã kiểm tra nhịp 3+2 giây, nối tiếp góc đang hé, xoay 1,2 giây, VI/EN, chọn mẫu và pause/resume bằng browser; build, check, 459 unit tests và test:browser đạt. Rà thêm khung cắt viền ở 7 kích thước 320–1614px; ảnh soát ở `local/hero-templates/peek-clipped-*.png`.
+
 ## Unreleased — Chuyển thiệp theo cung tròn (2026-11-21)
 
 - Giữ nguyên khung xem ở trang chủ: thiệp cũ xoay ra bên trái, thiệp mới đi theo cung tròn từ góc phải phía dưới lên vị trí hiện tại. Cả viền giấy và bóng thiệp chuyển cùng ảnh trong 600ms, chỉ dùng transform/opacity.

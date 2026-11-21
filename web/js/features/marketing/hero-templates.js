@@ -14,7 +14,35 @@ export function mountHeroTemplates(host, templates) {
   const reduce = matchMedia('(prefers-reduced-motion: reduce)');
   const lifetime = new AbortController();
   const options = { signal: lifetime.signal };
-  let index = 0, progress, generation = 0, visible = true;
+  let index = 0, progress, peek, peekImage, generation = 0, visible = true;
+
+  function preparePeek(clock) {
+    const image = images[(index + 1) % templates.length];
+    image.decode().then(() => {
+      if (progress !== clock || lifetime.signal.aborted || reduce.matches) return;
+      peekImage = image;
+      image.setAttribute('data-peeking', '');
+      peek = image.animate([
+        { offset: 0, transform: 'rotate(18deg)', opacity: 0 },
+        { offset: 0.6, transform: 'rotate(18deg)', opacity: 0 },
+        { offset: 1, transform: 'rotate(12deg)', opacity: 0.72 },
+      ], { duration, easing: 'linear', fill: 'forwards' });
+      peek.currentTime = Number(clock.currentTime) || 0;
+      if (!canRotate()) peek.pause();
+      else if (clock.startTime !== null) peek.startTime = clock.startTime;
+    }).catch(() => { /* Never tease an image that failed to decode. */ });
+  }
+  function clearPeek(handoff = false) {
+    const held = handoff && peek ? peekImage : null;
+    // Keep the exact visible pose while changing from the teaser to the active
+    // card. A single style read at selection avoids a snap back to the start.
+    if (held) peek.commitStyles();
+    peek?.cancel();
+    peekImage?.removeAttribute('data-peeking');
+    peek = peekImage = null;
+    if (held) void getComputedStyle(held).transform;
+    return held;
+  }
 
   function canRotate() {
     return !lifetime.signal.aborted && !reduce.matches &&
@@ -23,6 +51,7 @@ export function mountHeroTemplates(host, templates) {
   function schedule() {
     if (!canRotate()) {
       progress?.pause();
+      peek?.pause();
       if (reduce.matches) resetProgress();
       return;
     }
@@ -38,11 +67,19 @@ export function mountHeroTemplates(host, templates) {
       animation.onfinish = () => {
         if (progress === animation && canRotate()) void select((index + 1) % templates.length, true);
       };
-    } else if (progress.playState === 'paused') progress.play();
+      preparePeek(animation);
+    } else if (progress.playState === 'paused') {
+      progress.play();
+      if (peek) {
+        peek.currentTime = Number(progress.currentTime) || 0;
+        peek.play();
+      }
+    }
   }
   function resetProgress() {
     progress?.cancel();
     progress = null;
+    clearPeek();
   }
   function update() {
     root.dataset.heroTemplate = templates[index].id;
@@ -54,14 +91,18 @@ export function mountHeroTemplates(host, templates) {
   }
   async function select(next, automatic = false) {
     progress?.pause();
+    peek?.pause();
     const request = ++generation;
     try {
       await images[next].decode();
       if (request !== generation || lifetime.signal.aborted || (automatic && !canRotate())) return;
+      const held = clearPeek(next !== index && images[next] === peekImage);
       resetProgress();
       if (next !== index) images.forEach((image, position) => image.toggleAttribute('data-exiting', position === index));
       index = next;
       update();
+      held?.style.removeProperty('transform');
+      held?.style.removeProperty('opacity');
     } catch {
       // Retry on a new full cycle, avoiding a tight loop after a failed image.
       if (request === generation) resetProgress();

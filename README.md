@@ -89,19 +89,19 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Chuẩn hóa 28 khóa VI/EN cho nhãn và lịch sử thao tác Canvas Designer; tên thành phần trong thông báo thêm element lấy từ từ điển nhưng không sửa dữ liệu mẫu đã lưu.
-- Thêm `npm run i18n:audit` để lập danh sách ứng viên chuỗi tiếng Việt trên các trang và Canvas; `npm run check` chặn chuỗi UI tiếng Việt mới trong `designer.js` ngoài sáu giá trị nguồn được giải thích.
-- Chuẩn hóa token focus, biên panel, thời gian tương tác và vùng bấm tối thiểu 44px cho Fabric Quickbar, Inspector và Style Properties; giữ `prefers-reduced-motion`.
-- Thêm 5 bài kiểm thử chuyên biệt và `docs/I18N_AUDIT.md` nêu rõ phần đã kiểm chứng và giới hạn. Không đổi Canvas schema, dữ liệu người dùng, API, database, thanh toán hay quà đã phát hành.
+- Sửa hai chuỗi tiếng Việt cố định trong giao diện App Shell: thông báo đối soát thanh toán và alt ảnh xem trước; chuyển VI/EN ngay tại trang bằng hệ thống i18n.
+- Bổ sung cơ chế yêu cầu chỉ đọc mới nhất cho hàng đợi Refund Admin, chống phản hồi API cũ ghi đè bộ lọc mới; hiển thị trạng thái tải/lỗi không xóa danh sách đang xem.
+- Chuẩn hóa nhãn trạng thái, vùng bấm 44px, focus-visible và reduced motion cho Refund Queue; mở rộng `npm run i18n:audit` và kiểm tra chặn chuỗi tiếng Việt hardcode trong `app/main.js`.
+- Thêm kiểm thử unit và tài liệu `docs/GLOBAL_SHELL_UX_I18N.md`. Không thay đổi database, API, quyền, giao dịch hoặc dữ liệu Canvas.
 
 **Các commit gần nhất trên `main`:**
 
+- `f798853` — feat: localize app shell and harden refund queue UX (2026-11-21)
 - `f84c1fd` — feat: audit Designer i18n and unify Fabric UI tokens (2026-11-21)
 - `6658be1` — feat: localize Fabric quickbar and appearance controls (2026-11-21)
 - `859fbe0` — feat: localize Fabric inspector and track changelog changes (2026-11-21)
 - `ede4a2a` — feat: localize Canvas Designer and refactor discovery UI (2026-11-21)
 - `08c3e02` — feat: add paginated admin refund review queue (2026-11-21)
-- `727ac61` — feat: complete refund review integration (2026-11-21)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

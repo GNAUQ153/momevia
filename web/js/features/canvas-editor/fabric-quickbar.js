@@ -1,5 +1,6 @@
 // Phase 6.0: Công cụ chỉnh nhanh trên Canvas; chỉ sửa trạng thái Fabric tạm.
 // Document Momevia chỉ đổi khi người dùng bấm "Áp dụng vào thiết kế".
+import { message, setAttr, setText } from '../../core/i18n.js';
 import {
   readInspectorGeometry,
   applyInspectorGeometry,
@@ -14,14 +15,8 @@ const MOVE_ACTIONS = Object.freeze({
   'move-down': [0, 1],
 });
 const ACTIONS = Object.freeze([
-  ['move-left', 'Trái', 'Dịch lớp sang trái'],
-  ['move-right', 'Phải', 'Dịch lớp sang phải'],
-  ['move-up', 'Lên', 'Dịch lớp lên trên'],
-  ['move-down', 'Xuống', 'Dịch lớp xuống dưới'],
-  ['rotate-left', 'Xoay −15°', 'Xoay ngược chiều kim đồng hồ 15 độ'],
-  ['rotate-right', 'Xoay +15°', 'Xoay theo chiều kim đồng hồ 15 độ'],
-  ['center-x', 'Giữa ngang', 'Căn giữa theo chiều ngang'],
-  ['center-y', 'Giữa dọc', 'Căn giữa theo chiều dọc'],
+  'move-left', 'move-right', 'move-up', 'move-down',
+  'rotate-left', 'rotate-right', 'center-x', 'center-y',
 ]);
 
 const round = value => Math.round(value * 100) / 100;
@@ -105,31 +100,50 @@ function createNode(tag, className, text = '') {
   return element;
 }
 
+// Lỗi từ lớp thao tác Canvas không được hiển thị nguyên văn trong giao diện.
+// Giữ thông điệp nghiệp vụ để không làm thay đổi các bài kiểm thử hình học cũ.
+export function quickbarUiError(error) {
+  const errors = {
+    'Bản vẽ hoặc bước di chuyển không hợp lệ.': 'step',
+    'Thao tác Canvas không được hỗ trợ.': 'action',
+    'Lớp đang khóa hoặc không có quyền chỉnh sửa.': 'locked',
+    'Không đọc được kích thước của lớp đã chọn.': 'dimensions',
+    'Bố cục lớp không hợp lệ.': 'geometry',
+    'Kích thước bản vẽ không hợp lệ.': 'artboard',
+    'Hướng căn giữa không hợp lệ.': 'direction',
+    'Không thể chỉnh sửa hình dạng này.': 'shape',
+  };
+  return message(`editor.fabric.quickbar.error.${errors[String(error?.message ?? '')] ?? 'generic'}`);
+}
+
 export function mountFabricQuickbar({ canvas, artboard, layerModels, canEdit, dialog }) {
   if (!canvas || !dialog || !layerModels || typeof canEdit !== 'function') {
     throw new Error('Không thể khởi tạo thanh công cụ Canvas.');
   }
   const panel = createNode('section', 'fabric-quickbar');
-  panel.setAttribute('aria-label', 'Chỉnh nhanh lớp đang chọn');
+  setAttr(panel, 'aria-label', message('editor.fabric.quickbar.aria'));
   const heading = createNode('div', 'fabric-quickbar__heading');
-  const title = createNode('strong', '', 'Chỉnh nhanh');
-  const status = createNode('span', 'fabric-quickbar__selection', 'Chưa chọn lớp');
+  const title = createNode('strong');
+  setText(title, message('editor.fabric.quickbar.heading'));
+  const status = createNode('span', 'fabric-quickbar__selection');
   status.setAttribute('aria-live', 'polite');
+  setText(status, message('editor.fabric.quickbar.empty'));
   heading.append(title, status);
   const controls = createNode('div', 'fabric-quickbar__controls');
   controls.setAttribute('role', 'toolbar');
-  controls.setAttribute('aria-label', 'Dịch chuyển, xoay và căn giữa lớp');
-  for (const [action, label, description] of ACTIONS) {
-    const control = createNode('button', 'fabric-quickbar__button', label);
+  setAttr(controls, 'aria-label', message('editor.fabric.quickbar.toolbar'));
+  for (const action of ACTIONS) {
+    const control = createNode('button', 'fabric-quickbar__button');
     control.type = 'button';
     control.disabled = true;
     control.dataset.quickbarAction = action;
-    control.setAttribute('aria-label', description);
-    control.title = description;
+    setText(control, message(`editor.fabric.quickbar.action.${action}.label`));
+    setAttr(control, 'aria-label', message(`editor.fabric.quickbar.action.${action}.description`));
+    setAttr(control, 'title', message(`editor.fabric.quickbar.action.${action}.description`));
     controls.append(control);
   }
-  const hint = createNode('p', 'fabric-quickbar__hint',
-    'Phím mũi tên: 1px · Shift + mũi tên: 10px · Lưu bằng nút Áp dụng.');
+  const hint = createNode('p', 'fabric-quickbar__hint');
+  setText(hint, message('editor.fabric.quickbar.hint'));
   panel.append(heading, controls, hint);
 
   const current = () => canvas.getActiveObject();
@@ -137,9 +151,11 @@ export function mountFabricQuickbar({ canvas, artboard, layerModels, canEdit, di
     const shape = current();
     const editable = canInspectFabricShape(shape, canEdit);
     const model = shape?.momeviaId && layerModels.get(shape.momeviaId);
-    status.textContent = shape ?
-      `${model?.name || model?.accessibility?.label || model?.type || 'Lớp'}${editable ? '' : ' · chỉ xem'}` :
-      'Chưa chọn lớp';
+    const name = model?.name || model?.accessibility?.label || model?.type ||
+      { format: 'message', key: 'editor.fabric.quickbar.layer' };
+    setText(status, shape
+      ? message(editable ? 'editor.fabric.quickbar.selected' : 'editor.fabric.quickbar.readOnly', { name })
+      : message('editor.fabric.quickbar.empty'));
     controls.querySelectorAll('button').forEach(control => { control.disabled = !editable; });
   };
 
@@ -149,12 +165,12 @@ export function mountFabricQuickbar({ canvas, artboard, layerModels, canEdit, di
       const changed = applyQuickbarAction(shape, action, { artboard, canEdit, step });
       if (changed) {
         canvas.requestRenderAll();
-        // Đồng bộ bảng thuộc tính Phase 5.9 mà không chạm document thật.
+        // Chỉ làm mới bảng thuộc tính, không ghi vào document người dùng.
         canvas.fire('object:modified', { target: shape });
-        status.textContent = 'Đã chỉnh · chưa áp dụng vào thiết kế';
+        setText(status, message('editor.fabric.quickbar.changed'));
       }
     } catch (error) {
-      status.textContent = error.message;
+      setText(status, quickbarUiError(error));
     }
   }
   const onClick = event => {

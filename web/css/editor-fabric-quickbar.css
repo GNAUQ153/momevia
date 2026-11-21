@@ -59,6 +59,8 @@
   font-weight: 700;
   line-height: 1.25;
   text-align: center;
+  overflow-wrap: anywhere;
+  text-wrap: balance;
 }
 
 .editor-fabric-dialog .fabric-quickbar__button:focus-visible {

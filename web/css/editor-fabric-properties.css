@@ -53,6 +53,10 @@
   color: #413250;
 }
 
+.fabric-properties__field span {
+  overflow-wrap: anywhere;
+}
+
 .fabric-properties__input {
   box-sizing: border-box;
   display: block;

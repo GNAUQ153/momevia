@@ -1,3 +1,9 @@
+## Unreleased — Fabric Quickbar & Style Properties i18n (2026-11-21)
+
+- Chuyển nhãn nút, tooltip, `aria-label`, trạng thái và thông báo lỗi của Quickbar/Style Properties sang VI/EN theo cùng giao diện, đổi ngôn ngữ ngay trong Fabric Studio.
+- Giữ nguyên ID action/field, tên lớp do người dùng tạo, giới hạn geometry, quyền chỉnh sửa và thao tác Áp dụng/Hủy; không thay đổi database, thanh toán hay định dạng Canvas.
+- Củng cố responsive cho nhãn tiếng Anh dài, bổ sung kiểm thử khóa dịch, thao tác và trạng thái panel; ghi chú phạm vi kiểm tra vẫn cần browser CI.
+
 ## Unreleased — Fabric Inspector i18n và quy trình CHANGELOG (2026-11-21)
 
 - Chuyển nhãn, thông báo và lỗi hiển thị của bảng thuộc tính Fabric Studio sang hệ thống VI/EN dùng chung; đổi ngôn ngữ ngay trong dialog mà không sửa bản nháp, geometry hoặc Undo/Redo.

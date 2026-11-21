@@ -89,19 +89,19 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Hiển thị phản hồi yêu cầu sửa mẫu của Admin ở khu vực thông báo độc lập trên trang Creator, liên kết tới danh sách mẫu; chỉ lấy phiên bản mới nhất để tránh hiển thị yêu cầu đã xử lý.
-- Giữ nguyên thông tin gốc và escape an toàn lý do duyệt; tái sử dụng khóa VI/EN có sẵn, không làm thay đổi trạng thái mẫu hoặc API.
-- Cập nhật Canvas/MySQL browser regression để kiểm tra lý do sửa mẫu thực sự hiển thị, thay vì chỉ tồn tại trong DOM; thêm unit test về phiên bản và XSS.
-- Không sửa dữ liệu, Canvas JSON, thanh toán hoặc migration; CI trên GitHub cần được xác nhận sau khi áp dụng.
+- Dashboard Sender có điều hướng nhanh tới bản nháp, quà và đơn hàng, tái sử dụng `roleQuickLinks` và ngữ nghĩa khu vực thống nhất với Admin/Creator.
+- Trang chia sẻ của Sender có hướng dẫn 3 bước, nhấn mạnh liên kết lời mời khi quà giới hạn truy cập; vẫn dùng quyền và URL từ API hiện có.
+- Trình xem thiệp legacy bổ sung tiến trình mở 3 bước, cập nhật ARIA và focus bằng module `recipient-journey.js`; không đổi Canvas JSON, quyền truy cập, nội dung lời chúc hoặc cơ chế gửi phản hồi.
+- Bổ sung nhãn VI/EN, giao diện responsive, hiệu ứng nhẹ có `prefers-reduced-motion` và kiểm thử cho luồng mở quà.
 
 **Các commit gần nhất trên `main`:**
 
+- `b03f7e5` — feat: enhance Sender sharing and Recipient journey UX (2026-11-21)
 - `d8f6992` — fix: make creator review feedback visible and test it (2026-11-21)
 - `c483944` — feat: improve Admin and Creator dashboard UX (2026-11-21)
 - `f798853` — feat: localize app shell and harden refund queue UX (2026-11-21)
 - `f84c1fd` — feat: audit Designer i18n and unify Fabric UI tokens (2026-11-21)
 - `6658be1` — feat: localize Fabric quickbar and appearance controls (2026-11-21)
-- `859fbe0` — feat: localize Fabric inspector and track changelog changes (2026-11-21)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

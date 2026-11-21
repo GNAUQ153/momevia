@@ -21,7 +21,7 @@ export function loadEnvironment() {
 export function environment() {
   loadEnvironment();
   validateSecrets(process.env);
-  const demoEnabled = process.env.DEMO_AUTH_ENABLED !== 'false' && process.env.NODE_ENV !== 'production';
+  const demoEnabled = process.env.DEMO_AUTH_ENABLED === 'true' && process.env.NODE_ENV !== 'production';
   return {
     baseUrl: process.env.PUBLIC_BASE_URL || 'http://localhost:4100',
     jwtSecret: process.env.JWT_SECRET,

@@ -4,6 +4,8 @@ function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
 }
 
+import { mountJourney } from './journey.js';
+
 export function marketingPointerGeometry(event, bounds) {
   if (!event || !bounds) return null;
   const values = [event.clientX, event.clientY, bounds.left, bounds.top, bounds.width, bounds.height];
@@ -27,6 +29,7 @@ export function mountMarketingMotion(root, { signal } = {}) {
   const revealItems = [...root.querySelectorAll('[data-mkt-reveal]')];
   const ownerDocument = stage?.ownerDocument || window.document;
   const lifetime = new AbortController();
+  const disposeJourney = mountJourney(root, { signal: lifetime.signal });
   let frame = null;
   let pendingPoint = null;
   let observer = null;
@@ -109,6 +112,7 @@ export function mountMarketingMotion(root, { signal } = {}) {
     if (disposed) return;
     disposed = true;
     lifetime.abort();
+    disposeJourney();
     observer?.disconnect();
     observer = null;
     resetTilt();

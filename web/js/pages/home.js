@@ -91,6 +91,62 @@ export function createHomeViews({ state, buttonLink, templateCard }) {
     </div></section>`;
   }
 
+  function journey() {
+    const steps = [
+      { id: 'create', symbol: 'pencil' },
+      { id: 'share', symbol: 'send' },
+      { id: 'open', symbol: 'gift' },
+      { id: 'reply', symbol: 'message-circle' },
+      { id: 'keep', symbol: 'bookmark' },
+    ];
+    return `<section class="mkt-section mkt-journey" data-mkt-journey data-mkt-reveal aria-labelledby="mkt-journey-title">
+      <div class="container wrap">
+        <div class="mkt-journey__heading">
+          <span class="mkt-journey__eyebrow">${text("home.journey.eyebrow")}</span>
+          <h2 id="mkt-journey-title">${text("home.journey.title")}</h2>
+          <p>${text("home.journey.intro")}</p>
+        </div>
+        <div class="mkt-journey__layout">
+          <div class="mkt-journey__steps" role="group" ${attr("aria-label", "home.journey.stepsLabel")}>
+            ${steps.map(({ id, symbol }, index) => `<button type="button" class="mkt-journey__step" data-mkt-step="${id}" aria-pressed="${id === 'create'}">
+              <span class="mkt-journey__step-index">0${index + 1}</span>
+              ${icon(symbol, 21)}
+              <span>${text(`home.journey.${id}.title`)}</span>
+            </button>`).join('')}
+          </div>
+          <div class="mkt-journey__showcase">
+            <div class="mkt-journey__scene" data-mkt-journey-scene data-stage="create" aria-hidden="true">
+              <div class="mkt-journey__halo"></div>
+              <div class="mkt-journey__orbit mkt-journey__orbit--first"></div>
+              <div class="mkt-journey__orbit mkt-journey__orbit--second"></div>
+              <div class="mkt-journey__postcard">
+                <div class="mkt-journey__face mkt-journey__face--front">
+                  <span class="mkt-journey__stamp">${icon('heart', 25)}</span>
+                  <strong>${text("home.journey.scene.front")}</strong>
+                  <span>${text("home.journey.scene.subtitle")}</span>
+                </div>
+                <div class="mkt-journey__face mkt-journey__face--back">
+                  <span class="mkt-journey__stamp">${icon('message-circle', 25)}</span>
+                  <strong>${text("home.journey.scene.back")}</strong>
+                  <span>${text("home.journey.scene.reply")}</span>
+                </div>
+              </div>
+              <span class="mkt-journey__spark mkt-journey__spark--one"></span>
+              <span class="mkt-journey__spark mkt-journey__spark--two"></span>
+            </div>
+            <div class="mkt-journey__details" aria-live="polite" aria-atomic="true">
+              ${steps.map(({ id }) => `<div data-mkt-panel="${id}" ${id === 'create' ? '' : 'hidden'}>
+                <h3>${text(`home.journey.${id}.title`)}</h3>
+                <p>${text(`home.journey.${id}.body`)}</p>
+              </div>`).join('')}
+            </div>
+          </div>
+        </div>
+        <div class="mkt-journey__footer">${buttonLink('/explore', text('home.journey.cta'), 'mkt-primary')}</div>
+      </div>
+    </section>`;
+  }
+
   function marketingFaq() {
     return `<h2 id="mkt-faq-title">${text("home.faq.title")}</h2>
       <div class="mkt-faq">
@@ -112,6 +168,7 @@ export function createHomeViews({ state, buttonLink, templateCard }) {
         ${buttonLink("/explore", text("home.featured.all"), "mkt-secondary")}</div>
         <div id="home-featured-gifts">${featuredGifts(catalogStatus)}</div>
       </div></section>
+      ${journey()}
       ${steps()}`;
   }
 

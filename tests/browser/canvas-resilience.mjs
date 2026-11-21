@@ -185,6 +185,15 @@ export async function runCanvasResilience(base) {
           const persisted = (await api(`/designs/designs/${record.designId}`)).design;
           return json(route, { context: { ...record, available: true, changed: persisted.revision !== record.designRevision || persisted.documentHash !== record.documentHash } });
         }
+        // Mô phỏng API đọc trạng thái yêu cầu hoàn tiền.
+        if (endpoint === `/orders/${orderId}/refund-request`) {
+          // Chỉ cho phép GET, không giả lập thao tác hoàn tiền.
+          assert.equal(request.method(), 'GET');
+
+          return json(route, {
+            request: null
+          });
+        }
         throw new Error(`Unexpected payment mock route ${request.method()} ${endpoint}`);
       } catch (error) { mockErrors.push(error.message); try { await json(route, { error: 'Payment fixture contract failed' }, 500); } catch {/* Browser may have closed the route during a failed assertion. */ } }
     });

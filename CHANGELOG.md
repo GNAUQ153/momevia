@@ -1,3 +1,14 @@
+## Unreleased — Recipient Canvas Player Navigation & Mobile UX (2026-11-21)
+
+- Sửa browser regression Canvas: xác minh focus qua `node.ownerDocument.activeElement` trong callback Playwright, không tham chiếu biến DOM toàn cục từ Node.js.
+
+- Tách điều hướng cảnh công khai và bản preview sang `scene-navigation.js`; giữ nút DOM qua các lần chuyển cảnh để không tái tạo listener/focus không cần thiết.
+- Bổ sung thanh tiến trình cảnh có ngữ nghĩa native `progress`, nhãn Việt–Anh và trạng thái cập nhật theo cảnh hiện tại; với thiệp một cảnh, thanh tiến trình được ẩn.
+- Hỗ trợ điều hướng focus bằng ArrowLeft/ArrowRight, Home/End mà không tự mở hoặc bỏ qua cảnh; các nút vẫn hoạt động khi bấm/chạm như trước.
+- Tối ưu danh sách cảnh dạng cuộn ngang/snap trên mobile, highlight cảnh hiện tại, nút tối thiểu 44px và giảm chuyển động khi người dùng yêu cầu.
+- Thêm unit test cho điều hướng, bàn phím, tên cảnh, i18n và browser regression cho tiến trình cảnh trong `canvas-expanded.mjs`.
+- Không thay đổi Canvas JSON, quyền truy cập, nội dung người dùng, hiệu ứng 3D hiện có, thanh toán hoặc API. CI/browser thực tế cần xác minh sau khi áp dụng.
+
 ## Unreleased — Sender Sharing & Recipient Journey UX (2026-11-21)
 
 - Dashboard Sender có điều hướng nhanh tới bản nháp, quà và đơn hàng, tái sử dụng `roleQuickLinks` và ngữ nghĩa khu vực thống nhất với Admin/Creator.

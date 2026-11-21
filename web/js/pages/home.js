@@ -156,6 +156,7 @@ export function createHomeViews({ state, buttonLink, templateCard }) {
                 <p>${text(`home.journey.${id}.body`)}</p>
               </div>`).join('')}
             </div>
+            <p class="mkt-journey__swipe-hint">${text('home.journey.swipeHint')}</p>
           </div>
         </div>
         <div class="mkt-journey__footer">${buttonLink('/explore', text('home.journey.cta'), 'mkt-primary')}</div>

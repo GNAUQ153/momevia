@@ -89,17 +89,18 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Giữ đầy đủ nhật ký của cả hai nhánh khi giải quyết conflict PR #17.
-- Cập nhật browser regression Creator theo bố cục mẫu sự kiện đứng trước; kiểm tra đúng ba mẫu đầu, vị trí bộ sưu tập mùa lễ phía sau và khả năng cuộn tới/mở bộ sưu tập trên mobile.
+- Sửa xung đột độ ưu tiên CSS của menu laptop 901–1150px: giữ cỡ chữ responsive 12px thay vì bị `brand-system.css` đặt lại thành 14px.
+- Giữ nguyên bài kiểm thử `tests/browser/home.mjs` yêu cầu không tràn ngang ở viewport 1024px. Không ẩn overflow của trang và không thay đổi Canvas, API, dữ liệu hay logic thanh toán.
+- Build và browser regression trên GitHub CI/CD cần được xác nhận sau khi áp dụng.
 
 **Các commit gần nhất trên `main`:**
 
+- `11d7135` — fix: prevent brand header overflow on laptop widths (2026-11-21)
+- `cca43e4` — feat: unify Momevia typography and brand UI (2026-11-21)
 - `54a4c83` — Merge pull request #18 from GNAUQ153:feat/event-templates-first (2026-11-21)
 - `3f877b3` — feat: improve Recipient image loading resilience (2026-11-21)
 - `970a3cb` — feat: complete Recipient Canvas Player UX (2026-11-21)
 - `3b44d9a` — test: fix Canvas focus assertion ESLint scope (2026-11-21)
-- `b03f7e5` — feat: enhance Sender sharing and Recipient journey UX (2026-11-21)
-- `d8f6992` — fix: make creator review feedback visible and test it (2026-11-21)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

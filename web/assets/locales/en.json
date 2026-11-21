@@ -2288,5 +2288,19 @@
   "editor.history.reorderScenes": "Reorder scenes",
   "editor.history.replacePhoto": "Replace photo",
   "editor.history.resetCrop": "Reset photo crop",
-  "editor.history.useUploadedPhoto": "Use uploaded photo"
+  "editor.history.useUploadedPhoto": "Use uploaded photo",
+  "role.admin.eyebrow": "Administration workspace",
+  "role.admin.intro": "Review templates and support requests in one place. Payment reconciliation stays in its dedicated workspace.",
+  "role.admin.moderationLink": "Go to moderation queue",
+  "role.admin.reviewLoaded": "Review items loaded",
+  "role.admin.supportLink": "Go to support requests",
+  "role.admin.supportLoaded": "Support requests loaded",
+  "role.creator.createLink": "Create a template",
+  "role.creator.financeLink": "Revenue reporting",
+  "role.creator.templateLoaded": "My templates loaded",
+  "role.creator.templatesLink": "My templates",
+  "role.workspace.loadedDisclaimer": "Figures above describe records currently loaded, not system-wide totals.",
+  "role.workspace.loadedSummary": "Loaded records summary",
+  "role.workspace.nav": "Role quick navigation",
+  "role.workspace.notLoaded": "Not fully loaded"
 }

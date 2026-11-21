@@ -1,3 +1,11 @@
+## Unreleased — Role Workspace Navigation & Dashboard Accessibility (2026-11-21)
+
+- Thêm module dùng chung `role-workspace.js` cho điều hướng nhanh và số lượng bản ghi đã tải của Admin/Creator; không hiển thị số lượng tải được như tổng toàn hệ thống.
+- Cải thiện trang Admin: phân chia rõ khu kiểm duyệt và yêu cầu hỗ trợ, liên kết nhanh sang giám sát thanh toán, tiêu đề có `aria-labelledby` và trạng thái tải thiếu minh bạch.
+- Bổ sung liên kết nhanh Creator tới tạo mẫu, thư viện và báo cáo doanh thu; không hiển thị quyền Creator với tài khoản Sender.
+- Thêm `role-workspace.css` theo token chung, giao diện responsive, focus-visible, vùng bấm 44px và hỗ trợ reduced motion; UI VI/EN dùng cùng layout.
+- Thêm 14 khóa từ điển và 8 bài kiểm thử UI, phân quyền, đường dẫn nội bộ và dữ liệu không đầy đủ. Không thay đổi API, migration, Canvas JSON, thanh toán hoặc Refund Review.
+
 ## Unreleased — Global Shell UX & Refund Queue Resilience (2026-11-21)
 
 - Sửa hai chuỗi tiếng Việt cố định trong giao diện App Shell: thông báo đối soát thanh toán và alt ảnh xem trước; chuyển VI/EN ngay tại trang bằng hệ thống i18n.

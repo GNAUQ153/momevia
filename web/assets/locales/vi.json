@@ -2277,5 +2277,19 @@
   "editor.history.reorderScenes": "Sắp xếp cảnh",
   "editor.history.replacePhoto": "Thay ảnh",
   "editor.history.resetCrop": "Đặt lại crop",
-  "editor.history.useUploadedPhoto": "Dùng ảnh đã tải"
+  "editor.history.useUploadedPhoto": "Dùng ảnh đã tải",
+  "role.admin.eyebrow": "Không gian quản trị",
+  "role.admin.intro": "Kiểm duyệt mẫu và xử lý hỗ trợ tại cùng một nơi. Giao dịch tài chính nằm ở trang giám sát riêng.",
+  "role.admin.moderationLink": "Đến hàng đợi kiểm duyệt",
+  "role.admin.reviewLoaded": "Mẫu đang chờ đã tải",
+  "role.admin.supportLink": "Đến yêu cầu hỗ trợ",
+  "role.admin.supportLoaded": "Yêu cầu hỗ trợ đã tải",
+  "role.creator.createLink": "Tạo mẫu",
+  "role.creator.financeLink": "Báo cáo doanh thu",
+  "role.creator.templateLoaded": "Mẫu của tôi đã tải",
+  "role.creator.templatesLink": "Mẫu của tôi",
+  "role.workspace.loadedDisclaimer": "Các số liệu bên trên chỉ tính những bản ghi đã được tải, không phải tổng số trên toàn hệ thống.",
+  "role.workspace.loadedSummary": "Tóm tắt dữ liệu đã tải",
+  "role.workspace.nav": "Điều hướng nhanh theo vai trò",
+  "role.workspace.notLoaded": "Chưa đủ dữ liệu"
 }

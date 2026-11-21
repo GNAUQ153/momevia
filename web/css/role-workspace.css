@@ -1,0 +1,208 @@
+/* Khu vực điều hành Admin/Creator: thành phần và token dùng chung. */
+.role-workspace {
+  --role-card-border: var(--ui-panel-border);
+  --role-focus-color: var(--ui-focus-ring);
+}
+
+.role-workspace__header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 360px);
+  align-items: center;
+  gap: clamp(20px, 4vw, 52px);
+  padding: clamp(24px, 5vw, 52px);
+  border: 1px solid var(--role-card-border, var(--ui-panel-border));
+  border-radius: var(--radius-lg);
+  background: linear-gradient(120deg, #f8f3ff 0%, #fffaf6 60%, #fff 100%);
+  box-shadow: var(--shadow-soft);
+}
+
+.role-workspace__lead {
+  min-width: 0;
+}
+
+.role-workspace__lead h1 {
+  margin: 12px 0;
+  font-size: clamp(29px, 4vw, 46px);
+  overflow-wrap: anywhere;
+}
+
+.role-workspace__lead p {
+  max-width: 65ch;
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.role-workspace__eyebrow {
+  color: var(--purple-deep);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.role-workspace__links {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+.role-workspace__link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: var(--ui-control-min-height, 44px);
+  padding: 11px 14px;
+  border: 1px solid var(--role-card-border, var(--ui-panel-border));
+  border-radius: var(--radius-sm);
+  background: rgb(255 255 255 / 90%);
+  box-shadow: 0 4px 16px rgb(52 26 115 / 4%);
+  font-weight: 650;
+  line-height: 1.4;
+  transition: transform var(--ui-control-ease), box-shadow var(--ui-control-ease), border-color var(--ui-control-ease);
+}
+
+.role-workspace__link span {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.role-workspace__link:hover {
+  border-color: var(--purple);
+  box-shadow: 0 10px 24px rgb(52 26 115 / 11%);
+  transform: translateY(-2px);
+}
+
+.role-workspace__link:focus-visible {
+  outline: 3px solid var(--role-focus-color, var(--ui-focus-ring));
+  outline-offset: 3px;
+}
+
+.role-workspace__metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 20px;
+}
+
+.role-workspace__metric {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+  padding: 17px 20px;
+  border: 1px solid var(--role-card-border, var(--ui-panel-border));
+  border-radius: var(--radius-md);
+  background: #fff;
+}
+
+.role-workspace__metric strong {
+  color: var(--ink);
+  font-size: clamp(23px, 3vw, 30px);
+  font-variant-numeric: tabular-nums;
+}
+
+.role-workspace__metric span {
+  color: var(--muted);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.role-workspace__disclaimer {
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.role-workspace__section {
+  scroll-margin-top: 120px;
+}
+
+.role-workspace--admin .role-workspace__section {
+  margin-top: 32px;
+}
+
+.role-workspace--admin .admin-row,
+.role-workspace--creator .creator-list .my-gift {
+  min-width: 0;
+  background: #fff;
+  box-shadow: 0 6px 22px rgb(52 26 115 / 4%);
+}
+
+.role-workspace--admin .admin-row > div,
+.role-workspace--creator .creator-list .my-gift-detail {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.role-workspace__navigation-wrap {
+  padding-top: 22px;
+}
+
+.role-workspace__navigation-wrap .role-workspace__links {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.role-workspace--creator .creator-list {
+  min-width: 0;
+}
+
+.role-workspace__list-head {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.role-workspace__list-head .role-workspace__metric {
+  padding: 8px 12px;
+}
+
+.role-workspace__list-head .role-workspace__metric strong {
+  font-size: 1.2rem;
+}
+
+@media (max-width: 900px) {
+  .role-workspace__header {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .role-workspace__navigation-wrap .role-workspace__links {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .role-workspace__header {
+    padding: 22px 18px;
+  }
+
+  .role-workspace__metrics {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .role-workspace--admin .admin-row {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .role-workspace--admin .admin-actions {
+    flex-wrap: wrap;
+    width: 100%;
+  }
+
+  .role-workspace--admin .admin-actions .btn {
+    min-height: var(--ui-control-min-height, 44px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .role-workspace__link {
+    transition: none;
+  }
+
+  .role-workspace__link:hover {
+    transform: none;
+  }
+}

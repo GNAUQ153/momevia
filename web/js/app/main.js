@@ -567,13 +567,14 @@ async function render() {
         const lifetime = new AbortController();
         routeController = { dispose: () => lifetime.abort() };
         try {
-          const [{ orders }, financeResult] = await Promise.all([
+          const [{ orders }, financeResult, auditResult] = await Promise.all([
             api.get("/checkout/payments/admin/review?limit=100", { signal: lifetime.signal }),
             api.get("/checkout/payments/admin/finance", { signal: lifetime.signal }).catch(() => null),
+            api.get("/checkout/payments/admin/finance/exceptions?limit=50", { signal: lifetime.signal }).catch(() => null),
           ]);
           if (generation !== renderGeneration) return;
           adminPaymentOrders = Array.isArray(orders) ? orders : [];
-          main.innerHTML = adminPaymentsPage(adminPaymentOrders, { finance: financeResult?.finance || null });
+          main.innerHTML = adminPaymentsPage(adminPaymentOrders, { finance: financeResult?.finance || null, audit: auditResult?.audit || null });
         } catch (error) {
           if (generation !== renderGeneration || error.name === "AbortError") return;
           adminPaymentOrders = [];

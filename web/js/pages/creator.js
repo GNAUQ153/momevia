@@ -16,6 +16,15 @@ export function creatorFinancePanel(statement) {
         ${renderMetric('finance.creatorShare', statement.summary[group].creatorVnd)}
       </article>`).join('')}
     </div>` : `<p role="status">${text('finance.unavailable')}</p>`}
+    ${statement && Array.isArray(statement.recent) ? `<div class="finance-recent">
+      <h3>${text('finance.creator.recentTitle')}</h3>
+      ${statement.recent.length ? `<div class="finance-recent__list">${statement.recent.map(item => `<article class="finance-recent__row">
+        <div><strong>${e(String(item.templateId || ''))}</strong>
+          <p>${text('finance.creator.orderRef', { id: String(item.orderId || '').slice(0, 8) })}</p></div>
+        <div class="finance-recent__amount"><strong>${priceText(Number(item.creatorVnd))}</strong>
+          <span>${text(item.sandbox ? 'finance.group.sandbox' : 'finance.group.live')}</span></div>
+      </article>`).join('')}</div>` : `<p>${text('finance.creator.recentEmpty')}</p>`}
+    </div>` : ''}
     <p class="finance-panel__notice" role="note">${text('finance.disclaimer')}</p>
   </div></section>`;
 }

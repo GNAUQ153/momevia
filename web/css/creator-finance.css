@@ -45,3 +45,84 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* Đối soát ngoại lệ: chỉ đọc; không có nút thao tác tài chính. */
+.finance-audit {
+  margin-block: 2rem;
+}
+.finance-audit__limit {
+  color: var(--muted, #5a5865);
+  font-size: 0.9rem;
+}
+.finance-audit__list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+  gap: 1rem;
+}
+.finance-audit__item {
+  border: 1px solid var(--border, #dad8e0);
+  background: var(--surface, #fff);
+  border-radius: 1rem;
+  padding: 1rem;
+  overflow-wrap: anywhere;
+}
+.finance-audit__top,
+.finance-audit__meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.4rem 1rem;
+}
+.finance-audit__meta {
+  font-size: 0.9rem;
+  margin-block: 0.5rem 0.8rem;
+}
+.finance-audit__issues {
+  padding-inline-start: 1.25rem;
+  margin-block: 0.4rem;
+}
+.finance-audit__issues li {
+  margin-block: 0.25rem;
+}
+.finance-recent {
+  margin-block: 1.5rem;
+}
+.finance-recent__list {
+  display: grid;
+  gap: 0.75rem;
+}
+.finance-recent__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--border, #dad8e0);
+  border-radius: 0.9rem;
+  background: var(--surface, #fff);
+  overflow-wrap: anywhere;
+}
+.finance-recent__row p {
+  margin-block: 0.3rem 0;
+  font-size: 0.85rem;
+}
+.finance-recent__amount {
+  display: grid;
+  justify-items: end;
+  gap: 0.3rem;
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+.finance-recent__amount span {
+  font-size: 0.8rem;
+}
+@media (max-width: 640px) {
+  .finance-recent__row {
+    align-items: start;
+    flex-direction: column;
+  }
+  .finance-recent__amount {
+    justify-items: start;
+    text-align: start;
+  }
+}

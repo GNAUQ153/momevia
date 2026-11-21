@@ -143,6 +143,12 @@ export class PaymentService {
     this.requireFinanceStorage();
     return this.repository.adminFinance();
   }
+  async adminFinanceExceptions(user, limit) {
+    // Chỉ Admin được xem; không suy ra quyền hoàn tiền/chi trả.
+    this.requireAdmin(user);
+    this.requireFinanceStorage();
+    return this.repository.adminFinanceExceptions(this.reviewLimit(limit));
+  }
   async reconcile(user, orderId) {
     // Ownership MUST be checked before any provider request or rate-limit consumption.
     const intent = await this.repository.forUser(orderId, user.sub);

@@ -33,6 +33,10 @@ export function registerPaymentRoutes(router, { service, config, resolveUser = c
     const admin = await resolveUser(req, config.jwtSecret);
     sendJson(res, 200, { finance: await service.adminFinance(admin) });
   });
+  router.on('GET', '/payments/admin/finance/exceptions', async ({ req, res, url }) => {
+    const admin = await resolveUser(req, config.jwtSecret);
+    sendJson(res, 200, { audit: await service.adminFinanceExceptions(admin, url.searchParams.get('limit')) });
+  });
   // Admin-only inspection endpoints: no manual paid status, cancellation or retry unlock.
   router.on('GET', '/payments/admin/review', async ({ req, res, url }) => {
     const admin = await resolveUser(req, config.jwtSecret);

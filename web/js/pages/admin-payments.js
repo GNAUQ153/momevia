@@ -71,7 +71,32 @@ export function adminFinancePanel(finance) {
   </section>`;
 }
 
-export function adminPaymentsPage(orders = [], { error = null, finance = null } = {}) {
+
+// Danh sách đối soát ngoại lệ: chỉ hiển thị các cờ sai lệch đã xác định ở máy chủ.
+const auditIssueKeys = new Set(['intent', 'receipt', 'entitlement', 'creatorSale', 'split']);
+export function adminReconciliationPanel(audit) {
+  const intro = `<h2>${text('finance.audit.title')}</h2><p>${text('finance.audit.intro')}</p>`;
+  if (!audit) return `<section class="finance-audit" aria-label="${text('finance.audit.title')}">
+    ${intro}<p role="status">${text('finance.audit.unavailable')}</p></section>`;
+  const records = Array.isArray(audit.records) ? audit.records : [];
+  return `<section class="finance-audit" aria-label="${text('finance.audit.title')}">
+    ${intro}
+    <p class="finance-audit__limit" role="status">${text('finance.audit.scanned', { count: records.length, limit: Number(audit.scanLimit) })}</p>
+    ${records.length ? `<div class="finance-audit__list">${records.map(row => `<article class="finance-audit__item">
+      <div class="finance-audit__top"><strong>${text('finance.audit.order')} <code>${e(String(row.orderId || '').slice(0, 12))}</code></strong>
+        <span>${text(row.sandbox ? 'finance.group.sandbox' : 'finance.group.live')}</span></div>
+      <div class="finance-audit__meta"><span>${e(providerLabels[row.provider] || text('admin.payments.methodUnknown'))}</span>
+        <span>${priceText(Number(row.amountVnd))}</span>
+        <span>${text('common.values.date', { date: dateValue(row.createdAt) })}</span></div>
+      <ul class="finance-audit__issues">${(Array.isArray(row.issues) ? row.issues : [])
+        .filter(issue => auditIssueKeys.has(issue))
+        .map(issue => `<li>${text('finance.audit.issue.' + issue)}</li>`).join('')}</ul>
+    </article>`).join('')}</div>` : `<p>${text('finance.audit.empty')}</p>`}
+    <p class="finance-panel__notice" role="note">${text('finance.audit.disclaimer')}</p>
+  </section>`;
+}
+
+export function adminPaymentsPage(orders = [], { error = null, finance = null, audit = null } = {}) {
   const list = Array.isArray(orders) ? orders : [];
   return `<section class="section admin-payments"><div class="container">
     <p><a href="/admin" data-link>${text("admin.payments.back")}</a></p>
@@ -79,6 +104,7 @@ export function adminPaymentsPage(orders = [], { error = null, finance = null } 
       <p>${text("admin.payments.intro")}</p></div>
       <button class="btn btn--outline" type="button" data-action="admin-payment-refresh">${text("admin.payments.refresh")}</button></div>
     ${adminFinancePanel(finance)}
+    ${adminReconciliationPanel(audit)}
     <div class="admin-payments__summary"><strong>${error ? '—' : list.length}</strong><span>${text("admin.payments.summary")}</span></div>
     <div class="admin-payments__notice" role="note">${text("admin.payments.notice")}</div>
     ${error ? `<p role="alert">${typeof error === 'string' ? e(error) : text(error.key, error.params)}</p>` : ''}

@@ -89,19 +89,17 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Tách vòng đời tải ảnh của Canvas Player vào `image-state.js`, gắn listener trước `src` để bắt cả lỗi ảnh từ cache; không thay đổi allowlist URL hoặc API.
-- Có trạng thái loading/ready/error và placeholder dịch VI/EN; `AbortSignal` ngăn phản hồi ảnh thuộc cảnh đã rời đi làm thay đổi DOM.
-- Ưu tiên ảnh nội dung đầu tiên của cảnh, giữ ảnh còn lại ở chế độ lazy; giảm chuyển động shimmer theo `prefers-reduced-motion`.
-- Bổ sung 5 unit test cho ảnh cache, lỗi sớm, ưu tiên tải, abort và DOM đã tháo; tài liệu `docs/RECIPIENT_IMAGE_RESILIENCE.md`.
+- Giữ đầy đủ nhật ký của cả hai nhánh khi giải quyết conflict PR #17.
+- Cập nhật browser regression Creator theo bố cục mẫu sự kiện đứng trước; kiểm tra đúng ba mẫu đầu, vị trí bộ sưu tập mùa lễ phía sau và khả năng cuộn tới/mở bộ sưu tập trên mobile.
 
 **Các commit gần nhất trên `main`:**
 
+- `54a4c83` — Merge pull request #18 from GNAUQ153:feat/event-templates-first (2026-11-21)
 - `3f877b3` — feat: improve Recipient image loading resilience (2026-11-21)
 - `970a3cb` — feat: complete Recipient Canvas Player UX (2026-11-21)
 - `3b44d9a` — test: fix Canvas focus assertion ESLint scope (2026-11-21)
 - `b03f7e5` — feat: enhance Sender sharing and Recipient journey UX (2026-11-21)
 - `d8f6992` — fix: make creator review feedback visible and test it (2026-11-21)
-- `c483944` — feat: improve Admin and Creator dashboard UX (2026-11-21)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

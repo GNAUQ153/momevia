@@ -7,6 +7,7 @@ import { searchText } from '../../../web/js/features/catalog/filter.js';
 import { templateFieldKey } from '../../../web/js/shared/template-copy.js';
 import { serverText } from '../../shared/locale.mjs';
 import { eventMetadata } from './event-metadata.mjs';
+import { prioritizeTemplates } from '../../../web/js/shared/template-order.js';
 
 const publicFields = ['id', 'title', 'subtitle', 'theme', 'style', 'price', 'scenes', 'effect', 'creator', 'featured', 'category', 'status', 'createdAt', 'isSeasonal', 'season', 'availableFrom', 'availableTo'];
 export function publicTemplate(template) {
@@ -39,7 +40,7 @@ export class CatalogService {
   async publicList() {
     const items = (await this.repo.all()).filter(item => item.status === 'published');
     const visible = await Promise.all(items.map(item => this.isPublic(item)));
-    return items.filter((_, index) => visible[index]).map(publicTemplate);
+    return prioritizeTemplates(items.filter((_, index) => visible[index]).map(publicTemplate));
   }
   async search({ q = '', style = '', locale = 'vi' }) {
     let items = await this.publicList();

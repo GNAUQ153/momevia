@@ -4,6 +4,7 @@ import { isInSeason, vietnamDay } from "../features/catalog/seasonal.js";
 import { templateCover } from "../features/catalog/template-copy.js";
 import { canonicalText } from "../shared/locale.js";
 import { icon } from "../ui/icons.js";
+import { prioritizeTemplates } from '../shared/template-order.js';
 
 // The cover and player both use the same public, built-in template.
 export const homeDemo = {
@@ -57,7 +58,7 @@ export function createHomeViews({ state, buttonLink, templateCard }) {
     if (status === "error") return `<p role="alert">${text("home.featured.error")}</p>
       <button class="btn mkt-secondary" type="button" data-home-catalog-retry>${text("common.actions.retry")}</button>`;
     const day = vietnamDay();
-    const ranked = state.templates.slice().sort((a, b) => Number(isInSeason(b, day)) - Number(isInSeason(a, day)) || Number(Boolean(b.featured)) - Number(Boolean(a.featured)));
+    const ranked = prioritizeTemplates(state.templates.slice().sort((a, b) => Number(isInSeason(b, day)) - Number(isInSeason(a, day)) || Number(Boolean(b.featured)) - Number(Boolean(a.featured))));
     const selections = new Map();
     for (const template of ranked) {
       const occasion = template.category || template.style || template.id;

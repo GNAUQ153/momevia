@@ -5,6 +5,7 @@ import { templateMetaKey } from "../shared/template-copy.js";
 import { personalizationText, templateCover, templateField, templateSearchFields, templateValue } from "../features/catalog/template-copy.js";
 import { featuredSeasons, isInSeason } from "../features/catalog/seasonal.js";
 import { templatePreviewDialog } from "../features/catalog/template-preview.js";
+import { prioritizeTemplates } from '../shared/template-order.js';
 import {
   filterTemplates,
   styleOptions,
@@ -20,13 +21,13 @@ export function createCatalogViews({
   paginationMarkup,
 }) {
   function matchingTemplates() {
-    return filterTemplates(state.templates, {
+    return prioritizeTemplates(filterTemplates(state.templates, {
       style: state.filter,
       search: state.search,
       freeOnly: state.freeOnly,
       photoOnly: state.photoOnly,
       searchFields: templateSearchFields,
-    });
+    }));
   }
   // Điều hướng trang dùng chung cho danh sách mẫu và danh sách yêu thích.
 
@@ -112,10 +113,10 @@ export function createCatalogViews({
         <button type="button" class="catalog-reset" data-action="clear-filters">${icon("close", 15)} ${text("catalog.filters.reset")}</button>
       </div>
       ${catalogFailed ? `<div role="alert"><p>${text('catalog.results.failed')}</p><button class="btn btn--outline" type="button" data-action="retry-catalog">${text('common.actions.retry')}</button></div>` : `
-      ${seasonalShelf()}
       <div class="catalog-range" id="catalog-range" tabindex="-1">${result.total ? text('catalog.results.range', result) : text('catalog.results.empty')}</div>
       <div class="template-grid catalog-grid" id="catalog-grid">${cards}</div>
-      <div id="catalog-pagination">${paginationMarkup(result, "catalog")}</div>`}
+      <div id="catalog-pagination">${paginationMarkup(result, "catalog")}</div>
+      ${seasonalShelf()}`}
     </div></section>`;
   }
 

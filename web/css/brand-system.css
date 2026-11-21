@@ -119,6 +119,13 @@ body {
   }
 }
 
+/* Momevia brand nav overflow fix 2026-11-21: giu menu laptop trong viewport ma khong an tran ngang. */
+@media (min-width: 901px) and (max-width: 1150px) {
+  .site-header .nav-links a {
+    font-size: 12px;
+  }
+}
+
 @media (max-width: 680px) {
   .site-header .nav-links a {
     font-size: var(--ui-text-small);

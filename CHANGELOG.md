@@ -1,3 +1,8 @@
+## Unreleased — Tích hợp main vào mẫu sự kiện (2026-11-21)
+
+- Giữ đầy đủ nhật ký của cả hai nhánh khi giải quyết conflict PR #17.
+- Cập nhật browser regression Creator theo bố cục mẫu sự kiện đứng trước; kiểm tra đúng ba mẫu đầu, vị trí bộ sưu tập mùa lễ phía sau và khả năng cuộn tới/mở bộ sưu tập trên mobile.
+
 ## Unreleased — Hai note lệch nhịp nhẹ (2026-11-21)
 
 - Note bên phải bắt đầu mỗi nhịp muộn hơn bên trái khoảng 300ms, vẫn dịch/nghiêng nhẹ và kết thúc cùng vị trí trong chu kỳ 5 giây để không giật khi lặp.
@@ -52,6 +57,40 @@
 - Khung xem thử đầu trang luân phiên thiệp cưới, sinh nhật và tốt nghiệp mỗi 5 giây; chuyển bìa bằng opacity/transform, giữ nguyên kích thước khung.
 - Thêm nút chọn mẫu, dừng/tiếp tục và nhãn VI/EN; mở preview đúng mẫu đang hiển thị. Dừng tự động khi đang xem preview, rê chuột, dùng bàn phím, rời vùng hiển thị hoặc ẩn tab; tôn trọng giảm chuyển động.
 - Kiểm chứng build, check, 455 unit tests, test:templates và test:browser trên dữ liệu cô lập; kiểm tra trang chủ VI/EN ở 7 kích thước 320–1614px. Kiểm tra chuyển ảnh, chọn mẫu, preview, pause/resume và ảnh lỗi bằng Chrome; chưa đo trên điện thoại thật.
+
+## Unreleased — Recipient Canvas Player Navigation & Mobile UX (2026-11-21)
+
+- Sửa browser regression Canvas: xác minh focus qua `node.ownerDocument.activeElement` trong callback Playwright, không tham chiếu biến DOM toàn cục từ Node.js.
+
+- Tách điều hướng cảnh công khai và bản preview sang `scene-navigation.js`; giữ nút DOM qua các lần chuyển cảnh để không tái tạo listener/focus không cần thiết.
+- Bổ sung thanh tiến trình cảnh có ngữ nghĩa native `progress`, nhãn Việt–Anh và trạng thái cập nhật theo cảnh hiện tại; với thiệp một cảnh, thanh tiến trình được ẩn.
+- Hỗ trợ điều hướng focus bằng ArrowLeft/ArrowRight, Home/End mà không tự mở hoặc bỏ qua cảnh; các nút vẫn hoạt động khi bấm/chạm như trước.
+- Tối ưu danh sách cảnh dạng cuộn ngang/snap trên mobile, highlight cảnh hiện tại, nút tối thiểu 44px và giảm chuyển động khi người dùng yêu cầu.
+- Thêm unit test cho điều hướng, bàn phím, tên cảnh, i18n và browser regression cho tiến trình cảnh trong `canvas-expanded.mjs`.
+- Không thay đổi Canvas JSON, quyền truy cập, nội dung người dùng, hiệu ứng 3D hiện có, thanh toán hoặc API. CI/browser thực tế cần xác minh sau khi áp dụng.
+
+## Unreleased — Sender Sharing & Recipient Journey UX (2026-11-21)
+
+- Dashboard Sender có điều hướng nhanh tới bản nháp, quà và đơn hàng, tái sử dụng `roleQuickLinks` và ngữ nghĩa khu vực thống nhất với Admin/Creator.
+- Trang chia sẻ của Sender có hướng dẫn 3 bước, nhấn mạnh liên kết lời mời khi quà giới hạn truy cập; vẫn dùng quyền và URL từ API hiện có.
+- Trình xem thiệp legacy bổ sung tiến trình mở 3 bước, cập nhật ARIA và focus bằng module `recipient-journey.js`; không đổi Canvas JSON, quyền truy cập, nội dung lời chúc hoặc cơ chế gửi phản hồi.
+- Bổ sung nhãn VI/EN, giao diện responsive, hiệu ứng nhẹ có `prefers-reduced-motion` và kiểm thử cho luồng mở quà.
+- Không thay đổi API, database, thanh toán; Canvas public player mới không bị sửa trong đợt này.
+
+## Unreleased — Creator review feedback visibility & CI regression (2026-11-21)
+
+- Hiển thị phản hồi yêu cầu sửa mẫu của Admin ở khu vực thông báo độc lập trên trang Creator, liên kết tới danh sách mẫu; chỉ lấy phiên bản mới nhất để tránh hiển thị yêu cầu đã xử lý.
+- Giữ nguyên thông tin gốc và escape an toàn lý do duyệt; tái sử dụng khóa VI/EN có sẵn, không làm thay đổi trạng thái mẫu hoặc API.
+- Cập nhật Canvas/MySQL browser regression để kiểm tra lý do sửa mẫu thực sự hiển thị, thay vì chỉ tồn tại trong DOM; thêm unit test về phiên bản và XSS.
+- Không sửa dữ liệu, Canvas JSON, thanh toán hoặc migration; CI trên GitHub cần được xác nhận sau khi áp dụng.
+
+## Unreleased — Role Workspace Navigation & Dashboard Accessibility (2026-11-21)
+
+- Thêm module dùng chung `role-workspace.js` cho điều hướng nhanh và số lượng bản ghi đã tải của Admin/Creator; không hiển thị số lượng tải được như tổng toàn hệ thống.
+- Cải thiện trang Admin: phân chia rõ khu kiểm duyệt và yêu cầu hỗ trợ, liên kết nhanh sang giám sát thanh toán, tiêu đề có `aria-labelledby` và trạng thái tải thiếu minh bạch.
+- Bổ sung liên kết nhanh Creator tới tạo mẫu, thư viện và báo cáo doanh thu; không hiển thị quyền Creator với tài khoản Sender.
+- Thêm `role-workspace.css` theo token chung, giao diện responsive, focus-visible, vùng bấm 44px và hỗ trợ reduced motion; UI VI/EN dùng cùng layout.
+- Thêm 14 khóa từ điển và 8 bài kiểm thử UI, phân quyền, đường dẫn nội bộ và dữ liệu không đầy đủ. Không thay đổi API, migration, Canvas JSON, thanh toán hoặc Refund Review.
 
 ## Unreleased — Global Shell UX & Refund Queue Resilience (2026-11-21)
 

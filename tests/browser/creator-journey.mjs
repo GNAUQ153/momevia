@@ -134,17 +134,25 @@ export async function runCreatorJourney(base) {
       Object.defineProperty(globalThis.navigator.clipboard, 'writeText', { value: async url => { globalThis.fixtureClipboard = url; } });
     });
     await phone.goto(base + '/explore');
-    // Bộ sưu tập vẫn có thể thấy ở đầu trang sau nhóm tìm kiếm và lọc.
+    // Mẫu sự kiện đứng trước; bộ sưu tập mùa lễ vẫn cuộn tới và mở được trên mobile.
+    const catalogCards = phone.locator('#catalog-grid .template-card');
+    const firstCard = catalogCards.first();
+    await firstCard.waitFor();
+    assert(await visibleInViewport(phone, firstCard), 'Mẫu sự kiện phải xuất hiện trong màn hình đầu');
+    assert.deepEqual(await catalogCards.evaluateAll(cards => cards.slice(0, 3).map(card => card.dataset.templateId)),
+      ['birthday-radiance', 'hai-phong-bi', 'proud-of-you']);
     const seasonalShelf = phone.locator('.seasonal-shelf');
     await seasonalShelf.waitFor();
-    assert(await visibleInViewport(phone, seasonalShelf), 'Bộ sưu tập mùa lễ phải xuất hiện trong màn hình đầu');
+    const catalogBox = await phone.locator('#catalog-grid').boundingBox();
+    const shelfBox = await seasonalShelf.boundingBox();
+    assert(catalogBox.y + catalogBox.height <= shelfBox.y, 'Bộ sưu tập mùa lễ phải nằm sau danh sách mẫu chính');
+    await seasonalShelf.scrollIntoViewIfNeeded();
+    assert(await visibleInViewport(phone, seasonalShelf), 'Bộ sưu tập mùa lễ phải cuộn tới được trên mobile');
     assert.equal(await seasonalShelf.getAttribute('open'), null);
     await seasonalShelf.locator('summary').click();
     await phone.locator('.seasonal-shelf__card').first().waitFor();
     await capture(phone, 'catalog-390');
     await seasonalShelf.locator('summary').click();
-    const firstCard = phone.locator('#catalog-grid .template-card').first();
-    await firstCard.waitFor();
     await firstCard.scrollIntoViewIfNeeded();
     assert(await visibleInViewport(phone, firstCard), 'Danh sách mẫu chính phải cuộn tới được trên mobile');
     const search = phone.getByRole('searchbox', { name: 'Tìm kiếm mẫu' });
@@ -361,7 +369,12 @@ export async function runCreatorJourney(base) {
     ]);
     assert.deepEqual([verdictA.status(), verdictB.status()].sort(), [200, 409]);
     await page.goto(base + '/creator');
-    await page.getByText(/Kiểm tra lại bố cục bìa/).waitFor();
+    // Xác nhận phản hồi của Admin hiển thị trong khu vực thông báo Creator.
+    // Không chấp nhận text chỉ tồn tại trong DOM nhưng bị ẩn khỏi người dùng.
+    const reviewFeedback = page.locator('[data-creator-review-notice]');
+    await reviewFeedback.getByText(/Kiểm tra lại bố cục bìa/).waitFor({ state: 'visible' });
+    assert.equal(await reviewFeedback.isVisible(), true);
+    assert.equal(await page.locator('#creator-list .my-gift-detail').filter({ hasText: /Kiểm tra lại bố cục bìa/ }).count() > 0, true);
     const newDemo = await page.context().request.post(`${base}/api${designEndpoint}/assets`, {
       data: await image('#5c9074'),
       headers: { 'content-type': 'image/png', 'x-mutation-id': randomUUID() },

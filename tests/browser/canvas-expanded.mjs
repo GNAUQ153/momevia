@@ -334,6 +334,12 @@ export async function runExpandedBrowser(base, cookie, {cards, controls}, artifa
     await flip.tap();
     assert.equal(await flip.getAttribute('aria-pressed'),'true');
     await nav(2).tap();
+    assert.equal(await guest.locator('.gift-runtime-progress').getAttribute('value'), '2');
+    assert.equal(await nav(2).getAttribute('aria-current'), 'step');
+    await nav(2).press('ArrowRight');
+    assert(await nav(3).evaluate(node => node.ownerDocument.activeElement === node));
+    // Di chuyển focus bằng mũi tên không tự mở hoặc bỏ qua cảnh.
+    assert.equal(await nav(2).getAttribute('aria-current'), 'step');
     await stagePublic.getByRole('button',{name:'Mở ngay',...exact}).press('Enter');
     await stagePublic.getByText('Hẹn nhau ở quán nhỏ cuối phố nhé!').waitFor();
     await nav(3).tap();

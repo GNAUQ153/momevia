@@ -1,11 +1,12 @@
 import { attr, priceText, text } from "../core/i18n.js";
 import { escapeHtml as e } from "../core/api.js";
 import { icon } from "../ui/icons.js";
+import { roleQuickLinks, roleMetric } from "../ui/role-workspace.js";
 
 export function creatorFinancePanel(statement) {
   const renderMetric = (caption, value) => `<div class="finance-metric"><span>${text(caption)}</span><strong>${priceText(value)}</strong></div>`;
-  return `<section class="section finance-panel"><div class="container">
-    <div class="finance-panel__heading"><div><h2>${text('finance.creator.title')}</h2>
+  return `<section class="section finance-panel role-workspace__section" id="creator-finance" aria-labelledby="creator-finance-heading"><div class="container">
+    <div class="finance-panel__heading"><div><h2 id="creator-finance-heading">${text('finance.creator.title')}</h2>
       <p>${text('finance.creator.subtitle')}</p></div>
       ${statement?.recent?.length ? `<button type="button" class="btn btn--outline" data-action="creator-finance-export">${text('finance.export.csv')}</button>` : ''}
     </div>
@@ -31,20 +32,43 @@ export function creatorFinancePanel(statement) {
   </div></section>`;
 }
 
+// Chỉ hiển thị phản hồi của phiên bản mới nhất; không biến đổi dữ liệu gốc.
+export function creatorReviewFeedback(templates = []) {
+  return templates.flatMap(template => {
+    const versions = Array.isArray(template.versions) ? template.versions : [];
+    const latest = versions.reduce((current, candidate) =>
+      !current || Number(candidate.revision) > Number(current.revision) ? candidate : current, null);
+    if (latest?.status !== 'changes_requested' || !String(latest.reason || '').trim()) return [];
+    return [{ title: String(template.title || ''), reason: String(latest.reason) }];
+  });
+}
+
 export function createCreatorViews({ state }) {
   function creatorPage(templates = [], legacy = [], statement = null) {
     const creator =
       state.user && ["creator", "admin"].includes(state.user.role);
+    const feedback = creator ? creatorReviewFeedback(templates) : [];
     return `<section class="creator-hero"><div class="container creator-hero__inner"><div><span class="eyebrow">${text("creator.eyebrow")}</span><h1>${text("creator.title")}<br><em>${text("creator.emphasis")}</em></h1><p>${text("creator.description")}</p>
         ${creator ? `<a href="#creator-form" class="btn btn--light">${text("creator.actions.new")} ${icon("arrow", 18)}</a>` : `<p class="helper-text">${state.user ? text("creator.access.requestRole") : text("creator.access.login")}</p>`}
         <div class="creator-perks"><span>${icon("check-circle", 17)} ${text("creator.perks.free")}</span><span>${icon("check-circle", 17)} ${text("creator.perks.review")}</span><span>${icon("check-circle", 17)} ${text("creator.perks.management")}</span></div>
       </div><div class="creator-art">${icon("pencil", 120)}<span>${icon("sparkles", 62)}</span></div></div></section>
+      ${feedback.length ? `<div class="container role-workspace__review-wrap"><section class="role-workspace__review-notice" role="status" aria-labelledby="creator-review-notice-title" data-creator-review-notice>
+        <div class="role-workspace__review-header"><h2 id="creator-review-notice-title">${text('creator.status.changes_requested')}</h2>
+          <a class="btn btn--outline" href="#creator-list">${text('role.creator.templatesLink')}</a></div>
+        <ul>${feedback.map(item => `<li><strong>${e(item.title)}</strong><p>${e(item.reason)}</p></li>`).join('')}</ul>
+      </section></div>` : ''}
+      ${creator ? `<div class="container role-workspace__navigation-wrap">${roleQuickLinks([
+        { href: '#creator-form', labelKey: 'role.creator.createLink', iconName: 'pencil' },
+        { href: '#creator-list', labelKey: 'role.creator.templatesLink', iconName: 'layers' },
+        { href: '#creator-finance', labelKey: 'role.creator.financeLink', iconName: 'shield' },
+      ])}</div>` : ''}
       ${creator
-        ? `<section class="section" id="creator-form"><div class="container creator-grid"><div><h2>${text("creator.form.title")}</h2><p class="section-intro">${text("creator.form.intro")}</p>
+        ? `<section class="section role-workspace role-workspace--creator" id="creator-form"><div class="container creator-grid"><div><h2>${text("creator.form.title")}</h2><p class="section-intro">${text("creator.form.intro")}</p>
         <form class="creator-form" id="creator-template-form"><label class="field"><span>${text("creator.form.name")}</span><input name="title" required maxlength="60" ${attr("placeholder", "creator.form.nameExample")}/></label>
         <label class="field"><span>${text("creator.form.subtitle")}</span><textarea name="subtitle" required maxlength="140" rows="3" ${attr("placeholder", "creator.form.subtitleHint")}></textarea></label>
         <button class="btn btn--dark" type="submit">${text("creator.actions.create")}</button></form></div>
-        <div class="creator-list"><h3>${text("creator.list.title")}</h3>${templates.length ? templates.map(t => `<article class="my-gift"><div class="my-gift-detail"><strong>${e(t.title)}</strong><p>${e(t.subtitle)}</p>
+        <div class="creator-list" id="creator-list"><div class="role-workspace__list-head"><h3>${text("creator.list.title")}</h3>
+          ${roleMetric('role.creator.templateLoaded', templates.length)}</div>${templates.length ? templates.map(t => `<article class="my-gift"><div class="my-gift-detail"><strong>${e(t.title)}</strong><p>${e(t.subtitle)}</p>
           ${t.withdrawn ? `<p>${text("creator.list.withdrawn")}</p>` : ''}
           ${t.versions.slice().reverse().map(v => `<p>${text('creator.list.revision', {
             revision: v.revision,

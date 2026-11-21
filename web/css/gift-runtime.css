@@ -136,3 +136,78 @@ span.gift-comparison-range { min-height: 6px; background: #674392; border-radius
 .gift-photo-fragments { position:absolute;inset:0;pointer-events:none;overflow:visible; }
 .gift-photo-fragment { position:absolute;overflow:hidden; }
 .gift-photo-fragment img { display:block; }
+
+/* Tiến trình và điều hướng cảnh dành cho người nhận trên màn hình nhỏ. */
+.gift-runtime-progress {
+  display: block;
+  appearance: none;
+  width: min(100%, 480px);
+  height: 6px;
+  margin: 16px auto 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: 999px;
+  background: var(--line);
+}
+
+.gift-runtime-progress[hidden] {
+  display: none;
+}
+
+.gift-runtime-progress::-webkit-progress-bar {
+  background: var(--line);
+  border-radius: 999px;
+}
+
+.gift-runtime-progress::-webkit-progress-value {
+  background: var(--purple);
+  border-radius: 999px;
+  transition: width 240ms ease;
+}
+
+.gift-runtime-progress::-moz-progress-bar {
+  background: var(--purple);
+  border-radius: 999px;
+}
+
+.gift-runtime-navigation {
+  position: relative;
+}
+
+.gift-runtime-navigation button {
+  transition: background-color 160ms ease, border-color 160ms ease;
+}
+
+.gift-runtime-navigation button[aria-current="step"] {
+  background: var(--lavender);
+  font-weight: 700;
+}
+
+@media (max-width: 640px) {
+  .gift-runtime-navigation {
+    position: relative;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scroll-padding-inline: 12px;
+    scroll-snap-type: x proximity;
+    padding: 6px 4px 10px;
+  }
+
+  .gift-runtime-navigation button {
+    flex: 0 0 auto;
+    max-width: min(74vw, 280px);
+    scroll-snap-align: center;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gift-runtime-progress::-webkit-progress-value,
+  .gift-runtime-navigation button {
+    transition: none;
+  }
+}

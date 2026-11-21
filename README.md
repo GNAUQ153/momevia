@@ -89,19 +89,19 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Sửa hai chuỗi tiếng Việt cố định trong giao diện App Shell: thông báo đối soát thanh toán và alt ảnh xem trước; chuyển VI/EN ngay tại trang bằng hệ thống i18n.
-- Bổ sung cơ chế yêu cầu chỉ đọc mới nhất cho hàng đợi Refund Admin, chống phản hồi API cũ ghi đè bộ lọc mới; hiển thị trạng thái tải/lỗi không xóa danh sách đang xem.
-- Chuẩn hóa nhãn trạng thái, vùng bấm 44px, focus-visible và reduced motion cho Refund Queue; mở rộng `npm run i18n:audit` và kiểm tra chặn chuỗi tiếng Việt hardcode trong `app/main.js`.
-- Thêm kiểm thử unit và tài liệu `docs/GLOBAL_SHELL_UX_I18N.md`. Không thay đổi database, API, quyền, giao dịch hoặc dữ liệu Canvas.
+- Sửa browser regression Canvas: xác minh focus qua `node.ownerDocument.activeElement` trong callback Playwright, không tham chiếu biến DOM toàn cục từ Node.js.
+- Tách điều hướng cảnh công khai và bản preview sang `scene-navigation.js`; giữ nút DOM qua các lần chuyển cảnh để không tái tạo listener/focus không cần thiết.
+- Bổ sung thanh tiến trình cảnh có ngữ nghĩa native `progress`, nhãn Việt–Anh và trạng thái cập nhật theo cảnh hiện tại; với thiệp một cảnh, thanh tiến trình được ẩn.
+- Hỗ trợ điều hướng focus bằng ArrowLeft/ArrowRight, Home/End mà không tự mở hoặc bỏ qua cảnh; các nút vẫn hoạt động khi bấm/chạm như trước.
 
 **Các commit gần nhất trên `main`:**
 
+- `970a3cb` — feat: complete Recipient Canvas Player UX (2026-11-21)
+- `3b44d9a` — test: fix Canvas focus assertion ESLint scope (2026-11-21)
+- `b03f7e5` — feat: enhance Sender sharing and Recipient journey UX (2026-11-21)
+- `d8f6992` — fix: make creator review feedback visible and test it (2026-11-21)
+- `c483944` — feat: improve Admin and Creator dashboard UX (2026-11-21)
 - `f798853` — feat: localize app shell and harden refund queue UX (2026-11-21)
-- `f84c1fd` — feat: audit Designer i18n and unify Fabric UI tokens (2026-11-21)
-- `6658be1` — feat: localize Fabric quickbar and appearance controls (2026-11-21)
-- `859fbe0` — feat: localize Fabric inspector and track changelog changes (2026-11-21)
-- `ede4a2a` — feat: localize Canvas Designer and refactor discovery UI (2026-11-21)
-- `08c3e02` — feat: add paginated admin refund review queue (2026-11-21)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

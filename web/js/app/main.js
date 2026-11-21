@@ -7,6 +7,7 @@ import { paginateTemplates } from "../features/catalog/filter.js";
 import { legalPages, legalPage } from "../pages/policies.js";
 import { giftQrDataUrl } from "../features/gifts/qr.js";
 import { submitReplyIntent } from "../features/gifts/reply-intent.js";
+import { advanceRecipientStage } from "../features/gifts/recipient-journey.js";
 import { mountInbox } from "../features/gifts/inbox.js";
 import { supportTopics, topicForRequest, topicKey } from "../features/support/topics.js";
 import { state } from "../core/state.js";
@@ -1245,17 +1246,12 @@ async function handleAction(action, element) {
     }
     return;
   }
-  if (action === "open-gift") {
-    const card = document.getElementById("recipient-card");
-    card?.classList.add("is-surprise");
-    focusVisibleTarget(card?.querySelector(".recipient-surprise h2"));
-    return;
-  }
-  if (action === "reveal-gift") {
-    const card = document.getElementById("recipient-card");
-    card?.classList.remove("is-surprise");
-    card?.classList.add("is-open");
-    focusVisibleTarget(card?.querySelector(".recipient-opened h1"));
+  if (action === "open-gift" || action === "reveal-gift") {
+    // Chỉ đổi trạng thái giao diện; nội dung và quyền quà vẫn do backend quyết định.
+    advanceRecipientStage(
+      document.getElementById("recipient-card"),
+      action === "open-gift" ? "surprise" : "opened",
+    );
     return;
   }
   if (action === "copy-link") return copyText(element);

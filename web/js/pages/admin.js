@@ -1,7 +1,8 @@
-import { priceText, text } from "../core/i18n.js";
+import { attr, priceText, text } from "../core/i18n.js";
 import { escapeHtml as e } from "../core/api.js";
 import { icon } from "../ui/icons.js";
 import { storedTopicText } from "../features/support/topics.js";
+import { roleHeader, roleMetric } from "../ui/role-workspace.js";
 
 export function createAdminViews() {
   function adminPage(templates, requests = [], user, queue = []) {
@@ -10,9 +11,24 @@ export function createAdminViews() {
     const waiting = (queue || []).map(item => ({ ...item, version: true })).concat(templates || [])
       .sort((a, b) => (a.createdAt || '').localeCompare(b.createdAt || ''));
     const date = value => value ? text('common.values.date', { date: { format: 'date', value, options: { dateStyle: 'short', timeStyle: 'medium' } } }) : '';
-    return `<section class="section"><div class="container"><h1>${text("admin.moderation.title")}</h1>
-      <p><a class="btn btn--outline" href="/admin/payments" data-link>${text("admin.moderation.payments")}</a></p>
-      <h2 class="admin-title">${text('admin.moderation.pending', { count: `${total}${complete ? '' : '+'}` })}</h2>
+    return `<section class="section role-workspace role-workspace--admin"><div class="container">
+      ${roleHeader({
+        eyebrowKey: 'role.admin.eyebrow',
+        titleKey: 'admin.moderation.title',
+        introKey: 'role.admin.intro',
+        links: [
+          { href: '#admin-moderation', labelKey: 'role.admin.moderationLink', iconName: 'layers' },
+          { href: '#admin-support', labelKey: 'role.admin.supportLink', iconName: 'message-circle' },
+          { href: '/admin/payments', labelKey: 'admin.moderation.payments', iconName: 'shield' },
+        ],
+      })}
+      <div class="role-workspace__metrics" role="group" ${attr('aria-label', 'role.workspace.loadedSummary')}>
+        ${roleMetric('role.admin.reviewLoaded', complete ? total : null)}
+        ${roleMetric('role.admin.supportLoaded', Array.isArray(requests) ? requests.length : null)}
+      </div>
+      <p class="role-workspace__disclaimer">${text('role.workspace.loadedDisclaimer')}</p>
+      <section class="role-workspace__section" id="admin-moderation" aria-labelledby="admin-moderation-heading">
+      <h2 class="admin-title" id="admin-moderation-heading">${text('admin.moderation.pending', { count: `${total}${complete ? '' : '+'}` })}</h2>
       ${templates === null ? `<p role="alert">${text("admin.moderation.legacyUnavailable")}</p>` : ''}
       ${queue === null ? `<p role="alert">${text("admin.moderation.versionsUnavailable")}</p>` : ''}
       ${!complete ? `<button class="btn btn--outline" data-action="retry-admin-queues">${text("admin.moderation.retry")}</button>` : ''}
@@ -20,7 +36,8 @@ export function createAdminViews() {
       ? `<article class="admin-row"><div><h3>${e(item.title)}</h3><p>${text('admin.moderation.creatorRevision', { revision: Number(item.revision) })}${item.createdAt ? ` · ${date(item.createdAt)}` : ''}</p><small>${e(item.creator)}</small></div><a class="btn btn--dark" href="/admin/review/${e(item.templateId)}/${e(item.versionId)}" data-link>${text("admin.moderation.open")}</a></article>`
       : `<article class="admin-row"><div class="mini-theme mini-theme--${e(item.theme)}">${icon("sparkles", 22)}</div><div><h3>${e(item.title)}</h3><p>${e(item.subtitle)}</p><small>${text('admin.moderation.legacy')} · ${e(item.creator)} · ${priceText(item.price)}${item.createdAt ? ` · ${date(item.createdAt)}` : ''}</small></div><div class="admin-actions"><button class="btn btn--dark" data-action="approve-template" data-id="${e(item.id)}">${icon("check", 17)} ${text("admin.moderation.approve")}</button><button class="btn btn--outline" data-action="reject-template" data-id="${e(item.id)}">${text("admin.moderation.reject")}</button></div></article>`).join("")}</div>`
         : complete ? `<div class="empty-state empty-state--panel">${icon("check-circle", 42)}<h3>${text("admin.moderation.done")}</h3><p>${text("admin.moderation.empty")}</p></div>` : ''}
-      <div class="support-admin"><h2 class="admin-title">${text('admin.support.queue', { count: requests ? ` (${requests.length})` : '' })}</h2>
+      </section>
+      <section class="support-admin role-workspace__section" id="admin-support" aria-labelledby="admin-support-heading"><h2 class="admin-title" id="admin-support-heading">${text('admin.support.queue', { count: requests ? ` (${requests.length})` : '' })}</h2>
         ${requests?.length
         ? `<div class="support-admin__list">${requests
           .map(
@@ -38,7 +55,7 @@ export function createAdminViews() {
           .join("")}</div>`
         : requests ? `<p class="helper-text">${text("admin.support.empty")}</p>` : `<p role="alert">${text("admin.support.unavailable")}</p>`
       }
-      </div>
+      </section>
     </div></section>`;
   }
 

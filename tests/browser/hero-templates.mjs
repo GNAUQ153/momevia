@@ -86,8 +86,18 @@ export async function runHeroTemplatesBrowser(browser, base) {
         return [...node.querySelectorAll('.mkt-stage__note, .mkt-stage__reply')].every(note =>
           Number(globalThis.getComputedStyle(note).zIndex) > layer && note.getAnimations().length === 0);
       }), 'Notes stay in front of the card and remain still with reduced motion');
-      const controls = await page.locator('.mkt-hero__rotation').boundingBox();
-      assert(controls.y >= frame.y + frame.height, 'The three indicators sit below the artwork');
+      // Đo cả hai phần tử trong cùng lượt đọc DOM để tránh sai lệch thời điểm layout.
+      const indicatorLayout = await page.locator('.mkt-hero__artwork').evaluate(artwork => {
+        const frameBox = artwork.querySelector('.mkt-hero__frame').getBoundingClientRect();
+        const controlsBox = artwork.querySelector('.mkt-hero__rotation').getBoundingClientRect();
+        return {
+          frameBottom: frameBox.bottom,
+          controlsTop: controlsBox.top,
+          gridRows: globalThis.getComputedStyle(artwork).gridTemplateRows,
+        };
+      });
+      assert(indicatorLayout.controlsTop >= indicatorLayout.frameBottom,
+        `The three indicators sit below the artwork (controlsTop=${indicatorLayout.controlsTop}, frameBottom=${indicatorLayout.frameBottom}, gridRows=${indicatorLayout.gridRows})`);
       assert.equal(await page.locator('[data-hero-playback]').count(), 1, 'Slideshow includes a manual pause control');
       assert.equal(await page.locator('[data-hero-playback]').isVisible(), false, 'Reduced motion hides redundant playback controls');
       for (const [index, id] of ids.entries()) {

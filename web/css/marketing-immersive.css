@@ -440,7 +440,8 @@
 /* Cover layers share one fixed artboard: changing templates never shifts layout. */
 .mkt-hero__artwork {
   display: grid;
-  grid-template-rows: minmax(0, 1fr) auto;
+  /* Không cho hàng thiệp co thấp hơn min-height; nút chọn mẫu luôn ở dưới. */
+  grid-template-rows: minmax(min-content, 1fr) auto;
   gap: 12px;
   min-width: 0;
 }

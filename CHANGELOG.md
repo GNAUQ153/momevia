@@ -1,3 +1,9 @@
+## Unreleased — Sửa bố cục chỉ báo Hero mobile (2026-11-22)
+
+- Điều chỉnh hàng grid của `.mkt-hero__artwork` bảo toàn chiều cao tối thiểu, tránh chỉ báo chọn thiệp lấn lên khung artwork khi không gian mobile bị giới hạn.
+- Browser regression tiếp tục bắt buộc điều khiển nằm dưới khung; bổ sung số đo và `gridTemplateRows` vào lỗi để hỗ trợ chẩn đoán CI.
+- Thêm kiểm thử cấu trúc CSS và assertion. Không thay đổi animation, chức năng Marketing Lab, API hoặc dữ liệu người dùng.
+
 ## Unreleased — Marketing lab đo lặp và so sánh before/after (2026-11-22)
 
 - Nâng `npm run perf:marketing` từ một lượt sang ba lượt cho từng tổ hợp viewport/VI/EN, có thể cấu hình 1–5 lượt bằng `MOMEVIA_PERF_RUNS`.

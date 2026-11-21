@@ -23,11 +23,15 @@ export function mountHeroTemplates(host, templates) {
     noteMotions = notes.map((note, position) => {
       const rest = getComputedStyle(note).transform;
       const direction = position === 0 ? -1 : 1;
+      const lag = position * 300 / duration;
+      const start = noteStarts?.[position] || rest;
       const outward = `translate3d(${direction * 3}px, ${direction}px, 0) rotate(${direction * 0.6}deg) ${rest}`;
       const motion = note.animate([
-        { offset: 0, transform: noteStarts?.[position] || rest, easing },
-        { offset: 0.4, transform: rest },
-        { offset: 0.6, transform: rest, easing },
+        { offset: 0, transform: start, easing },
+        ...(lag ? [{ offset: lag, transform: start, easing }] : []),
+        { offset: 0.4 + lag, transform: rest },
+        { offset: 0.6 + lag, transform: rest, easing },
+        // Both end at the same pose/time, keeping the next cycle seamless.
         { offset: 1, transform: outward },
       ], { duration, easing: 'linear', fill: 'forwards' });
       motion.currentTime = Number(clock.currentTime) || 0;

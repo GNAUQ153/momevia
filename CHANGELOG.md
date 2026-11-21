@@ -1,3 +1,9 @@
+## Unreleased — Hai note lệch nhịp nhẹ (2026-11-21)
+
+- Note bên phải bắt đầu mỗi nhịp muộn hơn bên trái khoảng 300ms, vẫn dịch/nghiêng nhẹ và kết thúc cùng vị trí trong chu kỳ 5 giây để không giật khi lặp.
+- Giữ lớp nổi phía trước, một phần trong/ngoài viền, chọn mẫu và pause/reduced motion.
+- Build, check và browser trang chủ VI/EN ở 7 kích thước đạt; kiểm tra vị trí thực của hai note ở cùng mốc thời gian xác nhận lệch nhịp, vẫn nhỏ và giữ chu kỳ 5 giây.
+
 ## Unreleased — Làm mềm chuyển động hai note (2026-11-21)
 
 - Bỏ nhịp nhích nhanh ban đầu: note trôi về trong 2 giây, nghỉ nhẹ rồi trôi ra trong 2 giây cuối. Giảm biên độ còn 1–3px và tối đa 0,6 độ.

@@ -129,10 +129,14 @@ export async function runHeroTemplatesBrowser(browser, base) {
       const rest = note.getBoundingClientRect();
       animation.currentTime = 4000;
       const moving = note.getBoundingClientRect();
-      return { duration: animation.effect.getTiming().duration, dx: moving.x - rest.x, dy: moving.y - rest.y };
+      animation.currentTime = 5000;
+      const end = note.getBoundingClientRect();
+      return { duration: animation.effect.getTiming().duration, dx: moving.x - rest.x, dy: moving.y - rest.y,
+        phase: Math.hypot(moving.x - rest.x, moving.y - rest.y) / Math.hypot(end.x - rest.x, end.y - rest.y) };
     }));
     assert.equal(noteMotion.length, 2);
     assert(noteMotion.every(note => note.duration === 5000 && Math.abs(note.dx) > 0.1 && Math.abs(note.dx) < 8 && Math.abs(note.dy) < 8), 'Both notes move gently within the same five-second cycle');
+    assert(noteMotion[1].phase < noteMotion[0].phase - 0.05, 'Right note follows slightly behind the left note instead of mirroring it');
     const transition = await page.locator('[data-hero-image]').first().evaluate(node => {
       const style = globalThis.getComputedStyle(node);
       return { properties: style.transitionProperty.split(', '), duration: parseFloat(style.transitionDuration) };

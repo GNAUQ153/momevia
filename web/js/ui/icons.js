@@ -1,5 +1,7 @@
 // Biểu tượng SVG từ Lucide (ISC); một số icon kế thừa Feather (MIT): https://lucide.dev/license
 const paths = {
+  play: '<path d="m8 5 11 7-11 7Z"/>',
+  pause: '<path d="M8 5v14M16 5v14"/>',
   arrow: '<path d="M5 12h14m-6-6 6 6-6 6"/>',
   "arrow-left": '<path d="m12 19-7-7 7-7M5 12h14"/>',
   "arrow-up-right": '<path d="M7 17 17 7M8 7h9v9"/>',

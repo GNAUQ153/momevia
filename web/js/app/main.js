@@ -14,8 +14,9 @@ import { state } from "../core/state.js";
 import { templateValue } from "../features/catalog/template-copy.js";
 import { createComponents } from "../ui/components.js";
 import { createLayout } from "../ui/layout.js";
-import { createHomeViews, homeDemo } from "../pages/home.js";
+import { createHomeViews, homeDemo, homeDemos } from "../pages/home.js";
 import { mountMarketingMotion } from "../features/marketing/scene-motion.js";
+import { mountHeroTemplates } from "../features/marketing/hero-templates.js";
 import { mountTemplatePreview } from "../features/catalog/template-preview.js";
 import { createCatalogViews } from "../pages/catalog.js";
 import { createGiftViews } from "../pages/gifts.js";
@@ -299,7 +300,8 @@ function mountHome() {
     sheen.play();
   }, { signal });
   const disposeMarketingMotion = mountMarketingMotion(main, { signal });
-  const preview = mountTemplatePreview(main, homeDemo, { api, onOpen: loadAppFonts });
+  const rotation = mountHeroTemplates(main, homeDemos);
+  const preview = mountTemplatePreview(main, homeDemo, { api, onOpen: loadAppFonts, getTemplate: () => rotation.template });
   const featured = main.querySelector('#home-featured-gifts');
   async function loadFeatured() {
     featured.innerHTML = featuredGifts('loading');
@@ -339,6 +341,7 @@ function mountHome() {
   return { dispose() {
     lifetime.abort();
     disposeMarketingMotion();
+    rotation.dispose();
     preview.dispose();
     removeLocaleListener();
     moment.__moment?.destroy?.();

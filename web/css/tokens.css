@@ -57,4 +57,5 @@
   --font-shell: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
   --container: 1190px;
   --ease: cubic-bezier(.2, .8, .2, 1);
+  --ease-in-out: cubic-bezier(.77, 0, .175, 1);
 }

@@ -1,4 +1,4 @@
-import { attr, createLocaleControl, onLocaleChange, text, t } from '../../core/i18n.js';
+import { attr, createLocaleControl, message, onLocaleChange, setAttr, text, t } from '../../core/i18n.js';
 import { isSystemTemplate } from '../../shared/template-copy.js';
 import { templateField, templateValue } from './template-copy.js';
 import { eventMediaUrl } from '../../shared/canvas/event-media.js';
@@ -13,7 +13,7 @@ export function templatePreviewDialog(template) {
   </dialog>`;
 }
 
-export function mountTemplatePreview(host, template, { api, onOpen, autoOpen = false }) {
+export function mountTemplatePreview(host, template, { api, onOpen, autoOpen = false, getTemplate = () => template }) {
   const dialog = host.querySelector('.template-preview-dialog');
   const close = dialog.querySelector('[data-template-close]');
   const reset = dialog.querySelector('[data-template-reset]');
@@ -25,9 +25,9 @@ export function mountTemplatePreview(host, template, { api, onOpen, autoOpen = f
   const lifecycle = new AbortController();
   const options = { signal: lifecycle.signal };
   let opener, attempt, player, localizedPreview;
-  const endpoint = template.versionId && `/catalog/templates/${encodeURIComponent(template.id)}/versions/${encodeURIComponent(template.versionId)}`;
+  let activeTemplate = template;
   const removeLocaleListener = onLocaleChange(() => {
-    if (dialog.open && player && localizedPreview) player.updatePreviewCopy(localizedPreview(template, t));
+    if (dialog.open && player && localizedPreview) player.updatePreviewCopy(localizedPreview(activeTemplate, t));
   });
   dialog.querySelector('.template-preview-toolbar').prepend(createLocaleControl());
 
@@ -35,11 +35,14 @@ export function mountTemplatePreview(host, template, { api, onOpen, autoOpen = f
     attempt?.abort();
     player?.dispose();
     player = null;
+    localizedPreview = null;
     playerHost.replaceChildren();
   }
 
   async function load() {
     clear();
+    const template = activeTemplate;
+    const endpoint = template.versionId && `/catalog/templates/${encodeURIComponent(template.id)}/versions/${encodeURIComponent(template.versionId)}`;
     const { signal } = attempt = new AbortController();
     loading.hidden = false;
     note.hidden = false;
@@ -76,6 +79,9 @@ export function mountTemplatePreview(host, template, { api, onOpen, autoOpen = f
   for (const trigger of host.querySelectorAll('[data-template-preview]')) {
     trigger.addEventListener('click', () => {
       if (dialog.open) return;
+      activeTemplate = getTemplate();
+      dialog.querySelector('.template-preview-toolbar h2').innerHTML = templateField(activeTemplate, 'title');
+      setAttr(dialog, 'aria-label', message('catalog.detail.previewLabel', { title: templateValue(activeTemplate, 'title') }));
       opener = trigger;
       onOpen?.();
       dialog.showModal();

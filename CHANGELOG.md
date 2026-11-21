@@ -1,3 +1,63 @@
+## Unreleased — Tích hợp main vào mẫu sự kiện (2026-11-21)
+
+- Giữ đầy đủ nhật ký của cả hai nhánh khi giải quyết conflict PR #17.
+- Cập nhật browser regression Creator theo bố cục mẫu sự kiện đứng trước; kiểm tra đúng ba mẫu đầu, vị trí bộ sưu tập mùa lễ phía sau và khả năng cuộn tới/mở bộ sưu tập trên mobile.
+
+## Unreleased — Hai note lệch nhịp nhẹ (2026-11-21)
+
+- Note bên phải bắt đầu mỗi nhịp muộn hơn bên trái khoảng 300ms, vẫn dịch/nghiêng nhẹ và kết thúc cùng vị trí trong chu kỳ 5 giây để không giật khi lặp.
+- Giữ lớp nổi phía trước, một phần trong/ngoài viền, chọn mẫu và pause/reduced motion.
+- Build, check và browser trang chủ VI/EN ở 7 kích thước đạt; kiểm tra vị trí thực của hai note ở cùng mốc thời gian xác nhận lệch nhịp, vẫn nhỏ và giữ chu kỳ 5 giây.
+
+## Unreleased — Làm mềm chuyển động hai note (2026-11-21)
+
+- Bỏ nhịp nhích nhanh ban đầu: note trôi về trong 2 giây, nghỉ nhẹ rồi trôi ra trong 2 giây cuối. Giảm biên độ còn 1–3px và tối đa 0,6 độ.
+- Giữ chu kỳ 5 giây, lớp nổi phía trước, vị trí vắt qua viền và các cơ chế chọn mẫu/pause/reduced motion.
+- Build, check và browser trang chủ VI/EN ở 7 kích thước đạt; kiểm tra chuyển động note, lớp phía trước, pause/resume và giảm chuyển động.
+
+## Unreleased — Note chuyển động theo nhịp thiệp (2026-11-21)
+
+- Hai note nghiêng tối đa 1 độ và dịch nhẹ 2–4px theo đồng hồ 5 giây của thiệp, dừng/tiếp tục cùng preview và hỗ trợ giảm chuyển động.
+- Giữ note vắt qua viền và nổi phía trước thiệp chính theo lựa chọn cuối; không thay đổi vị trí nghỉ, lớp cắt thiệp hoặc thanh chọn mẫu.
+- Build, check, 459 unit tests và test:browser đạt; browser kiểm chứng độ dịch nhỏ, chu kỳ chung 5 giây, pause/resume, lớp hiển thị phía trước và chế độ giảm chuyển động.
+
+## Unreleased — Giữ note ngoài khung, chỉ cắt thiệp (2026-11-21)
+
+- Tách lớp cắt viền dành riêng cho các thiệp; hai note trở lại vị trí vắt qua mép khung. Trên điện thoại chỉ nhô nhẹ để chữ vẫn nằm trong màn hình.
+- Thêm nhòe nhẹ 1–2px vào lúc hé/chuyển thiệp, về nét hoàn toàn khi dừng; giữ chu kỳ 5 giây, hai giây hé mẫu và xoay 1,2 giây. Giảm chuyển động không dùng nhòe.
+- Build, check, 459 unit tests và test:browser đạt; có kiểm tra hai note vắt qua viền, lớp cắt riêng, mức nhòe và trở về nét. Đã rà ảnh desktop/320px trong `local/hero-templates/floating-notes-*.png`.
+
+## Unreleased — Hé thiệp trong hai giây cuối (2026-11-21)
+
+- Giữ chu kỳ mỗi mẫu đúng 5 giây; từ giây thứ 3, mẫu tiếp theo hé dần ở phía sau bên phải theo cùng đồng hồ với thanh tiến trình.
+- Chuyển xoay chậm lại thành 1,2 giây với nhịp ease-in-out, tiếp nối ngay vị trí đang hé thay vì quay về điểm xuất phát. Giữ chọn mẫu bằng thanh, pause/resume khi xem preview và giảm chuyển động.
+- Cắt toàn bộ thiệp, bóng và họa tiết vượt viền bo góc của khung; đưa hai nhãn nổi vào trong viền để giữ nội dung dễ đọc.
+- Đã kiểm tra nhịp 3+2 giây, nối tiếp góc đang hé, xoay 1,2 giây, VI/EN, chọn mẫu và pause/resume bằng browser; build, check, 459 unit tests và test:browser đạt. Rà thêm khung cắt viền ở 7 kích thước 320–1614px; ảnh soát ở `local/hero-templates/peek-clipped-*.png`.
+
+## Unreleased — Chuyển thiệp theo cung tròn (2026-11-21)
+
+- Giữ nguyên khung xem ở trang chủ: thiệp cũ xoay ra bên trái, thiệp mới đi theo cung tròn từ góc phải phía dưới lên vị trí hiện tại. Cả viền giấy và bóng thiệp chuyển cùng ảnh trong 600ms, chỉ dùng transform/opacity.
+- Giữ tiến trình 5 giây, chọn mẫu bằng thanh, preview đúng mẫu, giảm chuyển động và khả năng ngắt chuyển cảnh khi chọn liên tiếp.
+- Build, check, 459 unit tests và test:browser đều đạt; browser xác nhận hướng xoay, vị trí thiệp mới phía trước khi lặp cuối → đầu và đường đi trên khung điện thoại. Ảnh soát giữa/cuối chuyển động nằm trong `local/hero-templates/`.
+
+## Unreleased — Tiến trình chuyển mẫu ở trang chủ (2026-11-21)
+
+- Thanh đang chọn chạy từ trái sang phải trong 5 giây; chính thao tác hoàn tất tiến trình kích hoạt mẫu kế tiếp, không dùng hai bộ đếm riêng.
+- Bấm thanh bất kỳ để chọn mẫu và đếm lại từ đầu; dừng/tiếp tục cùng tiến trình khi mở preview, ẩn tab hoặc rời vùng hiển thị. Chế độ giảm chuyển động vẫn cho chọn mẫu thủ công.
+- Kiểm chứng build, check, 459 unit tests và bộ test:browser; có kiểm tra tiến trình chạy thật trên khung điện thoại, nửa thanh, tự chuyển đủ vòng, chọn lại thanh và tiếp tục sau preview/rời màn hình.
+
+## Unreleased — Thanh chọn mẫu và demo cập nhật theo file (2026-11-21)
+
+- Đưa ba vạch chọn mẫu ra dưới khung thiệp, bỏ nút tạm dừng; bìa tự chuyển kể cả khi đang rê chuột hoặc giữ focus. Giữ preview đúng mẫu và hỗ trợ giảm chuyển động.
+- Demo lấy mã mới mỗi lần khởi động và mặc định theo dõi file; tự tải lại trang giới thiệu/thư viện khi an toàn và khởi động lại backend thử khi mã backend đổi. Giữ tài khoản, phiên, ảnh, nháp và quà demo; không tự tải lại trang đang chỉnh thiệp.
+- Đã kiểm chứng build, check, 459 unit tests, test:templates, test:browser và test:demo:browser. Kịch bản demo dùng dữ liệu cô lập, xác nhận cập nhật trình duyệt, giữ preview/Canvas đang mở và giữ snapshot/nháp sau restart.
+
+## Unreleased — Ba mẫu thiệp luân phiên ở trang chủ (2026-11-21)
+
+- Khung xem thử đầu trang luân phiên thiệp cưới, sinh nhật và tốt nghiệp mỗi 5 giây; chuyển bìa bằng opacity/transform, giữ nguyên kích thước khung.
+- Thêm nút chọn mẫu, dừng/tiếp tục và nhãn VI/EN; mở preview đúng mẫu đang hiển thị. Dừng tự động khi đang xem preview, rê chuột, dùng bàn phím, rời vùng hiển thị hoặc ẩn tab; tôn trọng giảm chuyển động.
+- Kiểm chứng build, check, 455 unit tests, test:templates và test:browser trên dữ liệu cô lập; kiểm tra trang chủ VI/EN ở 7 kích thước 320–1614px. Kiểm tra chuyển ảnh, chọn mẫu, preview, pause/resume và ảnh lỗi bằng Chrome; chưa đo trên điện thoại thật.
+
 ## Unreleased — Recipient Image Loading & Resilience (2026-11-21)
 
 - Tách vòng đời tải ảnh của Canvas Player vào `image-state.js`, gắn listener trước `src` để bắt cả lỗi ảnh từ cache; không thay đổi allowlist URL hoặc API.

@@ -1596,6 +1596,8 @@
   "home.hero.note.caption": "Made just for them",
   "home.hero.note.title": "Something personal",
   "home.hero.preview": "Open the gift demo",
+  "home.hero.slides": "Three gift templates to try",
+  "home.hero.openTemplate": "Try: {title}",
   "home.hero.proof.account": "Recipients don't need an account",
   "home.hero.proof.design": "No design skills needed",
   "home.hero.reply.caption": "A memory you share",

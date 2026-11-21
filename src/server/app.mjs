@@ -26,7 +26,7 @@ const prefixes = [
   ['/api/designs', 'designs'],
 ];
 
-export async function createHttpApp(config = environment(), { paymentProviders, paymentEnv, sendRecoveryMail, recoveryNow } = {}) {
+export async function createHttpApp(config = environment(), { paymentProviders, paymentEnv, sendRecoveryMail, recoveryNow, staticOptions } = {}) {
   const identity = await identityApp(config, { sendRecoveryMail, recoveryNow });
   // Phiên và role được xác nhận từ Identity module tại mỗi request, kể cả sau khi logout.
   const resolveUser = async (req, _secret, required = true) => {
@@ -116,7 +116,7 @@ export async function createHttpApp(config = environment(), { paymentProviders, 
       if (!['GET', 'HEAD'].includes(req.method)) {
         res.writeHead(405); return res.end();
       }
-      staticFile(req, res, url);
+      staticFile(req, res, url, staticOptions);
     } catch (error) {
       sendError(res, error);
     }

@@ -4,13 +4,17 @@ import { isInSeason, vietnamDay } from "../features/catalog/seasonal.js";
 import { templateCover } from "../features/catalog/template-copy.js";
 import { canonicalText } from "../shared/locale.js";
 import { icon } from "../ui/icons.js";
+import { prioritizeTemplates } from '../shared/template-order.js';
 
-// The cover and player both use the same public, built-in template.
+// The covers and player use the same public, built-in templates.
 export const homeDemo = {
   id: "hai-phong-bi",
   creator: "Momevia Originals",
   title: canonicalText("templates.hai-phong-bi.title"),
 };
+export const homeDemos = [homeDemo, ...['birthday-radiance', 'proud-of-you'].map(id => ({
+  id, creator: 'Momevia Originals', title: canonicalText(`templates.${id}.title`),
+}))];
 
 export function createHomeViews({ state, buttonLink, templateCard }) {
   function hero() {
@@ -29,6 +33,7 @@ export function createHomeViews({ state, buttonLink, templateCard }) {
         </ul>
         <a class="mkt-hero__scroll" href="#how-it-works">${text("home.hero.how")} ${icon("chevron-down", 17)}</a>
       </div>
+      <div class="mkt-hero__artwork">
       <div class="mkt-hero__frame hero__window mkt-stage" data-visual data-enter-media data-mkt-tilt>
         <div class="mkt-stage__atmosphere" aria-hidden="true">
           <span class="mkt-stage__orb mkt-stage__orb--first"></span>
@@ -39,13 +44,19 @@ export function createHomeViews({ state, buttonLink, templateCard }) {
           <span>${text("home.hero.note.caption")}</span>
           <strong>${text("home.hero.note.title")}</strong>
         </div>
+        <div class="mkt-stage__cards">
         <button type="button" class="mkt-hero__cover" data-template-preview aria-haspopup="dialog" ${attr("aria-label", "home.hero.preview")}>
-          <img ${templateCover(homeDemo.id)} alt="" width="390" height="844" fetchpriority="high" />
+          ${homeDemos.map((template, index) => `<img ${templateCover(template.id)} data-hero-image="${template.id}" data-active="${index === 0}" alt="" width="390" height="844" ${index === 0 ? 'fetchpriority="high"' : 'decoding="async"'} />`).join('')}
         </button>
+        </div>
         <div class="mkt-stage__reply" aria-hidden="true">
           <span>${text("home.hero.reply.caption")}</span>
           <strong>${icon("heart", 15)} ${text("home.hero.reply.title")}</strong>
         </div>
+      </div>
+      <div class="mkt-hero__rotation" role="group" ${attr('aria-label', 'home.hero.slides')}>
+        ${homeDemos.map((template, index) => `<button type="button" class="mkt-hero__slide" data-hero-select="${index}" aria-pressed="${index === 0}" ${attr('aria-label', `templates.${template.id}.title`)}><span aria-hidden="true"><span data-hero-progress></span></span></button>`).join('')}
+      </div>
       </div>
       </div>
       ${templatePreviewDialog(homeDemo)}
@@ -57,7 +68,7 @@ export function createHomeViews({ state, buttonLink, templateCard }) {
     if (status === "error") return `<p role="alert">${text("home.featured.error")}</p>
       <button class="btn mkt-secondary" type="button" data-home-catalog-retry>${text("common.actions.retry")}</button>`;
     const day = vietnamDay();
-    const ranked = state.templates.slice().sort((a, b) => Number(isInSeason(b, day)) - Number(isInSeason(a, day)) || Number(Boolean(b.featured)) - Number(Boolean(a.featured)));
+    const ranked = prioritizeTemplates(state.templates.slice().sort((a, b) => Number(isInSeason(b, day)) - Number(isInSeason(a, day)) || Number(Boolean(b.featured)) - Number(Boolean(a.featured))));
     const selections = new Map();
     for (const template of ranked) {
       const occasion = template.category || template.style || template.id;

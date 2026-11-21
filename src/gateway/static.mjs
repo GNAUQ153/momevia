@@ -15,7 +15,7 @@ const mime = {
   '.ico': 'image/x-icon',
   '.json': 'application/json',
 };
-export function staticFile(req, res, url) {
+export function staticFile(req, res, url, { cacheControl } = {}) {
   // Chỉ phục vụ tệp thật nằm trong web; không đọc thư mục hoặc symlink ra ngoài.
   const pathname = decodeURIComponent(url.pathname);
   const file = pathname.startsWith('/css/') || pathname.startsWith('/js/') || pathname.startsWith('/assets/') || pathname === '/favicon.svg'
@@ -38,7 +38,7 @@ export function staticFile(req, res, url) {
   const type = mime[path.extname(file)] || 'application/octet-stream';
   const headers = {
     'content-type': type,
-    'cache-control': type.startsWith('text/html') ? 'no-store' : 'public, max-age=300',
+    'cache-control': cacheControl ?? (type.startsWith('text/html') ? 'no-store' : 'public, max-age=300'),
     'x-content-type-options': 'nosniff',
     'referrer-policy': 'no-referrer',
     'x-frame-options': 'DENY',

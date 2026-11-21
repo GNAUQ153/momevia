@@ -124,7 +124,7 @@
   place-items: center;
   position: relative;
   min-height: clamp(390px, 45vw, 600px);
-  padding: 42px 24px;
+  padding: 0;
   overflow: visible;
   isolation: isolate;
   border: 1px solid #ffffffa8;
@@ -181,23 +181,36 @@
   box-shadow: 0 0 40px #ffffff70;
 }
 
+.is-home .mkt-stage__cards {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  align-self: stretch;
+  justify-self: stretch;
+  min-width: 0;
+  padding: 42px 24px;
+  overflow: hidden;
+  border-radius: inherit;
+}
+
 .is-home .mkt-stage .mkt-hero__cover {
   position: relative;
   z-index: 2;
   /* 768px: giữ thiệp đủ rộng dù vùng xem trước nằm ở cột hẹp. */
   width: clamp(180px, 65%, 250px);
-  overflow: hidden;
-  border: 6px solid #fff;
+  overflow: visible;
+  border: 0;
   border-radius: 22px;
-  background: #e8def7;
-  box-shadow: 0 31px 62px #2a1f4360, 0 0 0 1px #ffffffb8;
+  background: transparent;
+  box-shadow: none;
   transform: translateZ(53px) rotate(-6deg);
-  transition: transform 260ms ease, box-shadow 260ms ease;
+  transition: transform 260ms ease;
 }
 
 .is-home .mkt-stage .mkt-hero__cover:hover {
   transform: translateZ(67px) rotate(-3deg) scale(1.035);
-  box-shadow: 0 35px 76px #2a1f4366;
+  box-shadow: none;
 }
 
 .is-home .mkt-stage__note,
@@ -364,19 +377,22 @@
   }
 
   .is-home .mkt-stage__note {
-    left: 3%;
+    left: -4px;
   }
 
   .is-home .mkt-stage__reply {
-    right: 3%;
+    right: -4px;
   }
 }
 
 @media (max-width: 420px) {
   .is-home .mkt-stage {
     min-height: 390px;
-    padding: 28px 16px;
     border-radius: 22px;
+  }
+
+  .is-home .mkt-stage__cards {
+    padding: 28px 16px;
   }
 
   .is-home .mkt-stage__note,
@@ -413,6 +429,110 @@
 
   .is-home .mkt-stage__orb {
     animation: none;
+  }
+}
+
+/* Cover layers share one fixed artboard: changing templates never shifts layout. */
+.mkt-hero__artwork {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 12px;
+  min-width: 0;
+}
+
+.is-home .mkt-stage .mkt-hero__cover {
+  aspect-ratio: 390 / 844;
+}
+
+.is-home .mkt-stage .mkt-hero__cover [data-hero-image] {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border: 6px solid #fff;
+  border-radius: inherit;
+  background: #e8def7;
+  box-shadow: 0 31px 62px #2a1f4360, 0 0 0 1px #ffffffb8;
+  pointer-events: none;
+  opacity: 0;
+  filter: blur(2px);
+  /* A pivot below the card makes the right-hand card rise to the apex. */
+  transform-origin: 30% 140%;
+  transform: rotate(18deg);
+  transition: none;
+}
+
+.is-home .mkt-stage .mkt-hero__cover [data-peeking] {
+  z-index: 1;
+}
+
+.is-home .mkt-stage .mkt-hero__cover [data-exiting] {
+  z-index: 1;
+  transform: rotate(-18deg);
+  transition: opacity 1200ms var(--ease-in-out), transform 1200ms var(--ease-in-out), filter 1200ms var(--ease-in-out);
+}
+
+.is-home .mkt-stage .mkt-hero__cover [data-active="true"] {
+  z-index: 2;
+  opacity: 1;
+  filter: blur(0px);
+  transform: none;
+  transition: opacity 1200ms var(--ease-in-out), transform 1200ms var(--ease-in-out), filter 1200ms var(--ease-in-out);
+}
+
+.mkt-hero__rotation {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+}
+
+.mkt-hero__rotation button {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  color: #6039a5;
+  background: transparent;
+  cursor: pointer;
+}
+
+.mkt-hero__slide > span {
+  position: relative;
+  overflow: hidden;
+  width: 32px;
+  height: 4px;
+  border-radius: 4px;
+  background: #b2a1c8;
+}
+
+.mkt-hero__slide [data-hero-progress] {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: #6039a5;
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+
+.mkt-hero__slide[aria-pressed="true"] [data-hero-progress] {
+  transform: scaleX(1);
+}
+
+.mkt-hero__rotation button:focus-visible {
+  outline: 3px solid #6039a5;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .is-home .mkt-stage .mkt-hero__cover [data-hero-image] {
+    transform: none;
+    filter: none;
+    transition: none;
   }
 }
 

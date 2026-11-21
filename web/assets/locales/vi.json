@@ -1586,6 +1586,8 @@
   "home.hero.note.caption": "Chỉ dành cho người ấy",
   "home.hero.note.title": "Một điều thật riêng",
   "home.hero.preview": "Mở thử món quà",
+  "home.hero.slides": "Ba mẫu thiệp để mở thử",
+  "home.hero.openTemplate": "Mở thử: {title}",
   "home.hero.proof.account": "Người nhận không cần tài khoản",
   "home.hero.proof.design": "Không cần biết thiết kế",
   "home.hero.reply.caption": "Kỷ niệm của hai người",

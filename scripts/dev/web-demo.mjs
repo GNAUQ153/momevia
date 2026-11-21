@@ -8,10 +8,12 @@ import { fileURLToPath } from 'node:url';
 import { setTimeout as delay } from 'node:timers/promises';
 import { parseArgs } from 'node:util';
 import { seedWebDemo } from './web-demo-fixture.mjs';
+import { parseAllowedOrigins } from '../../src/shared/request-origin.mjs';
 
 const { values } = parseArgs({ options: {
   port: { type: 'string', default: '4110' },
   prepare: { type: 'boolean', default: false },
+  'allowed-origin': { type: 'string', multiple: true, default: [] },
 } });
 const port = Number(values.port);
 if (!Number.isSafeInteger(port) || port < 1024 || port > 65535) throw new Error('Chọn cổng loopback từ 1024 đến 65535.');
@@ -19,6 +21,7 @@ const root = fileURLToPath(new URL('../../', import.meta.url));
 const demoDir = path.join(root, 'local', `web-demo-${port}`);
 const appDir = path.join(demoDir, 'app');
 const base = `http://127.0.0.1:${port}`;
+const allowedOrigins = parseAllowedOrigins([process.env.ALLOWED_ORIGINS || '', ...values['allowed-origin']].join(','));
 const writeJson = (name, value) => fs.writeFileSync(path.join(demoDir, name), JSON.stringify(value, null, 2) + '\n', { flag: 'wx', mode: 0o600 });
 const readJson = file => JSON.parse(fs.readFileSync(path.join(demoDir, file), 'utf8'));
 const prepared = fs.existsSync(path.join(demoDir, 'trang-thai-demo.json'));
@@ -49,6 +52,7 @@ const accounts = readJson('tai-khoan-demo.json');
 const env = {
   ...process.env,
   NODE_ENV: 'development', PUBLIC_BASE_URL: base, HOST: '127.0.0.1', PORT: String(port),
+  ALLOWED_ORIGINS: allowedOrigins.join(','),
   JWT_SECRET: runtime.jwtSecret, INTERNAL_SERVICE_KEY: runtime.internalKey,
   IDENTITY_STORAGE: 'json', CATALOG_STORAGE: 'json', CHECKOUT_STORAGE: 'json',
   GIFTS_STORAGE: 'json', SUPPORT_STORAGE: 'json', DESIGNS_STORAGE: 'json',

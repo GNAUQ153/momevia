@@ -89,18 +89,19 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Điều chỉnh hàng grid của `.mkt-hero__artwork` bảo toàn chiều cao tối thiểu, tránh chỉ báo chọn thiệp lấn lên khung artwork khi không gian mobile bị giới hạn.
-- Browser regression tiếp tục bắt buộc điều khiển nằm dưới khung; bổ sung số đo và `gridTemplateRows` vào lỗi để hỗ trợ chẩn đoán CI.
-- Thêm kiểm thử cấu trúc CSS và assertion. Không thay đổi animation, chức năng Marketing Lab, API hoặc dữ liệu người dùng.
+- Trải nghiệm Create → Share → Open → Reply → Keep trên mobile: năm nút chuyển sang danh sách cuộn ngang với cỡ chữ 13px thay vì ép chữ 11px vào một hàng; không gây tràn ngang trang.
+- Vuốt ngang trên artwork đổi bước khi vượt ngưỡng 48px và rõ ràng theo phương ngang; không chiếm cuộn dọc, không xử lý đa chạm và không tự quay vòng ở đầu/cuối hành trình.
+- Đảm bảo chỉ một nút được Tab tới trong nhóm; vẫn hỗ trợ Arrow, Home, End. Thêm hướng dẫn thao tác song ngữ VI/EN.
+- Bổ sung kiểm thử unit và browser cho vuốt, phím, responsive. Không thay đổi API, Canvas, database, thanh toán hoặc nội dung thiệp.
 
 **Các commit gần nhất trên `main`:**
 
+- `51f3431` — feat: improve marketing journey mobile interactions (2026-11-22)
 - `57008bf` — fix: keep marketing hero indicators below artwork on mobile (2026-11-22)
 - `3930b34` — perf: add repeatable marketing lab reports and comparison (2026-11-22)
 - `5f714b3` — test: wait for responsive navigation to finish closing (2026-11-22)
 - `ad9d498` — perf: pause offscreen marketing ambiance and add local lab metrics (2026-11-22)
 - `ea0fbef` — perf: batch marketing 3D pointer updates per frame (2026-11-22)
-- `86a7a0e` — feat: add accessible marketing hero playback controls (2026-11-22)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

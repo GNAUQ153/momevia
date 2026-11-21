@@ -1447,6 +1447,7 @@
   "gift.player.motion": "Turn off motion",
   "gift.player.previewMode": "Preview · replies are simulated",
   "gift.player.report": "Report this gift",
+  "gift.player.progressLabel": "Gift scene progress",
   "gift.player.scenePosition": "Scene {index} of {total}: {name}",
   "gift.player.scenes": "Gift scenes",
   "gift.player.skipTyping": "Show full message",

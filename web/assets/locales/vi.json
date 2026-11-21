@@ -1437,6 +1437,7 @@
   "gift.player.motion": "Tắt chuyển động",
   "gift.player.previewMode": "Đang xem thử · lời đáp được mô phỏng",
   "gift.player.report": "Báo cáo món quà",
+  "gift.player.progressLabel": "Tiến trình xem các cảnh",
   "gift.player.scenePosition": "Cảnh {index} / {total}: {name}",
   "gift.player.scenes": "Các cảnh của món quà",
   "gift.player.skipTyping": "Xem trọn ngay",

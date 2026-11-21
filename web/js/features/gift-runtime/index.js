@@ -4,6 +4,7 @@ import { focusVisibleTarget } from "../../core/motion.js";
 import { renderElement, applyLayout, updateElementCopy } from "./renderer.js";
 import { applySurface, createMotion, playAmbience, playElement, playReaction, sceneTransition } from "./effects.js";
 import { playCelebrations } from './celebrations.js';
+import { createSceneNavigation } from './scene-navigation.js';
 export { renderElement, applyLayout, resolveText } from "./renderer.js";
 
 export function mountPlayer(
@@ -46,7 +47,14 @@ export function mountPlayer(
   const navigation = globalThis.document.createElement("nav");
   navigation.className = "gift-runtime-navigation";
   setAttr(navigation, "aria-label", message("gift.player.scenes"));
+  const progress = globalThis.document.createElement("progress");
+  progress.className = "gift-runtime-progress";
+  setAttr(progress, "aria-label", message("gift.player.progressLabel"));
   const lifetime = new AbortController();
+  const sceneNavigation = createSceneNavigation(navigation, progress, {
+    onSelect: id => requestScene(id),
+    signal: lifetime.signal,
+  });
   const preference = globalThis.matchMedia("(prefers-reduced-motion: reduce)");
   let motionOff = false, resumeCelebrations = () => {};
   const motion = createMotion(() => !preference.matches && !motionOff);
@@ -76,7 +84,7 @@ export function mountPlayer(
   }, {signal:lifetime.signal});
   preference.addEventListener("change", updateMotionControl, {signal:lifetime.signal});
   updateMotionControl();
-  shell.append(marker, stage, navigation, status);
+  shell.append(marker, stage, progress, navigation, status);
   if (document.schemaVersion === 2 && (document.scenes.some(scene => scene.effects) || document.elements.some(element => element.effects)))
     shell.insertBefore(toolbar, stage);
   root.replaceChildren(shell);
@@ -85,9 +93,7 @@ export function mountPlayer(
   function syncSceneCopy() {
     const scene = document.scenes.find(s => s.id === activeSceneId);
     stage.setAttribute("aria-label", scene.name);
-    for (const [i, button] of [...navigation.children].entries()) {
-      button.textContent = `${i + 1}. ${document.scenes[i].name}`;
-    }
+    sceneNavigation.sync(document.scenes, activeSceneId);
     setText(status, message("gift.player.scenePosition", {
       index: document.scenes.indexOf(scene) + 1, total: document.scenes.length, name: scene.name,
     }));
@@ -229,19 +235,6 @@ export function mountPlayer(
       for (const { node, model } of nodes)
         if (["text", "reply", "interaction"].includes(model.type) || (model.type === "image" && model.props.caption))
           resizeObserver.observe(node);
-    }
-    navigation.replaceChildren();
-    for (const s of document.scenes) {
-      const button = globalThis.document.createElement("button");
-      button.type = "button";
-      button.setAttribute(
-        "aria-current",
-        s.id === activeSceneId ? "step" : "false",
-      );
-      button.addEventListener("click", () => goToScene(s.id), {
-        signal: sceneController.signal,
-      });
-      navigation.append(button);
     }
     syncSceneCopy();
     onSceneChange(scene.id);

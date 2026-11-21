@@ -328,6 +328,11 @@
   .is-home .mkt-stage__orb--second {
     animation: mkt-ambient 12s ease-in-out infinite alternate-reverse;
   }
+
+  /* Quầng sáng không tiêu tốn animation frame khi hero bị ẩn hoặc đã tạm dừng. */
+  .is-home .mkt-hero:not([data-mkt-ambient-running]) .mkt-stage__orb {
+    animation-play-state: paused;
+  }
 }
 
 @keyframes mkt-ambient {

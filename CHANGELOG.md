@@ -1,3 +1,9 @@
+## Unreleased — Marketing ambient visibility & local performance lab (2026-11-22)
+
+- Đồng bộ hai quầng sáng CSS với trạng thái Hero: dừng khi người dùng pause, preview mở, hero ngoài viewport hoặc tab ẩn; tiếp tục khi tương tác trở lại. Không sửa mẫu thiệp hoặc logic chuyển cảnh.
+- Bổ sung `npm run perf:marketing` để đo TTFB, FCP, LCP, CLS, long task và tràn ngang tại máy local ở ba viewport, hai ngôn ngữ; lưu JSON vào `dist/reports`, không gửi analytics ra ngoài.
+- Thêm unit test và browser regression cho trạng thái animation, số liệu thiếu, overflow; ghi rõ kết quả lab không thay thế Core Web Vitals người dùng thật. Cần xác minh Playwright/CI trên main.
+
 ## Unreleased — Marketing pointer performance (2026-11-22)
 
 - Gom nhiều sự kiện `pointermove` của khung 3D thành tối đa một lần tính toán theo `requestAnimationFrame`; chỉ lấy tọa độ chuột cuối cùng và đo `getBoundingClientRect()` trong frame thay vì từng sự kiện.

@@ -148,7 +148,11 @@ export async function runHeroTemplatesBrowser(browser, base) {
     assert.equal(firstProgress.easing, 'linear');
     const playback = page.locator('[data-hero-playback]');
     assert.equal(await playback.isVisible(), true, 'Autoplay has a visible pause control');
+    await page.waitForFunction(() => globalThis.document.querySelector('.mkt-hero')?.hasAttribute('data-mkt-ambient-running'));
+    assert.equal(await page.locator('.mkt-stage__orb--first').evaluate(node => globalThis.getComputedStyle(node).animationPlayState), 'running', 'Ambient orb moves when hero is active');
     await playback.click();
+    assert.equal(await page.locator('.mkt-hero').getAttribute('data-mkt-ambient-running'), null, 'User pause disables ambient motion');
+    assert.equal(await page.locator('.mkt-stage__orb--first').evaluate(node => globalThis.getComputedStyle(node).animationPlayState), 'paused', 'User pause freezes ambient CSS');
     await page.waitForFunction(() => globalThis.document.querySelector('[aria-pressed="true"] [data-hero-progress]')?.getAnimations()[0]?.playState === 'paused');
     assert.equal(await playback.getAttribute('aria-label'), 'Tiếp tục chuyển mẫu');
     assert.equal(await playback.getAttribute('data-state'), 'paused');
@@ -158,6 +162,7 @@ export async function runHeroTemplatesBrowser(browser, base) {
     await playback.click();
     await page.waitForFunction(() => globalThis.document.querySelector('[aria-pressed="true"] [data-hero-progress]')?.getAnimations()[0]?.playState === 'running');
     assert.equal(await playback.getAttribute('data-state'), 'playing');
+    assert.equal(await page.locator('.mkt-stage__orb--first').evaluate(node => globalThis.getComputedStyle(node).animationPlayState), 'running', 'Resume restarts ambient CSS');
     await page.locator('[aria-pressed="true"] [data-hero-progress]').evaluate(node => {
       const animation = node.getAnimations()[0];
       animation.pause();
@@ -205,9 +210,11 @@ export async function runHeroTemplatesBrowser(browser, base) {
 
     await page.locator('footer').scrollIntoViewIfNeeded();
     await page.waitForFunction(() => globalThis.document.querySelector('[aria-pressed="true"] [data-hero-progress]')?.getAnimations()[0]?.playState === 'paused');
+    assert.equal(await page.locator('.mkt-stage__orb--first').evaluate(node => globalThis.getComputedStyle(node).animationPlayState), 'paused', 'Offscreen hero pauses ambient CSS');
     const offscreenTime = (await progressState(page)).time;
     await cover.scrollIntoViewIfNeeded();
     await page.waitForFunction(() => globalThis.document.querySelector('[aria-pressed="true"] [data-hero-progress]')?.getAnimations()[0]?.playState === 'running');
+    assert.equal(await page.locator('.mkt-stage__orb--first').evaluate(node => globalThis.getComputedStyle(node).animationPlayState), 'running', 'Visible hero resumes ambient CSS');
     assert((await progressState(page)).time >= offscreenTime, 'Returning to the cover resumes rather than resets progress');
 
     await page.locator('[aria-pressed="true"] [data-hero-progress]').evaluate(node => { node.getAnimations()[0].currentTime = 4000; });

@@ -85,7 +85,11 @@ export function mountHeroTemplates(host, templates) {
       !document.hidden && visible && !dialog.open;
   }
   function schedule() {
-    if (!canRotate()) {
+    // Dùng cùng trạng thái với đồng hồ thiệp để tạm dừng quầng sáng CSS.
+    // Không để animation chạy ngầm khi hero ngoài viewport, tab ẩn hoặc người dùng tạm dừng.
+    const running = canRotate();
+    root.toggleAttribute('data-mkt-ambient-running', running);
+    if (!running) {
       progress?.pause();
       peek?.pause();
       noteMotions.forEach(motion => motion.pause());
@@ -189,6 +193,7 @@ export function mountHeroTemplates(host, templates) {
       ++generation;
       resetProgress();
       observer.disconnect();
+      root.removeAttribute('data-mkt-ambient-running');
       removeLocaleListener();
     },
   };

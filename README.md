@@ -96,12 +96,12 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các commit gần nhất trên `main`:**
 
+- `ede4a2a` — feat: localize Canvas Designer and refactor discovery UI (2026-11-21)
 - `08c3e02` — feat: add paginated admin refund review queue (2026-11-21)
 - `727ac61` — feat: complete refund review integration (2026-11-21)
 - `39e461f` — fix: reject conflicting refund review resubmissions (2026-11-21)
 - `4c01398` — Merge pull request #15 from GNAUQ153/plan/event-card-redesign (2026-11-21)
 - `4f04bf7` — test: mock refund request lookup in Canvas fixture (2026-11-21)
-- `ffb8cdf` — feat: add role-scoped finance CSV exports (2026-11-21)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

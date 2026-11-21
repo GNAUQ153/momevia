@@ -96,12 +96,12 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các commit gần nhất trên `main`:**
 
+- `41de770` — feat(marketing): enhance hero 3d interaction and accessibility (2026-11-21)
 - `c9ce4da` — fix: stabilize responsive layout and JSON persistence on Windows (2026-11-21)
 - `b6e9eca` — feat: improve Momevia localization and user experience (2026-11-21)
 - `48175dd` — feat(canvas): add visual conflict review and recovery comparison (2026-11-20)
 - `1aa96d3` — Merge pull request #12 from GNAUQ153/feat/momevia-i18n-ui (2026-11-20)
 - `baea533` — feat(canvas): enhance autosave feedback and offline recovery UX (2026-11-20)
-- `809c558` — feat(canvas): improve multi-tab recovery and session consistency (2026-11-20)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

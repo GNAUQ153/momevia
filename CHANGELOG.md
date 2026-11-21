@@ -1,3 +1,9 @@
+## Unreleased — Làm mềm chuyển động hai note (2026-11-21)
+
+- Bỏ nhịp nhích nhanh ban đầu: note trôi về trong 2 giây, nghỉ nhẹ rồi trôi ra trong 2 giây cuối. Giảm biên độ còn 1–3px và tối đa 0,6 độ.
+- Giữ chu kỳ 5 giây, lớp nổi phía trước, vị trí vắt qua viền và các cơ chế chọn mẫu/pause/reduced motion.
+- Build, check và browser trang chủ VI/EN ở 7 kích thước đạt; kiểm tra chuyển động note, lớp phía trước, pause/resume và giảm chuyển động.
+
 ## Unreleased — Note chuyển động theo nhịp thiệp (2026-11-21)
 
 - Hai note nghiêng tối đa 1 độ và dịch nhẹ 2–4px theo đồng hồ 5 giây của thiệp, dừng/tiếp tục cùng preview và hỗ trợ giảm chuyển động.

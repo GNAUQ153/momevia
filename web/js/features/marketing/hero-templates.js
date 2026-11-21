@@ -23,11 +23,10 @@ export function mountHeroTemplates(host, templates) {
     noteMotions = notes.map((note, position) => {
       const rest = getComputedStyle(note).transform;
       const direction = position === 0 ? -1 : 1;
-      const outward = `translate3d(${direction * 4}px, ${direction * 2}px, 0) rotate(${direction}deg) ${rest}`;
+      const outward = `translate3d(${direction * 3}px, ${direction}px, 0) rotate(${direction * 0.6}deg) ${rest}`;
       const motion = note.animate([
         { offset: 0, transform: noteStarts?.[position] || rest, easing },
-        { offset: 0.1, transform: outward, easing },
-        { offset: 0.24, transform: rest },
+        { offset: 0.4, transform: rest },
         { offset: 0.6, transform: rest, easing },
         { offset: 1, transform: outward },
       ], { duration, easing: 'linear', fill: 'forwards' });

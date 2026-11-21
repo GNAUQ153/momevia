@@ -89,18 +89,18 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Gom nhiều sự kiện `pointermove` của khung 3D thành tối đa một lần tính toán theo `requestAnimationFrame`; chỉ lấy tọa độ chuột cuối cùng và đo `getBoundingClientRect()` trong frame thay vì từng sự kiện.
-- Khi rời khung, ẩn tab, giảm chuyển động hoặc tháo module, hủy frame chờ và bỏ qua callback đến trễ. Giữ nguyên độ nghiêng 3D, font và VI/EN.
-- Tách `latest-frame.js` dễ kiểm thử, bổ sung unit test, tài liệu hiệu năng và cơ chế hợp nhất an toàn. Chưa có số đo FPS/Core Web Vitals trên thiết bị thực tế.
+- Sua race condition trong `tests/browser/home.mjs`: sau khi doi viewport tu 1024px sang 1200px, Playwright cho menu `hidden` trong DOM va `aria-expanded=false`, khong chi cho CSS an menu.
+- Giu nguyen assertion va timeout 5 giay: neu listener `matchMedia` khong dong menu, bai kiem thu van fail. Khong thay doi giao dien, JavaScript production, API, Canvas hoac thanh toan.
+- CI run 44931895318 da PASS build, check, npm audit, 509 unit tests; browser regression fail tai dong 67. Can chay lai CI tren GitHub.
 
 **Các commit gần nhất trên `main`:**
 
+- `5f714b3` — test: wait for responsive navigation to finish closing (2026-11-22)
+- `ad9d498` — perf: pause offscreen marketing ambiance and add local lab metrics (2026-11-22)
 - `ea0fbef` — perf: batch marketing 3D pointer updates per frame (2026-11-22)
 - `86a7a0e` — feat: add accessible marketing hero playback controls (2026-11-22)
 - `173f21a` — feat: improve readable compact navigation on laptop (2026-11-22)
 - `11d7135` — fix: prevent brand header overflow on laptop widths (2026-11-21)
-- `cca43e4` — feat: unify Momevia typography and brand UI (2026-11-21)
-- `54a4c83` — Merge pull request #18 from GNAUQ153:feat/event-templates-first (2026-11-21)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

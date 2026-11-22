@@ -10,7 +10,6 @@ import {
   createDocument,
   LIMITS,
 } from "../shared/canvas/index.js";
-import { mountPlayer } from "../features/gift-runtime/index.js";
 import { requiresCanvasV2 } from "../shared/canvas/schema.js";
 import { lines, masks, shapes } from "../shared/canvas/artwork.js";
 import { eventTimeFromLocal, interactionKinds, localEventTime, photoSlots } from "../shared/canvas/interactions.js";
@@ -22,7 +21,6 @@ import { refreshElementArtwork } from '../shared/canvas/library-materialize.js';
 import { textFont } from "../features/gift-runtime/renderer.js";
 import { bindingLabels, clearTemplateBindingDefaults, lockedVisibleNames, visibleBindingKeys } from "../shared/canvas/personalization.js";
 import { submissionChanges } from "../shared/canvas/submission.js";
-import { giftLinkDescription } from "../shared/gift-permissions.js";
 import { framePhoto, MEMORY_TEMPLATE_ID, memoryGreetingStarterKeys } from "../shared/canvas/basic-templates.js";
 import { materializeTemplateStart } from '../features/canvas-editor/template-start.js';
 import { createEventFields, updateEventFields, storyAlbum, storyClock } from '../features/canvas-editor/event-fields.js';
@@ -58,6 +56,8 @@ import { canStartInlineFabric, assertInlineFabricRevision } from "../features/ca
 import { icon } from "../ui/icons.js";
 import { soundtrackById } from '../shared/canvas/soundtracks.js';
 import { createMusicPanel, filterMusicPanel, syncMusicPanel } from '../features/canvas-editor/music-panel.js';
+import { openCanvasPreview } from "../features/canvas-editor/preview-dialog.js";
+import { openGiftAccessDialog } from "../features/canvas-editor/gift-access-dialog.js";
 import { createSoundtrackPlayback } from '../features/gift-runtime/soundtrack.js';
 import {
   node,
@@ -108,7 +108,6 @@ export function mountDesigner(
     if (globalThis.document.hidden) musicPreview?.pause();
   }, { signal });
   let unsubscribe = null,
-    preview = null,
     closePreview = null,
     sheet = null,
     creating = false;
@@ -1443,53 +1442,19 @@ export function mountDesigner(
   }
   function openPreview(effectPreview) {
     if (assetPending) throw new Error(t("editor.preview.waitPhoto"));
-    const title = message(quickMode ? "editor.mode.recipientPreview" : "editor.preview.title");
-    const dialog = node(
-      "dialog",
-      { class: "editor-preview-dialog", "aria-labelledby": "editor-preview-title" },
-      node(
-        "div",
-        { class: "editor-preview-heading" },
-        node("h2", { id: "editor-preview-title" }, title),
-        button(message("editor.preview.restart"), "preview-reset"),
-        quickMode ? button(message("editor.preview.edit"), "preview-close") : iconButton(message("editor.preview.close"), "preview-close", "close"),
-        quickMode ? button(message("editor.preview.send"), "preview-send", { class: "editor-primary" }) : null,
-      ),
-      node("div", { class: "editor-preview-player" }),
-    );
-    document.body.append(dialog);
-    dialogs.add(dialog);
-    closePreview = trapDialog(dialog, () => {
-      preview?.dispose();
-      preview = null;
-      closePreview = null;
-      dialogs.delete(dialog);
+    // Player xem trước được quản lý riêng, không sửa bản nháp đang thao tác.
+    closePreview?.();
+    closePreview = openCanvasPreview({
+      document: structuredClone(store.get().document),
+      assetUrl,
+      quickMode,
+      effectPreview,
+      signal,
+      dialogs,
+      message,
+      onSend: () => void safe(publish)(),
+      onClose: () => { closePreview = null; },
     });
-    try {
-      preview = mountPlayer(dialog.querySelector(".editor-preview-player"), {
-        document: structuredClone(store.get().document),
-        assetUrl,
-        mode: "preview",
-        effectPreview,
-      });
-    } catch (error) {
-      closePreview();
-      throw error;
-    }
-    dialog.addEventListener(
-      "click",
-      (event) => {
-        const action = event.target.closest("[data-editor-action]")?.dataset
-          .editorAction;
-        if (action === "preview-close") closePreview?.();
-        if (action === "preview-reset") preview?.reset();
-        if (action === "preview-send") {
-          closePreview?.();
-          void safe(publish)();
-        }
-      },
-      { signal },
-    );
   }
   async function flushSave(options) {
     if (composing)
@@ -1573,49 +1538,8 @@ export function mountDesigner(
     }, { signal });
   }
   function chooseGiftAccess() {
-    const invite = ["invite", message("editor.access.invite")];
-    const link = ["link", message("editor.access.link")];
-    const choose = ["", message("editor.access.choose")];
-    const descriptions = node("div", { role: "status" });
-    const form = node("form", {},
-      node("h2", {}, message("editor.access.title")),
-      node("p", {}, message("editor.access.help")),
-      select(message("editor.access.open"), "open", "", [choose, link, invite]),
-      select(message("editor.access.send"), "send", "", [choose, link, invite, ["disabled", message("editor.access.disabled")]]),
-      select(message("editor.access.read"), "read", "", [choose, link, invite, ["sender", message("editor.access.sender")]]),
-      descriptions,
-      node("button", { type: "submit", class: "editor-primary" }, message("editor.access.publish")),
-      node("button", { type: "button" }, message("editor.actions.back")),
-    );
-    const controls = [...form.querySelectorAll("select")];
-    controls.forEach(control => { control.required = true; });
-    const selection = () => Object.fromEntries(controls.map(control => [control.dataset.editorField, control.value]));
-    form.addEventListener("change", () => {
-      const access = selection();
-      const values = Object.values(access);
-      descriptions.replaceChildren();
-      if (!values.every(Boolean)) return;
-      descriptions.append(node("p", {}, message("editor.interface.normalLink", { description: giftLinkDescription(access, false) })));
-      if (values.includes("invite")) descriptions.append(node("p", {}, message("editor.interface.inviteLink", { description: giftLinkDescription(access, true) })));
-    }, { signal });
-    const dialog = node("dialog", { class: "editor-preview-dialog", "aria-label": message("editor.access.title") }, form);
-    return new Promise(resolve => {
-      let access;
-      document.body.append(dialog);
-      dialogs.add(dialog);
-      const close = trapDialog(dialog, () => {
-        dialogs.delete(dialog);
-        lifecycle.signal.removeEventListener("abort", close);
-        resolve(access);
-      });
-      lifecycle.signal.addEventListener("abort", close, { once: true });
-      form.querySelector('button[type="button"]').addEventListener("click", close);
-      form.addEventListener("submit", event => {
-        event.preventDefault();
-        access = selection();
-        close();
-      });
-    });
+    // Hộp thoại chỉ thu lựa chọn; API vẫn xác minh quyền ở phía máy chủ.
+    return openGiftAccessDialog({ message, signal, dialogs });
   }
   async function publish() {
     if (publishing) return;
@@ -2856,7 +2780,7 @@ export function mountDesigner(
       unsubscribe?.();
       stageObserver?.disconnect();
       stage?.dispose();
-      preview?.dispose();
+      closePreview?.();
       for (const dialog of dialogs) {
         dialog.close();
         dialog.remove();

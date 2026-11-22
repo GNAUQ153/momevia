@@ -1,3 +1,9 @@
+## Unreleased — Tách modal xem trước và quyền chia sẻ Canvas Designer (2026-11-22)
+
+- Chuyển hộp thoại xem trước thiệp sang `canvas-editor/preview-dialog.js`, giữ nguyên Player/Preview và thao tác sửa, bắt đầu lại, gửi thiệp; giải phóng Player khi đóng hoặc chuyển trang.
+- Tách lựa chọn quyền mở/gửi/đọc quà sang `canvas-editor/gift-access-dialog.js`, bổ sung kiểm tra tổ hợp lựa chọn, mô tả quyền bằng VI/EN thực sự (không chèn dấu phẩy vào giữa các câu) và đóng an toàn khi huỷ hoặc rời Editor. Không thay đổi kiểm tra phân quyền ở backend.
+- Bổ sung kiểm thử thuần cho lựa chọn quyền, bản tóm tắt link và liên kết module; giữ nguyên Canvas JSON, nhạc nền, API, giao diện VI/EN và dữ liệu người dùng.
+
 ## Unreleased — Music Library 3.1: tìm kiếm và tách giao diện Editor (2026-11-22)
 
 - Tách UI thẻ nhạc, bộ lọc, trạng thái chọn và âm lượng khỏi `designer.js` vào `features/canvas-editor/music-panel.js` để giảm phạm vi thay đổi khi nâng cấp Canvas.

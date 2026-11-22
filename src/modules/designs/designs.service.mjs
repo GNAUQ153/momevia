@@ -14,6 +14,7 @@ import { serverText } from '../../shared/locale.mjs';
 import { isSystemTemplate, templateFieldKey } from '../../../web/js/shared/template-copy.js';
 import { materializeBuiltinMedia } from './builtin-media.mjs';
 import { EVENT_MEDIA } from '../../../web/js/shared/canvas/event-media.js';
+import { libraryEntry, librarySnapshot } from '../../../web/js/shared/canvas/library-state.js';
 
 export const hash = value => `sha256:${createHash('sha256').update(canonicalStringify(value)).digest('hex')}`;
 const copy = value => structuredClone(value);
@@ -64,6 +65,8 @@ export class DesignsService {
     if (input.kind === 'blank') { fields(input, ['kind']); return { source: { kind: 'blank' }, provenance: { adapter: 'blank' } }; }
     if (input.kind !== 'template' || typeof input.templateId !== 'string' || !/^[\w-]{1,128}$/.test(input.templateId)) throw canvasError(422, 'INVALID_SOURCE', 'Nguồn thiết kế không hợp lệ.');
     const template = await this.catalog.getTemplate(input.templateId);
+    if (this.profile?.mode === 'mysql' && librarySnapshot()?.items.some(row => row.kind === 'template' && row.id === template.id && row.status !== 'active'))
+      throw canvasError(403, 'LIBRARY_TEMPLATE_DISABLED', 'Mẫu bố cục đang tạm tắt trong thư viện.');
     if (template.versionId) {
       const version = await this.catalog.approvedVersion(template.id, input.templateVersionId || template.versionId);
       return { source: { kind: 'template', templateId: template.id, templateVersionId: version.id },
@@ -82,8 +85,11 @@ export class DesignsService {
       throw canvasError(403, 'CREATOR_REQUIRED', 'Chỉ Creator được tạo nháp mẫu.');
     const previous = await this.repository.findCreate(user.sub, input.mutationId, requestHash);
     if (previous) return { ...previous, design: designView(previous.design) };
-    if (input.presetId !== undefined && !['blank', 'envelope-basic', 'celebration'].includes(input.presetId)) throw canvasError(422, 'INVALID_PRESET', 'Bố cục chưa được hỗ trợ.');
+    await this.library?.refresh();
+    if (input.presetId !== undefined && (this.profile?.mode === 'mysql' ? !libraryEntry('preset', input.presetId) : !['blank', 'envelope-basic', 'celebration'].includes(input.presetId))) throw canvasError(422, 'INVALID_PRESET', 'Bố cục chưa được hỗ trợ.');
     const resolved = await sourceFor();
+    if (this.profile?.mode === 'mysql' && !resolved.document && !resolved.version && !resolved.template && !libraryEntry('preset', input.presetId || 'blank'))
+      throw canvasError(422, 'INVALID_PRESET', 'Bố cục đang tạm tắt trong thư viện.');
     const localize = (key, params) => serverText(locale ?? 'vi', key, params);
     const document = validateDocument(resolved.document || resolved.version?.document || createDocument({
       presetId: input.presetId || (resolved.template ? 'envelope-basic' : 'blank'), template: resolved.template, localize,

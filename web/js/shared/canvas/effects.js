@@ -1,3 +1,5 @@
+import { libraryEntries, libraryEntry, libraryText } from './library-state.js';
+import { allowsEffect, builtinEffectApplies } from './library-contract.js';
 const group = (label, prefix, names) => Object.freeze({
   label,
   presets: Object.freeze(Object.fromEntries(names.map((name,i) => [prefix + '0' + (i+1), name]))),
@@ -11,27 +13,28 @@ export const effectFamilies = Object.freeze({
   ambience: group('Không khí', 'B', ['Pháo giấy một lượt','Cánh hoa rơi','Sao trôi','Đom đóm','Bong bóng bay','Bướm bay','Pháo hoa rực rỡ','Hoa nở rộ']),
   reaction: group('Khi kích hoạt', 'R', ['Mở nắp phong bì','Bật nắp hộp quà','Bung tia sao khi chạm','Ngọn nến bừng sáng']),
 });
-const movingControls = ['button','envelope','gift-box','interaction'];
 export const elementEffectFamilies = Object.freeze(['surface','entrance','emphasis','reaction']);
 export const sceneEffectFamilies = Object.freeze(['surface','transition','ambience']);
 
-export function effectsFor(family, element) {
+export function effectsFor(family, element, { builtin = false } = {}) {
+  const configured = !builtin && libraryEntries('effect');
+  if (configured) return configured.filter(row => row.definition.family === family && allowsEffect(row.definition.targets, element))
+    .map(row => [row.id, libraryText(row.definition.title)]);
   const options = Object.entries(effectFamilies[family].presets);
   if (!element) return family === 'surface' ? options.filter(([id]) => id === 'S03') : options;
-  const {type,props} = element;
-  const allowed = {
-    S01: ['image','shape','interaction','envelope','gift-box'].includes(type),
-    S02: ['image','shape','interaction'].includes(type),
-    S03: ['shape','interaction','envelope','reply'].includes(type),
-    S04: ['image','shape','sticker','line'].includes(type),
-    E03: type === 'text', E04: type === 'line', E05: type === 'image', E06: type === 'image',
-    A02: ['image','shape','interaction'].includes(type), A04: type === 'text', A05: type === 'image',
-    R01: type === 'envelope', R02: type === 'gift-box',
-    R03: movingControls.includes(type) && !['event-countdown','photo-comparison'].includes(props.kind),
-    R04: type === 'interaction' && props.kind === 'light-a-candle',
-  };
-  return options.filter(([id]) => allowed[id] ?? true);
+  return options.filter(([id]) => builtinEffectApplies(id, element));
 }
+export function effectLabel(id, locale = 'vi') { return libraryText(libraryEntry('effect', id)?.definition.title, locale) ||
+  Object.values(effectFamilies).flatMap(f => Object.entries(f.presets)).find(([key]) => key === id)?.[1] || id; }
+export function effectPreset(id, family) {
+  const item = libraryEntry('effect', id);
+  if (!item) return { id };
+  const value = item.definition, animation = libraryEntry('animation', value.animationId);
+  if (!animation) throw new Error('Canvas library animation unavailable.');
+  return { id, ...structuredClone(value.defaults || {}), definition: { id, revision: item.revision, family,
+    title: structuredClone(value.title), targets: structuredClone(value.targets), animation: structuredClone(animation.definition) } };
+}
+export const builtinPreset = preset => preset?.definition?.animation.engine === 'builtin' ? { ...preset, id: preset.definition.animation.builtinId } : preset;
 export const effectSpeed = Object.freeze({slow:450, normal:320, fast:180});
 export const CELEBRATION_IDS = Object.freeze(['B05','B06','B07','B08']);
 export const defaultCelebrations = () => Object.fromEntries(CELEBRATION_IDS.map(id => [id,

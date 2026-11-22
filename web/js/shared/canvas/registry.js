@@ -1,9 +1,10 @@
 // This module is shared verbatim by Node and the browser. No environment or I/O.
 import { stickerArt } from './artwork.js';
 import { canonicalText } from '../locale.js';
+import { libraryEntry } from './library-state.js';
 const descriptors = {
   text: { label: canonicalText('editor.element.text'), renderer: 'text', defaults: { text: canonicalText('editor.element.defaultGreeting'), fontToken: 'body', fontSize: 24, align: 'left', color: '#32243B' }, inspector: ['text', 'textBinding', 'fontToken', 'fontSize', 'align', 'color'], accessibility: { role: 'paragraph' }, actions: [], capability: 'basic' },
-  image: { label: canonicalText('editor.element.image'), renderer: 'image', defaults: { assetId: null, fit: 'cover', focalPoint: { x: 0.5, y: 0.5 }, radius: 16 }, inspector: ['assetId', 'fit', 'focalPoint', 'radius', 'mask', 'optional', 'caption'], accessibility: { alt: canonicalText('editor.element.photoAlt') }, actions: [], capability: 'basic' },
+  image: { label: canonicalText('editor.element.image'), renderer: 'image', defaults: { assetId: null, fit: 'cover', focalPoint: { x: 0.5, y: 0.5 }, radius: 16 }, inspector: ['assetId', 'fit', 'focalPoint', 'radius', 'mask', 'maskPath', 'optional', 'caption'], accessibility: { alt: canonicalText('editor.element.photoAlt') }, actions: [], capability: 'basic' },
   shape: { label: canonicalText('editor.element.shape'), renderer: 'shape', defaults: { kind: 'rectangle', color: '#D9C8FF', strokeColor: '#6136DF', strokeWidth: 0, radius: 12 }, inspector: ['kind', 'color', 'strokeColor', 'strokeWidth', 'radius'], accessibility: { decorative: true }, actions: [], capability: 'basic' },
   line: { label: canonicalText('editor.element.line'), renderer: 'line', defaults: { color: '#6136DF', strokeWidth: 3 }, inspector: ['color', 'strokeWidth', 'pattern'], accessibility: { decorative: true }, actions: [], capability: 'basic' },
   sticker: { label: canonicalText('editor.element.sticker'), renderer: 'sticker', defaults: { stickerId: 'heart', color: '#F45278' }, inspector: ['stickerId', 'color'], accessibility: { decorative: true }, actions: [], capability: 'basic' },
@@ -38,9 +39,10 @@ export function createElement(type, options = {}, localize = canonicalText) {
   if (!Object.hasOwn(registry, type)) throw new Error(canonicalText('editor.element.unsupported'));
   const descriptor = registry[type];
   const { id = globalThis.crypto.randomUUID(), layout = {}, props = {}, accessibility = {}, ...other } = options;
-  const mergedProps = { ...structuredClone(descriptor.defaults), ...resolveFields(defaultPropKeys[type], localize), ...props };
+  const configured = libraryEntry('element_type', type)?.definition;
+  const mergedProps = { ...structuredClone(descriptor.defaults), ...resolveFields(defaultPropKeys[type], localize), ...structuredClone(configured?.defaults || {}), ...props };
   if (type === 'text' && props.textBinding) delete mergedProps.text;
-  const mergedAccessibility = { ...descriptor.accessibility, ...resolveFields(accessibilityKeys[type], localize),
+  const mergedAccessibility = { ...descriptor.accessibility, ...resolveFields(accessibilityKeys[type], localize), ...configured?.accessibility,
     ...(mergedProps.label ? { label: mergedProps.label } : {}), ...accessibility };
   return { id, type, elementVersion: 1, layout: { x: 30, y: 100, width: 300, height: type === 'line' ? 10 : type === 'text' ? 90 : 160, rotation: 0, ...layout }, props: mergedProps, accessibility: mergedAccessibility, ...(descriptor.actions.length ? { actions: [{ on: 'activate', type: 'goToScene', targetSceneId: null }] } : {}), ...other };
 }

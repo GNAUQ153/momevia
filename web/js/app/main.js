@@ -1613,4 +1613,8 @@ function loadPageData(route) {
   return Promise.allSettled(loads);
 }
 await initializeLocale();
+try {
+  const { loadCanvasLibrary } = await import('../features/canvas-editor/library-client.js');
+  await loadCanvasLibrary(api, document.documentElement.lang);
+} catch { /* Designer reports and retries library failures on its own route. */ }
 render();

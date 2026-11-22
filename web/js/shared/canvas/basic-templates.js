@@ -5,6 +5,8 @@ import { validateDocument } from './schema.js';
 import { COLLECTION_2027, paintCollectionCover } from './collection-2027.js';
 import { emptyPrediction } from './prediction.js';
 import { paintEventCard } from './event-cards.js';
+import { libraryDocument } from './library-state.js';
+import { pinDocumentArtwork } from './library-materialize.js';
 
 // Built-in editable compositions, not Creator-approved versions or new products.
 // Existing IDs, prices and provenance stay with Catalog; only new starting layouts change.
@@ -43,6 +45,8 @@ const LAYER_NAMES = {
 };
 
 export function createBasicTemplate(template, localize = canonicalText) {
+  const configured = libraryDocument('template', template?.id, localize);
+  if (configured) return validateDocument(pinDocumentArtwork(configured));
   const definition = basicTemplateDefinition(template?.id);
   if (!definition) return null;
   const p = {

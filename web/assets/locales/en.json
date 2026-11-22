@@ -2046,6 +2046,7 @@
   "templates.afterglow.subtitle": "Beautiful things have a light of their own",
   "templates.afterglow.title": "Afterglow",
   "templates.assets.cover": "/assets/basic-templates/en/{id}.svg?v={revision}",
+  "templates.assets.databaseCover": "/api/designs/library/templates/{id}/cover?locale=en&v={revision}",
   "templates.birthday-radiance.albumHeadline": "Photos that keep\nthe laughter close.",
   "templates.birthday-radiance.albumNote": "Swipe through, or let the photos play. This is a space for your own pictures.",
   "templates.birthday-radiance.countdownArrived": "Your day is here. Make a beautiful wish!",

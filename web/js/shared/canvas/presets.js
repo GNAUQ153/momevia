@@ -5,6 +5,8 @@ import { canonicalText } from '../locale.js';
 import { EVENT_CARD_IDS } from './event-cards.js';
 import { predictionCard, predictionFields } from './prediction.js';
 import { eventMediaId } from './event-media.js';
+import { libraryDocument, libraryEntry, libraryEntries, libraryText, libraryLocale } from './library-state.js';
+import { pinDocumentArtwork } from './library-materialize.js';
 
 const palettes = {
   violet: ['#F5EFFF', '#6136DF'], sunshine: ['#FFF8DE', '#906320'], rose: ['#FFF0F4', '#B93863'], navy: ['#EAF0FF', '#233F85'], peach: ['#FFF0E8', '#AA5735'], sage: ['#ECF7EF', '#34744D'], coral: ['#FFF0EB', '#BE4D51'], sky: ['#EAF8FF', '#326C9D'], lilac: ['#F5EFFF', '#7757A2'], cream: ['#FFF7EE', '#8B5D37'], amber: ['#FFF6DE', '#956D22'], mint: ['#E8FFF7', '#217760'],
@@ -16,7 +18,9 @@ export const PRESETS = Object.freeze([
 ]);
 
 export function createDocument({ presetId = 'blank', template, localize = canonicalText } = {}) {
-  if (!PRESETS.some(p => p.id === presetId)) throw new Error('Bố cục chưa được hỗ trợ.');
+  const configured = libraryDocument(template ? 'template' : 'preset', template?.id || presetId, localize);
+  if (configured) return validateDocument(pinDocumentArtwork(configured));
+  if (!PRESETS.some(p => p.id === presetId) && !libraryEntry('preset', presetId)) throw new Error('Bố cục chưa được hỗ trợ.');
   const basic = template ? createBasicTemplate(template, localize) : null;
   if (basic) return basic;
   const [background, ink] = palettes[template?.theme] || palettes.violet;
@@ -44,6 +48,11 @@ export function createDocument({ presetId = 'blank', template, localize = canoni
   add('scene-message', 'reply', 'reply-card', { x: 20, y: 420, width: 350, height: 300 }, {});
   add('scene-message', 'button', 'replay-gift', { x: 105, y: 745, width: 180, height: 55 }, { label: localize('templates.preset.replay'), color: ink }, { actions: [{ on: 'activate', type: 'replay' }] });
   return validateDocument(document);
+}
+
+export function starterPresets(localize = canonicalText) {
+  const rows = libraryEntries('preset');
+  return rows ? rows.map(row => ({ id: row.id, label: libraryText(row.definition.title, libraryLocale(localize)) })) : PRESETS;
 }
 
 export function templatePreviewDocument(template, localize = canonicalText) {

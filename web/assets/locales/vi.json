@@ -2035,6 +2035,7 @@
   "templates.afterglow.subtitle": "Mọi điều đẹp đều có ánh sáng riêng",
   "templates.afterglow.title": "Afterglow",
   "templates.assets.cover": "/assets/basic-templates/{id}.svg?v={revision}",
+  "templates.assets.databaseCover": "/api/designs/library/templates/{id}/cover?locale=vi&v={revision}",
   "templates.birthday-radiance.albumHeadline": "Những tấm ảnh\ngiữ lại tiếng cười.",
   "templates.birthday-radiance.albumNote": "Vuốt để xem, hoặc để ảnh tự chuyển. Đây là chỗ dành cho ảnh của bạn.",
   "templates.birthday-radiance.countdownArrived": "Ngày vui đã tới. Ước một điều thật đẹp nhé!",

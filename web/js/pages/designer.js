@@ -1,4 +1,4 @@
-import { captureTranslator, createLocaleControl, message, onLocaleChange, setAttr, setText, t } from "../core/i18n.js";
+import { captureTranslator, createLocaleControl, currentLocale, message, onLocaleChange, setAttr, setText, t } from "../core/i18n.js";
 import { errorCopy } from "../core/api.js";
 import {
   createElement,
@@ -8,14 +8,17 @@ import {
   isPhotoFrame,
   assetIds,
   createDocument,
-  PRESETS,
   LIMITS,
 } from "../shared/canvas/index.js";
 import { mountPlayer } from "../features/gift-runtime/index.js";
 import { requiresCanvasV2 } from "../shared/canvas/schema.js";
 import { lines, masks, shapes } from "../shared/canvas/artwork.js";
 import { eventTimeFromLocal, interactionKinds, localEventTime, photoSlots } from "../shared/canvas/interactions.js";
-import { effectsFor, elementEffectFamilies, sceneEffectFamilies } from "../shared/canvas/effects.js";
+import { effectsFor, elementEffectFamilies, sceneEffectFamilies, effectPreset, effectLabel } from "../shared/canvas/effects.js";
+import { starterPresets } from '../shared/canvas/presets.js';
+import { loadCanvasLibrary, configureLibrary } from '../features/canvas-editor/library-client.js';
+import { librarySnapshot, libraryText, artworkChoices } from '../shared/canvas/library-state.js';
+import { refreshElementArtwork } from '../shared/canvas/library-materialize.js';
 import { textFont } from "../features/gift-runtime/renderer.js";
 import { bindingLabels, clearTemplateBindingDefaults, lockedVisibleNames, visibleBindingKeys } from "../shared/canvas/personalization.js";
 import { submissionChanges } from "../shared/canvas/submission.js";
@@ -107,7 +110,15 @@ export function mountDesigner(
   const removeLocaleListener = onLocaleChange(() => {
     if (disposed || !main.isConnected) return;
     const search = main.querySelector('[data-block-search]');
-    if (search) filterBlocks(search.value);
+    const query = search?.value || '';
+    const snapshot = librarySnapshot();
+    if (snapshot) {
+      configureLibrary(snapshot, currentLocale());
+      const panel = main.querySelector('#editor-panel-add');
+      if (panel?.hasChildNodes()) { panel.replaceChildren(...blockLibrary()); panel.querySelector('[data-block-search]').value = query; }
+      if (store) renderInspector(); else if (!creating) picker();
+    }
+    if (main.querySelector('[data-block-search]')) filterBlocks(query);
   });
   signal.addEventListener('abort', removeLocaleListener, { once: true });
   let inlineFabricSession = null;
@@ -760,19 +771,23 @@ export function mountDesigner(
   function effectFields(model, element) {
     const categories = element ? elementEffectFamilies : sceneEffectFamilies;
     const fields = categories.flatMap(family => {
-      const options = effectsFor(family, element).filter(([id]) => !(family === 'ambience' && model.effects?.celebrations && CELEBRATION_IDS.includes(id)));
-      if (!options.length) return [];
       const preset = model.effects?.[family];
+      const options = effectsFor(family, element).filter(([id]) => !(family === 'ambience' && model.effects?.celebrations && CELEBRATION_IDS.includes(id)));
+      if (preset && !options.some(([id]) => id === preset.id)) options.push([preset.id, preset.id]);
+      if (!options.length) return [];
       const prefix = `effect.${family}.`;
       return [node("fieldset", { class: "editor-effect-settings" },
         node("legend", {}, family === 'ambience' && model.effects?.celebrations ? message('editor.celebrations.once') : message(`editor.effects.family.${family}`)),
-        select(message("editor.interface.effects"), prefix + "id", preset?.id, [["", message("editor.interface.effectOff")], ...options.map(([id]) => [id, message(`editor.effects.preset.${id}`)])]),
+        select(message("editor.interface.effects"), prefix + "id", preset?.id, [["", message("editor.interface.effectOff")], ...options.map(([id]) => [id, id === preset?.id && preset.definition ? libraryText(preset.definition.title, currentLocale()) : effectLabel(id, currentLocale())])]),
         preset && family !== "surface" ? select(message("editor.interface.speed"), prefix + "speed", preset.speed || "normal",
           [["slow", message("editor.interface.slow")], ["normal", message("editor.interface.normal")], ["fast", message("editor.interface.fast")]]) : null,
         preset && family === "entrance" ? select(message("editor.interface.delay"), prefix + "delay", preset.delay || 0,
           [[0, "Ngay"], [150, "150 ms"], [300, "300 ms"]]) : null,
         preset && family === "ambience" ? select(message("editor.interface.density"), prefix + "density", preset.density || "normal",
           [["sparse", message("editor.interface.sparse")], ["normal", message("editor.interface.normal")]]) : null,
+        preset?.definition?.animation.engine === 'particles' ? field(message('editor.celebrations.loop'), node('input', {
+          type: 'checkbox', checked: preset.loop === true, 'data-editor-field': prefix + 'loop',
+        })) : null,
         preset && ["S02", "S04"].includes(preset.id) ? input(message("editor.interface.stroke"), prefix + "color",
           preset.color || (preset.id === "S02" ? "#6D488A" : "#F3DA97"), { type: "color" }) : null,
         preset ? node("div", { class: "editor-control-row" },
@@ -975,17 +990,17 @@ export function mountDesigner(
               ["rectangle", message("editor.interface.shapeRectangle")],
               ["ellipse", message("editor.interface.shapeEllipse")],
               ["line", message("editor.interface.shapeLine")],
-              ...Object.keys(shapes).map((id, i) => [id, message(`editor.interface.shape.${["triangle", "diamond", "hexagon", "arch", "ribbon", "bubble"][i]}`)]),
+              ...artworkChoices('shape', Object.keys(shapes).map((id, i) => [id, message(`editor.interface.shape.${["triangle", "diamond", "hexagon", "arch", "ribbon", "bubble"][i]}`)]), currentLocale()),
             ]),
           );
         else if (key === "mask" && props.mask)
           children.push(select(message("editor.interface.imageMask"), "props.mask", props.mask,
-            Object.keys(masks).map((id, i) => [id, message(`editor.interface.mask.${["round", "arch", "heart", "torn"][i]}`)])));
+            artworkChoices('mask', Object.keys(masks).map((id, i) => [id, message(`editor.interface.mask.${["round", "arch", "heart", "torn"][i]}`)]), currentLocale())));
         else if (key === "caption" && Object.hasOwn(props, key))
           children.push(field(message("editor.interface.caption"), node("textarea", { "data-editor-field": "props.caption", maxlength: LIMITS.text, rows: 3 }, props.caption)));
         else if (key === "pattern" && props.pattern)
           children.push(select(message("editor.interface.linePattern"), "props.pattern", props.pattern,
-            Object.keys(lines).map((id, i) => [id, message(`editor.interface.pattern.${["arc", "stitch", "arrow", "wave", "brace", "corners"][i]}`)])));
+            artworkChoices('line', Object.keys(lines).map((id, i) => [id, message(`editor.interface.pattern.${["arc", "stitch", "arrow", "wave", "brace", "corners"][i]}`)]), currentLocale())));
         else if (key === "fit")
           children.push(
             select(message("editor.interface.photoFrame"), "props.fit", props.fit, [
@@ -999,10 +1014,10 @@ export function mountDesigner(
               message("editor.interface.sticker"),
               "props.stickerId",
               props.stickerId,
-              Object.entries(stickerNames).map(([id, title]) => [id, title]),
+              artworkChoices('sticker', Object.entries(stickerNames), currentLocale()),
             ),
           );
-        else if (!["preset", "pattern", "mask", "caption", "optional"].includes(key))
+        else if (!["preset", "pattern", "mask", "maskPath", "caption", "optional"].includes(key))
           children.push(
             input(
               { label: message("editor.interface.label.button"), title: message("editor.interface.label.title"), submitLabel: message("editor.interface.label.submitLabel") }[
@@ -1314,11 +1329,11 @@ export function mountDesigner(
         node(
           "div",
           { class: "editor-start-options" },
-          ...PRESETS.map(({ id, labelKey }) => {
+          ...starterPresets(captureTranslator()).map(({ id, labelKey, label }) => {
             const doc = sampleBindings(createDocument({ presetId: id }));
             const scene = doc.scenes.find(scene => scene.id === doc.entrySceneId);
-            const card = button("", starterActions[id], { class: "editor-start-card", "data-preset": id });
-            card.append(sceneThumbnail(doc, scene, { width: 104 }), node("span", {}, message(labelKey)));
+            const card = button("", starterActions[id] || 'create-library-preset', { class: "editor-start-card", "data-preset": id });
+            card.append(sceneThumbnail(doc, scene, { width: 104 }), node("span", {}, labelKey ? message(labelKey) : label));
             return card;
           }),
         ),
@@ -1773,7 +1788,7 @@ export function mountDesigner(
       await navigate(design?.purpose === "creator" ? "/creator" : "/studio");
       return;
     }
-    if (Object.values(starterActions).includes(name)) {
+    if (Object.values(starterActions).includes(name) || name === 'create-library-preset') {
       target.disabled = true;
       try {
         await create(target.dataset.preset, {
@@ -2448,6 +2463,10 @@ export function mountDesigner(
           const settings = celebrationSettings(scene.effects);
           if (CELEBRATION_IDS.includes(scene.effects.ambience?.id)) delete scene.effects.ambience;
           settings[id][property] = value;
+          if (settings[id].enabled && !settings[id].definition) {
+            const definition = effectPreset(id, 'ambience').definition;
+            if (definition) settings[id].definition = definition;
+          }
           scene.effects.celebrations = settings;
           return;
         }
@@ -2456,7 +2475,7 @@ export function mountDesigner(
           const model = next.document.elements.find(item => item.id === selection) ||
             next.document.scenes.find(scene => scene.id === sceneId);
           if (field === "id") {
-            if (value) (model.effects ??= {})[family] = { id: value };
+            if (value) (model.effects ??= {})[family] = effectPreset(value, family);
             else {
               delete model.effects?.[family];
               if (model.effects && !Object.keys(model.effects).length) delete model.effects;
@@ -2521,6 +2540,7 @@ export function mountDesigner(
         if (group === "element") item[fieldName] = value;
         else if (["props", "layout", "accessibility"].includes(group))
           item[group][fieldName] = value;
+        if (group === 'props' && (['stickerId','mask','pattern'].includes(fieldName) || fieldName === 'kind' && item.type === 'shape')) refreshElementArtwork(item);
         if (
           ["label", "title"].includes(fieldName) &&
           ["button", "envelope", "gift-box"].includes(item.type)
@@ -2712,6 +2732,7 @@ export function mountDesigner(
   }
   const ready = (async () => {
     if (!ownerId) throw new Error(t("editor.interface.notReady"));
+    await loadCanvasLibrary({ get: path => request(path) }, currentLocale());
     if (id)
       await initialize(
         (await request(`/designs/designs/${encodeURIComponent(id)}`)).design,

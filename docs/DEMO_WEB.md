@@ -6,9 +6,11 @@ Profile đã chuyển có `storage.json` nằm cạnh `app/`; launcher và backe
 
 Các profile hiện có được chuyển độc lập, giữ nguyên tài khoản, ID nháp, link quà, quyền truy cập, phản hồi và tệp ảnh. Không trộn dữ liệu của nhiều profile vào một DB. JSON gốc được giữ để đối chiếu; sau chuyển, chỉnh sửa mới nằm trong MySQL.
 
-Trước khi chuyển một profile khác: dừng writer, chạy `npm run db:migrate` đến migration 012 trên DB đích rỗng, rồi dùng `npm run db:import:canvas -- --root <app-root> --backup <thư-mục-mới> --offline --apply`. Kết nối DB lấy từ môi trường hiện tại. Importer kiểm tra tài liệu, ảnh, khóa ngoại, số lượng và dữ liệu đọc lại trong cùng transaction; lỗi sẽ rollback. Không dùng importer legacy với canvas.
+Trước khi chuyển một profile khác: dừng writer, chạy `npm run db:migrate` đến migration 013 trên DB đích rỗng, rồi dùng `npm run db:import:canvas -- --root <app-root> --backup <thư-mục-mới> --offline --apply`. Kết nối DB lấy từ môi trường hiện tại. Importer kiểm tra tài liệu, ảnh, khóa ngoại, số lượng và dữ liệu đọc lại trong cùng transaction; lỗi sẽ rollback. Không dùng importer legacy với canvas.
 
 Migration 012 lưu chuỗi JSON nguyên vẹn bằng LONGTEXT có CHECK JSON_VALID để MySQL không làm tròn tọa độ và thay đổi hash. Các phiên bản trùng nội dung tại cùng revision dùng một bản chuẩn; JSON gốc và ánh xạ ID được lưu trong `json_storage_imports` cùng bản sao ngoài DB. Không thay đổi slug hay nội dung quà.
+
+`npm run test:canvas:storage` kiểm tra trên một schema QA mới, yêu cầu các biến `CANVAS_QA_MYSQL_ISOLATED=true`, `CANVAS_QA_MYSQL_DATABASE=momevia_canvas_qa_…`, `CANVAS_QA_MYSQL_PORT`, `CANVAS_QA_MYSQL_USER` và `CANVAS_QA_MYSQL_PASSWORD`. Bộ thử bao phủ 172 mẫu element, 33 effect, 18 tổ hợp hiệu ứng lặp, ảnh/crop, hash thập phân, quà bất biến, restart và đổi hiệu ứng trên giao diện rồi tải lại. Thư viện và preset lấy từ DB qua migration 013; engine JavaScript dựng hình/chạy chuyển động nằm trong ứng dụng. Thêm `CANVAS_LIBRARY_EXPANDED_BROWSER=true` để chạy toàn bộ 172 thumbnail/chèn/undo, 33 preview effect và 3 thiệp tại 320/390/768/1440 px. [Quản lý thư viện](CANVAS_SENDER_GUIDE.md#thư-viện-trên-mysql).
 
 ## Khởi động demo
 

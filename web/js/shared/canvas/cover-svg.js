@@ -30,7 +30,7 @@ function photoSvg(photo, media, w, h, id) {
   } else if (photo.optional) inner = `<svg width="${w}" height="${h}" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M0 0H100V100H0Z" fill="#EBDEF4"/><circle cx="71" cy="29" r="11" fill="#FFF2C9"/><path d="M0 82 28 43 54 72 67 55 100 87V100H0Z" fill="#AD94BF"/><path d="M0 92 23 75 46 87 77 73 100 86V100H0Z" fill="#7F698F"/></svg>`;
   if (!inner) return '';
   if (photo.mask || photo.optional || media?.width) {
-    const clip = photo.mask ? `<path d="${masks[photo.mask]}" transform="scale(${w/100} ${h/100})"/>` : `<rect width="${w}" height="${h}" rx="${photo.radius || 0}"/>`;
+    const clip = photo.mask ? `<path d="${escape(photo.maskPath || masks[photo.mask])}" transform="scale(${w/100} ${h/100})"/>` : `<rect width="${w}" height="${h}" rx="${photo.radius || 0}"/>`;
     return `<clipPath id="photo-${id}">${clip}</clipPath><g clip-path="url(#photo-${id})">${inner}</g>`;
   }
   return inner;

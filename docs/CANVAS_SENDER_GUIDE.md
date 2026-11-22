@@ -1,6 +1,47 @@
 # Thiết kế và gửi quà trên web
 
+Canvas hỗ trợ lưu MySQL, gồm toàn bộ nội dung/bố cục element và cấu hình effect, animation, chuyển cảnh, tốc độ, độ trễ, mật độ, lặp. Quà đã xuất bản giữ snapshot riêng. Ảnh được lưu thành tệp bất biến, DB giữ metadata và các tham chiếu; sao lưu cần cả DB và thư mục ảnh. Triển khai MySQL cần migration 013 (bao gồm định dạng chính xác ở 012) và chuyển dữ liệu bằng importer canvas; xem [hướng dẫn demo](DEMO_WEB.md#hồ-sơ-đã-chuyển-mysql).
+
 ## Sender
+
+### Thư viện trên MySQL
+
+Migration 013 thêm `canvas_library_items` và `canvas_library_history`. Canvas tải thư viện qua `GET /api/designs/library`, có thể thêm mục mới bằng DB/API rồi tải lại editor. Ảnh bìa mẫu cũng được dựng lại từ tài liệu DB, có VI/EN. Không cần đăng ký thêm ID trong danh sách frontend. Cấu hình đã chèn được giữ trong tài liệu nên thay đổi thư viện chỉ tác động các lần chèn/tạo mới.
+
+| kind | Nội dung quản lý |
+| --- | --- |
+| `element` | Tên VI/EN, nhóm, từ khóa và danh sách layer của một element/cụm tái sử dụng |
+| `element_type` | Thông số mặc định của 10 primitive đã có bộ dựng hình |
+| `artwork` | Đường nét SVG dạng dữ liệu cho sticker/hình/nét/mặt nạ |
+| `animation` | Engine `builtin`, `keyframes`, `surface` hoặc `particles` và các thông số |
+| `effect` | Nhóm hiệu ứng, mục animation dùng, loại element/cảnh áp dụng và mặc định |
+| `preset` | Bố cục khởi đầu VI/EN, xuất hiện ở trang Tự thiết kế |
+| `template` | Tài liệu VI/EN của mẫu theo ID trong Catalog; giá/quyền vẫn do Catalog quản lý |
+
+Xuất thư viện hiện tại: `npm run db:canvas-library -- --export <file-mới.json>`. Sửa hoặc tạo một mục bằng `npm run db:canvas-library -- --put <mục.json>`. File mục gồm `kind`, `id`, `expectedRevision` (0 khi tạo mới), `status` (`active`/`disabled`), `sortOrder` và `definition`. Thông tin kết nối lấy từ `.env`/môi trường của DB cần quản lý. CLI kiểm tra toàn bộ quan hệ trước khi ghi; không tự ghi đè revision mới hơn.
+
+Admin đang đăng nhập có thể dùng `GET /api/designs/admin/library` và `POST /api/designs/admin/library/:kind/:id` với cùng nội dung (không cần `kind`/`id` trong body). API lưu phiên bản cũ trong history; tài khoản khác bị từ chối. Không có màn hình quản trị thư viện mới trong thay đổi này.
+
+Cũng có thể dùng SQL để thêm/sửa `definition` (JSON), tăng `revision`, đặt `status` và `sort_order` trong `canvas_library_items`. Sau đó tải `GET /api/designs/library` để kiểm tra toàn bộ cấu hình. Nên dùng CLI/API để có kiểm tra và lịch sử; cập nhật SQL trực tiếp không tự ghi lịch sử API. Tắt mục bằng `status='disabled'`. Muốn tắt animation đang được dùng, tắt các effect phụ thuộc trước.
+
+Ví dụ file tạo một animation mới (sau đó tạo một mục `effect` có `family='entrance'`, `animationId='my-gentle-rise'`, `targets.types=['text','image']` để đưa vào bộ chọn):
+
+```json
+{
+  "kind": "animation", "id": "my-gentle-rise", "expectedRevision": 0,
+  "definition": {
+    "engine": "keyframes", "duration": 700, "easing": "ease-out",
+    "keyframes": [
+      { "opacity": 0, "transform": "translateY(24px) scale(0.96)" },
+      { "opacity": 1, "transform": "translateY(0px) scale(1)" }
+    ]
+  }
+}
+```
+
+Các thành phần mới có thể ghép từ primitive hiện có và các chuyển động khai báo được kiểm tra. Loại tương tác/bộ dựng hình hoàn toàn mới cần thêm bộ xử lý trong ứng dụng. Dữ liệu DB không thực thi JavaScript, HTML hay CSS tùy ý. Keyframe tối đa 16 mốc, thời lượng 100–10.000 ms, tối đa 5 lượt mỗi lần chạy; hạt có tối đa 24 phần tử và dừng khi rời cảnh hoặc bật giảm chuyển động.
+
+### Thao tác gửi
 
 1. Chọn **Dùng mẫu** để điền các trường mẫu hỗ trợ. Chọn **Chỉnh bố cục** để mở editor. Studio nhớ chế độ gần nhất theo tài khoản và nháp. **Tự thiết kế** hiển thị hình của ba bố cục khởi đầu gồm Trang trống, Phong bì và lời chúc, Hộp quà sinh nhật.
 2. Điền tên hai bên và lời chúc. Mẫu có khung ảnh cho thay PNG/JPEG/WebP tới 2 MiB. Vùng khóa lấy từ phiên bản đã duyệt.

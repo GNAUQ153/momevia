@@ -1,3 +1,10 @@
+## Unreleased — Thư viện canvas quản lý từ MySQL (2026-11-22)
+
+- Lưu đầy đủ 172 element/cụm, 33 effect, 33 animation, 3 starter, 25 mẫu thiệp, 111 vector và 10 mô tả primitive trong thư viện có revision.
+- Editor tải danh mục từ DB; hỗ trợ thêm mới cụm element, vector, preset, keyframe, bề mặt và hạt bằng dữ liệu, không đăng ký ID trong frontend.
+- Cấu hình và đường nét được giữ kèm tài liệu; sửa/tắt thư viện không đổi nháp hoặc quà đã lưu. Có API Admin với kiểm tra revision/lịch sử và CLI quản lý tại máy.
+- Kiểm thử MySQL thật qua SQL-only additions, Admin/CAS, editor, xuất bản, tải lại, đổi/tắt định nghĩa và giảm chuyển động; giữ các kiểm tra cũ của 172 element và 33 effect.
+
 ## Unreleased — Chuyển canvas JSON sang MySQL (2026-11-21)
 
 - Thêm importer canvas offline vào DB rỗng, sao lưu dữ liệu/ảnh, transaction và đối chiếu đọc lại; giữ nguồn gốc và ánh xạ phiên bản trùng trong DB.

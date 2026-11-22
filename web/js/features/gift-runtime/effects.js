@@ -1,7 +1,8 @@
-import { effectSpeed } from "../../shared/canvas/effects.js";
+import { effectSpeed, builtinPreset } from "../../shared/canvas/effects.js";
 import { celebrate, photoFragments } from './celebrations.js';
+import { playRecipe, playParticleRecipe, applyRecipeSurface } from './recipe-runtime.js';
 
-const duration = preset => effectSpeed[preset.speed || "normal"];
+const duration = preset => preset.definition?.animation.duration || effectSpeed[preset.speed || "normal"];
 const standard = "cubic-bezier(.22,.61,.36,1)";
 function decoration(css, text) {
   const node = document.createElement("span");
@@ -12,6 +13,9 @@ function decoration(css, text) {
 }
 
 export function applySurface(node, preset) {
+  const custom = applyRecipeSurface(node, preset);
+  preset = builtinPreset(preset);
+  if (custom) { delete node.dataset.giftSurface; return; }
   if (preset) node.dataset.giftSurface = preset.id;
   else delete node.dataset.giftSurface;
   node.style.setProperty("--gift-surface-color", preset?.color || "");
@@ -86,16 +90,19 @@ function playTypewriter(node, entrance, motion, signal, register) {
 }
 
 export async function playElement(node, model, motion, signal, only, registerTypewriter) {
-  const { entrance, emphasis } = model.effects || {};
+  let { entrance, emphasis } = model.effects || {};
+  entrance = builtinPreset(entrance); emphasis = builtinPreset(emphasis);
   const opacity = model.opacity ?? 1;
   if (entrance && (!only || only === "entrance") && motion.enabled()) {
     node.dataset.giftEffect = entrance.id;
+    const custom = playRecipe(node, entrance, motion, signal);
     const frames = {
       E01: [{opacity:0},{opacity}],
       E02: [{opacity:0,translate:"0 18px"},{opacity,translate:"0 0"}],
       E04: [{clipPath:"inset(0 100% 0 0)"},{clipPath:"inset(0 0 0 0)"}],
     }[entrance.id];
-    if (['E05','E06'].includes(entrance.id)) {
+    if (custom) await custom;
+    else if (['E05','E06'].includes(entrance.id)) {
       await photoFragments(node,entrance,motion,signal);
     } else if (entrance.id === "E03") {
       await playTypewriter(node, entrance, motion, signal, registerTypewriter);
@@ -105,6 +112,8 @@ export async function playElement(node, model, motion, signal, only, registerTyp
     delete node.dataset.giftEffect;
   }
   if (!emphasis || (only && only !== "emphasis") || signal?.aborted || !motion.enabled()) return;
+  const custom = playRecipe(node, emphasis, motion, signal);
+  if (custom) return custom;
   node.dataset.giftEffect = emphasis.id;
   if (emphasis.id === 'A05') {
     await motion.run(node,[{rotate:'0deg'},{rotate:'360deg'}],{duration:duration(emphasis)*2},signal);
@@ -127,6 +136,8 @@ export async function playElement(node, model, motion, signal, only, registerTyp
 
 export function sceneTransition(stage, incoming, previous, preset, motion, signal) {
   if (!previous || !preset || !motion.enabled()) return;
+  preset = builtinPreset(preset);
+  if (preset.definition?.animation.engine === 'keyframes') { previous.remove(); return playRecipe(incoming, preset, motion, signal); }
   previous.classList.add("gift-transition-layer");
   previous.dataset.giftEffect = preset.id;
   previous.setAttribute("aria-hidden","true");
@@ -161,6 +172,9 @@ export function sceneTransition(stage, incoming, previous, preset, motion, signa
 
 export function playAmbience(stage,preset,motion,signal) {
   if (!preset || !motion.enabled()) return;
+  preset = builtinPreset(preset);
+  const custom = playParticleRecipe(stage, preset, motion, signal) || playRecipe(stage, preset, motion, signal);
+  if (custom) return custom;
   if (['B05','B06','B07','B08'].includes(preset.id)) return celebrate(stage,preset,motion,signal);
   const layer = decoration("gift-ambience");
   layer.dataset.giftEffect = preset.id;
@@ -190,6 +204,9 @@ export function playAmbience(stage,preset,motion,signal) {
 
 export function playReaction(control,preset,motion,signal,event) {
   if (!preset || !motion?.enabled() || signal?.aborted) return null;
+  preset = builtinPreset(preset);
+  const custom = playRecipe(control, preset, motion, signal);
+  if (custom) return custom;
   const id = preset.id;
   const ms = duration(preset);
   if (id === "R04") {

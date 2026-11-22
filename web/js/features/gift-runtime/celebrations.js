@@ -1,4 +1,5 @@
-import { effectSpeed, CELEBRATION_IDS, defaultCelebrations } from '../../shared/canvas/effects.js';
+import { effectSpeed, CELEBRATION_IDS, defaultCelebrations, builtinPreset } from '../../shared/canvas/effects.js';
+import { playParticleRecipe, playRecipe } from './recipe-runtime.js';
 // Bounded bursts. Motion owns every animation and cancels them when
 // the scene closes or reduced motion is enabled; no per-frame JS or layout loop.
 const ns='http://www.w3.org/2000/svg';
@@ -18,6 +19,9 @@ function wingArt(flower=false) {
 }
 
 export function celebrate(stage,preset,motion,signal) {
+  preset = builtinPreset(preset);
+  const custom = playParticleRecipe(stage, { ...preset, loop: false }, motion, signal) || playRecipe(stage, preset, motion, signal);
+  if (custom) return custom;
   const layer=decoration('gift-ambience gift-celebration');stage.append(layer);
   const tasks=[],type=preset.id,count=preset.density==='sparse'?6:preset.density==='dense'?14:10;
   layer.dataset.giftEffect=type;

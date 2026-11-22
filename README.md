@@ -91,18 +91,18 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Marketing Hero tạm dừng slideshow/teaser và chuyển nhãn điều khiển sang “Tiếp tục trình chiếu” khi trình duyệt bật `saveData` hoặc `prefers-reduced-data`; vẫn cho phép người dùng chủ động phát, nhưng không bỏ qua `prefers-reduced-motion`.
-- Ngừng tilt/ánh sáng 3D và hủy animation frame khi bật tiết kiệm dữ liệu. Reveal chuyển sang hiển thị ngay, tránh nội dung bị ẩn sau khi tắt motion.
-- Gom kiểm tra ưu tiên chuyển động vào `marketing/motion-preferences.js`, bổ sung test bật/tắt trong phiên và bảo toàn listener lifecycle. Không thay đổi Canvas, API, tài chính, OAuth, giao diện VI/EN hoặc nguồn ảnh/nhạc.
+- Bổ sung bộ liên kết **Khám phá theo dịp** trên trang chủ, lấy số mẫu từ Catalog thật, ưu tiên dịp đang diễn ra và mở đúng bộ lọc `/explore?occasion=...` mà không thêm API hoặc migration.
+- Tối đa 6 chip có tên và nhãn trợ năng VI/EN, vùng bấm từ 46px và cuộn ngang nội bộ trên mobile; không hiển thị số liệu giả lúc tải/lỗi và không dùng emoji.
+- Tách logic chọn dịp ra module thuần, bổ sung 7 unit test và browser regression cho đường dẫn qua Explore trên nhiều kích thước màn hình. Giữ nguyên Auth, Canvas, SFX, Payment, Creator/Admin và các hiệu ứng 3D hiện hữu.
 
 **Các commit gần nhất trên `main`:**
 
+- `3559344` — feat: add occasion discovery shortcuts to marketing home (2026-11-23)
 - `78bf643` — perf: respect data saver in marketing motion and slideshow (2026-11-23)
 - `d36c664` — fix(auth): use Zalo brand icon and sync web assets (2026-11-23)
 - `4e6173a` — fix: include interactive cards rollout bundle in release package (2026-11-23)
 - `ac1e5a5` — fix: refine auth UX and update password minimum to 8 characters (2026-11-22)
 - `9556034` — Merge pull request #22 from GNAUQ153:perf/interactive-cards-lcp (2026-11-22)
-- `678dedc` — feat: redesign Momevia authentication with dark split layout (2026-11-22)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

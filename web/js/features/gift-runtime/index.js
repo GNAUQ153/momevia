@@ -81,6 +81,21 @@ export function mountPlayer(
     musicButton.type = 'button';
     musicButton.className = 'gift-soundtrack-button';
     musicButton.setAttribute('aria-pressed', 'false');
+    const musicVolumeLabel = globalThis.document.createElement('label');
+    musicVolumeLabel.className = 'gift-soundtrack-volume-label';
+    const musicVolumeTitle = globalThis.document.createElement('span');
+    setText(musicVolumeTitle, message('gift.music.volume'));
+    const musicVolume = globalThis.document.createElement('input');
+    musicVolume.className = 'gift-soundtrack-volume';
+    musicVolume.type = 'range';
+    musicVolume.min = '0';
+    musicVolume.max = '100';
+    musicVolume.step = '5';
+    musicVolume.value = String(Math.round(document.soundtrack.volume * 100));
+    const musicVolumeReadout = globalThis.document.createElement('output');
+    musicVolumeReadout.className = 'gift-soundtrack-volume-value';
+    setText(musicVolumeReadout, `${musicVolume.value}%`);
+    musicVolumeLabel.append(musicVolumeTitle, musicVolume, musicVolumeReadout);
     const musicStatus = globalThis.document.createElement('span');
     musicStatus.className = 'gift-soundtrack-status';
     musicStatus.setAttribute('role', 'status');
@@ -92,10 +107,15 @@ export function mountPlayer(
     soundtrackPlayback = createSoundtrackPlayback(document.soundtrack, { onState: syncMusic });
     syncMusic({ playing: false });
     musicButton.addEventListener('click', () => { void soundtrackPlayback.toggle(); }, { signal: lifetime.signal });
+    musicVolume.addEventListener('input', () => {
+      const percent = Number(musicVolume.value);
+      if (!Number.isFinite(percent)) return;
+      if (soundtrackPlayback.setVolume(percent / 100)) setText(musicVolumeReadout, `${percent}%`);
+    }, { signal: lifetime.signal });
     globalThis.document.addEventListener('visibilitychange', () => {
       if (globalThis.document.hidden) soundtrackPlayback.pause();
     }, { signal: lifetime.signal });
-    musicGroup.append(musicButton, musicStatus);
+    musicGroup.append(musicButton, musicVolumeLabel, musicStatus);
     toolbar.append(musicGroup);
   }
   const updateMotionControl = () => {

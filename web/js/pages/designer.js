@@ -500,6 +500,17 @@ export function mountDesigner(
             ['', message('editor.music.none')],
             ...SOUNDTRACKS.map(track => [track.id, message(track.titleKey)]),
           ]),
+          node('label', { class: 'editor-music-volume' },
+            node('span', {}, message('editor.music.volume')),
+            node('input', {
+              type: 'range', min: '0', max: '100', step: '5',
+              value: String(Math.round((store.get().document.soundtrack?.volume ?? 0.55) * 100)),
+              'data-editor-field': 'soundtrack-volume',
+              disabled: !store.get().document.soundtrack,
+            }),
+            node('output', { class: 'editor-music-volume-value', 'data-editor-music-percent': '' },
+              `${Math.round((store.get().document.soundtrack?.volume ?? 0.55) * 100)}%`),
+          ),
           button(message('editor.music.listen'), 'soundtrack-preview', {
             class: 'editor-music-preview',
             disabled: !store.get().document.soundtrack,
@@ -1248,6 +1259,14 @@ export function mountDesigner(
     const soundtrackId = doc.soundtrack?.id || '';
     const musicSelect = main.querySelector('[data-editor-field="soundtrack"]');
     if (musicSelect && musicSelect !== document.activeElement) musicSelect.value = soundtrackId;
+    const volumeRange = main.querySelector('[data-editor-field="soundtrack-volume"]');
+    const volumePercent = Math.round((doc.soundtrack?.volume ?? 0.55) * 100);
+    if (volumeRange) {
+      volumeRange.disabled = !soundtrackId;
+      if (volumeRange !== document.activeElement) volumeRange.value = String(volumePercent);
+    }
+    const volumeReadout = main.querySelector('[data-editor-music-percent]');
+    if (volumeReadout && volumeRange !== document.activeElement) setText(volumeReadout, `${volumePercent}%`);
     if (musicPreview && musicPreview.track.id !== soundtrackId) {
       musicPreview.dispose();
       musicPreview = null;
@@ -2439,7 +2458,7 @@ export function mountDesigner(
       musicPreview?.dispose();
       musicPreview = null;
       commit(next => {
-        if (control.value) next.document.soundtrack = { id: control.value, volume: 0.55 };
+        if (control.value) next.document.soundtrack = { id: control.value, volume: next.document.soundtrack?.volume ?? 0.55 };
         else delete next.document.soundtrack;
       }, t('editor.history.selectMusic'));
       const listen = main.querySelector('[data-editor-action="soundtrack-preview"]');
@@ -2447,6 +2466,16 @@ export function mountDesigner(
         listen.disabled = !control.value;
         setText(listen, message('editor.music.listen'));
       }
+      return;
+    }
+    if (key === 'soundtrack-volume') {
+      const percent = Number(control.value);
+      if (!Number.isFinite(percent) || percent < 0 || percent > 100) return;
+      if (!store.get().document.soundtrack) return;
+      commit(next => {
+        next.document.soundtrack.volume = percent / 100;
+      }, t('editor.history.setMusicVolume'));
+      musicPreview?.setVolume(percent / 100);
       return;
     }
     if (key === "upload" || key === "quick-photo" || key === 'event-photo') {
@@ -2641,6 +2670,16 @@ export function mountDesigner(
     safe((event) => {
       if (event.target.matches("[data-block-search]")) {
         filterBlocks(event.target.value);
+        return;
+      }
+      if (event.target.matches('[data-editor-field="soundtrack-volume"]')) {
+        // Khi kéo thanh, cập nhật số phần trăm và nghe thử mà chưa lưu lịch sử.
+        const percent = Number(event.target.value);
+        if (Number.isFinite(percent) && percent >= 0 && percent <= 100) {
+          const readout = main.querySelector('[data-editor-music-percent]');
+          if (readout) setText(readout, `${percent}%`);
+          musicPreview?.setVolume(percent / 100);
+        }
         return;
       }
       if (

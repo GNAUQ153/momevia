@@ -49,6 +49,13 @@ export function createSoundtrackPlayback(config, { createAudio = () => new Audio
     track,
     toggle,
     pause,
+    // Âm lượng của người nghe chỉ tồn tại trong phiên; không ghi lại Canvas JSON.
+    setVolume(value) {
+      if (disposed || !Number.isFinite(value) || value < 0 || value > 1) return false;
+      audio.volume = value;
+      return true;
+    },
+    get volume() { return audio.volume; },
     get playing() { return playing; },
     dispose() {
       if (disposed) return;

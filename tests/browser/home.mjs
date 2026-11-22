@@ -46,6 +46,35 @@ export async function runHomeBrowser(base) {
           if (width <= 680) assert(previewBox.y + previewBox.height <= frame.y, `${width}: mobile actions precede the artwork`);
           else assert(headingBox.x + headingBox.width < frame.x, `${width}: artwork and heading have distinct columns`);
           assert.equal(await page.evaluate(() => globalThis.document.documentElement.scrollWidth), width);
+          if (width === 1024) {
+            const toggle = page.locator('#site-header [data-action="toggle-menu"]');
+            const compactMenu = page.locator('#mobile-nav');
+            assert.equal(await page.locator('#site-header .nav-links').isVisible(), false, 'desktop links collapse at 1024px');
+            assert.equal(await toggle.isVisible(), true, 'compact menu button is visible');
+            await toggle.click();
+            await compactMenu.waitFor({ state: 'visible' });
+            assert.equal(await toggle.getAttribute('aria-expanded'), 'true');
+            assert.equal(await compactMenu.locator('a[href="/about"]').isVisible(), true);
+            const compactFontSize = await compactMenu.locator('a[href="/about"]').evaluate(node => parseFloat(node.ownerDocument.defaultView.getComputedStyle(node).fontSize));
+            assert(compactFontSize >= 14, 'compact navigation text stays readable');
+            await toggle.press('Escape');
+            await compactMenu.waitFor({ state: 'hidden' });
+            assert.equal(await toggle.getAttribute('aria-expanded'), 'false');
+            await toggle.click();
+            await compactMenu.waitFor({ state: 'visible' });
+            await page.setViewportSize({ width: 1200, height });
+            // CSS co the an menu truoc khi listener matchMedia cap nhat aria-expanded.
+            // Cho ca hidden DOM va ARIA; van fail neu ung dung khong dong menu.
+            await page.waitForFunction(() => {
+              const nav = globalThis.document.getElementById('mobile-nav');
+              const button = globalThis.document.querySelector('#site-header [data-action="toggle-menu"]');
+              return nav?.hidden === true && button?.getAttribute('aria-expanded') === 'false';
+            }, null, { timeout: 5000 });
+            await compactMenu.waitFor({ state: 'hidden' });
+            assert.equal(await toggle.getAttribute('aria-expanded'), 'false', 'menu closes when desktop nav returns');
+            await page.setViewportSize({ width, height });
+          }
+
           assert.equal(await cover.evaluate(node => globalThis.getComputedStyle(node).animationName), 'none');
           const cards = page.locator('#home-featured-gifts .template-card');
           await cards.first().waitFor();
@@ -96,6 +125,27 @@ export async function runHomeBrowser(base) {
             assert.equal(await journey.locator('[data-mkt-journey-scene]').getAttribute('data-stage'), step);
             assert.equal(await journey.locator(`[data-mkt-panel="${step}"]`).isVisible(), true);
           }
+          // 390px: bước có cỡ chữ dễ đọc và vuốt ngang thực sự đổi cảnh.
+          const rail = journey.locator('.mkt-journey__steps');
+          assert(await rail.evaluate(node => node.scrollWidth > node.clientWidth), 'mobile journey uses an inner horizontal rail');
+          assert(await journey.locator('[data-mkt-step="create"]').evaluate(node =>
+            parseFloat(globalThis.getComputedStyle(node).fontSize) >= 13), 'mobile step labels remain readable');
+          await journey.locator('[data-mkt-step="create"]').click();
+          await journey.locator('[data-mkt-journey-scene]').evaluate(scene => {
+            const makeTouch = (type, x, y) => {
+              const touch = new globalThis.Touch({ identifier: 1, target: scene, clientX: x, clientY: y });
+              const options = type === 'touchstart'
+                ? { bubbles: true, touches: [touch], targetTouches: [touch], changedTouches: [touch] }
+                : { bubbles: true, touches: [], targetTouches: [], changedTouches: [touch] };
+              scene.dispatchEvent(new globalThis.TouchEvent(type, options));
+            };
+            makeTouch('touchstart', 215, 120);
+            makeTouch('touchend', 120, 123);
+          });
+          assert.equal(await journey.locator('[data-mkt-journey-scene]').getAttribute('data-stage'), 'share');
+          assert.equal(await journey.locator('[data-mkt-step="share"]').getAttribute('aria-pressed'), 'true');
+          assert.equal(await journey.locator('[data-mkt-panel="share"]').isVisible(), true);
+          assert.equal(await page.evaluate(() => globalThis.document.documentElement.scrollWidth), width);
           assert.match(await image.getAttribute('src'), language === 'en' ? /\/en\/hai-phong-bi.svg/ : /templates\/hai-phong-bi.svg/);
           assert(!requests.some(request => request.url().includes('/gift-runtime/index.js')), 'Guest landing leaves the player unloaded');
           const dialog = page.getByRole('dialog');

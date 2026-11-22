@@ -30,6 +30,70 @@
 - Thẻ Canvas V2 cùng cảnh chỉ dựng kết quả sau lựa chọn; dùng chung cho preview/link thật, có Chơi lại, khóa chạm liên tiếp, trợ năng, giảm chuyển động và VI/EN. Snapshot giữ dự đoán khi sửa nháp; tặng lại xóa câu chuyện cũ.
 - Bổ sung unit và browser qua thư viện đến xuất bản, đủ bốn nhánh. Bàn giao demo Minh–An cổng 4116 và kịch bản quay trong `docs/TO_DOAN_CAU_SE_CHON_BAN_DAU.md`; chưa triển khai production hoặc kiểm thử điện thoại vật lý/MySQL thật.
 
+## Unreleased — Marketing Journey mobile swipe & readable steps (2026-11-22)
+
+- Trải nghiệm Create → Share → Open → Reply → Keep trên mobile: năm nút chuyển sang danh sách cuộn ngang với cỡ chữ 13px thay vì ép chữ 11px vào một hàng; không gây tràn ngang trang.
+- Vuốt ngang trên artwork đổi bước khi vượt ngưỡng 48px và rõ ràng theo phương ngang; không chiếm cuộn dọc, không xử lý đa chạm và không tự quay vòng ở đầu/cuối hành trình.
+- Đảm bảo chỉ một nút được Tab tới trong nhóm; vẫn hỗ trợ Arrow, Home, End. Thêm hướng dẫn thao tác song ngữ VI/EN.
+- Bổ sung kiểm thử unit và browser cho vuốt, phím, responsive. Không thay đổi API, Canvas, database, thanh toán hoặc nội dung thiệp.
+
+## Unreleased — Sửa bố cục chỉ báo Hero mobile (2026-11-22)
+
+- Điều chỉnh hàng grid của `.mkt-hero__artwork` bảo toàn chiều cao tối thiểu, tránh chỉ báo chọn thiệp lấn lên khung artwork khi không gian mobile bị giới hạn.
+- Browser regression tiếp tục bắt buộc điều khiển nằm dưới khung; bổ sung số đo và `gridTemplateRows` vào lỗi để hỗ trợ chẩn đoán CI.
+- Thêm kiểm thử cấu trúc CSS và assertion. Không thay đổi animation, chức năng Marketing Lab, API hoặc dữ liệu người dùng.
+
+## Unreleased — Marketing lab đo lặp và so sánh before/after (2026-11-22)
+
+- Nâng `npm run perf:marketing` từ một lượt sang ba lượt cho từng tổ hợp viewport/VI/EN, có thể cấu hình 1–5 lượt bằng `MOMEVIA_PERF_RUNS`.
+- Ghi báo cáo v2 gồm mẫu gốc, median/p75, số lỗi JavaScript và số lượt tràn ngang; không biến LCP/FCP thiếu thành 0.
+- Thêm thẻ báo cáo `MOMEVIA_PERF_TAG` và lệnh `npm run perf:marketing:compare` để đối chiếu trước/sau cùng cấu hình, không gửi dữ liệu người dùng hoặc số liệu ra ngoài.
+- Bổ sung unit test thống kê, xử lý dữ liệu thiếu và so sánh; không thay đổi frontend production/API/Canvas/database/payment. Các số đo vẫn là lab, không thay thế Core Web Vitals thực tế.
+
+## Unreleased — Fix browser test for desktop navigation breakpoint (2026-11-22)
+
+- Sua race condition trong `tests/browser/home.mjs`: sau khi doi viewport tu 1024px sang 1200px, Playwright cho menu `hidden` trong DOM va `aria-expanded=false`, khong chi cho CSS an menu.
+- Giu nguyen assertion va timeout 5 giay: neu listener `matchMedia` khong dong menu, bai kiem thu van fail. Khong thay doi giao dien, JavaScript production, API, Canvas hoac thanh toan.
+- CI run 44931895318 da PASS build, check, npm audit, 509 unit tests; browser regression fail tai dong 67. Can chay lai CI tren GitHub.
+
+## Unreleased — Marketing ambient visibility & local performance lab (2026-11-22)
+
+- Đồng bộ hai quầng sáng CSS với trạng thái Hero: dừng khi người dùng pause, preview mở, hero ngoài viewport hoặc tab ẩn; tiếp tục khi tương tác trở lại. Không sửa mẫu thiệp hoặc logic chuyển cảnh.
+- Bổ sung `npm run perf:marketing` để đo TTFB, FCP, LCP, CLS, long task và tràn ngang tại máy local ở ba viewport, hai ngôn ngữ; lưu JSON vào `dist/reports`, không gửi analytics ra ngoài.
+- Thêm unit test và browser regression cho trạng thái animation, số liệu thiếu, overflow; ghi rõ kết quả lab không thay thế Core Web Vitals người dùng thật. Cần xác minh Playwright/CI trên main.
+
+## Unreleased — Marketing pointer performance (2026-11-22)
+
+- Gom nhiều sự kiện `pointermove` của khung 3D thành tối đa một lần tính toán theo `requestAnimationFrame`; chỉ lấy tọa độ chuột cuối cùng và đo `getBoundingClientRect()` trong frame thay vì từng sự kiện.
+- Khi rời khung, ẩn tab, giảm chuyển động hoặc tháo module, hủy frame chờ và bỏ qua callback đến trễ. Giữ nguyên độ nghiêng 3D, font và VI/EN.
+- Tách `latest-frame.js` dễ kiểm thử, bổ sung unit test, tài liệu hiệu năng và cơ chế hợp nhất an toàn. Chưa có số đo FPS/Core Web Vitals trên thiết bị thực tế.
+
+## Unreleased — Điều khiển chuyển mẫu Hero dành cho accessibility (2026-11-22)
+
+- Bổ sung nút Tạm dừng/Tiếp tục dễ chạm cho vòng thiệp 3D ở trang chủ; dừng đồng thời progress, thiệp hé và các note nổi, giữ nguyên mẫu và khả năng chọn/xem thử thủ công.
+- Nút đổi nhãn VI/EN theo ngôn ngữ đang chọn và giữ trạng thái khi người dùng chuyển ngôn ngữ. Khi hệ điều hành bật giảm chuyển động, autoplay đã tắt nên ẩn điều khiển không cần thiết.
+- Bổ sung unit test và browser regression; không sửa API, lưu trữ, quyền truy cập, JSON Canvas hoặc giao dịch. Cần xác minh build/CI sau khi áp dụng.
+
+## Unreleased — Header responsive dễ đọc trên laptop (2026-11-21)
+
+- Ở 901–1150px, chuyển các link dài của header sang menu thu gọn có chữ 15px thay cho ép liên kết 12px; giữ viewport không tràn ngang, gồm trường hợp 1024px.
+- Bổ sung navigation landmark có nhãn i18n, focus-visible và 48px vùng chạm; có chuyển động mở ngắn, tắt khi người dùng chọn giảm chuyển động.
+- Tự đóng menu khi cửa sổ trở lại desktop rộng, bảo toàn trạng thái `aria-expanded` và focus hợp lệ.
+- Bổ sung browser regression cho hai ngôn ngữ, mở/đóng bằng Escape, typography và resize. Không chỉnh API, dữ liệu quà, Canvas, thanh toán.
+
+## Unreleased — Fix brand navigation overflow (2026-11-21)
+
+- Sửa xung đột độ ưu tiên CSS của menu laptop 901–1150px: giữ cỡ chữ responsive 12px thay vì bị `brand-system.css` đặt lại thành 14px.
+- Giữ nguyên bài kiểm thử `tests/browser/home.mjs` yêu cầu không tràn ngang ở viewport 1024px. Không ẩn overflow của trang và không thay đổi Canvas, API, dữ liệu hay logic thanh toán.
+- Build và browser regression trên GitHub CI/CD cần được xác nhận sau khi áp dụng.
+
+## Unreleased — Brand typography, responsive UI và đánh giá bảo mật (2026-11-21)
+
+- Chuẩn hóa font hệ thống theo Plus Jakarta Sans (display), Inter (body, navigation), Lora (serif); tải stylesheet Inter/Plus Jakarta Sans ở `web/index.html` cho cả trang chủ và các route, thay vì chỉ nạp trễ ở các route khác. Lora dùng `@font-face` từ tài nguyên có sẵn trong project.
+- Thêm `web/css/brand-system.css`: typography dễ đọc, màu tương phản, thẻ điều hành, CTA người nhận, focus và chuyển động 3D nhẹ chỉ trên thiết bị hỗ trợ hover. Tôn trọng `prefers-reduced-motion` và không áp dụng quy tắc mới lên nội dung thiệp Canvas do người dùng tự thiết kế.
+- Bổ sung unit test kiểm tra font, CSP cho nguồn font, cấu trúc CSS và bảo toàn giao diện song ngữ. Không thay đổi API, dữ liệu, thanh toán, role hoặc schema Canvas.
+- Đánh giá source/kiến trúc/bảo mật được ghi trong tài liệu `docs/CODE_REVIEW_20261121.md`. Kiểm thử sản phẩm, Core Web Vitals và browser thực tế vẫn phải chạy ở môi trường có đủ dependency.
+
 ## Unreleased — Tích hợp main vào mẫu sự kiện (2026-11-21)
 
 - Giữ đầy đủ nhật ký của cả hai nhánh khi giải quyết conflict PR #17.

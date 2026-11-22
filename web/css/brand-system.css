@@ -1,0 +1,156 @@
+/*
+ * Momevia brand system — bản hoàn thiện UI, không thay đổi Canvas document.
+ * Các token dùng chung cho tiếng Việt và tiếng Anh.
+ * Chỉ nâng trải nghiệm ở site chrome, marketing, dashboard và CTA người nhận.
+ */
+:root {
+  --brand-surface-soft: #faf6ff;
+  --brand-surface-warm: #fff8f4;
+  --brand-surface-card: #ffffff;
+  --brand-text: #261c3d;
+  --brand-text-muted: #594e68;
+  --brand-outline: #dcd0eb;
+  --brand-focus: #5e35c2;
+  --brand-shadow: 0 18px 44px rgb(51 31 96 / 10%);
+  --brand-shadow-hover: 0 26px 56px rgb(51 31 96 / 17%);
+}
+
+body {
+  font-size: var(--ui-text-base);
+  color: var(--brand-text);
+}
+
+.site-header,
+.site-footer {
+  font-family: var(--font-body);
+}
+
+.site-header .nav-links a {
+  font-size: var(--ui-text-small);
+  line-height: 1.5;
+}
+
+.announcement {
+  font-size: var(--ui-text-caption);
+  line-height: 1.45;
+}
+
+.btn {
+  font-size: var(--ui-text-small);
+  line-height: 1.5;
+  min-height: var(--ui-control-min-height);
+}
+
+/* Font/spacing phụ thuộc thiết kế sản phẩm, không ép lên chữ người dùng trong Canvas. */
+.role-workspace__lead p,
+.role-workspace__review-notice li p,
+.is-home .mkt-journey__heading p,
+.recipient-viral p {
+  font-size: var(--ui-text-lead);
+  line-height: 1.65;
+  color: var(--brand-text-muted);
+}
+
+.role-workspace__header {
+  border-color: var(--brand-outline);
+  background: linear-gradient(120deg, var(--brand-surface-soft) 0%, var(--brand-surface-warm) 62%, #ffffff 100%);
+}
+
+.role-workspace__link,
+.recipient-viral,
+.is-home .mkt-gift-grid .template-card--home {
+  transition: box-shadow var(--ui-transition), border-color var(--ui-transition), transform var(--ui-transition);
+}
+
+.role-workspace__link {
+  font-size: var(--ui-text-small);
+  border-color: var(--brand-outline);
+}
+
+.role-workspace__metric {
+  border-color: var(--brand-outline);
+}
+
+.role-workspace__disclaimer {
+  font-size: var(--ui-text-caption);
+  line-height: 1.6;
+}
+
+/* Cảm giác chiều sâu chỉ áp dụng khi có chuột chính xác; không làm card tự chuyển động. */
+.is-home .mkt-gift-grid {
+  perspective: 1200px;
+}
+
+.is-home .mkt-gift-grid .template-card--home {
+  transform-style: preserve-3d;
+}
+
+.recipient-viral {
+  border-color: var(--brand-outline);
+  background: linear-gradient(150deg, #faf5ff 0%, #fff9f5 62%, #f3ecff 100%);
+}
+
+.recipient-viral p {
+  max-width: 52ch;
+}
+
+/* Trạng thái focus dùng chung, không chỉ dựa vào màu hover. */
+.role-workspace__link:focus-visible,
+.recipient-viral a:focus-visible,
+.is-home .mkt-gift-grid a:focus-visible,
+.is-home .mkt-journey__step:focus-visible {
+  outline: 3px solid var(--brand-focus);
+  outline-offset: 3px;
+}
+
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .is-home .mkt-gift-grid .template-card--home:hover {
+    transform: translate3d(0, -5px, 10px) rotateX(1deg);
+    box-shadow: var(--brand-shadow-hover);
+  }
+
+  .role-workspace__link:hover {
+    transform: translate3d(0, -3px, 0);
+    box-shadow: var(--brand-shadow-hover);
+  }
+
+  .recipient-viral:focus-within {
+    box-shadow: var(--brand-shadow-hover);
+  }
+}
+
+/* Momevia brand nav overflow fix 2026-11-21: giu menu laptop trong viewport ma khong an tran ngang. */
+@media (min-width: 901px) and (max-width: 1150px) {
+  .site-header .nav-links a {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 680px) {
+  .site-header .nav-links a {
+    font-size: var(--ui-text-small);
+  }
+
+  .role-workspace__header {
+    padding: 20px 18px;
+  }
+
+  .recipient-viral {
+    padding: 22px 18px;
+    border-radius: 20px;
+  }
+
+  .recipient-viral__actions .btn {
+    width: 100%;
+    white-space: normal;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .role-workspace__link,
+  .recipient-viral,
+  .is-home .mkt-gift-grid .template-card--home {
+    transition: none;
+    transform: none;
+  }
+}

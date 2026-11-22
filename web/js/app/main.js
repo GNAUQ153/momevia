@@ -146,7 +146,7 @@ function loadAppFonts() {
   const fonts = document.createElement('link');
   fonts.id = 'app-fonts';
   fonts.rel = 'stylesheet';
-  fonts.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@400..800&family=Plus+Jakarta+Sans:wght@400..800&display=optional';
+  fonts.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@400..800&family=Plus+Jakarta+Sans:wght@400..800&display=swap';
   document.head.append(fonts);
 }
 onLocaleChange(() => {
@@ -795,6 +795,18 @@ function setMobileMenu(trigger, menu, open) {
   trigger.setAttribute("aria-expanded", String(open));
   setAttr(trigger, "aria-label", message(open ? "shell.nav.closeMenu" : "shell.nav.openMenu"));
 }
+// Khi rời breakpoint menu thu gọn, đóng menu và chuyển focus về nav desktop.
+const desktopNavigation = window.matchMedia("(min-width: 1151px)");
+desktopNavigation.addEventListener("change", ({ matches }) => {
+  if (!matches) return;
+  const menu = document.getElementById("mobile-nav");
+  const trigger = header.querySelector('[data-action="toggle-menu"]');
+  if (!menu || !trigger || menu.hidden) return;
+  const focusWasInside = menu.contains(document.activeElement);
+  setMobileMenu(trigger, menu, false);
+  if (focusWasInside) header.querySelector('.nav-links a[aria-current="page"], .nav-links a')?.focus();
+});
+
 function checkoutDraftModeKey(designId) {
   return `momevia:checkout-mode:${state.user.id || state.user.sub}:${designId}`;
 }

@@ -328,6 +328,11 @@
   .is-home .mkt-stage__orb--second {
     animation: mkt-ambient 12s ease-in-out infinite alternate-reverse;
   }
+
+  /* Quầng sáng không tiêu tốn animation frame khi hero bị ẩn hoặc đã tạm dừng. */
+  .is-home .mkt-hero:not([data-mkt-ambient-running]) .mkt-stage__orb {
+    animation-play-state: paused;
+  }
 }
 
 @keyframes mkt-ambient {
@@ -435,7 +440,8 @@
 /* Cover layers share one fixed artboard: changing templates never shifts layout. */
 .mkt-hero__artwork {
   display: grid;
-  grid-template-rows: minmax(0, 1fr) auto;
+  /* Không cho hàng thiệp co thấp hơn min-height; nút chọn mẫu luôn ở dưới. */
+  grid-template-rows: minmax(min-content, 1fr) auto;
   gap: 12px;
   min-width: 0;
 }
@@ -526,6 +532,56 @@
 .mkt-hero__rotation button:focus-visible {
   outline: 3px solid #6039a5;
   outline-offset: 2px;
+}
+
+/* Nút dừng chủ động cho chuyển mẫu tự động; không làm đổi bố cục thiệp. */
+.mkt-hero__rotation {
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.mkt-hero__rotation .mkt-hero__playback {
+  display: inline-flex;
+  gap: 6px;
+  width: auto;
+  min-height: 44px;
+  padding: 0 12px;
+  margin-left: 6px;
+  border: 1px solid #cbb5e3;
+  border-radius: 999px;
+  background: #ffffffed;
+  color: #48257f;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.mkt-hero__rotation .mkt-hero__playback:hover {
+  background: #f0e9fc;
+}
+
+.mkt-hero__playback[data-state="playing"] .mkt-hero__playback-play,
+.mkt-hero__playback[data-state="paused"] .mkt-hero__playback-pause {
+  display: none;
+}
+
+@media (max-width: 420px) {
+  .mkt-hero__rotation button {
+    width: 44px;
+  }
+
+  .mkt-hero__rotation .mkt-hero__playback {
+    margin-left: 0;
+    padding: 0 10px;
+    font-size: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mkt-hero__rotation .mkt-hero__playback {
+    display: none;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

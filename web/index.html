@@ -9,6 +9,11 @@
     content="Chọn mẫu quà, viết lời nhắn và gửi bằng một đường link. Mở thử quà tương tác ngay trên Momevia." />
   <title data-i18n="shell.meta.homeTitle">Momevia — Tạo quà tương tác gửi bằng link</title>
   <link rel="icon" type="image/png" href="/assets/momevia-icon-128.png" />
+  <!-- Font dùng chung trên mọi route; CSP đã giới hạn nhà cung cấp Google Fonts. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link id="app-fonts" rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400..800&amp;family=Plus+Jakarta+Sans:wght@400..800&amp;display=swap" />
   <link rel="stylesheet" href="/css/tokens.css?v=20261121-motion" />
   <link rel="stylesheet" href="/css/base.css" />
   <link rel="stylesheet" href="/css/layout.css?v=20261120-shell" />
@@ -64,6 +69,10 @@
   <link rel="stylesheet" href="/css/marketing-immersive.css?v=20261121-synced-notes" />
   <!-- Hành trình marketing 3D được tách riêng; không tải scene hay script bên thứ ba. -->
   <link rel="stylesheet" href="/css/marketing-journey.css" />
+  <!-- Lớp hoàn thiện visual system dùng chung; đặt cuối để không sửa CSS nghiệp vụ. -->
+  <link rel="stylesheet" href="/css/brand-system.css?v=20261121" />
+  <!-- Menu laptop hẹp dùng chung giao diện VI/EN. -->
+  <link rel="stylesheet" href="/css/header-compact.css?v=20261121" />
 </head>
 
 <body>

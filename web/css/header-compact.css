@@ -1,0 +1,81 @@
+/*
+ * Header responsive cho laptop hẹp.
+ * Tận dụng menu hiện hữu thay vì thu nhỏ chữ điều hướng xuống 12px.
+ * Giữ chung cấu trúc cho VI/EN; không thay đổi dữ liệu người dùng.
+ */
+@media (min-width: 901px) and (max-width: 1150px) {
+  .site-header .nav-inner {
+    gap: 16px;
+  }
+
+  .site-header .nav-links,
+  .site-header .login-trigger,
+  .site-header .nav-studio {
+    display: none !important;
+  }
+
+  .site-header .nav-toggle {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    min-width: 48px;
+    min-height: 48px;
+  }
+
+  .site-header .nav-actions {
+    gap: 12px;
+  }
+
+  .site-header .mobile-nav:not([hidden]) {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 4px 12px;
+    max-height: calc(100svh - 84px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 14px max(24px, calc((100vw - 880px) / 2)) 20px;
+    border-top: 1px solid var(--brand-outline, #dcd0eb);
+    background: #ffffff;
+    box-shadow: 0 16px 32px rgb(38 28 61 / 9%);
+  }
+
+  .site-header .mobile-nav :is(a, button) {
+    min-height: 48px;
+    padding: 12px 14px;
+    font-family: var(--font-body);
+    font-size: 15px;
+    font-weight: 650;
+    line-height: 1.5;
+  }
+
+  .site-header .mobile-nav [data-locale-select] {
+    min-height: 44px;
+  }
+}
+
+/* Mở rộng vùng chạm và hỗ trợ điều hướng bằng bàn phím. */
+.site-header .nav-toggle:focus-visible,
+.site-header .mobile-nav :is(a, button, select):focus-visible {
+  outline: 3px solid var(--brand-focus, #5e35c2);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @media (min-width: 901px) and (max-width: 1150px) {
+    .site-header .mobile-nav:not([hidden]) {
+      animation: momevia-header-appear 160ms ease-out both;
+    }
+  }
+}
+
+@keyframes momevia-header-appear {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

@@ -1,4 +1,4 @@
-import { message, onLocaleChange, setAttr } from '../../core/i18n.js';
+import { message, onLocaleChange, setAttr, setText } from '../../core/i18n.js';
 import { templateValue } from '../catalog/template-copy.js';
 
 const duration = 5000;
@@ -10,13 +10,24 @@ export function mountHeroTemplates(host, templates) {
   const cover = root.querySelector('.mkt-hero__cover');
   const images = [...cover.querySelectorAll('[data-hero-image]')];
   const selectors = [...root.querySelectorAll('[data-hero-select]')];
+  const playback = root.querySelector('[data-hero-playback]');
+  const playbackLabel = playback?.querySelector('[data-hero-playback-label]');
   const notes = [...root.querySelectorAll('.mkt-stage__note, .mkt-stage__reply')];
   const dialog = root.querySelector('.template-preview-dialog');
   const reduce = matchMedia('(prefers-reduced-motion: reduce)');
   const lifetime = new AbortController();
   const options = { signal: lifetime.signal };
   let index = 0, progress, peek, peekImage, generation = 0, visible = true;
+  let userPaused = false;
   let noteMotions = [], noteStarts;
+
+  function syncPlayback() {
+    if (!playback || !playbackLabel) return;
+    const key = userPaused ? 'home.hero.resumeSlides' : 'home.hero.pauseSlides';
+    playback.dataset.state = userPaused ? 'paused' : 'playing';
+    setAttr(playback, 'aria-label', message(key));
+    setText(playbackLabel, message(key));
+  }
 
   function moveNotes(clock) {
     const easing = getComputedStyle(root).getPropertyValue('--ease-in-out').trim();
@@ -70,11 +81,15 @@ export function mountHeroTemplates(host, templates) {
   }
 
   function canRotate() {
-    return !lifetime.signal.aborted && !reduce.matches &&
+    return !lifetime.signal.aborted && !reduce.matches && !userPaused &&
       !document.hidden && visible && !dialog.open;
   }
   function schedule() {
-    if (!canRotate()) {
+    // Dùng cùng trạng thái với đồng hồ thiệp để tạm dừng quầng sáng CSS.
+    // Không để animation chạy ngầm khi hero ngoài viewport, tab ẩn hoặc người dùng tạm dừng.
+    const running = canRotate();
+    root.toggleAttribute('data-mkt-ambient-running', running);
+    if (!running) {
       progress?.pause();
       peek?.pause();
       noteMotions.forEach(motion => motion.pause());
@@ -150,19 +165,26 @@ export function mountHeroTemplates(host, templates) {
     finally { if (request === generation) schedule(); }
   }
   selectors.forEach((button, position) => button.addEventListener('click', () => void select(position), options));
+  playback?.addEventListener('click', () => {
+    // Dừng đồng hồ, thiệp hé và cả hai note; không thay đổi mẫu đang mở.
+    userPaused = !userPaused;
+    syncPlayback();
+    schedule();
+  }, options);
   root.addEventListener('click', event => {
     if (event.target.closest('[data-template-preview]')) schedule();
   }, options);
   dialog.addEventListener('close', schedule, options);
   document.addEventListener('visibilitychange', schedule, options);
   reduce.addEventListener('change', () => { update(); schedule(); }, options);
-  const removeLocaleListener = onLocaleChange(() => { ++generation; update(); schedule(); });
+  const removeLocaleListener = onLocaleChange(() => { ++generation; update(); syncPlayback(); schedule(); });
   const observer = new IntersectionObserver(entries => {
     visible = entries[0].isIntersecting;
     schedule();
   });
   observer.observe(cover);
   update();
+  syncPlayback();
   schedule();
   return {
     get template() { return templates[index]; },
@@ -171,6 +193,7 @@ export function mountHeroTemplates(host, templates) {
       ++generation;
       resetProgress();
       observer.disconnect();
+      root.removeAttribute('data-mkt-ambient-running');
       removeLocaleListener();
     },
   };

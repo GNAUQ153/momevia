@@ -56,6 +56,11 @@ export function createHomeViews({ state, buttonLink, templateCard }) {
       </div>
       <div class="mkt-hero__rotation" role="group" ${attr('aria-label', 'home.hero.slides')}>
         ${homeDemos.map((template, index) => `<button type="button" class="mkt-hero__slide" data-hero-select="${index}" aria-pressed="${index === 0}" ${attr('aria-label', `templates.${template.id}.title`)}><span aria-hidden="true"><span data-hero-progress></span></span></button>`).join('')}
+        <button type="button" class="mkt-hero__playback" data-hero-playback data-state="playing" ${attr('aria-label', 'home.hero.pauseSlides')}>
+          <span class="mkt-hero__playback-pause" aria-hidden="true">${icon('pause', 16)}</span>
+          <span class="mkt-hero__playback-play" aria-hidden="true">${icon('play', 16)}</span>
+          <span class="mkt-hero__playback-label" data-hero-playback-label>${text('home.hero.pauseSlides')}</span>
+        </button>
       </div>
       </div>
       </div>
@@ -151,6 +156,7 @@ export function createHomeViews({ state, buttonLink, templateCard }) {
                 <p>${text(`home.journey.${id}.body`)}</p>
               </div>`).join('')}
             </div>
+            <p class="mkt-journey__swipe-hint">${text('home.journey.swipeHint')}</p>
           </div>
         </div>
         <div class="mkt-journey__footer">${buttonLink('/explore', text('home.journey.cta'), 'mkt-primary')}</div>

@@ -5,6 +5,7 @@ function clamp(value, min, max) {
 }
 
 import { mountJourney } from './journey.js';
+import { createLatestFrameScheduler } from './latest-frame.js';
 
 export function marketingPointerGeometry(event, bounds) {
   if (!event || !bounds) return null;
@@ -30,24 +31,43 @@ export function mountMarketingMotion(root, { signal } = {}) {
   const ownerDocument = stage?.ownerDocument || window.document;
   const lifetime = new AbortController();
   const disposeJourney = mountJourney(root, { signal: lifetime.signal });
-  let frame = null;
-  let pendingPoint = null;
   let observer = null;
   let disposed = false;
 
+  function motionAllowed() {
+    return !media?.matches && Boolean(pointer?.matches) && !ownerDocument?.hidden;
+  }
+
+  // Đọc kích thước phần tử trong RAF, không đọc ở từng sự kiện pointermove.
+  // Nhiều sự kiện trong cùng một frame chỉ sử dụng tọa độ cuối cùng.
+  const pointerFrame = createLatestFrameScheduler({
+    requestFrame: callback => window.requestAnimationFrame(callback),
+    cancelFrame: id => window.cancelAnimationFrame(id),
+    render: point => {
+      if (disposed || !stage || !motionAllowed()) {
+        resetTilt();
+        return;
+      }
+      const geometry = marketingPointerGeometry(point, stage.getBoundingClientRect());
+      if (!geometry) {
+        resetTilt();
+        return;
+      }
+      stage.style.setProperty('--mkt-tilt-x', geometry.tiltX);
+      stage.style.setProperty('--mkt-tilt-y', geometry.tiltY);
+      stage.style.setProperty('--mkt-glow-x', geometry.glowX);
+      stage.style.setProperty('--mkt-glow-y', geometry.glowY);
+      stage.setAttribute('data-mkt-pointer-active', '');
+    },
+  });
+
   function resetTilt() {
-    if (frame !== null) window.cancelAnimationFrame(frame);
-    frame = null;
-    pendingPoint = null;
+    pointerFrame.clear();
     if (!stage) return;
     for (const property of ['--mkt-tilt-x', '--mkt-tilt-y', '--mkt-glow-x', '--mkt-glow-y']) {
       stage.style.removeProperty(property);
     }
     stage.removeAttribute('data-mkt-pointer-active');
-  }
-
-  function motionAllowed() {
-    return !media?.matches && Boolean(pointer?.matches) && !ownerDocument?.hidden;
   }
 
   function onPointerMove(event) {
@@ -56,20 +76,7 @@ export function mountMarketingMotion(root, { signal } = {}) {
       return;
     }
     if (event.pointerType && event.pointerType !== 'mouse' && event.pointerType !== 'pen') return;
-    pendingPoint = marketingPointerGeometry(event, stage.getBoundingClientRect());
-    if (!pendingPoint || frame !== null) return;
-    frame = window.requestAnimationFrame(() => {
-      frame = null;
-      if (disposed || !motionAllowed() || !pendingPoint) {
-        resetTilt();
-        return;
-      }
-      stage.style.setProperty('--mkt-tilt-x', pendingPoint.tiltX);
-      stage.style.setProperty('--mkt-tilt-y', pendingPoint.tiltY);
-      stage.style.setProperty('--mkt-glow-x', pendingPoint.glowX);
-      stage.style.setProperty('--mkt-glow-y', pendingPoint.glowY);
-      stage.setAttribute('data-mkt-pointer-active', '');
-    });
+    pointerFrame.enqueue({ clientX: event.clientX, clientY: event.clientY });
   }
 
   function showReveal() {
@@ -116,6 +123,7 @@ export function mountMarketingMotion(root, { signal } = {}) {
     observer?.disconnect();
     observer = null;
     resetTilt();
+    pointerFrame.dispose();
     root.removeAttribute('data-mkt-motion-ready');
     signal?.removeEventListener?.('abort', dispose);
   }

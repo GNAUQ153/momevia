@@ -89,19 +89,19 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Tách vòng đời tải ảnh của Canvas Player vào `image-state.js`, gắn listener trước `src` để bắt cả lỗi ảnh từ cache; không thay đổi allowlist URL hoặc API.
-- Có trạng thái loading/ready/error và placeholder dịch VI/EN; `AbortSignal` ngăn phản hồi ảnh thuộc cảnh đã rời đi làm thay đổi DOM.
-- Ưu tiên ảnh nội dung đầu tiên của cảnh, giữ ảnh còn lại ở chế độ lazy; giảm chuyển động shimmer theo `prefers-reduced-motion`.
-- Bổ sung 5 unit test cho ảnh cache, lỗi sớm, ưu tiên tải, abort và DOM đã tháo; tài liệu `docs/RECIPIENT_IMAGE_RESILIENCE.md`.
+- Trải nghiệm Create → Share → Open → Reply → Keep trên mobile: năm nút chuyển sang danh sách cuộn ngang với cỡ chữ 13px thay vì ép chữ 11px vào một hàng; không gây tràn ngang trang.
+- Vuốt ngang trên artwork đổi bước khi vượt ngưỡng 48px và rõ ràng theo phương ngang; không chiếm cuộn dọc, không xử lý đa chạm và không tự quay vòng ở đầu/cuối hành trình.
+- Đảm bảo chỉ một nút được Tab tới trong nhóm; vẫn hỗ trợ Arrow, Home, End. Thêm hướng dẫn thao tác song ngữ VI/EN.
+- Bổ sung kiểm thử unit và browser cho vuốt, phím, responsive. Không thay đổi API, Canvas, database, thanh toán hoặc nội dung thiệp.
 
 **Các commit gần nhất trên `main`:**
 
-- `3f877b3` — feat: improve Recipient image loading resilience (2026-11-21)
-- `970a3cb` — feat: complete Recipient Canvas Player UX (2026-11-21)
-- `3b44d9a` — test: fix Canvas focus assertion ESLint scope (2026-11-21)
-- `b03f7e5` — feat: enhance Sender sharing and Recipient journey UX (2026-11-21)
-- `d8f6992` — fix: make creator review feedback visible and test it (2026-11-21)
-- `c483944` — feat: improve Admin and Creator dashboard UX (2026-11-21)
+- `51f3431` — feat: improve marketing journey mobile interactions (2026-11-22)
+- `57008bf` — fix: keep marketing hero indicators below artwork on mobile (2026-11-22)
+- `3930b34` — perf: add repeatable marketing lab reports and comparison (2026-11-22)
+- `5f714b3` — test: wait for responsive navigation to finish closing (2026-11-22)
+- `ad9d498` — perf: pause offscreen marketing ambiance and add local lab metrics (2026-11-22)
+- `ea0fbef` — perf: batch marketing 3D pointer updates per frame (2026-11-22)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

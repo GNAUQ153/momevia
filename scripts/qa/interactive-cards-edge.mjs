@@ -10,17 +10,18 @@ const api=async(url,body,expected=200)=>{const r=await fetch(base+'/api'+url,{me
 const browser=await chromium.launch({channel:'chrome',headless:true});
 const context=await browser.newContext({viewport:{width:1440,height:1000},locale:'vi-VN',reducedMotion:'no-preference'});
 const [name,...parts]=cookie.split('=');await context.addCookies([{name,value:parts.join('='),url:base}]);
-await context.addInitScript(()=>{
+const bundleMeta='web/assets/app/metafile.json',runtimeChunks=fs.existsSync(bundleMeta)?Object.entries(JSON.parse(fs.readFileSync(bundleMeta)).outputs).filter(([,r])=>Object.keys(r.inputs).some(file=>file.includes('/features/gift-runtime/'))).map(([file])=>file.replace(/^web/,'')):[];
+await context.addInitScript(runtimeChunks=>{
  globalThis.localStorage.setItem('momevia-locale','vi');globalThis.__motionCalls=[];
  globalThis.__giftTimers=new Set();globalThis.__giftAnimations=new Set();
  const nativeTimeout=globalThis.setTimeout,nativeClear=globalThis.clearTimeout,nativeInterval=globalThis.setInterval,nativeClearInterval=globalThis.clearInterval;
- const owned=()=>new Error().stack.includes('/features/gift-runtime/');
+ const owned=()=>{const stack=new Error().stack;return stack.includes('/features/gift-runtime/')||runtimeChunks.some(file=>stack.includes(file));};
  globalThis.setTimeout=(callback,ms,...args)=>{const mine=owned();if(typeof callback!=='function')return nativeTimeout(callback,ms,...args);let id;id=nativeTimeout(()=>{globalThis.__giftTimers.delete(id);callback(...args);},ms);if(mine)globalThis.__giftTimers.add(id);return id;};
  globalThis.clearTimeout=id=>{globalThis.__giftTimers.delete(id);nativeClear(id);};
  globalThis.setInterval=(callback,ms,...args)=>{const id=nativeInterval(callback,ms,...args);if(owned())globalThis.__giftTimers.add(id);return id;};
  globalThis.clearInterval=id=>{globalThis.__giftTimers.delete(id);nativeClearInterval(id);};
  const animate=globalThis.Element.prototype.animate;globalThis.Element.prototype.animate=function(frames,options){globalThis.__motionCalls.push({id:this.closest('[data-runtime-element]')?.dataset.runtimeElement,effect:this.dataset.giftEffect,frames,options,at:globalThis.performance.now()});const animation=animate.call(this,frames,options);if(owned()){globalThis.__giftAnimations.add(animation);animation.finished.catch(()=>{}).finally(()=>globalThis.__giftAnimations.delete(animation));}return animation;};
-});
+},runtimeChunks);
 const page=await context.newPage();
 try{
  // Actual Studio inspector: choose, replay on the selected image, off, undo,

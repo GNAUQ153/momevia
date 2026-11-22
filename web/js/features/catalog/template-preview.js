@@ -1,4 +1,5 @@
 import { RESTYLE_PAIRS } from '../../shared/canvas/template-slots.js';
+import {ensureFullStyles} from '../../core/client-styles.js';
 import { attr, createLocaleControl, message, onLocaleChange, setAttr, text, t } from '../../core/i18n.js';
 import { isSystemTemplate } from '../../shared/template-copy.js';
 import { templateField, templateValue } from './template-copy.js';
@@ -18,7 +19,7 @@ export function mountTemplatePreview(host, template, { api, onOpen, autoOpen = f
   if (RESTYLE_PAIRS[template.id]) {
     const button=document.createElement('button');button.className='btn btn--outline';button.textContent=t('restyle.trial');
     host.querySelector('.detail-start-actions')?.append(button);
-    button.addEventListener('click',async()=>{const {openTemplateTrial}=await import('./template-trial.js');await openTemplateTrial({templateId:template.id,request:(url,body)=>body?api.post(url,body):api.get(url),navigate:path=>{location.href=path;}});});
+    button.addEventListener('click',async()=>{const [{openTemplateTrial}]=await Promise.all([import('./template-trial.js'),ensureFullStyles()]);await openTemplateTrial({templateId:template.id,request:(url,body)=>body?api.post(url,body):api.get(url),navigate:path=>{location.href=path;}});});
   }
   const dialog = host.querySelector('.template-preview-dialog');
   const close = dialog.querySelector('[data-template-close]');
@@ -60,12 +61,14 @@ export function mountTemplatePreview(host, template, { api, onOpen, autoOpen = f
         import('../gift-runtime/index.js'),
         endpoint
           ? api.get(endpoint, { signal }).then(({ version }) => version.document)
-          : import('../../shared/canvas/presets.js'),
+          : api.get(`/designs/library/templates/${encodeURIComponent(template.id)}/preview`,{signal}),
+        ensureFullStyles(),
       ]);
       if (signal.aborted || !dialog.open) return;
-      localizedPreview = isSystemTemplate(template) ? source.templatePreviewDocument : null;
+      const previewCopy=()=>structuredClone(source.documents[document.documentElement.lang==='en'?'en':'vi']);
+      localizedPreview = !endpoint&&isSystemTemplate(template) ? previewCopy : null;
       player = mountPlayer(playerHost, {
-        document: endpoint ? source : source.templatePreviewDocument(template, isSystemTemplate(template) ? t : undefined),
+        document: endpoint ? source : previewCopy(),
         mode: 'preview',
         assetUrl: endpoint ? id => `/api${endpoint}/assets/${encodeURIComponent(id)}` : eventMediaUrl,
       });

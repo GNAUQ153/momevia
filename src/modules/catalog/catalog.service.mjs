@@ -23,6 +23,7 @@ export function publicTemplate(template) {
   const view = Object.fromEntries(publicFields.filter(key => Object.hasOwn(template, key)).map(key => [key, template[key]]));
   if (template.creatorId === 'system' && template.creator === 'Momevia Originals' && !template.versionId && !template.creatorDesignId)
     view.systemOwned = true;
+  if (view.systemOwned && librarySnapshot()?.items.some(row=>row.kind==='template'&&row.id===template.id&&row.status==='active')) view.coverRevision=librarySnapshot().revision;
   if (template.versionId) {
     view.versionId = template.versionId;
     const version = template.versions.find(item => item.id === template.versionId);

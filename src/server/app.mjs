@@ -94,7 +94,7 @@ export async function createHttpApp(config = environment(), { paymentProviders, 
   });
   const modules = { identity, catalog, checkout, gifts, support, designs };
 
-  const server = (tlsOptions ? https : http).createServer({ ...serverTimeouts, ...tlsOptions }, (req, res) => {
+  const server = (tlsOptions ? https : http).createServer({ ...serverTimeouts, ...tlsOptions }, async (req, res) => {
     try {
       const url = new URL(req.url, config.baseUrl);
       const matching = prefixes.find(([prefix]) => url.pathname === prefix || url.pathname.startsWith(`${prefix}/`));
@@ -119,7 +119,16 @@ export async function createHttpApp(config = environment(), { paymentProviders, 
       if (!['GET', 'HEAD'].includes(req.method)) {
         res.writeHead(405); return res.end();
       }
-      staticFile(req, res, url, staticOptions);
+      let publicCatalog;
+      if(req.method==='GET'){
+        const detail=url.pathname.match(/^\/template\/([^/]+)\/?$/);
+        try{
+          if(/^\/explore\/?$/.test(url.pathname))publicCatalog={endpoint:'/catalog/templates',data:{templates:await catalog.service.publicList()}};
+          else if(detail)publicCatalog={endpoint:`/catalog/templates/${detail[1]}`,data:{template:await catalog.service.publicOne(decodeURIComponent(detail[1]))}};
+          if(publicCatalog&&Buffer.byteLength(JSON.stringify(publicCatalog))>65536)publicCatalog=undefined;
+        }catch{/* The app retains its normal API retry/error path. */}
+      }
+      staticFile(req, res, url, {...staticOptions,publicCatalog});
     } catch (error) {
       sendError(res, error);
     }

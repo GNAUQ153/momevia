@@ -1,0 +1,2 @@
+PASS real MySQL existing library: interruption, retry, Admin conflict, reviewed revision rollback, history
+PASS tests/integration/canvas-mysql-api.mjs

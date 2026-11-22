@@ -177,6 +177,16 @@ try{
     assert.equal(JSON.stringify((await json('/api/catalog/templates')).templates),originals);
   });
   let extendedCards;
+  await check('Public preview returns only one published DB template, both locales and pinned definitions',async()=>{
+    const {templatePreviewDocument}=await import(pathToFileURL(path.join(fixture,'web/js/shared/canvas/presets.js'))),{serverText}=await import(pathToFileURL(path.join(fixture,'src/shared/locale.mjs')));
+    for(const id of ['hai-phong-bi','birthday-radiance','proud-of-you','loi-moi-ben-hien','cuon-phim-ngay-ay','ban-do-ngay-ra-truong']){
+      const payload=await json(`/api/designs/library/templates/${id}/preview`);assert.deepEqual(Object.keys(payload),['documents']);
+      const {template}=await json(`/api/catalog/templates/${id}`);
+      for(const locale of ['vi','en'])assert.deepEqual(payload.documents[locale],templatePreviewDocument(template,(key,values)=>serverText(locale,key,values)));
+    }
+    await admin.execute("UPDATE templates SET status='pending' WHERE id='birthday-radiance'");
+    try{assert.equal((await request('/api/designs/library/templates/birthday-radiance/preview')).status,404);}finally{await admin.execute("UPDATE templates SET status='published' WHERE id='birthday-radiance'");}
+  });
   await check('V2 on MySQL: three published QA cards, nested album media, ACL and revoke', async () => {
     ({cards:extendedCards} = await runExpandedApi(base, cookie, otherCookie, { artifacts: artifacts && path.join(artifacts,'qa-gifts') }));
   });

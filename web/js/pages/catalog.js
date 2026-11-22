@@ -85,7 +85,7 @@ export function createCatalogViews({
       </summary>
       <button type="button" class="seasonal-shelf__hint" data-action="filter-seasonal">${text("catalog.seasonal.action")}</button>
       <div class="seasonal-shelf__grid">${seasonal.map(template => `<a class="seasonal-shelf__card" href="/template/${encodeURIComponent(template.id)}" data-link>
-        <img ${templateCover(template.id)} width="390" height="844" loading="lazy" ${attr('alt', 'catalog.seasonal.cover', { title: templateValue(template, 'title') })}/>
+        <img ${templateCover(template)} width="390" height="844" loading="lazy" ${attr('alt', 'catalog.seasonal.cover', { title: templateValue(template, 'title') })}/>
         <div><span>${isInSeason(template) ? text('catalog.seasonal.inSeason') : template.season ? templateField(template, 'season') : text('catalog.seasonal.collection')}</span><strong>${templateField(template, 'title')}</strong></div>
       </a>`).join('')}</div>
     </details>`;
@@ -142,7 +142,7 @@ export function createCatalogViews({
           ${buttonLink(`/create/${encodeURIComponent(template.id)}?mode=layout${version}`, template.personalization?.layout === false ? text("catalog.detail.viewLayout") : text("catalog.detail.editLayout"), "detail-text-action", false)}
           <button type="button" class="btn detail-text-action" data-action="report-content" data-kind="template" data-id="${e(template.id)}">${text("catalog.detail.report")}</button>
         </div>
-        </div><div class="detail-art">${artwork(template, "artwork--detail")}</div>
+        </div><div class="detail-art">${artwork(template, "artwork--detail",{eager:true})}</div>
       </div>
       ${templatePreviewDialog(template)}
     </div></section>`;

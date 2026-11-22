@@ -1,4 +1,4 @@
-import { createDocument } from '../../../web/js/shared/canvas/presets.js';
+import { createDocument,templatePreviewDocument } from '../../../web/js/shared/canvas/presets.js';
 import { serverText } from '../../shared/locale.mjs';
 import { RESTYLE_PAIRS } from '../../../web/js/shared/canvas/template-slots.js';
 import { previewRestyle, createRestyle } from './restyle.mjs';
@@ -19,6 +19,13 @@ export function registerDesignRoutes(router, { service, assets, resolveUser, con
   const writeUser = async req => { const actor = await user(req); if (!writeLimit.consume(actor.sub)) throw canvasError(429, 'CANVAS_RATE_LIMIT', 'Bạn thao tác quá nhanh. Thử lại sau.'); return actor; };
   router.on('GET', '/health', ({ res }) => sendJson(res, 200, { name: 'designs', ok: true, profile: service.profile, capabilities: service.flags }));
   router.on('GET', '/library', async ({ res }) => sendJson(res, 200, { library: await service.library.refresh() }));
+  router.on('GET', '/library/templates/:id/preview', async ({res,params})=>{
+    await service.library.refresh();
+    const template=await service.catalog.getTemplate(params.id);
+    if(template.versionId)throw canvasError(404,'LIBRARY_ITEM_NOT_FOUND','Use the approved Creator version preview.');
+    const documents=Object.fromEntries(['vi','en'].map(locale=>[locale,templatePreviewDocument(template,(key,values)=>serverText(template.systemOwned?locale:'vi',key,values))]));
+    sendJson(res,200,{documents});
+  });
   router.on('GET', '/library/templates/:id/cover', async ({ res, params, url }) => {
     const svg = await service.library.cover(params.id, url.searchParams.get('locale') === 'en' ? 'en' : 'vi');
     res.writeHead(200, { 'content-type': 'image/svg+xml; charset=utf-8', 'cache-control': 'no-store', 'x-content-type-options': 'nosniff' });

@@ -1,0 +1,8 @@
+
+> momevia-mvp@1.1.0 test:templates
+> node tests/integration/template-library.mjs
+
+PASS Current JSON API: 28 templates create/save/reload, free publications, paid license gate, 28 SVG covers.
+PASS Existing JSON catalog: appended 16 missing templates and preserved all 12 originals.
+PASS English template search and cover, localized draft revision 1, stable source version and locale across retry.
+PASS Cached-v1 fixture: updated client materializes template through real CAS; lost ACK retries identical key/body; latest draft edits/source/policy survive.

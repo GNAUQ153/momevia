@@ -7,7 +7,7 @@ import { personalizationText, templateCover, templateField, templateValue } from
 export function createComponents({ state }) {
   function artwork(template, variant = "", { eager = false } = {}) {
     const loading = eager ? 'eager' : 'lazy';
-    if (isSystemTemplate(template)) return `<div class="artwork artwork--${e(template.theme)} artwork--canvas ${variant}"><img ${templateCover(template.id)} ${attr('alt', 'catalog.artwork.systemAlt', { title: templateValue(template, 'title') })} width="390" height="844" loading="${loading}"/></div>`;
+    if (isSystemTemplate(template)) return `<div class="artwork artwork--${e(template.theme)} artwork--canvas ${variant}"><img ${templateCover(template,{defer:!eager})} ${attr('alt', 'catalog.artwork.systemAlt', { title: templateValue(template, 'title') })} width="390" height="844" loading="${loading}" ${eager?'fetchpriority="high"':''}/></div>`;
     if (template.thumbnail) return `<div class="artwork artwork--${e(template.theme)} artwork--canvas ${variant}"><img src="${e(template.thumbnail)}" ${attr('alt', 'catalog.artwork.creatorAlt', { title: template.title })} width="390" height="844" loading="${loading}"/></div>`;
     const theme = e(template.theme || "violet");
     const title = template.title ? e(template.title) : text('catalog.artwork.fallbackTitle');

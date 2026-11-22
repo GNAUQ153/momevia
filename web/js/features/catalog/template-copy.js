@@ -2,6 +2,7 @@ import { attr, t, text } from '../../core/i18n.js';
 import { escapeHtml as e } from '../../shared/locale.js';
 import { templateFieldKey } from '../../shared/template-copy.js';
 import { libraryEntry, librarySnapshot } from '../../shared/canvas/library-state.js';
+import {catalogCoverRevision} from '../../core/catalog-bootstrap.js';
 
 export function templateField(template, field) {
   const key = templateFieldKey(template, field);
@@ -19,9 +20,13 @@ export function templateSearchFields(template) {
 }
 
 const coverRevision = 7;
-export function templateCover(id) {
-  if (libraryEntry('template', id)) return attr('src', 'templates.assets.databaseCover', { id: encodeURIComponent(id), revision: librarySnapshot().revision });
-  return attr('src', 'templates.assets.cover', { id: encodeURIComponent(id), revision: coverRevision });
+export function templateCover(template,{defer=false}={}) {
+  const id=typeof template==='string'?template:template.id;
+  const target=defer?'data-src':'src',marker=defer?' data-cover-lazy':'';
+  const revision=template.coverRevision||catalogCoverRevision(id);
+  if(revision)return attr(target,'templates.assets.databaseCover',{id:encodeURIComponent(id),revision})+marker;
+  if (libraryEntry('template', id)) return attr(target, 'templates.assets.databaseCover', { id: encodeURIComponent(id), revision: librarySnapshot().revision })+marker;
+  return attr(target, 'templates.assets.cover', { id: encodeURIComponent(id), revision: coverRevision })+marker;
 }
 
 export function personalizationText(personalization) {

@@ -1,0 +1,89 @@
+{
+  "branch": "perf/interactive-cards-lcp",
+  "unit": {
+    "pass": 567,
+    "fail": 0,
+    "skipped": 0
+  },
+  "matrix": 96,
+  "journeys": 6,
+  "styleParitySets": 56,
+  "mysqlHttpCases": 21,
+  "merchantE2E": "NOT RUN",
+  "physicalDevice": "NOT RUN",
+  "nativeChromeSmoke": "Catalog, Birthday preview, candle lit, motion off/on; capture extension timed out, supplied images are real headless Chrome captures",
+  "logs": [
+    {
+      "name": "build",
+      "sha256": "dcc811eacdf6bfbc195325de20e50425bb98bd7ef95bbad0a89c088a21b82465",
+      "hashNormalization": "UTF-8/LF",
+      "completedAt": "2026-11-22T10:12:14.595Z"
+    },
+    {
+      "name": "check",
+      "sha256": "4b8f0be21da9b065e6c9dc67af8f96d67fccf2eb24cfec3086209054ace3776f",
+      "hashNormalization": "UTF-8/LF",
+      "completedAt": "2026-11-22T10:11:57.974Z"
+    },
+    {
+      "name": "unit",
+      "sha256": "54bd154b4f5b84efbda7601f117a91138d460020e761ee9d2bb37c0ed93d0f87",
+      "hashNormalization": "UTF-8/LF",
+      "completedAt": "2026-11-22T10:06:57.514Z"
+    },
+    {
+      "name": "templates",
+      "sha256": "1fead74e88ced3c8f14fa728a048a3cdfac7dd49a5dfbd9e87edcacd52c21dcf",
+      "hashNormalization": "UTF-8/LF",
+      "completedAt": "2026-11-22T10:06:56.432Z"
+    },
+    {
+      "name": "canvas-browser",
+      "sha256": "2131e1c0fa1866ccde3e5398b38b1f4fc1ccada648c6097e9ffa0b0a90a4581b",
+      "hashNormalization": "UTF-8/LF",
+      "completedAt": "2026-11-22T10:12:18.010Z"
+    },
+    {
+      "name": "matrix",
+      "sha256": "1230797f157ed259c4f92e6e57aff06e390c2f881311071d0888695e788ca658",
+      "hashNormalization": "UTF-8/LF",
+      "completedAt": "2026-11-22T10:10:15.365Z"
+    },
+    {
+      "name": "loading",
+      "sha256": "b2a7636eb84c459b2af046ec0448d60efab477516cbe9c46ef6ce1dd158a3b30",
+      "hashNormalization": "UTF-8/LF",
+      "completedAt": "2026-11-22T10:07:59.477Z"
+    },
+    {
+      "name": "edge",
+      "sha256": "e72cf016372eb03a699e49dc75b2918bc739f3db34256ccc027d8f74a5b2adc8",
+      "hashNormalization": "UTF-8/LF",
+      "completedAt": "2026-11-22T10:08:18.581Z"
+    },
+    {
+      "name": "mysql-api",
+      "sha256": "7e2be33cbe3b6c5b6659484c43dc9bef7410b77e1170ce267b52dd66e33d3744",
+      "hashNormalization": "UTF-8/LF",
+      "completedAt": "2026-11-22T09:50:18.170Z"
+    },
+    {
+      "name": "final",
+      "sha256": "916bf574db450d3975c1cc8f18f874c420478d35e20e9245f210b1c4f7b262a2",
+      "hashNormalization": "UTF-8/LF",
+      "completedAt": "2026-11-22T10:16:26.374Z"
+    },
+    {
+      "name": "motion",
+      "sha256": "397cbb72d95f80d250b3aa0a73bae8dd26fef69274071749986a34b7ca30d73f",
+      "hashNormalization": "UTF-8/LF",
+      "completedAt": "2026-11-22T10:17:25.375Z"
+    },
+    {
+      "name": "capture",
+      "sha256": "02c458145beda3bb3442e84b4d291c682738e80d95d695344520169ed38bfd39",
+      "hashNormalization": "UTF-8/LF",
+      "completedAt": "2026-11-22T10:09:21.220Z"
+    }
+  ]
+}

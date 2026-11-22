@@ -106,7 +106,11 @@ try {
     assert.equal(await image.text(), fs.readFileSync(path.join(root, `web/assets/basic-templates/${template.id}.svg`), 'utf8'));
   }
   assert.equal(published, templates.filter(template => template.price === 0).length); assert.deepEqual((await current.request('/checkout/orders')).orders, []);
-  const page = await fetch(current.base + '/template/sunny-wishes'); const markup = await page.text(); assert(markup.includes('/css/template-library.css')); assert.doesNotMatch(page.headers.get('content-security-policy'), /unsafe-inline|unsafe-eval/);
+  const page = await fetch(current.base + '/template/sunny-wishes'); const markup = await page.text();
+  const styles=[...markup.matchAll(/<link\b[^>]*rel="stylesheet"[^>]*href="([^"]+)"/g)].map(m=>m[1]);assert(styles.length>0);
+  const sheets=await Promise.all(styles.map(async url=>{const response=await fetch(current.base+url);assert.equal(response.status,200);assert.match(response.headers.get('content-type'),/text\/css/);return response.text();}));
+  assert(sheets.some(css=>css.includes('.template-preview-dialog')),'The actual served stylesheet must contain the preview dialog styles');
+  assert.doesNotMatch(page.headers.get('content-security-policy'), /unsafe-inline|unsafe-eval/);
   console.log('PASS Current JSON API: 28 templates create/save/reload, free publications, paid license gate, 28 SVG covers.');
 
   const addedIds = new Set(addedSystemTemplates.map(template => template.id));

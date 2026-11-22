@@ -1,3 +1,11 @@
+## Unreleased — Tối ưu tải thiệp local (2026-11-22)
+
+- Đóng gói ESM/CSS có hash, tải phần chỉnh sửa/QR/Creator/Admin theo nhu cầu, dùng metadata Catalog công khai trong HTML và tải bìa đúng viewport.
+- Preview đọc riêng tài liệu VI/EN của một mẫu từ server, giữ nguồn DB, definition đã ghim và cùng player; từ chối mẫu chưa công khai.
+- Giữ nguyên artwork và motion; phục vụ đúng font gốc từ local cùng giấy phép, tránh tải thừa latin-ext cho chữ Việt; nén Brotli công khai với gzip fallback.
+- Sửa CSS modal/toast dùng chung và thông báo lỗi tải style có bản dịch. Kiểm thử 567 unit, Chrome đầy đủ, 96 tổ hợp, 56 ca đồng nhất CSS và 21 ca MySQL fixture.
+- Ngưỡng LCP chốt theo yêu cầu là dưới 2,6 giây. Số đo, giới hạn lab và bằng chứng tại `docs/INTERACTIVE_CARDS_LCP.md`; chỉ local, không push/deploy.
+
 ## Unreleased — Thiệp tương tác G0–G5 local (2026-11-22)
 
 - Cải tiến Hai phong bì, Birthday Radiance và Proud of You cho thiết kế mới; thêm Lời mời bên hiên, Cuộn phim ngày ấy và Bản đồ ngày ra trường với nội dung VI/EN, artwork nguyên bản, album tùy chọn và điều hướng đọc được khi giảm chuyển động.

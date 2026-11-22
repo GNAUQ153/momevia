@@ -2,7 +2,7 @@
 
 Đã triển khai trên nhánh `feat/interactive-cards-g0-g5`, xuất phát từ `70f2be0` của `feat/guess-your-choice`. Checkout sạch, có một worktree tại `P:/entrepreneuer/project/momevia` khi bắt đầu. Không có thay đổi của người khác bị ghi đè. Không tìm thấy `KE_HOACH.md` trong checkout/thư mục làm việc được cung cấp; toàn bộ yêu cầu trong prompt là căn cứ triển khai.
 
-Đây là bản bàn giao **local**, chưa phải xác nhận đủ điều kiện phát hành. Đặc biệt, mục tiêu LCP 2,5 giây và thử nghiệm với năm người được ghi trạng thái riêng bên dưới. Không push, deploy, thanh toán, gửi thông báo hoặc cập nhật DB production.
+Đây là bản bàn giao **local**, chưa phải xác nhận đủ điều kiện phát hành. Các số đo LCP bên dưới là lịch sử của đợt G0–G5; xem [đợt tối ưu tiếp với ngưỡng chốt 2,6 giây](INTERACTIVE_CARDS_LCP.md) để có kết quả mới. Thử nghiệm với năm người vẫn có trạng thái riêng bên dưới. Không push, deploy, thanh toán, gửi thông báo hoặc cập nhật DB production.
 
 ## Mở bản chạy
 

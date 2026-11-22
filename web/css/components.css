@@ -532,3 +532,80 @@
 .template-card__bottom span {
   font-size: 12px;
 }
+
+/* Modal và thông báo */
+.modal-backdrop {
+  position: fixed;
+  z-index: 100;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  overflow-y: auto;
+  background: rgba(34,25,43,.62);
+  backdrop-filter: blur(8px);
+}
+.dialog {
+  position: relative;
+  width: min(100%, 455px);
+  padding: 42px;
+  border-radius: 24px;
+  background: white;
+  box-shadow: var(--shadow-elevated);
+}
+.dialog-close {
+  position: absolute;
+  top: 13px;
+  right: 13px;
+}
+/* Kiểu modal xác thực đã chuyển sang auth.css. */
+.qr-modal h2 {
+  margin: 15px 0 10px;
+  font-size: 26px;
+  letter-spacing: -.035em;
+}
+.qr-modal > p {
+  margin: 0 0 22px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.8;
+}
+.toast-host {
+  position: fixed;
+  z-index: 200;
+  right: 24px;
+  bottom: 24px;
+}
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: min(410px, calc(100vw - 48px));
+  padding: 14px 18px;
+  border: 1px solid #bfe3d3;
+  border-radius: 12px;
+  background: #f4fcf6;
+  box-shadow: var(--shadow-elevated);
+  color: #326c50;
+  font-size: 13px;
+  animation: rise-in .25s ease both;
+}
+.toast--error {
+  border-color: #ebc8d0;
+  background: #fff4f6;
+  color: #a43f53;
+}
+.qr-modal {
+  text-align: center;
+}
+.qr-modal > svg {
+  margin: auto;
+  color: #9f80ac;
+}
+.qr-image {
+  width: 260px;
+  height: 260px;
+  margin: 20px auto;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}

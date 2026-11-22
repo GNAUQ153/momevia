@@ -2,7 +2,7 @@ import { createHash, randomUUID } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { validateDocument, canonicalStringify, createDocument, duplicateDocument, assetIds, publicDocument } from '../../../web/js/shared/canvas/index.js';
-import { runtimeVersionFor } from '../../../web/js/shared/canvas/schema.js';
+import { runtimeVersionFor, requiresCanvasV2 } from '../../../web/js/shared/canvas/schema.js';
 import { PREDICTION_KIND } from '../../../web/js/shared/canvas/prediction.js';
 import { photoSlots } from '../../../web/js/shared/canvas/interactions.js';
 import { clearTemplateBindingDefaults, lockedVisibleNames, visibleBindingKeys } from '../../../web/js/shared/canvas/personalization.js';
@@ -173,6 +173,13 @@ export class DesignsService {
       const normalize = input => {
         const comparable = copy(input);
         comparable.assets = [];
+        // Nhạc từ danh mục được phép cá nhân hóa, không mở khóa cấu trúc mẫu.
+        delete comparable.soundtrack;
+        // Với mẫu Canvas V1, chỉ chấp nhận lên V2 nếu thay đổi là nhạc nền.
+        if (current.document.schemaVersion === 1 && comparable.schemaVersion === 2 && !requiresCanvasV2(comparable)) {
+          comparable.schemaVersion = 1;
+          comparable.registryVersion = 1;
+        }
         for (const key of current.policy.editableBindings) comparable.bindings[key].value = '';
         const photo = comparable.elements.find(element => element.id === current.policy.photoId);
         if (photo) photo.props.assetId = null;

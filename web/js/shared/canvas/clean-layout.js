@@ -7,6 +7,8 @@ import { canonicalText } from '../locale.js';
 export function cleanGiftLayout(snapshot, { sharedImages = new Map() } = {}) {
   const document = structuredClone(snapshot);
   clearTemplateBindingDefaults(document);
+  // Tặng lại chỉ giữ bố cục, không mang theo lựa chọn nhạc cá nhân của người gửi trước.
+  delete document.soundtrack;
   document.assets = [];
   document.elements = document.elements.filter(element => element.type !== 'image' || sharedImages.has(element.props.assetId));
   for (const element of document.elements.filter(e => e.type === 'image')) {

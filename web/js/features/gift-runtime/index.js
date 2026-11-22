@@ -5,6 +5,7 @@ import { renderElement, applyLayout, updateElementCopy } from "./renderer.js";
 import { applySurface, createMotion, playAmbience, playElement, playReaction, sceneTransition } from "./effects.js";
 import { playCelebrations } from './celebrations.js';
 import { createSceneNavigation } from './scene-navigation.js';
+import { createSoundtrackPlayback } from './soundtrack.js';
 export { renderElement, applyLayout, resolveText } from "./renderer.js";
 
 export function mountPlayer(
@@ -72,6 +73,31 @@ export function mountPlayer(
   const typewriters = new Set();
   skip.addEventListener("click", () => typewriters.forEach(finish => finish()), { signal: lifetime.signal });
   toolbar.append(motionControl, skip);
+  let soundtrackPlayback = null;
+  if (document.soundtrack) {
+    const musicGroup = globalThis.document.createElement('div');
+    musicGroup.className = 'gift-soundtrack-control';
+    const musicButton = globalThis.document.createElement('button');
+    musicButton.type = 'button';
+    musicButton.className = 'gift-soundtrack-button';
+    musicButton.setAttribute('aria-pressed', 'false');
+    const musicStatus = globalThis.document.createElement('span');
+    musicStatus.className = 'gift-soundtrack-status';
+    musicStatus.setAttribute('role', 'status');
+    const syncMusic = ({ playing, error = false }) => {
+      musicButton.setAttribute('aria-pressed', String(playing));
+      setText(musicButton, message(playing ? 'gift.music.pause' : 'gift.music.play'));
+      setText(musicStatus, error ? message('gift.music.error') : message('gift.music.optIn'));
+    };
+    soundtrackPlayback = createSoundtrackPlayback(document.soundtrack, { onState: syncMusic });
+    syncMusic({ playing: false });
+    musicButton.addEventListener('click', () => { void soundtrackPlayback.toggle(); }, { signal: lifetime.signal });
+    globalThis.document.addEventListener('visibilitychange', () => {
+      if (globalThis.document.hidden) soundtrackPlayback.pause();
+    }, { signal: lifetime.signal });
+    musicGroup.append(musicButton, musicStatus);
+    toolbar.append(musicGroup);
+  }
   const updateMotionControl = () => {
     motionControl.setAttribute("aria-pressed", String(!motion.enabled()));
     motionControl.disabled = preference.matches;
@@ -85,7 +111,7 @@ export function mountPlayer(
   preference.addEventListener("change", updateMotionControl, {signal:lifetime.signal});
   updateMotionControl();
   shell.append(marker, stage, progress, navigation, status);
-  if (document.schemaVersion === 2 && (document.scenes.some(scene => scene.effects) || document.elements.some(element => element.effects)))
+  if (document.soundtrack || (document.schemaVersion === 2 && (document.scenes.some(scene => scene.effects) || document.elements.some(element => element.effects))))
     shell.insertBefore(toolbar, stage);
   root.replaceChildren(shell);
   const size = document.artboard.baseSize;
@@ -289,6 +315,7 @@ export function mountPlayer(
       if (disposed) return;
       disposed = true;
       lifetime.abort();
+      soundtrackPlayback?.dispose();
       navigationIntent?.abort();
       sceneController?.abort();
       resizeObserver?.disconnect();

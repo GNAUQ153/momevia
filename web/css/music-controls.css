@@ -1,0 +1,113 @@
+/* Music UI: không autoplay, dùng lại typography và token Momevia. */
+.editor-music-card {
+  display: grid;
+  gap: 12px;
+  margin-top: 18px;
+  padding: 18px;
+  border: 1px solid var(--ui-panel-border);
+  border-radius: 18px;
+  background: linear-gradient(145deg, #ffffff, #f4efff);
+  box-shadow: var(--shadow-soft);
+  font-family: var(--font-body);
+}
+.editor-music-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.editor-music-heading h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.075rem;
+  line-height: 1.45;
+  color: var(--ink);
+}
+.editor-music-caption {
+  font-size: 0.8125rem;
+  color: var(--purple-deep);
+  font-weight: 600;
+}
+.editor-music-help {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+.editor-music-card select,
+.editor-music-preview {
+  min-height: 44px;
+  font-size: 0.9375rem;
+  font-family: var(--font-body);
+}
+.editor-music-preview {
+  border: 1px solid var(--purple);
+  border-radius: 12px;
+  background: #ffffff;
+  color: var(--purple-deep);
+  font-weight: 650;
+  cursor: pointer;
+  transition: transform var(--ui-transition), box-shadow var(--ui-transition);
+}
+.editor-music-preview:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 7px 18px rgba(73, 36, 172, 0.13);
+}
+.editor-music-preview:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.gift-soundtrack-control {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+  font-family: var(--font-body);
+}
+.gift-soundtrack-button {
+  min-height: 44px;
+  padding: 10px 18px;
+  border: 1px solid var(--purple);
+  border-radius: 999px;
+  background: #ffffff;
+  color: var(--purple-deep);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform var(--ui-transition), background var(--ui-transition);
+}
+.gift-soundtrack-button:hover {
+  transform: translateY(-2px);
+  background: #f2eaff;
+}
+.gift-soundtrack-status {
+  font-size: 0.8125rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+.editor-music-preview:focus-visible,
+.gift-soundtrack-button:focus-visible {
+  outline: 3px solid var(--ui-focus-ring);
+  outline-offset: 3px;
+}
+@media (max-width: 640px) {
+  .editor-music-card {
+    padding: 14px;
+    border-radius: 14px;
+  }
+  .gift-soundtrack-control {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .editor-music-preview,
+  .gift-soundtrack-button {
+    transition: none;
+  }
+  .editor-music-preview:hover,
+  .gift-soundtrack-button:hover {
+    transform: none;
+  }
+}

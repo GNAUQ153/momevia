@@ -56,6 +56,8 @@ import { cropEditor } from "../features/canvas-editor/crop.js";
 import { canOpenAdvancedEditor, scenePositionLabel, selectionDescription } from "../features/canvas-editor/editor-experience.js";
 import { canStartInlineFabric, assertInlineFabricRevision } from "../features/canvas-editor/fabric-inline.js";
 import { icon } from "../ui/icons.js";
+import { SOUNDTRACKS } from '../shared/canvas/soundtracks.js';
+import { createSoundtrackPlayback } from '../features/gift-runtime/soundtrack.js';
 import {
   node,
   button,
@@ -99,6 +101,7 @@ export function mountDesigner(
     assetPending = false,
     publishing = false,
     snap = true;
+  let musicPreview = null;
   let unsubscribe = null,
     preview = null,
     closePreview = null,
@@ -487,6 +490,22 @@ export function mountDesigner(
             design.source.templateId === MEMORY_TEMPLATE_ID ? button(message("editor.quick.removePhoto"), "remove-frame-photo", { hidden: true }) : null,
           ),
         ),
+        design.purpose !== 'creator' ? node('section', { class: 'editor-music-card', 'aria-label': message('editor.music.title') },
+          node('div', { class: 'editor-music-heading' },
+            node('h3', {}, message('editor.music.title')),
+            node('span', { class: 'editor-music-caption' }, message('editor.music.badge')),
+          ),
+          node('p', { class: 'editor-music-help' }, message('editor.music.help')),
+          select(message('editor.music.choice'), 'soundtrack', store.get().document.soundtrack?.id || '', [
+            ['', message('editor.music.none')],
+            ...SOUNDTRACKS.map(track => [track.id, message(track.titleKey)]),
+          ]),
+          button(message('editor.music.listen'), 'soundtrack-preview', {
+            class: 'editor-music-preview',
+            disabled: !store.get().document.soundtrack,
+          }),
+          node('p', { class: 'editor-music-help' }, message('editor.music.privacy')),
+        ) : null,
         node("p", { class: "editor-help editor-layout-only" },
           message("editor.quick.bindingsHelp"),
         ),
@@ -1226,6 +1245,18 @@ export function mountDesigner(
     const title = main.querySelector(".editor-title");
     if (title && title !== document.activeElement)
       title.value = store.get().title;
+    const soundtrackId = doc.soundtrack?.id || '';
+    const musicSelect = main.querySelector('[data-editor-field="soundtrack"]');
+    if (musicSelect && musicSelect !== document.activeElement) musicSelect.value = soundtrackId;
+    if (musicPreview && musicPreview.track.id !== soundtrackId) {
+      musicPreview.dispose();
+      musicPreview = null;
+    }
+    const previewButton = main.querySelector('[data-editor-action="soundtrack-preview"]');
+    if (previewButton) {
+      previewButton.disabled = !soundtrackId;
+      setText(previewButton, message(musicPreview?.playing ? 'editor.music.stop' : 'editor.music.listen'));
+    }
     updateCanvasGuidance();
   }
   async function initialize(loaded) {
@@ -1234,6 +1265,8 @@ export function mountDesigner(
     unsubscribe?.();
     session?.dispose();
     stage?.dispose();
+    musicPreview?.dispose();
+    musicPreview = null;
     design = loaded;
     if (id && !templateId && !["quick", "layout"].includes(mode)) {
       try { quickMode = localStorage.getItem(modeKey(id)) === "quick"; } catch { /* Optional cache. */ }
@@ -2017,6 +2050,20 @@ export function mountDesigner(
       await initialize(current);
       return;
     }
+    if (name === 'soundtrack-preview') {
+      const selectedTrack = store?.get().document.soundtrack;
+      if (!selectedTrack) return;
+      if (!musicPreview) musicPreview = createSoundtrackPlayback(selectedTrack, {
+        onState: ({ playing, error }) => {
+          if (disposed) return;
+          const control = main.querySelector('[data-editor-action="soundtrack-preview"]');
+          if (control) setText(control, message(playing ? 'editor.music.stop' : 'editor.music.listen'));
+          if (error) toast(t('gift.music.error'), 'error');
+        },
+      });
+      if (musicPreview) await musicPreview.toggle();
+      return;
+    }
     if (name === "save" || name === "retry-save") {
       await flushSave({ force: Boolean(design.reviewTemplateDefaults) });
       return;
@@ -2386,6 +2433,20 @@ export function mountDesigner(
     }
     if (key === "snap") {
       snap = control.checked;
+      return;
+    }
+    if (key === 'soundtrack') {
+      musicPreview?.dispose();
+      musicPreview = null;
+      commit(next => {
+        if (control.value) next.document.soundtrack = { id: control.value, volume: 0.55 };
+        else delete next.document.soundtrack;
+      }, t('editor.history.selectMusic'));
+      const listen = main.querySelector('[data-editor-action="soundtrack-preview"]');
+      if (listen) {
+        listen.disabled = !control.value;
+        setText(listen, message('editor.music.listen'));
+      }
       return;
     }
     if (key === "upload" || key === "quick-photo" || key === 'event-photo') {
@@ -2767,6 +2828,7 @@ export function mountDesigner(
       if (inlineFabricSession?.dialog) dialogs.delete(inlineFabricSession.dialog);
       inlineFabricSession?.close();
       lifecycle.abort();
+      musicPreview?.dispose();
       session?.dispose();
       unsubscribe?.();
       stageObserver?.disconnect();

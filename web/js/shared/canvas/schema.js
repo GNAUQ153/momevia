@@ -1,4 +1,5 @@
 import { registry, STICKERS, FONT_TOKENS, BINDINGS, LIMITS } from './registry.js';
+import { soundtrackById } from './soundtracks.js';
 import { lines, masks, originalStickerIds, shapes } from './artwork.js';
 import { predictionFields, normalizeChoice } from './prediction.js';
 import { interactionKinds, photoSlots } from './interactions.js';
@@ -7,7 +8,7 @@ import { validatePortableEffect, validateVector } from './library-contract.js';
 
 export const CANVAS_VERSIONS = Object.freeze([1, 2]);
 export const runtimeVersionFor = document => document.schemaVersion;
-export const requiresCanvasV2 = document => document.scenes.some(scene => scene.effects) || document.elements.some(e =>
+export const requiresCanvasV2 = document => Boolean(document.soundtrack) || document.scenes.some(scene => scene.effects) || document.elements.some(e =>
   e.type === 'interaction' || e.effects || e.artwork ||
   ['dropCap', 'pattern', 'mask', 'optional', 'caption'].some(key => own(e.props, key)) ||
   (e.type === 'sticker' && !originalStickerIds.includes(e.props.stickerId)) ||
@@ -158,7 +159,12 @@ export function validateDocument(document, { mode = 'draft', requiredBindings = 
   preflightTree(document);
   const serialized = JSON.stringify(document);
   if (new TextEncoder().encode(serialized).length > LIMITS.documentBytes) fail('document', 'Thiết kế vượt giới hạn 256 KiB.', 'DOCUMENT_BUDGET');
-  object(document, 'document', ['schemaVersion', 'registryVersion', 'artboard', 'entrySceneId', 'bindings', 'assets', 'scenes', 'elements', 'responsive'], ['schemaVersion', 'registryVersion', 'artboard', 'entrySceneId', 'bindings', 'assets', 'scenes', 'elements', 'responsive']);
+  object(document, 'document', ['schemaVersion', 'registryVersion', 'artboard', 'entrySceneId', 'bindings', 'assets', 'scenes', 'elements', 'responsive', 'soundtrack'], ['schemaVersion', 'registryVersion', 'artboard', 'entrySceneId', 'bindings', 'assets', 'scenes', 'elements', 'responsive']);
+  if (own(document, 'soundtrack')) {
+    object(document.soundtrack, 'soundtrack', ['id', 'volume'], ['id', 'volume']);
+    if (!soundtrackById(document.soundtrack.id)) fail('soundtrack.id', 'Bài nhạc không thuộc thư viện đã duyệt.', 'SOUNDTRACK_NOT_ALLOWED');
+    number(document.soundtrack.volume, 'soundtrack.volume', 0, 1);
+  }
   enumeration(document.schemaVersion, 'schemaVersion', CANVAS_VERSIONS);
   enumeration(document.registryVersion, 'registryVersion', [document.schemaVersion]);
   object(document.artboard, 'artboard', ['baseSize', 'layoutMode', 'safeInsets'], ['baseSize', 'layoutMode', 'safeInsets']);
@@ -271,6 +277,7 @@ export function publicDocument(document) {
   return {
     schemaVersion: d.schemaVersion, registryVersion: d.registryVersion, artboard: d.artboard, entrySceneId: d.entrySceneId,
     bindings: d.bindings, assets: d.assets.filter(a => used.has(a.assetId)), scenes: d.scenes,
+    ...(d.soundtrack ? { soundtrack: d.soundtrack } : {}),
     elements: d.elements.map(e => ({ id: e.id, type: e.type, elementVersion: e.elementVersion, layout: e.layout, props: e.props, accessibility: e.accessibility, ...(e.actions ? { actions: e.actions } : {}), ...(e.effects ? { effects: e.effects } : {}), ...(e.artwork ? { artwork: e.artwork } : {}), ...(own(e, 'visible') ? { visible: e.visible } : {}), ...(own(e, 'opacity') ? { opacity: e.opacity } : {}) })),
     responsive: d.responsive,
   };

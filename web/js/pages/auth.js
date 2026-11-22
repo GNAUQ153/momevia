@@ -18,11 +18,11 @@ export function createAuthViews({ state, buttonLink }) {
         ? `<a class="auth-social" href="/api/auth/${id}" data-auth-provider="${id}" ${attr("aria-label", registering ? "auth.providers.registerWith" : "auth.providers.signInWith", { provider: label })}>${content}</a>`
         : `<button type="button" class="auth-social auth-social--disabled" data-auth-provider="${id}" disabled ${attr("aria-label", "auth.providers.notEnabled", { provider: label })} ${attr("title", "auth.providers.notEnabled", { provider: label })}>${content}</button>`;
     };
-    const socialSection = `<div class="auth-oauth" ${attr("aria-label", "auth.providers.title")}>
+    const socialSection = `<div class="auth-oauth" role="group" ${attr("aria-label", "auth.providers.title")}>
       <div class="auth-buttons">${providers.map(providerButton).join("")}</div>
       ${providers.some(provider => !provider.enabled) ? `<p class="auth-provider-note" role="status">${text("auth.providers.unavailableHint")}</p>` : ""}
     </div>
-    <div class="auth-divider" role="separator"><span>${text("auth.providers.emailInstead")}</span></div>`;
+    <div class="auth-divider" role="separator"><span>${text(registering ? "auth.providers.orRegister" : "auth.providers.orLogin")}</span></div>`;
     const passwordField = (
       name,
       label,
@@ -47,6 +47,7 @@ export function createAuthViews({ state, buttonLink }) {
           <h2>${text("auth.showcase.lineOne")}<br/><em>${text("auth.showcase.lineTwo")}</em></h2>
           <p>${text("auth.showcase.description")}</p>
           <div class="auth-showcase__benefits"><span>${icon("check-circle", 17)} ${text("auth.showcase.personal")}</span><span>${icon("check-circle", 17)} ${text("auth.showcase.favorites")}</span></div>
+          <a class="auth-showcase__explore" href="/explore" data-link>${text("shell.nav.explore")} ${icon("arrow", 16)}</a>
         </div>
       </aside>
       <div class="auth-panel">
@@ -55,7 +56,6 @@ export function createAuthViews({ state, buttonLink }) {
           <span class="auth-panel__welcome">${registering ? text("auth.register.badge") : text("auth.login.badge")}</span></div>
         <div class="auth-panel__intro"><h1 id="auth-page-title">${registering ? text("auth.register.title") : text("auth.login.title")}</h1>
           <p class="auth-lead">${registering ? text("auth.register.lead") : text("auth.login.lead")}</p></div>
-        ${socialSection}
         <form id="${registering ? "register-form" : "email-login-form"}" class="auth-form" ${attr("aria-label", registering ? "auth.register.form" : "auth.login.form")}>
           ${registering
         ? `<label class="auth-field"><span class="auth-field__label">${text("auth.fields.fullName")} <span class="auth-required" aria-hidden="true">*</span></span>
@@ -70,6 +70,7 @@ export function createAuthViews({ state, buttonLink }) {
           <p class="auth-inline-error" role="alert" hidden></p>
           <button class="btn btn--dark btn--wide auth-submit" type="submit"><span>${text(registering ? "auth.register.submit" : "shell.pages.login")}</span>${icon("arrow", 18)}</button>
         </form>
+        ${socialSection}
         ${registering ? `<p class="auth-switch">${text("auth.register.haveAccount")} <a href="/login" data-link>${text("auth.login.switch")}</a></p>` : `<p class="auth-switch auth-switch--signup">${text("auth.login.noAccount")} <a href="/register" data-link>${text("auth.register.switch")}</a></p>`}
         <p class="auth-policy-note">${text("auth.policies.prefix")} <a href="/policies/general" data-link>${text("auth.policies.general")}</a> ${text("auth.policies.conjunction")} <a href="/policies/privacy" data-link>${text("shell.footer.privacy")}</a>.</p>
         <button type="button" class="btn btn--outline auth-support" data-action="support">${text("common.actions.support")}</button>

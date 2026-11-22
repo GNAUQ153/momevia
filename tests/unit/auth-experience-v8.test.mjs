@@ -66,7 +66,7 @@ test('Luồng Login/Register giữ form, quên mật khẩu và chuyển route',
   assert.match(register, /href="\/login" data-link/);
   assert.equal((login.match(/<h1\b/g) || []).length, 1);
   assert.equal((register.match(/<h1\b/g) || []).length, 1);
-  assert.ok(login.indexOf('class="auth-buttons"') < login.indexOf('id="email-login-form"'));
+  assert.ok(login.indexOf('class="auth-buttons"') > login.indexOf('id="email-login-form"'));
 });
 
 test('CSS Auth tập trung vào form một cột, input 16px và điều khiển đủ rộng', () => {

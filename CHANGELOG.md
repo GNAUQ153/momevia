@@ -1,3 +1,10 @@
+## Unreleased — Auth Experience V9: bố cục tối hai cột theo ảnh tham khảo (2026-11-22)
+
+- Thiết kế lại `/login` và `/register` theo bố cục tham chiếu: nền tối tím–mận có lưới mờ, thẻ giới thiệu bên trái, form glass-card bên phải; giữ nhận diện Momevia, font Plus Jakarta Sans/Inter/Lora và chuyển động nhẹ có tùy chọn reduced motion.
+- Trên trang xác thực, thu gọn site header còn logo và bộ chọn VI/EN chung, ẩn navigation/footer dài để form xuất hiện sớm hơn; các route khôi phục mật khẩu và phần còn lại của website không bị thay đổi.
+- Chuyển Google/Zalo xuống sau form như bố cục tham khảo, giữ nguyên OAuth allowlist và trạng thái vô hiệu hóa khi backend chưa cấu hình; giữ link Đăng ký ngay, quên mật khẩu, điều khoản và form hỗ trợ.
+- Tạo regression test V9 về layout, i18n, OAuth, responsiveness, reduced motion và cache CSS; cập nhật bài test V8 theo thứ tự UI mới. Không thay đổi API, database, mật khẩu, session hoặc quyền truy cập.
+
 ## Unreleased — Auth Experience V8: cải thiện form và khôi phục Google/Zalo (2026-11-22)
 
 - Thiết kế lại Login/Register theo layout sáng, tập trung vào form một cột trên desktop và mobile, input 16px, nút 52–54px, khoảng cách/typography đồng bộ, giữ hình 3D hiện có và hỗ trợ reduced motion.

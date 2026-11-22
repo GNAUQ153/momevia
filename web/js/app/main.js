@@ -361,6 +361,8 @@ async function render() {
   document.body.classList.remove("is-designing", "is-playing-gift");
   document.body.classList.toggle("is-home", isHome);
   document.body.classList.toggle("is-auth", isAuth);
+  // Bố cục tối chỉ áp dụng Login/Register; recovery giữ giao diện chung.
+  document.body.classList.toggle("is-auth-entry", /^\/(login|register)\/?$/.test(location.pathname));
   document.documentElement.classList.toggle("m-enter", isHome);
   document.getElementById('announcement').hidden = location.pathname.startsWith('/g/');
   refreshNav();

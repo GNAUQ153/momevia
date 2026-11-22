@@ -11,19 +11,20 @@ const views = providers => createAuthViews({
 });
 const auth = (route, providers) => views(providers).authPage(route);
 
-// Kiểm tra trực tiếp contract giữa /auth/providers và HTML, tránh tạo link OAuth giả.
-test('Google/Zalo luôn có hai lựa chọn trên Login và Register', () => {
-  for (const route of ['login', 'register']) {
-    const html = auth(route, { google: false, zalo: false });
-    assert.equal((html.match(/data-auth-provider="google"/g) || []).length, 1);
-    assert.equal((html.match(/data-auth-provider="zalo"/g) || []).length, 1);
-    assert.equal((html.match(/class="auth-social auth-social--disabled"/g) || []).length, 2);
-    assert.match(html, /role="status"/);
-    assert.match(html, /class="auth-divider"/);
-  }
+test('Login luôn có hai lựa chọn Google/Zalo; Register không hiển thị social login', () => {
+  const login = auth('login', { google: false, zalo: false });
+  assert.equal((login.match(/data-auth-provider="google"/g) || []).length, 1);
+  assert.equal((login.match(/data-auth-provider="zalo"/g) || []).length, 1);
+  assert.equal((login.match(/class="auth-social auth-social--disabled"/g) || []).length, 2);
+  assert.match(login, /role="status"/);
+  assert.match(login, /class="auth-divider auth-divider--social"/);
+
+  const register = auth('register', { google: true, zalo: true });
+  assert.doesNotMatch(register, /data-auth-provider="google"|data-auth-provider="zalo"/);
+  assert.doesNotMatch(register, /class="auth-divider auth-divider--social"/);
 });
 
-test('OAuth chưa kích hoạt không có href hay sự kiện đăng nhập giả', () => {
+test('OAuth chưa kích hoạt ở Login không có href hay sự kiện đăng nhập giả', () => {
   const html = auth('login', { google: false, zalo: false });
   assert.doesNotMatch(html, /href="\/api\/auth\/(google|zalo)"/);
   assert.match(html, /type="button" class="auth-social auth-social--disabled"/);
@@ -31,13 +32,11 @@ test('OAuth chưa kích hoạt không có href hay sự kiện đăng nhập gi�
 });
 
 test('Google/Zalo đã cấu hình dùng đúng OAuth server endpoint, không qua SPA', () => {
-  for (const route of ['login', 'register']) {
-    const html = auth(route, { google: true, zalo: true });
-    assert.match(html, /href="\/api\/auth\/google" data-auth-provider="google"/);
-    assert.match(html, /href="\/api\/auth\/zalo" data-auth-provider="zalo"/);
-    assert.equal((html.match(/class="auth-social" href=/g) || []).length, 2);
-    assert.doesNotMatch(html, /auth-provider-note/);
-  }
+  const html = auth('login', { google: true, zalo: true });
+  assert.match(html, /href="\/api\/auth\/google" data-auth-provider="google"/);
+  assert.match(html, /href="\/api\/auth\/zalo" data-auth-provider="zalo"/);
+  assert.equal((html.match(/class="auth-social" href=/g) || []).length, 2);
+  assert.doesNotMatch(html, /auth-provider-note/);
 });
 
 test('Chỉ bật một phương thức thì chỉ có một liên kết thật', () => {
@@ -48,19 +47,20 @@ test('Chỉ bật một phương thức thì chỉ có một liên kết thật'
   assert.match(html, /auth-provider-note/);
 });
 
-test('Khi chưa tải được trạng thái provider, UI không điều hướng sai', () => {
-  const html = auth('register', undefined);
+test('Khi chưa tải được trạng thái provider, Login không điều hướng sai', () => {
+  const html = auth('login', undefined);
   assert.equal((html.match(/auth-social--disabled/g) || []).length, 2);
   assert.doesNotMatch(html, /href="\/api\/auth\//);
 });
 
-test('Luồng Login/Register giữ form, quên mật khẩu và chuyển route', () => {
+test('Luồng Login/Register giữ form, quên mật khẩu, tối thiểu 8 ký tự và chuyển route', () => {
   const login = auth('login', { google: true, zalo: true });
   const register = auth('register', { google: true, zalo: true });
   assert.match(login, /id="email-login-form"/);
   assert.match(register, /id="register-form"/);
   assert.match(login, /name="password" type="password" autocomplete="current-password"/);
   assert.match(register, /name="confirmPassword" type="password" autocomplete="new-password"/);
+  assert.match(register, /minlength="8"/);
   assert.match(login, /href="\/recover" data-link/);
   assert.match(login, /href="\/register" data-link/);
   assert.match(register, /href="\/login" data-link/);
@@ -81,13 +81,14 @@ test('CSS Auth tập trung vào form một cột, input 16px và điều khiển
   assert.match(css, /@media \(max-width: 460px\)/);
   assert.match(css, /prefers-reduced-motion: reduce/);
   assert.deepEqual(auditCssStyle(css, 'auth-pages.css').errors, []);
-  assert.doesNotMatch(file('web/css/gift.css'), /\.auth-page\b/); // Loại bỏ CSS legacy ghi đè biểu mẫu.
+  assert.doesNotMatch(file('web/css/gift.css'), /\.auth-page\b/);
 });
 
-test('Logo OAuth không tải ảnh từ nguồn khác hoặc dùng emoji', () => {
+test('Logo OAuth dùng inline SVG nội bộ, không tải ảnh từ nguồn khác', () => {
   const source = file('web/js/pages/auth.js');
   assert.doesNotMatch(source, /upload\.wikimedia\.org|gstatic\.com\/firebasejs/);
-  assert.match(source, /auth-provider-symbol--\$\{id\}/);
+  assert.match(source, /auth-provider-logo--google/);
+  assert.match(source, /auth-provider-logo--zalo/);
   assert.doesNotMatch(source, /onclick=/);
 });
 
@@ -95,7 +96,7 @@ test('VI/EN đồng nhất khóa, mô tả rõ phương thức chưa cấu hình
   const vi = JSON.parse(file('web/assets/locales/vi.json'));
   const en = JSON.parse(file('web/assets/locales/en.json'));
   assert.deepEqual(Object.keys(vi), Object.keys(en));
-  for (const key of ['auth.providers.title', 'auth.providers.emailInstead', 'auth.providers.unavailableHint', 'auth.providers.signInWith', 'auth.providers.registerWith']) {
+  for (const key of ['auth.providers.title', 'auth.providers.unavailableHint', 'auth.providers.signInWith', 'auth.providers.orSocialLogin']) {
     assert.ok(vi[key]?.trim());
     assert.ok(en[key]?.trim());
     assert.notEqual(vi[key], en[key]);

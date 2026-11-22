@@ -32,31 +32,33 @@ test("Login đặt CTA Đăng ký ngay cạnh form; Register có liên kết qua
   assert.match(register, /href="\/login" data-link/);
   assert.match(register, /name="name" autocomplete="name"/);
   assert.match(register, /name="confirmPassword" type="password" autocomplete="new-password"/);
+  assert.match(register, /minlength="8"/);
   assert.match(login, /name="email" type="email" autocomplete="email" inputmode="email"/);
   assert.match(login, /autocomplete="current-password"/);
   assert.match(register, /autocomplete="new-password"/);
 });
 
-test("OAuth Google/Zalo luôn được nhận diện, nhưng chỉ có URL khi backend sẵn sàng", () => {
-  for (const route of ["login", "register"]) {
-    const disabled = views().authPage(route);
-    assert.equal((disabled.match(/class="auth-social auth-social--disabled"/g) || []).length, 2);
-    assert.match(disabled, /data-auth-provider="google" disabled/);
-    assert.match(disabled, /data-auth-provider="zalo" disabled/);
-    assert.doesNotMatch(disabled, /href="\/api\/auth\/(google|zalo)"/);
-    assert.match(disabled, /auth-provider-note" role="status"/);
+test("OAuth Google/Zalo chỉ xuất hiện ở Login, và chỉ có URL khi backend sẵn sàng", () => {
+  const disabled = views().authPage("login");
+  assert.equal((disabled.match(/class="auth-social auth-social--disabled"/g) || []).length, 2);
+  assert.match(disabled, /data-auth-provider="google" disabled/);
+  assert.match(disabled, /data-auth-provider="zalo" disabled/);
+  assert.doesNotMatch(disabled, /href="\/api\/auth\/(google|zalo)"/);
+  assert.match(disabled, /auth-provider-note" role="status"/);
 
-    const one = views({ google: true }).authPage(route);
-    assert.equal((one.match(/class="auth-social" href="\/api\/auth\/google"/g) || []).length, 1);
-    assert.match(one, /data-auth-provider="zalo" disabled/);
-    assert.doesNotMatch(one, /href="\/api\/auth\/zalo"/);
+  const one = views({ google: true }).authPage("login");
+  assert.equal((one.match(/class="auth-social" href="\/api\/auth\/google"/g) || []).length, 1);
+  assert.match(one, /data-auth-provider="zalo" disabled/);
+  assert.doesNotMatch(one, /href="\/api\/auth\/zalo"/);
 
-    const two = views({ google: true, zalo: true }).authPage(route);
-    assert.match(two, /href="\/api\/auth\/google"/);
-    assert.match(two, /href="\/api\/auth\/zalo"/);
-    assert.equal((two.match(/class="auth-social" href=/g) || []).length, 2);
-    assert.doesNotMatch(two, /auth-provider-note" role="status"/);
-  }
+  const two = views({ google: true, zalo: true }).authPage("login");
+  assert.match(two, /href="\/api\/auth\/google"/);
+  assert.match(two, /href="\/api\/auth\/zalo"/);
+  assert.equal((two.match(/class="auth-social" href=/g) || []).length, 2);
+  assert.doesNotMatch(two, /auth-provider-note" role="status"/);
+
+  const register = views({ google: true, zalo: true }).authPage("register");
+  assert.doesNotMatch(register, /data-auth-provider="google"|data-auth-provider="zalo"/);
 });
 
 test("Form đủ label, toggle password và báo lỗi truy cập được", () => {

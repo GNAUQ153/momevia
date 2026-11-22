@@ -10,7 +10,7 @@ const makeViews = (user = null) => createAuthViews({
   buttonLink: (href, label) => `<a href="${href}">${label}</a>`,
 });
 
-test("Login có một CTA Đăng ký ngay, dẫn đúng /register và nằm trước social login", () => {
+test("Login có một CTA Đăng ký ngay, dẫn đúng /register và giữ social login riêng phía dưới", () => {
   const html = makeViews().authPage("login");
   assert.match(html, /auth-switch auth-switch--signup/);
   assert.match(html, /href="\/register" data-link/);
@@ -18,18 +18,20 @@ test("Login có một CTA Đăng ký ngay, dẫn đúng /register và nằm trư
   assert.match(html, /Đăng ký ngay/);
   assert.equal((html.match(/href="\/register"/g) || []).length, 1);
   assert.ok(html.indexOf("auth-switch--signup") > html.indexOf("email-login-form"));
-  assert.match(html, /class="auth-divider"/); // Giữ vị trí OAuth, không tạo liên kết giả khi chưa cấu hình.
+  assert.match(html, /class="auth-divider auth-divider--social"/);
   assert.equal((html.match(/class="auth-social auth-social--disabled"/g) || []).length, 2);
   assert.match(html, /href="\/recover" data-link/);
 });
 
-test("Register vẫn hiển thị nút Đăng nhập và giữ các trường đăng ký", () => {
+test("Register không hiển thị social login, vẫn có nút Đăng nhập và các trường đăng ký", () => {
   const html = makeViews().authPage("register");
   assert.match(html, /id="register-form"/);
   assert.match(html, /name="confirmPassword"/);
   assert.match(html, /href="\/login" data-link/);
+  assert.match(html, /minlength="8"/);
   assert.doesNotMatch(html, /auth-switch--signup/);
   assert.doesNotMatch(html, /href="\/register"/);
+  assert.doesNotMatch(html, /data-auth-provider="google"|data-auth-provider="zalo"/);
 });
 
 test("CSS không còn ẩn liên kết .auth-switch và có vùng bấm/focus rõ", () => {
@@ -38,7 +40,7 @@ test("CSS không còn ẩn liên kết .auth-switch và có vùng bấm/focus r�
   assert.match(css, /\.auth-page \.auth-switch\.auth-switch--signup\s*\{[^}]*border: 1px solid/);
   assert.match(css, /\.auth-switch a\s*\{/);
   assert.match(css, /\.auth-recovery-link a\s*\{/);
-  assert.match(css, /\.auth-switch a:focus-visible/);
+  assert.match(css, /\.auth-panel \.auth-social:focus-visible/);
 });
 
 test("Support form và màn thành công không chèn bộ chuyển ngôn ngữ riêng", () => {

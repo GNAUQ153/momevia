@@ -6,30 +6,49 @@ export function createAuthViews({ state, buttonLink }) {
     const registering = mode === "register";
     if (state.user)
       return `<section class="auth-page"><div class="container auth-signed-in"><div class="auth-signed-in__icon">${icon("check-circle", 30)}</div><h1>${text("auth.signedIn.title")}</h1><p>${text("auth.signedIn.description")}</p>${buttonLink("/studio", text("auth.signedIn.studio"))}</div></section>`;
-    // Luôn hiển thị lựa chọn Google/Zalo, kể cả khi môi trường chưa cấu hình OAuth.
-    // Không tạo đường dẫn đăng nhập nếu server không xác nhận phương thức sẵn sàng.
+
+    const providerLogo = provider => {
+      if (provider === "google") {
+        return `<span class="auth-provider-logo auth-provider-logo--google" aria-hidden="true">
+          <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+            <path fill="#4285F4" d="M23.49 12.27c0-.79-.07-1.54-.2-2.27H12v4.3h6.45a5.52 5.52 0 0 1-2.39 3.62v3h3.87c2.26-2.08 3.56-5.15 3.56-8.65Z"></path>
+            <path fill="#34A853" d="M12 24c3.24 0 5.95-1.07 7.93-2.91l-3.87-3c-1.08.72-2.45 1.15-4.06 1.15-3.12 0-5.77-2.1-6.72-4.93H1.29v3.1A12 12 0 0 0 12 24Z"></path>
+            <path fill="#FBBC05" d="M5.28 14.31A7.2 7.2 0 0 1 4.9 12c0-.8.14-1.57.38-2.31v-3.1H1.29A12 12 0 0 0 0 12c0 1.94.46 3.77 1.29 5.41l3.99-3.1Z"></path>
+            <path fill="#EA4335" d="M12 4.77c1.76 0 3.33.61 4.57 1.81l3.43-3.43C17.94 1.08 15.24 0 12 0A12 12 0 0 0 1.29 6.59l3.99 3.1c.95-2.83 3.6-4.92 6.72-4.92Z"></path>
+          </svg>
+        </span>`;
+      }
+      return `<span class="auth-provider-logo auth-provider-logo--zalo" aria-hidden="true">
+        <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+          <rect x="1.5" y="1.5" width="21" height="21" rx="10.5" fill="#fff" stroke="#0A6CFF" stroke-width="1.5"></rect>
+          <path fill="#0A6CFF" d="M7.2 8.25h9.6v1.75l-6.12 5.76h6.12v1.99H7.02v-1.8l6.05-5.71H7.2z"></path>
+        </svg>
+      </span>`;
+    };
+
+    // Trang đăng ký tập trung hoàn tất biểu mẫu email. Chỉ trang đăng nhập mới hiển thị OAuth.
     const providers = [
-      { id: "google", label: "Google", enabled: state.providers?.google === true, symbol: "G" },
-      { id: "zalo", label: "Zalo", enabled: state.providers?.zalo === true, symbol: "Z" },
+      { id: "google", label: "Google", enabled: state.providers?.google === true },
+      { id: "zalo", label: "Zalo", enabled: state.providers?.zalo === true },
     ];
-    const providerButton = ({ id, label, enabled, symbol }) => {
-      const content = `<span class="auth-provider-symbol auth-provider-symbol--${id}" aria-hidden="true">${symbol}</span><span>${text(registering ? "auth.providers.registerWith" : "auth.providers.signInWith", { provider: label })}</span>`;
+    const providerButton = ({ id, label, enabled }) => {
+      const content = `${providerLogo(id)}<span>${text("auth.providers.signInWith", { provider: label })}</span>`;
       return enabled
-        ? `<a class="auth-social" href="/api/auth/${id}" data-auth-provider="${id}" ${attr("aria-label", registering ? "auth.providers.registerWith" : "auth.providers.signInWith", { provider: label })}>${content}</a>`
+        ? `<a class="auth-social" href="/api/auth/${id}" data-auth-provider="${id}" ${attr("aria-label", "auth.providers.signInWith", { provider: label })}>${content}</a>`
         : `<button type="button" class="auth-social auth-social--disabled" data-auth-provider="${id}" disabled ${attr("aria-label", "auth.providers.notEnabled", { provider: label })} ${attr("title", "auth.providers.notEnabled", { provider: label })}>${content}</button>`;
     };
-    const socialSection = `<div class="auth-oauth" role="group" ${attr("aria-label", "auth.providers.title")}>
+    const socialSection = !registering ? `<div class="auth-divider auth-divider--social" role="separator"><span>${text("auth.providers.orSocialLogin")}</span></div>
+    <div class="auth-oauth" role="group" ${attr("aria-label", "auth.providers.title")}>
       <div class="auth-buttons">${providers.map(providerButton).join("")}</div>
       ${providers.some(provider => !provider.enabled) ? `<p class="auth-provider-note" role="status">${text("auth.providers.unavailableHint")}</p>` : ""}
-    </div>
-    <div class="auth-divider" role="separator"><span>${text(registering ? "auth.providers.orRegister" : "auth.providers.orLogin")}</span></div>`;
+    </div>` : "";
     const passwordField = (
       name,
       label,
       autocomplete,
     ) => `<label class="auth-field"><span class="auth-field__label">${label} <span class="auth-required" aria-hidden="true">*</span></span>
       <span class="auth-input"><span class="auth-field-icon" aria-hidden="true">${icon("lock", 19)}</span>
-        <input name="${name}" type="password" autocomplete="${autocomplete}" minlength="${registering ? 10 : 1}" maxlength="128" required ${attr("placeholder", registering ? "auth.password.minimum" : "auth.password.placeholder")}/>
+        <input name="${name}" type="password" autocomplete="${autocomplete}" minlength="${registering ? 8 : 1}" maxlength="128" required ${attr("placeholder", registering ? "auth.password.minimum" : "auth.password.placeholder")}/>
         <button type="button" class="auth-toggle-password" data-action="toggle-password" ${attr("aria-label", "auth.password.show")} aria-pressed="false">${icon("eye", 20)}</button>
       </span></label>`;
     return `<section class="auth-page auth-page--${registering ? "register" : "login"}" aria-labelledby="auth-page-title"><div class="container auth-layout">
@@ -95,7 +114,7 @@ export function createAuthViews({ state, buttonLink }) {
       </form><p id="recovery-notice" role="status"></p>
       <form id="recovery-confirm-form" data-verify="${verify}" class="auth-form" hidden>
         ${!verify ? '<input type="hidden" name="email"/>' : ''}${code}
-        ${verify ? '' : `<label class="field"><span>${text("auth.recovery.newPassword")}</span><input name="password" type="password" autocomplete="new-password" minlength="10" maxlength="128" required/></label><label class="field"><span>${text("auth.recovery.confirmPassword")}</span><input name="confirmPassword" type="password" autocomplete="new-password" minlength="10" maxlength="128" required/></label>`}
+        ${verify ? '' : `<label class="field"><span>${text("auth.recovery.newPassword")}</span><input name="password" type="password" autocomplete="new-password" minlength="8" maxlength="128" required/></label><label class="field"><span>${text("auth.recovery.confirmPassword")}</span><input name="confirmPassword" type="password" autocomplete="new-password" minlength="8" maxlength="128" required/></label>`}
         <p class="auth-inline-error" role="alert" hidden></p>
         <button class="btn btn--dark" type="submit">${verify ? text("auth.verify.title") : text("auth.recovery.reset")}</button>
       </form>` : ''}

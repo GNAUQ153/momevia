@@ -1,3 +1,10 @@
+## Unreleased — Auth Experience V10: tinh chỉnh social login, copy và mật khẩu (2026-11-22)
+
+- Rút gọn phần mô tả ở `/login` để hiển thị gọn hơn trên desktop; giữ cấu trúc dark split layout và CTA chính của Momevia.
+- Chỉ giữ Google/Zalo ở trang đăng nhập; bỏ hẳn khối social ở trang đăng ký để người dùng tập trung tạo tài khoản bằng email.
+- Thay ký hiệu chữ cái tạm bằng inline SVG gần với nhận diện Google và Zalo, tinh gọn lại khu social login để bớt nặng giao diện.
+- Giảm yêu cầu mật khẩu tối thiểu từ 10 xuống 8 ký tự ở UI, i18n, recovery flow và kiểm tra phía server; cập nhật regression test + cache-bust CSS V10. Không đổi API OAuth, session, database hay phân quyền.
+
 ## Unreleased — Auth Experience V9: bố cục tối hai cột theo ảnh tham khảo (2026-11-22)
 
 - Khi hợp nhất PR #22, cập nhật browser regression cho header/footer Auth V9: kiểm tra hai link điều khoản ngay trong form, đổi VI/EN ở header và kiểm tra menu mobile trên trang danh mục.

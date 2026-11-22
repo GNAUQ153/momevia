@@ -25,6 +25,9 @@ test('Gói nguồn loại secret/data/dependency và phát hiện file bị sử
     // The release allowlist also includes MySQL schema and tooling.
     write('database/compose.yml', 'services: {}\n');
     write('database/verify.sql', 'SELECT 1;\n');
+    // Chỉ đóng gói bundle update được duyệt; không gom cả thư mục updates.
+    write('database/updates/interactive-cards-20261122-v1.json', '{"formatVersion":1,"changes":[]}\n');
+    write('database/updates/private-export.json', 'PRIVATE_SENTINEL');
     write('database/migrations/001_initial.sql', '-- schema fixture\n');
     write('database/migrations/003_identity_catalog.sql', '-- v0.9 fixture\n');
     write('database/migrations/004_gifts_checkout.sql', '-- v1.0 fixture\n');
@@ -61,6 +64,11 @@ test('Gói nguồn loại secret/data/dependency và phát hiện file bị sử
     assert(fs.existsSync(path.join(release,'deploy/https/Caddyfile')));
     assert(fs.existsSync(path.join(release,'deploy/https/momevia.service')));
     assert(fs.existsSync(path.join(release,'database/compose.yml')));
+    const updateBundle = 'database/updates/interactive-cards-20261122-v1.json';
+    assert(fs.existsSync(path.join(release,updateBundle)), 'Thiếu bundle rollout trong gói phát hành');
+    assert(manifest.files.some(entry => entry.path === updateBundle), 'Bundle rollout không có trong manifest');
+    assert.equal(fs.readFileSync(path.join(release,updateBundle),'utf8'), '{"formatVersion":1,"changes":[]}\n');
+    assert(!fs.existsSync(path.join(release,'database/updates/private-export.json')), 'Không đóng gói file update ngoài allowlist');
     assert(fs.existsSync(path.join(release,'database/migrations/001_initial.sql')));
     assert(fs.existsSync(path.join(release,'database/migrations/003_identity_catalog.sql')));
     assert(fs.existsSync(path.join(release,'database/migrations/004_gifts_checkout.sql')));

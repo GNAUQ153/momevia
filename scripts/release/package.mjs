@@ -29,6 +29,8 @@ const roots = [
   'database/migrations',
   'database/scripts',
   'database/verify.sql',
+  // Dữ liệu phát hành cần cho library rollout và unit test trong release-smoke.
+  'database/updates/interactive-cards-20261122-v1.json',
   'gateway.mjs',
   'dev.mjs',
   'start-local.bat',

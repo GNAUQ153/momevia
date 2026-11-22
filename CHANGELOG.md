@@ -1,3 +1,8 @@
+## Unreleased — Sửa release smoke-test thiếu bundle Interactive Cards (2026-11-22)
+
+- Đóng gói duy nhất `database/updates/interactive-cards-20261122-v1.json` theo allowlist để bài test library rollout chạy được trong bản release độc lập; không đóng gói toàn bộ thư mục updates hoặc dữ liệu vận hành.
+- Bổ sung regression test xác minh bundle có trong release manifest và từ chối đưa tệp update ngoài allowlist vào bản phát hành. Không thay đổi UI, Auth V10, database schema, dữ liệu hay logic rollout.
+
 ## Unreleased — Auth Experience V10: tinh chỉnh social login, copy và mật khẩu (2026-11-22)
 
 - Rút gọn phần mô tả ở `/login` để hiển thị gọn hơn trên desktop; giữ cấu trúc dark split layout và CTA chính của Momevia.

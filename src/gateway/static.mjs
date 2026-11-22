@@ -13,6 +13,7 @@ const mime = {
   '.svg': 'image/svg+xml',
   '.png': 'image/png',
   '.webp': 'image/webp',
+  '.mp3': 'audio/mpeg',
   '.woff2': 'font/woff2',
   '.ico': 'image/x-icon',
   '.json': 'application/json',

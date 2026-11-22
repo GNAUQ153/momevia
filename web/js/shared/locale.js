@@ -16,6 +16,8 @@ function formatParameter(dictionary, locale, value) {
   switch (value.format) {
     case 'message': return translate(dictionary, locale, value.key, value.params);
     case 'messages': return value.keys.map(key => translate(dictionary, locale, key)).join(', ');
+    // Ghép các câu mô tả quyền với dấu cách, không chèn dấu phẩy sau dấu chấm.
+    case 'sentences': return value.keys.map(key => translate(dictionary, locale, key)).join(' ');
     case 'currency': return currency(locale, value.value);
     case 'number': return new Intl.NumberFormat(localeTag(locale)).format(value.value);
     case 'date': {

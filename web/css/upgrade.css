@@ -1,9 +1,7 @@
 /* Momevia v0.3: nhận diện thương hiệu, điều hướng và tương tác mới. */
-
 .brand {
   gap: 8px;
 }
-
 .brand-mark {
   width: 52px;
   height: 52px;
@@ -11,69 +9,57 @@
   flex: none;
   filter: drop-shadow(0 5px 8px rgba(96, 49, 225, 0.15));
 }
-
 .brand-name {
   color: #231342;
   font-size: 27px;
   font-weight: 800;
   letter-spacing: -0.055em;
 }
-
 .nav-links {
   gap: 23px;
 }
-
 .nav-links a {
   padding: 13px 0;
   font-size: 12.5px;
   font-weight: 700;
 }
-
 .nav-links a.is-active {
   color: #5123c6;
   font-weight: 800;
 }
-
 .nav-links a.is-active::after {
   bottom: 4px;
   height: 3px;
   border-radius: 4px;
   background: linear-gradient(90deg, #6f39ed, #ff5a83);
 }
-
 .nav-links a[aria-current="page"]:focus-visible,
 .mobile-nav a[aria-current="page"]:focus-visible {
   outline: 2px solid #6f39ed;
   outline-offset: 5px;
 }
-
 .nav-actions {
   gap: 9px;
 }
-
 .nav-actions .login-trigger {
   min-height: 44px;
   padding: 10px 20px;
   font-size: 13px;
 }
-
 .nav-studio.is-current {
   color: #5b28d8;
 }
-
 .mobile-nav a.is-active {
   color: #5727d0;
   background: #f1eafe;
   font-weight: 800;
 }
-
 .mobile-nav button {
   background: #6a36e4;
   color: white;
   justify-content: center;
   margin-top: 6px;
 }
-
 .footer-contact {
   padding: 0;
   border: 0;
@@ -84,11 +70,9 @@
   text-align: left;
   cursor: pointer;
 }
-
 .footer-contact:hover {
   color: var(--purple);
 }
-
 /* Yêu thích nằm độc lập với đường dẫn xem mẫu, tránh lồng nút trong thẻ a. */
 .favorite-button {
   position: absolute;
@@ -109,32 +93,26 @@
   cursor: pointer;
   transition: background 0.2s ease, transform 0.2s ease, color 0.2s ease;
 }
-
 .favorite-button:hover {
   transform: translateY(-2px) scale(1.05);
   color: #dc375e;
 }
-
 .favorite-button.is-saved {
   background: #ffedf1;
   color: #e63d65;
   border-color: #ffbecd;
 }
-
 .favorite-button.is-saved svg {
   fill: currentColor;
 }
-
 .favorite-button:focus-visible {
   outline: 3px solid #6f39ed;
   outline-offset: 3px;
 }
-
 .favorite-button:disabled {
   cursor: wait;
   opacity: 0.55;
 }
-
 .detail-favorite-row {
   display: flex;
   align-items: center;
@@ -143,21 +121,18 @@
   color: #645676;
   font-size: 13px;
 }
-
 .favorite-button--inline {
   position: static;
   width: 44px;
   height: 44px;
   box-shadow: 0 4px 12px rgba(35, 20, 73, 0.10);
 }
-
 .dashboard-heading__actions {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
   gap: 10px;
 }
-
 /* Tính năng hỗ trợ và cuộn về đầu trang. */
 .site-tools {
   position: fixed;
@@ -168,7 +143,6 @@
   flex-direction: column;
   gap: 12px;
 }
-
 .floating-tool {
   display: inline-grid;
   place-items: center;
@@ -182,27 +156,22 @@
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
-
 .floating-tool--support {
   background: linear-gradient(145deg, #8453f5, #5b2dcf);
   border-color: transparent;
   color: white;
 }
-
 .floating-tool:hover {
   transform: translateY(-3px);
   box-shadow: 0 16px 30px rgba(57, 20, 126, 0.23);
 }
-
 .floating-tool[hidden] {
   display: none;
 }
-
 .floating-tool:focus-visible {
   outline: 3px solid #ff7a9a;
   outline-offset: 3px;
 }
-
 /* Ẩn thanh cuộn thị giác nhưng giữ thao tác cuộn bằng chuột và cảm ứng. */
 .dialog:has(.auth-modal),
 .dialog:has(.support-modal) {
@@ -212,12 +181,10 @@
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
-
 .dialog:has(.auth-modal)::-webkit-scrollbar,
 .dialog:has(.support-modal)::-webkit-scrollbar {
   display: none;
 }
-
 .auth-brand {
   display: flex;
   align-items: center;
@@ -225,17 +192,14 @@
   font-size: 19px;
   letter-spacing: -0.045em;
 }
-
 .auth-brand img {
   width: 32px;
   height: 32px;
   object-fit: contain;
 }
-
 .auth-input {
   position: relative;
 }
-
 .auth-field-icon {
   position: absolute;
   left: 14px;
@@ -245,17 +209,14 @@
   transform: translateY(-50%);
   pointer-events: none;
 }
-
 .auth-form .auth-input input {
   width: 100%;
   padding-left: 43px;
   padding-right: 14px;
 }
-
 .auth-form .auth-password input {
   padding-right: 50px;
 }
-
 .auth-toggle-password {
   display: inline-flex;
   align-items: center;
@@ -267,16 +228,13 @@
   border-radius: 8px;
   color: #6c568c;
 }
-
 .auth-toggle-password:hover {
   background: #f1eafd;
   color: #5126bf;
 }
-
 .auth-toggle-password:focus-visible {
   outline: 2px solid #6f39ed;
 }
-
 /* Form liên hệ sử dụng chung ngôn ngữ thiết kế của hệ thống. */
 .support-modal h2 {
   margin: 13px 0 8px;
@@ -284,23 +242,19 @@
   font-size: 28px;
   letter-spacing: -0.04em;
 }
-
 .support-modal > p {
   color: var(--muted);
   font-size: 13px;
   line-height: 1.6;
 }
-
 .support-form {
   display: grid;
   gap: 13px;
   margin-top: 20px;
 }
-
 .support-form .field {
   margin: 0;
 }
-
 .support-form input,
 .support-form textarea,
 .support-form select {
@@ -314,84 +268,68 @@
   font-family: var(--font-body);
   font-size: 13px;
 }
-
 .support-form textarea {
   resize: vertical;
 }
-
 .support-form :is(input, textarea, select):focus {
   outline: 2px solid #e8dfff;
   border-color: #7650db;
 }
-
 .support-form .btn {
   margin-top: 3px;
 }
-
 .support-note {
   margin-top: 12px;
   color: #786d86;
   font-size: 11px;
 }
-
 @media (max-width: 1100px) {
   .nav-links {
     gap: 15px;
   }
-
   .brand-name {
     font-size: 25px;
   }
 }
-
 @media (max-width: 680px) {
   .brand-mark {
     width: 43px;
     height: 43px;
   }
-
   .brand-name {
     font-size: 23px;
   }
-
   .site-tools {
     right: 14px;
     bottom: 14px;
     gap: 9px;
   }
-
   .floating-tool {
     width: 46px;
     height: 46px;
     border-radius: 14px;
   }
-
   .dialog:has(.support-modal) {
     padding: 26px 20px;
   }
-
   .dashboard-heading__actions {
     width: 100%;
   }
 }
-
 @media (prefers-reduced-motion: reduce) {
   .floating-tool,
   .favorite-button {
     transition: none;
   }
 }
-
 /* Dành cho nhân viên có quyền duyệt yêu cầu hỗ trợ. */
 .support-admin {
   margin-top: 60px;
 }
-
 .support-admin__list {
   display: grid;
   gap: 14px;
 }
-
 .support-admin__item {
   display: grid;
   gap: 7px;
@@ -400,28 +338,23 @@
   border-radius: 14px;
   background: white;
 }
-
 .support-admin__item span,
 .support-admin__item small {
   color: var(--muted);
   font-size: 12px;
 }
-
 .support-admin__item p {
   margin: 0;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
-
 .support-success {
   text-align: center;
 }
-
 .support-success__icon {
   display: inline-flex;
   color: #25875e;
 }
-
 .support-success__code {
   display: flex;
   justify-content: space-between;
@@ -433,13 +366,11 @@
   border-radius: 13px;
   background: #faf7ff;
 }
-
 .support-success__code strong {
   font-family: var(--font-display);
   font-size: 15px;
   color: #4e2caa;
 }
-
 .support-success__code button {
   display: inline-flex;
   align-items: center;
@@ -453,44 +384,186 @@
   font-size: 12px;
   cursor: pointer;
 }
-
 /* Admin Payment Operations: read-only queue and reconciliation audit. */
-.admin-payments { background: linear-gradient(180deg, #faf8ff 0%, #fff 45%); }
-.admin-payments .container { min-width: 0; }
-.admin-payments__heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; margin: 18px 0 24px; }
-.admin-payments__heading h1 { margin: 0 0 10px; }
-.admin-payments__heading p { max-width: 720px; color: var(--muted); margin: 0; line-height: 1.65; }
-.admin-payments__heading .btn { flex: none; }
-.admin-payments__summary { display: flex; align-items: center; gap: 16px; border: 1px solid var(--line); border-radius: 18px; padding: 20px 24px; background: #fff; margin-bottom: 18px; }
-.admin-payments__summary strong { font-size: clamp(30px, 4vw, 42px); color: #5123c6; font-variant-numeric: tabular-nums; }
-.admin-payments__summary span { color: var(--muted); }
-.admin-payments__notice { padding: 16px 19px; border-left: 3px solid #7950d9; background: #f7f2ff; border-radius: 12px; margin-bottom: 28px; line-height: 1.6; }
-.admin-payments__filters { display: grid; grid-template-columns: minmax(220px, 2fr) repeat(2, minmax(160px, 1fr)); gap: 14px; margin-bottom: 18px; }
-.admin-payments__filters label { display: grid; gap: 8px; font-size: 13px; font-weight: 700; min-width: 0; }
-.admin-payments__filters input, .admin-payments__filters select { height: 46px; width: 100%; min-width: 0; padding: 0 13px; font: inherit; border: 1px solid #d9d0ed; background: #fff; color: #231342; border-radius: 12px; }
-.admin-payments__filters :is(input, select):focus-visible { outline: 3px solid #bd9df7; outline-offset: 2px; }
-.admin-payments__count { color: var(--muted); font-size: 13px; }
-.admin-payments__list { display: grid; gap: 14px; }
-.payment-review-card { min-width: 0; border: 1px solid var(--line); border-radius: 18px; background: #fff; padding: 20px; box-shadow: 0 5px 24px rgba(45, 18, 90, .04); }
-.payment-review-card__main { display: flex; align-items: start; justify-content: space-between; gap: 14px; }
-.payment-review-card__label { display: block; color: var(--muted); font-size: 12px; margin-bottom: 6px; }
-.payment-review-card__id { display: block; overflow-wrap: anywhere; font-size: 14px; }
-.payment-review-card__amount { font-size: 19px; color: #4820b3; white-space: nowrap; font-variant-numeric: tabular-nums; }
-.payment-review-card__meta { display: flex; flex-wrap: wrap; gap: 9px 18px; margin: 15px 0; font-size: 13px; color: var(--muted); }
-.payment-review-card__actions { display: flex; flex-wrap: wrap; gap: 10px; }
-.payment-review-card__audit:not([hidden]) { margin-top: 18px; border-top: 1px solid var(--line); padding-top: 16px; }
-.payment-review-card__audit h3 { font-size: 16px; margin: 0 0 14px; }
-.payment-audit-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
-.payment-audit-list li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 14px; font-size: 13px; }
-.payment-audit-list li strong { color: #4820b3; }
+.admin-payments {
+  background: linear-gradient(180deg, #faf8ff 0%, #fff 45%);
+}
+.admin-payments .container {
+  min-width: 0;
+}
+.admin-payments__heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  margin: 18px 0 24px;
+}
+.admin-payments__heading h1 {
+  margin: 0 0 10px;
+}
+.admin-payments__heading p {
+  max-width: 720px;
+  color: var(--muted);
+  margin: 0;
+  line-height: 1.65;
+}
+.admin-payments__heading .btn {
+  flex: none;
+}
+.admin-payments__summary {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 20px 24px;
+  background: #fff;
+  margin-bottom: 18px;
+}
+.admin-payments__summary strong {
+  font-size: clamp(30px, 4vw, 42px);
+  color: #5123c6;
+  font-variant-numeric: tabular-nums;
+}
+.admin-payments__summary span {
+  color: var(--muted);
+}
+.admin-payments__notice {
+  padding: 16px 19px;
+  border-left: 3px solid #7950d9;
+  background: #f7f2ff;
+  border-radius: 12px;
+  margin-bottom: 28px;
+  line-height: 1.6;
+}
+.admin-payments__filters {
+  display: grid;
+  grid-template-columns: minmax(220px, 2fr) repeat(2, minmax(160px, 1fr));
+  gap: 14px;
+  margin-bottom: 18px;
+}
+.admin-payments__filters label {
+  display: grid;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  min-width: 0;
+}
+.admin-payments__filters input, .admin-payments__filters select {
+  height: 46px;
+  width: 100%;
+  min-width: 0;
+  padding: 0 13px;
+  font: inherit;
+  border: 1px solid #d9d0ed;
+  background: #fff;
+  color: #231342;
+  border-radius: 12px;
+}
+.admin-payments__filters :is(input, select):focus-visible {
+  outline: 3px solid #bd9df7;
+  outline-offset: 2px;
+}
+.admin-payments__count {
+  color: var(--muted);
+  font-size: 13px;
+}
+.admin-payments__list {
+  display: grid;
+  gap: 14px;
+}
+.payment-review-card {
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: #fff;
+  padding: 20px;
+  box-shadow: 0 5px 24px rgba(45, 18, 90, .04);
+}
+.payment-review-card__main {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 14px;
+}
+.payment-review-card__label {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+  margin-bottom: 6px;
+}
+.payment-review-card__id {
+  display: block;
+  overflow-wrap: anywhere;
+  font-size: 14px;
+}
+.payment-review-card__amount {
+  font-size: 19px;
+  color: #4820b3;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.payment-review-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px 18px;
+  margin: 15px 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+.payment-review-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.payment-review-card__audit:not([hidden]) {
+  margin-top: 18px;
+  border-top: 1px solid var(--line);
+  padding-top: 16px;
+}
+.payment-review-card__audit h3 {
+  font-size: 16px;
+  margin: 0 0 14px;
+}
+.payment-audit-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 10px;
+}
+.payment-audit-list li {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px 14px;
+  font-size: 13px;
+}
+.payment-audit-list li strong {
+  color: #4820b3;
+}
 @media (max-width: 760px) {
-  .admin-payments__filters { grid-template-columns: 1fr 1fr; }
-  .admin-payments__filters label:first-child { grid-column: 1 / -1; }
-  .admin-payments__heading { flex-direction: column; }
+  .admin-payments__filters {
+    grid-template-columns: 1fr 1fr;
+  }
+  .admin-payments__filters label:first-child {
+    grid-column: 1 / -1;
+  }
+  .admin-payments__heading {
+    flex-direction: column;
+  }
 }
 @media (max-width: 430px) {
-  .admin-payments__filters { grid-template-columns: 1fr; }
-  .admin-payments__filters label:first-child { grid-column: auto; }
-  .payment-review-card__main { flex-direction: column; }
-  .payment-review-card__amount { font-size: 18px; }
+  .admin-payments__filters {
+    grid-template-columns: 1fr;
+  }
+  .admin-payments__filters label:first-child {
+    grid-column: auto;
+  }
+  .payment-review-card__main {
+    flex-direction: column;
+  }
+  .payment-review-card__amount {
+    font-size: 18px;
+  }
 }

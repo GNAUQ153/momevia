@@ -92,6 +92,28 @@ export async function runSfxBrowser({fixture,owner,gift,check}){
    await page.locator(`[data-runtime-element="${envelopeId}"]`).click();await page.waitForFunction(id=>!globalThis.document.querySelector(`[data-runtime-element="${id}"]`),envelopeId);release();await page.waitForTimeout(150);assert.equal(await page.evaluate(()=>globalThis.__soundQa.starts.length),startsBeforeNavigation);await page.unroute('**/api/designs/sfx/1/warm-ending');
    await page.route('**/api/designs/sfx/1/**',route=>route.fulfill({status:500,body:'broken'}));await page.reload();await page.locator('[data-sound-control]').waitFor();await hear.click();await page.getByText('Chưa phát được âm.',{exact:false}).waitFor();assert(await page.locator('.gift-runtime-navigation button').count()>0);await page.unroute('**/api/designs/sfx/1/**');
   });
+  await check('Canvas v3 recipient keeps background music and interaction sound independently controllable',async()=>{
+   const mixed=await context.newPage();mixed.on('pageerror',error=>errors.push(error.message));
+   try{
+    await mixed.addInitScript(()=>{
+     globalThis.__mixedMusic=[];
+     const play=HTMLMediaElement.prototype.play;
+     HTMLMediaElement.prototype.play=function(...args){globalThis.__mixedMusic.push(this);return play.apply(this,args);};
+    });
+    await mixed.goto(base+'/g/'+gift.slug);
+    const music=mixed.locator('.gift-soundtrack-button'),sfx=mixed.locator('[data-sound-control]');
+    await music.waitFor();assert.equal(await music.getAttribute('aria-pressed'),'false');assert.equal(await sfx.getAttribute('aria-pressed'),'false');
+    assert.equal(await mixed.evaluate(()=>globalThis.__mixedMusic.length),0);
+    await music.click();await mixed.waitForFunction(()=>document.querySelector('.gift-soundtrack-button')?.getAttribute('aria-pressed')==='true');
+    const volume=mixed.locator('.gift-soundtrack-volume');await volume.focus();await volume.press('Home');
+    assert.equal(await mixed.evaluate(()=>globalThis.__mixedMusic[0].volume),0);
+    await volume.press('ArrowRight');assert.equal(await mixed.evaluate(()=>globalThis.__mixedMusic[0].volume),.05);
+    await sfx.click();await mixed.locator('.gift-runtime-envelope').click();await mixed.waitForFunction(()=>globalThis.__soundQa.starts.length>0);
+    assert.equal(await music.getAttribute('aria-pressed'),'true');
+    await sfx.click();assert.equal(await music.getAttribute('aria-pressed'),'true');
+    await music.click();assert.equal(await music.getAttribute('aria-pressed'),'false');
+   }finally{await mixed.close();}
+  });
   assert.deepEqual(errors,[]);fs.writeFileSync(path.join(directory,'browser-results.json'),JSON.stringify({browser:browser.version(),screens:['1440×1000','390×844'],humanListening:false,physicalDevices:false,errors,requests,uploads:uploads.map(b=>b.length),published},null,2));
   // Available WebKit is reported separately from real Safari/iPhone hardware.
   let wk;

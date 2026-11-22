@@ -37,15 +37,20 @@ try{
    const filesAfter=fs.readdirSync(path.join(directory,'services/designs/data/assets'));assert.equal(filesAfter.length,filesBefore.length+1);assert(filesAfter.every(n=>!n.endsWith('.staging')));
   }finally{if(fixture.connection)await fixture.connection.execute('DELETE FROM design_assets WHERE id=?',[fakeId]);else await repo.change(state=>{delete state.assets[fakeId];return true;});}
  });
- await check('envelope and gift-box sounds, independent library/personal buttons: save, reload, publish replay and recipient clip',async()=>{
+ await check('background music, envelope/gift-box sounds and library/personal buttons survive save, reload and publish replay',async()=>{
   for(const binding of Object.values(design.document.bindings))binding.value='Quà SFX có lời chúc dạng chữ';
   const doc=design.document;doc.schemaVersion=doc.registryVersion=3;
   const envelope=doc.elements.find(e=>e.type==='envelope');envelope.sound={kind:'library',id:'seal-peel',version:1,startMs:0,endMs:850,volume:.7};
   const box=createElement('gift-box',{sound:{kind:'library',id:'box-pop',version:1,startMs:0,endMs:650,volume:.6},actions:[{on:'activate',type:'goToScene',targetSceneId:doc.scenes[2].id}],layout:{x:60,y:430,width:240,height:160}});
   const library=createElement('sound-button',{sound:{kind:'library',id:'warm-ending',version:1,startMs:100,endMs:2000,volume:.5},props:{label:'Nghe giai điệu kết'},layout:{x:50,y:500,width:280,height:60}}),personal=createElement('sound-button',{sound:{kind:'audio',assetId:asset.id,volume:.4},props:{label:'Nghe lời chúc cá nhân'},layout:{x:50,y:580,width:280,height:60}});
+  doc.soundtrack={id:'calm-dawn',volume:.35};
   doc.elements.push(box,library,personal);doc.scenes[0].elementIds.push(box.id);doc.scenes[1].elementIds.push(library.id,personal.id);doc.assets.push({kind:'audio',assetId:asset.id});await save();
+  assert.equal(design.document.schemaVersion,3);assert.deepEqual(design.document.soundtrack,doc.soundtrack);
   const preflight=await post(owner,`/designs/designs/${design.id}/preflight`,{expectedRevision:design.revision});assert.equal(preflight.canPublish,true,JSON.stringify(preflight));
   const body={designId:design.id,expectedRevision:design.revision,expectedDocumentHash:design.documentHash,idempotencyKey:randomUUID()};gift=(await post(owner,'/gifts/gifts/from-design',body,201)).gift;assert.equal((await post(owner,'/gifts/gifts/from-design',body)).gift.slug,gift.slug);
+  const publicGift=(await request(`/gifts/gifts/${gift.slug}`)).data.gift;
+  assert.deepEqual(publicGift.documentSnapshot.soundtrack,doc.soundtrack);
+  assert.equal(publicGift.documentSnapshot.elements.find(e=>e.id===personal.id).sound.assetId,asset.id);
   const r=await request(`/gifts/gifts/${gift.slug}/assets/${asset.id}`);assert.equal(r.status,200);assert.equal(r.headers.get('content-type'),'audio/wav');assert.deepEqual(r.bytes,middle);assert.equal(validatePcmWav(r.bytes).sampleCount,44100);
   // Correlate receiver samples against each of the three deliberately distinct source tones.
   const correlations=[220,880,1760].map(freq=>{let value=0;for(let i=0;i<44100;i++)value+=r.bytes.readInt16LE(44+i*2)/32768*Math.sin(2*Math.PI*freq*i/44100);return Math.abs(value/44100);});assert(correlations[1]>.19&&correlations[0]<.0001&&correlations[2]<.0001);fs.writeFileSync(path.join(directory,'trim-proof.json'),JSON.stringify({sampleCount:44100,durationMs:1000,frequencies:[220,880,1760],correlations,receiverBytesEqualMiddle:true},null,2));

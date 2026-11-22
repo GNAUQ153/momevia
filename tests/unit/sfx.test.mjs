@@ -33,6 +33,32 @@ test('SFX requires v3, private refs are typed and public/regift projections pres
  d.elements[0].sound=sound;d.assets=[];assert.deepEqual(cleanGiftLayout(d).elements[0].sound,sound);
  for(const mutation of [s=>s.version=999,s=>s.id='toString',s=>s.volume=2,s=>s.startMs=-1,s=>s.endMs=50,s=>s.url='https://evil.test']){const x=documentWithSound();mutation(x.elements[0].sound);assert.throws(()=>validateDocument(x));}
 });
+
+test('Canvas v3 keeps background music and both sound kinds through public projection and safe regifting',()=>{
+ const d=documentWithSound();
+ d.soundtrack={id:'calm-dawn',volume:.35};
+ const personal=createElement('sound-button',{sound:{kind:'audio',assetId:'personal-mixed',volume:.4}});
+ d.elements.push(personal);d.scenes[0].elementIds.push(personal.id);d.assets.push({kind:'audio',assetId:'personal-mixed'});
+ assert.deepEqual(validateDocument(d),d);
+ const published=publicDocument(d);
+ assert.deepEqual(published.soundtrack,d.soundtrack);
+ assert.deepEqual(published.elements.map(e=>e.sound),[sound,personal.sound]);
+ assert.deepEqual(assetIds(published),['personal-mixed']);
+ const regift=validateDocument(cleanGiftLayout(published));
+ assert.equal(regift.soundtrack,undefined);
+ assert.deepEqual(regift.elements[0].sound,sound);
+ assert.equal(regift.elements[1].sound,undefined);
+ assert.deepEqual(regift.assets,[]);
+});
+
+test('Creator v3 permits background music personalization while keeping element sounds locked',()=>{
+ const service=new DesignsService({}),document=documentWithSound();
+ const current={document,policy:{kind:'creator-template',editableBindings:[],photoId:null}};
+ const next=structuredClone(document);next.soundtrack={id:'calm-dawn',volume:.35};
+ assert.doesNotThrow(()=>service.enforcePolicy(current,next));
+ next.elements[0].sound.volume=.1;
+ assert.throws(()=>service.enforcePolicy(current,next),error=>error.code==='LOCKED_ELEMENT');
+});
 test('PCM export cuts exact middle samples without gain; start/end/minimum clips and malformed server headers',()=>{
  const samples=Float32Array.from({length:132300},(_,i)=>Math.sin(2*Math.PI*(i<44100?220:i<88200?880:1760)*i/44100)*.4),buffer={sampleRate:44100,length:samples.length,numberOfChannels:1,getChannelData:()=>samples};
  for(const [start,end]of [[1000,2000],[0,100],[2900,3000],[0,10000]]){

@@ -29,6 +29,8 @@
 
 **Còn đang hoàn thiện:** vòng đời hủy/retry thanh toán an toàn, hoàn tiền/đối soát vận hành, định giá và chi trả Creator, tự động thu phí gói. Trang Pricing không đồng nghĩa đã có subscription thực tế.
 
+**Nhạc nền Canvas:** Thư viện 10 giai điệu nội bộ (6 bài theo sinh nhật, đám cưới, Giáng sinh, Tết dương lịch, Tết Nguyên đán, Valentine); Sender lọc theo dịp/cảm xúc, nghe thử và chỉnh âm lượng. Recipient chủ động bấm phát. Hướng dẫn tại [Music Occasion V4](docs/MUSIC_OCCASIONS_V4.md).
+
 ## Chạy localhost (mặc định JSON)
 
 **Yêu cầu:** Node.js 22.13+ (nhánh 22) hoặc Node.js 24+, npm. Mở Terminal tại thư mục gốc dự án.
@@ -89,19 +91,19 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Trải nghiệm Create → Share → Open → Reply → Keep trên mobile: năm nút chuyển sang danh sách cuộn ngang với cỡ chữ 13px thay vì ép chữ 11px vào một hàng; không gây tràn ngang trang.
-- Vuốt ngang trên artwork đổi bước khi vượt ngưỡng 48px và rõ ràng theo phương ngang; không chiếm cuộn dọc, không xử lý đa chạm và không tự quay vòng ở đầu/cuối hành trình.
-- Đảm bảo chỉ một nút được Tab tới trong nhóm; vẫn hỗ trợ Arrow, Home, End. Thêm hướng dẫn thao tác song ngữ VI/EN.
-- Bổ sung kiểm thử unit và browser cho vuốt, phím, responsive. Không thay đổi API, Canvas, database, thanh toán hoặc nội dung thiệp.
+- Thiết kế lại Login/Register bằng layout hai cột thoáng trên desktop và form một cột khi tablet/mobile: font nhập liệu 16px, nhãn 14px, nút 54px, focus rõ, có thương hiệu Momevia trên mobile và ảnh 3D hiện có chuyển động nhẹ (tôn trọng reduced-motion).
+- Giữ CTA “Đăng ký ngay”, liên kết “Đăng nhập ngay” và Quên mật khẩu. Chỉ hiển thị Google/Zalo khi thực sự được cấu hình; không đặt nút OAuth vô hiệu gây nhầm lẫn.
+- Tập trung toàn bộ CSS Auth tại `auth-pages.css`, loại bỏ lớp override Auth tại `ui-polish.css`, chuẩn hóa CSS còn lại để tránh viết dồn dòng; đưa hai stylesheet vào quality gate, bổ sung kiểm thử layout, accessibility, provider và VI/EN.
+- Không sửa session, xử lý mật khẩu, database, Canvas, Music Library, payment hoặc support workflow.
 
 **Các commit gần nhất trên `main`:**
 
-- `51f3431` — feat: improve marketing journey mobile interactions (2026-11-22)
-- `57008bf` — fix: keep marketing hero indicators below artwork on mobile (2026-11-22)
-- `3930b34` — perf: add repeatable marketing lab reports and comparison (2026-11-22)
-- `5f714b3` — test: wait for responsive navigation to finish closing (2026-11-22)
-- `ad9d498` — perf: pause offscreen marketing ambiance and add local lab metrics (2026-11-22)
-- `ea0fbef` — perf: batch marketing 3D pointer updates per frame (2026-11-22)
+- `a849ab0` — feat: redesign responsive login and registration experience (2026-11-22)
+- `7ed1b4e` — fix: restore signup CTA and simplify support language UI (2026-11-22)
+- `2887c24` — style: standardize CSS and guard visual quality (2026-11-22)
+- `015a350` — feat: add occasion-based Canvas music library and bilingual filters (2026-11-22)
+- `8f55a9e` — refactor: extract Canvas Inspector controls and policy helpers (2026-11-22)
+- `a537c01` — fix: remove unused layout binding after Inspector refactor (2026-11-22)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

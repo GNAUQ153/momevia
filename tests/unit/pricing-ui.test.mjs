@@ -5,12 +5,15 @@ import { pricingPage } from '../../web/js/pages/pricing.js';
 import { createLayout } from '../../web/js/ui/layout.js';
 
 const css = readFileSync(new URL('../../web/css/ui-polish.css', import.meta.url), 'utf8');
+const authCss = readFileSync(new URL('../../web/css/auth-pages.css', import.meta.url), 'utf8');
 const index = readFileSync(new URL('../../web/index.html', import.meta.url), 'utf8');
 const app = readFileSync(new URL('../../web/js/app/main.js', import.meta.url), 'utf8');
 
-test('Auth footnotes 12px, gift image smaller, and new CSS is last', () => {
-  assert.match(css, /\.auth-page \.auth-switch,[\s\S]*?font-size: 12px/);
-  assert.match(css, /\.auth-showcase__art > img \{ width: min\(260px, 69%\)/);
+test('Auth typography and 3D artwork belong to auth-pages.css without later overrides', () => {
+  assert.match(authCss, /\.auth-panel \.auth-input input \{/);
+  assert.match(authCss, /font-size: 16px/);
+  assert.match(authCss, /\.auth-showcase__art > img \{/);
+  assert.doesNotMatch(css, /\.auth-showcase__art|\.auth-page \.auth-switch/);
   assert.match(index, /<link rel="stylesheet" href="\/css\/ui-polish\.css"/);
   assert(index.lastIndexOf('ui-polish.css') > index.lastIndexOf('responsive.css'));
 });

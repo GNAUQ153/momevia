@@ -1,3 +1,8 @@
+## Unreleased — Hợp nhất Canvas/SFX và main cho PR #21 (2026-11-22)
+
+- Giữ nhạc nền, SFX và dữ liệu Canvas v3 trong cùng thiết kế/quà; giữ Inspector đã tách module, bản dịch VI/EN và CSS thiệp sau khi hợp nhất hai nhánh.
+- Bổ sung hồi quy cho snapshot có cả nhạc nền và âm tương tác, quyền khóa mẫu Creator, cùng các nút phát/âm lượng độc lập trên trình duyệt.
+
 ## Unreleased — Âm thanh Canvas local (2026-11-22)
 
 - Thêm nút âm thanh, âm khi nhấn độc lập với điều hướng, thư viện 40 WAV gốc CC0 có phiên bản/hồ sơ nguồn/hash và bộ chọn VI/EN.
@@ -23,6 +28,87 @@
 - Gói đồng bộ thư viện 387 → 415 mục có preview, dependency, conflict theo revision, history, chạy lại và rollback; CLI chỉ cho schema QA loopback.
 - Giảm tải tệp tĩnh bằng gzip, trì hoãn module thử đổi mẫu, ổn định vị trí footer khi tải và sửa reflow/vùng chạm. Album tùy chọn reset crop đúng ô khi thay ảnh, giữ quy ước ảnh/album cũ và policy Creator.
 - Bàn giao local và bằng chứng tại `docs/INTERACTIVE_CARDS_G0_G5.md`. Giá ba mẫu mới là fixture 0đ, chờ quyết định sản phẩm. LCP lab còn vượt 2,5 giây; thử năm người và thiết bị thật chưa chạy. Không deploy/push/ghi production.
+
+## Unreleased — Auth Experience V7: thống nhất bố cục Login/Register (2026-11-22)
+
+- Thiết kế lại Login/Register bằng layout hai cột thoáng trên desktop và form một cột khi tablet/mobile: font nhập liệu 16px, nhãn 14px, nút 54px, focus rõ, có thương hiệu Momevia trên mobile và ảnh 3D hiện có chuyển động nhẹ (tôn trọng reduced-motion).
+- Giữ CTA “Đăng ký ngay”, liên kết “Đăng nhập ngay” và Quên mật khẩu. Chỉ hiển thị Google/Zalo khi thực sự được cấu hình; không đặt nút OAuth vô hiệu gây nhầm lẫn.
+- Tập trung toàn bộ CSS Auth tại `auth-pages.css`, loại bỏ lớp override Auth tại `ui-polish.css`, chuẩn hóa CSS còn lại để tránh viết dồn dòng; đưa hai stylesheet vào quality gate, bổ sung kiểm thử layout, accessibility, provider và VI/EN.
+- Không sửa session, xử lý mật khẩu, database, Canvas, Music Library, payment hoặc support workflow.
+
+## Unreleased — Auth Signup CTA & Support Locale UX (2026-11-22)
+
+- Khôi phục liên kết “Đăng ký ngay” trên trang đăng nhập: sửa selector CSS ẩn nhầm link và đặt CTA đăng ký ngay dưới form, vẫn giữ liên kết quên mật khẩu và đăng nhập ở trang đăng ký.
+- Bỏ bộ chuyển ngôn ngữ riêng trong form hỗ trợ và thông báo gửi yêu cầu thành công; nội dung vẫn dùng ngôn ngữ VI/EN của hệ thống, những hộp thoại khác không đổi.
+- Bổ sung kiểm thử hồi quy markup/CSS, hành vi modal và chuyển ngôn ngữ; không sửa API, dữ liệu đăng ký hay phân quyền.
+
+## Unreleased — Visual System & CSS Quality V5 (2026-11-22)
+
+- Chuẩn hóa 7 stylesheet trọng điểm (Admin Library, Template Preview, Gift Runtime, Canvas Editor, Recovery, Conflict Review và Upgrade): một khai báo CSS mỗi dòng, giữ thứ tự selector/media/keyframe và nội dung thiết kế hiện có.
+- Cải thiện mức đọc ở mobile: nút Preview 14px, badge/trạng thái Admin 13px, tab Admin 14px, nút Recovery tối thiểu 44px và thanh lưu tính safe-area; không tạo thêm lớp CSS override.
+- Thêm `scripts/quality/check-css-style.mjs` vào `npm run check` và 7 unit test kiểm tra mã viết dồn, thuộc tính lặp trong cùng rule, parser với string/comment, breakpoint có chủ ý và mobile typography.
+- Không sửa cấu trúc Canvas, API, MySQL, payment, nhạc theo dịp, bản dịch VI/EN, font hay 3D marketing. Kiểm toán CSS theo từng nhóm để tránh hồi quy diện rộng.
+
+## Unreleased — Music Occasion V4: nhạc theo sự kiện và lọc song ngữ (2026-11-22)
+
+- Bổ sung 6 bản nhạc nội bộ (sinh nhật, đám cưới, Giáng sinh, Tết dương lịch, Tết Nguyên đán, Valentine); lưu script tổng hợp sóng để tái tạo và ghi nguồn gốc tài nguyên.
+- Sender lọc thư viện nhạc theo dịp, cảm xúc và từ khóa; hiển thị nhãn VI/EN cùng layout, bổ sung CSS music-occasion rõ ràng, hỗ trợ bàn phím, reduced-motion và hiệu ứng chiều sâu nhẹ.
+- Giữ 4 bài nhạc cũ, cơ chế nghe thử/chỉnh âm lượng/Undo/Redo và Recipient opt-in; Canvas vẫn chỉ lưu `{ id, volume }`, không sửa schema, API, quyền Creator hoặc database.
+- Thêm unit test cho audio asset, bộ lọc, i18n, giới hạn ID/URL và bản sao Canvas; cập nhật hướng dẫn kiểm thử và đánh giá source mới.
+
+## Unreleased — Sửa ESLint Canvas Inspector sau refactor (2026-11-22)
+
+- Xóa biến `layout` không sử dụng trong `renderInspector()` của `designer.js` sau khi tách Inspector; giữ nguyên `props` và các kiểm tra chức năng.
+- Không thay đổi schema Canvas, API, phân quyền hoặc dữ liệu thiệp.
+## Unreleased — Tách trường thuộc tính và khóa UI Canvas Inspector (2026-11-22)
+
+- Tách dựng trường hình/sticker, tọa độ/kích thước/opacity và nút Layer khỏi `designer.js` sang `canvas-editor/inspector-fields.js` để dễ kiểm thử và bảo trì.
+- Giữ nguyên `data-editor-field`, `data-editor-action`, giới hạn giá trị, VI/EN và trạng thái mở Geometry; tách quyết định khóa UI của mẫu Creator thành hàm thuần, mặc định từ chối thao tác không được cấp quyền.
+- Thêm 9 unit test cho field theo loại, cảnh báo ngoài artboard, khóa quyền, thao tác Layer và tích hợp Designer. Không đổi Canvas JSON, API, thanh toán, nhạc nền hoặc quyền kiểm tra phía server.
+
+## Unreleased — Tách Scene/Layer Panel khỏi Canvas Designer (2026-11-22)
+
+- Tách dựng danh sách Scene/Layers và cache thumbnail sang `features/canvas-editor/scene-layer-panel.js`, giảm trách nhiệm DOM trong `designer.js`.
+- Tạo danh sách Layer từ một chỉ mục theo ID, giữ thứ tự xếp chồng, trạng thái chọn, khóa/ẩn và nhãn hỗ trợ truy cập; bỏ qua ID đã mất thay vì gây lỗi giao diện khi mở nháp cũ.
+- Giữ nguyên menu thao tác Scene, focus sau đổi tên/sắp xếp, logic khóa mẫu Creator và cache thumbnail được xóa khi chuyển thiết kế.
+- Bổ sung 9 unit test cho Scene/Layers; không sửa schema Canvas, dữ liệu người dùng, nhạc nền, API, MySQL, thanh toán, font hoặc VI/EN.
+
+## Unreleased — Tách modal xem trước và quyền chia sẻ Canvas Designer (2026-11-22)
+
+- Chuyển hộp thoại xem trước thiệp sang `canvas-editor/preview-dialog.js`, giữ nguyên Player/Preview và thao tác sửa, bắt đầu lại, gửi thiệp; giải phóng Player khi đóng hoặc chuyển trang.
+- Tách lựa chọn quyền mở/gửi/đọc quà sang `canvas-editor/gift-access-dialog.js`, bổ sung kiểm tra tổ hợp lựa chọn, mô tả quyền bằng VI/EN thực sự (không chèn dấu phẩy vào giữa các câu) và đóng an toàn khi huỷ hoặc rời Editor. Không thay đổi kiểm tra phân quyền ở backend.
+- Bổ sung kiểm thử thuần cho lựa chọn quyền, bản tóm tắt link và liên kết module; giữ nguyên Canvas JSON, nhạc nền, API, giao diện VI/EN và dữ liệu người dùng.
+
+## Unreleased — Music Library 3.1: tìm kiếm và tách giao diện Editor (2026-11-22)
+
+- Tách UI thẻ nhạc, bộ lọc, trạng thái chọn và âm lượng khỏi `designer.js` vào `features/canvas-editor/music-panel.js` để giảm phạm vi thay đổi khi nâng cấp Canvas.
+- Sender tìm nhạc theo tên/mô tả ở VI và EN, không phân biệt dấu trong tiếng Việt, kết hợp bộ lọc cảm xúc; thông báo số kết quả hoặc trạng thái rỗng cho trình đọc màn hình.
+- Giữ nguyên danh mục bốn bài, thao tác chọn, nghe thử, Undo/Redo, schema `{ id, volume }`, Recipient Player, quyền truy cập và API. Bổ sung kiểm thử i18n/metadata, xác minh CSS dễ đọc và tương thích với file cũ.
+
+## Unreleased — Music Library 3.0: chọn giai điệu theo cảm xúc (2026-11-22)
+
+- Thêm hai giai điệu gốc tổng hợp `dreamy-night` và `little-celebration`, có script tái tạo và hồ sơ nguồn gốc, không dùng tài nguyên âm thanh bên thứ ba.
+- Sender chọn nhạc qua thẻ với bộ lọc cảm xúc Êm dịu/Tươi vui; giữ dropdown cũ, Undo/Redo, nghe thử, âm lượng và kiểm tra ID tại server. Hỗ trợ VI/EN, focus, aria-pressed, mobile và reduced motion.
+- Canvas vẫn chỉ lưu `soundtrack: { id, volume }`; Recipient không autoplay, không thay đổi API, MySQL hoặc quyền truy cập. Thêm test thư viện, audio, schema và metadata song ngữ.
+
+## Unreleased — Đồng bộ trạng thái phát nhạc khi thiết bị hoặc tab thay đổi (2026-11-22)
+
+- Bộ phát nhạc cập nhật đúng nút Phát/Tạm dừng nếu audio lỗi sau khi `play()` thành công, bị dừng bằng media controls hoặc phát hết bất thường; không tự bật lại khi Promise phát đến muộn.
+- Sender nghe thử trong Designer tự dừng khi tab bị ẩn; các sự kiện audio được gỡ khi huỷ trình phát, giữ nguyên chỉ phát nhạc khi người dùng chủ động chọn.
+- Thêm test cho lỗi âm thanh muộn, sự kiện tạm dừng bên ngoài, retry, đóng Player và tích hợp listener theo vòng đời Editor. Không sửa schema Canvas, bản nhạc, API hoặc snapshot quà.
+
+## Unreleased — Âm lượng nhạc nền Canvas và trải nghiệm người nhận (2026-11-22)
+
+- Sender chỉnh âm lượng nhạc nền từ 0–100%, có số phần trăm và nghe thử ngay khi kéo; mỗi lần thả thanh tạo một mốc Undo/Redo và bảo toàn giá trị khi đổi nhạc.
+- Recipient tự chỉnh âm lượng khi mở thiệp mà không sửa bản snapshot công khai, không yêu cầu API và không autoplay; kiểm tra đầu vào trước khi cập nhật HTMLAudioElement.
+- Thêm nhãn VI/EN, responsive/focus và bài test cho giới hạn âm lượng, schema công khai, không phát tự động và nhãn giao diện. Giữ nguyên các SVG thuộc PR của Lộc và toàn bộ nghiệp vụ hiện có.
+
+## Unreleased — Nhạc nền Canvas theo lựa chọn người dùng (2026-11-22)
+
+- Sender có thể chọn 2 giai điệu nội bộ hoặc không dùng nhạc, nghe thử trong Designer và lưu lựa chọn vào Canvas V2; bản V1 cũ không bị sửa tự động.
+- Recipient có nút Phát/Tạm dừng nhạc, không autoplay; xử lý trường hợp trình duyệt chặn âm thanh, dọn playback khi ẩn tab/đổi trang.
+- Server chỉ nhận ID nhạc allowlist, không nhận URL ngoài; snapshot công khai giữ lựa chọn, tặng lại từ bố cục không sao chép nhạc cũ, policy Creator vẫn khóa các thành phần còn lại.
+- Thêm MP3 tổng hợp gốc, giao diện VI/EN, `music-controls.css`, MIME audio/mpeg, kiểm thử schema/playback/HTTP và tài liệu đánh giá source mới.
 
 ## Unreleased — Sửa hồi quy CI Canvas và MySQL của PR #19 (2026-11-22)
 

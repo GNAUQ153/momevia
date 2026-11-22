@@ -770,11 +770,11 @@ function closeModal() {
   if (wasOpen && modalReturnFocus?.isConnected) modalReturnFocus.focus();
   modalReturnFocus = null;
 }
-function openModal(content) {
+function openModal(content, { showLocaleControl = true } = {}) {
   disposeInbox?.();
   disposeInbox = null;
   if (!modal.hasChildNodes()) modalReturnFocus = document.activeElement;
-  modal.innerHTML = `<div class="modal-backdrop" data-action="close-modal"><div class="dialog" role="dialog" aria-modal="true" ${attr("aria-label", "shell.dialog")}><button class="icon-button dialog-close" data-action="close-modal" ${attr("aria-label", "common.actions.close")}>${icon("close", 21)}</button>${localeControl()}${content}</div></div>`;
+  modal.innerHTML = `<div class="modal-backdrop" data-action="close-modal"><div class="dialog" role="dialog" aria-modal="true" ${attr("aria-label", "shell.dialog")}><button class="icon-button dialog-close" data-action="close-modal" ${attr("aria-label", "common.actions.close")}>${icon("close", 21)}</button>${showLocaleControl ? localeControl() : ""}${content}</div></div>`;
   const heading = modal.querySelector('.dialog h2');
   if (heading) {
     heading.id ||= 'site-dialog-title';
@@ -807,7 +807,7 @@ function openSupport(report) {
       <button type="submit" class="btn btn--dark btn--wide">${text('support.send')} ${icon("send", 17)}</button>
     </form>
     <p class="support-note">${text('support.privacy')}</p>
-  </div>`);
+  </div>`, { showLocaleControl: false });
 }
 function setAccountMenu(open, restoreFocus = false) {
   const menu = document.getElementById("account-menu");
@@ -1546,7 +1546,7 @@ document.addEventListener("submit", async (event) => {
         <div class="support-success__code"><strong>${e(result.ticket.code)}</strong>
           <button type="button" data-action="copy-link" data-value="${e(result.ticket.code)}" ${attr('aria-label', 'support.success.copyCode')}>${icon("copy", 18)} ${text('gift.share.copy')}</button></div>
         <p class="support-note">${text('support.success.note')}</p>
-      </div>`);
+      </div>`, { showLocaleControl: false });
     } else if (form.id === "reply-form") {
       try {
         await submitReplyIntent(form.dataset.slug, data, body => api.post(form.dataset.endpoint, body));

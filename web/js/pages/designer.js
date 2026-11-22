@@ -12,20 +12,17 @@ import {
   createDocument,
   LIMITS,
 } from "../shared/canvas/index.js";
-import { mountPlayer } from "../features/gift-runtime/index.js";
 import { requiresCanvasV2 } from "../shared/canvas/schema.js";
 import { usesSound, SOUND_TYPES } from '../shared/canvas/sound.js';
-import { lines, masks, shapes } from "../shared/canvas/artwork.js";
 import { eventTimeFromLocal, interactionKinds, localEventTime, photoSlots } from "../shared/canvas/interactions.js";
 import { effectsFor, elementEffectFamilies, sceneEffectFamilies, effectPreset, effectLabel } from "../shared/canvas/effects.js";
 import { starterPresets } from '../shared/canvas/presets.js';
 import { loadCanvasLibrary, configureLibrary } from '../features/canvas-editor/library-client.js';
-import { librarySnapshot, libraryText, artworkChoices } from '../shared/canvas/library-state.js';
+import { librarySnapshot, libraryText } from '../shared/canvas/library-state.js';
 import { refreshElementArtwork } from '../shared/canvas/library-materialize.js';
 import { textFont } from "../features/gift-runtime/renderer.js";
 import { bindingLabels, clearTemplateBindingDefaults, lockedVisibleNames, visibleBindingKeys } from "../shared/canvas/personalization.js";
 import { submissionChanges } from "../shared/canvas/submission.js";
-import { giftLinkDescription } from "../shared/gift-permissions.js";
 import { framePhoto, MEMORY_TEMPLATE_ID, memoryGreetingStarterKeys } from "../shared/canvas/basic-templates.js";
 import { materializeTemplateStart } from '../features/canvas-editor/template-start.js';
 import { createEventFields, updateEventFields, createStoryTextFields, updateStoryTextFields, storyAlbum, storyClock } from '../features/canvas-editor/event-fields.js';
@@ -52,13 +49,19 @@ import { hasPendingEditorWork, historyShortcut } from "../features/canvas-editor
 import { createStage } from "../features/canvas-editor/stage.js";
 import { applyFabricWorkspacePatch } from "../features/canvas-editor/fabric-workspace.js";
 import { sceneThumbnail, thumbnail } from "../features/canvas-editor/thumbnail.js";
-import { bounds, catalog, fillPolaroid, isPolaroidPlaceholder, placeBlock, sampleBindings, stickerNames } from "../features/canvas-editor/library.js";
+import { bounds, catalog, fillPolaroid, isPolaroidPlaceholder, placeBlock, sampleBindings } from "../features/canvas-editor/library.js";
 import { addRecent, readRecent, recentKey } from "../features/canvas-editor/library-discovery.js";
 import { createDiscoveryPanel, filterDiscoveryPanel } from "../features/canvas-editor/discovery-panel.js";
 import { cropEditor } from "../features/canvas-editor/crop.js";
 import { canOpenAdvancedEditor, scenePositionLabel, selectionDescription } from "../features/canvas-editor/editor-experience.js";
 import { canStartInlineFabric, assertInlineFabricRevision } from "../features/canvas-editor/fabric-inline.js";
-import { icon } from "../ui/icons.js";
+import { soundtrackById } from '../shared/canvas/soundtracks.js';
+import { createMusicPanel, filterMusicPanel, syncMusicPanel } from '../features/canvas-editor/music-panel.js';
+import { openCanvasPreview } from "../features/canvas-editor/preview-dialog.js";
+import { openGiftAccessDialog } from "../features/canvas-editor/gift-access-dialog.js";
+import { createSceneLayerPanel } from "../features/canvas-editor/scene-layer-panel.js";
+import { buildInspectorPropertyFields, buildInspectorGeometryFields, lockInspectorControls } from "../features/canvas-editor/inspector-fields.js";
+import { createSoundtrackPlayback } from '../features/gift-runtime/soundtrack.js';
 import {
   node,
   button,
@@ -102,8 +105,12 @@ export function mountDesigner(
     assetPending = false,
     publishing = false,
     snap = true;
+  let musicPreview = null;
+  // Nghe thử chỉ hoạt động khi Sender đang xem tab thiết kế.
+  globalThis.document.addEventListener("visibilitychange", () => {
+    if (globalThis.document.hidden) musicPreview?.pause();
+  }, { signal });
   let unsubscribe = null,
-    preview = null,
     closePreview = null,
     sheet = null,
     creating = false;
@@ -122,6 +129,8 @@ export function mountDesigner(
       if (store) renderInspector(); else if (!creating) picker();
     }
     if (main.querySelector('[data-block-search]')) filterBlocks(query);
+    // Lọc lại theo bản dịch mới mà không xoá truy vấn người dùng đang nhập.
+    filterMusicPanel(main);
   });
   signal.addEventListener('abort', removeLocaleListener, { once: true });
   let inlineFabricSession = null;
@@ -522,6 +531,7 @@ export function mountDesigner(
             design.source.templateId === MEMORY_TEMPLATE_ID ? button(message("editor.quick.removePhoto"), "remove-frame-photo", { hidden: true }) : null,
           ),
         ),
+        design.purpose !== 'creator' ? createMusicPanel(store.get().document.soundtrack) : null,
         node("p", { class: "editor-help editor-layout-only" },
           message("editor.quick.bindingsHelp"),
         ),
@@ -658,114 +668,18 @@ export function mountDesigner(
     stageObserver.observe(main.querySelector(".editor-stage-scroll"));
     renderAll();
   }
-  function renderLayers() {
-    const host = main.querySelector(".editor-layers");
-    if (!host) return;
-    if (quickMode) {
-      host.replaceChildren();
-      return;
-    }
-    const scene = currentScene();
-    host.replaceChildren(
-      ...[...scene.elementIds].reverse().map((idValue) => {
-        const item = store
-          .get()
-          .document.elements.find((element) => element.id === idValue);
-        const label = item.name || registry[item.type].label;
-        const locked = item.locked || design.policy?.lockedElements?.[item.id];
-        const hidden = item.visible === false;
-        const choice = button(
-          label,
-          "select",
-          {
-            "data-id": idValue,
-            class: selection === idValue ? "is-selected" : "",
-            "aria-pressed": selection === idValue,
-            "aria-label": message("editor.interface.layerLabel", {
-              name: label, hidden: hidden ? { format: "message", key: "editor.interface.layerHidden" } : "",
-              locked: locked ? { format: "message", key: "editor.interface.layerLocked" } : "",
-            }),
-          },
-        );
-        if (hidden || locked) {
-          const flags = node("span", { class: "editor-layer-flags", "aria-hidden": "true" });
-          flags.innerHTML = (hidden ? icon("eye-off", 15) : "") + (locked ? icon("lock", 15) : "");
-          choice.append(flags);
-        }
-        return choice;
-      }),
-    );
-  }
-  const sceneThumbs = new Map();
-  function renderScenes() {
-    const host = main.querySelector(".editor-scenes");
-    if (!host) return;
-    const doc = store.get().document;
-    const indexed = quickMode ? null : new Map(doc.elements.map(model => [model.id, model]));
-    const structure = JSON.stringify([quickMode, design.policy?.kind, doc.entrySceneId, doc.scenes.map(({ id, name }) => [id, name])]);
-    function updateThumbnail(card, scene) {
-      if (quickMode) return;
-      const models = scene.elementIds.map(id => indexed.get(id));
-      const bindings = models.map(model => doc.bindings[model?.props.textBinding]?.value);
-      const signature = JSON.stringify([doc.artboard.baseSize, scene.background, scene.effects?.surface, models, bindings]);
-      const cached = sceneThumbs.get(scene.id);
-      const thumbnail = cached?.signature === signature
-        ? cached.thumbnail : sceneThumbnail(doc, scene, { assetUrl, indexed });
-      sceneThumbs.set(scene.id, { signature, thumbnail });
-      const current = card.querySelector(".editor-thumbnail");
-      if (current === thumbnail) return;
-      if (current) current.replaceWith(thumbnail);
-      else card.prepend(thumbnail);
-    }
-    if (host.dataset.structure === structure) {
-      for (const [index, wrapper] of [...host.children].entries()) {
-        const scene = doc.scenes[index];
-        const card = wrapper.firstElementChild;
-        const selected = scene.id === sceneId;
-        card.classList.toggle("is-selected", selected);
-        card.setAttribute("aria-pressed", String(selected));
-        updateThumbnail(card, scene);
-      }
-      return;
-    }
-    host.dataset.structure = structure;
-    for (const id of sceneThumbs.keys()) if (!doc.scenes.some(scene => scene.id === id)) sceneThumbs.delete(id);
-    const active = document.activeElement;
-    const focusedId = host.contains(active) ? active.closest("[data-scene]")?.dataset.scene : null;
-    const openId = host.querySelector("details[open]")?.closest("[data-scene]").dataset.scene;
-    const locked = design.policy?.kind === "creator-template";
-    host.replaceChildren(...doc.scenes.map((scene, index) => {
-      const entry = scene.id === doc.entrySceneId;
-      const selected = scene.id === sceneId;
-      const card = button("", "scene-select", {
-        "data-id": scene.id, "aria-pressed": selected,
-        class: `editor-scene-choice${selected ? " is-selected" : ""}`,
-      });
-      updateThumbnail(card, scene);
-      card.append(node("span", { class: "editor-scene-name" }, scene.name));
-      if (entry && !quickMode) card.append(node("span", { class: "editor-scene-entry" }, message("editor.scene.entry")));
-      const summary = node("summary", { "aria-label": message("editor.interface.sceneMenu", { name: scene.name }) });
-      summary.innerHTML = icon("more", 18);
-      const menu = node("details", { class: "editor-scene-menu editor-layout-only" },
-        summary,
-        node("div", { class: "editor-scene-menu-actions" }, ...sceneActions.map(([label, action]) =>
-          button(message(`editor.interface.sceneAction.${action}`), action, {
-            "data-id": scene.id, disabled:
-              action === "scene-up" && index === 0 ||
-              action === "scene-down" && index === doc.scenes.length - 1 ||
-              action === "scene-entry" && entry ||
-              action === "scene-delete" && doc.scenes.length === 1,
-          }))));
-      menu.open = scene.id === openId;
-      return node("div", { class: "editor-scene-card", "data-scene": scene.id }, card, locked ? null : menu);
-    }));
-    if (focusedId) {
-      const card = host.querySelector(`[data-scene="${CSS.escape(focusedId)}"]`);
-      const focusTarget = active.matches("summary") ? card?.querySelector("summary") :
-        active.dataset.editorAction !== "scene-select" ? card?.querySelector("summary") : card?.firstElementChild;
-      focusTarget?.focus({ preventScroll: true });
-    }
-  }
+  // Chỉ điều phối; DOM và cache thumbnail nằm trong Scene/Layer Panel riêng.
+  const sceneLayerPanel = createSceneLayerPanel({
+    main,
+    getDocument: () => store.get().document,
+    getSceneId: () => sceneId,
+    getSelection: () => selection,
+    getPolicy: () => design.policy,
+    isQuickMode: () => quickMode,
+    assetUrl,
+    message,
+  });
+  const { renderLayers, renderScenes } = sceneLayerPanel;
   function renderAssets() {
     const host = main.querySelector(".editor-assets");
     if (!host) return;
@@ -929,7 +843,7 @@ export function mountDesigner(
         ),
       );
     } else {
-      const { props, layout } = element;
+      const { props } = element;
       children.push(
         input(message("editor.interface.layerName"), "element.name", element.name || "", {
           maxlength: 100,
@@ -992,82 +906,7 @@ export function mountDesigner(
       }
       if (element.type === "interaction") children.push(...interactionFields(element));
       if(SOUND_TYPES.includes(element.type)&&!element.locked&&!policy&&design.policy?.kind!=='creator-template')children.push(node('h3',{},message('sfx.onPress')),button(message(element.sound?'sfx.replace':'sfx.open'),'sound-picker'),element.sound?node('p',{class:'editor-help'},message(element.sound.kind==='library'?'sfx.library':'sfx.personal')):null);
-      for (const key of element.type === "interaction" ? [] : registry[element.type].inspector) {
-        if (
-          [
-            "text",
-            "textBinding",
-            "fontToken",
-            "fontSize",
-            "align",
-            "assetId",
-            "focalPoint",
-          ].includes(key)
-        )
-          continue;
-        if (["color", "strokeColor"].includes(key))
-          children.push(
-            input(
-              message(key === "color" ? "editor.interface.color" : "editor.interface.stroke"),
-              `props.${key}`,
-              props[key],
-              { type: "color" },
-            ),
-          );
-        else if (["radius", "strokeWidth"].includes(key))
-          children.push(
-            input(
-              message(key === "radius" ? "editor.interface.radius" : "editor.interface.strokeWidth"),
-              `props.${key}`,
-              props[key],
-              { type: "number", min: 0, max: key === "radius" ? 512 : 40 },
-            ),
-          );
-        else if (key === "kind")
-          children.push(
-            select(message("editor.interface.shape"), "props.kind", props.kind, [
-              ["rectangle", message("editor.interface.shapeRectangle")],
-              ["ellipse", message("editor.interface.shapeEllipse")],
-              ["line", message("editor.interface.shapeLine")],
-              ...artworkChoices('shape', Object.keys(shapes).map((id, i) => [id, message(`editor.interface.shape.${["triangle", "diamond", "hexagon", "arch", "ribbon", "bubble"][i]}`)]), currentLocale()),
-            ]),
-          );
-        else if (key === "mask" && props.mask)
-          children.push(select(message("editor.interface.imageMask"), "props.mask", props.mask,
-            artworkChoices('mask', Object.keys(masks).map((id, i) => [id, message(`editor.interface.mask.${["round", "arch", "heart", "torn"][i]}`)]), currentLocale())));
-        else if (key === "caption" && Object.hasOwn(props, key))
-          children.push(field(message("editor.interface.caption"), node("textarea", { "data-editor-field": "props.caption", maxlength: LIMITS.text, rows: 3 }, props.caption)));
-        else if (key === "pattern" && props.pattern)
-          children.push(select(message("editor.interface.linePattern"), "props.pattern", props.pattern,
-            artworkChoices('line', Object.keys(lines).map((id, i) => [id, message(`editor.interface.pattern.${["arc", "stitch", "arrow", "wave", "brace", "corners"][i]}`)]), currentLocale())));
-        else if (key === "fit")
-          children.push(
-            select(message("editor.interface.photoFrame"), "props.fit", props.fit, [
-              ["cover", message("editor.interface.fitCover")],
-              ["contain", message("editor.interface.fitContain")],
-            ]),
-          );
-        else if (key === "stickerId")
-          children.push(
-            select(
-              message("editor.interface.sticker"),
-              "props.stickerId",
-              props.stickerId,
-              artworkChoices('sticker', Object.entries(stickerNames), currentLocale()),
-            ),
-          );
-        else if (!["preset", "pattern", "mask", "maskPath", "caption", "optional"].includes(key))
-          children.push(
-            input(
-              { label: message("editor.interface.label.button"), title: message("editor.interface.label.title"), submitLabel: message("editor.interface.label.submitLabel") }[
-              key
-              ] || key,
-              `props.${key}`,
-              props[key],
-              { maxlength: 120 },
-            ),
-          );
-      }
+      children.push(...buildInspectorPropertyFields(element));
       if (element.type === "image") {
         const focal = props.focalPoint || { x: 0.5, y: 0.5 };
         children.push(
@@ -1136,91 +975,13 @@ export function mountDesigner(
         }
       }
       children.push(...effectFields(element, element));
-      children.push(
-        node(
-          "details",
-          { class: "editor-geometry" },
-          node("summary", {}, message("editor.interface.geometry")),
-          node("div", { class: "editor-layout-fields" },
-            ...[["x", "X"], ["y", "Y"], ["width", message("editor.interface.geometry.width")], ["height", message("editor.interface.geometry.height")], ["rotation", message("editor.interface.geometry.rotation")]]
-              .map(([key, label]) => input(label, `layout.${key}`, Number(layout[key].toFixed(2)), {
-                type: "number",
-                min: key === "width" || key === "height" ? 1 : key === "rotation" ? -360 : -LIMITS.coordinate,
-                max: key === "rotation" ? 360 : LIMITS.coordinate,
-                step: 1,
-              })),
-          ),
-          node("div", { class: "editor-control-row", role: "group", "aria-label": message("editor.interface.positionGroup") },
-            button(message("editor.interface.centerHorizontal"), "center"),
-            button(message("editor.interface.inside"), "inside"),
-          ),
-        ),
-        input(message("editor.interface.opacity"), "element.opacity", toPercent(1 - (element.opacity ?? 1)), {
-          type: "number",
-          min: 0,
-          max: 100,
-          step: 1,
-          title: message("editor.interface.opacityHint"),
-        }),
-        node(
-          "div",
-          { class: "editor-control-row" },
-          iconButton(message("editor.interface.layerShow"), "layer-visibility", element.visible === false ? "eye-off" : "eye", {
-            "aria-pressed": element.visible !== false,
-          }),
-          iconButton(message("editor.interface.layerLock"), "layer-lock", element.locked ? "lock" : "unlock", {
-            "aria-pressed": Boolean(element.locked),
-          }),
-          button(message("editor.interface.layerUp"), "layer-up"),
-          button(message("editor.interface.layerDown"), "layer-down"),
-          button(message("editor.interface.duplicate"), "element-duplicate"),
-          button(message("editor.interface.delete"), "element-delete"),
-        ),
-      );
-      const size = store.get().document.artboard.baseSize;
-      if (
-        layout.x < 0 ||
-        layout.y < 0 ||
-        layout.x + layout.width > size.width ||
-        layout.y + layout.height > size.height
-      )
-        children.push(
-          node(
-            "p",
-            { class: "editor-help" },
-            message("editor.interface.outsideCanvas"),
-          ),
-        );
+      children.push(...buildInspectorGeometryFields(element, store.get().document.artboard.baseSize));
     }
     host.replaceChildren(...children);
     if (keepGeometry) host.querySelector(".editor-geometry").open = true;
     if (!element && design.policy?.kind === "creator-template")
       host.querySelectorAll("[data-editor-field], [data-editor-action='effect-remove']").forEach(control => { control.disabled = true; });
-    if (policy) {
-      const permitted = policy.editableProps || [];
-      host.insertBefore(
-        node(
-          "p",
-          { class: "editor-help" },
-          message("editor.interface.lockedTemplate"),
-        ),
-        host.children[1] || null,
-      );
-      for (const control of host.querySelectorAll("[data-editor-field]")) {
-        const key = control.dataset.editorField;
-        control.disabled = !(
-          (key.startsWith("props.") && permitted.includes(key.slice(6))) ||
-          (key.startsWith("crop.") && permitted.includes("focalPoint")) ||
-          (key === "upload" && permitted.includes("assetId"))
-        );
-      }
-      for (const control of host.querySelectorAll("[data-editor-action]"))
-        if (control.dataset.editorAction !== "close-sheet" &&
-          !(control.dataset.editorAction === "text-align" && permitted.includes("align")) &&
-          !(control.dataset.editorAction === "text-font" && permitted.includes("fontToken")) &&
-          !(control.dataset.editorAction === "inline-text" && textOptions(element)))
-          control.disabled = true;
-    }
+    lockInspectorControls(host, policy, Boolean(textOptions(element)));
     if (previousField && !composing)
       host.querySelector(`[data-editor-field="${CSS.escape(previousField)}"]`)?.focus({ preventScroll: true });
   }
@@ -1266,14 +1027,21 @@ export function mountDesigner(
     const title = main.querySelector(".editor-title");
     if (title && title !== document.activeElement)
       title.value = store.get().title;
+    if (musicPreview && musicPreview.track.id !== (doc.soundtrack?.id || "")) {
+      musicPreview.dispose();
+      musicPreview = null;
+    }
+    syncMusicPanel(main, doc.soundtrack, { playing: Boolean(musicPreview?.playing) });
     updateCanvasGuidance();
   }
   async function initialize(loaded) {
     if (disposed) return;
-    sceneThumbs.clear();
+    sceneLayerPanel.clear();
     unsubscribe?.();
     session?.dispose();
     stage?.dispose();
+    musicPreview?.dispose();
+    musicPreview = null;
     design = loaded;
     if (id && !templateId && !["quick", "layout"].includes(mode)) {
       try { quickMode = localStorage.getItem(modeKey(id)) === "quick"; } catch { /* Optional cache. */ }
@@ -1466,53 +1234,19 @@ export function mountDesigner(
   }
   function openPreview(effectPreview) {
     if (assetPending) throw new Error(t("editor.preview.waitPhoto"));
-    const title = message(quickMode ? "editor.mode.recipientPreview" : "editor.preview.title");
-    const dialog = node(
-      "dialog",
-      { class: "editor-preview-dialog", "aria-labelledby": "editor-preview-title" },
-      node(
-        "div",
-        { class: "editor-preview-heading" },
-        node("h2", { id: "editor-preview-title" }, title),
-        button(message("editor.preview.restart"), "preview-reset"),
-        quickMode ? button(message("editor.preview.edit"), "preview-close") : iconButton(message("editor.preview.close"), "preview-close", "close"),
-        quickMode ? button(message("editor.preview.send"), "preview-send", { class: "editor-primary" }) : null,
-      ),
-      node("div", { class: "editor-preview-player" }),
-    );
-    document.body.append(dialog);
-    dialogs.add(dialog);
-    closePreview = trapDialog(dialog, () => {
-      preview?.dispose();
-      preview = null;
-      closePreview = null;
-      dialogs.delete(dialog);
+    // Player xem trước được quản lý riêng, không sửa bản nháp đang thao tác.
+    closePreview?.();
+    closePreview = openCanvasPreview({
+      document: structuredClone(store.get().document),
+      assetUrl,
+      quickMode,
+      effectPreview,
+      signal,
+      dialogs,
+      message,
+      onSend: () => void safe(publish)(),
+      onClose: () => { closePreview = null; },
     });
-    try {
-      preview = mountPlayer(dialog.querySelector(".editor-preview-player"), {
-        document: structuredClone(store.get().document),
-        assetUrl,
-        mode: "preview",
-        effectPreview,
-      });
-    } catch (error) {
-      closePreview();
-      throw error;
-    }
-    dialog.addEventListener(
-      "click",
-      (event) => {
-        const action = event.target.closest("[data-editor-action]")?.dataset
-          .editorAction;
-        if (action === "preview-close") closePreview?.();
-        if (action === "preview-reset") preview?.reset();
-        if (action === "preview-send") {
-          closePreview?.();
-          void safe(publish)();
-        }
-      },
-      { signal },
-    );
   }
   async function flushSave(options) {
     if (composing)
@@ -1596,49 +1330,8 @@ export function mountDesigner(
     }, { signal });
   }
   function chooseGiftAccess() {
-    const invite = ["invite", message("editor.access.invite")];
-    const link = ["link", message("editor.access.link")];
-    const choose = ["", message("editor.access.choose")];
-    const descriptions = node("div", { role: "status" });
-    const form = node("form", {},
-      node("h2", {}, message("editor.access.title")),
-      node("p", {}, message("editor.access.help")),
-      select(message("editor.access.open"), "open", "", [choose, link, invite]),
-      select(message("editor.access.send"), "send", "", [choose, link, invite, ["disabled", message("editor.access.disabled")]]),
-      select(message("editor.access.read"), "read", "", [choose, link, invite, ["sender", message("editor.access.sender")]]),
-      descriptions,
-      node("button", { type: "submit", class: "editor-primary" }, message("editor.access.publish")),
-      node("button", { type: "button" }, message("editor.actions.back")),
-    );
-    const controls = [...form.querySelectorAll("select")];
-    controls.forEach(control => { control.required = true; });
-    const selection = () => Object.fromEntries(controls.map(control => [control.dataset.editorField, control.value]));
-    form.addEventListener("change", () => {
-      const access = selection();
-      const values = Object.values(access);
-      descriptions.replaceChildren();
-      if (!values.every(Boolean)) return;
-      descriptions.append(node("p", {}, message("editor.interface.normalLink", { description: giftLinkDescription(access, false) })));
-      if (values.includes("invite")) descriptions.append(node("p", {}, message("editor.interface.inviteLink", { description: giftLinkDescription(access, true) })));
-    }, { signal });
-    const dialog = node("dialog", { class: "editor-preview-dialog", "aria-label": message("editor.access.title") }, form);
-    return new Promise(resolve => {
-      let access;
-      document.body.append(dialog);
-      dialogs.add(dialog);
-      const close = trapDialog(dialog, () => {
-        dialogs.delete(dialog);
-        lifecycle.signal.removeEventListener("abort", close);
-        resolve(access);
-      });
-      lifecycle.signal.addEventListener("abort", close, { once: true });
-      form.querySelector('button[type="button"]').addEventListener("click", close);
-      form.addEventListener("submit", event => {
-        event.preventDefault();
-        access = selection();
-        close();
-      });
-    });
+    // Hộp thoại chỉ thu lựa chọn; API vẫn xác minh quyền ở phía máy chủ.
+    return openGiftAccessDialog({ message, signal, dialogs });
   }
   async function publish() {
     if (publishing) return;
@@ -2058,6 +1751,30 @@ export function mountDesigner(
       await initialize(current);
       return;
     }
+    if (name === 'soundtrack-pick') {
+      const id = target.dataset.trackId ?? '';
+      if (id && !soundtrackById(id)) return;
+      const musicSelect = main.querySelector('[data-editor-field="soundtrack"]');
+      if (!musicSelect || musicSelect.value === id) return;
+      // Dùng chung handler của dropdown để duy trì validation, Undo/Redo và trạng thái nghe thử.
+      musicSelect.value = id;
+      await change({ target: musicSelect });
+      return;
+    }
+    if (name === 'soundtrack-preview') {
+      const selectedTrack = store?.get().document.soundtrack;
+      if (!selectedTrack) return;
+      if (!musicPreview) musicPreview = createSoundtrackPlayback(selectedTrack, {
+        onState: ({ playing, error }) => {
+          if (disposed) return;
+          const control = main.querySelector('[data-editor-action="soundtrack-preview"]');
+          if (control) setText(control, message(playing ? 'editor.music.stop' : 'editor.music.listen'));
+          if (error) toast(t('gift.music.error'), 'error');
+        },
+      });
+      if (musicPreview) await musicPreview.toggle();
+      return;
+    }
     if (name === "save" || name === "retry-save") {
       await flushSave({ force: Boolean(design.reviewTemplateDefaults) });
       return;
@@ -2418,6 +2135,10 @@ export function mountDesigner(
     }
   }
   async function change(event) {
+    if (event.target.matches('[data-editor-music-filter], [data-editor-music-occasion]')) {
+      filterMusicPanel(main);
+      return;
+    }
     if (event.target.matches("[data-block-group-select]")) {
       filterBlocks(main.querySelector("[data-block-search]").value);
       return;
@@ -2432,6 +2153,30 @@ export function mountDesigner(
     }
     if (key === "snap") {
       snap = control.checked;
+      return;
+    }
+    if (key === 'soundtrack') {
+      musicPreview?.dispose();
+      musicPreview = null;
+      commit(next => {
+        if (control.value) next.document.soundtrack = { id: control.value, volume: next.document.soundtrack?.volume ?? 0.55 };
+        else delete next.document.soundtrack;
+      }, t('editor.history.selectMusic'));
+      const listen = main.querySelector('[data-editor-action="soundtrack-preview"]');
+      if (listen) {
+        listen.disabled = !control.value;
+        setText(listen, message('editor.music.listen'));
+      }
+      return;
+    }
+    if (key === 'soundtrack-volume') {
+      const percent = Number(control.value);
+      if (!Number.isFinite(percent) || percent < 0 || percent > 100) return;
+      if (!store.get().document.soundtrack) return;
+      commit(next => {
+        next.document.soundtrack.volume = percent / 100;
+      }, t('editor.history.setMusicVolume'));
+      musicPreview?.setVolume(percent / 100);
       return;
     }
     if (key === "upload" || key === "quick-photo" || key === 'event-photo') {
@@ -2626,8 +2371,22 @@ export function mountDesigner(
   main.addEventListener(
     "input",
     safe((event) => {
+      if (event.target.matches("[data-editor-music-search]")) {
+        filterMusicPanel(main);
+        return;
+      }
       if (event.target.matches("[data-block-search]")) {
         filterBlocks(event.target.value);
+        return;
+      }
+      if (event.target.matches('[data-editor-field="soundtrack-volume"]')) {
+        // Khi kéo thanh, cập nhật số phần trăm và nghe thử mà chưa lưu lịch sử.
+        const percent = Number(event.target.value);
+        if (Number.isFinite(percent) && percent >= 0 && percent <= 100) {
+          const readout = main.querySelector('[data-editor-music-percent]');
+          if (readout) setText(readout, `${percent}%`);
+          musicPreview?.setVolume(percent / 100);
+        }
         return;
       }
       if (
@@ -2815,11 +2574,12 @@ export function mountDesigner(
       if (inlineFabricSession?.dialog) dialogs.delete(inlineFabricSession.dialog);
       inlineFabricSession?.close();
       lifecycle.abort();
+      musicPreview?.dispose();
       session?.dispose();
       unsubscribe?.();
       stageObserver?.disconnect();
       stage?.dispose();
-      preview?.dispose();
+      closePreview?.();
       for (const dialog of dialogs) {
         dialog.close();
         dialog.remove();

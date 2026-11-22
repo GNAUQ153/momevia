@@ -10,4 +10,7 @@
 | Tổ chức pilot và ghi kết quả bằng tay | [Hướng dẫn beta](SENDER_CREATOR_BETA.md) |
 | Tra thành phần bên ngoài | [Notices](THIRD_PARTY_NOTICES.md) · [Giấy phép QR](licenses/qrcode-generator-MIT.txt) |
 
+| Đánh giá source mới, vai trò, OOP, bảo mật và UI/UX | [Code Review 22/11 V4](SOURCE_REVIEW_20261122_V4.md) |
+| Nhạc nền theo sinh nhật, đám cưới, Noel và các dịp khác | [Music Occasion V4](MUSIC_OCCASIONS_V4.md) |
+
 Thay đổi theo phiên bản được ghi trong [Changelog](../CHANGELOG.md).

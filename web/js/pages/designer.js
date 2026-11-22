@@ -102,6 +102,10 @@ export function mountDesigner(
     publishing = false,
     snap = true;
   let musicPreview = null;
+  // Nghe thử chỉ hoạt động khi Sender đang xem tab thiết kế.
+  globalThis.document.addEventListener("visibilitychange", () => {
+    if (globalThis.document.hidden) musicPreview?.pause();
+  }, { signal });
   let unsubscribe = null,
     preview = null,
     closePreview = null,

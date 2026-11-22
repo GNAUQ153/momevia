@@ -13,22 +13,57 @@ export function createSoundtrackPlayback(config, { createAudio = () => new Audio
   let version = 0;
   let playing = false;
   let pending = false;
-  const publish = (error = false) => onState({ playing, error });
-  function pause() {
+  let failed = false;
+  const publish = () => onState({ playing, error: failed });
+
+  // Đồng bộ nút phát khi trình duyệt hoặc thiết bị tạm dừng nhạc bên ngoài UI.
+  function onAudioPause() {
+    if (disposed || (!playing && !pending)) return;
     version++;
-    audio.pause();
-    playing = false;
     pending = false;
-    if (!disposed) publish();
+    playing = false;
+    failed = false;
+    publish();
   }
+
+  // Có thể phát lỗi sau khi play() đã resolve: không giữ nút ở trạng thái Đang phát.
+  function onAudioError() {
+    if (disposed || failed) return;
+    version++;
+    pending = false;
+    playing = false;
+    failed = true;
+    audio.pause();
+    publish();
+  }
+
+  audio.addEventListener?.("pause", onAudioPause);
+  audio.addEventListener?.("ended", onAudioPause);
+  audio.addEventListener?.("error", onAudioError);
+
+  function pause() {
+    if (disposed) return;
+    version++;
+    pending = false;
+    playing = false;
+    failed = false;
+    audio.pause();
+    publish();
+  }
+
   async function toggle() {
     if (disposed) return false;
-    if (playing || pending) { pause(); return false; }
+    if (playing || pending) {
+      pause();
+      return false;
+    }
     const intent = ++version;
     pending = true;
+    failed = false;
     try {
       await audio.play();
       if (disposed || intent !== version) {
+        // Promise phát có thể hoàn thành muộn sau khi pause/đóng trình phát.
         if (disposed || (!pending && !playing)) audio.pause();
         return false;
       }
@@ -40,11 +75,13 @@ export function createSoundtrackPlayback(config, { createAudio = () => new Audio
       if (!disposed && intent === version) {
         pending = false;
         playing = false;
-        publish(true);
+        failed = true;
+        publish();
       }
       return false;
     }
   }
+
   return {
     track,
     toggle,
@@ -61,6 +98,9 @@ export function createSoundtrackPlayback(config, { createAudio = () => new Audio
       if (disposed) return;
       disposed = true;
       version++;
+      audio.removeEventListener?.("pause", onAudioPause);
+      audio.removeEventListener?.("ended", onAudioPause);
+      audio.removeEventListener?.("error", onAudioError);
       audio.pause();
       audio.removeAttribute?.("src");
       audio.load?.();

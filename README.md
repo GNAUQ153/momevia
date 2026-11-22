@@ -91,19 +91,19 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Thiết kế lại Login/Register bằng layout hai cột thoáng trên desktop và form một cột khi tablet/mobile: font nhập liệu 16px, nhãn 14px, nút 54px, focus rõ, có thương hiệu Momevia trên mobile và ảnh 3D hiện có chuyển động nhẹ (tôn trọng reduced-motion).
-- Giữ CTA “Đăng ký ngay”, liên kết “Đăng nhập ngay” và Quên mật khẩu. Chỉ hiển thị Google/Zalo khi thực sự được cấu hình; không đặt nút OAuth vô hiệu gây nhầm lẫn.
-- Tập trung toàn bộ CSS Auth tại `auth-pages.css`, loại bỏ lớp override Auth tại `ui-polish.css`, chuẩn hóa CSS còn lại để tránh viết dồn dòng; đưa hai stylesheet vào quality gate, bổ sung kiểm thử layout, accessibility, provider và VI/EN.
-- Không sửa session, xử lý mật khẩu, database, Canvas, Music Library, payment hoặc support workflow.
+- Thiết kế lại Login/Register theo layout sáng, tập trung vào form một cột trên desktop và mobile, input 16px, nút 52–54px, khoảng cách/typography đồng bộ, giữ hình 3D hiện có và hỗ trợ reduced motion.
+- Đưa hai lựa chọn Google/Zalo lên trước form email ở cả hai trang. Chỉ tạo liên kết `/api/auth/{provider}` khi backend xác nhận phương thức đã cấu hình; nếu chưa, hiển thị rõ trạng thái vô hiệu hóa thay vì ẩn hoàn toàn.
+- Thêm nhãn VI/EN cho trạng thái OAuth và bộ chia email, loại bỏ logo phụ thuộc vào nguồn ảnh ngoài và các selector `.auth-page` legacy trùng trong `gift.css`; giữ CTA Đăng ký/Đăng nhập ngay, quên mật khẩu và quy trình xác thực phía server.
+- Cập nhật regression test V7 theo contract V8 và thêm kiểm thử OAuth, accessibility, responsive và i18n. Không sửa cookie/session, database, Canvas, Payment hoặc Support API.
 
 **Các commit gần nhất trên `main`:**
 
+- `68020d4` — feat: improve auth UX and restore visible Google Zalo options (2026-11-22)
 - `a849ab0` — feat: redesign responsive login and registration experience (2026-11-22)
 - `7ed1b4e` — fix: restore signup CTA and simplify support language UI (2026-11-22)
 - `2887c24` — style: standardize CSS and guard visual quality (2026-11-22)
 - `015a350` — feat: add occasion-based Canvas music library and bilingual filters (2026-11-22)
 - `8f55a9e` — refactor: extract Canvas Inspector controls and policy helpers (2026-11-22)
-- `a537c01` — fix: remove unused layout binding after Inspector refactor (2026-11-22)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

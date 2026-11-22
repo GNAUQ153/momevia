@@ -97,14 +97,14 @@ export async function runSfxBrowser({fixture,owner,gift,check}){
    try{
     await mixed.addInitScript(()=>{
      globalThis.__mixedMusic=[];
-     const play=HTMLMediaElement.prototype.play;
-     HTMLMediaElement.prototype.play=function(...args){globalThis.__mixedMusic.push(this);return play.apply(this,args);};
+     const play=globalThis.HTMLMediaElement.prototype.play;
+     globalThis.HTMLMediaElement.prototype.play=function(...args){globalThis.__mixedMusic.push(this);return play.apply(this,args);};
     });
     await mixed.goto(base+'/g/'+gift.slug);
     const music=mixed.locator('.gift-soundtrack-button'),sfx=mixed.locator('[data-sound-control]');
     await music.waitFor();assert.equal(await music.getAttribute('aria-pressed'),'false');assert.equal(await sfx.getAttribute('aria-pressed'),'false');
     assert.equal(await mixed.evaluate(()=>globalThis.__mixedMusic.length),0);
-    await music.click();await mixed.waitForFunction(()=>document.querySelector('.gift-soundtrack-button')?.getAttribute('aria-pressed')==='true');
+    await music.click();await mixed.waitForFunction(()=>globalThis.document.querySelector('.gift-soundtrack-button')?.getAttribute('aria-pressed')==='true');
     const volume=mixed.locator('.gift-soundtrack-volume');await volume.focus();await volume.press('Home');
     assert.equal(await mixed.evaluate(()=>globalThis.__mixedMusic[0].volume),0);
     await volume.press('ArrowRight');assert.equal(await mixed.evaluate(()=>globalThis.__mixedMusic[0].volume),.05);

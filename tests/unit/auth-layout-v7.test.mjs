@@ -37,20 +37,25 @@ test("Login đặt CTA Đăng ký ngay cạnh form; Register có liên kết qua
   assert.match(register, /autocomplete="new-password"/);
 });
 
-test("SSO chưa cấu hình không tạo nút không thể sử dụng; SSO đã cấu hình vẫn hiển thị", () => {
-  const disabled = views().authPage("login");
-  assert.doesNotMatch(disabled, /class="auth-divider"/);
-  assert.doesNotMatch(disabled, /class="auth-buttons/);
-  assert.doesNotMatch(disabled, /class="auth-social"/);
+test("OAuth Google/Zalo luôn được nhận diện, nhưng chỉ có URL khi backend sẵn sàng", () => {
   for (const route of ["login", "register"]) {
+    const disabled = views().authPage(route);
+    assert.equal((disabled.match(/class="auth-social auth-social--disabled"/g) || []).length, 2);
+    assert.match(disabled, /data-auth-provider="google" disabled/);
+    assert.match(disabled, /data-auth-provider="zalo" disabled/);
+    assert.doesNotMatch(disabled, /href="\/api\/auth\/(google|zalo)"/);
+    assert.match(disabled, /auth-provider-note" role="status"/);
+
     const one = views({ google: true }).authPage(route);
-    assert.match(one, /class="auth-buttons auth-buttons--single"/);
-    assert.match(one, /href="\/api\/auth\/google"/);
+    assert.equal((one.match(/class="auth-social" href="\/api\/auth\/google"/g) || []).length, 1);
+    assert.match(one, /data-auth-provider="zalo" disabled/);
     assert.doesNotMatch(one, /href="\/api\/auth\/zalo"/);
+
     const two = views({ google: true, zalo: true }).authPage(route);
     assert.match(two, /href="\/api\/auth\/google"/);
     assert.match(two, /href="\/api\/auth\/zalo"/);
-    assert.equal((two.match(/class="auth-social"/g) || []).length, 2);
+    assert.equal((two.match(/class="auth-social" href=/g) || []).length, 2);
+    assert.doesNotMatch(two, /auth-provider-note" role="status"/);
   }
 });
 
@@ -70,13 +75,13 @@ test("Typography 16px và vùng thao tác >=44px, cân đối tại desktop và 
   const css = source("web/css/auth-pages.css");
   const input = css.match(/\.auth-panel \.auth-input input\s*\{([^}]*)\}/)?.[1] || "";
   assert.match(input, /font-size:\s*16px;/);
-  assert.match(input, /min-height:\s*54px;/);
+  assert.match(input, /min-height:\s*52px;/);
   assert.match(css, /\.auth-panel \.auth-toggle-password\s*\{[^}]*min-height:\s*44px;/);
   assert.match(css, /\.auth-panel \.auth-submit\s*\{[^}]*min-height:\s*54px;/);
-  assert.match(css, /@media \(max-width:\s*1020px\)\s*\{/);
+  assert.match(css, /@media \(max-width:\s*990px\)\s*\{/);
   assert.match(css, /@media \(max-width:\s*600px\)\s*\{/);
-  assert.match(css, /@media \(min-width:\s*1200px\)\s*\{/);
-  assert.match(css, /\.auth-page--register \.auth-form\s*\{[^}]*grid-template-columns:\s*repeat\(2, minmax\(0, 1fr\)\);/);
+  assert.match(css, /\.auth-panel \.auth-form\s*\{[^}]*grid-template-columns:\s*minmax\(0, 1fr\);/);
+  assert.doesNotMatch(css, /auth-page--register \.auth-form\s*\{[^}]*repeat\(2/);
 });
 
 test("Không còn CSS auth ghi đè trong ui-polish; CSS được kiểm tra chống khai báo dồn", () => {

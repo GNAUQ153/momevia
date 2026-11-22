@@ -1009,20 +1009,6 @@
   color: var(--muted);
   line-height: 2;
 }
-.auth-page {
-  width: min(100%, 500px);
-  padding: 35px;
-  margin: auto;
-  border: 1px solid var(--line);
-  border-radius: 20px;
-}
-.auth-page h1 {
-  font-size: 28px;
-}
-.auth-page p {
-  color: var(--muted);
-  font-size: 13px;
-}
 /* Cảnh thứ hai tạo khoảng dừng cảm xúc trước khi mở lời chúc. */
 .recipient-surprise {
   display: none;

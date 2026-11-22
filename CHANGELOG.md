@@ -1,3 +1,10 @@
+## Unreleased — Auth Experience V8: cải thiện form và khôi phục Google/Zalo (2026-11-22)
+
+- Thiết kế lại Login/Register theo layout sáng, tập trung vào form một cột trên desktop và mobile, input 16px, nút 52–54px, khoảng cách/typography đồng bộ, giữ hình 3D hiện có và hỗ trợ reduced motion.
+- Đưa hai lựa chọn Google/Zalo lên trước form email ở cả hai trang. Chỉ tạo liên kết `/api/auth/{provider}` khi backend xác nhận phương thức đã cấu hình; nếu chưa, hiển thị rõ trạng thái vô hiệu hóa thay vì ẩn hoàn toàn.
+- Thêm nhãn VI/EN cho trạng thái OAuth và bộ chia email, loại bỏ logo phụ thuộc vào nguồn ảnh ngoài và các selector `.auth-page` legacy trùng trong `gift.css`; giữ CTA Đăng ký/Đăng nhập ngay, quên mật khẩu và quy trình xác thực phía server.
+- Cập nhật regression test V7 theo contract V8 và thêm kiểm thử OAuth, accessibility, responsive và i18n. Không sửa cookie/session, database, Canvas, Payment hoặc Support API.
+
 ## Unreleased — Hợp nhất Canvas/SFX và main cho PR #21 (2026-11-22)
 
 - Giữ nhạc nền, SFX và dữ liệu Canvas v3 trong cùng thiết kế/quà; giữ Inspector đã tách module, bản dịch VI/EN và CSS thiệp sau khi hợp nhất hai nhánh.

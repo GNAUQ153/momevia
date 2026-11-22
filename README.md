@@ -91,19 +91,17 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Thiết kế lại Login/Register theo layout sáng, tập trung vào form một cột trên desktop và mobile, input 16px, nút 52–54px, khoảng cách/typography đồng bộ, giữ hình 3D hiện có và hỗ trợ reduced motion.
-- Đưa hai lựa chọn Google/Zalo lên trước form email ở cả hai trang. Chỉ tạo liên kết `/api/auth/{provider}` khi backend xác nhận phương thức đã cấu hình; nếu chưa, hiển thị rõ trạng thái vô hiệu hóa thay vì ẩn hoàn toàn.
-- Thêm nhãn VI/EN cho trạng thái OAuth và bộ chia email, loại bỏ logo phụ thuộc vào nguồn ảnh ngoài và các selector `.auth-page` legacy trùng trong `gift.css`; giữ CTA Đăng ký/Đăng nhập ngay, quên mật khẩu và quy trình xác thực phía server.
-- Cập nhật regression test V7 theo contract V8 và thêm kiểm thử OAuth, accessibility, responsive và i18n. Không sửa cookie/session, database, Canvas, Payment hoặc Support API.
+- Đóng gói duy nhất `database/updates/interactive-cards-20261122-v1.json` theo allowlist để bài test library rollout chạy được trong bản release độc lập; không đóng gói toàn bộ thư mục updates hoặc dữ liệu vận hành.
+- Bổ sung regression test xác minh bundle có trong release manifest và từ chối đưa tệp update ngoài allowlist vào bản phát hành. Không thay đổi UI, Auth V10, database schema, dữ liệu hay logic rollout.
 
 **Các commit gần nhất trên `main`:**
 
+- `4e6173a` — fix: include interactive cards rollout bundle in release package (2026-11-23)
+- `ac1e5a5` — fix: refine auth UX and update password minimum to 8 characters (2026-11-22)
+- `9556034` — Merge pull request #22 from GNAUQ153:perf/interactive-cards-lcp (2026-11-22)
+- `678dedc` — feat: redesign Momevia authentication with dark split layout (2026-11-22)
 - `68020d4` — feat: improve auth UX and restore visible Google Zalo options (2026-11-22)
 - `a849ab0` — feat: redesign responsive login and registration experience (2026-11-22)
-- `7ed1b4e` — fix: restore signup CTA and simplify support language UI (2026-11-22)
-- `2887c24` — style: standardize CSS and guard visual quality (2026-11-22)
-- `015a350` — feat: add occasion-based Canvas music library and bilingual filters (2026-11-22)
-- `8f55a9e` — refactor: extract Canvas Inspector controls and policy helpers (2026-11-22)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

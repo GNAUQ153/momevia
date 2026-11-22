@@ -84,11 +84,12 @@ test('CSS Auth tập trung vào form một cột, input 16px và điều khiển
   assert.doesNotMatch(file('web/css/gift.css'), /\.auth-page\b/);
 });
 
-test('Logo OAuth dùng inline SVG nội bộ, không tải ảnh từ nguồn khác', () => {
+test('Logo Google inline SVG và Zalo dùng asset vector cục bộ, không gọi CDN', () => {
   const source = file('web/js/pages/auth.js');
   assert.doesNotMatch(source, /upload\.wikimedia\.org|gstatic\.com\/firebasejs/);
   assert.match(source, /auth-provider-logo--google/);
   assert.match(source, /auth-provider-logo--zalo/);
+  assert.match(source, /src=\"\/assets\/brand\/zalo\.svg\"/);
   assert.doesNotMatch(source, /onclick=/);
 });
 

@@ -1,3 +1,8 @@
+## Unreleased — Sửa logo Zalo Social Login (2026-11-23)
+
+- Thay biểu tượng Zalo giả (chữ Z) trên `/login` bằng SVG Zalo nhận diện bong bóng thoại và chữ “Zalo” được lưu nội bộ tại `web/assets/brand/zalo.svg`.
+- Giữ nguyên Google, phân quyền OAuth đã cấu hình/chưa cấu hình, trang Đăng ký không có social login; bổ sung CSS và regression test, tài liệu nguồn logo.
+
 ## Unreleased — Sửa release smoke-test thiếu bundle Interactive Cards (2026-11-22)
 
 - Đóng gói duy nhất `database/updates/interactive-cards-20261122-v1.json` theo allowlist để bài test library rollout chạy được trong bản release độc lập; không đóng gói toàn bộ thư mục updates hoặc dữ liệu vận hành.

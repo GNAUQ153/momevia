@@ -18,11 +18,9 @@ export function createAuthViews({ state, buttonLink }) {
           </svg>
         </span>`;
       }
+      // Biểu tượng Zalo được lưu nội bộ; không gọi CDN trong luồng đăng nhập.
       return `<span class="auth-provider-logo auth-provider-logo--zalo" aria-hidden="true">
-        <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
-          <rect x="1.5" y="1.5" width="21" height="21" rx="10.5" fill="#fff" stroke="#0A6CFF" stroke-width="1.5"></rect>
-          <path fill="#0A6CFF" d="M7.2 8.25h9.6v1.75l-6.12 5.76h6.12v1.99H7.02v-1.8l6.05-5.71H7.2z"></path>
-        </svg>
+        <img src="/assets/brand/zalo.svg" width="28" height="28" alt="" loading="eager" decoding="async"/>
       </span>`;
     };
 

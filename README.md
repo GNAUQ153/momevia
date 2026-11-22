@@ -89,19 +89,17 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Tách dựng danh sách Scene/Layers và cache thumbnail sang `features/canvas-editor/scene-layer-panel.js`, giảm trách nhiệm DOM trong `designer.js`.
-- Tạo danh sách Layer từ một chỉ mục theo ID, giữ thứ tự xếp chồng, trạng thái chọn, khóa/ẩn và nhãn hỗ trợ truy cập; bỏ qua ID đã mất thay vì gây lỗi giao diện khi mở nháp cũ.
-- Giữ nguyên menu thao tác Scene, focus sau đổi tên/sắp xếp, logic khóa mẫu Creator và cache thumbnail được xóa khi chuyển thiết kế.
-- Bổ sung 9 unit test cho Scene/Layers; không sửa schema Canvas, dữ liệu người dùng, nhạc nền, API, MySQL, thanh toán, font hoặc VI/EN.
+- Xóa biến `layout` không sử dụng trong `renderInspector()` của `designer.js` sau khi tách Inspector; giữ nguyên `props` và các kiểm tra chức năng.
+- Không thay đổi schema Canvas, API, phân quyền hoặc dữ liệu thiệp.
 
 **Các commit gần nhất trên `main`:**
 
+- `8f55a9e` — refactor: extract Canvas Inspector controls and policy helpers (2026-11-22)
+- `a537c01` — fix: remove unused layout binding after Inspector refactor (2026-11-22)
 - `38c6e9b` — refactor: extract Canvas scene and layer panels (2026-11-22)
 - `6df506d` — refactor: extract Canvas preview and gift access dialogs (2026-11-22)
 - `d81f1b5` — refactor: extract music panel and add bilingual track search (2026-11-22)
 - `a4368e9` — feat: expand Canvas music library with mood browsing (2026-11-22)
-- `b612ed1` — fix: synchronize music playback state and pause hidden previews (2026-11-22)
-- `2256a99` — feat: add sender and recipient soundtrack volume controls (2026-11-22)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

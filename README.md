@@ -91,17 +91,19 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Sửa thứ tự thao tác trong `tests/browser/home.mjs`: mở hộp thoại Preview trước, đợi hiển thị rồi mới đọc CTA “Dùng mẫu”; tránh Playwright chờ 30 giây vì dialog chưa mở.
-- Thêm unit guard kiểm tra thứ tự `Enter → dialog visible → CTA href` để hạn chế tái diễn lỗi trong CI. Giữ nguyên code ứng dụng, API, Canvas và dữ liệu người dùng.
+- Nâng cấp các bảng Thêm, Lớp, Thuộc tính và Cảnh trên mobile thành bottom sheet có nền che, chạm nền để đóng, tránh chạm nhầm vùng Canvas phía sau.
+- Chuẩn hóa vòng focus bằng Tab/Shift+Tab; khi mở ưu tiên nút Đóng, khi đóng trả focus về nút đã mở, đóng khi đổi breakpoint và hoàn nguyên `inert` nếu rời Designer.
+- Trong lúc sheet mở, chặn shortcut Undo/Redo/chỉnh lớp đi xuyên xuống Canvas; Escape đóng sheet trước thay vì huỷ thao tác nền.
+- Tách logic điều hướng focus sang `mobile-sheet.js`, thêm 10 unit regression test và mở rộng browser regression ở 320/390/768px. Không thay đổi API, dữ liệu thiệp, thanh toán hoặc OAuth.
 
 **Các commit gần nhất trên `main`:**
 
+- `6e97809` — feat(canvas): improve accessible mobile editor sheets (2026-11-23)
 - `2e421bb` — test: open template preview before checking create CTA (2026-11-23)
 - `932b911` — feat: let users create cards directly from template previews (2026-11-23)
 - `3559344` — feat: add occasion discovery shortcuts to marketing home (2026-11-23)
 - `78bf643` — perf: respect data saver in marketing motion and slideshow (2026-11-23)
 - `d36c664` — fix(auth): use Zalo brand icon and sync web assets (2026-11-23)
-- `4e6173a` — fix: include interactive cards rollout bundle in release package (2026-11-23)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

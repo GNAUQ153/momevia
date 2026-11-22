@@ -91,18 +91,17 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Bổ sung bộ liên kết **Khám phá theo dịp** trên trang chủ, lấy số mẫu từ Catalog thật, ưu tiên dịp đang diễn ra và mở đúng bộ lọc `/explore?occasion=...` mà không thêm API hoặc migration.
-- Tối đa 6 chip có tên và nhãn trợ năng VI/EN, vùng bấm từ 46px và cuộn ngang nội bộ trên mobile; không hiển thị số liệu giả lúc tải/lỗi và không dùng emoji.
-- Tách logic chọn dịp ra module thuần, bổ sung 7 unit test và browser regression cho đường dẫn qua Explore trên nhiều kích thước màn hình. Giữ nguyên Auth, Canvas, SFX, Payment, Creator/Admin và các hiệu ứng 3D hiện hữu.
+- Sửa thứ tự thao tác trong `tests/browser/home.mjs`: mở hộp thoại Preview trước, đợi hiển thị rồi mới đọc CTA “Dùng mẫu”; tránh Playwright chờ 30 giây vì dialog chưa mở.
+- Thêm unit guard kiểm tra thứ tự `Enter → dialog visible → CTA href` để hạn chế tái diễn lỗi trong CI. Giữ nguyên code ứng dụng, API, Canvas và dữ liệu người dùng.
 
 **Các commit gần nhất trên `main`:**
 
+- `2e421bb` — test: open template preview before checking create CTA (2026-11-23)
+- `932b911` — feat: let users create cards directly from template previews (2026-11-23)
 - `3559344` — feat: add occasion discovery shortcuts to marketing home (2026-11-23)
 - `78bf643` — perf: respect data saver in marketing motion and slideshow (2026-11-23)
 - `d36c664` — fix(auth): use Zalo brand icon and sync web assets (2026-11-23)
 - `4e6173a` — fix: include interactive cards rollout bundle in release package (2026-11-23)
-- `ac1e5a5` — fix: refine auth UX and update password minimum to 8 characters (2026-11-22)
-- `9556034` — Merge pull request #22 from GNAUQ153:perf/interactive-cards-lcp (2026-11-22)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

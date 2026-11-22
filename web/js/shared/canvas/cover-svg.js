@@ -111,7 +111,7 @@ export function previewSvg(document, sceneId = document.entrySceneId, images = n
       const tx = anchor === 'middle' ? w / 2 : anchor === 'end' ? w : 0;
       body = `<text x="${tx}" y="${p.fontSize}" fill="${p.color}" font-family="${p.fontToken === 'serif' ? 'Georgia,serif' : 'Arial,sans-serif'}" font-size="${p.fontSize}" font-weight="${node.accessibility.role === 'heading' ? '700' : '400'}" text-anchor="${anchor}">${lines.map((line, i) => `<tspan x="${tx}" dy="${i ? p.fontSize * (p.lineHeight || 1.4) : 0}">${p.dropCap && !i ? `<tspan font-size="${p.fontSize*1.65}">${escape(line[0] || '')}</tspan>${escape(line.slice(1))}` : escape(line)}</tspan>`).join('')}</text>`;
     } else if (node.type === 'sticker') body = `<text x="${w / 2}" y="${h * .77}" text-anchor="middle" font-family="Arial,sans-serif" font-size="${Math.min(w, h) * .8}" fill="${p.color}">${escape(STICKERS[p.stickerId])}</text>`;
-    else if (['button', 'envelope', 'gift-box'].includes(node.type)) {
+    else if (['button', 'envelope', 'gift-box', 'sound-button'].includes(node.type)) {
       const envelope = node.type === 'envelope', box = node.type === 'gift-box', photoCaption=envelope&&p.preset==='photo-caption-v3';
       body = `<rect y="${photoCaption?h-60:0}" width="${w}" height="${photoCaption?60:h}" rx="${envelope ? 12 : 16}" fill="${p.color}"/>`;
       if (envelope && !['compact-v2','photo-caption-v3'].includes(p.preset)) body += `<rect x="${w / 2 - 39}" y="${h / 2 - 39}" width="78" height="52" rx="4" fill="#FFFFFF"/><path d="M${w / 2 - 39} ${h / 2 - 39}l39 28 39-28" fill="none" stroke="${p.color}" stroke-width="2"/><path d="M${w / 2 - 39} ${h / 2 + 13}l25-21m53 21-25-21" fill="none" stroke="${p.color}" stroke-width="1"/>`;

@@ -106,6 +106,7 @@ export const catalog = [
   ["Kể chuyện và kỷ niệm", [...stories, ...EVENT_CLUSTER_IDS.map(id=>[id, canonicalText(`interactive.${id}`), ()=>eventCluster(id,canonicalText), canonicalText(`interactive.${id}`)])]],
   ...decorativeGroups,
   ["Tương tác", [
+    ['sound-button','Nút âm thanh',piece('sound-button',205,54),'âm thanh nghe audio sound'],
     ["envelope", "Phong bì", piece("envelope", 260, 168), "mở thư"],
     ["gift-box", "Hộp quà", piece("gift-box", 228, 168), "mở hộp"],
     ["continue", "Đọc tiếp", piece("button", 205, 54, { label: "Đọc tiếp" }), "nút chuyển cảnh đích"],

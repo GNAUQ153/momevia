@@ -11,11 +11,12 @@ import { validateDocument, canonicalStringify } from '../../../web/js/shared/can
 import { canvasError } from './errors.mjs';
 import { buildLibraryPreview, activatePreviewDependencies } from './library-preview.mjs';
 import { builtinCoverResources } from './builtin-media.mjs';
+import { usesSound } from '../../../web/js/shared/canvas/sound.js';
 
 const check = (ok, message) => { if (!ok) throw canvasError(422, 'INVALID_LIBRARY_DEFINITION', message); };
 const parse = v => typeof v === 'string' ? JSON.parse(v) : v;
 const fromRow = r => ({ kind: r.kind, id: r.id, revision: Number(r.revision), status: r.status, sortOrder: r.sort_order, definition: parse(r.definition) });
-function documentFor(elements) { return { schemaVersion: 2, registryVersion: 2,
+function documentFor(elements) { const version=usesSound({elements,assets:[]})?3:2;return { schemaVersion: version, registryVersion: version,
   artboard: { baseSize: { width: 390, height: 844 }, layoutMode: 'responsive-scene', safeInsets: { top: 24, right: 20, bottom: 24, left: 20 } },
   entrySceneId: 'library-validation', bindings: Object.fromEntries(['recipientName','senderName','message'].map(key => [key, { type: 'text', value: '' }])),
   assets: [], scenes: [{ id: 'library-validation', name: 'Library', background: { kind: 'solid', color: '#FFFFFF' }, elementIds: elements.map(e => e.id) }],
@@ -88,6 +89,7 @@ export class CanvasLibraryService {
     if (!ledger.length) throw canvasError(503, 'CANVAS_MIGRATION_REQUIRED', 'Canvas library requires migration 013.');
     const [[row]] = await this.client.execute('SELECT COUNT(*) n FROM canvas_library_items');
     if (!Number(row.n)) await this.seed();
+    else await this.seedSound();
     await this.refresh();
   }
   async seed() {
@@ -96,6 +98,13 @@ export class CanvasLibraryService {
       for (const row of rows) await tx.execute(`INSERT INTO canvas_library_items(kind,id,revision,status,sort_order,definition) VALUES (?,?,?,?,?,?)
         ON DUPLICATE KEY UPDATE id=id`, [row.kind, row.id, row.revision, row.status, row.sortOrder, JSON.stringify(row.definition)]);
       return rows.length;
+    });
+  }
+  async seedSound() {
+    // Add only absent SFX controls to populated libraries. Never overwrite Admin rows.
+    const rows=builtinLibraryItems().filter(row=>(row.kind==='element_type'&&row.id==='sound-button')||(row.kind==='element'&&row.id==='sound-button'));
+    await this.client.withTransaction(async tx=>{
+      for(const row of rows)await tx.execute(`INSERT INTO canvas_library_items(kind,id,revision,status,sort_order,definition) VALUES (?,?,?,?,?,?) ON DUPLICATE KEY UPDATE id=id`,[row.kind,row.id,row.revision,row.status,row.sortOrder,JSON.stringify(row.definition)]);
     });
   }
   async rows(tx = this.client) {

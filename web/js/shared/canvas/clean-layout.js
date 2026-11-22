@@ -20,6 +20,8 @@ export function cleanGiftLayout(snapshot, { sharedImages = new Map() } = {}) {
     scene.elementIds = scene.elementIds.filter(id => ids.has(id));
   }
   for (const element of document.elements) {
+    if(element.sound?.kind==='audio')delete element.sound;
+    if(element.type==='sound-button')element.props.label=canonicalText('sfx.listen');
     delete element.name;
     delete element.locked;
     const { role, level } = element.accessibility;

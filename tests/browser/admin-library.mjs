@@ -97,7 +97,8 @@ export async function runAdminLibraryUi({ base, browser, admin, userId, cookie, 
     await action('save').click(); await page.locator('.library-admin__feedback[data-tone="error"]').waitFor();
     assert.equal(await page.locator('[data-library-save-state]').getAttribute('data-library-save-state'), 'dirty');
     await action('save').click(); await saved();
-    await page.evaluate(async () => { const { selectLocale } = await import('/js/core/i18n.js'); await selectLocale('en'); });
+    await page.locator('.nav-actions [data-locale-select]').selectOption('en');
+    await page.getByRole('heading',{name:'Canvas library',exact:true}).waitFor();
     assert.equal(await page.locator('[data-admin-library] h1').innerText(), 'Canvas library');
     await admin.execute("UPDATE users SET role='sender' WHERE id=?", [userId]);
     await page.reload(); await page.getByText('You need administrator access to open this page.').waitFor();

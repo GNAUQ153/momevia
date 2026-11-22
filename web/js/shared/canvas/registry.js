@@ -3,6 +3,7 @@ import { stickerArt } from './artwork.js';
 import { canonicalText } from '../locale.js';
 import { libraryEntry } from './library-state.js';
 const descriptors = {
+  'sound-button': { label: canonicalText('editor.element.sound-button'), renderer: 'sound-button', defaults: {label: canonicalText('sfx.listen'),color:'#6136DF'}, inspector:['label','color'], accessibility:{},actions:[],capability:'basic' },
   text: { label: canonicalText('editor.element.text'), renderer: 'text', defaults: { text: canonicalText('editor.element.defaultGreeting'), fontToken: 'body', fontSize: 24, align: 'left', color: '#32243B' }, inspector: ['text', 'textBinding', 'fontToken', 'fontSize', 'align', 'color'], accessibility: { role: 'paragraph' }, actions: [], capability: 'basic' },
   image: { label: canonicalText('editor.element.image'), renderer: 'image', defaults: { assetId: null, fit: 'cover', focalPoint: { x: 0.5, y: 0.5 }, radius: 16 }, inspector: ['assetId', 'fit', 'focalPoint', 'radius', 'mask', 'maskPath', 'optional', 'caption'], accessibility: { alt: canonicalText('editor.element.photoAlt') }, actions: [], capability: 'basic' },
   shape: { label: canonicalText('editor.element.shape'), renderer: 'shape', defaults: { kind: 'rectangle', color: '#D9C8FF', strokeColor: '#6136DF', strokeWidth: 0, radius: 12 }, inspector: ['kind', 'color', 'strokeColor', 'strokeWidth', 'radius'], accessibility: { decorative: true }, actions: [], capability: 'basic' },
@@ -23,6 +24,7 @@ export const BINDINGS = ['recipientName', 'senderName', 'message'];
 export const LIMITS = freeze({ documentBytes: 262144, scenes: 32, elements: 400, assets: 64, actionsPerElement: 2, depth: 16, text: 4000, accessibilityText: 240, coordinate: 10000, artboard: 4096 });
 
 const defaultPropKeys = {
+  'sound-button': {label:'sfx.listen'},
   text: { text: 'editor.element.defaultGreeting' },
   button: { label: 'gift.runtime.continue' },
   envelope: { label: 'templates.copy.openGift' },

@@ -1,3 +1,4 @@
+import { usesSound } from '../../web/js/shared/canvas/sound.js';
 // Explicit, isolated MySQL schema only. No writes to application databases.
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -73,7 +74,8 @@ async function launch() {
 }
 async function stop() { if (app) { await new Promise(resolve => app.server.close(resolve)); await app.close(); app = null; } }
 async function check(doc) {
-  if (requiresCanvasV2(doc)) doc.schemaVersion = doc.registryVersion = 2;
+  if (requiresCanvasV2(doc) && doc.schemaVersion < 2) doc.schemaVersion = doc.registryVersion = 2;
+  if (usesSound(doc)) doc.schemaVersion = doc.registryVersion = 3;
   const store = createEditorStore(design), memory = new Map();
   const storage = { getItem: k => memory.get(k) || null, setItem: (k, v) => memory.set(k, v), removeItem: k => memory.delete(k) };
   const session = createSaveSession({ design, store, userId: design.ownerId || 'qa', storage, recoveryStorage: storage,
@@ -96,12 +98,13 @@ try {
     password: 'SyntheticOnly123', confirmPassword: 'SyntheticOnly123' });
   cookie = register.response.headers.get('set-cookie').split(';')[0];
   const { library } = (await request('/api/designs/library')).value;
-  assert.equal(library.items.length, 415); configureLibrary(library);
+  assert.equal(library.items.length, 417); configureLibrary(library);
   design = (await request('/api/designs/designs', { source: { kind: 'blank' }, presetId: 'envelope-basic', mutationId: randomUUID() })).value.design;
   const cards = catalog.flatMap(g => g.items);
   for (const card of cards) {
     const doc = sampleBindings(createDocument({ presetId: 'envelope-basic' })), elements = card.create();
     doc.elements.push(...elements); doc.scenes[0].elementIds.push(...elements.map(e => e.id));
+    if(usesSound(doc))doc.schemaVersion=doc.registryVersion=3;
     await check(doc); counts.libraryFactories++;
   }
   console.log('PASS 181 library factories: editor save session -> HTTP -> MySQL -> fresh connection -> HTTP read');

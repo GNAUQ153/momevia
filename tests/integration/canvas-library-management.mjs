@@ -29,7 +29,7 @@ export async function runLibraryManagement({ base, cookie, admin, userId, reques
   // This is deliberately SQL, not a new frontend/backend code registration.
   for (const [kind, id, definition] of entries) await admin.execute('INSERT INTO canvas_library_items(kind,id,revision,status,sort_order,definition) VALUES (?,?,1,\'active\',10000,?)', [kind, id, JSON.stringify(definition)]);
   const first = (await request('/api/designs/library')).value.library;
-  assert.equal(first.items.filter(r => r.kind === 'element').length, 182);
+  assert.equal(first.items.filter(r => r.kind === 'element').length, 183);
   assert(first.items.some(r => r.id === 'db-start'));
   const templates = (await request('/api/catalog/templates')).value.templates;
   const template = templates.find(t => first.items.some(r => r.kind === 'template' && r.id === t.id)); assert(template);

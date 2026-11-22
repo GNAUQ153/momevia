@@ -21,7 +21,7 @@ test('canvas schema is lossless, Unicode-safe and accepts all 25 presets without
   }
   assert.deepEqual(templates, original);
   assert.equal(createDocument().scenes.length, 1);
-  assert.equal(Object.values(registry).filter(type => type.capability === 'basic').length, 9);
+  assert.equal(Object.values(registry).filter(type => type.capability === 'basic').length, 10);
   assert.equal(registry.interaction.capability, 'extended');
 });
 

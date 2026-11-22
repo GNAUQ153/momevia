@@ -117,6 +117,12 @@ export async function runHeroTemplatesBrowser(browser, base) {
         await cover.click();
         await dialog.locator(`[data-runtime-element="event-photo-${artwork[index]}"]`).waitFor();
         assert.equal(await dialog.locator('h2').textContent(), await selector.getAttribute('aria-label'));
+        // CTA xem thử luôn trỏ đến mẫu đang hiển thị, kể cả sau khi đổi slide.
+        const useLink = dialog.locator('[data-template-use]');
+        assert.equal(await useLink.getAttribute('href'), `/create/${id}?mode=quick`);
+        assert.equal(await useLink.isVisible(), true);
+        const tapSize = await useLink.boundingBox();
+        assert(tapSize.height >= 44, 'CTA dùng mẫu đủ lớn để chạm trên mobile');
         await page.keyboard.press('Escape');
         await dialog.waitFor({ state: 'hidden' });
         await page.waitForFunction(() => globalThis.document.activeElement?.matches('.mkt-hero__cover'));

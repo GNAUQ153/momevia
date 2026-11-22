@@ -1,3 +1,9 @@
+## Unreleased — V14: Xem trước và tạo thiệp liền mạch (2026-11-23)
+
+- Bổ sung CTA “Dùng mẫu” ngay trong hộp thoại xem trước thiệp ở trang chủ và trang chi tiết, giảm thao tác đóng modal rồi tìm lại nút tạo.
+- Đồng bộ URL tạo nhanh trong `template-create-url.js`, giữ `versionId` của mẫu Creator, mã hóa ID và đồng bộ lại CTA mỗi khi hero đổi slide.
+- Cải thiện kích thước thao tác và responsive của toolbar xem trước; bổ sung unit test và browser regression cho ba slide. Không đổi API, dữ liệu Canvas, Auth/Zalo hay hệ thống thanh toán.
+
 ## Unreleased — Marketing Occasion Discovery V13 (2026-11-23)
 
 - Bổ sung bộ liên kết **Khám phá theo dịp** trên trang chủ, lấy số mẫu từ Catalog thật, ưu tiên dịp đang diễn ra và mở đúng bộ lọc `/explore?occasion=...` mà không thêm API hoặc migration.

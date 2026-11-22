@@ -61,7 +61,8 @@ test('Không bỏ qua dấu ngoặc CSS không cân bằng', () => {
 
 test('Thiết kế mobile tăng độ đọc của nút, trạng thái và dành khoảng an toàn khi cuộn', () => {
   const styles = name => readFileSync(new URL(`../../web/css/${name}`, import.meta.url), 'utf8');
-  assert.match(styles('template-library.css'), /\.template-preview-toolbar button\s*\{\s*flex: 1;\s*font-size: 0\.875rem;/);
+  assert.match(styles('template-library.css'), /\.template-preview-toolbar \.btn\s*\{[^}]*min-height: 44px;/);
+  assert.match(styles('template-library.css'), /\.template-preview-toolbar \.btn\s*\{\s*flex: 1 1 104px;\s*font-size: 0\.875rem;/);
   assert.match(styles('admin-library.css'), /\.library-admin__badge\s*\{[^}]*font-size: 0\.8125rem;/);
   assert.match(styles('admin-library.css'), /\.library-admin__save-bar\s*\{\s*bottom: 5px;\s*padding-bottom: max\(8px, env\(safe-area-inset-bottom\)\);/);
   assert.match(styles('editor-recovery-center.css'), /\.recovery-center__button\s*\{\s*min-height: 44px;/);

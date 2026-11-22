@@ -157,6 +157,7 @@ export async function runHomeBrowser(base) {
           assert.match(await image.getAttribute('src'), language === 'en' ? /\/en\/hai-phong-bi.svg/ : /templates\/hai-phong-bi.svg/);
           assert(!requests.some(request => request.url().includes('/gift-runtime/index.js')), 'Guest landing leaves the player unloaded');
           const dialog = page.getByRole('dialog');
+          assert.equal(await dialog.locator('[data-template-use]').getAttribute('href'), '/create/hai-phong-bi?mode=quick');
           await preview.focus();
           await page.keyboard.press('Enter');
           const entry = dialog.locator('[data-runtime-element="open-memory"]');

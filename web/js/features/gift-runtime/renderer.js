@@ -81,7 +81,7 @@ export function updateElementCopy(node, model, document) {
   if (type === "text") {
     finishTypewriter(node);
     node.textContent = resolveText(model, document);
-  } else if (["button", "envelope", "gift-box"].includes(type)) {
+  } else if (["button", "envelope", "gift-box", "sound-button"].includes(type)) {
     setText(node.querySelector(".gift-runtime-control-label"), p.label || a.label || label("gift.runtime.continue"));
     setAttr(node, "aria-label", a.label || p.label || label("gift.runtime.continue"));
   } else if (type === "reply") {
@@ -162,6 +162,7 @@ export function renderElement(
     assetUrl = () => null,
     mode = "preview",
     onAction = () => {},
+    onSound = () => {},
     replyAdapter,
     signal,
     motion,
@@ -175,6 +176,7 @@ export function renderElement(
   const pendingControls = new WeakSet();
   function activate(control, event, action, actions) {
     if (signal?.aborted || pendingControls.has(control) || control.getAttribute("aria-disabled") === "true") return;
+    if(model.sound)onSound(model.sound,{explicit:type==='sound-button'});
     const preset = !previewFamily || previewFamily === "reaction" ? model.effects?.reaction : null;
     if (actions?.length) {
       onAction(actions, intentSignal => {
@@ -258,7 +260,7 @@ export function renderElement(
     node = element("div", "gift-runtime-sticker", STICKERS[p.stickerId]);
     node.style.color = p.color;
     node.setAttribute("aria-hidden", "true");
-  } else if (["button", "envelope", "gift-box"].includes(type)) {
+  } else if (["button", "envelope", "gift-box", "sound-button"].includes(type)) {
     node = element(mode === "thumbnail" ? "span" : "button", `gift-runtime-control gift-runtime-${type}`);
     if (mode !== "thumbnail") node.type = "button";
     node.style.backgroundColor = p.color;
@@ -266,7 +268,7 @@ export function renderElement(
     const photoCaption=type==='envelope'&&p.preset==='photo-caption-v3';
     const controlBody=photoCaption?element('span','gift-envelope-footer'):node;
     if(photoCaption){controlBody.style.backgroundColor=p.color;node.classList.add('gift-envelope-photo-control');node.style.backgroundColor='transparent';node.append(controlBody);}
-    if (type !== "button") {
+    if (!["button","sound-button"].includes(type)) {
       // SVG cục bộ thay glyph emoji để biểu tượng giống nhau trên mọi hệ điều hành.
       const illustration = navigationArt[model.effects?.reaction?.id]
         || (type === "envelope" ? navigationArt.R01 : navigationArt.R02);

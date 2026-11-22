@@ -490,9 +490,45 @@
   text-align: center;
 }
 
-.auth-switch a,
+/* Chỉ ẩn công cụ của trang chủ trong auth; liên kết đăng ký phải hiển thị. */
 .is-auth .site-tools {
   display: none;
+}
+
+.auth-switch a,
+.auth-recovery-link a {
+  color: #6335cb;
+  font-size: 0.9375rem;
+  font-weight: 750;
+  text-underline-offset: 3px;
+}
+
+.auth-page .auth-switch.auth-switch--signup {
+  margin: 14px 0 0;
+  padding: 13px 16px;
+  border: 1px solid #dfd1f2;
+  border-radius: 13px;
+  background: #f8f4ff;
+  color: #55456a;
+  font-size: 0.875rem;
+  line-height: 1.55;
+}
+
+.auth-recovery-link {
+  margin: 12px 0 0;
+  text-align: right;
+}
+
+.auth-recovery-link a:hover,
+.auth-recovery-link a:focus-visible,
+.auth-switch a:focus-visible {
+  text-decoration: underline;
+}
+
+.auth-recovery-link a:focus-visible {
+  outline: 2px solid #7144db;
+  outline-offset: 3px;
+  border-radius: 3px;
 }
 
 .auth-support {

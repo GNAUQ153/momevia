@@ -1,3 +1,9 @@
+## Unreleased — Auth Signup CTA & Support Locale UX (2026-11-22)
+
+- Khôi phục liên kết “Đăng ký ngay” trên trang đăng nhập: sửa selector CSS ẩn nhầm link và đặt CTA đăng ký ngay dưới form, vẫn giữ liên kết quên mật khẩu và đăng nhập ở trang đăng ký.
+- Bỏ bộ chuyển ngôn ngữ riêng trong form hỗ trợ và thông báo gửi yêu cầu thành công; nội dung vẫn dùng ngôn ngữ VI/EN của hệ thống, những hộp thoại khác không đổi.
+- Bổ sung kiểm thử hồi quy markup/CSS, hành vi modal và chuyển ngôn ngữ; không sửa API, dữ liệu đăng ký hay phân quyền.
+
 ## Unreleased — Visual System & CSS Quality V5 (2026-11-22)
 
 - Chuẩn hóa 7 stylesheet trọng điểm (Admin Library, Template Preview, Gift Runtime, Canvas Editor, Recovery, Conflict Review và Upgrade): một khai báo CSS mỗi dòng, giữ thứ tự selector/media/keyframe và nội dung thiết kế hiện có.

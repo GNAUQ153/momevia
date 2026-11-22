@@ -59,11 +59,13 @@ export function createAuthViews({ state, buttonLink }) {
           <p class="auth-inline-error" role="alert" hidden></p>
           <button class="btn btn--dark btn--wide auth-submit" type="submit"><span>${text(registering ? "auth.register.submit" : "shell.pages.login")}</span>${icon("arrow", 18)}</button>
         </form>
-        ${registering ? "" : `<p class="auth-switch"><a href="/recover" data-link>${text("auth.recovery.link")}</a></p>`}
+        ${registering ? "" : `<p class="auth-recovery-link"><a href="/recover" data-link>${text("auth.recovery.link")}</a></p>
+        <p class="auth-switch auth-switch--signup">${text("auth.login.noAccount")}
+          <a href="/register" data-link>${text("auth.register.switch")}</a></p>`}
         <div class="auth-divider" role="separator"><span>${text(registering ? "auth.providers.orRegister" : "auth.providers.orLogin")}</span></div>
         <div class="auth-buttons">${social("google", state.providers.google, "Google", googleLogo)}${social("zalo", state.providers.zalo, "Zalo", zaloLogo)}</div>
         ${!state.providers.google || !state.providers.zalo ? `<p class="auth-provider-note">${text("auth.providers.disabled")}</p>` : ""}
-        <p class="auth-switch">${registering ? text("auth.register.haveAccount") : text("auth.login.noAccount")} <a href="${registering ? "/login" : "/register"}" data-link>${registering ? text("auth.login.switch") : text("auth.register.switch")}</a></p>
+        ${registering ? `<p class="auth-switch">${text("auth.register.haveAccount")} <a href="/login" data-link>${text("auth.login.switch")}</a></p>` : ""}
         <p class="auth-policy-note">${text("auth.policies.prefix")} <a href="/policies/general" data-link>${text("auth.policies.general")}</a> ${text("auth.policies.conjunction")} <a href="/policies/privacy" data-link>${text("shell.footer.privacy")}</a>.</p>
         <button type="button" class="btn btn--outline auth-support" data-action="support">${text("common.actions.support")}</button>
       </div>

@@ -1854,6 +1854,8 @@
   "home.faq.payment.question": "What if I have a payment issue?",
   "home.faq.pricing": "View pricing",
   "home.faq.title": "Before you send a card",
+  "home.featured.occasionBrowse": "Explore by occasion",
+  "home.featured.occasionAction": { "one": "Browse {count} template for {category}", "other": "Browse {count} templates for {category}" },
   "home.featured.all": "Browse the gift library",
   "home.featured.badge": "FOR SPECIAL OCCASIONS",
   "home.featured.emphasis": "for every occasion.",

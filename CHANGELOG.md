@@ -1,3 +1,9 @@
+## Unreleased — Marketing Occasion Discovery V13 (2026-11-23)
+
+- Bổ sung bộ liên kết **Khám phá theo dịp** trên trang chủ, lấy số mẫu từ Catalog thật, ưu tiên dịp đang diễn ra và mở đúng bộ lọc `/explore?occasion=...` mà không thêm API hoặc migration.
+- Tối đa 6 chip có tên và nhãn trợ năng VI/EN, vùng bấm từ 46px và cuộn ngang nội bộ trên mobile; không hiển thị số liệu giả lúc tải/lỗi và không dùng emoji.
+- Tách logic chọn dịp ra module thuần, bổ sung 7 unit test và browser regression cho đường dẫn qua Explore trên nhiều kích thước màn hình. Giữ nguyên Auth, Canvas, SFX, Payment, Creator/Admin và các hiệu ứng 3D hiện hữu.
+
 ## Unreleased — Marketing Performance V12: Data Saver & Motion (2026-11-23)
 
 - Marketing Hero tạm dừng slideshow/teaser và chuyển nhãn điều khiển sang “Tiếp tục trình chiếu” khi trình duyệt bật `saveData` hoặc `prefers-reduced-data`; vẫn cho phép người dùng chủ động phát, nhưng không bỏ qua `prefers-reduced-motion`.

@@ -1844,6 +1844,8 @@
   "home.faq.payment.question": "Nếu tôi gặp vấn đề với thanh toán thì sao?",
   "home.faq.pricing": "Xem bảng giá",
   "home.faq.title": "Câu hỏi khi gửi thiệp",
+  "home.featured.occasionBrowse": "Khám phá theo dịp",
+  "home.featured.occasionAction": { "other": "Xem {count} mẫu cho dịp {category}" },
   "home.featured.all": "Xem thư viện mẫu",
   "home.featured.badge": "DÀNH CHO NHỮNG DỊP ĐẶC BIỆT",
   "home.featured.emphasis": "nói lời thương.",

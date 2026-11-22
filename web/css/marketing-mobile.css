@@ -82,3 +82,25 @@
     gap: 14px;
   }
 }
+
+/* Nhóm dịp cuộn ngang khi hẹp; không ép toàn bộ trang phải cuộn ngang. */
+@media (max-width: 680px) {
+  .mkt-occasion {
+    margin-inline: -12px;
+    overflow: hidden;
+  }
+
+  .mkt-occasion__links {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    padding: 4px 12px 10px;
+    scroll-padding-inline: 12px;
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .mkt-occasion__link {
+    flex: none;
+  }
+}

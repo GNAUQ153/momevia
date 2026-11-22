@@ -139,7 +139,7 @@ test('photographic Originals own and pin immutable images; regift retains only k
   f.service.catalog.getTemplate = async id => publicTemplate(templates.find(t => t.id === id));
   for (const templateId of ['birthday-radiance','hai-phong-bi','proud-of-you']) {
     const d = await create(f, { kind: 'template', templateId });
-    assert.equal(d.document.assets.length, 1);
+    assert.equal(d.document.assets.length, templateId === 'hai-phong-bi' ? 3 : 1);
     const art = await f.repository.getAsset(user.sub, d.document.assets[0].assetId);
     assert(art && f.service.assetExists(art)); assert.equal(art.designId, d.id);
     const privatePhoto = await f.assets.upload(user, d.id, randomUUID(), await image());
@@ -151,7 +151,7 @@ test('photographic Originals own and pin immutable images; regift retains only k
     const current = designView(await f.service.get(user, d.id));
     const { gift } = await f.service.publish(user, publicationInput(current));
     const { design: clean } = await f.service.regift(user, gift, { mutationId: randomUUID() });
-    assert.equal(clean.document.assets.length, 1);
+    assert.equal(clean.document.assets.length, d.document.assets.length);
     assert.notEqual(clean.document.assets[0].assetId, art.id);
     const copied = await f.repository.getAsset(user.sub, clean.document.assets[0].assetId);
     assert.equal(copied.contentHash, art.contentHash); assert(f.service.assetExists(copied));

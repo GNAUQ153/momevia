@@ -1,6 +1,7 @@
 import { libraryEntry, librarySnapshot } from './library-state.js';
 import { requiresCanvasV2 } from './schema.js';
 import { effectPreset } from './effects.js';
+import { usesSound } from './sound.js';
 
 function pinEffect(preset, family) {
   const row = librarySnapshot()?.items.find(item => item.kind === 'effect' && item.id === preset.id);
@@ -45,6 +46,7 @@ export function pinDocumentArtwork(document) {
       }
     } else scene.effects[family] = pinEffect(preset, family);
   }
-  if (requiresCanvasV2(document)) document.schemaVersion = document.registryVersion = 2;
+  if (usesSound(document)) document.schemaVersion = document.registryVersion = 3;
+  else if (requiresCanvasV2(document) && document.schemaVersion < 2) document.schemaVersion = document.registryVersion = 2;
   return document;
 }

@@ -17,7 +17,7 @@ export function canvasProfile(env = process.env) {
   return { mode, checkoutMode: env.CHECKOUT_STORAGE || 'json', supported: coherent, processScope: mode === 'json' ? 'single-process' : 'mysql-transaction' };
 }
 export async function createApp(config, dependencies) {
-  const profile = canvasProfile(); const flags = { read: process.env.CANVAS_READ_ENABLED !== 'false', edit: process.env.CANVAS_EDIT_ENABLED !== 'false', publish: process.env.CANVAS_PUBLISH_ENABLED !== 'false' };
+  const profile = canvasProfile(); const flags = { read: process.env.CANVAS_READ_ENABLED !== 'false', edit: process.env.CANVAS_EDIT_ENABLED !== 'false', publish: process.env.CANVAS_PUBLISH_ENABLED !== 'false', sfxCreate:process.env.SFX_CREATE_ENABLED!=='false' };
   const client = profile.mode === 'mysql' ? new MySqlClient() : null;
   const repository = client ? new MySqlDesignsRepository(client) : new JsonDesignRepository(dataPath('designs', 'canvas.json'));
   if (client) await repository.ready();

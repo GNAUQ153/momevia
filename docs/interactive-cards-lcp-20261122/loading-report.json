@@ -1,0 +1,655 @@
+{
+  "browser": "Chrome",
+  "results": [
+    {
+      "unchangedSource": "web/js/shared/canvas/event-recipes.js",
+      "sha256": "2893c2c599c0556877016d71af2f08843e89de9517f278d2b9d27cc5b5513e0b"
+    },
+    {
+      "unchangedSource": "web/js/features/gift-runtime/effects.js",
+      "sha256": "4e7ac6f1072dc7ab8bd906039923c95f6afe4d334621dd9c06041fcc1a6a5639"
+    },
+    {
+      "unchangedSource": "web/js/features/gift-runtime/interactions.js",
+      "sha256": "c74de3ed22daba6b8186a529ff7a740cb6fe6e1f9229f507671413e3b0f75bb1"
+    },
+    {
+      "unchangedSource": "web/js/features/gift-runtime/index.js",
+      "sha256": "81f91cbd5253596bdcbe56cbea9e213772d56620b94e40ce4cd5bd2f5a8b5182"
+    },
+    {
+      "unchangedSource": "web/css/gift-runtime.css",
+      "sha256": "1884a17f6cea2a166c30659d692d1c7dec7bfd7ad587d786ef01a6b924bca5ef"
+    },
+    {
+      "unchangedArtwork": "event-envelope-memory-5d088ad5e0ab",
+      "bytes": 37470,
+      "sha256": "5d088ad5e0ab96c7355f3dce1b3bc575c92693cac2024265d5722ea904c6d1e5"
+    },
+    {
+      "unchangedArtwork": "event-envelope-celebration-8f15c2b2ef54",
+      "bytes": 51062,
+      "sha256": "8f15c2b2ef5446efeb23bcfd8a960816b55d59c75f033f809fffe74cfff9c709"
+    },
+    {
+      "unchangedArtwork": "event-cake-unlit-d1cda2f68ec2",
+      "bytes": 48848,
+      "sha256": "d1cda2f68ec28d66df3d8f952afb5fc63be50eb6e650676f3bcaae410bd1f0e8"
+    },
+    {
+      "unchangedArtwork": "event-cap-untasselled-9560aaee062c",
+      "bytes": 78724,
+      "sha256": "9560aaee062c1b3d124670aea2eacc516337052c81c718da959ee19567662119"
+    },
+    {
+      "unchangedArtwork": "event-porch-8bd7199b4353",
+      "bytes": 92964,
+      "sha256": "8bd7199b4353ca573482653241eb7e5cc00c009d6f12a5fe3983ea8cbe8b7ca6"
+    },
+    {
+      "unchangedArtwork": "event-film-box-21a90d4bb329",
+      "bytes": 103672,
+      "sha256": "21a90d4bb3291b44b5435797168831024ace56ceedaecab94b8daf98f50d59e4"
+    },
+    {
+      "unchangedArtwork": "event-journey-map-e9c3007de33b",
+      "bytes": 55192,
+      "sha256": "e9c3007de33bbb6995f73672007b30dce8c12385dd17ca1d909050cd5eb32cee"
+    },
+    {
+      "unchangedArtwork": "event-candle-flame-c6c0cf38674b",
+      "bytes": 7652,
+      "sha256": "c6c0cf38674bc0300c78c9052ae6488d46312923da6bca3fdde39b45ead7b378"
+    },
+    {
+      "route": "/explore",
+      "locale": "vi",
+      "width": 320,
+      "matchedFullStyles": true,
+      "startupLogicalInputs": 44,
+      "noEditorOrQRAtStartup": true,
+      "noLibraryRequestAtStartup": true
+    },
+    {
+      "route": "/template/hai-phong-bi",
+      "locale": "vi",
+      "width": 320,
+      "matchedFullStyles": true,
+      "startupLogicalInputs": 44,
+      "noEditorOrQRAtStartup": true,
+      "noLibraryRequestAtStartup": true
+    },
+    {
+      "route": "/template/birthday-radiance",
+      "locale": "vi",
+      "width": 320,
+      "matchedFullStyles": true,
+      "startupLogicalInputs": 44,
+      "noEditorOrQRAtStartup": true,
+      "noLibraryRequestAtStartup": true
+    },
+    {
+      "route": "/template/proud-of-you",
+      "locale": "vi",
+      "width": 320,
+      "matchedFullStyles": true,
+      "startupLogicalInputs": 44,
+      "noEditorOrQRAtStartup": true,
+      "noLibraryRequestAtStartup": true
+    },
+    {
+      "route": "/template/loi-moi-ben-hien",
+      "locale": "vi",
+      "width": 320,
+      "matchedFullStyles": true,
+      "startupLogicalInputs": 44,
+      "noEditorOrQRAtStartup": true,
+      "noLibraryRequestAtStartup": true
+    },
+    {
+      "route": "/template/cuon-phim-ngay-ay",
+      "locale": "vi",
+      "width": 320,
+      "matchedFullStyles": true,
+      "startupLogicalInputs": 44,
+      "noEditorOrQRAtStartup": true,
+      "noLibraryRequestAtStartup": true
+    },
+    {
+      "route": "/template/ban-do-ngay-ra-truong",
+      "locale": "vi",
+      "width": 320,
+      "matchedFullStyles": true,
+      "startupLogicalInputs": 44,
+      "noEditorOrQRAtStartup": true,
+      "noLibraryRequestAtStartup": true
+    },
+    {
+      "route": "/explore",
+      "locale": "vi",
+      "width": 390,
+      "matchedFullStyles": true,
+      "startupLogicalInputs": 44,
+      "noEditorOrQRAtStartup": true,
+      "noLibraryRequestAtStartup": true
+    },
+    {
+      "route": "/template/hai-phong-bi",
+      "locale": "vi",
+      "width": 390,
+      "matchedFullStyles": true,
+      "startupLogicalInputs": 44,
+      "noEditorOrQRAtStartup": true,
+      "noLibraryRequestAtStartup": true
+    },
+    {
+      "route": "/template/birthday-radiance",
+      "locale": "vi",
+      "width": 390,
+      "matchedFullStyles": true,
+      "startupLogicalInputs": 44,
+      "noEditorOrQRAtStartup": true,
+      "noLibraryRequestAtStartup": true
+    },
+    {
+      "route": "/template/proud-of-you",
+      "locale": "vi",
+      "width": 390,
+      "matchedFullStyles": true,
+      "startupLogicalInputs": 44,
+      "noEditorOrQRAtStartup": true,
+      "noLibraryRequestAtStartup": true
+    },
+    {
+      "route": "/template/loi-moi-ben-hien",
+      "locale": "vi",
+      "width": 390,
+      "matchedFullStyles": true,
+      "startupLogicalInputs": 44,
+      "noEditorOrQRAtStartup": true,
+      "noLibraryRequestAtStartup": true
+    },
+    {
+      "route": "/template/cuon-phim-ngay-ay",
+      "locale": "vi",
+      "width": 390,
+      "matchedFullStyles": true,
+      "startupLogicalInputs": 44,
+      "noEditorOrQRAtStartup": true,
+      "noLibraryRequestAtStartup": true
+    },
+    {
+      "route": "/template/ban-do-ngay-ra-truong",
+      "locale": "vi",
+      "width": 390,
+      "matchedFullStyles": true,
+      "startupLogicalInputs": 44,
+      "noEditorOrQRAtStartup": true,
+      "noLibraryRequestAtStartup": true
+    },
+    {
+      "route": "/explore",
+      "locale": "vi",
+      "width": 768,
+      "matchedFullStyles": true,
+      "startupLogicalInputs": 44,
+      "noEditorOrQRAtStartup": true,
+      "noLibraryRequestAtStartup": true
+    },
+    {
+      "route": "/template/hai-phong-bi",
+      "locale": "vi",
+      "width": 768,
+      "matchedFullStyles": true,
+      "startupLogicalInputs": 44,
+      "noEditorOrQRAtStartup": true,
+      "noLibraryRequestAtStartup": true
+    },
+    {
+      "route": "/template/birthday-radiance",
+      "locale": "vi",
+      "width": 768,
+      "matchedFullStyles": true,
+      "startupLogicalInputs": 44,
+      "noEditorOrQRAtStartup": true,
+      "noLibraryRequestAtStartup": true
+    },
+    {
+      "route": "/template/proud-of-you",
+      "locale": "vi",
+      "width": 768,
+      "matchedFullStyles": true,
+      "startupLogicalInputs": 44,
+      "noEditorOrQRAtStartup": true,
+      "noLibraryRequestAtStartup": true
+    },
+    {
+      "route": "/template/loi-moi-ben-hien",
+      "locale": "vi",
+      "width": 768,
+      "matchedFullStyles": true,
+      "startupLogicalInputs": 44,
+      "noEditorOrQRAtStartup": true,
+      "noLibraryRequestAtStartup": true
+    },
+    {
+      "route": "/template/cuon-phim-ngay-ay",
+      "locale": "vi",
+      "width": 768,
+      "matchedFullStyles": true,
+      "startupLogicalInputs": 44,
+      "noEditorOrQRAtStartup": true,
+      "noLibraryRequestAtStartup": true
+    },
+    {
+      "route": "/template/ban-do-ngay-ra-truong",
+      "locale": "vi",
+      "width": 768,
+      "matchedFullStyles": true,
+      "startupLogicalInputs": 44,
+      "noEditorOrQRAtStartup": true,
+      "noLibraryRequestAtStartup": true
+    },
+    {
+      "route": "/explore",
+      "locale": "vi",
+      "width": 1440,
+      "matchedFullStyles": true,
+      "startupLogicalInputs": 44,
+      "noEditorOrQRAtStartup": true,
+      "noLibraryRequestAtStartup": true
+    },
+    {
+      "route": "/template/hai-phong-bi",
+      "locale": "vi",
+      "width": 1440,
+      "matchedFullStyles": true,
+      "startupLogicalInputs": 44,
+      "noEditorOrQRAtStartup": true,
+      "noLibraryRequestAtStartup": true
+    },
+    {
+      "route": "/template/birthday-radiance",
+      "locale": "vi",
+      "width": 1440,
+      "matchedFullStyles": true,
+      "startupLogicalInputs": 44,
+      "noEditorOrQRAtStartup": true,
+      "noLibraryRequestAtStartup": true
+    },
+    {
+      "route": "/template/proud-of-you",
+      "locale": "vi",
+      "width": 1440,
+      "matchedFullStyles": true,
+      "startupLogicalInputs": 44,
+      "noEditorOrQRAtStartup": true,
+      "noLibraryRequestAtStartup": true
+    },
+    {
+      "route": "/template/loi-moi-ben-hien",
+      "locale": "vi",
+      "width": 1440,
+      "matchedFullStyles": true,
+      "startupLogicalInputs": 44,
+      "noEditorOrQRAtStartup": true,
+      "noLibraryRequestAtStartup": true
+    },
+    {
+      "route": "/template/cuon-phim-ngay-ay",
+      "locale": "vi",
+      "width": 1440,
+      "matchedFullStyles": true,
+      "startupLogicalInputs": 44,
+      "noEditorOrQRAtStartup": true,
+      "noLibraryRequestAtStartup": true
+    },
+    {
+      "route": "/template/ban-do-ngay-ra-truong",
+      "locale": "vi",
+      "width": 1440,
+      "matchedFullStyles": true,
+      "startupLogicalInputs": 44,
+      "noEditorOrQRAtStartup": true,
+      "noLibraryRequestAtStartup": true
+    },
+    {
+      "route": "/explore",
+      "locale": "en",
+      "width": 320,
+      "matchedFullStyles": true,
+      "startupLogicalInputs": 44,
+      "noEditorOrQRAtStartup": true,
+      "noLibraryRequestAtStartup": true
+    },
+    {
+      "route": "/template/hai-phong-bi",
+      "locale": "en",
+      "width": 320,
+      "matchedFullStyles": true,
+      "startupLogicalInputs": 44,
+      "noEditorOrQRAtStartup": true,
+      "noLibraryRequestAtStartup": true
+    },
+    {
+      "route": "/template/birthday-radiance",
+      "locale": "en",
+      "width": 320,
+      "matchedFullStyles": true,
+      "startupLogicalInputs": 44,
+      "noEditorOrQRAtStartup": true,
+      "noLibraryRequestAtStartup": true
+    },
+    {
+      "route": "/template/proud-of-you",
+      "locale": "en",
+      "width": 320,
+      "matchedFullStyles": true,
+      "startupLogicalInputs": 44,
+      "noEditorOrQRAtStartup": true,
+      "noLibraryRequestAtStartup": true
+    },
+    {
+      "route": "/template/loi-moi-ben-hien",
+      "locale": "en",
+      "width": 320,
+      "matchedFullStyles": true,
+      "startupLogicalInputs": 44,
+      "noEditorOrQRAtStartup": true,
+      "noLibraryRequestAtStartup": true
+    },
+    {
+      "route": "/template/cuon-phim-ngay-ay",
+      "locale": "en",
+      "width": 320,
+      "matchedFullStyles": true,
+      "startupLogicalInputs": 44,
+      "noEditorOrQRAtStartup": true,
+      "noLibraryRequestAtStartup": true
+    },
+    {
+      "route": "/template/ban-do-ngay-ra-truong",
+      "locale": "en",
+      "width": 320,
+      "matchedFullStyles": true,
+      "startupLogicalInputs": 44,
+      "noEditorOrQRAtStartup": true,
+      "noLibraryRequestAtStartup": true
+    },
+    {
+      "route": "/explore",
+      "locale": "en",
+      "width": 390,
+      "matchedFullStyles": true,
+      "startupLogicalInputs": 44,
+      "noEditorOrQRAtStartup": true,
+      "noLibraryRequestAtStartup": true
+    },
+    {
+      "route": "/template/hai-phong-bi",
+      "locale": "en",
+      "width": 390,
+      "matchedFullStyles": true,
+      "startupLogicalInputs": 44,
+      "noEditorOrQRAtStartup": true,
+      "noLibraryRequestAtStartup": true
+    },
+    {
+      "route": "/template/birthday-radiance",
+      "locale": "en",
+      "width": 390,
+      "matchedFullStyles": true,
+      "startupLogicalInputs": 44,
+      "noEditorOrQRAtStartup": true,
+      "noLibraryRequestAtStartup": true
+    },
+    {
+      "route": "/template/proud-of-you",
+      "locale": "en",
+      "width": 390,
+      "matchedFullStyles": true,
+      "startupLogicalInputs": 44,
+      "noEditorOrQRAtStartup": true,
+      "noLibraryRequestAtStartup": true
+    },
+    {
+      "route": "/template/loi-moi-ben-hien",
+      "locale": "en",
+      "width": 390,
+      "matchedFullStyles": true,
+      "startupLogicalInputs": 44,
+      "noEditorOrQRAtStartup": true,
+      "noLibraryRequestAtStartup": true
+    },
+    {
+      "route": "/template/cuon-phim-ngay-ay",
+      "locale": "en",
+      "width": 390,
+      "matchedFullStyles": true,
+      "startupLogicalInputs": 44,
+      "noEditorOrQRAtStartup": true,
+      "noLibraryRequestAtStartup": true
+    },
+    {
+      "route": "/template/ban-do-ngay-ra-truong",
+      "locale": "en",
+      "width": 390,
+      "matchedFullStyles": true,
+      "startupLogicalInputs": 44,
+      "noEditorOrQRAtStartup": true,
+      "noLibraryRequestAtStartup": true
+    },
+    {
+      "route": "/explore",
+      "locale": "en",
+      "width": 768,
+      "matchedFullStyles": true,
+      "startupLogicalInputs": 44,
+      "noEditorOrQRAtStartup": true,
+      "noLibraryRequestAtStartup": true
+    },
+    {
+      "route": "/template/hai-phong-bi",
+      "locale": "en",
+      "width": 768,
+      "matchedFullStyles": true,
+      "startupLogicalInputs": 44,
+      "noEditorOrQRAtStartup": true,
+      "noLibraryRequestAtStartup": true
+    },
+    {
+      "route": "/template/birthday-radiance",
+      "locale": "en",
+      "width": 768,
+      "matchedFullStyles": true,
+      "startupLogicalInputs": 44,
+      "noEditorOrQRAtStartup": true,
+      "noLibraryRequestAtStartup": true
+    },
+    {
+      "route": "/template/proud-of-you",
+      "locale": "en",
+      "width": 768,
+      "matchedFullStyles": true,
+      "startupLogicalInputs": 44,
+      "noEditorOrQRAtStartup": true,
+      "noLibraryRequestAtStartup": true
+    },
+    {
+      "route": "/template/loi-moi-ben-hien",
+      "locale": "en",
+      "width": 768,
+      "matchedFullStyles": true,
+      "startupLogicalInputs": 44,
+      "noEditorOrQRAtStartup": true,
+      "noLibraryRequestAtStartup": true
+    },
+    {
+      "route": "/template/cuon-phim-ngay-ay",
+      "locale": "en",
+      "width": 768,
+      "matchedFullStyles": true,
+      "startupLogicalInputs": 44,
+      "noEditorOrQRAtStartup": true,
+      "noLibraryRequestAtStartup": true
+    },
+    {
+      "route": "/template/ban-do-ngay-ra-truong",
+      "locale": "en",
+      "width": 768,
+      "matchedFullStyles": true,
+      "startupLogicalInputs": 44,
+      "noEditorOrQRAtStartup": true,
+      "noLibraryRequestAtStartup": true
+    },
+    {
+      "route": "/explore",
+      "locale": "en",
+      "width": 1440,
+      "matchedFullStyles": true,
+      "startupLogicalInputs": 44,
+      "noEditorOrQRAtStartup": true,
+      "noLibraryRequestAtStartup": true
+    },
+    {
+      "route": "/template/hai-phong-bi",
+      "locale": "en",
+      "width": 1440,
+      "matchedFullStyles": true,
+      "startupLogicalInputs": 44,
+      "noEditorOrQRAtStartup": true,
+      "noLibraryRequestAtStartup": true
+    },
+    {
+      "route": "/template/birthday-radiance",
+      "locale": "en",
+      "width": 1440,
+      "matchedFullStyles": true,
+      "startupLogicalInputs": 44,
+      "noEditorOrQRAtStartup": true,
+      "noLibraryRequestAtStartup": true
+    },
+    {
+      "route": "/template/proud-of-you",
+      "locale": "en",
+      "width": 1440,
+      "matchedFullStyles": true,
+      "startupLogicalInputs": 44,
+      "noEditorOrQRAtStartup": true,
+      "noLibraryRequestAtStartup": true
+    },
+    {
+      "route": "/template/loi-moi-ben-hien",
+      "locale": "en",
+      "width": 1440,
+      "matchedFullStyles": true,
+      "startupLogicalInputs": 44,
+      "noEditorOrQRAtStartup": true,
+      "noLibraryRequestAtStartup": true
+    },
+    {
+      "route": "/template/cuon-phim-ngay-ay",
+      "locale": "en",
+      "width": 1440,
+      "matchedFullStyles": true,
+      "startupLogicalInputs": 44,
+      "noEditorOrQRAtStartup": true,
+      "noLibraryRequestAtStartup": true
+    },
+    {
+      "route": "/template/ban-do-ngay-ra-truong",
+      "locale": "en",
+      "width": 1440,
+      "matchedFullStyles": true,
+      "startupLogicalInputs": 44,
+      "noEditorOrQRAtStartup": true,
+      "noLibraryRequestAtStartup": true
+    },
+    {
+      "offscreenCoverLoadedOnScroll": true
+    },
+    {
+      "previewLazyLoadsFullStylesAndOneDocument": true,
+      "photographicCandleWorked": true
+    },
+    {
+      "publicPlayerNoEditorInputs": true,
+      "logicalInputs": [
+        "web/js/core/catalog-bootstrap.js",
+        "web/js/catalog-bootstrap.js",
+        "web/js/shared/canvas/template-slots.js",
+        "web/js/shared/canvas/realistic-media.js",
+        "web/js/shared/canvas/interactive-media.js",
+        "web/js/shared/canvas/event-media.js",
+        "web/js/features/gifts/recipient-journey.js",
+        "web/js/features/catalog/seasonal.js",
+        "web/js/features/catalog/template-copy.js",
+        "web/js/ui/recipient-viral.js",
+        "web/js/core/motion.js",
+        "web/js/shared/template-copy.js",
+        "web/assets/locales/vi.json",
+        "web/js/shared/locale.js",
+        "web/js/shared/canvas/library-state.js",
+        "web/js/ui/icons.js",
+        "web/js/core/i18n.js",
+        "web/js/features/support/topics.js",
+        "web/js/pages/refund-review.js",
+        "web/js/core/api.js",
+        "web/js/core/cover-loading.js",
+        "web/js/core/client-styles.js",
+        "web/js/core/auth-return.js",
+        "web/js/features/catalog/filter.js",
+        "web/js/pages/policies.js",
+        "web/js/features/gifts/reply-intent.js",
+        "web/js/features/gifts/inbox.js",
+        "web/js/core/state.js",
+        "web/js/ui/components.js",
+        "web/js/ui/layout.js",
+        "web/js/features/catalog/template-preview.js",
+        "web/js/shared/template-order.js",
+        "web/js/pages/home.js",
+        "web/js/features/marketing/journey.js",
+        "web/js/features/marketing/latest-frame.js",
+        "web/js/features/marketing/scene-motion.js",
+        "web/js/features/marketing/hero-templates.js",
+        "web/js/pages/catalog.js",
+        "web/js/pages/pricing.js",
+        "web/js/pages/payment-status.js",
+        "web/js/features/refund/latest-request.js",
+        "web/js/pages/system.js",
+        "web/js/app/main.js",
+        "web/js/app.js",
+        "web/js/shared/canvas/index.js",
+        "web/js/shared/canvas/candle-skins.js",
+        "web/js/features/gift-runtime/interactions.js",
+        "web/js/shared/canvas/paper-grain.js",
+        "web/js/features/gift-runtime/recipe-runtime.js",
+        "web/js/features/gift-runtime/celebrations.js",
+        "web/js/features/gift-runtime/effects.js",
+        "web/js/features/gift-runtime/image-state.js",
+        "web/js/features/gift-runtime/renderer.js",
+        "web/js/features/gift-runtime/scene-navigation.js",
+        "web/js/features/gift-runtime/index.js",
+        "web/js/shared/canvas/library-materialize.js",
+        "web/js/shared/canvas/interactive-templates.js",
+        "web/js/shared/canvas/collection-2027.js",
+        "web/js/shared/canvas/event-upgrade.js",
+        "web/js/shared/canvas/event-story.js",
+        "web/js/shared/canvas/event-cards.js",
+        "web/js/shared/canvas/basic-templates.js",
+        "web/js/shared/canvas/presets.js",
+        "web/js/shared/canvas/decorative-art.js",
+        "web/js/shared/canvas/decorative-art-55.js",
+        "web/js/shared/canvas/artwork.js",
+        "web/js/shared/canvas/registry.js",
+        "web/js/shared/canvas/prediction.js",
+        "web/js/shared/canvas/interactions.js",
+        "web/js/shared/canvas/event-recipes.js",
+        "web/js/shared/canvas/library-contract.js",
+        "web/js/shared/canvas/effects.js",
+        "web/js/shared/canvas/schema.js"
+      ]
+    }
+  ],
+  "errors": []
+}

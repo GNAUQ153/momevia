@@ -17,10 +17,10 @@ function customItems() {
       definition: { family: 'entrance', title: { vi: 'Nghiêng nhẹ', en: 'Gentle tilt' }, animationId: 'db-motion', targets: { types: ['text'] }, defaults: { speed: 'slow', delay: 150 } } },
   ];
 }
-test('387 complete builtin definitions validate and contain no executable factories', () => {
+test('417 complete builtin definitions validate and contain no executable factories', () => {
   const rows = builtinLibraryItems(); validateLibrary(rows);
-  assert.equal(rows.length, 387); assert.equal(rows.filter(r => r.kind === 'element').length, 172);
-  assert.equal(rows.filter(r => r.kind === 'animation').length, 33);
+  assert.equal(rows.length, 417); assert.equal(rows.filter(r => r.kind === 'element').length, 182);
+  assert.equal(rows.filter(r => r.kind === 'animation').length, 41);
   assert.deepEqual(JSON.parse(JSON.stringify(rows)), rows);
 });
 test('DB-only artwork and animation are frozen in the saved and public document', () => {

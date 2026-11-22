@@ -1,0 +1,56 @@
+{
+  "configuration": {
+    "profile": "chrome-lab-profile",
+    "viewport": "390×844",
+    "cpuSlowdown": 4,
+    "latencyMs": 100,
+    "downloadBytesPerSecond": 200000,
+    "kind": "single three-second headless lab sample per effect; not a physical-device FPS benchmark"
+  },
+  "results": [
+    {
+      "id": "birthday-radiance",
+      "effect": "E01",
+      "sampleMs": 3006.6000000000004,
+      "frames": 180,
+      "fps": 59.868289762522444,
+      "p95FrameMs": 16.800000000000182,
+      "framesOver50Ms": 1,
+      "peakAnimations": 2,
+      "peakParticles": 0,
+      "afterCloseAnimations": 0
+    },
+    {
+      "id": "cuon-phim-ngay-ay",
+      "effect": "photo-arrive-v3 + keepsake-sway-v1",
+      "sampleMs": 3004.1000000000004,
+      "frames": 176,
+      "fps": 58.58659831563529,
+      "p95FrameMs": 16.900000000000546,
+      "framesOver50Ms": 1,
+      "peakAnimations": 2,
+      "peakParticles": 0,
+      "afterCloseAnimations": 0
+    },
+    {
+      "id": "loi-moi-ben-hien",
+      "effect": "porch-sun-v1 + photo-arrive-v3 + keepsake-sway-v1",
+      "sampleMs": 3009.6000000357626,
+      "frames": 177,
+      "fps": 58.81180223215601,
+      "p95FrameMs": 16.800000000000182,
+      "framesOver50Ms": 1,
+      "peakAnimations": 6,
+      "peakParticles": 4,
+      "afterCloseAnimations": 0
+    },
+    {
+      "tabVisibility": {
+        "background": "visible",
+        "returned": "visible",
+        "observedHidden": false
+      },
+      "note": "Headless Chrome did not expose a hidden state; background-tab behavior is NOT VERIFIED by this probe"
+    }
+  ]
+}

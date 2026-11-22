@@ -17,3 +17,4 @@ buildLocalizedHtml();
 
 // Đóng gói Fabric.js ESM kèm thông báo bản quyền nếu đã cài.
 await import('./fabric-vendor.mjs');
+await (await import('./client-bundles.mjs')).buildClientBundles();

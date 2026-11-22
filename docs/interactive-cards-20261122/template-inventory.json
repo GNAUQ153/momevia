@@ -1,0 +1,2595 @@
+{
+  "baseCommit": "70f2be0",
+  "baseline": [
+    {
+      "template": {
+        "id": "birthday-radiance",
+        "title": "Birthday Radiance",
+        "subtitle": "Thiệp sinh nhật với bánh, nến và một lời chúc dành riêng cho bạn.",
+        "theme": "lilac",
+        "style": "Tươi vui",
+        "price": 0,
+        "scenes": 5,
+        "effect": "Thắp nến",
+        "creator": "Momevia Originals",
+        "category": "Sinh nhật",
+        "status": "published",
+        "createdAt": "2026-11-01T00:00:00.000Z",
+        "systemOwned": true,
+        "personalization": {
+          "bindings": [
+            "recipientName",
+            "message",
+            "senderName"
+          ],
+          "photoFrames": 3,
+          "layout": true
+        }
+      },
+      "designId": "e47ff2c1-738b-415d-b4f5-6bcbf4b29995",
+      "hash": "sha256:5299175cbaa06065d59e59238e638bb07a4bc8a07b57adf4e76008772aa9a347",
+      "version": "328d0653-8bff-5190-894b-c0429601cb74",
+      "source": {
+        "kind": "template",
+        "templateId": "birthday-radiance",
+        "templateVersionId": "328d0653-8bff-5190-894b-c0429601cb74"
+      },
+      "policy": {
+        "kind": "sender-basic",
+        "lockedElements": {}
+      },
+      "scenes": [
+        "scene-cover",
+        "scene-time",
+        "scene-surprise",
+        "scene-album",
+        "scene-reply"
+      ],
+      "assets": [
+        {
+          "assetId": "5193fa25-66de-48cf-925d-c32939ebec79",
+          "kind": "image"
+        }
+      ]
+    },
+    {
+      "template": {
+        "id": "hai-phong-bi",
+        "title": "Hai phong bì",
+        "subtitle": "Thiệp đám cưới: hai phong bì, một kỷ niệm và một lời chúc cho đôi bạn.",
+        "theme": "lilac",
+        "style": "Tình cảm",
+        "price": 0,
+        "scenes": 6,
+        "effect": "Mở thư",
+        "creator": "Momevia Originals",
+        "category": "Đám cưới",
+        "status": "published",
+        "createdAt": "2026-11-01T00:00:00.000Z",
+        "systemOwned": true,
+        "personalization": {
+          "bindings": [
+            "recipientName",
+            "message",
+            "senderName"
+          ],
+          "photoFrames": 3,
+          "layout": true
+        }
+      },
+      "designId": "2a66f09f-1abe-4a1e-a888-c4416f523309",
+      "hash": "sha256:7e1c0ad6a22e56083155da72dae5b8bb86fc7cc20543ffae8f69868c76fab47a",
+      "version": "b0ce06ec-550a-5fe5-83c8-68b3f0aca088",
+      "source": {
+        "kind": "template",
+        "templateId": "hai-phong-bi",
+        "templateVersionId": "b0ce06ec-550a-5fe5-83c8-68b3f0aca088"
+      },
+      "policy": {
+        "kind": "sender-basic",
+        "lockedElements": {}
+      },
+      "scenes": [
+        "scene-cover",
+        "scene-surprise",
+        "scene-message",
+        "scene-time",
+        "scene-album",
+        "scene-reply"
+      ],
+      "assets": [
+        {
+          "assetId": "fef74f94-8893-4f70-bc70-66dca1ffa38a",
+          "kind": "image"
+        }
+      ]
+    },
+    {
+      "template": {
+        "id": "proud-of-you",
+        "title": "Proud of You",
+        "subtitle": "Thiệp tốt nghiệp với mũ, tua vàng và lời ghi nhận những nỗ lực của bạn.",
+        "theme": "navy",
+        "style": "Thanh lịch",
+        "price": 0,
+        "scenes": 5,
+        "effect": "Huy chương",
+        "creator": "Momevia Originals",
+        "category": "Tốt nghiệp",
+        "status": "published",
+        "createdAt": "2026-11-01T00:00:00.000Z",
+        "systemOwned": true,
+        "personalization": {
+          "bindings": [
+            "recipientName",
+            "message",
+            "senderName"
+          ],
+          "photoFrames": 3,
+          "layout": true
+        }
+      },
+      "designId": "adb335db-fd19-421f-8312-4293205f280c",
+      "hash": "sha256:20f4c37a709ddec4f4b2c95df0102cdab4b56b9735877638673e5a65f5923d28",
+      "version": "33067015-3282-57f6-840f-a922c9eea688",
+      "source": {
+        "kind": "template",
+        "templateId": "proud-of-you",
+        "templateVersionId": "33067015-3282-57f6-840f-a922c9eea688"
+      },
+      "policy": {
+        "kind": "sender-basic",
+        "lockedElements": {}
+      },
+      "scenes": [
+        "scene-cover",
+        "scene-time",
+        "scene-surprise",
+        "scene-album",
+        "scene-reply"
+      ],
+      "assets": [
+        {
+          "assetId": "f5658924-0af5-48cc-bc28-c503b81567f4",
+          "kind": "image"
+        }
+      ]
+    },
+    {
+      "template": {
+        "id": "midnight-bloom",
+        "title": "Midnight Bloom",
+        "subtitle": "Một khu vườn dành riêng cho người ấy",
+        "theme": "violet",
+        "style": "Lãng mạn",
+        "price": 59000,
+        "scenes": 3,
+        "effect": "Bung nở",
+        "creator": "Momevia Originals",
+        "featured": true,
+        "category": "Sinh nhật",
+        "status": "published",
+        "createdAt": "2026-11-01T00:00:00.000Z",
+        "systemOwned": true,
+        "personalization": {
+          "bindings": [
+            "recipientName",
+            "message",
+            "senderName"
+          ],
+          "photoFrames": 0,
+          "layout": true
+        }
+      },
+      "designId": "2df598f1-4728-46a8-943d-2519098d1b7f",
+      "hash": "sha256:62b49156fd6fad58a35a7e324f06b97c3d2479d0af772be174d59612fb80fd81",
+      "version": "a9bef2b4-cdca-52a0-820e-2c1eec0aa6df",
+      "source": {
+        "kind": "template",
+        "templateId": "midnight-bloom",
+        "templateVersionId": "a9bef2b4-cdca-52a0-820e-2c1eec0aa6df"
+      },
+      "policy": {
+        "kind": "sender-basic",
+        "lockedElements": {}
+      },
+      "scenes": [
+        "scene-cover",
+        "scene-surprise",
+        "scene-message"
+      ],
+      "assets": []
+    },
+    {
+      "template": {
+        "id": "sunny-wishes",
+        "title": "Sunny Wishes",
+        "subtitle": "Gửi một ngày rực rỡ và ngọt ngào",
+        "theme": "sunshine",
+        "style": "Tươi vui",
+        "price": 0,
+        "scenes": 3,
+        "effect": "Lật thiệp",
+        "creator": "Momevia Originals",
+        "featured": true,
+        "category": "Sinh nhật",
+        "status": "published",
+        "createdAt": "2026-11-01T00:00:00.000Z",
+        "systemOwned": true,
+        "personalization": {
+          "bindings": [
+            "recipientName",
+            "message",
+            "senderName"
+          ],
+          "photoFrames": 0,
+          "layout": true
+        }
+      },
+      "designId": "f3a5e1ce-9a06-42a7-a57b-b3b4ee72285a",
+      "hash": "sha256:68833fce01e4f6bbe644d8ab2548112c6539c32c04f354a720ace7703088f142",
+      "version": "c2e0fe01-4263-5255-840b-022efa61c3bb",
+      "source": {
+        "kind": "template",
+        "templateId": "sunny-wishes",
+        "templateVersionId": "c2e0fe01-4263-5255-840b-022efa61c3bb"
+      },
+      "policy": {
+        "kind": "sender-basic",
+        "lockedElements": {}
+      },
+      "scenes": [
+        "scene-cover",
+        "scene-surprise",
+        "scene-message"
+      ],
+      "assets": []
+    },
+    {
+      "template": {
+        "id": "love-letter",
+        "title": "The Love Letter",
+        "subtitle": "Đôi điều nhỏ dành cho người đặc biệt",
+        "theme": "rose",
+        "style": "Tình cảm",
+        "price": 79000,
+        "scenes": 3,
+        "effect": "Mở thư",
+        "creator": "Momevia Originals",
+        "featured": true,
+        "category": "Sinh nhật",
+        "status": "published",
+        "createdAt": "2026-11-01T00:00:00.000Z",
+        "systemOwned": true,
+        "personalization": {
+          "bindings": [
+            "recipientName",
+            "message",
+            "senderName"
+          ],
+          "photoFrames": 0,
+          "layout": true
+        }
+      },
+      "designId": "44dce22a-7661-4462-8992-843a34ed6263",
+      "hash": "sha256:c038770af58a16e115ac5673962cf117313c313ff4e1247b5e7f747781a80a44",
+      "version": "29fb05f2-2da8-5722-803e-33c9395b09ae",
+      "source": {
+        "kind": "template",
+        "templateId": "love-letter",
+        "templateVersionId": "29fb05f2-2da8-5722-803e-33c9395b09ae"
+      },
+      "policy": {
+        "kind": "sender-basic",
+        "lockedElements": {}
+      },
+      "scenes": [
+        "scene-cover",
+        "scene-surprise",
+        "scene-message"
+      ],
+      "assets": []
+    },
+    {
+      "template": {
+        "id": "starlight",
+        "title": "Starlight Night",
+        "subtitle": "Ước một điều, nhận ngàn vì sao",
+        "theme": "navy",
+        "style": "Kỳ ảo",
+        "price": 59000,
+        "scenes": 3,
+        "effect": "Ánh sao",
+        "creator": "Momevia Originals",
+        "category": "Sinh nhật",
+        "status": "published",
+        "createdAt": "2026-11-01T00:00:00.000Z",
+        "systemOwned": true,
+        "personalization": {
+          "bindings": [
+            "recipientName",
+            "message",
+            "senderName"
+          ],
+          "photoFrames": 0,
+          "layout": true
+        }
+      },
+      "designId": "30ab065f-cb5b-4dbe-8b94-313cd0637e57",
+      "hash": "sha256:32c513128d79f840586861a91987e0feddfcdc47114763654eaf6fbcd4e530fe",
+      "version": "b7da1850-6131-5ec0-8734-cc14d5c282f8",
+      "source": {
+        "kind": "template",
+        "templateId": "starlight",
+        "templateVersionId": "b7da1850-6131-5ec0-8734-cc14d5c282f8"
+      },
+      "policy": {
+        "kind": "sender-basic",
+        "lockedElements": {}
+      },
+      "scenes": [
+        "scene-cover",
+        "scene-surprise",
+        "scene-message"
+      ],
+      "assets": []
+    },
+    {
+      "template": {
+        "id": "peachy-day",
+        "title": "Peachy Day",
+        "subtitle": "Một chút dịu dàng trong ngày mới",
+        "theme": "peach",
+        "style": "Tối giản",
+        "price": 39000,
+        "scenes": 3,
+        "effect": "Tan chảy",
+        "creator": "Momevia Originals",
+        "category": "Sinh nhật",
+        "status": "published",
+        "createdAt": "2026-11-01T00:00:00.000Z",
+        "systemOwned": true,
+        "personalization": {
+          "bindings": [
+            "recipientName",
+            "message",
+            "senderName"
+          ],
+          "photoFrames": 0,
+          "layout": true
+        }
+      },
+      "designId": "3426f356-c94c-4273-bc4d-3b8906240e86",
+      "hash": "sha256:a4f987a968b26dd17d1c8858148727d7971ae6a6c34c0d798a3ac37a3017b8d8",
+      "version": "1cf8e642-c9bb-5a39-8d93-529ae8e039fe",
+      "source": {
+        "kind": "template",
+        "templateId": "peachy-day",
+        "templateVersionId": "1cf8e642-c9bb-5a39-8d93-529ae8e039fe"
+      },
+      "policy": {
+        "kind": "sender-basic",
+        "lockedElements": {}
+      },
+      "scenes": [
+        "scene-cover",
+        "scene-surprise",
+        "scene-message"
+      ],
+      "assets": []
+    },
+    {
+      "template": {
+        "id": "greenhouse",
+        "title": "Little Greenhouse",
+        "subtitle": "Gieo những điều tốt đẹp",
+        "theme": "sage",
+        "style": "Thiên nhiên",
+        "price": 39000,
+        "scenes": 3,
+        "effect": "Bung nở",
+        "creator": "Momevia Originals",
+        "category": "Sinh nhật",
+        "status": "published",
+        "createdAt": "2026-11-01T00:00:00.000Z",
+        "systemOwned": true,
+        "personalization": {
+          "bindings": [
+            "recipientName",
+            "message",
+            "senderName"
+          ],
+          "photoFrames": 0,
+          "layout": true
+        }
+      },
+      "designId": "67a11307-eab3-40dd-8399-0ae76a309cec",
+      "hash": "sha256:ccf603ac15a9b74e05219aff589bc0d23da1618c52eb5b33d32e38ffa1f870c7",
+      "version": "6593e185-064f-59df-8aa6-7ec1ff6995f7",
+      "source": {
+        "kind": "template",
+        "templateId": "greenhouse",
+        "templateVersionId": "6593e185-064f-59df-8aa6-7ec1ff6995f7"
+      },
+      "policy": {
+        "kind": "sender-basic",
+        "lockedElements": {}
+      },
+      "scenes": [
+        "scene-cover",
+        "scene-surprise",
+        "scene-message"
+      ],
+      "assets": []
+    },
+    {
+      "template": {
+        "id": "confetti",
+        "title": "Make a Wish",
+        "subtitle": "Mở tiệc ngay trong lòng bàn tay",
+        "theme": "coral",
+        "style": "Tươi vui",
+        "price": 0,
+        "scenes": 3,
+        "effect": "Pháo giấy",
+        "creator": "Momevia Originals",
+        "category": "Sinh nhật",
+        "status": "published",
+        "createdAt": "2026-11-01T00:00:00.000Z",
+        "systemOwned": true,
+        "personalization": {
+          "bindings": [
+            "recipientName",
+            "message",
+            "senderName"
+          ],
+          "photoFrames": 0,
+          "layout": true
+        }
+      },
+      "designId": "55c33e9c-5905-41ab-bd2b-6a0c295fdfc3",
+      "hash": "sha256:714b0671773af21ec12277601eba514396c5a2bc47d970bb7839826130fd4e6b",
+      "version": "9ee7f506-3ff3-531b-8530-2dc96217816f",
+      "source": {
+        "kind": "template",
+        "templateId": "confetti",
+        "templateVersionId": "9ee7f506-3ff3-531b-8530-2dc96217816f"
+      },
+      "policy": {
+        "kind": "sender-basic",
+        "lockedElements": {}
+      },
+      "scenes": [
+        "scene-cover",
+        "scene-surprise",
+        "scene-message"
+      ],
+      "assets": []
+    },
+    {
+      "template": {
+        "id": "cloud-nine",
+        "title": "On Cloud Nine",
+        "subtitle": "Cảm xúc nhẹ như một áng mây",
+        "theme": "sky",
+        "style": "Tối giản",
+        "price": 39000,
+        "scenes": 3,
+        "effect": "Trôi mây",
+        "creator": "Momevia Originals",
+        "category": "Sinh nhật",
+        "status": "published",
+        "createdAt": "2026-11-01T00:00:00.000Z",
+        "systemOwned": true,
+        "personalization": {
+          "bindings": [
+            "recipientName",
+            "message",
+            "senderName"
+          ],
+          "photoFrames": 0,
+          "layout": true
+        }
+      },
+      "designId": "1b3e3554-4267-4513-b656-4fdae1633496",
+      "hash": "sha256:dd5996e31be1513185c924f812e654b967a97dd071be1b73ade75f84f013ed53",
+      "version": "be00d3b2-0c98-5dc3-8c55-e23886d482a0",
+      "source": {
+        "kind": "template",
+        "templateId": "cloud-nine",
+        "templateVersionId": "be00d3b2-0c98-5dc3-8c55-e23886d482a0"
+      },
+      "policy": {
+        "kind": "sender-basic",
+        "lockedElements": {}
+      },
+      "scenes": [
+        "scene-cover",
+        "scene-surprise",
+        "scene-message"
+      ],
+      "assets": []
+    },
+    {
+      "template": {
+        "id": "lavender",
+        "title": "Lavender Field",
+        "subtitle": "Dịu dàng như những mùa nhớ",
+        "theme": "lilac",
+        "style": "Lãng mạn",
+        "price": 59000,
+        "scenes": 3,
+        "effect": "Bung nở",
+        "creator": "Momevia Originals",
+        "category": "Sinh nhật",
+        "status": "published",
+        "createdAt": "2026-11-01T00:00:00.000Z",
+        "systemOwned": true,
+        "personalization": {
+          "bindings": [
+            "recipientName",
+            "message",
+            "senderName"
+          ],
+          "photoFrames": 0,
+          "layout": true
+        }
+      },
+      "designId": "ad4fdb2f-2f66-4d91-a943-db9256aa193b",
+      "hash": "sha256:89d489cacd57e35f0e3ac814ba30a7e62eb3dd359a6a5eb37b689fdc6dd566f2",
+      "version": "23acf49b-2f8e-5d30-890d-f09e58a09dbd",
+      "source": {
+        "kind": "template",
+        "templateId": "lavender",
+        "templateVersionId": "23acf49b-2f8e-5d30-890d-f09e58a09dbd"
+      },
+      "policy": {
+        "kind": "sender-basic",
+        "lockedElements": {}
+      },
+      "scenes": [
+        "scene-cover",
+        "scene-surprise",
+        "scene-message"
+      ],
+      "assets": []
+    },
+    {
+      "template": {
+        "id": "polaroid",
+        "title": "Captured Moments",
+        "subtitle": "Tập hợp những khoảnh khắc đáng yêu",
+        "theme": "cream",
+        "style": "Hoài niệm",
+        "price": 79000,
+        "scenes": 3,
+        "effect": "Lật ảnh",
+        "creator": "Momevia Originals",
+        "category": "Sinh nhật",
+        "status": "published",
+        "createdAt": "2026-11-01T00:00:00.000Z",
+        "systemOwned": true,
+        "personalization": {
+          "bindings": [
+            "recipientName",
+            "message",
+            "senderName"
+          ],
+          "photoFrames": 1,
+          "layout": true
+        }
+      },
+      "designId": "7ab61141-729b-4bcc-8a5c-dd11d889c2a9",
+      "hash": "sha256:22bef68534bf22dfdfbd3f96a7c4037b00ae659ab4668c843f90b17eda034b21",
+      "version": "db626be9-15a0-58a2-80e3-120a99dfef42",
+      "source": {
+        "kind": "template",
+        "templateId": "polaroid",
+        "templateVersionId": "db626be9-15a0-58a2-80e3-120a99dfef42"
+      },
+      "policy": {
+        "kind": "sender-basic",
+        "lockedElements": {}
+      },
+      "scenes": [
+        "scene-cover",
+        "scene-surprise",
+        "scene-message"
+      ],
+      "assets": []
+    },
+    {
+      "template": {
+        "id": "afterglow",
+        "title": "Afterglow",
+        "subtitle": "Mọi điều đẹp đều có ánh sáng riêng",
+        "theme": "amber",
+        "style": "Kỳ ảo",
+        "price": 59000,
+        "scenes": 3,
+        "effect": "Ánh sáng",
+        "creator": "Momevia Originals",
+        "category": "Sinh nhật",
+        "status": "published",
+        "createdAt": "2026-11-01T00:00:00.000Z",
+        "systemOwned": true,
+        "personalization": {
+          "bindings": [
+            "recipientName",
+            "message",
+            "senderName"
+          ],
+          "photoFrames": 0,
+          "layout": true
+        }
+      },
+      "designId": "aee0225a-7109-4d4a-bb2d-2c8ffb4a1f87",
+      "hash": "sha256:c604abf718dbcbae3771b96827684c64df71b03d54824a27e19ca543877e43a0",
+      "version": "06eb85a3-afb1-5f1b-8661-1b723945d75a",
+      "source": {
+        "kind": "template",
+        "templateId": "afterglow",
+        "templateVersionId": "06eb85a3-afb1-5f1b-8661-1b723945d75a"
+      },
+      "policy": {
+        "kind": "sender-basic",
+        "lockedElements": {}
+      },
+      "scenes": [
+        "scene-cover",
+        "scene-surprise",
+        "scene-message"
+      ],
+      "assets": []
+    },
+    {
+      "template": {
+        "id": "tiny-celebration",
+        "title": "Tiny Celebration",
+        "subtitle": "Dành cho những niềm vui thật lớn",
+        "theme": "mint",
+        "style": "Tươi vui",
+        "price": 0,
+        "scenes": 3,
+        "effect": "Bật mí",
+        "creator": "Momevia Originals",
+        "category": "Sinh nhật",
+        "status": "published",
+        "createdAt": "2026-11-01T00:00:00.000Z",
+        "systemOwned": true,
+        "personalization": {
+          "bindings": [
+            "recipientName",
+            "message",
+            "senderName"
+          ],
+          "photoFrames": 0,
+          "layout": true
+        }
+      },
+      "designId": "3e12f9e0-eb70-49c8-b30f-49823aceaf47",
+      "hash": "sha256:dbaa432c7a15b7df39caf8d2396c959f2534963f415270818e425251aa7e9766",
+      "version": "0c11cc1f-977f-57ef-8cd6-f3676aec2a15",
+      "source": {
+        "kind": "template",
+        "templateId": "tiny-celebration",
+        "templateVersionId": "0c11cc1f-977f-57ef-8cd6-f3676aec2a15"
+      },
+      "policy": {
+        "kind": "sender-basic",
+        "lockedElements": {}
+      },
+      "scenes": [
+        "scene-cover",
+        "scene-surprise",
+        "scene-message"
+      ],
+      "assets": []
+    },
+    {
+      "template": {
+        "id": "mot-ky-niem",
+        "title": "Một kỷ niệm của hai mình",
+        "subtitle": "Gửi một tấm ảnh, một dòng chú thích và lời chúc sinh nhật.",
+        "theme": "cream",
+        "style": "Hoài niệm",
+        "price": 0,
+        "scenes": 3,
+        "effect": "Mở thư",
+        "creator": "Momevia Originals",
+        "category": "Sinh nhật",
+        "status": "published",
+        "createdAt": "2026-11-01T00:00:00.000Z",
+        "systemOwned": true,
+        "personalization": {
+          "bindings": [
+            "recipientName",
+            "message",
+            "senderName"
+          ],
+          "photoFrames": 1,
+          "layout": true
+        }
+      },
+      "designId": "3a0e2b99-4057-43bf-b77a-ac53ecac6a43",
+      "hash": "sha256:ad730dea77653eaa9aebea27c023cc896b5c9b9af0025cff493562b0ddb8e4b2",
+      "version": "aedbac7c-ee41-5f82-87f6-0536527809e8",
+      "source": {
+        "kind": "template",
+        "templateId": "mot-ky-niem",
+        "templateVersionId": "aedbac7c-ee41-5f82-87f6-0536527809e8"
+      },
+      "policy": {
+        "kind": "sender-basic",
+        "lockedElements": {}
+      },
+      "scenes": [
+        "scene-cover",
+        "scene-surprise",
+        "scene-message"
+      ],
+      "assets": []
+    },
+    {
+      "template": {
+        "id": "winter-wishes-2026",
+        "title": "Winter Wishes",
+        "subtitle": "Thiệp Giáng sinh trong khu vườn tuyết và ánh đèn vàng.",
+        "theme": "sage",
+        "style": "Lễ hội",
+        "price": 0,
+        "scenes": 3,
+        "effect": "Mở món quà",
+        "creator": "Momevia Originals",
+        "featured": true,
+        "category": "Giáng sinh",
+        "status": "published",
+        "createdAt": "2026-11-01T00:00:00.000Z",
+        "isSeasonal": true,
+        "season": "Giáng sinh 2026",
+        "availableFrom": "2026-11-10",
+        "availableTo": "2026-12-26",
+        "systemOwned": true,
+        "personalization": {
+          "bindings": [
+            "recipientName",
+            "message",
+            "senderName"
+          ],
+          "photoFrames": 0,
+          "layout": true
+        }
+      },
+      "designId": "fc41132b-6a50-4a98-a5d9-761b6a8b7b8c",
+      "hash": "sha256:12c7aaa44c92e521e647c8911759e727bf41eff5aa186ade637c61f679cfc440",
+      "version": "3bc6a5da-c422-52e1-801d-af9d216ab6b2",
+      "source": {
+        "kind": "template",
+        "templateId": "winter-wishes-2026",
+        "templateVersionId": "3bc6a5da-c422-52e1-801d-af9d216ab6b2"
+      },
+      "policy": {
+        "kind": "sender-basic",
+        "lockedElements": {}
+      },
+      "scenes": [
+        "scene-cover",
+        "scene-surprise",
+        "scene-message"
+      ],
+      "assets": []
+    },
+    {
+      "template": {
+        "id": "new-year-spark-2027",
+        "title": "Midnight Countdown",
+        "subtitle": "Chào năm mới 2027 bằng ánh pháo hoa và những ước nguyện.",
+        "theme": "navy",
+        "style": "Lễ hội",
+        "price": 0,
+        "scenes": 3,
+        "effect": "Pháo hoa",
+        "creator": "Momevia Originals",
+        "featured": true,
+        "category": "Năm mới",
+        "status": "published",
+        "createdAt": "2026-11-01T00:00:00.000Z",
+        "isSeasonal": true,
+        "season": "Năm mới 2027",
+        "availableFrom": "2026-12-20",
+        "availableTo": "2027-01-07",
+        "systemOwned": true,
+        "personalization": {
+          "bindings": [
+            "recipientName",
+            "message",
+            "senderName"
+          ],
+          "photoFrames": 0,
+          "layout": true
+        }
+      },
+      "designId": "1f52aef7-df63-4f4e-a69d-36f30f14f266",
+      "hash": "sha256:a28bba627476793d35d52a37d1cede40592999061eba5278247790f8e64d97c4",
+      "version": "2cb8b6d2-532f-56c5-843a-806121cbf44c",
+      "source": {
+        "kind": "template",
+        "templateId": "new-year-spark-2027",
+        "templateVersionId": "2cb8b6d2-532f-56c5-843a-806121cbf44c"
+      },
+      "policy": {
+        "kind": "sender-basic",
+        "lockedElements": {}
+      },
+      "scenes": [
+        "scene-cover",
+        "scene-surprise",
+        "scene-message"
+      ],
+      "assets": []
+    },
+    {
+      "template": {
+        "id": "spring-blessing-2027",
+        "title": "Spring Blessing",
+        "subtitle": "Gửi lời chúc Tết 2027 cùng hoa mai, hoa đào và sắc xuân.",
+        "theme": "coral",
+        "style": "Lễ hội",
+        "price": 0,
+        "scenes": 3,
+        "effect": "Mở lì xì",
+        "creator": "Momevia Originals",
+        "featured": true,
+        "category": "Tết Nguyên đán",
+        "status": "published",
+        "createdAt": "2026-11-01T00:00:00.000Z",
+        "isSeasonal": true,
+        "season": "Tết Nguyên đán 2027",
+        "availableFrom": "2027-01-15",
+        "availableTo": "2027-02-22",
+        "systemOwned": true,
+        "personalization": {
+          "bindings": [
+            "recipientName",
+            "message",
+            "senderName"
+          ],
+          "photoFrames": 0,
+          "layout": true
+        }
+      },
+      "designId": "2dbdc7fd-1475-4674-98e0-0b1025d93e2d",
+      "hash": "sha256:5b792ef86da5d8a3d7c34f23a1c702735970ba4b08d812a68f9852e4eed63069",
+      "version": "bc4ce34d-2deb-5775-8937-1bd212d51768",
+      "source": {
+        "kind": "template",
+        "templateId": "spring-blessing-2027",
+        "templateVersionId": "bc4ce34d-2deb-5775-8937-1bd212d51768"
+      },
+      "policy": {
+        "kind": "sender-basic",
+        "lockedElements": {}
+      },
+      "scenes": [
+        "scene-cover",
+        "scene-surprise",
+        "scene-message"
+      ],
+      "assets": []
+    },
+    {
+      "template": {
+        "id": "velvet-valentine-2027",
+        "title": "Velvet Valentine",
+        "subtitle": "Lá thư tình mang dấu niêm phong dành riêng cho người ấy.",
+        "theme": "rose",
+        "style": "Lễ hội",
+        "price": 0,
+        "scenes": 3,
+        "effect": "Mở thư",
+        "creator": "Momevia Originals",
+        "featured": true,
+        "category": "Valentine",
+        "status": "published",
+        "createdAt": "2026-11-01T00:00:00.000Z",
+        "isSeasonal": true,
+        "season": "Valentine 2027",
+        "availableFrom": "2027-02-01",
+        "availableTo": "2027-02-15",
+        "systemOwned": true,
+        "personalization": {
+          "bindings": [
+            "recipientName",
+            "message",
+            "senderName"
+          ],
+          "photoFrames": 0,
+          "layout": true
+        }
+      },
+      "designId": "68226562-2805-4b6c-81d1-c9e460249da5",
+      "hash": "sha256:6219794b7675bfe7972bea14dbb47d5d6df1ee992a6df708aac93de2ac2c7687",
+      "version": "e563090f-193b-50a2-8559-822aa5cbe376",
+      "source": {
+        "kind": "template",
+        "templateId": "velvet-valentine-2027",
+        "templateVersionId": "e563090f-193b-50a2-8559-822aa5cbe376"
+      },
+      "policy": {
+        "kind": "sender-basic",
+        "lockedElements": {}
+      },
+      "scenes": [
+        "scene-cover",
+        "scene-surprise",
+        "scene-message"
+      ],
+      "assets": []
+    },
+    {
+      "template": {
+        "id": "to-doan-cau-se-chon",
+        "title": "Tớ đoán cậu sẽ chọn…",
+        "subtitle": "Hai lựa chọn sinh nhật, một lời đoán từ người hiểu cậu.",
+        "theme": "lilac",
+        "style": "Tươi vui",
+        "price": 0,
+        "scenes": 1,
+        "effect": "Chọn và bật mí",
+        "creator": "Momevia Originals",
+        "category": "Sinh nhật",
+        "status": "published",
+        "createdAt": "2026-11-01T00:00:00.000Z",
+        "systemOwned": true,
+        "personalization": {
+          "bindings": [
+            "senderName",
+            "recipientName"
+          ],
+          "photoFrames": 0,
+          "layout": true
+        }
+      },
+      "designId": "fc5c086b-e6fa-4636-8ccf-098f1dc1dc18",
+      "hash": "sha256:e6e5762b7e3c64a95b98fbf9f612372843f84db4c94feaa82754037b2d99f7dd",
+      "version": "15d6708a-6d11-53ff-8f2b-07543aa37ec1",
+      "source": {
+        "kind": "template",
+        "templateId": "to-doan-cau-se-chon",
+        "templateVersionId": "15d6708a-6d11-53ff-8f2b-07543aa37ec1"
+      },
+      "policy": {
+        "kind": "sender-basic",
+        "lockedElements": {}
+      },
+      "scenes": [
+        "scene-cover"
+      ],
+      "assets": []
+    },
+    {
+      "template": {
+        "id": "thank-you-bloom",
+        "title": "Thank You Bloom",
+        "subtitle": "Một bó hoa tinh tế thay lời biết ơn.",
+        "theme": "sage",
+        "style": "Thiên nhiên",
+        "price": 0,
+        "scenes": 3,
+        "effect": "Hoa nở",
+        "creator": "Momevia Originals",
+        "category": "Cảm ơn",
+        "status": "published",
+        "createdAt": "2026-11-01T00:00:00.000Z",
+        "systemOwned": true,
+        "personalization": {
+          "bindings": [
+            "recipientName",
+            "message",
+            "senderName"
+          ],
+          "photoFrames": 0,
+          "layout": true
+        }
+      },
+      "designId": "8b20f462-2cfc-4ae8-be50-4f05f03de731",
+      "hash": "sha256:2f8f0b1a57c94de99190ca3e3349c41a88fbdbea38abf0978650a4f544715f8c",
+      "version": "bae3dfc6-1176-5269-8f95-12429a25355e",
+      "source": {
+        "kind": "template",
+        "templateId": "thank-you-bloom",
+        "templateVersionId": "bae3dfc6-1176-5269-8f95-12429a25355e"
+      },
+      "policy": {
+        "kind": "sender-basic",
+        "lockedElements": {}
+      },
+      "scenes": [
+        "scene-cover",
+        "scene-surprise",
+        "scene-message"
+      ],
+      "assets": []
+    },
+    {
+      "template": {
+        "id": "faraway-hug",
+        "title": "Faraway Hug",
+        "subtitle": "Mang lời nhớ tới người ở xa qua chiếc máy bay giấy.",
+        "theme": "sky",
+        "style": "Tình cảm",
+        "price": 0,
+        "scenes": 3,
+        "effect": "Máy bay giấy",
+        "creator": "Momevia Originals",
+        "category": "Bạn bè",
+        "status": "published",
+        "createdAt": "2026-11-01T00:00:00.000Z",
+        "systemOwned": true,
+        "personalization": {
+          "bindings": [
+            "recipientName",
+            "message",
+            "senderName"
+          ],
+          "photoFrames": 0,
+          "layout": true
+        }
+      },
+      "designId": "af091ab2-14c3-44ea-ba73-af8caf250a22",
+      "hash": "sha256:b6b60c0508254af1130289ae0c1b02701c501fd1cc6f8876b7fcc39c86fd0cf8",
+      "version": "07a1f5a2-1f4e-5e97-89d1-1b0357275288",
+      "source": {
+        "kind": "template",
+        "templateId": "faraway-hug",
+        "templateVersionId": "07a1f5a2-1f4e-5e97-89d1-1b0357275288"
+      },
+      "policy": {
+        "kind": "sender-basic",
+        "lockedElements": {}
+      },
+      "scenes": [
+        "scene-cover",
+        "scene-surprise",
+        "scene-message"
+      ],
+      "assets": []
+    },
+    {
+      "template": {
+        "id": "gentle-apology",
+        "title": "Gentle Apology",
+        "subtitle": "Một lời xin lỗi chân thành trong phong thư giấy mộc.",
+        "theme": "cream",
+        "style": "Tối giản",
+        "price": 0,
+        "scenes": 3,
+        "effect": "Mở thư",
+        "creator": "Momevia Originals",
+        "category": "Xin lỗi",
+        "status": "published",
+        "createdAt": "2026-11-01T00:00:00.000Z",
+        "systemOwned": true,
+        "personalization": {
+          "bindings": [
+            "recipientName",
+            "message",
+            "senderName"
+          ],
+          "photoFrames": 0,
+          "layout": true
+        }
+      },
+      "designId": "019a30ac-b9ed-4891-9d43-717dd25cfd61",
+      "hash": "sha256:3057e04cb42c01f19c46d8d6d0c4d68e77c595acd9b07cbe5d4344850711e959",
+      "version": "fc282114-473e-5b67-88b3-8f112228e97b",
+      "source": {
+        "kind": "template",
+        "templateId": "gentle-apology",
+        "templateVersionId": "fc282114-473e-5b67-88b3-8f112228e97b"
+      },
+      "policy": {
+        "kind": "sender-basic",
+        "lockedElements": {}
+      },
+      "scenes": [
+        "scene-cover",
+        "scene-surprise",
+        "scene-message"
+      ],
+      "assets": []
+    },
+    {
+      "template": {
+        "id": "calm-light",
+        "title": "Calm Light",
+        "subtitle": "Lời động viên dịu dàng trong buổi bình minh.",
+        "theme": "mint",
+        "style": "Thiên nhiên",
+        "price": 0,
+        "scenes": 3,
+        "effect": "Ánh sáng",
+        "creator": "Momevia Originals",
+        "category": "Động viên",
+        "status": "published",
+        "createdAt": "2026-11-01T00:00:00.000Z",
+        "systemOwned": true,
+        "personalization": {
+          "bindings": [
+            "recipientName",
+            "message",
+            "senderName"
+          ],
+          "photoFrames": 0,
+          "layout": true
+        }
+      },
+      "designId": "27dec042-4218-4667-97ff-5365e2cceaca",
+      "hash": "sha256:b9a22cf1ecabf14a8c67940958e6cf537d6ffc12ebc0549f90a06cd6ef59be4d",
+      "version": "cfd488ae-e289-51d7-8316-dc9babd02b2f",
+      "source": {
+        "kind": "template",
+        "templateId": "calm-light",
+        "templateVersionId": "cfd488ae-e289-51d7-8316-dc9babd02b2f"
+      },
+      "policy": {
+        "kind": "sender-basic",
+        "lockedElements": {}
+      },
+      "scenes": [
+        "scene-cover",
+        "scene-surprise",
+        "scene-message"
+      ],
+      "assets": []
+    }
+  ],
+  "after": [
+    {
+      "template": {
+        "id": "birthday-radiance",
+        "title": "Birthday Radiance",
+        "subtitle": "Thiệp sinh nhật với bánh, nến và một lời chúc dành riêng cho bạn.",
+        "theme": "lilac",
+        "style": "Tươi vui",
+        "price": 0,
+        "scenes": 5,
+        "effect": "Thắp nến",
+        "creator": "Momevia Originals",
+        "category": "Sinh nhật",
+        "status": "published",
+        "createdAt": "2026-11-01T00:00:00.000Z",
+        "palette": "birthdayPaper",
+        "paletteLabel": "Giấy vàng · Mực tím sẫm",
+        "paletteColors": [
+          "#FFF5DC",
+          "#362644",
+          "#FFD056",
+          "#68374B"
+        ],
+        "systemOwned": true,
+        "personalization": {
+          "bindings": [
+            "recipientName",
+            "message",
+            "senderName"
+          ],
+          "photoFrames": 3,
+          "layout": true
+        }
+      },
+      "designId": "f64cec3f-fd35-42ba-ba42-44fdddc65d9e",
+      "hash": "sha256:d4b6bfd5f23173b12196cc1f88b7f6d7725917fd3cef3c236756868b4959ab0e",
+      "version": "5165a665-22b2-574f-8a05-e05d734bfac9",
+      "source": {
+        "kind": "template",
+        "templateId": "birthday-radiance",
+        "templateVersionId": "5165a665-22b2-574f-8a05-e05d734bfac9"
+      },
+      "policy": {
+        "kind": "sender-basic",
+        "lockedElements": {}
+      },
+      "scenes": [
+        "scene-cover",
+        "scene-time",
+        "scene-surprise",
+        "scene-album",
+        "scene-reply"
+      ],
+      "assets": [
+        {
+          "assetId": "450293ee-94bc-4de0-ab91-2f4331b39f04",
+          "kind": "image"
+        }
+      ]
+    },
+    {
+      "template": {
+        "id": "hai-phong-bi",
+        "title": "Hai phong bì",
+        "subtitle": "Thiệp đám cưới: hai phong bì, một kỷ niệm và một lời chúc cho đôi bạn.",
+        "theme": "lilac",
+        "style": "Tình cảm",
+        "price": 0,
+        "scenes": 6,
+        "effect": "Mở thư",
+        "creator": "Momevia Originals",
+        "category": "Đám cưới",
+        "status": "published",
+        "createdAt": "2026-11-01T00:00:00.000Z",
+        "palette": "weddingPaper",
+        "paletteLabel": "Giấy kem · Cánh hoa",
+        "paletteColors": [
+          "#FFF8EB",
+          "#442638",
+          "#F4C9C4",
+          "#47715C"
+        ],
+        "systemOwned": true,
+        "personalization": {
+          "bindings": [
+            "recipientName",
+            "message",
+            "senderName"
+          ],
+          "photoFrames": 3,
+          "layout": true
+        }
+      },
+      "designId": "205870fa-4698-4e0e-aa93-c226d49d1176",
+      "hash": "sha256:bb17c7614c7901a0ac1fd21ad798ccc84736cd440a0499365849f7fd85b5f911",
+      "version": "e818491b-9af5-524f-8873-df62a919cb9c",
+      "source": {
+        "kind": "template",
+        "templateId": "hai-phong-bi",
+        "templateVersionId": "e818491b-9af5-524f-8873-df62a919cb9c"
+      },
+      "policy": {
+        "kind": "sender-basic",
+        "lockedElements": {}
+      },
+      "scenes": [
+        "scene-cover",
+        "scene-surprise",
+        "scene-message",
+        "scene-time",
+        "scene-album",
+        "scene-reply"
+      ],
+      "assets": [
+        {
+          "assetId": "d63514c6-df05-4b2f-a941-79151df59e0f",
+          "kind": "image"
+        },
+        {
+          "assetId": "4e68baa8-209c-4ba8-a6a6-bf8538a63c9c",
+          "kind": "image"
+        },
+        {
+          "assetId": "6c763cb6-2abf-48b3-96a2-c5b318dd847a",
+          "kind": "image"
+        }
+      ]
+    },
+    {
+      "template": {
+        "id": "proud-of-you",
+        "title": "Proud of You",
+        "subtitle": "Thiệp tốt nghiệp với mũ, tua vàng và lời ghi nhận những nỗ lực của bạn.",
+        "theme": "navy",
+        "style": "Thanh lịch",
+        "price": 0,
+        "scenes": 5,
+        "effect": "Huy chương",
+        "creator": "Momevia Originals",
+        "category": "Tốt nghiệp",
+        "status": "published",
+        "createdAt": "2026-11-01T00:00:00.000Z",
+        "palette": "nightPaper",
+        "paletteLabel": "Xanh đêm · Vàng",
+        "paletteColors": [
+          "#172849",
+          "#FFF8E7",
+          "#FFC857",
+          "#315B82"
+        ],
+        "systemOwned": true,
+        "personalization": {
+          "bindings": [
+            "recipientName",
+            "message",
+            "senderName"
+          ],
+          "photoFrames": 3,
+          "layout": true
+        }
+      },
+      "designId": "0ea929e0-ec74-4d9d-832b-93175f249a4e",
+      "hash": "sha256:e2a8139af9f258b40515c01c71936e8a4f1c97c625fa8255cd5929df5ee4ef4e",
+      "version": "59197c37-d29f-5029-827a-f3f6e962c64e",
+      "source": {
+        "kind": "template",
+        "templateId": "proud-of-you",
+        "templateVersionId": "59197c37-d29f-5029-827a-f3f6e962c64e"
+      },
+      "policy": {
+        "kind": "sender-basic",
+        "lockedElements": {}
+      },
+      "scenes": [
+        "scene-cover",
+        "scene-time",
+        "scene-surprise",
+        "scene-album",
+        "scene-reply"
+      ],
+      "assets": [
+        {
+          "assetId": "0bfa7e09-d0ce-4632-b82a-5ef72b5f1b61",
+          "kind": "image"
+        }
+      ]
+    },
+    {
+      "template": {
+        "id": "midnight-bloom",
+        "title": "Midnight Bloom",
+        "subtitle": "Một khu vườn dành riêng cho người ấy",
+        "theme": "violet",
+        "style": "Lãng mạn",
+        "price": 59000,
+        "scenes": 3,
+        "effect": "Bung nở",
+        "creator": "Momevia Originals",
+        "featured": true,
+        "category": "Sinh nhật",
+        "status": "published",
+        "createdAt": "2026-11-01T00:00:00.000Z",
+        "systemOwned": true,
+        "personalization": {
+          "bindings": [
+            "recipientName",
+            "message",
+            "senderName"
+          ],
+          "photoFrames": 0,
+          "layout": true
+        }
+      },
+      "designId": "414d7f07-b208-4fff-9b7e-9ccc39a31fbb",
+      "hash": "sha256:62b49156fd6fad58a35a7e324f06b97c3d2479d0af772be174d59612fb80fd81",
+      "version": "a9bef2b4-cdca-52a0-820e-2c1eec0aa6df",
+      "source": {
+        "kind": "template",
+        "templateId": "midnight-bloom",
+        "templateVersionId": "a9bef2b4-cdca-52a0-820e-2c1eec0aa6df"
+      },
+      "policy": {
+        "kind": "sender-basic",
+        "lockedElements": {}
+      },
+      "scenes": [
+        "scene-cover",
+        "scene-surprise",
+        "scene-message"
+      ],
+      "assets": []
+    },
+    {
+      "template": {
+        "id": "sunny-wishes",
+        "title": "Sunny Wishes",
+        "subtitle": "Gửi một ngày rực rỡ và ngọt ngào",
+        "theme": "sunshine",
+        "style": "Tươi vui",
+        "price": 0,
+        "scenes": 3,
+        "effect": "Lật thiệp",
+        "creator": "Momevia Originals",
+        "featured": true,
+        "category": "Sinh nhật",
+        "status": "published",
+        "createdAt": "2026-11-01T00:00:00.000Z",
+        "systemOwned": true,
+        "personalization": {
+          "bindings": [
+            "recipientName",
+            "message",
+            "senderName"
+          ],
+          "photoFrames": 0,
+          "layout": true
+        }
+      },
+      "designId": "4f4fdd06-f8cb-4f42-ac7a-35f9f65bf353",
+      "hash": "sha256:68833fce01e4f6bbe644d8ab2548112c6539c32c04f354a720ace7703088f142",
+      "version": "c2e0fe01-4263-5255-840b-022efa61c3bb",
+      "source": {
+        "kind": "template",
+        "templateId": "sunny-wishes",
+        "templateVersionId": "c2e0fe01-4263-5255-840b-022efa61c3bb"
+      },
+      "policy": {
+        "kind": "sender-basic",
+        "lockedElements": {}
+      },
+      "scenes": [
+        "scene-cover",
+        "scene-surprise",
+        "scene-message"
+      ],
+      "assets": []
+    },
+    {
+      "template": {
+        "id": "love-letter",
+        "title": "The Love Letter",
+        "subtitle": "Đôi điều nhỏ dành cho người đặc biệt",
+        "theme": "rose",
+        "style": "Tình cảm",
+        "price": 79000,
+        "scenes": 3,
+        "effect": "Mở thư",
+        "creator": "Momevia Originals",
+        "featured": true,
+        "category": "Sinh nhật",
+        "status": "published",
+        "createdAt": "2026-11-01T00:00:00.000Z",
+        "systemOwned": true,
+        "personalization": {
+          "bindings": [
+            "recipientName",
+            "message",
+            "senderName"
+          ],
+          "photoFrames": 0,
+          "layout": true
+        }
+      },
+      "designId": "6bba719e-7846-4118-b702-6c2f510adf22",
+      "hash": "sha256:c038770af58a16e115ac5673962cf117313c313ff4e1247b5e7f747781a80a44",
+      "version": "29fb05f2-2da8-5722-803e-33c9395b09ae",
+      "source": {
+        "kind": "template",
+        "templateId": "love-letter",
+        "templateVersionId": "29fb05f2-2da8-5722-803e-33c9395b09ae"
+      },
+      "policy": {
+        "kind": "sender-basic",
+        "lockedElements": {}
+      },
+      "scenes": [
+        "scene-cover",
+        "scene-surprise",
+        "scene-message"
+      ],
+      "assets": []
+    },
+    {
+      "template": {
+        "id": "starlight",
+        "title": "Starlight Night",
+        "subtitle": "Ước một điều, nhận ngàn vì sao",
+        "theme": "navy",
+        "style": "Kỳ ảo",
+        "price": 59000,
+        "scenes": 3,
+        "effect": "Ánh sao",
+        "creator": "Momevia Originals",
+        "category": "Sinh nhật",
+        "status": "published",
+        "createdAt": "2026-11-01T00:00:00.000Z",
+        "palette": "bluePaper",
+        "paletteLabel": "Giấy xanh · Vàng nắng",
+        "paletteColors": [
+          "#E6EFF1",
+          "#21394C",
+          "#375B6A",
+          "#E9BA63"
+        ],
+        "systemOwned": true,
+        "personalization": {
+          "bindings": [
+            "recipientName",
+            "message",
+            "senderName"
+          ],
+          "photoFrames": 0,
+          "layout": true
+        }
+      },
+      "designId": "d1dfd610-526d-4bc3-862e-67aabaf0ac4b",
+      "hash": "sha256:32c513128d79f840586861a91987e0feddfcdc47114763654eaf6fbcd4e530fe",
+      "version": "b7da1850-6131-5ec0-8734-cc14d5c282f8",
+      "source": {
+        "kind": "template",
+        "templateId": "starlight",
+        "templateVersionId": "b7da1850-6131-5ec0-8734-cc14d5c282f8"
+      },
+      "policy": {
+        "kind": "sender-basic",
+        "lockedElements": {}
+      },
+      "scenes": [
+        "scene-cover",
+        "scene-surprise",
+        "scene-message"
+      ],
+      "assets": []
+    },
+    {
+      "template": {
+        "id": "peachy-day",
+        "title": "Peachy Day",
+        "subtitle": "Một chút dịu dàng trong ngày mới",
+        "theme": "peach",
+        "style": "Tối giản",
+        "price": 39000,
+        "scenes": 3,
+        "effect": "Tan chảy",
+        "creator": "Momevia Originals",
+        "category": "Sinh nhật",
+        "status": "published",
+        "createdAt": "2026-11-01T00:00:00.000Z",
+        "systemOwned": true,
+        "personalization": {
+          "bindings": [
+            "recipientName",
+            "message",
+            "senderName"
+          ],
+          "photoFrames": 0,
+          "layout": true
+        }
+      },
+      "designId": "e0fbf7c2-ce29-47d0-9514-c23cebf4a670",
+      "hash": "sha256:a4f987a968b26dd17d1c8858148727d7971ae6a6c34c0d798a3ac37a3017b8d8",
+      "version": "1cf8e642-c9bb-5a39-8d93-529ae8e039fe",
+      "source": {
+        "kind": "template",
+        "templateId": "peachy-day",
+        "templateVersionId": "1cf8e642-c9bb-5a39-8d93-529ae8e039fe"
+      },
+      "policy": {
+        "kind": "sender-basic",
+        "lockedElements": {}
+      },
+      "scenes": [
+        "scene-cover",
+        "scene-surprise",
+        "scene-message"
+      ],
+      "assets": []
+    },
+    {
+      "template": {
+        "id": "greenhouse",
+        "title": "Little Greenhouse",
+        "subtitle": "Gieo những điều tốt đẹp",
+        "theme": "sage",
+        "style": "Thiên nhiên",
+        "price": 39000,
+        "scenes": 3,
+        "effect": "Bung nở",
+        "creator": "Momevia Originals",
+        "category": "Sinh nhật",
+        "status": "published",
+        "createdAt": "2026-11-01T00:00:00.000Z",
+        "palette": "greenPaper",
+        "paletteLabel": "Giấy ngà · Mực xanh lá",
+        "paletteColors": [
+          "#F8F1E6",
+          "#263C32",
+          "#59705B",
+          "#AA5744"
+        ],
+        "systemOwned": true,
+        "personalization": {
+          "bindings": [
+            "recipientName",
+            "message",
+            "senderName"
+          ],
+          "photoFrames": 0,
+          "layout": true
+        }
+      },
+      "designId": "23d1ce63-5ae7-47aa-88c4-54bbe6a4b08a",
+      "hash": "sha256:ccf603ac15a9b74e05219aff589bc0d23da1618c52eb5b33d32e38ffa1f870c7",
+      "version": "6593e185-064f-59df-8aa6-7ec1ff6995f7",
+      "source": {
+        "kind": "template",
+        "templateId": "greenhouse",
+        "templateVersionId": "6593e185-064f-59df-8aa6-7ec1ff6995f7"
+      },
+      "policy": {
+        "kind": "sender-basic",
+        "lockedElements": {}
+      },
+      "scenes": [
+        "scene-cover",
+        "scene-surprise",
+        "scene-message"
+      ],
+      "assets": []
+    },
+    {
+      "template": {
+        "id": "confetti",
+        "title": "Make a Wish",
+        "subtitle": "Mở tiệc ngay trong lòng bàn tay",
+        "theme": "coral",
+        "style": "Tươi vui",
+        "price": 0,
+        "scenes": 3,
+        "effect": "Pháo giấy",
+        "creator": "Momevia Originals",
+        "category": "Sinh nhật",
+        "status": "published",
+        "createdAt": "2026-11-01T00:00:00.000Z",
+        "systemOwned": true,
+        "personalization": {
+          "bindings": [
+            "recipientName",
+            "message",
+            "senderName"
+          ],
+          "photoFrames": 0,
+          "layout": true
+        }
+      },
+      "designId": "69b17246-818d-48b5-b7ef-e42c13dc7f5f",
+      "hash": "sha256:714b0671773af21ec12277601eba514396c5a2bc47d970bb7839826130fd4e6b",
+      "version": "9ee7f506-3ff3-531b-8530-2dc96217816f",
+      "source": {
+        "kind": "template",
+        "templateId": "confetti",
+        "templateVersionId": "9ee7f506-3ff3-531b-8530-2dc96217816f"
+      },
+      "policy": {
+        "kind": "sender-basic",
+        "lockedElements": {}
+      },
+      "scenes": [
+        "scene-cover",
+        "scene-surprise",
+        "scene-message"
+      ],
+      "assets": []
+    },
+    {
+      "template": {
+        "id": "cloud-nine",
+        "title": "On Cloud Nine",
+        "subtitle": "Cảm xúc nhẹ như một áng mây",
+        "theme": "sky",
+        "style": "Tối giản",
+        "price": 39000,
+        "scenes": 3,
+        "effect": "Trôi mây",
+        "creator": "Momevia Originals",
+        "category": "Sinh nhật",
+        "status": "published",
+        "createdAt": "2026-11-01T00:00:00.000Z",
+        "palette": "bluePaper",
+        "paletteLabel": "Giấy xanh · Vàng nắng",
+        "paletteColors": [
+          "#E6EFF1",
+          "#21394C",
+          "#375B6A",
+          "#E9BA63"
+        ],
+        "systemOwned": true,
+        "personalization": {
+          "bindings": [
+            "recipientName",
+            "message",
+            "senderName"
+          ],
+          "photoFrames": 0,
+          "layout": true
+        }
+      },
+      "designId": "c8b53221-0a79-41d8-99e3-327d5929f03f",
+      "hash": "sha256:dd5996e31be1513185c924f812e654b967a97dd071be1b73ade75f84f013ed53",
+      "version": "be00d3b2-0c98-5dc3-8c55-e23886d482a0",
+      "source": {
+        "kind": "template",
+        "templateId": "cloud-nine",
+        "templateVersionId": "be00d3b2-0c98-5dc3-8c55-e23886d482a0"
+      },
+      "policy": {
+        "kind": "sender-basic",
+        "lockedElements": {}
+      },
+      "scenes": [
+        "scene-cover",
+        "scene-surprise",
+        "scene-message"
+      ],
+      "assets": []
+    },
+    {
+      "template": {
+        "id": "lavender",
+        "title": "Lavender Field",
+        "subtitle": "Dịu dàng như những mùa nhớ",
+        "theme": "lilac",
+        "style": "Lãng mạn",
+        "price": 59000,
+        "scenes": 3,
+        "effect": "Bung nở",
+        "creator": "Momevia Originals",
+        "category": "Sinh nhật",
+        "status": "published",
+        "createdAt": "2026-11-01T00:00:00.000Z",
+        "palette": "pinkPaper",
+        "paletteLabel": "Hồng phấn · Tím dịu",
+        "paletteColors": [
+          "#F5EFFF",
+          "#7757A2",
+          "#F4C9C4",
+          "#263C32"
+        ],
+        "systemOwned": true,
+        "personalization": {
+          "bindings": [
+            "recipientName",
+            "message",
+            "senderName"
+          ],
+          "photoFrames": 0,
+          "layout": true
+        }
+      },
+      "designId": "249ca652-2ca0-46f3-bbb8-5f860dc07669",
+      "hash": "sha256:89d489cacd57e35f0e3ac814ba30a7e62eb3dd359a6a5eb37b689fdc6dd566f2",
+      "version": "23acf49b-2f8e-5d30-890d-f09e58a09dbd",
+      "source": {
+        "kind": "template",
+        "templateId": "lavender",
+        "templateVersionId": "23acf49b-2f8e-5d30-890d-f09e58a09dbd"
+      },
+      "policy": {
+        "kind": "sender-basic",
+        "lockedElements": {}
+      },
+      "scenes": [
+        "scene-cover",
+        "scene-surprise",
+        "scene-message"
+      ],
+      "assets": []
+    },
+    {
+      "template": {
+        "id": "polaroid",
+        "title": "Captured Moments",
+        "subtitle": "Tập hợp những khoảnh khắc đáng yêu",
+        "theme": "cream",
+        "style": "Hoài niệm",
+        "price": 79000,
+        "scenes": 3,
+        "effect": "Lật ảnh",
+        "creator": "Momevia Originals",
+        "category": "Sinh nhật",
+        "status": "published",
+        "createdAt": "2026-11-01T00:00:00.000Z",
+        "palette": "warmPaper",
+        "paletteLabel": "Giấy ấm · Nâu phim",
+        "paletteColors": [
+          "#F6EBD9",
+          "#352B30",
+          "#825943",
+          "#DEA99C"
+        ],
+        "systemOwned": true,
+        "personalization": {
+          "bindings": [
+            "recipientName",
+            "message",
+            "senderName"
+          ],
+          "photoFrames": 1,
+          "layout": true
+        }
+      },
+      "designId": "e2c1731c-9ee6-4a22-aa0d-fd93eff8d2d3",
+      "hash": "sha256:22bef68534bf22dfdfbd3f96a7c4037b00ae659ab4668c843f90b17eda034b21",
+      "version": "db626be9-15a0-58a2-80e3-120a99dfef42",
+      "source": {
+        "kind": "template",
+        "templateId": "polaroid",
+        "templateVersionId": "db626be9-15a0-58a2-80e3-120a99dfef42"
+      },
+      "policy": {
+        "kind": "sender-basic",
+        "lockedElements": {}
+      },
+      "scenes": [
+        "scene-cover",
+        "scene-surprise",
+        "scene-message"
+      ],
+      "assets": []
+    },
+    {
+      "template": {
+        "id": "afterglow",
+        "title": "Afterglow",
+        "subtitle": "Mọi điều đẹp đều có ánh sáng riêng",
+        "theme": "amber",
+        "style": "Kỳ ảo",
+        "price": 59000,
+        "scenes": 3,
+        "effect": "Ánh sáng",
+        "creator": "Momevia Originals",
+        "category": "Sinh nhật",
+        "status": "published",
+        "createdAt": "2026-11-01T00:00:00.000Z",
+        "systemOwned": true,
+        "personalization": {
+          "bindings": [
+            "recipientName",
+            "message",
+            "senderName"
+          ],
+          "photoFrames": 0,
+          "layout": true
+        }
+      },
+      "designId": "8c409f1b-f38a-4bf6-8f97-7ed301417e00",
+      "hash": "sha256:c604abf718dbcbae3771b96827684c64df71b03d54824a27e19ca543877e43a0",
+      "version": "06eb85a3-afb1-5f1b-8661-1b723945d75a",
+      "source": {
+        "kind": "template",
+        "templateId": "afterglow",
+        "templateVersionId": "06eb85a3-afb1-5f1b-8661-1b723945d75a"
+      },
+      "policy": {
+        "kind": "sender-basic",
+        "lockedElements": {}
+      },
+      "scenes": [
+        "scene-cover",
+        "scene-surprise",
+        "scene-message"
+      ],
+      "assets": []
+    },
+    {
+      "template": {
+        "id": "tiny-celebration",
+        "title": "Tiny Celebration",
+        "subtitle": "Dành cho những niềm vui thật lớn",
+        "theme": "mint",
+        "style": "Tươi vui",
+        "price": 0,
+        "scenes": 3,
+        "effect": "Bật mí",
+        "creator": "Momevia Originals",
+        "category": "Sinh nhật",
+        "status": "published",
+        "createdAt": "2026-11-01T00:00:00.000Z",
+        "systemOwned": true,
+        "personalization": {
+          "bindings": [
+            "recipientName",
+            "message",
+            "senderName"
+          ],
+          "photoFrames": 0,
+          "layout": true
+        }
+      },
+      "designId": "8230bae1-ed76-457c-ae87-92791d0b061b",
+      "hash": "sha256:dbaa432c7a15b7df39caf8d2396c959f2534963f415270818e425251aa7e9766",
+      "version": "0c11cc1f-977f-57ef-8cd6-f3676aec2a15",
+      "source": {
+        "kind": "template",
+        "templateId": "tiny-celebration",
+        "templateVersionId": "0c11cc1f-977f-57ef-8cd6-f3676aec2a15"
+      },
+      "policy": {
+        "kind": "sender-basic",
+        "lockedElements": {}
+      },
+      "scenes": [
+        "scene-cover",
+        "scene-surprise",
+        "scene-message"
+      ],
+      "assets": []
+    },
+    {
+      "template": {
+        "id": "mot-ky-niem",
+        "title": "Một kỷ niệm của hai mình",
+        "subtitle": "Gửi một tấm ảnh, một dòng chú thích và lời chúc sinh nhật.",
+        "theme": "cream",
+        "style": "Hoài niệm",
+        "price": 0,
+        "scenes": 3,
+        "effect": "Mở thư",
+        "creator": "Momevia Originals",
+        "category": "Sinh nhật",
+        "status": "published",
+        "createdAt": "2026-11-01T00:00:00.000Z",
+        "palette": "warmPaper",
+        "paletteLabel": "Giấy ấm · Nâu phim",
+        "paletteColors": [
+          "#F6EBD9",
+          "#352B30",
+          "#825943",
+          "#DEA99C"
+        ],
+        "systemOwned": true,
+        "personalization": {
+          "bindings": [
+            "recipientName",
+            "message",
+            "senderName"
+          ],
+          "photoFrames": 1,
+          "layout": true
+        }
+      },
+      "designId": "56a24f26-51bc-4f9e-97fc-fe90b3e646e2",
+      "hash": "sha256:ad730dea77653eaa9aebea27c023cc896b5c9b9af0025cff493562b0ddb8e4b2",
+      "version": "aedbac7c-ee41-5f82-87f6-0536527809e8",
+      "source": {
+        "kind": "template",
+        "templateId": "mot-ky-niem",
+        "templateVersionId": "aedbac7c-ee41-5f82-87f6-0536527809e8"
+      },
+      "policy": {
+        "kind": "sender-basic",
+        "lockedElements": {}
+      },
+      "scenes": [
+        "scene-cover",
+        "scene-surprise",
+        "scene-message"
+      ],
+      "assets": []
+    },
+    {
+      "template": {
+        "id": "winter-wishes-2026",
+        "title": "Winter Wishes",
+        "subtitle": "Thiệp Giáng sinh trong khu vườn tuyết và ánh đèn vàng.",
+        "theme": "sage",
+        "style": "Lễ hội",
+        "price": 0,
+        "scenes": 3,
+        "effect": "Mở món quà",
+        "creator": "Momevia Originals",
+        "featured": true,
+        "category": "Giáng sinh",
+        "status": "published",
+        "createdAt": "2026-11-01T00:00:00.000Z",
+        "isSeasonal": true,
+        "season": "Giáng sinh 2026",
+        "availableFrom": "2026-11-10",
+        "availableTo": "2026-12-26",
+        "palette": "greenPaper",
+        "paletteLabel": "Giấy ngà · Mực xanh lá",
+        "paletteColors": [
+          "#F8F1E6",
+          "#263C32",
+          "#59705B",
+          "#AA5744"
+        ],
+        "systemOwned": true,
+        "personalization": {
+          "bindings": [
+            "recipientName",
+            "message",
+            "senderName"
+          ],
+          "photoFrames": 0,
+          "layout": true
+        }
+      },
+      "designId": "ed8d3367-077d-42a4-b9bc-36fe8628eb6e",
+      "hash": "sha256:12c7aaa44c92e521e647c8911759e727bf41eff5aa186ade637c61f679cfc440",
+      "version": "3bc6a5da-c422-52e1-801d-af9d216ab6b2",
+      "source": {
+        "kind": "template",
+        "templateId": "winter-wishes-2026",
+        "templateVersionId": "3bc6a5da-c422-52e1-801d-af9d216ab6b2"
+      },
+      "policy": {
+        "kind": "sender-basic",
+        "lockedElements": {}
+      },
+      "scenes": [
+        "scene-cover",
+        "scene-surprise",
+        "scene-message"
+      ],
+      "assets": []
+    },
+    {
+      "template": {
+        "id": "new-year-spark-2027",
+        "title": "Midnight Countdown",
+        "subtitle": "Chào năm mới 2027 bằng ánh pháo hoa và những ước nguyện.",
+        "theme": "navy",
+        "style": "Lễ hội",
+        "price": 0,
+        "scenes": 3,
+        "effect": "Pháo hoa",
+        "creator": "Momevia Originals",
+        "featured": true,
+        "category": "Năm mới",
+        "status": "published",
+        "createdAt": "2026-11-01T00:00:00.000Z",
+        "isSeasonal": true,
+        "season": "Năm mới 2027",
+        "availableFrom": "2026-12-20",
+        "availableTo": "2027-01-07",
+        "palette": "bluePaper",
+        "paletteLabel": "Giấy xanh · Vàng nắng",
+        "paletteColors": [
+          "#E6EFF1",
+          "#21394C",
+          "#375B6A",
+          "#E9BA63"
+        ],
+        "systemOwned": true,
+        "personalization": {
+          "bindings": [
+            "recipientName",
+            "message",
+            "senderName"
+          ],
+          "photoFrames": 0,
+          "layout": true
+        }
+      },
+      "designId": "13e11259-1dde-4222-90a4-e3dff43d9a58",
+      "hash": "sha256:a28bba627476793d35d52a37d1cede40592999061eba5278247790f8e64d97c4",
+      "version": "2cb8b6d2-532f-56c5-843a-806121cbf44c",
+      "source": {
+        "kind": "template",
+        "templateId": "new-year-spark-2027",
+        "templateVersionId": "2cb8b6d2-532f-56c5-843a-806121cbf44c"
+      },
+      "policy": {
+        "kind": "sender-basic",
+        "lockedElements": {}
+      },
+      "scenes": [
+        "scene-cover",
+        "scene-surprise",
+        "scene-message"
+      ],
+      "assets": []
+    },
+    {
+      "template": {
+        "id": "spring-blessing-2027",
+        "title": "Spring Blessing",
+        "subtitle": "Gửi lời chúc Tết 2027 cùng hoa mai, hoa đào và sắc xuân.",
+        "theme": "coral",
+        "style": "Lễ hội",
+        "price": 0,
+        "scenes": 3,
+        "effect": "Mở lì xì",
+        "creator": "Momevia Originals",
+        "featured": true,
+        "category": "Tết Nguyên đán",
+        "status": "published",
+        "createdAt": "2026-11-01T00:00:00.000Z",
+        "isSeasonal": true,
+        "season": "Tết Nguyên đán 2027",
+        "availableFrom": "2027-01-15",
+        "availableTo": "2027-02-22",
+        "systemOwned": true,
+        "personalization": {
+          "bindings": [
+            "recipientName",
+            "message",
+            "senderName"
+          ],
+          "photoFrames": 0,
+          "layout": true
+        }
+      },
+      "designId": "cdfeec79-db64-45e9-8e0a-2c9eb9c570d7",
+      "hash": "sha256:5b792ef86da5d8a3d7c34f23a1c702735970ba4b08d812a68f9852e4eed63069",
+      "version": "bc4ce34d-2deb-5775-8937-1bd212d51768",
+      "source": {
+        "kind": "template",
+        "templateId": "spring-blessing-2027",
+        "templateVersionId": "bc4ce34d-2deb-5775-8937-1bd212d51768"
+      },
+      "policy": {
+        "kind": "sender-basic",
+        "lockedElements": {}
+      },
+      "scenes": [
+        "scene-cover",
+        "scene-surprise",
+        "scene-message"
+      ],
+      "assets": []
+    },
+    {
+      "template": {
+        "id": "velvet-valentine-2027",
+        "title": "Velvet Valentine",
+        "subtitle": "Lá thư tình mang dấu niêm phong dành riêng cho người ấy.",
+        "theme": "rose",
+        "style": "Lễ hội",
+        "price": 0,
+        "scenes": 3,
+        "effect": "Mở thư",
+        "creator": "Momevia Originals",
+        "featured": true,
+        "category": "Valentine",
+        "status": "published",
+        "createdAt": "2026-11-01T00:00:00.000Z",
+        "isSeasonal": true,
+        "season": "Valentine 2027",
+        "availableFrom": "2027-02-01",
+        "availableTo": "2027-02-15",
+        "systemOwned": true,
+        "personalization": {
+          "bindings": [
+            "recipientName",
+            "message",
+            "senderName"
+          ],
+          "photoFrames": 0,
+          "layout": true
+        }
+      },
+      "designId": "12a5da9d-0d18-4be1-af6c-84a50c9d872e",
+      "hash": "sha256:6219794b7675bfe7972bea14dbb47d5d6df1ee992a6df708aac93de2ac2c7687",
+      "version": "e563090f-193b-50a2-8559-822aa5cbe376",
+      "source": {
+        "kind": "template",
+        "templateId": "velvet-valentine-2027",
+        "templateVersionId": "e563090f-193b-50a2-8559-822aa5cbe376"
+      },
+      "policy": {
+        "kind": "sender-basic",
+        "lockedElements": {}
+      },
+      "scenes": [
+        "scene-cover",
+        "scene-surprise",
+        "scene-message"
+      ],
+      "assets": []
+    },
+    {
+      "template": {
+        "id": "to-doan-cau-se-chon",
+        "title": "Tớ đoán cậu sẽ chọn…",
+        "subtitle": "Hai lựa chọn sinh nhật, một lời đoán từ người hiểu cậu.",
+        "theme": "lilac",
+        "style": "Tươi vui",
+        "price": 0,
+        "scenes": 1,
+        "effect": "Chọn và bật mí",
+        "creator": "Momevia Originals",
+        "category": "Sinh nhật",
+        "status": "published",
+        "createdAt": "2026-11-01T00:00:00.000Z",
+        "palette": "pinkPaper",
+        "paletteLabel": "Hồng phấn · Tím dịu",
+        "paletteColors": [
+          "#F5EFFF",
+          "#7757A2",
+          "#F4C9C4",
+          "#263C32"
+        ],
+        "systemOwned": true,
+        "personalization": {
+          "bindings": [
+            "senderName",
+            "recipientName"
+          ],
+          "photoFrames": 0,
+          "layout": true
+        }
+      },
+      "designId": "d469a15a-1425-42cc-84ea-94ecd585fe28",
+      "hash": "sha256:e6e5762b7e3c64a95b98fbf9f612372843f84db4c94feaa82754037b2d99f7dd",
+      "version": "15d6708a-6d11-53ff-8f2b-07543aa37ec1",
+      "source": {
+        "kind": "template",
+        "templateId": "to-doan-cau-se-chon",
+        "templateVersionId": "15d6708a-6d11-53ff-8f2b-07543aa37ec1"
+      },
+      "policy": {
+        "kind": "sender-basic",
+        "lockedElements": {}
+      },
+      "scenes": [
+        "scene-cover"
+      ],
+      "assets": []
+    },
+    {
+      "template": {
+        "id": "thank-you-bloom",
+        "title": "Thank You Bloom",
+        "subtitle": "Một bó hoa tinh tế thay lời biết ơn.",
+        "theme": "sage",
+        "style": "Thiên nhiên",
+        "price": 0,
+        "scenes": 3,
+        "effect": "Hoa nở",
+        "creator": "Momevia Originals",
+        "category": "Cảm ơn",
+        "status": "published",
+        "createdAt": "2026-11-01T00:00:00.000Z",
+        "palette": "greenPaper",
+        "paletteLabel": "Giấy ngà · Mực xanh lá",
+        "paletteColors": [
+          "#F8F1E6",
+          "#263C32",
+          "#59705B",
+          "#AA5744"
+        ],
+        "systemOwned": true,
+        "personalization": {
+          "bindings": [
+            "recipientName",
+            "message",
+            "senderName"
+          ],
+          "photoFrames": 0,
+          "layout": true
+        }
+      },
+      "designId": "07de609b-4938-46b3-bed7-ebba454dd144",
+      "hash": "sha256:2f8f0b1a57c94de99190ca3e3349c41a88fbdbea38abf0978650a4f544715f8c",
+      "version": "bae3dfc6-1176-5269-8f95-12429a25355e",
+      "source": {
+        "kind": "template",
+        "templateId": "thank-you-bloom",
+        "templateVersionId": "bae3dfc6-1176-5269-8f95-12429a25355e"
+      },
+      "policy": {
+        "kind": "sender-basic",
+        "lockedElements": {}
+      },
+      "scenes": [
+        "scene-cover",
+        "scene-surprise",
+        "scene-message"
+      ],
+      "assets": []
+    },
+    {
+      "template": {
+        "id": "faraway-hug",
+        "title": "Faraway Hug",
+        "subtitle": "Mang lời nhớ tới người ở xa qua chiếc máy bay giấy.",
+        "theme": "sky",
+        "style": "Tình cảm",
+        "price": 0,
+        "scenes": 3,
+        "effect": "Máy bay giấy",
+        "creator": "Momevia Originals",
+        "category": "Bạn bè",
+        "status": "published",
+        "createdAt": "2026-11-01T00:00:00.000Z",
+        "palette": "bluePaper",
+        "paletteLabel": "Giấy xanh · Vàng nắng",
+        "paletteColors": [
+          "#E6EFF1",
+          "#21394C",
+          "#375B6A",
+          "#E9BA63"
+        ],
+        "systemOwned": true,
+        "personalization": {
+          "bindings": [
+            "recipientName",
+            "message",
+            "senderName"
+          ],
+          "photoFrames": 0,
+          "layout": true
+        }
+      },
+      "designId": "e5ede646-ef83-4732-894e-3b6b9dde4e02",
+      "hash": "sha256:b6b60c0508254af1130289ae0c1b02701c501fd1cc6f8876b7fcc39c86fd0cf8",
+      "version": "07a1f5a2-1f4e-5e97-89d1-1b0357275288",
+      "source": {
+        "kind": "template",
+        "templateId": "faraway-hug",
+        "templateVersionId": "07a1f5a2-1f4e-5e97-89d1-1b0357275288"
+      },
+      "policy": {
+        "kind": "sender-basic",
+        "lockedElements": {}
+      },
+      "scenes": [
+        "scene-cover",
+        "scene-surprise",
+        "scene-message"
+      ],
+      "assets": []
+    },
+    {
+      "template": {
+        "id": "gentle-apology",
+        "title": "Gentle Apology",
+        "subtitle": "Một lời xin lỗi chân thành trong phong thư giấy mộc.",
+        "theme": "cream",
+        "style": "Tối giản",
+        "price": 0,
+        "scenes": 3,
+        "effect": "Mở thư",
+        "creator": "Momevia Originals",
+        "category": "Xin lỗi",
+        "status": "published",
+        "createdAt": "2026-11-01T00:00:00.000Z",
+        "palette": "warmPaper",
+        "paletteLabel": "Giấy ấm · Nâu phim",
+        "paletteColors": [
+          "#F6EBD9",
+          "#352B30",
+          "#825943",
+          "#DEA99C"
+        ],
+        "systemOwned": true,
+        "personalization": {
+          "bindings": [
+            "recipientName",
+            "message",
+            "senderName"
+          ],
+          "photoFrames": 0,
+          "layout": true
+        }
+      },
+      "designId": "e7ef623e-1dcf-4090-a68a-173193720e35",
+      "hash": "sha256:3057e04cb42c01f19c46d8d6d0c4d68e77c595acd9b07cbe5d4344850711e959",
+      "version": "fc282114-473e-5b67-88b3-8f112228e97b",
+      "source": {
+        "kind": "template",
+        "templateId": "gentle-apology",
+        "templateVersionId": "fc282114-473e-5b67-88b3-8f112228e97b"
+      },
+      "policy": {
+        "kind": "sender-basic",
+        "lockedElements": {}
+      },
+      "scenes": [
+        "scene-cover",
+        "scene-surprise",
+        "scene-message"
+      ],
+      "assets": []
+    },
+    {
+      "template": {
+        "id": "calm-light",
+        "title": "Calm Light",
+        "subtitle": "Lời động viên dịu dàng trong buổi bình minh.",
+        "theme": "mint",
+        "style": "Thiên nhiên",
+        "price": 0,
+        "scenes": 3,
+        "effect": "Ánh sáng",
+        "creator": "Momevia Originals",
+        "category": "Động viên",
+        "status": "published",
+        "createdAt": "2026-11-01T00:00:00.000Z",
+        "systemOwned": true,
+        "personalization": {
+          "bindings": [
+            "recipientName",
+            "message",
+            "senderName"
+          ],
+          "photoFrames": 0,
+          "layout": true
+        }
+      },
+      "designId": "0c8efbf1-98d5-4922-8d9a-57798d283b7b",
+      "hash": "sha256:b9a22cf1ecabf14a8c67940958e6cf537d6ffc12ebc0549f90a06cd6ef59be4d",
+      "version": "cfd488ae-e289-51d7-8316-dc9babd02b2f",
+      "source": {
+        "kind": "template",
+        "templateId": "calm-light",
+        "templateVersionId": "cfd488ae-e289-51d7-8316-dc9babd02b2f"
+      },
+      "policy": {
+        "kind": "sender-basic",
+        "lockedElements": {}
+      },
+      "scenes": [
+        "scene-cover",
+        "scene-surprise",
+        "scene-message"
+      ],
+      "assets": []
+    },
+    {
+      "template": {
+        "id": "loi-moi-ben-hien",
+        "title": "Lời mời bên hiên",
+        "subtitle": "Một chỗ ngồi bên hiên, hai mốc hẹn và lời mời của riêng bạn.",
+        "theme": "sage",
+        "style": "Thiên nhiên",
+        "price": 0,
+        "scenes": 5,
+        "effect": "Mở thư",
+        "creator": "Momevia Originals",
+        "category": "Đám cưới",
+        "status": "published",
+        "createdAt": "2026-11-01T00:00:00.000Z",
+        "palette": "greenPaper",
+        "paletteLabel": "Giấy ngà · Mực xanh lá",
+        "paletteColors": [
+          "#F8F1E6",
+          "#263C32",
+          "#59705B",
+          "#AA5744"
+        ],
+        "systemOwned": true,
+        "personalization": {
+          "bindings": [
+            "recipientName",
+            "message",
+            "senderName"
+          ],
+          "photoFrames": 3,
+          "layout": true
+        }
+      },
+      "designId": "2fa86ea7-6e11-4987-802d-202489dddef5",
+      "hash": "sha256:7e8ccb381a44106aa9edcc8380fa2f3ed09338094824b946f02abbdf69b6ff7a",
+      "version": "0a4bce06-b7b3-50f6-8f74-e73e414a23a0",
+      "source": {
+        "kind": "template",
+        "templateId": "loi-moi-ben-hien",
+        "templateVersionId": "0a4bce06-b7b3-50f6-8f74-e73e414a23a0"
+      },
+      "policy": {
+        "kind": "sender-basic",
+        "lockedElements": {}
+      },
+      "scenes": [
+        "scene-cover",
+        "scene-details",
+        "scene-schedule",
+        "scene-album",
+        "scene-reply"
+      ],
+      "assets": [
+        {
+          "assetId": "f1fbd1b7-b25f-4341-8238-475776c5a9ad",
+          "kind": "image"
+        }
+      ]
+    },
+    {
+      "template": {
+        "id": "cuon-phim-ngay-ay",
+        "title": "Cuộn phim ngày ấy",
+        "subtitle": "Ba khung ảnh tùy chọn, những chuyện cũ và một lời gửi hôm nay.",
+        "theme": "cream",
+        "style": "Hoài niệm",
+        "price": 0,
+        "scenes": 4,
+        "effect": "Mở thư",
+        "creator": "Momevia Originals",
+        "category": "Bạn bè",
+        "status": "published",
+        "createdAt": "2026-11-01T00:00:00.000Z",
+        "palette": "warmPaper",
+        "paletteLabel": "Giấy ấm · Nâu phim",
+        "paletteColors": [
+          "#F6EBD9",
+          "#352B30",
+          "#825943",
+          "#DEA99C"
+        ],
+        "systemOwned": true,
+        "personalization": {
+          "bindings": [
+            "recipientName",
+            "message",
+            "senderName"
+          ],
+          "photoFrames": 3,
+          "layout": true
+        }
+      },
+      "designId": "f23bef61-8105-441a-9655-0661c837b0cb",
+      "hash": "sha256:b08e8116f0436f2822390861922046454f77d07b22eb13dad0f34d3bbb978f3b",
+      "version": "f0ce67b0-3d5c-55d2-871c-9529d1d99645",
+      "source": {
+        "kind": "template",
+        "templateId": "cuon-phim-ngay-ay",
+        "templateVersionId": "f0ce67b0-3d5c-55d2-871c-9529d1d99645"
+      },
+      "policy": {
+        "kind": "sender-basic",
+        "lockedElements": {}
+      },
+      "scenes": [
+        "scene-cover",
+        "scene-album",
+        "scene-present",
+        "scene-reply"
+      ],
+      "assets": [
+        {
+          "assetId": "47222457-837b-4e48-aa86-00e180a9255d",
+          "kind": "image"
+        }
+      ]
+    },
+    {
+      "template": {
+        "id": "ban-do-ngay-ra-truong",
+        "title": "Bản đồ ngày ra trường",
+        "subtitle": "Khám phá ba mốc của một hành trình bằng những lời kể của bạn.",
+        "theme": "sky",
+        "style": "Thanh lịch",
+        "price": 0,
+        "scenes": 5,
+        "effect": "Mở thư",
+        "creator": "Momevia Originals",
+        "category": "Tốt nghiệp",
+        "status": "published",
+        "createdAt": "2026-11-01T00:00:00.000Z",
+        "palette": "bluePaper",
+        "paletteLabel": "Giấy xanh · Vàng nắng",
+        "paletteColors": [
+          "#E6EFF1",
+          "#21394C",
+          "#375B6A",
+          "#E9BA63"
+        ],
+        "systemOwned": true,
+        "personalization": {
+          "bindings": [
+            "recipientName",
+            "message",
+            "senderName"
+          ],
+          "photoFrames": 0,
+          "layout": true
+        }
+      },
+      "designId": "a3c3bdff-1226-4770-a006-aa5a7a97a7f9",
+      "hash": "sha256:64b1ed01411ed2183d979c79172e16b4cf50aca1c7db57d3c6cc502f16d9a46b",
+      "version": "f2e3d0ab-7ff8-553f-81ea-731b98f11a85",
+      "source": {
+        "kind": "template",
+        "templateId": "ban-do-ngay-ra-truong",
+        "templateVersionId": "f2e3d0ab-7ff8-553f-81ea-731b98f11a85"
+      },
+      "policy": {
+        "kind": "sender-basic",
+        "lockedElements": {}
+      },
+      "scenes": [
+        "scene-cover",
+        "scene-milestone-1",
+        "scene-milestone-2",
+        "scene-milestone-3",
+        "scene-reply"
+      ],
+      "assets": [
+        {
+          "assetId": "785b8004-f141-41f0-9b59-27015f98279c",
+          "kind": "image"
+        }
+      ]
+    }
+  ]
+}

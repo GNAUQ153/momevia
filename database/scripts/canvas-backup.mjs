@@ -38,7 +38,7 @@ const assetQuery = "SELECT id,storage_key,content_hash,bytes FROM design_assets 
 const before = sql(schema, assetQuery);
 const assets = before ? before.split('\n').map(row => {
   const [id, storageKey, contentHash, bytes] = row.split('\t');
-  if (!/^[\da-f-]{36}\.(png|jpg|webp)$/.test(storageKey)) throw new Error('Unexpected media storage key.');
+  if (!/^[\da-f-]{36}\.(png|jpg|webp|wav)$/.test(storageKey)) throw new Error('Unexpected media storage key.');
   const file = path.join(media, storageKey);
   if (fs.lstatSync(file).isSymbolicLink()) throw new Error('Media symlinks are not supported.');
   const data = fs.readFileSync(file);

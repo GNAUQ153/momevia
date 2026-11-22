@@ -319,15 +319,32 @@ async function verifyCatalog(context, page, base) {
   assert.notEqual(await shelf.getAttribute('open'), null);
   await shelfSummary.press('Enter');
   await search.fill('midnight bloom');
+  const cover=first.locator('img');
+  await cover.waitFor({state:'visible'});
+  await cover.scrollIntoViewIfNeeded();
+  await page.waitForFunction(()=>Boolean(globalThis.document.querySelector('#catalog-grid .template-card img[src]:not([data-cover-lazy])')));
+  const retainedCover=await cover.elementHandle(),coverSource=await cover.getAttribute('src');
   const retained = await first.elementHandle();
   await search.fill('MIDNIGHT BLOOM');
   assert.equal(await first.evaluate((node, original) => node === original, retained), true);
+  assert.equal(await cover.evaluate((node, original) => node === original, retainedCover),true);
+  assert.equal(await cover.getAttribute('src'),coverSource);
   assert.equal(await first.evaluate(node => globalThis.getComputedStyle(node).animationName), 'none');
   await search.fill('');
   await page.locator('#catalog-pagination [data-page="2"]').first().press('Enter');
   await page.waitForFunction(() => globalThis.document.activeElement?.id === 'catalog-range');
-  await page.route('**/api/catalog/templates', route => route.fulfill({ status: 503 }), { times: 1 });
+  let failedCatalogRequests=0;
+  await page.route('**/api/catalog/templates', route => {failedCatalogRequests++;return route.fulfill({ status: 503 });}, { times: 1 });
+  // A normal catalog navigation now embeds its public data in HTML. Remove
+  // only that bootstrap in this fixture to exercise a real API failure/retry.
+  await page.route(url=>url.origin===base&&url.pathname==='/explore',async route=>{
+    const response=await route.fetch(),html=await response.text();
+    const body=html.replace(/<script type="application\/json" id="public-catalog-bootstrap">[\s\S]*?<\/script>/,'');
+    assert.notEqual(body,html,'Catalog fixture must contain its public bootstrap');
+    await route.fulfill({response,body});
+  },{times:1});
   await page.reload();
   await page.getByRole('alert').locator('[data-action="retry-catalog"]').click();
   await page.locator('#catalog-grid .template-card').first().waitFor();
+  assert.equal(failedCatalogRequests,1);
 }

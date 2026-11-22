@@ -6,6 +6,7 @@ import { personalizationText, templateCover, templateField, templateSearchFields
 import { featuredSeasons, isInSeason } from "../features/catalog/seasonal.js";
 import { templatePreviewDialog } from "../features/catalog/template-preview.js";
 import { prioritizeTemplates } from '../shared/template-order.js';
+import { preserveLoadedCovers } from '../core/cover-loading.js';
 import {
   filterTemplates,
   styleOptions,
@@ -26,6 +27,7 @@ export function createCatalogViews({
       search: state.search,
       freeOnly: state.freeOnly,
       photoOnly: state.photoOnly,
+      category: state.occasion || "all",palette:state.palette || "all",
       searchFields: templateSearchFields,
     }));
   }
@@ -41,7 +43,7 @@ export function createCatalogViews({
   }
 
   function hasFilters() {
-    return Boolean(state.search.trim() || state.freeOnly || state.photoOnly || state.filter !== 'all');
+    return Boolean(state.search.trim() || state.freeOnly || state.photoOnly || state.filter !== 'all' || (state.occasion && state.occasion !== 'all') || (state.palette && state.palette !== 'all'));
   }
 
   function syncCatalogResults() {
@@ -59,6 +61,7 @@ export function createCatalogViews({
     grid.classList.add("catalog-grid--updated");
     const next = [...fragment.content.children].map(candidate => {
       const current = retained.get(candidate.dataset.templateId);
+      if(current)preserveLoadedCovers(current,candidate);
       return current?.isEqualNode(candidate) ? current : candidate;
     });
     const keep = new Set(next);
@@ -84,7 +87,7 @@ export function createCatalogViews({
       </summary>
       <button type="button" class="seasonal-shelf__hint" data-action="filter-seasonal">${text("catalog.seasonal.action")}</button>
       <div class="seasonal-shelf__grid">${seasonal.map(template => `<a class="seasonal-shelf__card" href="/template/${encodeURIComponent(template.id)}" data-link>
-        <img ${templateCover(template.id)} width="390" height="844" loading="lazy" ${attr('alt', 'catalog.seasonal.cover', { title: templateValue(template, 'title') })}/>
+        <img ${templateCover(template)} width="390" height="844" loading="lazy" ${attr('alt', 'catalog.seasonal.cover', { title: templateValue(template, 'title') })}/>
         <div><span>${isInSeason(template) ? text('catalog.seasonal.inSeason') : template.season ? templateField(template, 'season') : text('catalog.seasonal.collection')}</span><strong>${templateField(template, 'title')}</strong></div>
       </a>`).join('')}</div>
     </details>`;
@@ -108,6 +111,8 @@ export function createCatalogViews({
           <option value="all" ${state.filter === "all" ? "selected" : ""}>${text('catalog.filters.all', { count: state.templates.length })}</option>
           ${options.join('')}
         </select>${icon("chevron-down", 18)}</label>
+        <label class="catalog-style-select"><span>${text('catalog.filters.occasion')}</span><select id="occasion-filter" ${attr('aria-label','catalog.filters.occasion')}><option value="all">${text('catalog.filters.allOccasions')}</option>${[...new Set(state.templates.map(t=>t.category))].map(value=>`<option value="${e(value)}" ${state.occasion===value?'selected':''}>${templateMetaKey('category',value)?text(templateMetaKey('category',value)):e(value)}</option>`).join('')}</select></label>
+        <label class="catalog-style-select"><span>${text('catalog.filters.palette')}</span><select id="palette-filter" ${attr('aria-label','catalog.filters.palette')}><option value="all">${text('catalog.filters.allPalettes')}</option>${[...new Map(state.templates.filter(t=>t.palette).map(t=>[t.palette,t.paletteLabel])).entries()].map(([value,label])=>`<option value="${e(value)}" ${state.palette===value?'selected':''}>${text(`templates.meta.palette.${value}`)||e(label)}</option>`).join('')}</select></label>
         <label class="catalog-free-filter"><input id="free-filter" type="checkbox" ${state.freeOnly ? "checked" : ""}/><span>${text("common.price.free")}</span></label>
         <label class="catalog-free-filter"><input id="photo-filter" type="checkbox" ${state.photoOnly ? "checked" : ""}/><span>${text("catalog.filters.photo")}</span></label>
         <button type="button" class="catalog-reset" data-action="clear-filters">${icon("close", 15)} ${text("catalog.filters.reset")}</button>
@@ -132,14 +137,14 @@ export function createCatalogViews({
           ${buttonLink(`/create/${encodeURIComponent(template.id)}?mode=quick${version}`, text("catalog.detail.use"), "btn--dark", false)}
           <button class="btn btn--outline" type="button" data-template-preview aria-haspopup="dialog">${text("catalog.detail.preview")} ${icon('eye', 17)}</button>
         </div>
-        <p class="detail-subtitle">${templateField(template, 'subtitle')}</p>
+        <p class="detail-palette">${template.palette ? text(`templates.meta.palette.${template.palette}`) : ""}</p><p class="detail-subtitle">${templateField(template, 'subtitle')}</p>
         <p class="detail-meta">${text('catalog.detail.meta', { creator: template.creator, count: template.scenes })}</p>
         <div class="detail-secondary-actions">
           <div class="detail-favorite-row">${favoriteButton(template.id, "favorite-button--inline")}<span>${text("catalog.detail.favoriteHint")}</span></div>
           ${buttonLink(`/create/${encodeURIComponent(template.id)}?mode=layout${version}`, template.personalization?.layout === false ? text("catalog.detail.viewLayout") : text("catalog.detail.editLayout"), "detail-text-action", false)}
           <button type="button" class="btn detail-text-action" data-action="report-content" data-kind="template" data-id="${e(template.id)}">${text("catalog.detail.report")}</button>
         </div>
-        </div><div class="detail-art">${artwork(template, "artwork--detail")}</div>
+        </div><div class="detail-art">${artwork(template, "artwork--detail",{eager:true})}</div>
       </div>
       ${templatePreviewDialog(template)}
     </div></section>`;

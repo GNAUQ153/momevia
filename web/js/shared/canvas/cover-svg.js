@@ -1,9 +1,21 @@
+import { PAPER_GRAIN_SVG } from './paper-grain.js';
 import { STICKERS } from './registry.js';
 import { validateDocument } from './schema.js';
 import { heartPieces, masks, vectorParts } from './artwork.js';
 import { interactionKinds } from './interactions.js';
 
 const escape = value => String(value).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+
+function recipeSurface(body,node,id){
+ const preset=node.effects?.surface,animation=preset?.definition?.animation;if(animation?.engine!=='surface')return body;
+ const v=animation.styles,{width:w,height:h}=node.layout;
+ if(v.backgroundColor)body=`<rect width="${w}" height="${h}" rx="${v.borderRadius||0}" fill="${v.backgroundColor}"/>`+body;
+ if(node.type==='text'&&v.color)body=body.replace(`fill="${node.props.color}"`,`fill="${v.color}"`);
+ if(v.texture==='paper-grain-v1')body+=`<rect width="${w}" height="${h}" fill="url(#momevia-cotton-grain)"/>`;
+ if(v.borderWidth)body+=`<rect x="${v.borderWidth/2}" y="${v.borderWidth/2}" width="${Math.max(1,w-v.borderWidth)}" height="${Math.max(1,h-v.borderWidth)}" rx="${v.borderRadius||0}" fill="none" stroke="${v.borderColor||'#32243B'}" stroke-width="${v.borderWidth}"/>`;
+ const filter=[...(v.blur?[`<feGaussianBlur stdDeviation="${v.blur}"/>`]:[]),...(v.shadowBlur!==undefined?[`<feDropShadow dx="${v.shadowX??0}" dy="${v.shadowY??4}" stdDeviation="${v.shadowMode==='alpha'?v.shadowBlur:v.shadowBlur/2}" flood-color="${preset.color||v.shadowColor||'#32243B'}" flood-opacity="${v.shadowOpacity??1}"/>`]:[])].join('');
+ return filter?`<filter id="depth-${id}" x="-70%" y="-70%" width="240%" height="240%">${filter}</filter><g filter="url(#depth-${id})">${body}</g>`:body;
+}
 
 function wrap(text, width, size, font) {
   const limit = Math.max(5, Math.floor(width / (size * (font === 'serif' ? .51 : .54))));
@@ -46,6 +58,7 @@ function interactionSvg(node, images) {
   const { label, icon } = interactionKinds[p.kind];
   const background = `<rect width="${w}" height="${h}" rx="14" fill="${p.color}"/>`;
   const panel = (x,y,width,height,fill='#FFF7EE') => `<rect x="${x}" y="${y}" width="${width}" height="${height}" rx="8" fill="${fill}"/>`;
+  if (p.kind === 'light-a-candle' && ['cake-overlay-v1','cake-photo-v2'].includes(p.appearance)) return panel(0,h-54,w,54,'#FFF8F0') + labelSvg(p.entries[0].heading,16,h-20,w-32);
   if (p.kind === 'prediction-choice') return background + labelSvg(p.question, 20, 42, w-40, 22) + ['A', 'B'].map((id, i) => panel(16, 170+i*112, w-32, 94, i ? '#FBE8EB' : '#F4EBFA') + labelSvg(`${id} · ${p['option'+id]}`, 28, 206+i*112, w-56, 18)).join('');
   if (p.photos) {
     const compare = p.kind === 'photo-comparison';
@@ -98,12 +111,12 @@ export function previewSvg(document, sceneId = document.entrySceneId, images = n
       const tx = anchor === 'middle' ? w / 2 : anchor === 'end' ? w : 0;
       body = `<text x="${tx}" y="${p.fontSize}" fill="${p.color}" font-family="${p.fontToken === 'serif' ? 'Georgia,serif' : 'Arial,sans-serif'}" font-size="${p.fontSize}" font-weight="${node.accessibility.role === 'heading' ? '700' : '400'}" text-anchor="${anchor}">${lines.map((line, i) => `<tspan x="${tx}" dy="${i ? p.fontSize * (p.lineHeight || 1.4) : 0}">${p.dropCap && !i ? `<tspan font-size="${p.fontSize*1.65}">${escape(line[0] || '')}</tspan>${escape(line.slice(1))}` : escape(line)}</tspan>`).join('')}</text>`;
     } else if (node.type === 'sticker') body = `<text x="${w / 2}" y="${h * .77}" text-anchor="middle" font-family="Arial,sans-serif" font-size="${Math.min(w, h) * .8}" fill="${p.color}">${escape(STICKERS[p.stickerId])}</text>`;
-    else if (['button', 'envelope', 'gift-box'].includes(node.type)) {
-      const envelope = node.type === 'envelope', box = node.type === 'gift-box';
-      body = `<rect width="${w}" height="${h}" rx="${envelope ? 12 : 16}" fill="${p.color}"/>`;
-      if (envelope) body += `<rect x="${w / 2 - 39}" y="${h / 2 - 39}" width="78" height="52" rx="4" fill="#FFFFFF"/><path d="M${w / 2 - 39} ${h / 2 - 39}l39 28 39-28" fill="none" stroke="${p.color}" stroke-width="2"/><path d="M${w / 2 - 39} ${h / 2 + 13}l25-21m53 21-25-21" fill="none" stroke="${p.color}" stroke-width="1"/>`;
+    else if (['button', 'envelope', 'gift-box', 'sound-button'].includes(node.type)) {
+      const envelope = node.type === 'envelope', box = node.type === 'gift-box', photoCaption=envelope&&p.preset==='photo-caption-v3';
+      body = `<rect y="${photoCaption?h-60:0}" width="${w}" height="${photoCaption?60:h}" rx="${envelope ? 12 : 16}" fill="${p.color}"/>`;
+      if (envelope && !['compact-v2','photo-caption-v3'].includes(p.preset)) body += `<rect x="${w / 2 - 39}" y="${h / 2 - 39}" width="78" height="52" rx="4" fill="#FFFFFF"/><path d="M${w / 2 - 39} ${h / 2 - 39}l39 28 39-28" fill="none" stroke="${p.color}" stroke-width="2"/><path d="M${w / 2 - 39} ${h / 2 + 13}l25-21m53 21-25-21" fill="none" stroke="${p.color}" stroke-width="1"/>`;
       if (box) body += `<rect x="${w / 2 - 29}" y="${h / 2 - 35}" width="58" height="44" rx="3" fill="#FFFFFF"/><path d="M${w / 2} ${h / 2 - 39}v50m-33-37h66" stroke="${p.color}" stroke-width="7"/><path d="M${w / 2} ${h / 2 - 36}c-34-25-25-42-9-19l9 19 9-19c16-23 25-6-9 19" fill="none" stroke="#FFFFFF" stroke-width="3"/>`;
-      body += `<text x="${w / 2}" y="${envelope || box ? h - 24 : h / 2 + 6}" fill="#FFFFFF" font-family="Arial,sans-serif" font-size="${envelope || box ? 17 : 16}" text-anchor="middle">${escape(p.label)}</text>`;
+      body += `<text x="${w / 2}" y="${photoCaption?h-24:(envelope && !['compact-v2','photo-caption-v3'].includes(p.preset)) || box ? h - 24 : h / 2 + 6}" fill="#FFFFFF" font-family="Arial,sans-serif" font-size="${envelope || box ? 17 : 16}" text-anchor="middle">${escape(p.label)}</text>`;
     } else if (node.type === 'image') {
       const photoHeight = p.caption ? Math.max(1, h - 32) : h;
       body = photoSvg(p, images.get(p.assetId), w, photoHeight, node.id);
@@ -117,17 +130,22 @@ export function previewSvg(document, sceneId = document.entrySceneId, images = n
     }
     if (surface?.id === 'S02') body += `<rect x="-3" y="-3" width="${w+6}" height="${h+6}" fill="none" stroke="${surface.color || '#6D488A'}"/><rect width="${w}" height="${h}" fill="none" stroke="${surface.color || '#6D488A'}"/>`;
     if (surface?.id === 'S03') body += `<rect width="${w}" height="${h}" fill="url(#canvas-paper-grain)"/>`;
+    body=recipeSurface(body,node,id);
     return `<g transform="translate(${x} ${y})" opacity="${node.opacity ?? 1}"><g${rotate}>${body}</g></g>`;
   }).join('');
   const grain = scene.effects?.surface?.id === 'S03' || content.includes('url(#canvas-paper-grain)');
   const pattern = grain ? '<defs><pattern id="canvas-paper-grain" width="5" height="5" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r=".6" fill="#452962" opacity=".10"/></pattern></defs>' : '';
   const sceneGrain = scene.effects?.surface?.id === 'S03' ? '<rect width="100%" height="100%" fill="url(#canvas-paper-grain)"/>' : '';
+  const cotton=scene.effects?.surface?.definition?.animation?.styles?.texture==='paper-grain-v1'||content.includes('url(#momevia-cotton-grain)');
+  const grainMarkup=PAPER_GRAIN_SVG.replace(/^<svg[^>]*>|<\/svg>$/g,'').replaceAll('id="n"','id="momevia-cotton-noise"').replaceAll('url(#n)','url(#momevia-cotton-noise)');
+  const cottonPattern=cotton?`<defs><pattern id="momevia-cotton-grain" width="128" height="128" patternUnits="userSpaceOnUse">${grainMarkup}</pattern></defs>`:'';
+  const cottonScene=scene.effects?.surface?.definition?.animation?.styles?.texture==='paper-grain-v1'?'<rect width="100%" height="100%" fill="url(#momevia-cotton-grain)"/>':'';
   const embeddedSerif = serifWoff2 && content.includes('Georgia,serif') &&
     /^[a-z0-9+/=]+$/i.test(serifWoff2);
   const font = embeddedSerif ? `<style>@font-face{font-family:"Momevia Cover";src:url(data:font/woff2;base64,${serifWoff2}) format("woff2")}</style>` : '';
   const artwork = embeddedSerif
     ? content.replaceAll('font-family="Georgia,serif"', 'font-family="Momevia Cover,Times New Roman,serif"').normalize('NFC')
     : content;
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${size.width}" height="${size.height}" viewBox="0 0 ${size.width} ${size.height}" role="img" aria-label="Bản xem trước mẫu quà Momevia">${font}${pattern}<rect width="100%" height="100%" fill="${scene.background.color}"/>${sceneGrain}${artwork}</svg>\n`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${size.width}" height="${size.height}" viewBox="0 0 ${size.width} ${size.height}" role="img" aria-label="Bản xem trước mẫu quà Momevia">${font}${pattern}${cottonPattern}<rect width="100%" height="100%" fill="${scene.background.color}"/>${sceneGrain}${cottonScene}${artwork}</svg>\n`;
 }
 

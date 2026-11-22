@@ -1,3 +1,4 @@
+import { PAPER_GRAIN_URL } from '../../shared/canvas/paper-grain.js';
 import { effectSpeed } from '../../shared/canvas/effects.js';
 
 const animationFor = preset => preset?.definition?.animation;
@@ -7,7 +8,7 @@ export function playRecipe(node, preset, motion, signal) {
   if (animation?.engine !== 'keyframes') return null;
   node.dataset.giftEffect = preset.id;
   return motion.run(node, animation.keyframes, { duration: recipeDuration(preset), delay: preset.delay || 0,
-    easing: animation.easing || 'ease-out', iterations: animation.iterations || 1, fill: 'backwards' }, signal,
+    easing: animation.easing || 'ease-out', iterations: animation.iterations || 1, ...(animation.composite?{composite:animation.composite}:{}), fill: 'backwards' }, signal,
   () => delete node.dataset.giftEffect);
 }
 const surfaces = new WeakMap();
@@ -17,11 +18,19 @@ export function applyRecipeSurface(node, preset) {
   const animation = animationFor(preset);
   if (animation?.engine !== 'surface') return false;
   const style = animation.styles, keys = [], before = {};
-  for (const key of ['color','backgroundColor','borderColor','borderWidth','borderRadius','borderStyle','boxShadow']) before[key] = node.style[key];
+  for (const key of ['color','backgroundColor','borderColor','borderWidth','borderRadius','borderStyle','boxShadow','filter','backgroundImage','backgroundSize']) before[key] = node.style[key];
   for (const key of ['color','backgroundColor','borderColor']) if (style[key]) { node.style[key] = style[key]; keys.push(key); }
   for (const key of ['borderWidth','borderRadius']) if (style[key] !== undefined) { node.style[key] = `${style[key]}px`; keys.push(key); }
   if (style.borderWidth !== undefined) { node.style.borderStyle = 'solid'; keys.push('borderStyle'); }
-  if (style.shadowBlur !== undefined) { node.style.boxShadow = `0 4px ${style.shadowBlur}px ${style.shadowColor || '#32243B'}`; keys.push('boxShadow'); }
+  const filters=[];
+  if(style.blur)filters.push(`blur(${style.blur}px)`);
+  if (style.shadowBlur !== undefined) {
+    const base=preset.color || style.shadowColor || '#32243B',alpha=Math.round((style.shadowOpacity ?? 1)*255).toString(16).padStart(2,'0');
+    const shadow=`${style.shadowX ?? 0}px ${style.shadowY ?? 4}px ${style.shadowBlur}px ${base}${alpha}`;
+    if(style.shadowMode==='alpha')filters.push(`drop-shadow(${shadow})`);else{node.style.boxShadow=shadow;keys.push('boxShadow');}
+  }
+  if(filters.length){node.style.filter=filters.join(' ');keys.push('filter');}
+  if(style.texture==='paper-grain-v1'){node.style.backgroundImage=`url("${PAPER_GRAIN_URL}")`;node.style.backgroundSize='128px 128px';keys.push('backgroundImage','backgroundSize');}
   surfaces.set(node, keys.map(key => [key, before[key], node.style[key]])); return true;
 }
 export function playParticleRecipe(stage, preset, motion, signal) {

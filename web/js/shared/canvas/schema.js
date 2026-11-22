@@ -5,8 +5,9 @@ import { predictionFields, normalizeChoice } from './prediction.js';
 import { interactionKinds, photoSlots } from './interactions.js';
 import { effectsFor, effectSpeed, elementEffectFamilies, sceneEffectFamilies, CELEBRATION_IDS } from './effects.js';
 import { validatePortableEffect, validateVector } from './library-contract.js';
+import { SOUND_TYPES, usesSound, validateSound } from './sound.js';
 
-export const CANVAS_VERSIONS = Object.freeze([1, 2]);
+export const CANVAS_VERSIONS = Object.freeze([1, 2, 3]);
 export const runtimeVersionFor = document => document.schemaVersion;
 export const requiresCanvasV2 = document => Boolean(document.soundtrack) || document.scenes.some(scene => scene.effects) || document.elements.some(e =>
   e.type === 'interaction' || e.effects || e.artwork ||
@@ -49,12 +50,13 @@ function validateInteraction(p, path, assets, publishing) {
   const keys = ['kind', 'color', ...(spec.fields ? ['entries'] : []),
     ...(spec.prediction ? [...Object.keys(predictionFields), 'prediction'] : []),
     ...(spec.slots ? ['photos'] : []), ...(spec.clock ? ['eventAt', 'timeZone'] : [])];
-  const extras = [...(p.kind === 'swipe-album' ? ['optional', 'autoplay'] : []), ...(spec.clock ? ['optional', 'clockMode'] : [])];
+  const extras = [...(['light-a-candle','foldout-letter'].includes(p.kind) ? ['appearance'] : []), ...(p.kind === 'swipe-album' ? ['optional', 'autoplay'] : []), ...(spec.clock ? ['optional', 'clockMode'] : [])];
   object(p, path, [...keys, ...extras], keys);
   if (own(p, 'optional')) boolean(p.optional, `${path}.optional`);
   if (own(p, 'autoplay')) boolean(p.autoplay, `${path}.autoplay`);
   if (own(p, 'clockMode')) enumeration(p.clockMode, `${path}.clockMode`, ['countdown', 'elapsed']);
   color(p.color, `${path}.color`);
+  if (own(p,'appearance')) enumeration(p.appearance,`${path}.appearance`,p.kind==='foldout-letter'?['classic','paper-fold-v2']:['classic','cake-overlay-v1','cake-photo-v2']);
   if (spec.prediction) {
     for (const [key, max] of Object.entries(predictionFields)) {
       string(p[key], `${path}.${key}`, max);
@@ -181,7 +183,8 @@ export function validateDocument(document, { mode = 'draft', requiredBindings = 
       fail(`${p}.value`, 'Nội dung bắt buộc chưa được nhập.', 'BINDING_REQUIRED');
   }
   array(document.assets, 'assets', LIMITS.assets); const assets = new Set();
-  for (const [i, a] of document.assets.entries()) { const p = `assets.${i}`; object(a, p, ['assetId', 'kind'], ['assetId', 'kind']); id(a.assetId, `${p}.assetId`); enumeration(a.kind, `${p}.kind`, ['image']); if (assets.has(a.assetId)) fail(p, 'Asset trùng ID.'); assets.add(a.assetId); }
+  for (const [i, a] of document.assets.entries()) { const p = `assets.${i}`; object(a, p, ['assetId', 'kind'], ['assetId', 'kind']); id(a.assetId, `${p}.assetId`); enumeration(a.kind, `${p}.kind`, document.schemaVersion >= 3 ? ['image','audio'] : ['image']); if (assets.has(a.assetId)) fail(p, 'Asset trùng ID.'); assets.add(a.assetId); }
+  const imageAssets = new Set(document.assets.filter(a=>a.kind==='image').map(a=>a.assetId));
   array(document.scenes, 'scenes', LIMITS.scenes); array(document.elements, 'elements', LIMITS.elements);
   if (!document.scenes.length) fail('scenes', 'Cần ít nhất một cảnh.');
   const sceneIds = new Set(), elementIds = new Set(), assigned = new Set();
@@ -195,7 +198,12 @@ export function validateDocument(document, { mode = 'draft', requiredBindings = 
   }
   id(document.entrySceneId, 'entrySceneId'); if (!sceneIds.has(document.entrySceneId)) fail('entrySceneId', 'Cảnh mở đầu không tồn tại.');
   for (const [i, e] of document.elements.entries()) {
-    const p = `elements.${i}`; object(e, p, ['id', 'type', 'elementVersion', 'layout', 'props', 'accessibility', 'actions', 'name', 'visible', 'locked', 'opacity', 'effects', 'artwork'], ['id', 'type', 'elementVersion', 'layout', 'props', 'accessibility']);
+    const p = `elements.${i}`; object(e, p, ['id', 'type', 'elementVersion', 'layout', 'props', 'accessibility', 'actions', 'name', 'visible', 'locked', 'opacity', 'effects', 'artwork', 'sound'], ['id', 'type', 'elementVersion', 'layout', 'props', 'accessibility']);
+    if (own(e,'sound')) {
+      if (!SOUND_TYPES.includes(e.type)) fail(`${p}.sound`, 'Phần tử này không hỗ trợ âm khi nhấn.');
+      try { validateSound(e.sound); } catch(error) { fail(`${p}.sound`, error.message, 'INVALID_SOUND'); }
+      if(e.sound.kind==='audio'&&!document.assets.some(a=>a.assetId===e.sound.assetId&&a.kind==='audio'))fail(`${p}.sound.assetId`,'Âm cá nhân chưa được khai báo.','ASSET_REFERENCE');
+    }
     if (e.artwork) { if (!['shape','line','sticker'].includes(e.type)) fail(p, 'Vector artwork requires a vector element.'); try { validateVector(e.artwork); } catch (error) { fail(p, error.message); } }
     id(e.id, `${p}.id`); if (elementIds.has(e.id) || sceneIds.has(e.id)) fail(`${p}.id`, 'Node trùng ID.'); elementIds.add(e.id);
     if (!own(registry, e.type)) fail(`${p}.type`, 'Element chưa được hỗ trợ.', 'UNSUPPORTED_ELEMENT'); enumeration(e.elementVersion, `${p}.elementVersion`, [1]);
@@ -206,7 +214,7 @@ export function validateDocument(document, { mode = 'draft', requiredBindings = 
     number(e.layout.rotation, `${p}.layout.rotation`, -360, 360);
     const propKeys = e.type === 'text' ? ['text', 'textBinding', 'fontToken', 'fontSize', 'align', 'color', 'lineHeight', 'dropCap'] : registry[e.type].inspector;
     object(e.props, `${p}.props`, propKeys);
-    if (e.type === 'interaction') validateInteraction(e.props, `${p}.props`, assets, mode === 'publish');
+    if (e.type === 'interaction') validateInteraction(e.props, `${p}.props`, imageAssets, mode === 'publish');
     for (const [k, v] of e.type === 'interaction' ? [] : Object.entries(e.props)) {
       const q = `${p}.props.${k}`;
       if (['text', 'label', 'title', 'submitLabel'].includes(k)) string(v, q, k === 'text' ? LIMITS.text : 120);
@@ -227,9 +235,9 @@ export function validateDocument(document, { mode = 'draft', requiredBindings = 
       else if (k === 'kind') { if (!e.artwork) enumeration(v, q, ['rectangle', 'ellipse', 'line', ...Object.keys(shapes)]); else id(v, q); }
       else if (k === 'fit') enumeration(v, q, ['cover', 'contain']);
       else if (k === 'focalPoint') { object(v, q, ['x', 'y'], ['x', 'y']); number(v.x, `${q}.x`, 0, 1); number(v.y, `${q}.y`, 0, 1); }
-      else if (k === 'assetId') { if (v === null && (mode === 'draft' || e.props.optional)) continue; id(v, q); if (!assets.has(v)) fail(q, 'Asset chưa được khai báo.', 'ASSET_REFERENCE'); }
+      else if (k === 'assetId') { if (v === null && (mode === 'draft' || e.props.optional)) continue; id(v, q); if (!imageAssets.has(v)) fail(q, 'Ảnh chưa được khai báo.', 'ASSET_REFERENCE'); }
       else if (k === 'stickerId') { if (!e.artwork) enumeration(v, q, Object.keys(STICKERS)); else id(v, q); }
-      else if (k === 'preset') enumeration(v, q, ['classic']);
+      else if (k === 'preset') enumeration(v, q, e.type === 'envelope' ? ['classic','compact-v2','photo-caption-v3'] : ['classic']);
     }
     if (e.type === 'text' && !own(e.props, 'text') && !own(e.props, 'textBinding')) fail(`${p}.props`, 'Văn bản cần literal hoặc binding.');
     if (e.type === 'text' && own(e.props, 'text') && own(e.props, 'textBinding')) fail(`${p}.props`, 'Chỉ chọn literal hoặc binding.');
@@ -253,13 +261,15 @@ export function validateDocument(document, { mode = 'draft', requiredBindings = 
   for (const e of assigned) if (!elementIds.has(e)) fail('scenes.elementIds', 'Element không tồn tại.');
   for (const e of elementIds) if (!assigned.has(e)) fail(`elements.${e}`, 'Element chưa thuộc cảnh nào.');
   if (document.schemaVersion === 1 && requiresCanvasV2(document)) fail('schemaVersion', 'Khối này cần tài liệu Canvas phiên bản 2.');
+  if (document.schemaVersion < 3 && usesSound(document)) fail('schemaVersion', 'Âm thanh cần Canvas phiên bản 3.');
   object(document.responsive, 'responsive', ['textOverflow', 'sceneOverflow', 'desktop'], ['textOverflow', 'sceneOverflow', 'desktop']);
   enumeration(document.responsive.textOverflow, 'responsive.textOverflow', ['expand-flow']); enumeration(document.responsive.sceneOverflow, 'responsive.sceneOverflow', ['scroll']);
   object(document.responsive.desktop, 'responsive.desktop', ['maxContentWidth', 'align'], ['maxContentWidth', 'align']); number(document.responsive.desktop.maxContentWidth, 'responsive.desktop.maxContentWidth', 240, 1440); enumeration(document.responsive.desktop.align, 'responsive.desktop.align', ['center']);
   return JSON.parse(serialized);
 }
 
-export function assetIds(document) { return [...new Set(document.elements.flatMap(photoSlots).map(photo => photo.assetId).filter(Boolean))]; }
+export function imageAssetIds(document) { return [...new Set(document.elements.flatMap(photoSlots).map(photo => photo.assetId).filter(Boolean))]; }
+export function assetIds(document) { return [...new Set([...imageAssetIds(document),...document.elements.filter(e=>e.sound?.kind==='audio').map(e=>e.sound.assetId)])]; }
 
 export function duplicateDocument(document, { idFactory = () => globalThis.crypto.randomUUID() } = {}) {
   const result = validateDocument(document); const ids = new Map();
@@ -278,7 +288,7 @@ export function publicDocument(document) {
     schemaVersion: d.schemaVersion, registryVersion: d.registryVersion, artboard: d.artboard, entrySceneId: d.entrySceneId,
     bindings: d.bindings, assets: d.assets.filter(a => used.has(a.assetId)), scenes: d.scenes,
     ...(d.soundtrack ? { soundtrack: d.soundtrack } : {}),
-    elements: d.elements.map(e => ({ id: e.id, type: e.type, elementVersion: e.elementVersion, layout: e.layout, props: e.props, accessibility: e.accessibility, ...(e.actions ? { actions: e.actions } : {}), ...(e.effects ? { effects: e.effects } : {}), ...(e.artwork ? { artwork: e.artwork } : {}), ...(own(e, 'visible') ? { visible: e.visible } : {}), ...(own(e, 'opacity') ? { opacity: e.opacity } : {}) })),
+    elements: d.elements.map(e => ({ id: e.id, type: e.type, elementVersion: e.elementVersion, layout: e.layout, props: e.props, accessibility: e.accessibility, ...(e.sound ? {sound:e.sound} : {}), ...(e.actions ? { actions: e.actions } : {}), ...(e.effects ? { effects: e.effects } : {}), ...(e.artwork ? { artwork: e.artwork } : {}), ...(own(e, 'visible') ? { visible: e.visible } : {}), ...(own(e, 'opacity') ? { opacity: e.opacity } : {}) })),
     responsive: d.responsive,
   };
 }

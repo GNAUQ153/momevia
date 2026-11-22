@@ -20,7 +20,7 @@ export function validateVector(v) {
   return v;
 }
 export function validateAnimation(v, family) {
-  object(v, ['engine','builtinId','keyframes','duration','easing','iterations','styles','glyphs','colors','count','drift','title']);
+  object(v, ['engine','builtinId','keyframes','duration','easing','iterations','composite','styles','glyphs','colors','count','drift','title']);
   if (v.title !== undefined) check(typeof v.title === 'string' ? v.title.length <= 160 : v.title &&
     typeof v.title === 'object' && Object.values(v.title).every(t => typeof t === 'string' && t.length <= 160), 'invalid animation title');
   check(['builtin','keyframes','surface','particles'].includes(v.engine), 'unknown animation engine');
@@ -39,10 +39,11 @@ export function validateAnimation(v, family) {
   }
   if (v.duration !== undefined) check(number(v.duration, 100, 10000), 'duration must be 100–10000ms');
   if (v.iterations !== undefined) check(Number.isInteger(v.iterations) && number(v.iterations, 1, 5), 'iterations must be 1–5');
+  if (v.composite !== undefined) check(v.engine === 'keyframes' && ['replace','add'].includes(v.composite), 'invalid keyframe composition');
   if (v.easing !== undefined) check(['linear','ease','ease-in','ease-out','ease-in-out'].includes(v.easing), 'invalid easing');
   if (v.engine === 'surface') {
-    check(family === 'surface', 'surface engine/family mismatch'); object(v.styles, ['color','backgroundColor','borderColor','borderWidth','borderRadius','shadowColor','shadowBlur']);
-    for (const [k, value] of Object.entries(v.styles)) check(k.includes('Color') || k === 'color' ? color(value) : number(value, 0, 128), 'invalid surface style');
+    check(family === 'surface', 'surface engine/family mismatch'); object(v.styles, ['color','backgroundColor','borderColor','borderWidth','borderRadius','shadowColor','shadowBlur','shadowMode','shadowOpacity','shadowX','shadowY','blur','texture']);
+    for (const [k, value] of Object.entries(v.styles)) check(k === 'shadowMode' ? ['box','alpha'].includes(value) : k === 'texture' ? value === 'paper-grain-v1' : k === 'shadowOpacity' ? number(value,0,1) : ['shadowX','shadowY'].includes(k) ? number(value,-64,64) : k === 'blur' ? number(value,0,32) : k.includes('Color') || k === 'color' ? color(value) : number(value, 0, 128), 'invalid surface style');
   }
   if (v.engine === 'particles') {
     check(family === 'ambience', 'particles require ambience');

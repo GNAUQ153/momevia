@@ -15,7 +15,10 @@ test('Ba font đúng tên và đồng nhất trên giao diện VI/EN', () => {
   assert.match(tokens, /--font-shell: "Inter", system-ui, -apple-system, sans-serif;/);
   assert.match(tokens, /font-family: "Lora";/);
   assert.match(html, /<link id="app-fonts" rel="stylesheet"/);
-  assert.match(html, /family=Inter:wght@400\.\.800&amp;family=Plus\+Jakarta\+Sans:wght@400\.\.800&amp;display=swap/);
+  assert.match(html, /href="\/css\/app-fonts\.css"/);
+  const fonts=file('web/css/app-fonts.css');
+  assert.match(fonts,/font-family: 'Inter'/);assert.match(fonts,/font-family: 'Plus Jakarta Sans'/);
+  assert.match(fonts,/font-weight: 400 800/);assert.match(fonts,/font-display: swap/);
   assert.match(staticServer, /style-src 'self' https:\/\/fonts\.googleapis\.com/);
   assert.match(staticServer, /font-src 'self' https:\/\/fonts\.gstatic\.com/);
 });
@@ -23,7 +26,7 @@ test('Ba font đúng tên và đồng nhất trên giao diện VI/EN', () => {
 test('Font dùng ở trang chủ lẫn các vai trò khác và không phụ thuộc tải JS', () => {
   const meta = html.indexOf('<meta name="description"');
   const font = html.indexOf('id="app-fonts"');
-  const script = html.indexOf('<script type="module"');
+  const script = html.indexOf('<script type="module" src="/js/app.js"');
   assert(meta >= 0 && font > meta && script > font);
   assert.match(css, /\.site-header,\s*\.site-footer\s*\{\s*font-family: var\(--font-body\);/);
   assert.match(html, /href="\/css\/brand-system\.css\?v=20261121"/);

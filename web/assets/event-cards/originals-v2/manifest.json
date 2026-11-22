@@ -1,0 +1,114 @@
+{
+  "event-envelope-memory-eb4e319dfe0c": {
+    "file": "originals-v2/envelope-memory-eb4e319dfe0c.webp",
+    "sha256": "eb4e319dfe0cee9fdc606136e291da37de30a9879e3042114e7d9680f88dfe71",
+    "width": 1000,
+    "height": 700,
+    "version": 2,
+    "role": "distributable-decoration",
+    "source": "Momevia Original vector drawing; no external media",
+    "rights": "Momevia may edit and distribute with gifts",
+    "crop": "contain",
+    "focalPoint": {
+      "x": 0.5,
+      "y": 0.5
+    },
+    "bytes": 14286
+  },
+  "event-envelope-celebration-afb2a4e240b7": {
+    "file": "originals-v2/envelope-celebration-afb2a4e240b7.webp",
+    "sha256": "afb2a4e240b704feff39c47643f60060d9ca0379dd44364a338d2cd205f53e1a",
+    "width": 1000,
+    "height": 700,
+    "version": 2,
+    "role": "distributable-decoration",
+    "source": "Momevia Original vector drawing; no external media",
+    "rights": "Momevia may edit and distribute with gifts",
+    "crop": "contain",
+    "focalPoint": {
+      "x": 0.5,
+      "y": 0.5
+    },
+    "bytes": 15520
+  },
+  "event-porch-d9ae45b9952f": {
+    "file": "originals-v2/porch-d9ae45b9952f.webp",
+    "sha256": "d9ae45b9952f8015ccae53201bfed8dbe4b2dc53d7dfe80e247c392f633f5a62",
+    "width": 1000,
+    "height": 700,
+    "version": 2,
+    "role": "distributable-decoration",
+    "source": "Momevia Original vector drawing; no external media",
+    "rights": "Momevia may edit and distribute with gifts",
+    "crop": "contain",
+    "focalPoint": {
+      "x": 0.5,
+      "y": 0.5
+    },
+    "bytes": 43584
+  },
+  "event-film-box-9d9f317c8f80": {
+    "file": "originals-v2/film-box-9d9f317c8f80.webp",
+    "sha256": "9d9f317c8f803e42b3518cc9b6361fbfbed03c1998a2398f6fd1f994dd2d2e92",
+    "width": 1000,
+    "height": 700,
+    "version": 2,
+    "role": "distributable-decoration",
+    "source": "Momevia Original vector drawing; no external media",
+    "rights": "Momevia may edit and distribute with gifts",
+    "crop": "contain",
+    "focalPoint": {
+      "x": 0.5,
+      "y": 0.5
+    },
+    "bytes": 20548
+  },
+  "event-journey-map-ab7dcc12db45": {
+    "file": "originals-v2/journey-map-ab7dcc12db45.webp",
+    "sha256": "ab7dcc12db458959e30db731da3d44d7c6b72d4dc32908f5911282812eb6a2f3",
+    "width": 1000,
+    "height": 700,
+    "version": 2,
+    "role": "distributable-decoration",
+    "source": "Momevia Original vector drawing; no external media",
+    "rights": "Momevia may edit and distribute with gifts",
+    "crop": "contain",
+    "focalPoint": {
+      "x": 0.5,
+      "y": 0.5
+    },
+    "bytes": 22236
+  },
+  "event-cake-unlit-ba16e8451c8e": {
+    "file": "originals-v2/cake-unlit-ba16e8451c8e.webp",
+    "sha256": "ba16e8451c8e8fd9cf18f2907d5e021287522ae88ffa2f4f2ba348934d3be91b",
+    "width": 1000,
+    "height": 700,
+    "version": 2,
+    "role": "distributable-decoration",
+    "source": "Momevia Original vector drawing; no external media",
+    "rights": "Momevia may edit and distribute with gifts",
+    "crop": "contain",
+    "focalPoint": {
+      "x": 0.5,
+      "y": 0.5
+    },
+    "bytes": 9352
+  },
+  "event-cap-untasselled-2a349b3c11b1": {
+    "file": "originals-v2/cap-untasselled-2a349b3c11b1.webp",
+    "sha256": "2a349b3c11b16982b6cadcf86508f89e187a35a36aec11c923fc1e7d7b67ec3f",
+    "width": 1000,
+    "height": 700,
+    "version": 2,
+    "role": "distributable-decoration",
+    "source": "Momevia Original vector drawing; no external media",
+    "rights": "Momevia may edit and distribute with gifts",
+    "crop": "contain",
+    "focalPoint": {
+      "x": 0.5,
+      "y": 0.5
+    },
+    "bytes": 16034
+  }
+}

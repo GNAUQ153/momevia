@@ -1,0 +1,28 @@
+TARGET MySQL 8.4.13; NEW synthetic schema=momevia_canvas_qa_api_7e582c19; temp copy, provider injected, all external fetch denied.
+PASS MySQL composition readiness and sender sessions via actual Identity API
+PASS MySQL saves empty drafts and rejects publication with the preflight blocker
+PASS C01/C05/C06 blank create/save/reload/CAS/lost ACK through HTTP MySQL
+PASS MySQL restyle: both directions, owner ACL, target provenance/price, CAS and concurrent idempotency
+PASS C09 real re-encode asset upload, owner ACL, crop persisted, publish ready
+PASS C17/C19/C21 public immutable snapshot/media/reply free without login and no private DTO
+PASS C02 catalog matches all seeded presets, free template publishes and data stays intact
+PASS Public preview returns only one published DB template, both locales and pinned definitions
+PASS V2 on MySQL: three published QA cards, nested album media, ACL and revoke
+PASS C14/C15 pending intent + two resume contexts do not grant rights or auto publish
+PASS C15 injected signed webhook settles actual SQL order/right/receipt once; invalid signature denied
+PASS C13/C16 revoked rights denied; paid publish fault retry does not create new payment
+PASS Browser: register/login, pages, favorites, Creator guard, gift publication and local QR (isolated data)
+PASS Browser MySQL sender: register/login/favorite/Creator guard/save/publish/QR
+PASS Browser MySQL blank starter: stable text/numeric editing, save/F5, simulated preview, publish
+PASS Browser MySQL recipient: anonymous, keyboard/reduced motion, six viewports, reply and no editor bundle
+PASS C28 Browser MySQL paid receipt without design context retains print and Studio fallback
+PASS Creator template identity is isolated from preview data on MySQL
+PASS Fake mail relay: English and default Vietnamese verification and reset, eight-digit OTP and 15-minute expiry copy.
+PASS Account recovery on MySQL with mock inbox and Google, same account/draft/gift
+PASS Real MySQL reply replay keeps one row, distinct intents and exact owner read state
+Creator flow synthetic choose-to-link ms=3581
+PASS Creator V1/V2 browser: role/ownership, fixed version, approved demo ACL, Sender photo, anonymous invite/reply, reports, concurrent review, withdrawal, revoke and offline-safe history.
+PASS Creator birthday template V1/V2, real UI and MySQL
+PASS C27 writer disabled keeps reader/media; C22 TTL guards public/reply/assets
+RESULT PASS 21 real MySQL HTTP/provider-injected cases. External requests=0; merchant E2E NOT RUN.
+Fixture retained: C:\Users\LOC-TR~1\AppData\Local\Temp\momevia-canvas-mysql-api-GTaH9U

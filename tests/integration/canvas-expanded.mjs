@@ -1,3 +1,4 @@
+import { usesSound } from '../../web/js/shared/canvas/sound.js';
 import fs from 'node:fs';
 import path from 'node:path';
 import assert from 'node:assert/strict';
@@ -122,6 +123,7 @@ export async function runExpandedApi(base, cookie, otherCookie, { artifacts, all
       document.elements = card.create();
       document.scenes[0].elementIds = document.elements.map(item=>item.id);
       if (requiresCanvasV2(document)) document.schemaVersion=document.registryVersion=2;
+      if(usesSound(document))document.schemaVersion=document.registryVersion=3;
       const ack = await save(draft,document);
       const {design} = await api(`/designs/designs/${draft.id}`);
       assert.deepEqual(design.document,document,id);

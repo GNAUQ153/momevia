@@ -1,3 +1,4 @@
+import { SEMANTIC_TEMPLATE_IDS, captureSemanticRoles } from '../../../web/js/shared/canvas/template-slots.js';
 import { createHash, randomUUID } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -29,7 +30,7 @@ export function designView(d) {
   const document = copy(d.document);
   const reviewTemplateDefaults = d.source.kind === 'template' && d.source.templateVersionId && d.provenance?.adapter === 'creator-v1'
     && d.policy?.kind === 'creator-template' && clearTemplateBindingDefaults(document, d.policy.editableBindings);
-  return { id: d.id, title: d.title, source: copy(d.source), policy: copy(d.policy), purpose: d.provenance?.purpose, revision: d.revision, schemaVersion: document.schemaVersion, document, documentHash: d.documentHash,
+  return { ...(d.provenance?.restyledFrom ? {restyledFrom:copy(d.provenance.restyledFrom)} : {}), id: d.id, title: d.title, source: copy(d.source), policy: copy(d.policy), purpose: d.provenance?.purpose, revision: d.revision, schemaVersion: document.schemaVersion, document, documentHash: d.documentHash,
     ...(reviewTemplateDefaults ? { reviewTemplateDefaults } : {}),
     ...(d.provenance?.startingLocale ? { startingLocale: d.provenance.startingLocale } : {}),
     createdAt: d.createdAt, updatedAt: d.updatedAt };
@@ -53,6 +54,7 @@ export class DesignsService {
     Object.assign(this, { repository, publication, catalog, checkout, orders, config, flags, mediaRoot, profile });
   }
   requireEdit() { if (!this.flags.edit) throw canvasError(503, 'CANVAS_EDIT_DISABLED', 'Tạo và chỉnh thiết kế đang tạm tắt. Quà đã gửi vẫn đọc được.'); }
+  requireSoundCreate() { if(this.flags.sfxCreate===false)throw canvasError(503,'SFX_CREATE_DISABLED','Tạo âm thanh mới đang tạm tắt. Âm trong quà đã gửi vẫn dùng được.'); }
   async get(user, id) {
     uuid(id, 'designId'); const d = owned(await this.repository.get(user.sub, id));
     if (d.provenance?.purpose === 'creator' && !['creator', 'admin'].includes(user.role))
@@ -80,7 +82,7 @@ export class DesignsService {
     return { source: { kind: 'template', templateId: template.id, templateVersionId }, provenance: { adapter: 'legacy-v1', templateHash }, template };
   }
   async create(user, input, { sourceFor = () => this.source(input.source), requestHash = hash(input), locale } = {}) {
-    this.requireEdit(); fields(input, ['source', 'presetId', 'mutationId', 'title', 'purpose']); uuid(input.mutationId);
+    this.requireEdit(); fields(input, ['source', 'presetId', 'mutationId', 'title', 'purpose', 'trialBindings']); uuid(input.mutationId);
     if (input.purpose !== undefined && (input.purpose !== 'creator' || input.source?.kind !== 'blank' || !['creator','admin'].includes(user.role)))
       throw canvasError(403, 'CREATOR_REQUIRED', 'Chỉ Creator được tạo nháp mẫu.');
     const previous = await this.repository.findCreate(user.sub, input.mutationId, requestHash);
@@ -109,6 +111,7 @@ export class DesignsService {
       }
       for (const ref of document.assets) ref.assetId = mapping.get(ref.assetId);
       for (const element of document.elements) {
+        if(element.sound?.kind==='audio')element.sound.assetId=mapping.get(element.sound.assetId);
         for (const photo of photoSlots(element)) if (photo.assetId) photo.assetId = mapping.get(photo.assetId);
       }
       clearTemplateBindingDefaults(document);
@@ -120,9 +123,16 @@ export class DesignsService {
     const templateTitle = templateTitleKey ? localize(templateTitleKey) : resolved.template?.title;
     const defaultTitle = templateTitle ? localize('templates.draft.from', { title: templateTitle }).slice(0, 120)
       : localize('templates.draft.untitled');
+    if (input.trialBindings !== undefined) {
+      fields(input.trialBindings,['recipientName','senderName','message']);
+      if (resolved.version || input.purpose) throw canvasError(422,'TRIAL_SOURCE_UNSUPPORTED','Mẫu này không hỗ trợ dữ liệu thử.');
+      for (const [key,value] of Object.entries(input.trialBindings)) document.bindings[key].value=value;
+      validateDocument(document);
+    }
     const record = { id, ownerId: user.sub, title: title(input.title || defaultTitle),
       source: resolved.source, provenance: { ...resolved.provenance, ...(input.purpose ? { purpose: input.purpose } : {}),
-        ...(locale && isSystemTemplate(resolved.template) ? { startingLocale: locale } : {}) }, policy, revision: 1, schemaVersion: document.schemaVersion,
+        ...(locale && isSystemTemplate(resolved.template) ? { startingLocale: locale } : {}),
+        ...(!resolved.document && !resolved.version && SEMANTIC_TEMPLATE_IDS.includes(resolved.source.templateId) ? {slotMap:{templateVersionId:resolved.source.templateVersionId,elements:captureSemanticRoles(document)}} : {}) }, policy, revision: 1, schemaVersion: document.schemaVersion,
       document, documentHash: hash(document), createdAt: now, updatedAt: now, archivedAt: null };
     validateDocument(document);
     const result = await this.repository.create(user.sub, input.mutationId, requestHash, record, assets);
@@ -151,7 +161,7 @@ export class DesignsService {
           const systemSnapshot = gift.documentSnapshot && current.systemOwned === true && current.creator === 'Momevia Originals'
             && !current.versionId && isSystemTemplate(current);
           resolved = await this.source(systemSnapshot ? { kind: 'template', templateId: source.templateId } : source);
-          if (systemSnapshot) {
+          if (systemSnapshot || (gift.documentSnapshot?.elements.some(e=>e.sound) && !resolved.version)) {
             const sharedImages = new Map();
             for (const ref of gift.documentSnapshot.assets) {
               const asset = await this.repository.getAsset(user.sub, ref.assetId);
@@ -208,6 +218,8 @@ export class DesignsService {
     for (const id of document.assets.map(a => a.assetId)) {
       const a = await this.repository.getAsset(ownerId, id);
       if (!a || a.status !== 'ready') throw canvasError(422, 'ASSET_NOT_READY', 'Ảnh không thuộc tài khoản hoặc chưa sẵn sàng.', [{ path: `assets.${id}`, code: 'ASSET_NOT_READY' }]);
+      const ref=document.assets.find(ref=>ref.assetId===id);
+      if(ref.kind!==(a.mediaKind||'image'))throw canvasError(422,'ASSET_KIND','Kiểu tài sản không khớp nội dung.');
       if (creator && (await this.repository.get(ownerId, a.designId))?.provenance?.purpose !== 'creator')
         throw canvasError(403, 'PRIVATE_SENDER_ASSET', 'Chỉ ảnh tải từ Creator Studio được dùng để thiết kế mẫu.');
     }
@@ -218,6 +230,7 @@ export class DesignsService {
     const document = validateDocument(input.document, { mode: 'draft' }); const name = title(input.title);
     // Validate before adapter; adapter revalidates immutable policy under the same CAS lock.
     const design = await this.get(user, id);
+    if(this.flags.sfxCreate===false)for(const element of document.elements)if(element.sound&&canonicalStringify(element.sound)!==canonicalStringify(design.document.elements.find(e=>e.id===element.id)?.sound||null))this.requireSoundCreate();
     await this.assetsFor(user.sub, document, design.provenance?.purpose === 'creator');
     return this.repository.save(user.sub, id, { ...input, title: name, document, documentHash: hash(document), requestHash: hash(input), assetIds: assetIds(document) }, current => this.enforcePolicy(current, document));
   }
@@ -230,7 +243,9 @@ export class DesignsService {
     const policy = copy(current.policy); policy.lockedElements = Object.fromEntries(Object.entries(policy.lockedElements || {}).map(([key, value]) => [mapping.get(key) || key, value]));
     if (policy.photoId) policy.photoId = mapping.get(policy.photoId);
     const now = new Date().toISOString();
-    const record = { ...copy(current), id: randomUUID(), title: title(`${current.title.slice(0, 108)} (bản sao)`), document, documentHash: hash(document), revision: 1, policy, createdAt: now, updatedAt: now, archivedAt: null };
+    const provenance=copy(current.provenance);
+    if(current.policy.kind==='sender-basic' && SEMANTIC_TEMPLATE_IDS.includes(current.source.templateId))provenance.slotMap={templateVersionId:current.source.templateVersionId,elements:captureSemanticRoles(current.document,current.provenance?.slotMap?.elements,mapping)};
+    const record = { ...copy(current), provenance, id: randomUUID(), title: title(`${current.title.slice(0, 108)} (bản sao)`), document, documentHash: hash(document), revision: 1, policy, createdAt: now, updatedAt: now, archivedAt: null };
     await this.assetsFor(user.sub, document);
     const result = await this.repository.create(user.sub, input.mutationId, hash({ duplicateOf: id, ...input }), record);
     return { ...result, design: designView(result.design) };
@@ -302,7 +317,7 @@ export class DesignsService {
       summary: { sceneCount: document.scenes.length, assetCount: assetIds(document).length }, ...(template ? { template: { id: template.id, title: template.title, price: template.price } } : {}) };
   }
   assetPath(asset) {
-    if (!/^[\da-f-]{36}\.(png|jpg|webp)$/.test(asset.storageKey)) throw canvasError(404, 'ASSET_NOT_FOUND', 'Không tìm thấy ảnh.');
+    if (!/^[\da-f-]{36}\.(png|jpg|webp|wav)$/.test(asset.storageKey)) throw canvasError(404, 'ASSET_NOT_FOUND', 'Không tìm thấy tài sản.');
     return path.join(this.mediaRoot, asset.storageKey);
   }
   assetExists(asset) { return fs.existsSync(this.assetPath(asset)); }

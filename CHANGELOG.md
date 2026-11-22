@@ -1,9 +1,16 @@
 ## Unreleased — Auth Experience V9: bố cục tối hai cột theo ảnh tham khảo (2026-11-22)
 
+- Khi hợp nhất PR #22, cập nhật browser regression cho header/footer Auth V9: kiểm tra hai link điều khoản ngay trong form, đổi VI/EN ở header và kiểm tra menu mobile trên trang danh mục.
 - Thiết kế lại `/login` và `/register` theo bố cục tham chiếu: nền tối tím–mận có lưới mờ, thẻ giới thiệu bên trái, form glass-card bên phải; giữ nhận diện Momevia, font Plus Jakarta Sans/Inter/Lora và chuyển động nhẹ có tùy chọn reduced motion.
 - Trên trang xác thực, thu gọn site header còn logo và bộ chọn VI/EN chung, ẩn navigation/footer dài để form xuất hiện sớm hơn; các route khôi phục mật khẩu và phần còn lại của website không bị thay đổi.
 - Chuyển Google/Zalo xuống sau form như bố cục tham khảo, giữ nguyên OAuth allowlist và trạng thái vô hiệu hóa khi backend chưa cấu hình; giữ link Đăng ký ngay, quên mật khẩu, điều khoản và form hỗ trợ.
 - Tạo regression test V9 về layout, i18n, OAuth, responsiveness, reduced motion và cache CSS; cập nhật bài test V8 theo thứ tự UI mới. Không thay đổi API, database, mật khẩu, session hoặc quyền truy cập.
+
+## Unreleased — Sửa hồi quy catalog trong CI PR #22 (2026-11-22)
+
+- Giữ DOM thiệp và ảnh bìa đã tải khi bộ lọc trả cùng nội dung, tránh thay ảnh khi chỉ đổi chữ hoa/thường của từ khóa. Bìa, bản dịch và nội dung thay đổi vẫn được cập nhật.
+- Kiểm tra trình duyệt đợi bìa thực sự tải rồi xác minh cả thiệp và ảnh được giữ nguyên qua lần lọc tương đương.
+- Ca lỗi/retry catalog loại bootstrap công khai khỏi HTML fixture để đi qua API thật; vẫn xác minh yêu cầu 503 và tải lại thành công.
 
 ## Unreleased — Auth Experience V8: cải thiện form và khôi phục Google/Zalo (2026-11-22)
 
@@ -11,6 +18,37 @@
 - Đưa hai lựa chọn Google/Zalo lên trước form email ở cả hai trang. Chỉ tạo liên kết `/api/auth/{provider}` khi backend xác nhận phương thức đã cấu hình; nếu chưa, hiển thị rõ trạng thái vô hiệu hóa thay vì ẩn hoàn toàn.
 - Thêm nhãn VI/EN cho trạng thái OAuth và bộ chia email, loại bỏ logo phụ thuộc vào nguồn ảnh ngoài và các selector `.auth-page` legacy trùng trong `gift.css`; giữ CTA Đăng ký/Đăng nhập ngay, quên mật khẩu và quy trình xác thực phía server.
 - Cập nhật regression test V7 theo contract V8 và thêm kiểm thử OAuth, accessibility, responsive và i18n. Không sửa cookie/session, database, Canvas, Payment hoặc Support API.
+
+## Unreleased — Hợp nhất Canvas/SFX và main cho PR #21 (2026-11-22)
+
+- Giữ nhạc nền, SFX và dữ liệu Canvas v3 trong cùng thiết kế/quà; giữ Inspector đã tách module, bản dịch VI/EN và CSS thiệp sau khi hợp nhất hai nhánh.
+- Bổ sung hồi quy cho snapshot có cả nhạc nền và âm tương tác, quyền khóa mẫu Creator, cùng các nút phát/âm lượng độc lập trên trình duyệt.
+
+## Unreleased — Âm thanh Canvas local (2026-11-22)
+
+- Thêm nút âm thanh, âm khi nhấn độc lập với điều hướng, thư viện 40 WAV gốc CC0 có phiên bản/hồ sơ nguồn/hash và bộ chọn VI/EN.
+- Thêm tải nguồn/tỉa trên thiết bị, waveform, mốc nhập giây, volume, xuất đoạn PCM16 mono 44,1 kHz, undo/autosave và replay upload an toàn.
+- Canvas v3, migration 014, pin/quyền media cá nhân, Creator cover chỉ xử lý ảnh, làm sạch âm cá nhân khi tặng lại, backup/import/restore và công cụ kiểm kê orphan.
+- Player preview/public chung mở im lặng, bật âm chủ động, một voice, chuẩn bị âm sau opt-in và hủy yêu cầu cũ. Các quà đã gửi còn đọc/phát khi tạm tắt tạo SFX mới.
+- Bằng chứng, 40 âm, giới hạn trình duyệt/thiết bị và cách chạy tại `docs/SFX_LOCAL_HANDOFF_20261122.md`. Chỉ local, chưa push/deploy.
+
+## Unreleased — Tối ưu tải thiệp local (2026-11-22)
+
+- Đóng gói ESM/CSS có hash, tải phần chỉnh sửa/QR/Creator/Admin theo nhu cầu, dùng metadata Catalog công khai trong HTML và tải bìa đúng viewport.
+- Preview đọc riêng tài liệu VI/EN của một mẫu từ server, giữ nguồn DB, definition đã ghim và cùng player; từ chối mẫu chưa công khai.
+- Giữ nguyên artwork và motion; phục vụ đúng font gốc từ local cùng giấy phép, tránh tải thừa latin-ext cho chữ Việt; nén Brotli công khai với gzip fallback.
+- Sửa CSS modal/toast dùng chung và thông báo lỗi tải style có bản dịch. Kiểm thử 567 unit, Chrome đầy đủ, 96 tổ hợp, 56 ca đồng nhất CSS và 21 ca MySQL fixture.
+- Ngưỡng LCP chốt theo yêu cầu là dưới 2,6 giây. Số đo, giới hạn lab và bằng chứng tại `docs/INTERACTIVE_CARDS_LCP.md`; chỉ local, không push/deploy.
+
+## Unreleased — Thiệp tương tác G0–G5 local (2026-11-22)
+
+- Cải tiến Hai phong bì, Birthday Radiance và Proud of You cho thiết kế mới; thêm Lời mời bên hiên, Cuộn phim ngày ấy và Bản đồ ngày ra trường với nội dung VI/EN, artwork nguyên bản, album tùy chọn và điều hướng đọc được khi giảm chuyển động.
+- Thêm tám recipe ghim phiên bản và chín cụm element trong thư viện hiện hữu; giữ một player cho Studio/preview/public, 10 loại element và các snapshot cũ.
+- Bổ sung tám ảnh phong cách chụp thật nguyên bản, bóng đổ theo silhouette/bóng tiếp xúc, grain giấy, lớp lửa riêng, tua đu đưa, ảnh hạ nhẹ và thư gấp; giảm chuyển động vào trạng thái cuối, hủy motion khi rời cảnh.
+- Catalog lọc dịp/bảng màu; thử Sunny Wishes ↔ Confetti trước khi tạo, hoặc tạo nháp độc lập từ draft với mapping semantic, quyền/asset, CAS và idempotency phía server.
+- Gói đồng bộ thư viện 387 → 415 mục có preview, dependency, conflict theo revision, history, chạy lại và rollback; CLI chỉ cho schema QA loopback.
+- Giảm tải tệp tĩnh bằng gzip, trì hoãn module thử đổi mẫu, ổn định vị trí footer khi tải và sửa reflow/vùng chạm. Album tùy chọn reset crop đúng ô khi thay ảnh, giữ quy ước ảnh/album cũ và policy Creator.
+- Bàn giao local và bằng chứng tại `docs/INTERACTIVE_CARDS_G0_G5.md`. Giá ba mẫu mới là fixture 0đ, chờ quyết định sản phẩm. LCP lab còn vượt 2,5 giây; thử năm người và thiết bị thật chưa chạy. Không deploy/push/ghi production.
 
 ## Unreleased — Auth Experience V7: thống nhất bố cục Login/Register (2026-11-22)
 
@@ -98,6 +136,13 @@
 - Chỉ tải thư viện chỉnh sửa khi mở các trang ngoài `/g/...`; người nhận mở quà trực tiếp không phụ thuộc API thư viện hoặc tải module editor. Điều hướng từ quà sang thư viện vẫn tải cấu hình Canvas.
 - Kiểm tra catalog MySQL đối chiếu đầy đủ ID với seed hiện tại, thay cho số lượng 24 đã cũ; giữ kiểm tra tạo nháp, quyền xuất bản và dữ liệu catalog không bị thay đổi.
 - Giữ nguyên các assertion về request của player công khai, module được tải và khả năng xem quà khi catalog hoặc xác thực gặp lỗi.
+
+## Unreleased — Khôi phục ảnh bìa mẫu từ DB (2026-11-22)
+
+- Dùng chung nguồn ảnh gốc đã kiểm hash và phông chữ nhúng cho ảnh bìa DB và ảnh bìa xuất tĩnh; khôi phục bánh sinh nhật, hai phong bì, mũ/bằng tốt nghiệp trên trang chủ và chi tiết mẫu.
+- Giữ độ dày nét vector khi dựng từ cấu hình đã lưu trong thư viện, theo đúng cách dựng primitive ban đầu.
+- Thêm kiểm tra ảnh bìa thực tế (ảnh nhúng, điểm ảnh và đối chiếu bản gốc VI/EN), hiệu ứng xem thử và toàn bộ tài liệu khi tạo/lưu/tải lại/xuất bản ba mẫu sự kiện.
+- Không thay đổi định nghĩa mẫu, thiết kế hoặc quà đã lưu trong DB.
 
 ## Unreleased — Rà soát luồng Admin đến canvas (2026-11-22)
 

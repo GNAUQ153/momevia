@@ -103,7 +103,10 @@ export async function runLocaleBrowser(base) {
       await mobilePage.goto(base + route);
       const supportTrigger = mobilePage.locator('main [data-action="support"]');
       await supportTrigger.waitFor();
-      const policies = mobilePage.locator('main .auth-policy-note a, footer a[href="/policies/privacy"]');
+      const entry=route==='/login'||route==='/register';
+      assert.equal(await mobilePage.locator('#site-footer').isVisible(),!entry,route+' footer visibility follows the Auth layout');
+      const policies = mobilePage.locator(entry?'main .auth-policy-note a':'main .auth-policy-note a, footer a[href="/policies/privacy"]');
+      if(entry)assert.equal(await policies.count(),2,route+' keeps both policy links inside the form');
       for (const link of await policies.all()) {
         await link.scrollIntoViewIfNeeded();
         assert.equal(await link.evaluate(element => {
@@ -120,9 +123,16 @@ export async function runLocaleBrowser(base) {
       await mobilePage.getByRole('dialog').waitFor({ state: 'hidden' });
     }
     await mobilePage.goto(login);
+    await mobilePage.locator('#site-header .nav-actions [data-locale-select]').selectOption('en');
+    await mobilePage.getByRole('heading', { name: 'Welcome back!' }).waitFor();
+    // Auth V9 keeps a visible locale control and intentionally has no menu.
+    // Exercise the shared compact menu on a route that still exposes it.
+    assert.equal(await mobilePage.locator('#site-header [data-action="toggle-menu"]').isVisible(),false);
+    await mobilePage.goto(base+'/explore');
+    await mobilePage.locator('#template-search').waitFor();
     await mobilePage.getByRole('button', { name: 'Mở menu' }).click();
     await mobilePage.locator('#mobile-nav [data-locale-select]').selectOption('en');
-    await mobilePage.getByRole('heading', { name: 'Welcome back!' }).waitFor();
+    await mobilePage.getByRole('heading', { name: 'Gift template library', exact: true }).waitFor();
     await mobilePage.locator('#mobile-nav [data-locale-select]').focus();
     await mobilePage.keyboard.press('Escape');
     const menu = mobilePage.getByRole('button', { name: 'Open menu' });

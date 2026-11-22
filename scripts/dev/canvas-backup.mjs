@@ -23,7 +23,7 @@ const COLLECTIONS = [
 ];
 const UUID =
   "[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}";
-const managedFile = new RegExp(`^${UUID}\\.(?:png|jpg|webp)$`, "i");
+const managedFile = new RegExp(`^${UUID}\\.(?:png|jpg|webp|wav)$`, "i");
 const stagingFile = new RegExp(`^${UUID}\\.${UUID}\\.staging$`, "i");
 const hash = (bytes) =>
   `sha256:${createHash("sha256").update(bytes).digest("hex")}`;

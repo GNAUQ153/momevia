@@ -3,6 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash, randomUUID } from 'node:crypto';
 import { EVENT_MEDIA } from '../../../web/js/shared/canvas/event-media.js';
+import { photoSlots } from '../../../web/js/shared/canvas/interactions.js';
 import { canvasError } from './errors.mjs';
 export function builtinMedia(id) {
   const spec = EVENT_MEDIA[id];
@@ -19,6 +20,11 @@ export function builtinCoverImages() {
     return [id, { url: `data:image/webp;base64,${media.bytes.toString('base64')}`, width: media.width, height: media.height }];
   }));
 }
+export function builtinCoverResources() {
+  // Static exports and DB-backed covers must use the same verified artwork
+  // and embedded typeface. SVG images do not inherit the app's loaded fonts.
+  return { images: builtinCoverImages(), serifWoff2: fs.readFileSync(new URL('../../../web/assets/fonts/lora-cover.woff2', import.meta.url)).toString('base64') };
+}
 export function materializeBuiltinMedia(document, { ownerId, designId, mediaRoot, createdAt }) {
   const assets = [];
   for (const ref of document.assets) {
@@ -32,7 +38,7 @@ export function materializeBuiltinMedia(document, { ownerId, designId, mediaRoot
     assets.push({ id, ownerId, designId, status: 'ready', mime: 'image/webp', bytes: media.bytes.length,
       width: media.width, height: media.height, contentHash: `sha256:${media.sha256}`, storageKey, createdAt });
     ref.assetId = id;
-    for (const element of document.elements) if (element.type === 'image' && element.props.assetId === original) element.props.assetId = id;
+    for (const element of document.elements) for (const photo of photoSlots(element)) if (photo.assetId === original) photo.assetId = id;
   }
   return assets;
 }

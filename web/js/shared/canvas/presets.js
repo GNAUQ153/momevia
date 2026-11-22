@@ -81,5 +81,12 @@ export function templatePreviewDocument(template, localize = canonicalText) {
     for (const e of doc.elements.filter(e => e.type === 'interaction' && e.props.kind === 'event-countdown'))
       e.props.eventAt = e.props.clockMode === 'elapsed' ? '2021-08-14T02:00:00.000Z' : '2026-12-31T12:00:00.000Z';
   }
+  if (['loi-moi-ben-hien','cuon-phim-ngay-ay'].includes(template?.id)) {
+    const album=doc.elements.find(e=>e.id==='event-album');
+    for (const [i,key] of ['wedding-album','birthday-album','graduation-album'].entries()) {
+      const assetId=eventMediaId(key);doc.assets.push({assetId,kind:'image'});
+      Object.assign(album.props.photos[i],{assetId,alt:localize('templates.story.samplePhoto'),caption:localize('templates.story.sampleDetail')});
+    }
+  }
   return validateDocument(doc, { mode: 'publish' });
 }

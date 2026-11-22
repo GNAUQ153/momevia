@@ -69,6 +69,7 @@ export function vectorParts(model) {
     fill: part.fill === 'color' ? p.color : part.fill === 'strokeColor' ? p.strokeColor : part.fill || 'none',
     ...(part.stroke ? { stroke: part.stroke === 'color' ? p.color : part.stroke === 'strokeColor' ? p.strokeColor : part.stroke } : {}),
     ...(part.strokeWidth !== undefined ? { 'stroke-width': part.strokeWidth === 'strokeWidth' ? p.strokeWidth : part.strokeWidth } : {}),
+    ...(['shape','line'].includes(type) ? { 'vector-effect': 'non-scaling-stroke' } : {}),
     ...(part.dash ? { 'stroke-dasharray': part.dash } : {}) }));
   if (type === 'sticker' && Object.hasOwn(stickerArt,p.stickerId)) {
     const [fill, stroke] = stickerArt[p.stickerId];

@@ -5,6 +5,7 @@ import { renderElement, applyLayout, updateElementCopy } from "./renderer.js";
 import { applySurface, createMotion, playAmbience, playElement, playReaction, sceneTransition } from "./effects.js";
 import { playCelebrations } from './celebrations.js';
 import { createSceneNavigation } from './scene-navigation.js';
+import { createSoundPlayer } from './audio.js';
 import { createSoundtrackPlayback } from './soundtrack.js';
 export { renderElement, applyLayout, resolveText } from "./renderer.js";
 
@@ -35,6 +36,7 @@ export function mountPlayer(
     navigationIntent = null;
   const shell = globalThis.document.createElement("div");
   shell.className = `gift-runtime gift-runtime-mode-${mode}`;
+  if(effectPreview?.family)shell.dataset.effectPreview=effectPreview.family;
   shell.style.maxWidth = `${document.responsive.desktop.maxContentWidth}px`;
   const marker = globalThis.document.createElement("p");
   marker.className = "gift-runtime-mode-label";
@@ -52,6 +54,19 @@ export function mountPlayer(
   progress.className = "gift-runtime-progress";
   setAttr(progress, "aria-label", message("gift.player.progressLabel"));
   const lifetime = new AbortController();
+  const audio=createSoundPlayer({assetUrl,onError:error=>setText(status,message(error?.code==='AUDIO_UNSUPPORTED'?'sfx.unsupportedPlayback':'sfx.playError'))});
+  const hasSound=document.elements.some(e=>e.sound);
+  const soundControl=globalThis.document.createElement('button');
+  soundControl.type='button';soundControl.className='gift-sound-control';soundControl.dataset.soundControl='';
+  const updateSound=()=>{setText(soundControl,message(audio.enabled?'sfx.mute':'sfx.enable'));soundControl.setAttribute('aria-pressed',String(audio.enabled));};
+  function prepareSceneSound(){
+    if(!audio.enabled||!sceneController||globalThis.document.hidden)return;
+    const scene=document.scenes.find(s=>s.id===activeSceneId);
+    for(const model of document.elements.filter(e=>scene.elementIds.includes(e.id)&&e.visible!==false&&e.sound&&e.type!=='sound-button'))void audio.prepare(model.sound,{signal:sceneController.signal});
+  }
+  soundControl.addEventListener('click',()=>{audio.setEnabled(!audio.enabled);updateSound();prepareSceneSound();},{signal:lifetime.signal});updateSound();
+  globalThis.document.addEventListener('visibilitychange',()=>{if(globalThis.document.hidden)audio.suspend();else prepareSceneSound();},{signal:lifetime.signal});
+  globalThis.addEventListener('pagehide',()=>audio.suspend(),{signal:lifetime.signal});
   const sceneNavigation = createSceneNavigation(navigation, progress, {
     onSelect: id => requestScene(id),
     signal: lifetime.signal,
@@ -119,6 +134,7 @@ export function mountPlayer(
     toolbar.append(musicGroup);
   }
   const updateMotionControl = () => {
+    shell.dataset.motion=motion.enabled()?"on":"off";
     motionControl.setAttribute("aria-pressed", String(!motion.enabled()));
     motionControl.disabled = preference.matches;
     if (!motion.enabled()) motion.cancel();
@@ -130,8 +146,11 @@ export function mountPlayer(
   }, {signal:lifetime.signal});
   preference.addEventListener("change", updateMotionControl, {signal:lifetime.signal});
   updateMotionControl();
+  const syncVisibility=()=>{shell.dataset.visibility=globalThis.document.hidden?'hidden':'visible';if(globalThis.document.hidden)motion.pause();else motion.resume();};
+  globalThis.document.addEventListener('visibilitychange',syncVisibility,{signal:lifetime.signal});syncVisibility();
   shell.append(marker, stage, progress, navigation, status);
-  if (document.soundtrack || (document.schemaVersion === 2 && (document.scenes.some(scene => scene.effects) || document.elements.some(element => element.effects))))
+  if (hasSound) shell.insertBefore(soundControl,stage);
+  if (document.soundtrack || (document.schemaVersion >= 2 && (document.scenes.some(scene => scene.effects) || document.elements.some(element => element.effects))))
     shell.insertBefore(toolbar, stage);
   root.replaceChildren(shell);
   const size = document.artboard.baseSize;
@@ -148,6 +167,7 @@ export function mountPlayer(
     if (disposed) return;
     sceneController?.abort();
     const signal = (sceneController = new AbortController()).signal;
+    prepareSceneSound();
     stage.inert = false;
     resizeObserver?.disconnect();
     const scene = document.scenes.find((s) => s.id === activeSceneId);
@@ -182,10 +202,11 @@ export function mountPlayer(
         replyAdapter,
         signal, motion,
         previewFamily: family,
+        onSound:(sound,options)=>{void audio.play(sound,options);},
         onAction: (actions, react) => {
           const [action] = actions;
-          if (action?.type === "replay") requestScene(document.entrySceneId, react);
-          else if (action?.targetSceneId) requestScene(action.targetSceneId, react);
+          if (action?.type === "replay") requestScene(document.entrySceneId, model.sound ? undefined : react);
+          else if (action?.targetSceneId) requestScene(action.targetSceneId, model.sound ? undefined : react);
         },
       });
       node.style.zIndex = String(scene.elementIds.indexOf(model.id));
@@ -299,6 +320,7 @@ export function mountPlayer(
   };
   function requestScene(id, react) {
     if (!document.scenes.some((s) => s.id === id) || disposed) return;
+    audio.cancelPending();
     navigationIntent?.abort();
     const intent = navigationIntent = new AbortController();
     const commit = () => {
@@ -334,6 +356,7 @@ export function mountPlayer(
     dispose() {
       if (disposed) return;
       disposed = true;
+      audio.dispose();
       lifetime.abort();
       soundtrackPlayback?.dispose();
       navigationIntent?.abort();

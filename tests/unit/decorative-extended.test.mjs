@@ -1,3 +1,4 @@
+import { EVENT_CLUSTER_IDS } from '../../web/js/shared/canvas/event-clusters.js';
 import assert from "node:assert/strict";
 import test from "node:test";
 import { extendedArt } from "../../web/js/shared/canvas/decorative-art-55.js";
@@ -13,9 +14,9 @@ const cards = catalog.flatMap(group => group.items);
 const extended = cards.filter(block => block.id.startsWith("m55-"));
 
 test("Không mất 100 khối gốc, 24 trang trí cũ; đủ 48 vector ở sáu nhóm mới", () => {
-  assert.equal(cards.length, 172);
-  assert.equal(new Set(cards.map(item => item.id)).size, 172);
-  assert.equal(cards.filter(item => !/^m5[45]-/.test(item.id)).length, 100);
+  assert.equal(cards.length, 182);
+  assert.equal(new Set(cards.map(item => item.id)).size, 182);
+  assert.equal(cards.filter(item => !/^m5[45]-/.test(item.id) && !EVENT_CLUSTER_IDS.includes(item.id) && item.id!=='sound-button').length, 100);
   assert.equal(cards.filter(item => item.id.startsWith("m54-")).length, 24);
   assert.equal(extended.length, 48);
   assert.equal(Object.keys(extendedArt).length, 48);

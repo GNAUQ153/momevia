@@ -18,7 +18,7 @@ export function styleOptions(templates) {
 
 export function filterTemplates(
   templates,
-  { style = "all", search = "", freeOnly = false, photoOnly = false, searchFields = () => [] } = {},
+  { style = "all", search = "", freeOnly = false, photoOnly = false, category = "all", palette = "all", searchFields = () => [] } = {},
 ) {
   const query = searchText(String(search).trim());
   return templates.filter((template) => {
@@ -30,6 +30,7 @@ export function filterTemplates(
       template.creator,
       template.style,
       template.category,
+      template.paletteLabel,
       ...searchFields(template),
     ];
     const matchesSearch =
@@ -37,7 +38,7 @@ export function filterTemplates(
       fields.some((value) =>
         searchText(value).includes(query),
       );
-    return matchesStyle && matchesPrice && matchesSearch && (!photoOnly || template.personalization?.photoFrames > 0);
+    return (category === "all" || template.category === category) && (palette === "all" || template.palette === palette) && matchesStyle && matchesPrice && matchesSearch && (!photoOnly || template.personalization?.photoFrames > 0);
   });
 }
 

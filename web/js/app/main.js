@@ -1,11 +1,13 @@
 import { api, errorCopy, escapeHtml as e } from "../core/api.js";
+import {takeCatalogBootstrap,rememberCatalogMetadata} from '../core/catalog-bootstrap.js';
+import {mountCoverLoading} from '../core/cover-loading.js';
+import {ensureFullStyles} from '../core/client-styles.js';
 import { attr, initializeLocale, localeControl, message, onLocaleChange, setAttr, setText, t, text } from "../core/i18n.js";
 import { clearAuthReturn, rememberAuthReturn, takeAuthReturn } from "../core/auth-return.js";
 import { focusVisibleTarget, scrollBehavior } from "../core/motion.js";
 import { icon } from "../ui/icons.js";
 import { paginateTemplates } from "../features/catalog/filter.js";
 import { legalPages, legalPage } from "../pages/policies.js";
-import { giftQrDataUrl } from "../features/gifts/qr.js";
 import { submitReplyIntent } from "../features/gifts/reply-intent.js";
 import { advanceRecipientStage } from "../features/gifts/recipient-journey.js";
 import { mountInbox } from "../features/gifts/inbox.js";
@@ -19,13 +21,6 @@ import { mountMarketingMotion } from "../features/marketing/scene-motion.js";
 import { mountHeroTemplates } from "../features/marketing/hero-templates.js";
 import { mountTemplatePreview } from "../features/catalog/template-preview.js";
 import { createCatalogViews } from "../pages/catalog.js";
-import { createGiftViews } from "../pages/gifts.js";
-import { mountStudioSpace } from "../features/studio/studio-space.js";
-import { createCreatorViews } from "../pages/creator.js";
-import { createAdminViews } from "../pages/admin.js";
-import { adminPaymentsPage, paymentReviewRows, paymentAuditRows, filterPendingReviews } from "../pages/admin-payments.js";
-import { adminExceptionsCsv, creatorSalesCsv, exportFileName, downloadCsvFile } from "../features/finance/export-csv.js";
-import { createAuthViews } from "../pages/auth.js";
 import { pricingPage } from '../pages/pricing.js';
 import { paymentMethodText, paymentReceipt, paymentStatusPanel } from "../pages/payment-status.js";
 import { refundBuyerPanel, refundHistoryPanel, refundAdminPanel } from "../pages/refund-review.js";
@@ -34,6 +29,8 @@ import { recipientViralCta } from "../ui/recipient-viral.js";
 import { createSystemViews } from "../pages/system.js";
 
 const main = document.getElementById("main");
+mountCoverLoading(main);
+const publicCatalogGet=endpoint=>(takeCatalogBootstrap(endpoint)?.catch(()=>api.get(endpoint))||api.get(endpoint)).then(rememberCatalogMetadata);
 const modal = document.getElementById("modal-root");
 const header = document.getElementById("site-header");
 const footer = document.getElementById("site-footer");
@@ -99,11 +96,21 @@ const {
   templateDetail,
   favoritesPage,
 } = createCatalogViews(viewContext);
-const { successPage, giftPage, renderReplies, dashboard, draftCards, studioDrafts, studioGifts, studioOrders } =
-  createGiftViews(viewContext);
-const { creatorPage } = createCreatorViews(viewContext);
-const { adminPage } = createAdminViews(viewContext);
-const { authPage, recoveryPage } = createAuthViews(viewContext);
+let successPage,giftPage,renderReplies,dashboard,draftCards,studioDrafts,studioGifts,studioOrders,mountStudioSpace,giftViewsLoad;
+function loadGiftViews(){return giftViewsLoad??=Promise.all([import('../pages/gifts.js'),import('../features/studio/studio-space.js')]).then(([gifts,studio])=>{
+ ({successPage,giftPage,renderReplies,dashboard,draftCards,studioDrafts,studioGifts,studioOrders}=gifts.createGiftViews(viewContext));({mountStudioSpace}=studio);
+}).catch(error=>{giftViewsLoad=null;throw error;});}
+let creatorPage,adminPage,adminPaymentsPage,paymentReviewRows,paymentAuditRows,filterPendingReviews,
+  adminExceptionsCsv,creatorSalesCsv,exportFileName,downloadCsvFile,roleViewsLoad;
+function loadRoleViews(){
+  return roleViewsLoad??=Promise.all([import('../pages/creator.js'),import('../pages/admin.js'),import('../pages/admin-payments.js'),import('../features/finance/export-csv.js')]).then(([creator,admin,payments,csv])=>{
+    ({creatorPage}=creator.createCreatorViews(viewContext));({adminPage}=admin.createAdminViews(viewContext));
+    ({adminPaymentsPage,paymentReviewRows,paymentAuditRows,filterPendingReviews}=payments);
+    ({adminExceptionsCsv,creatorSalesCsv,exportFileName,downloadCsvFile}=csv);
+  }).catch(error=>{roleViewsLoad=null;throw error;});
+}
+let authPage,recoveryPage,authViewsLoad;
+function loadAuthViews(){return authViewsLoad??=import('../pages/auth.js').then(auth=>{({authPage,recoveryPage}=auth.createAuthViews(viewContext));}).catch(error=>{authViewsLoad=null;throw error;});}
 const { errorPage, loadingPage } = createSystemViews(viewContext);
 
 function updatePageMetadata() {
@@ -146,7 +153,7 @@ function loadAppFonts() {
   const fonts = document.createElement('link');
   fonts.id = 'app-fonts';
   fonts.rel = 'stylesheet';
-  fonts.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@400..800&family=Plus+Jakarta+Sans:wght@400..800&display=swap';
+  fonts.href = '/css/app-fonts.css';
   document.head.append(fonts);
 }
 onLocaleChange(() => {
@@ -177,12 +184,14 @@ function readCatalogUrl() {
   state.filter = state.templates.some(template => template.style === style) ? style : 'all';
   state.freeOnly = query.get('free') === '1';
   state.photoOnly = query.get('photo') === '1';
+  state.occasion = query.get('occasion') || 'all';state.palette=query.get('palette') || 'all';
   state.catalogPage = Number(query.get('page')) || 1;
 }
 function commitCatalogFilters() {
   syncCatalogResults();
   const url = new URL(location.href);
   const options = {
+    occasion:state.occasion==='all'?'':state.occasion,palette:state.palette==='all'?'':state.palette,
     q: state.search, style: state.filter === 'all' ? '' : state.filter,
     free: state.freeOnly ? '1' : '', photo: state.photoOnly ? '1' : '',
     page: state.catalogPage > 1 ? state.catalogPage : '',
@@ -370,12 +379,16 @@ async function render() {
   try {
     const segments = location.pathname.split("/").filter(Boolean);
     const [route, id] = segments;
-    if (route !== "g") {
+    if(!['explore','template','favorites'].includes(route)){await ensureFullStyles();if(generation!==renderGeneration)return;}
+    if (["create", "design"].includes(route) || (route === "admin" && id === "library")) {
       try { await loadLibrary(); }
       catch { /* Designer reports and retries library failures on its own route. */ }
       if (generation !== renderGeneration) return;
     }
     let catalogFailed = false;
+    if(['creator','admin'].includes(route)){await loadRoleViews();if(generation!==renderGeneration)return;}
+    if(['studio','success'].includes(route)){await loadGiftViews();if(generation!==renderGeneration)return;}
+    if(['login','register','recover','verify-email'].includes(route)){await loadAuthViews();if(generation!==renderGeneration)return;}
     if (route && route !== "g") {
       const results = await loadPageData(route);
       if (generation !== renderGeneration) return;
@@ -384,7 +397,11 @@ async function render() {
       catalogFailed = route === 'explore' && results[1]?.status === 'rejected';
       if (failure && !catalogFailed) toast(failure.reason.message, "error");
     }
-    if (!route) routeController = mountHome();
+    if (!route) {
+      try{await loadCatalog();}catch{/* Home retains its Catalog retry state. */}
+      if(generation!==renderGeneration)return;
+      routeController = mountHome();
+    }
     else if (route === "explore") {
       readCatalogUrl();
       main.innerHTML = explore({ catalogFailed });
@@ -392,7 +409,7 @@ async function render() {
       if (Number.isFinite(scrollPosition)) window.scrollTo({ top: scrollPosition, behavior: 'instant' });
     }
     else if (route === "template") {
-      const { template } = await api.get(`/catalog/templates/${encodeURIComponent(id)}`);
+      const { template } = await publicCatalogGet(`/catalog/templates/${encodeURIComponent(id)}`);
       if (generation !== renderGeneration) return;
       main.innerHTML = template
         ? templateDetail(template, { catalogReturn: history.state?.catalogReturn })
@@ -494,6 +511,7 @@ async function render() {
           },
         };
       } else {
+        await loadGiftViews();if(generation!==renderGeneration)return;
         main.innerHTML = giftPage(gift);
         const replyForm = main.querySelector("#reply-form");
         const replyList = main.querySelector("#reply-list");
@@ -1023,6 +1041,8 @@ async function handleAction(action, element) {
     state.catalogPage = 1;
     state.freeOnly = false;
     state.photoOnly = false;
+    state.occasion=state.palette="all";
+    for(const id of ["occasion-filter","palette-filter"]){const control=document.getElementById(id);if(control)control.value="all";}
     const style = document.getElementById("style-filter");
     if (style) style.value = state.filter;
     const search = document.getElementById("template-search");
@@ -1041,6 +1061,8 @@ async function handleAction(action, element) {
     state.filter = "all";
     state.freeOnly = false;
     state.photoOnly = false;
+    state.occasion=state.palette="all";
+    for(const id of ["occasion-filter","palette-filter"]){const control=document.getElementById(id);if(control)control.value="all";}
     const style = document.getElementById("style-filter");
     const free = document.getElementById("free-filter");
     const photo = document.getElementById("photo-filter");
@@ -1229,6 +1251,8 @@ async function handleAction(action, element) {
       if (destination.protocol !== "https:")
         throw new Error(t("payment.checkout.unsafeUrl"));
       if (element.dataset.method === "payos" && payment.qrPayload) {
+        const {giftQrDataUrl}=await import('../features/gifts/qr.js');
+        if(!element.isConnected)return;
         const qr = giftQrDataUrl(payment.qrPayload);
         openModal(`<div class="qr-modal"><h2>${text("payment.checkout.qrTitle")}</h2>
           <p>${text("payment.checkout.orderAmount", { amount: { format: "currency", value: Number(payment.amount) } })}</p>
@@ -1303,6 +1327,8 @@ async function handleAction(action, element) {
   }
   if (action === "qr") {
     const link = element.dataset.value;
+    const generation=renderGeneration,{giftQrDataUrl}=await import('../features/gifts/qr.js');
+    if(generation!==renderGeneration||!element.isConnected)return;
     const url = giftQrDataUrl(link);
     openModal(
       `<div class="qr-modal" data-copy-container><h2>${text('gift.qr.title')}</h2><p>${text('gift.qr.hint')}</p><img class="qr-image" src="${e(url)}" ${attr('alt', 'gift.qr.alt')}/><a class="btn btn--dark btn--wide" href="${e(url)}" download="momevia-qr.gif">${text('gift.qr.download')}</a><button class="btn btn--outline btn--wide" data-action="copy-link" data-value="${e(link)}">${icon("copy", 17)} ${text('studio.gifts.copy')}</button><label class="field" data-copy-fallback hidden><span>${text('gift.share.link')}</span><input data-copy-value readonly value="${e(link)}"/></label></div>`,
@@ -1383,6 +1409,7 @@ document.addEventListener("change", async (event) => {
     updateAdminPaymentList();
     return;
   }
+  if (["occasion-filter","palette-filter"].includes(event.target.id)) {state[event.target.id==="occasion-filter"?"occasion":"palette"]=event.target.value;state.catalogPage=1;commitCatalogFilters();return;}
   if (event.target.id === "style-filter") {
     state.filter = event.target.value;
     state.catalogPage = 1;
@@ -1613,7 +1640,7 @@ function updateScrollTools() {
 window.addEventListener("scroll", updateScrollTools, { passive: true });
 updateScrollTools();
 async function loadTemplates() {
-  const data = await api.get("/catalog/templates");
+  const data = await publicCatalogGet("/catalog/templates");
   state.templates = data.templates;
 }
 function loadOnce(load) {

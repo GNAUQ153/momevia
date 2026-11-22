@@ -177,3 +177,25 @@
     grid-template-columns: minmax(0, 390px) minmax(0, 1fr);
   }
 }
+
+.template-trial-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit,minmax(min(100%,220px),1fr));
+  gap: 12px;
+  margin: 16px 0;
+}
+.template-trial-fields label {
+  display: grid;
+  gap: 6px;
+}
+.template-trial-fields input,
+.template-trial-fields textarea,
+.template-preview-toolbar select {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--paper);
+  color: var(--ink);
+}

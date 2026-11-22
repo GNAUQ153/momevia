@@ -1,3 +1,4 @@
+import { createInteractiveTemplate } from './interactive-templates.js';
 import { canonicalText } from '../locale.js';
 import { templateCopyKey } from '../template-copy.js';
 import { createElement } from './registry.js';
@@ -12,6 +13,9 @@ import { pinDocumentArtwork } from './library-materialize.js';
 // Existing IDs, prices and provenance stay with Catalog; only new starting layouts change.
 export const BASIC_TEMPLATE_REVISION = 2;
 export const BASIC_TEMPLATES = Object.freeze({
+  'loi-moi-ben-hien': {motif:'interactive',name:canonicalText('templates.loi-moi-ben-hien.title'),bg:'#F8F1E6',paper:'#F8F1E6',ink:'#263C32',accent:'#59705B',detail:'#AA5744',button:'#59705B',headline:canonicalText('templates.loi-moi-ben-hien.headline'),font:'serif'},
+  'cuon-phim-ngay-ay': {motif:'interactive',name:canonicalText('templates.cuon-phim-ngay-ay.title'),bg:'#F6EBD9',paper:'#F6EBD9',ink:'#352B30',accent:'#825943',detail:'#DEA99C',button:'#825943',headline:canonicalText('templates.cuon-phim-ngay-ay.headline'),font:'serif'},
+  'ban-do-ngay-ra-truong': {motif:'interactive',name:canonicalText('templates.ban-do-ngay-ra-truong.title'),bg:'#E6EFF1',paper:'#E6EFF1',ink:'#21394C',accent:'#375B6A',detail:'#E9BA63',button:'#375B6A',headline:canonicalText('templates.ban-do-ngay-ra-truong.headline'),font:'serif'},
   'midnight-bloom': { motif: 'bloom', name: canonicalText('templates.midnight-bloom.name'), bg: '#211A38', paper: '#F4ECF8', ink: '#F9F0F5', accent: '#A987C9', detail: '#E8A5BC', button: '#77539B', headline: canonicalText('templates.midnight-bloom.headline'), note: canonicalText('templates.midnight-bloom.note'), font: 'serif' },
   'sunny-wishes': { motif: 'sun', name: canonicalText('templates.sunny-wishes.name'), bg: '#FFF4C9', paper: '#FFFDF0', ink: '#3D3524', accent: '#F6C94C', detail: '#E8A16E', button: '#67522B', headline: canonicalText('templates.sunny-wishes.headline'), note: canonicalText('templates.sunny-wishes.note'), font: 'heading' },
   'love-letter': { motif: 'letter', name: canonicalText('templates.love-letter.name'), bg: '#F4DDE2', paper: '#FFFAF1', ink: '#6D3343', accent: '#C5768E', detail: '#E9B8C6', button: '#8D4059', headline: canonicalText('templates.love-letter.headline'), note: canonicalText('templates.love-letter.note'), font: 'serif' },
@@ -47,6 +51,8 @@ const LAYER_NAMES = {
 export function createBasicTemplate(template, localize = canonicalText) {
   const configured = libraryDocument('template', template?.id, localize);
   if (configured) return validateDocument(pinDocumentArtwork(configured));
+  const interactive = createInteractiveTemplate(template?.id, localize);
+  if (interactive) return interactive;
   const definition = basicTemplateDefinition(template?.id);
   if (!definition) return null;
   const p = {

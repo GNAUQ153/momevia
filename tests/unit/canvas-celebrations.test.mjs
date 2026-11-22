@@ -1,10 +1,13 @@
+import fs from 'node:fs';
+const oldRows=JSON.parse(fs.readFileSync(new URL('../fixtures/interactive-cards-v2-before.json',import.meta.url)));
+const oldPreview=({id})=>{const d=structuredClone(oldRows.find(r=>r.id===id).definition.documents.vi);for(const b of Object.values(d.bindings))b.value='Fixture';return d;};
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createDocument, validateDocument, duplicateDocument, publicDocument } from '../../web/js/shared/canvas/index.js';
 import { CELEBRATION_IDS, defaultCelebrations, celebrationSettings } from '../../web/js/shared/canvas/effects.js';
 
 test('each celebration independently round-trips enabled, speed, density and repeat through V2/public/duplicate', () => {
-  const d=createDocument({template:{id:'birthday-radiance'}}),settings=d.scenes[0].effects.celebrations;
+  const d=oldPreview({id:'birthday-radiance'}),settings=d.scenes[0].effects.celebrations;
   Object.assign(settings.B05,{enabled:true,speed:'fast',density:'dense',loop:true});
   Object.assign(settings.B06,{enabled:false,speed:'slow',density:'sparse',loop:false});
   Object.assign(settings.B07,{enabled:true,speed:'normal',density:'normal',loop:true});
@@ -17,7 +20,7 @@ test('each celebration independently round-trips enabled, speed, density and rep
 
 test('all three starters repeat their chosen atmospheres and expose separate settings for all four effects', () => {
   for(const id of ['birthday-radiance','hai-phong-bi','proud-of-you']) {
-    const d=createDocument({template:{id}}),active=new Set();
+    const d=oldPreview({id}),active=new Set();
     for(const s of d.scenes) {
       assert.deepEqual(Object.keys(s.effects.celebrations),CELEBRATION_IDS);
       for(const [effect,p]of Object.entries(s.effects.celebrations)){assert.equal(p.loop,true);if(p.enabled)active.add(effect);}
@@ -43,8 +46,8 @@ test('legacy one-shot atmospheres remain unchanged when read and migrate without
 test('celebration settings fail closed for unknown IDs, fields, types and unsupported values', () => {
   const changes=[x=>{x.B09=x.B05;},x=>{x.B05.enabled='yes';},x=>{x.B05.loop=1;},x=>{x.B05.density='unlimited';},x=>{x.B05.speed='instant';},x=>{x.B05.url='https://example.test';}];
   for(const mutate of changes) {
-    const d=createDocument({template:{id:'birthday-radiance'}});mutate(d.scenes[0].effects.celebrations);assert.throws(()=>validateDocument(d));
+    const d=oldPreview({id:'birthday-radiance'});mutate(d.scenes[0].effects.celebrations);assert.throws(()=>validateDocument(d));
   }
-  const d=createDocument({template:{id:'birthday-radiance'}});
+  const d=oldPreview({id:'birthday-radiance'});
   d.elements[0].effects={celebrations:defaultCelebrations()};assert.throws(()=>validateDocument(d),'scene-only settings cannot be injected into elements');
 });

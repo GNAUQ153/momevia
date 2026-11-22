@@ -1,0 +1,2042 @@
+{
+  "scope": "Authored text and button/envelope labels against scene or full rectangular backing. Worst black grain at 11% included. Interaction internals, image backgrounds, sender edits and system UI require separate review.",
+  "threshold": 4.5,
+  "results": [
+    {
+      "id": "hai-phong-bi",
+      "locale": "vi",
+      "minimum": 5.723017919456983,
+      "pairs": [
+        {
+          "sceneId": "scene-cover",
+          "elementId": "cover-title",
+          "foreground": "#442638",
+          "background": "#FFF8EB",
+          "backing": "scene",
+          "ratio": 9.827902256569335
+        },
+        {
+          "sceneId": "scene-cover",
+          "elementId": "text-recipient",
+          "foreground": "#442638",
+          "background": "#FFF8EB",
+          "backing": "scene",
+          "ratio": 9.827902256569335
+        },
+        {
+          "sceneId": "scene-cover",
+          "elementId": "open-memory",
+          "foreground": "#FFFFFF",
+          "background": "#7757A2",
+          "backing": "control",
+          "ratio": 5.723017919456983
+        },
+        {
+          "sceneId": "scene-cover",
+          "elementId": "open-wish",
+          "foreground": "#FFFFFF",
+          "background": "#7757A2",
+          "backing": "control",
+          "ratio": 5.723017919456983
+        },
+        {
+          "sceneId": "scene-cover",
+          "elementId": "cover-note",
+          "foreground": "#442638",
+          "background": "#FFF8EB",
+          "backing": "scene",
+          "ratio": 9.827902256569335
+        },
+        {
+          "sceneId": "scene-cover",
+          "elementId": "open-journey",
+          "foreground": "#FFFFFF",
+          "background": "#963851",
+          "backing": "control",
+          "ratio": 7.043926777542113
+        },
+        {
+          "sceneId": "scene-surprise",
+          "elementId": "memory-heading",
+          "foreground": "#442638",
+          "background": "#FFF8EB",
+          "backing": "story-paper-1",
+          "ratio": 12.580282862439995
+        },
+        {
+          "sceneId": "scene-surprise",
+          "elementId": "envelope-memory",
+          "foreground": "#442638",
+          "background": "#FFF8EB",
+          "backing": "story-paper-1",
+          "ratio": 12.580282862439995
+        },
+        {
+          "sceneId": "scene-surprise",
+          "elementId": "memory-back",
+          "foreground": "#FFFFFF",
+          "background": "#963851",
+          "backing": "control",
+          "ratio": 7.043926777542113
+        },
+        {
+          "sceneId": "scene-surprise",
+          "elementId": "memory-to-time",
+          "foreground": "#FFFFFF",
+          "background": "#963851",
+          "backing": "control",
+          "ratio": 7.043926777542113
+        },
+        {
+          "sceneId": "scene-message",
+          "elementId": "message-heading",
+          "foreground": "#442638",
+          "background": "#FFF8EB",
+          "backing": "story-paper-2",
+          "ratio": 12.580282862439995
+        },
+        {
+          "sceneId": "scene-message",
+          "elementId": "text-message",
+          "foreground": "#442638",
+          "background": "#FFF8EB",
+          "backing": "story-paper-2",
+          "ratio": 12.580282862439995
+        },
+        {
+          "sceneId": "scene-message",
+          "elementId": "message-from-label",
+          "foreground": "#442638",
+          "background": "#FFF8EB",
+          "backing": "story-paper-2",
+          "ratio": 12.580282862439995
+        },
+        {
+          "sceneId": "scene-message",
+          "elementId": "text-sender",
+          "foreground": "#442638",
+          "background": "#FFF8EB",
+          "backing": "story-paper-2",
+          "ratio": 12.580282862439995
+        },
+        {
+          "sceneId": "scene-message",
+          "elementId": "wish-back",
+          "foreground": "#FFFFFF",
+          "background": "#963851",
+          "backing": "control",
+          "ratio": 7.043926777542113
+        },
+        {
+          "sceneId": "scene-message",
+          "elementId": "wish-to-time",
+          "foreground": "#FFFFFF",
+          "background": "#963851",
+          "backing": "control",
+          "ratio": 7.043926777542113
+        },
+        {
+          "sceneId": "scene-time",
+          "elementId": "time-heading",
+          "foreground": "#442638",
+          "background": "#FFF8EB",
+          "backing": "scene",
+          "ratio": 9.827902256569335
+        },
+        {
+          "sceneId": "scene-time",
+          "elementId": "time-intro",
+          "foreground": "#442638",
+          "background": "#FFF8EB",
+          "backing": "scene",
+          "ratio": 9.827902256569335
+        },
+        {
+          "sceneId": "scene-time",
+          "elementId": "time-next",
+          "foreground": "#FFFFFF",
+          "background": "#963851",
+          "backing": "control",
+          "ratio": 7.043926777542113
+        },
+        {
+          "sceneId": "scene-album",
+          "elementId": "album-heading",
+          "foreground": "#442638",
+          "background": "#FFF8EB",
+          "backing": "scene",
+          "ratio": 9.827902256569335
+        },
+        {
+          "sceneId": "scene-album",
+          "elementId": "album-intro",
+          "foreground": "#442638",
+          "background": "#FFF8EB",
+          "backing": "scene",
+          "ratio": 9.827902256569335
+        },
+        {
+          "sceneId": "scene-album",
+          "elementId": "album-next",
+          "foreground": "#FFFFFF",
+          "background": "#963851",
+          "backing": "control",
+          "ratio": 7.043926777542113
+        },
+        {
+          "sceneId": "scene-reply",
+          "elementId": "reply-heading",
+          "foreground": "#442638",
+          "background": "#FFF8EB",
+          "backing": "scene",
+          "ratio": 9.827902256569335
+        },
+        {
+          "sceneId": "scene-reply",
+          "elementId": "reply-intro",
+          "foreground": "#442638",
+          "background": "#FFF8EB",
+          "backing": "scene",
+          "ratio": 9.827902256569335
+        },
+        {
+          "sceneId": "scene-reply",
+          "elementId": "replay-gift",
+          "foreground": "#FFFFFF",
+          "background": "#963851",
+          "backing": "control",
+          "ratio": 7.043926777542113
+        }
+      ]
+    },
+    {
+      "id": "birthday-radiance",
+      "locale": "vi",
+      "minimum": 9.38888827572925,
+      "pairs": [
+        {
+          "sceneId": "scene-cover",
+          "elementId": "cover-kicker",
+          "foreground": "#362644",
+          "background": "#FFF5DC",
+          "backing": "scene",
+          "ratio": 9.944741833994364
+        },
+        {
+          "sceneId": "scene-cover",
+          "elementId": "cover-title",
+          "foreground": "#362644",
+          "background": "#FFF5DC",
+          "backing": "scene",
+          "ratio": 9.944741833994364
+        },
+        {
+          "sceneId": "scene-cover",
+          "elementId": "text-recipient",
+          "foreground": "#362644",
+          "background": "#FFD056",
+          "backing": "name-ribbon",
+          "ratio": 9.494602954429272
+        },
+        {
+          "sceneId": "scene-cover",
+          "elementId": "open-gift",
+          "foreground": "#FFFFFF",
+          "background": "#68374B",
+          "backing": "control",
+          "ratio": 9.38888827572925
+        },
+        {
+          "sceneId": "scene-time",
+          "elementId": "time-heading",
+          "foreground": "#362644",
+          "background": "#FFF5DC",
+          "backing": "scene",
+          "ratio": 9.944741833994364
+        },
+        {
+          "sceneId": "scene-time",
+          "elementId": "time-intro",
+          "foreground": "#362644",
+          "background": "#FFF5DC",
+          "backing": "scene",
+          "ratio": 9.944741833994364
+        },
+        {
+          "sceneId": "scene-time",
+          "elementId": "time-next",
+          "foreground": "#FFFFFF",
+          "background": "#68374B",
+          "backing": "control",
+          "ratio": 9.38888827572925
+        },
+        {
+          "sceneId": "scene-surprise",
+          "elementId": "message-heading",
+          "foreground": "#362644",
+          "background": "#FFF5DC",
+          "backing": "story-paper-1",
+          "ratio": 12.748289053375453
+        },
+        {
+          "sceneId": "scene-surprise",
+          "elementId": "message-to",
+          "foreground": "#362644",
+          "background": "#FFF5DC",
+          "backing": "story-paper-1",
+          "ratio": 12.748289053375453
+        },
+        {
+          "sceneId": "scene-surprise",
+          "elementId": "text-message",
+          "foreground": "#362644",
+          "background": "#FFF5DC",
+          "backing": "story-paper-1",
+          "ratio": 12.748289053375453
+        },
+        {
+          "sceneId": "scene-surprise",
+          "elementId": "message-from-label",
+          "foreground": "#362644",
+          "background": "#FFF5DC",
+          "backing": "story-paper-1",
+          "ratio": 12.748289053375453
+        },
+        {
+          "sceneId": "scene-surprise",
+          "elementId": "text-sender",
+          "foreground": "#362644",
+          "background": "#FFF5DC",
+          "backing": "story-paper-1",
+          "ratio": 12.748289053375453
+        },
+        {
+          "sceneId": "scene-surprise",
+          "elementId": "to-message",
+          "foreground": "#FFFFFF",
+          "background": "#68374B",
+          "backing": "control",
+          "ratio": 9.38888827572925
+        },
+        {
+          "sceneId": "scene-album",
+          "elementId": "album-heading",
+          "foreground": "#362644",
+          "background": "#FFF5DC",
+          "backing": "scene",
+          "ratio": 9.944741833994364
+        },
+        {
+          "sceneId": "scene-album",
+          "elementId": "album-intro",
+          "foreground": "#362644",
+          "background": "#FFF5DC",
+          "backing": "scene",
+          "ratio": 9.944741833994364
+        },
+        {
+          "sceneId": "scene-album",
+          "elementId": "album-next",
+          "foreground": "#FFFFFF",
+          "background": "#68374B",
+          "backing": "control",
+          "ratio": 9.38888827572925
+        },
+        {
+          "sceneId": "scene-reply",
+          "elementId": "reply-heading",
+          "foreground": "#362644",
+          "background": "#FFF5DC",
+          "backing": "scene",
+          "ratio": 9.944741833994364
+        },
+        {
+          "sceneId": "scene-reply",
+          "elementId": "reply-intro",
+          "foreground": "#362644",
+          "background": "#FFF5DC",
+          "backing": "scene",
+          "ratio": 9.944741833994364
+        },
+        {
+          "sceneId": "scene-reply",
+          "elementId": "replay-gift",
+          "foreground": "#FFFFFF",
+          "background": "#68374B",
+          "backing": "control",
+          "ratio": 9.38888827572925
+        }
+      ]
+    },
+    {
+      "id": "proud-of-you",
+      "locale": "vi",
+      "minimum": 7.120167248833577,
+      "pairs": [
+        {
+          "sceneId": "scene-cover",
+          "elementId": "cover-kicker",
+          "foreground": "#FFF8E7",
+          "background": "#172849",
+          "backing": "scene",
+          "ratio": 13.809684715206044
+        },
+        {
+          "sceneId": "scene-cover",
+          "elementId": "cover-title",
+          "foreground": "#FFF8E7",
+          "background": "#172849",
+          "backing": "scene",
+          "ratio": 13.809684715206044
+        },
+        {
+          "sceneId": "scene-cover",
+          "elementId": "text-recipient",
+          "foreground": "#FFF8E7",
+          "background": "#172849",
+          "backing": "scene",
+          "ratio": 13.809684715206044
+        },
+        {
+          "sceneId": "scene-cover",
+          "elementId": "cover-note",
+          "foreground": "#172849",
+          "background": "#FFC857",
+          "backing": "graduation-ribbon",
+          "ratio": 9.505466137278017
+        },
+        {
+          "sceneId": "scene-cover",
+          "elementId": "open-gift",
+          "foreground": "#FFFFFF",
+          "background": "#315B82",
+          "backing": "control",
+          "ratio": 7.120167248833577
+        },
+        {
+          "sceneId": "scene-time",
+          "elementId": "time-heading",
+          "foreground": "#172849",
+          "background": "#FFF8E7",
+          "backing": "scene",
+          "ratio": 10.792701364417358
+        },
+        {
+          "sceneId": "scene-time",
+          "elementId": "time-intro",
+          "foreground": "#172849",
+          "background": "#FFF8E7",
+          "backing": "scene",
+          "ratio": 10.792701364417358
+        },
+        {
+          "sceneId": "scene-time",
+          "elementId": "time-next",
+          "foreground": "#FFFFFF",
+          "background": "#315B82",
+          "backing": "control",
+          "ratio": 7.120167248833577
+        },
+        {
+          "sceneId": "scene-surprise",
+          "elementId": "message-heading",
+          "foreground": "#172849",
+          "background": "#FFF8E7",
+          "backing": "story-paper-1",
+          "ratio": 13.809684715206044
+        },
+        {
+          "sceneId": "scene-surprise",
+          "elementId": "message-to",
+          "foreground": "#172849",
+          "background": "#FFF8E7",
+          "backing": "story-paper-1",
+          "ratio": 13.809684715206044
+        },
+        {
+          "sceneId": "scene-surprise",
+          "elementId": "text-message",
+          "foreground": "#172849",
+          "background": "#FFF8E7",
+          "backing": "story-paper-1",
+          "ratio": 13.809684715206044
+        },
+        {
+          "sceneId": "scene-surprise",
+          "elementId": "message-from-label",
+          "foreground": "#172849",
+          "background": "#FFF8E7",
+          "backing": "story-paper-1",
+          "ratio": 13.809684715206044
+        },
+        {
+          "sceneId": "scene-surprise",
+          "elementId": "text-sender",
+          "foreground": "#172849",
+          "background": "#FFF8E7",
+          "backing": "story-paper-1",
+          "ratio": 13.809684715206044
+        },
+        {
+          "sceneId": "scene-surprise",
+          "elementId": "to-message",
+          "foreground": "#FFFFFF",
+          "background": "#315B82",
+          "backing": "control",
+          "ratio": 7.120167248833577
+        },
+        {
+          "sceneId": "scene-album",
+          "elementId": "album-heading",
+          "foreground": "#172849",
+          "background": "#FFF8E7",
+          "backing": "scene",
+          "ratio": 10.792701364417358
+        },
+        {
+          "sceneId": "scene-album",
+          "elementId": "album-intro",
+          "foreground": "#172849",
+          "background": "#FFF8E7",
+          "backing": "scene",
+          "ratio": 10.792701364417358
+        },
+        {
+          "sceneId": "scene-album",
+          "elementId": "album-next",
+          "foreground": "#FFFFFF",
+          "background": "#315B82",
+          "backing": "control",
+          "ratio": 7.120167248833577
+        },
+        {
+          "sceneId": "scene-reply",
+          "elementId": "reply-heading",
+          "foreground": "#FFF8E7",
+          "background": "#172849",
+          "backing": "scene",
+          "ratio": 13.809684715206044
+        },
+        {
+          "sceneId": "scene-reply",
+          "elementId": "reply-intro",
+          "foreground": "#FFF8E7",
+          "background": "#172849",
+          "backing": "scene",
+          "ratio": 13.809684715206044
+        },
+        {
+          "sceneId": "scene-reply",
+          "elementId": "replay-gift",
+          "foreground": "#FFFFFF",
+          "background": "#315B82",
+          "backing": "control",
+          "ratio": 7.120167248833577
+        }
+      ]
+    },
+    {
+      "id": "loi-moi-ben-hien",
+      "locale": "vi",
+      "minimum": 5.393599482977476,
+      "pairs": [
+        {
+          "sceneId": "scene-cover",
+          "elementId": "cover-kicker",
+          "foreground": "#263C32",
+          "background": "#F8F1E6",
+          "backing": "scene",
+          "ratio": 8.211904787627866
+        },
+        {
+          "sceneId": "scene-cover",
+          "elementId": "cover-title",
+          "foreground": "#263C32",
+          "background": "#F8F1E6",
+          "backing": "scene",
+          "ratio": 8.211904787627866
+        },
+        {
+          "sceneId": "scene-cover",
+          "elementId": "text-recipient",
+          "foreground": "#263C32",
+          "background": "#F8F1E6",
+          "backing": "scene",
+          "ratio": 8.211904787627866
+        },
+        {
+          "sceneId": "scene-cover",
+          "elementId": "cover-note",
+          "foreground": "#263C32",
+          "background": "#F8F1E6",
+          "backing": "scene",
+          "ratio": 8.211904787627866
+        },
+        {
+          "sceneId": "scene-cover",
+          "elementId": "open-gift",
+          "foreground": "#FFFFFF",
+          "background": "#59705B",
+          "backing": "control",
+          "ratio": 5.393599482977476
+        },
+        {
+          "sceneId": "scene-details",
+          "elementId": "details-heading",
+          "foreground": "#263C32",
+          "background": "#F8F1E6",
+          "backing": "scene",
+          "ratio": 8.211904787627866
+        },
+        {
+          "sceneId": "scene-details",
+          "elementId": "event-date",
+          "foreground": "#263C32",
+          "background": "#F8F1E6",
+          "backing": "scene",
+          "ratio": 8.211904787627866
+        },
+        {
+          "sceneId": "scene-details",
+          "elementId": "event-location",
+          "foreground": "#263C32",
+          "background": "#F8F1E6",
+          "backing": "scene",
+          "ratio": 8.211904787627866
+        },
+        {
+          "sceneId": "scene-details",
+          "elementId": "event-note",
+          "foreground": "#263C32",
+          "background": "#F8F1E6",
+          "backing": "scene",
+          "ratio": 8.211904787627866
+        },
+        {
+          "sceneId": "scene-details",
+          "elementId": "details-next",
+          "foreground": "#FFFFFF",
+          "background": "#59705B",
+          "backing": "control",
+          "ratio": 5.393599482977476
+        },
+        {
+          "sceneId": "scene-schedule",
+          "elementId": "schedule-heading",
+          "foreground": "#263C32",
+          "background": "#F8F1E6",
+          "backing": "scene",
+          "ratio": 8.211904787627866
+        },
+        {
+          "sceneId": "scene-schedule",
+          "elementId": "event-1-time",
+          "foreground": "#263C32",
+          "background": "#F8F1E6",
+          "backing": "scene",
+          "ratio": 8.211904787627866
+        },
+        {
+          "sceneId": "scene-schedule",
+          "elementId": "event-1-activity",
+          "foreground": "#263C32",
+          "background": "#F8F1E6",
+          "backing": "scene",
+          "ratio": 8.211904787627866
+        },
+        {
+          "sceneId": "scene-schedule",
+          "elementId": "event-1-address",
+          "foreground": "#263C32",
+          "background": "#F8F1E6",
+          "backing": "scene",
+          "ratio": 8.211904787627866
+        },
+        {
+          "sceneId": "scene-schedule",
+          "elementId": "event-2-time",
+          "foreground": "#263C32",
+          "background": "#F8F1E6",
+          "backing": "scene",
+          "ratio": 8.211904787627866
+        },
+        {
+          "sceneId": "scene-schedule",
+          "elementId": "event-2-activity",
+          "foreground": "#263C32",
+          "background": "#F8F1E6",
+          "backing": "scene",
+          "ratio": 8.211904787627866
+        },
+        {
+          "sceneId": "scene-schedule",
+          "elementId": "event-2-address",
+          "foreground": "#263C32",
+          "background": "#F8F1E6",
+          "backing": "scene",
+          "ratio": 8.211904787627866
+        },
+        {
+          "sceneId": "scene-schedule",
+          "elementId": "schedule-next",
+          "foreground": "#FFFFFF",
+          "background": "#59705B",
+          "backing": "control",
+          "ratio": 5.393599482977476
+        },
+        {
+          "sceneId": "scene-album",
+          "elementId": "album-heading",
+          "foreground": "#263C32",
+          "background": "#F8F1E6",
+          "backing": "scene",
+          "ratio": 8.211904787627866
+        },
+        {
+          "sceneId": "scene-album",
+          "elementId": "album-story",
+          "foreground": "#263C32",
+          "background": "#F8F1E6",
+          "backing": "scene",
+          "ratio": 8.211904787627866
+        },
+        {
+          "sceneId": "scene-album",
+          "elementId": "album-next",
+          "foreground": "#FFFFFF",
+          "background": "#59705B",
+          "backing": "control",
+          "ratio": 5.393599482977476
+        },
+        {
+          "sceneId": "scene-reply",
+          "elementId": "reply-heading",
+          "foreground": "#263C32",
+          "background": "#F8F1E6",
+          "backing": "scene",
+          "ratio": 8.211904787627866
+        },
+        {
+          "sceneId": "scene-reply",
+          "elementId": "text-message",
+          "foreground": "#263C32",
+          "background": "#F8F1E6",
+          "backing": "scene",
+          "ratio": 8.211904787627866
+        },
+        {
+          "sceneId": "scene-reply",
+          "elementId": "text-sender",
+          "foreground": "#263C32",
+          "background": "#F8F1E6",
+          "backing": "scene",
+          "ratio": 8.211904787627866
+        },
+        {
+          "sceneId": "scene-reply",
+          "elementId": "back-cover",
+          "foreground": "#FFFFFF",
+          "background": "#59705B",
+          "backing": "control",
+          "ratio": 5.393599482977476
+        }
+      ]
+    },
+    {
+      "id": "cuon-phim-ngay-ay",
+      "locale": "vi",
+      "minimum": 6.070827085566248,
+      "pairs": [
+        {
+          "sceneId": "scene-cover",
+          "elementId": "cover-kicker",
+          "foreground": "#352B30",
+          "background": "#F6EBD9",
+          "backing": "scene",
+          "ratio": 9.02973609587207
+        },
+        {
+          "sceneId": "scene-cover",
+          "elementId": "cover-title",
+          "foreground": "#352B30",
+          "background": "#F6EBD9",
+          "backing": "scene",
+          "ratio": 9.02973609587207
+        },
+        {
+          "sceneId": "scene-cover",
+          "elementId": "text-recipient",
+          "foreground": "#352B30",
+          "background": "#F6EBD9",
+          "backing": "scene",
+          "ratio": 9.02973609587207
+        },
+        {
+          "sceneId": "scene-cover",
+          "elementId": "cover-note",
+          "foreground": "#352B30",
+          "background": "#F6EBD9",
+          "backing": "scene",
+          "ratio": 9.02973609587207
+        },
+        {
+          "sceneId": "scene-cover",
+          "elementId": "open-gift",
+          "foreground": "#FFFFFF",
+          "background": "#825943",
+          "backing": "control",
+          "ratio": 6.070827085566248
+        },
+        {
+          "sceneId": "scene-album",
+          "elementId": "album-heading",
+          "foreground": "#352B30",
+          "background": "#F6EBD9",
+          "backing": "scene",
+          "ratio": 9.02973609587207
+        },
+        {
+          "sceneId": "scene-album",
+          "elementId": "album-story",
+          "foreground": "#352B30",
+          "background": "#F6EBD9",
+          "backing": "scene",
+          "ratio": 9.02973609587207
+        },
+        {
+          "sceneId": "scene-album",
+          "elementId": "album-next",
+          "foreground": "#FFFFFF",
+          "background": "#825943",
+          "backing": "control",
+          "ratio": 6.070827085566248
+        },
+        {
+          "sceneId": "scene-present",
+          "elementId": "present-heading",
+          "foreground": "#352B30",
+          "background": "#F6EBD9",
+          "backing": "scene",
+          "ratio": 9.02973609587207
+        },
+        {
+          "sceneId": "scene-present",
+          "elementId": "present-story",
+          "foreground": "#352B30",
+          "background": "#F6EBD9",
+          "backing": "scene",
+          "ratio": 9.02973609587207
+        },
+        {
+          "sceneId": "scene-present",
+          "elementId": "present-next",
+          "foreground": "#FFFFFF",
+          "background": "#825943",
+          "backing": "control",
+          "ratio": 6.070827085566248
+        },
+        {
+          "sceneId": "scene-reply",
+          "elementId": "reply-heading",
+          "foreground": "#352B30",
+          "background": "#F6EBD9",
+          "backing": "scene",
+          "ratio": 9.02973609587207
+        },
+        {
+          "sceneId": "scene-reply",
+          "elementId": "text-message",
+          "foreground": "#352B30",
+          "background": "#F6EBD9",
+          "backing": "scene",
+          "ratio": 9.02973609587207
+        },
+        {
+          "sceneId": "scene-reply",
+          "elementId": "text-sender",
+          "foreground": "#352B30",
+          "background": "#F6EBD9",
+          "backing": "scene",
+          "ratio": 9.02973609587207
+        },
+        {
+          "sceneId": "scene-reply",
+          "elementId": "back-cover",
+          "foreground": "#FFFFFF",
+          "background": "#825943",
+          "backing": "control",
+          "ratio": 6.070827085566248
+        }
+      ]
+    },
+    {
+      "id": "ban-do-ngay-ra-truong",
+      "locale": "vi",
+      "minimum": 7.324727923889799,
+      "pairs": [
+        {
+          "sceneId": "scene-cover",
+          "elementId": "cover-kicker",
+          "foreground": "#21394C",
+          "background": "#E6EFF1",
+          "backing": "scene",
+          "ratio": 8.028678429770762
+        },
+        {
+          "sceneId": "scene-cover",
+          "elementId": "cover-title",
+          "foreground": "#21394C",
+          "background": "#E6EFF1",
+          "backing": "scene",
+          "ratio": 8.028678429770762
+        },
+        {
+          "sceneId": "scene-cover",
+          "elementId": "text-recipient",
+          "foreground": "#21394C",
+          "background": "#E6EFF1",
+          "backing": "scene",
+          "ratio": 8.028678429770762
+        },
+        {
+          "sceneId": "scene-cover",
+          "elementId": "cover-note",
+          "foreground": "#21394C",
+          "background": "#E6EFF1",
+          "backing": "scene",
+          "ratio": 8.028678429770762
+        },
+        {
+          "sceneId": "scene-cover",
+          "elementId": "open-gift",
+          "foreground": "#FFFFFF",
+          "background": "#375B6A",
+          "backing": "control",
+          "ratio": 7.324727923889799
+        },
+        {
+          "sceneId": "scene-milestone-1",
+          "elementId": "milestone-1-title",
+          "foreground": "#21394C",
+          "background": "#E6EFF1",
+          "backing": "scene",
+          "ratio": 8.028678429770762
+        },
+        {
+          "sceneId": "scene-milestone-1",
+          "elementId": "milestone-1-body",
+          "foreground": "#21394C",
+          "background": "#E6EFF1",
+          "backing": "scene",
+          "ratio": 8.028678429770762
+        },
+        {
+          "sceneId": "scene-milestone-1",
+          "elementId": "milestone-1-next",
+          "foreground": "#FFFFFF",
+          "background": "#375B6A",
+          "backing": "control",
+          "ratio": 7.324727923889799
+        },
+        {
+          "sceneId": "scene-milestone-2",
+          "elementId": "milestone-2-title",
+          "foreground": "#21394C",
+          "background": "#E6EFF1",
+          "backing": "scene",
+          "ratio": 8.028678429770762
+        },
+        {
+          "sceneId": "scene-milestone-2",
+          "elementId": "milestone-2-body",
+          "foreground": "#21394C",
+          "background": "#E6EFF1",
+          "backing": "scene",
+          "ratio": 8.028678429770762
+        },
+        {
+          "sceneId": "scene-milestone-2",
+          "elementId": "milestone-2-next",
+          "foreground": "#FFFFFF",
+          "background": "#375B6A",
+          "backing": "control",
+          "ratio": 7.324727923889799
+        },
+        {
+          "sceneId": "scene-milestone-3",
+          "elementId": "milestone-3-title",
+          "foreground": "#21394C",
+          "background": "#E6EFF1",
+          "backing": "scene",
+          "ratio": 8.028678429770762
+        },
+        {
+          "sceneId": "scene-milestone-3",
+          "elementId": "milestone-3-body",
+          "foreground": "#21394C",
+          "background": "#E6EFF1",
+          "backing": "scene",
+          "ratio": 8.028678429770762
+        },
+        {
+          "sceneId": "scene-milestone-3",
+          "elementId": "milestone-3-next",
+          "foreground": "#FFFFFF",
+          "background": "#375B6A",
+          "backing": "control",
+          "ratio": 7.324727923889799
+        },
+        {
+          "sceneId": "scene-reply",
+          "elementId": "reply-heading",
+          "foreground": "#21394C",
+          "background": "#E6EFF1",
+          "backing": "scene",
+          "ratio": 8.028678429770762
+        },
+        {
+          "sceneId": "scene-reply",
+          "elementId": "text-message",
+          "foreground": "#21394C",
+          "background": "#E6EFF1",
+          "backing": "scene",
+          "ratio": 8.028678429770762
+        },
+        {
+          "sceneId": "scene-reply",
+          "elementId": "text-sender",
+          "foreground": "#21394C",
+          "background": "#E6EFF1",
+          "backing": "scene",
+          "ratio": 8.028678429770762
+        },
+        {
+          "sceneId": "scene-reply",
+          "elementId": "back-cover",
+          "foreground": "#FFFFFF",
+          "background": "#375B6A",
+          "backing": "control",
+          "ratio": 7.324727923889799
+        }
+      ]
+    },
+    {
+      "id": "hai-phong-bi",
+      "locale": "en",
+      "minimum": 5.723017919456983,
+      "pairs": [
+        {
+          "sceneId": "scene-cover",
+          "elementId": "cover-title",
+          "foreground": "#442638",
+          "background": "#FFF8EB",
+          "backing": "scene",
+          "ratio": 9.827902256569335
+        },
+        {
+          "sceneId": "scene-cover",
+          "elementId": "text-recipient",
+          "foreground": "#442638",
+          "background": "#FFF8EB",
+          "backing": "scene",
+          "ratio": 9.827902256569335
+        },
+        {
+          "sceneId": "scene-cover",
+          "elementId": "open-memory",
+          "foreground": "#FFFFFF",
+          "background": "#7757A2",
+          "backing": "control",
+          "ratio": 5.723017919456983
+        },
+        {
+          "sceneId": "scene-cover",
+          "elementId": "open-wish",
+          "foreground": "#FFFFFF",
+          "background": "#7757A2",
+          "backing": "control",
+          "ratio": 5.723017919456983
+        },
+        {
+          "sceneId": "scene-cover",
+          "elementId": "cover-note",
+          "foreground": "#442638",
+          "background": "#FFF8EB",
+          "backing": "scene",
+          "ratio": 9.827902256569335
+        },
+        {
+          "sceneId": "scene-cover",
+          "elementId": "open-journey",
+          "foreground": "#FFFFFF",
+          "background": "#963851",
+          "backing": "control",
+          "ratio": 7.043926777542113
+        },
+        {
+          "sceneId": "scene-surprise",
+          "elementId": "memory-heading",
+          "foreground": "#442638",
+          "background": "#FFF8EB",
+          "backing": "story-paper-1",
+          "ratio": 12.580282862439995
+        },
+        {
+          "sceneId": "scene-surprise",
+          "elementId": "envelope-memory",
+          "foreground": "#442638",
+          "background": "#FFF8EB",
+          "backing": "story-paper-1",
+          "ratio": 12.580282862439995
+        },
+        {
+          "sceneId": "scene-surprise",
+          "elementId": "memory-back",
+          "foreground": "#FFFFFF",
+          "background": "#963851",
+          "backing": "control",
+          "ratio": 7.043926777542113
+        },
+        {
+          "sceneId": "scene-surprise",
+          "elementId": "memory-to-time",
+          "foreground": "#FFFFFF",
+          "background": "#963851",
+          "backing": "control",
+          "ratio": 7.043926777542113
+        },
+        {
+          "sceneId": "scene-message",
+          "elementId": "message-heading",
+          "foreground": "#442638",
+          "background": "#FFF8EB",
+          "backing": "story-paper-2",
+          "ratio": 12.580282862439995
+        },
+        {
+          "sceneId": "scene-message",
+          "elementId": "text-message",
+          "foreground": "#442638",
+          "background": "#FFF8EB",
+          "backing": "story-paper-2",
+          "ratio": 12.580282862439995
+        },
+        {
+          "sceneId": "scene-message",
+          "elementId": "message-from-label",
+          "foreground": "#442638",
+          "background": "#FFF8EB",
+          "backing": "story-paper-2",
+          "ratio": 12.580282862439995
+        },
+        {
+          "sceneId": "scene-message",
+          "elementId": "text-sender",
+          "foreground": "#442638",
+          "background": "#FFF8EB",
+          "backing": "story-paper-2",
+          "ratio": 12.580282862439995
+        },
+        {
+          "sceneId": "scene-message",
+          "elementId": "wish-back",
+          "foreground": "#FFFFFF",
+          "background": "#963851",
+          "backing": "control",
+          "ratio": 7.043926777542113
+        },
+        {
+          "sceneId": "scene-message",
+          "elementId": "wish-to-time",
+          "foreground": "#FFFFFF",
+          "background": "#963851",
+          "backing": "control",
+          "ratio": 7.043926777542113
+        },
+        {
+          "sceneId": "scene-time",
+          "elementId": "time-heading",
+          "foreground": "#442638",
+          "background": "#FFF8EB",
+          "backing": "scene",
+          "ratio": 9.827902256569335
+        },
+        {
+          "sceneId": "scene-time",
+          "elementId": "time-intro",
+          "foreground": "#442638",
+          "background": "#FFF8EB",
+          "backing": "scene",
+          "ratio": 9.827902256569335
+        },
+        {
+          "sceneId": "scene-time",
+          "elementId": "time-next",
+          "foreground": "#FFFFFF",
+          "background": "#963851",
+          "backing": "control",
+          "ratio": 7.043926777542113
+        },
+        {
+          "sceneId": "scene-album",
+          "elementId": "album-heading",
+          "foreground": "#442638",
+          "background": "#FFF8EB",
+          "backing": "scene",
+          "ratio": 9.827902256569335
+        },
+        {
+          "sceneId": "scene-album",
+          "elementId": "album-intro",
+          "foreground": "#442638",
+          "background": "#FFF8EB",
+          "backing": "scene",
+          "ratio": 9.827902256569335
+        },
+        {
+          "sceneId": "scene-album",
+          "elementId": "album-next",
+          "foreground": "#FFFFFF",
+          "background": "#963851",
+          "backing": "control",
+          "ratio": 7.043926777542113
+        },
+        {
+          "sceneId": "scene-reply",
+          "elementId": "reply-heading",
+          "foreground": "#442638",
+          "background": "#FFF8EB",
+          "backing": "scene",
+          "ratio": 9.827902256569335
+        },
+        {
+          "sceneId": "scene-reply",
+          "elementId": "reply-intro",
+          "foreground": "#442638",
+          "background": "#FFF8EB",
+          "backing": "scene",
+          "ratio": 9.827902256569335
+        },
+        {
+          "sceneId": "scene-reply",
+          "elementId": "replay-gift",
+          "foreground": "#FFFFFF",
+          "background": "#963851",
+          "backing": "control",
+          "ratio": 7.043926777542113
+        }
+      ]
+    },
+    {
+      "id": "birthday-radiance",
+      "locale": "en",
+      "minimum": 9.38888827572925,
+      "pairs": [
+        {
+          "sceneId": "scene-cover",
+          "elementId": "cover-kicker",
+          "foreground": "#362644",
+          "background": "#FFF5DC",
+          "backing": "scene",
+          "ratio": 9.944741833994364
+        },
+        {
+          "sceneId": "scene-cover",
+          "elementId": "cover-title",
+          "foreground": "#362644",
+          "background": "#FFF5DC",
+          "backing": "scene",
+          "ratio": 9.944741833994364
+        },
+        {
+          "sceneId": "scene-cover",
+          "elementId": "text-recipient",
+          "foreground": "#362644",
+          "background": "#FFD056",
+          "backing": "name-ribbon",
+          "ratio": 9.494602954429272
+        },
+        {
+          "sceneId": "scene-cover",
+          "elementId": "open-gift",
+          "foreground": "#FFFFFF",
+          "background": "#68374B",
+          "backing": "control",
+          "ratio": 9.38888827572925
+        },
+        {
+          "sceneId": "scene-time",
+          "elementId": "time-heading",
+          "foreground": "#362644",
+          "background": "#FFF5DC",
+          "backing": "scene",
+          "ratio": 9.944741833994364
+        },
+        {
+          "sceneId": "scene-time",
+          "elementId": "time-intro",
+          "foreground": "#362644",
+          "background": "#FFF5DC",
+          "backing": "scene",
+          "ratio": 9.944741833994364
+        },
+        {
+          "sceneId": "scene-time",
+          "elementId": "time-next",
+          "foreground": "#FFFFFF",
+          "background": "#68374B",
+          "backing": "control",
+          "ratio": 9.38888827572925
+        },
+        {
+          "sceneId": "scene-surprise",
+          "elementId": "message-heading",
+          "foreground": "#362644",
+          "background": "#FFF5DC",
+          "backing": "story-paper-1",
+          "ratio": 12.748289053375453
+        },
+        {
+          "sceneId": "scene-surprise",
+          "elementId": "message-to",
+          "foreground": "#362644",
+          "background": "#FFF5DC",
+          "backing": "story-paper-1",
+          "ratio": 12.748289053375453
+        },
+        {
+          "sceneId": "scene-surprise",
+          "elementId": "text-message",
+          "foreground": "#362644",
+          "background": "#FFF5DC",
+          "backing": "story-paper-1",
+          "ratio": 12.748289053375453
+        },
+        {
+          "sceneId": "scene-surprise",
+          "elementId": "message-from-label",
+          "foreground": "#362644",
+          "background": "#FFF5DC",
+          "backing": "story-paper-1",
+          "ratio": 12.748289053375453
+        },
+        {
+          "sceneId": "scene-surprise",
+          "elementId": "text-sender",
+          "foreground": "#362644",
+          "background": "#FFF5DC",
+          "backing": "story-paper-1",
+          "ratio": 12.748289053375453
+        },
+        {
+          "sceneId": "scene-surprise",
+          "elementId": "to-message",
+          "foreground": "#FFFFFF",
+          "background": "#68374B",
+          "backing": "control",
+          "ratio": 9.38888827572925
+        },
+        {
+          "sceneId": "scene-album",
+          "elementId": "album-heading",
+          "foreground": "#362644",
+          "background": "#FFF5DC",
+          "backing": "scene",
+          "ratio": 9.944741833994364
+        },
+        {
+          "sceneId": "scene-album",
+          "elementId": "album-intro",
+          "foreground": "#362644",
+          "background": "#FFF5DC",
+          "backing": "scene",
+          "ratio": 9.944741833994364
+        },
+        {
+          "sceneId": "scene-album",
+          "elementId": "album-next",
+          "foreground": "#FFFFFF",
+          "background": "#68374B",
+          "backing": "control",
+          "ratio": 9.38888827572925
+        },
+        {
+          "sceneId": "scene-reply",
+          "elementId": "reply-heading",
+          "foreground": "#362644",
+          "background": "#FFF5DC",
+          "backing": "scene",
+          "ratio": 9.944741833994364
+        },
+        {
+          "sceneId": "scene-reply",
+          "elementId": "reply-intro",
+          "foreground": "#362644",
+          "background": "#FFF5DC",
+          "backing": "scene",
+          "ratio": 9.944741833994364
+        },
+        {
+          "sceneId": "scene-reply",
+          "elementId": "replay-gift",
+          "foreground": "#FFFFFF",
+          "background": "#68374B",
+          "backing": "control",
+          "ratio": 9.38888827572925
+        }
+      ]
+    },
+    {
+      "id": "proud-of-you",
+      "locale": "en",
+      "minimum": 7.120167248833577,
+      "pairs": [
+        {
+          "sceneId": "scene-cover",
+          "elementId": "cover-kicker",
+          "foreground": "#FFF8E7",
+          "background": "#172849",
+          "backing": "scene",
+          "ratio": 13.809684715206044
+        },
+        {
+          "sceneId": "scene-cover",
+          "elementId": "cover-title",
+          "foreground": "#FFF8E7",
+          "background": "#172849",
+          "backing": "scene",
+          "ratio": 13.809684715206044
+        },
+        {
+          "sceneId": "scene-cover",
+          "elementId": "text-recipient",
+          "foreground": "#FFF8E7",
+          "background": "#172849",
+          "backing": "scene",
+          "ratio": 13.809684715206044
+        },
+        {
+          "sceneId": "scene-cover",
+          "elementId": "cover-note",
+          "foreground": "#172849",
+          "background": "#FFC857",
+          "backing": "graduation-ribbon",
+          "ratio": 9.505466137278017
+        },
+        {
+          "sceneId": "scene-cover",
+          "elementId": "open-gift",
+          "foreground": "#FFFFFF",
+          "background": "#315B82",
+          "backing": "control",
+          "ratio": 7.120167248833577
+        },
+        {
+          "sceneId": "scene-time",
+          "elementId": "time-heading",
+          "foreground": "#172849",
+          "background": "#FFF8E7",
+          "backing": "scene",
+          "ratio": 10.792701364417358
+        },
+        {
+          "sceneId": "scene-time",
+          "elementId": "time-intro",
+          "foreground": "#172849",
+          "background": "#FFF8E7",
+          "backing": "scene",
+          "ratio": 10.792701364417358
+        },
+        {
+          "sceneId": "scene-time",
+          "elementId": "time-next",
+          "foreground": "#FFFFFF",
+          "background": "#315B82",
+          "backing": "control",
+          "ratio": 7.120167248833577
+        },
+        {
+          "sceneId": "scene-surprise",
+          "elementId": "message-heading",
+          "foreground": "#172849",
+          "background": "#FFF8E7",
+          "backing": "story-paper-1",
+          "ratio": 13.809684715206044
+        },
+        {
+          "sceneId": "scene-surprise",
+          "elementId": "message-to",
+          "foreground": "#172849",
+          "background": "#FFF8E7",
+          "backing": "story-paper-1",
+          "ratio": 13.809684715206044
+        },
+        {
+          "sceneId": "scene-surprise",
+          "elementId": "text-message",
+          "foreground": "#172849",
+          "background": "#FFF8E7",
+          "backing": "story-paper-1",
+          "ratio": 13.809684715206044
+        },
+        {
+          "sceneId": "scene-surprise",
+          "elementId": "message-from-label",
+          "foreground": "#172849",
+          "background": "#FFF8E7",
+          "backing": "story-paper-1",
+          "ratio": 13.809684715206044
+        },
+        {
+          "sceneId": "scene-surprise",
+          "elementId": "text-sender",
+          "foreground": "#172849",
+          "background": "#FFF8E7",
+          "backing": "story-paper-1",
+          "ratio": 13.809684715206044
+        },
+        {
+          "sceneId": "scene-surprise",
+          "elementId": "to-message",
+          "foreground": "#FFFFFF",
+          "background": "#315B82",
+          "backing": "control",
+          "ratio": 7.120167248833577
+        },
+        {
+          "sceneId": "scene-album",
+          "elementId": "album-heading",
+          "foreground": "#172849",
+          "background": "#FFF8E7",
+          "backing": "scene",
+          "ratio": 10.792701364417358
+        },
+        {
+          "sceneId": "scene-album",
+          "elementId": "album-intro",
+          "foreground": "#172849",
+          "background": "#FFF8E7",
+          "backing": "scene",
+          "ratio": 10.792701364417358
+        },
+        {
+          "sceneId": "scene-album",
+          "elementId": "album-next",
+          "foreground": "#FFFFFF",
+          "background": "#315B82",
+          "backing": "control",
+          "ratio": 7.120167248833577
+        },
+        {
+          "sceneId": "scene-reply",
+          "elementId": "reply-heading",
+          "foreground": "#FFF8E7",
+          "background": "#172849",
+          "backing": "scene",
+          "ratio": 13.809684715206044
+        },
+        {
+          "sceneId": "scene-reply",
+          "elementId": "reply-intro",
+          "foreground": "#FFF8E7",
+          "background": "#172849",
+          "backing": "scene",
+          "ratio": 13.809684715206044
+        },
+        {
+          "sceneId": "scene-reply",
+          "elementId": "replay-gift",
+          "foreground": "#FFFFFF",
+          "background": "#315B82",
+          "backing": "control",
+          "ratio": 7.120167248833577
+        }
+      ]
+    },
+    {
+      "id": "loi-moi-ben-hien",
+      "locale": "en",
+      "minimum": 5.393599482977476,
+      "pairs": [
+        {
+          "sceneId": "scene-cover",
+          "elementId": "cover-kicker",
+          "foreground": "#263C32",
+          "background": "#F8F1E6",
+          "backing": "scene",
+          "ratio": 8.211904787627866
+        },
+        {
+          "sceneId": "scene-cover",
+          "elementId": "cover-title",
+          "foreground": "#263C32",
+          "background": "#F8F1E6",
+          "backing": "scene",
+          "ratio": 8.211904787627866
+        },
+        {
+          "sceneId": "scene-cover",
+          "elementId": "text-recipient",
+          "foreground": "#263C32",
+          "background": "#F8F1E6",
+          "backing": "scene",
+          "ratio": 8.211904787627866
+        },
+        {
+          "sceneId": "scene-cover",
+          "elementId": "cover-note",
+          "foreground": "#263C32",
+          "background": "#F8F1E6",
+          "backing": "scene",
+          "ratio": 8.211904787627866
+        },
+        {
+          "sceneId": "scene-cover",
+          "elementId": "open-gift",
+          "foreground": "#FFFFFF",
+          "background": "#59705B",
+          "backing": "control",
+          "ratio": 5.393599482977476
+        },
+        {
+          "sceneId": "scene-details",
+          "elementId": "details-heading",
+          "foreground": "#263C32",
+          "background": "#F8F1E6",
+          "backing": "scene",
+          "ratio": 8.211904787627866
+        },
+        {
+          "sceneId": "scene-details",
+          "elementId": "event-date",
+          "foreground": "#263C32",
+          "background": "#F8F1E6",
+          "backing": "scene",
+          "ratio": 8.211904787627866
+        },
+        {
+          "sceneId": "scene-details",
+          "elementId": "event-location",
+          "foreground": "#263C32",
+          "background": "#F8F1E6",
+          "backing": "scene",
+          "ratio": 8.211904787627866
+        },
+        {
+          "sceneId": "scene-details",
+          "elementId": "event-note",
+          "foreground": "#263C32",
+          "background": "#F8F1E6",
+          "backing": "scene",
+          "ratio": 8.211904787627866
+        },
+        {
+          "sceneId": "scene-details",
+          "elementId": "details-next",
+          "foreground": "#FFFFFF",
+          "background": "#59705B",
+          "backing": "control",
+          "ratio": 5.393599482977476
+        },
+        {
+          "sceneId": "scene-schedule",
+          "elementId": "schedule-heading",
+          "foreground": "#263C32",
+          "background": "#F8F1E6",
+          "backing": "scene",
+          "ratio": 8.211904787627866
+        },
+        {
+          "sceneId": "scene-schedule",
+          "elementId": "event-1-time",
+          "foreground": "#263C32",
+          "background": "#F8F1E6",
+          "backing": "scene",
+          "ratio": 8.211904787627866
+        },
+        {
+          "sceneId": "scene-schedule",
+          "elementId": "event-1-activity",
+          "foreground": "#263C32",
+          "background": "#F8F1E6",
+          "backing": "scene",
+          "ratio": 8.211904787627866
+        },
+        {
+          "sceneId": "scene-schedule",
+          "elementId": "event-1-address",
+          "foreground": "#263C32",
+          "background": "#F8F1E6",
+          "backing": "scene",
+          "ratio": 8.211904787627866
+        },
+        {
+          "sceneId": "scene-schedule",
+          "elementId": "event-2-time",
+          "foreground": "#263C32",
+          "background": "#F8F1E6",
+          "backing": "scene",
+          "ratio": 8.211904787627866
+        },
+        {
+          "sceneId": "scene-schedule",
+          "elementId": "event-2-activity",
+          "foreground": "#263C32",
+          "background": "#F8F1E6",
+          "backing": "scene",
+          "ratio": 8.211904787627866
+        },
+        {
+          "sceneId": "scene-schedule",
+          "elementId": "event-2-address",
+          "foreground": "#263C32",
+          "background": "#F8F1E6",
+          "backing": "scene",
+          "ratio": 8.211904787627866
+        },
+        {
+          "sceneId": "scene-schedule",
+          "elementId": "schedule-next",
+          "foreground": "#FFFFFF",
+          "background": "#59705B",
+          "backing": "control",
+          "ratio": 5.393599482977476
+        },
+        {
+          "sceneId": "scene-album",
+          "elementId": "album-heading",
+          "foreground": "#263C32",
+          "background": "#F8F1E6",
+          "backing": "scene",
+          "ratio": 8.211904787627866
+        },
+        {
+          "sceneId": "scene-album",
+          "elementId": "album-story",
+          "foreground": "#263C32",
+          "background": "#F8F1E6",
+          "backing": "scene",
+          "ratio": 8.211904787627866
+        },
+        {
+          "sceneId": "scene-album",
+          "elementId": "album-next",
+          "foreground": "#FFFFFF",
+          "background": "#59705B",
+          "backing": "control",
+          "ratio": 5.393599482977476
+        },
+        {
+          "sceneId": "scene-reply",
+          "elementId": "reply-heading",
+          "foreground": "#263C32",
+          "background": "#F8F1E6",
+          "backing": "scene",
+          "ratio": 8.211904787627866
+        },
+        {
+          "sceneId": "scene-reply",
+          "elementId": "text-message",
+          "foreground": "#263C32",
+          "background": "#F8F1E6",
+          "backing": "scene",
+          "ratio": 8.211904787627866
+        },
+        {
+          "sceneId": "scene-reply",
+          "elementId": "text-sender",
+          "foreground": "#263C32",
+          "background": "#F8F1E6",
+          "backing": "scene",
+          "ratio": 8.211904787627866
+        },
+        {
+          "sceneId": "scene-reply",
+          "elementId": "back-cover",
+          "foreground": "#FFFFFF",
+          "background": "#59705B",
+          "backing": "control",
+          "ratio": 5.393599482977476
+        }
+      ]
+    },
+    {
+      "id": "cuon-phim-ngay-ay",
+      "locale": "en",
+      "minimum": 6.070827085566248,
+      "pairs": [
+        {
+          "sceneId": "scene-cover",
+          "elementId": "cover-kicker",
+          "foreground": "#352B30",
+          "background": "#F6EBD9",
+          "backing": "scene",
+          "ratio": 9.02973609587207
+        },
+        {
+          "sceneId": "scene-cover",
+          "elementId": "cover-title",
+          "foreground": "#352B30",
+          "background": "#F6EBD9",
+          "backing": "scene",
+          "ratio": 9.02973609587207
+        },
+        {
+          "sceneId": "scene-cover",
+          "elementId": "text-recipient",
+          "foreground": "#352B30",
+          "background": "#F6EBD9",
+          "backing": "scene",
+          "ratio": 9.02973609587207
+        },
+        {
+          "sceneId": "scene-cover",
+          "elementId": "cover-note",
+          "foreground": "#352B30",
+          "background": "#F6EBD9",
+          "backing": "scene",
+          "ratio": 9.02973609587207
+        },
+        {
+          "sceneId": "scene-cover",
+          "elementId": "open-gift",
+          "foreground": "#FFFFFF",
+          "background": "#825943",
+          "backing": "control",
+          "ratio": 6.070827085566248
+        },
+        {
+          "sceneId": "scene-album",
+          "elementId": "album-heading",
+          "foreground": "#352B30",
+          "background": "#F6EBD9",
+          "backing": "scene",
+          "ratio": 9.02973609587207
+        },
+        {
+          "sceneId": "scene-album",
+          "elementId": "album-story",
+          "foreground": "#352B30",
+          "background": "#F6EBD9",
+          "backing": "scene",
+          "ratio": 9.02973609587207
+        },
+        {
+          "sceneId": "scene-album",
+          "elementId": "album-next",
+          "foreground": "#FFFFFF",
+          "background": "#825943",
+          "backing": "control",
+          "ratio": 6.070827085566248
+        },
+        {
+          "sceneId": "scene-present",
+          "elementId": "present-heading",
+          "foreground": "#352B30",
+          "background": "#F6EBD9",
+          "backing": "scene",
+          "ratio": 9.02973609587207
+        },
+        {
+          "sceneId": "scene-present",
+          "elementId": "present-story",
+          "foreground": "#352B30",
+          "background": "#F6EBD9",
+          "backing": "scene",
+          "ratio": 9.02973609587207
+        },
+        {
+          "sceneId": "scene-present",
+          "elementId": "present-next",
+          "foreground": "#FFFFFF",
+          "background": "#825943",
+          "backing": "control",
+          "ratio": 6.070827085566248
+        },
+        {
+          "sceneId": "scene-reply",
+          "elementId": "reply-heading",
+          "foreground": "#352B30",
+          "background": "#F6EBD9",
+          "backing": "scene",
+          "ratio": 9.02973609587207
+        },
+        {
+          "sceneId": "scene-reply",
+          "elementId": "text-message",
+          "foreground": "#352B30",
+          "background": "#F6EBD9",
+          "backing": "scene",
+          "ratio": 9.02973609587207
+        },
+        {
+          "sceneId": "scene-reply",
+          "elementId": "text-sender",
+          "foreground": "#352B30",
+          "background": "#F6EBD9",
+          "backing": "scene",
+          "ratio": 9.02973609587207
+        },
+        {
+          "sceneId": "scene-reply",
+          "elementId": "back-cover",
+          "foreground": "#FFFFFF",
+          "background": "#825943",
+          "backing": "control",
+          "ratio": 6.070827085566248
+        }
+      ]
+    },
+    {
+      "id": "ban-do-ngay-ra-truong",
+      "locale": "en",
+      "minimum": 7.324727923889799,
+      "pairs": [
+        {
+          "sceneId": "scene-cover",
+          "elementId": "cover-kicker",
+          "foreground": "#21394C",
+          "background": "#E6EFF1",
+          "backing": "scene",
+          "ratio": 8.028678429770762
+        },
+        {
+          "sceneId": "scene-cover",
+          "elementId": "cover-title",
+          "foreground": "#21394C",
+          "background": "#E6EFF1",
+          "backing": "scene",
+          "ratio": 8.028678429770762
+        },
+        {
+          "sceneId": "scene-cover",
+          "elementId": "text-recipient",
+          "foreground": "#21394C",
+          "background": "#E6EFF1",
+          "backing": "scene",
+          "ratio": 8.028678429770762
+        },
+        {
+          "sceneId": "scene-cover",
+          "elementId": "cover-note",
+          "foreground": "#21394C",
+          "background": "#E6EFF1",
+          "backing": "scene",
+          "ratio": 8.028678429770762
+        },
+        {
+          "sceneId": "scene-cover",
+          "elementId": "open-gift",
+          "foreground": "#FFFFFF",
+          "background": "#375B6A",
+          "backing": "control",
+          "ratio": 7.324727923889799
+        },
+        {
+          "sceneId": "scene-milestone-1",
+          "elementId": "milestone-1-title",
+          "foreground": "#21394C",
+          "background": "#E6EFF1",
+          "backing": "scene",
+          "ratio": 8.028678429770762
+        },
+        {
+          "sceneId": "scene-milestone-1",
+          "elementId": "milestone-1-body",
+          "foreground": "#21394C",
+          "background": "#E6EFF1",
+          "backing": "scene",
+          "ratio": 8.028678429770762
+        },
+        {
+          "sceneId": "scene-milestone-1",
+          "elementId": "milestone-1-next",
+          "foreground": "#FFFFFF",
+          "background": "#375B6A",
+          "backing": "control",
+          "ratio": 7.324727923889799
+        },
+        {
+          "sceneId": "scene-milestone-2",
+          "elementId": "milestone-2-title",
+          "foreground": "#21394C",
+          "background": "#E6EFF1",
+          "backing": "scene",
+          "ratio": 8.028678429770762
+        },
+        {
+          "sceneId": "scene-milestone-2",
+          "elementId": "milestone-2-body",
+          "foreground": "#21394C",
+          "background": "#E6EFF1",
+          "backing": "scene",
+          "ratio": 8.028678429770762
+        },
+        {
+          "sceneId": "scene-milestone-2",
+          "elementId": "milestone-2-next",
+          "foreground": "#FFFFFF",
+          "background": "#375B6A",
+          "backing": "control",
+          "ratio": 7.324727923889799
+        },
+        {
+          "sceneId": "scene-milestone-3",
+          "elementId": "milestone-3-title",
+          "foreground": "#21394C",
+          "background": "#E6EFF1",
+          "backing": "scene",
+          "ratio": 8.028678429770762
+        },
+        {
+          "sceneId": "scene-milestone-3",
+          "elementId": "milestone-3-body",
+          "foreground": "#21394C",
+          "background": "#E6EFF1",
+          "backing": "scene",
+          "ratio": 8.028678429770762
+        },
+        {
+          "sceneId": "scene-milestone-3",
+          "elementId": "milestone-3-next",
+          "foreground": "#FFFFFF",
+          "background": "#375B6A",
+          "backing": "control",
+          "ratio": 7.324727923889799
+        },
+        {
+          "sceneId": "scene-reply",
+          "elementId": "reply-heading",
+          "foreground": "#21394C",
+          "background": "#E6EFF1",
+          "backing": "scene",
+          "ratio": 8.028678429770762
+        },
+        {
+          "sceneId": "scene-reply",
+          "elementId": "text-message",
+          "foreground": "#21394C",
+          "background": "#E6EFF1",
+          "backing": "scene",
+          "ratio": 8.028678429770762
+        },
+        {
+          "sceneId": "scene-reply",
+          "elementId": "text-sender",
+          "foreground": "#21394C",
+          "background": "#E6EFF1",
+          "backing": "scene",
+          "ratio": 8.028678429770762
+        },
+        {
+          "sceneId": "scene-reply",
+          "elementId": "back-cover",
+          "foreground": "#FFFFFF",
+          "background": "#375B6A",
+          "backing": "control",
+          "ratio": 7.324727923889799
+        }
+      ]
+    }
+  ]
+}

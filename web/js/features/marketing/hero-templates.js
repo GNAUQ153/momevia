@@ -1,5 +1,6 @@
 import { message, onLocaleChange, setAttr, setText } from '../../core/i18n.js';
 import { templateValue } from '../catalog/template-copy.js';
+import { marketingConnection, marketingDataSaverEnabled } from './motion-preferences.js';
 
 const duration = 5000;
 
@@ -15,16 +16,21 @@ export function mountHeroTemplates(host, templates) {
   const notes = [...root.querySelectorAll('.mkt-stage__note, .mkt-stage__reply')];
   const dialog = root.querySelector('.template-preview-dialog');
   const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+  const reducedData = globalThis.matchMedia?.('(prefers-reduced-data: reduce)');
+  const connection = marketingConnection(globalThis.navigator);
   const lifetime = new AbortController();
   const options = { signal: lifetime.signal };
   let index = 0, progress, peek, peekImage, generation = 0, visible = true;
+  const savingData = () => marketingDataSaverEnabled({ reducedData: reducedData?.matches, saveData: connection?.saveData });
   let userPaused = false;
+  let dataPaused = savingData();
   let noteMotions = [], noteStarts;
 
   function syncPlayback() {
     if (!playback || !playbackLabel) return;
-    const key = userPaused ? 'home.hero.resumeSlides' : 'home.hero.pauseSlides';
-    playback.dataset.state = userPaused ? 'paused' : 'playing';
+    const paused = userPaused || dataPaused;
+    const key = paused ? 'home.hero.resumeSlides' : 'home.hero.pauseSlides';
+    playback.dataset.state = paused ? 'paused' : 'playing';
     setAttr(playback, 'aria-label', message(key));
     setText(playbackLabel, message(key));
   }
@@ -82,7 +88,7 @@ export function mountHeroTemplates(host, templates) {
 
   function canRotate() {
     return !lifetime.signal.aborted && !reduce.matches && !userPaused &&
-      !document.hidden && visible && !dialog.open;
+      !dataPaused && !document.hidden && visible && !dialog.open;
   }
   function schedule() {
     // Dùng cùng trạng thái với đồng hồ thiệp để tạm dừng quầng sáng CSS.
@@ -166,8 +172,10 @@ export function mountHeroTemplates(host, templates) {
   }
   selectors.forEach((button, position) => button.addEventListener('click', () => void select(position), options));
   playback?.addEventListener('click', () => {
-    // Dừng đồng hồ, thiệp hé và cả hai note; không thay đổi mẫu đang mở.
-    userPaused = !userPaused;
+    // Người dùng chủ động bật lại slideshow dù chế độ tiết kiệm dữ liệu đang bật.
+    // Chỉ tự tạm dừng ban đầu; không bỏ qua yêu cầu giảm chuyển động.
+    if (dataPaused) { dataPaused = false; userPaused = false; }
+    else userPaused = !userPaused;
     syncPlayback();
     schedule();
   }, options);
@@ -177,6 +185,13 @@ export function mountHeroTemplates(host, templates) {
   dialog.addEventListener('close', schedule, options);
   document.addEventListener('visibilitychange', schedule, options);
   reduce.addEventListener('change', () => { update(); schedule(); }, options);
+  function onDataPreferenceChange() {
+    dataPaused = savingData();
+    syncPlayback();
+    schedule();
+  }
+  reducedData?.addEventListener?.('change', onDataPreferenceChange, options);
+  connection?.addEventListener?.('change', onDataPreferenceChange, options);
   const removeLocaleListener = onLocaleChange(() => { ++generation; update(); syncPlayback(); schedule(); });
   const observer = new IntersectionObserver(entries => {
     visible = entries[0].isIntersecting;

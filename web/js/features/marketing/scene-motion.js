@@ -6,6 +6,7 @@ function clamp(value, min, max) {
 
 import { mountJourney } from './journey.js';
 import { createLatestFrameScheduler } from './latest-frame.js';
+import { marketingConnection, marketingShouldShowStatic } from './motion-preferences.js';
 
 export function marketingPointerGeometry(event, bounds) {
   if (!event || !bounds) return null;
@@ -25,6 +26,8 @@ export function marketingPointerGeometry(event, bounds) {
 export function mountMarketingMotion(root, { signal } = {}) {
   if (!root || typeof window === 'undefined') return () => {};
   const media = window.matchMedia?.('(prefers-reduced-motion: reduce)');
+  const reducedData = window.matchMedia?.('(prefers-reduced-data: reduce)');
+  const connection = marketingConnection(window.navigator);
   const pointer = window.matchMedia?.('(hover: hover) and (pointer: fine)');
   const stage = root.querySelector('[data-mkt-tilt]');
   const revealItems = [...root.querySelectorAll('[data-mkt-reveal]')];
@@ -34,8 +37,14 @@ export function mountMarketingMotion(root, { signal } = {}) {
   let observer = null;
   let disposed = false;
 
+  function staticPreferred() {
+    return marketingShouldShowStatic({
+      reducedMotion: media?.matches, reducedData: reducedData?.matches, saveData: connection?.saveData,
+    });
+  }
+
   function motionAllowed() {
-    return !media?.matches && Boolean(pointer?.matches) && !ownerDocument?.hidden;
+    return !staticPreferred() && Boolean(pointer?.matches) && !ownerDocument?.hidden;
   }
 
   // Đọc kích thước phần tử trong RAF, không đọc ở từng sự kiện pointermove.
@@ -88,7 +97,7 @@ export function mountMarketingMotion(root, { signal } = {}) {
 
   function syncReveal() {
     // Khi giảm chuyển động giữa chừng, không để nội dung bị ẩn bởi CSS reveal.
-    if (media?.matches || typeof window.IntersectionObserver !== 'function') {
+    if (staticPreferred() || typeof window.IntersectionObserver !== 'function') {
       showReveal();
       return;
     }
@@ -133,6 +142,8 @@ export function mountMarketingMotion(root, { signal } = {}) {
     stage.addEventListener('pointerleave', resetTilt, { signal: lifetime.signal });
   }
   media?.addEventListener?.('change', onPreferenceChange, { signal: lifetime.signal });
+  reducedData?.addEventListener?.('change', onPreferenceChange, { signal: lifetime.signal });
+  connection?.addEventListener?.('change', onPreferenceChange, { signal: lifetime.signal });
   pointer?.addEventListener?.('change', resetTilt, { signal: lifetime.signal });
   ownerDocument?.addEventListener?.('visibilitychange', onVisibilityChange, { signal: lifetime.signal });
   syncReveal();

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { marketingPointerGeometry, mountMarketingMotion } from '../../web/js/features/marketing/scene-motion.js';
 
-function mockBrowser({ reduce = false, fine = true, observerSupported = true } = {}) {
+function mockBrowser({ reduce = false, fine = true, saveData = false, reducedData = false, observerSupported = true } = {}) {
   const doc = Object.assign(new EventTarget(), { hidden: false });
   const styleValues = new Map();
   const attrs = new Set();
@@ -28,6 +28,8 @@ function mockBrowser({ reduce = false, fine = true, observerSupported = true } =
   };
   const reducedMedia = Object.assign(new EventTarget(), { matches: reduce });
   const pointerMedia = Object.assign(new EventTarget(), { matches: fine });
+  const dataMedia = Object.assign(new EventTarget(), { matches: reducedData });
+  const connection = Object.assign(new EventTarget(), { saveData });
   const frames = new Map();
   let nextFrame = 0;
   const observers = [];
@@ -45,7 +47,9 @@ function mockBrowser({ reduce = false, fine = true, observerSupported = true } =
   }
   const browser = {
     document: doc,
-    matchMedia: query => query.includes('reduced-motion') ? reducedMedia : pointerMedia,
+    matchMedia: query => query.includes('reduced-motion') ? reducedMedia
+      : query.includes('reduced-data') ? dataMedia : pointerMedia,
+    navigator: { connection },
     requestAnimationFrame: callback => { const id = ++nextFrame; frames.set(id, callback); return id; },
     cancelAnimationFrame: id => frames.delete(id),
     flush: () => { for (const [id, callback] of [...frames]) { frames.delete(id); callback(); } },
@@ -56,7 +60,7 @@ function mockBrowser({ reduce = false, fine = true, observerSupported = true } =
     Object.assign(event, { clientX: x, clientY: y, pointerType });
     stage.dispatchEvent(event);
   };
-  return { browser, doc, stage, move, styleValues, attrs, root, rootAttrs, item, revealed, observers, frames, reducedMedia, pointerMedia };
+  return { browser, doc, stage, move, styleValues, attrs, root, rootAttrs, item, revealed, observers, frames, reducedMedia, pointerMedia, dataMedia, connection };
 }
 
 function withBrowser(options, callback) {
@@ -150,6 +154,33 @@ test('Giảm chuyển động giữa chừng không khiến nội dung reveal b�
   });
 });
 
+
+test('Data saver dừng 3D, hủy RAF đang chờ và hiển thị nội dung reveal', () => {
+  withBrowser({}, ({ root, rootAttrs, revealed, move, frames, browser, attrs, connection, dataMedia }) => {
+    const dispose = mountMarketingMotion(root);
+    move(300, 100);
+    assert.equal(frames.size, 1);
+    connection.saveData = true;
+    connection.dispatchEvent(new Event('change'));
+    assert.equal(frames.size, 0, 'không giữ RAF cũ khi bật Save-Data');
+    assert.equal(rootAttrs.has('data-mkt-motion-ready'), false, 'không ẩn nội dung reveal');
+    assert.equal(revealed.has('mkt-is-visible'), true);
+    move(300, 100);
+    assert.equal(frames.size, 0);
+    connection.saveData = false;
+    connection.dispatchEvent(new Event('change'));
+    dataMedia.matches = true;
+    dataMedia.dispatchEvent(new Event('change'));
+    move(300, 100);
+    assert.equal(frames.size, 0, 'prefers-reduced-data cũng được tôn trọng');
+    dataMedia.matches = false;
+    dataMedia.dispatchEvent(new Event('change'));
+    move(300, 100);
+    browser.flush();
+    assert.equal(attrs.has('data-mkt-pointer-active'), true, 'trở lại chuyển động khi cho phép');
+    dispose();
+  });
+});
 test('AbortSignal gỡ listener, không để RAF cũ thay đổi trang mới', () => {
   withBrowser({}, ({ root, move, frames, styleValues, rootAttrs, browser }) => {
     const lifetime = new AbortController();

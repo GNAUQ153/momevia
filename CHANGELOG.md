@@ -1,3 +1,9 @@
+## Unreleased — Marketing Performance V12: Data Saver & Motion (2026-11-23)
+
+- Marketing Hero tạm dừng slideshow/teaser và chuyển nhãn điều khiển sang “Tiếp tục trình chiếu” khi trình duyệt bật `saveData` hoặc `prefers-reduced-data`; vẫn cho phép người dùng chủ động phát, nhưng không bỏ qua `prefers-reduced-motion`.
+- Ngừng tilt/ánh sáng 3D và hủy animation frame khi bật tiết kiệm dữ liệu. Reveal chuyển sang hiển thị ngay, tránh nội dung bị ẩn sau khi tắt motion.
+- Gom kiểm tra ưu tiên chuyển động vào `marketing/motion-preferences.js`, bổ sung test bật/tắt trong phiên và bảo toàn listener lifecycle. Không thay đổi Canvas, API, tài chính, OAuth, giao diện VI/EN hoặc nguồn ảnh/nhạc.
+
 ## Unreleased — Sửa logo Zalo Social Login (2026-11-23)
 
 - Thay biểu tượng Zalo giả (chữ Z) trên `/login` bằng SVG Zalo nhận diện bong bóng thoại và chữ “Zalo” được lưu nội bộ tại `web/assets/brand/zalo.svg`.

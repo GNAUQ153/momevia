@@ -18,7 +18,8 @@ test("Login có một CTA Đăng ký ngay, dẫn đúng /register và nằm trư
   assert.match(html, /Đăng ký ngay/);
   assert.equal((html.match(/href="\/register"/g) || []).length, 1);
   assert.ok(html.indexOf("auth-switch--signup") > html.indexOf("email-login-form"));
-  assert.doesNotMatch(html, /class="auth-divider"/); // Không hiện lựa chọn SSO chưa được cấu hình.
+  assert.match(html, /class="auth-divider"/); // Giữ vị trí OAuth, không tạo liên kết giả khi chưa cấu hình.
+  assert.equal((html.match(/class="auth-social auth-social--disabled"/g) || []).length, 2);
   assert.match(html, /href="\/recover" data-link/);
 });
 
@@ -35,7 +36,8 @@ test("CSS không còn ẩn liên kết .auth-switch và có vùng bấm/focus r�
   const css = file("web/css/auth-pages.css");
   assert.doesNotMatch(css, /\.auth-switch a\s*,\s*\.is-auth \.site-tools\s*\{\s*display:\s*none/);
   assert.match(css, /\.auth-page \.auth-switch\.auth-switch--signup\s*\{[^}]*border: 1px solid/);
-  assert.match(css, /\.auth-switch a,\s*\.auth-recovery-link a\s*\{/);
+  assert.match(css, /\.auth-switch a\s*\{/);
+  assert.match(css, /\.auth-recovery-link a\s*\{/);
   assert.match(css, /\.auth-switch a:focus-visible/);
 });
 

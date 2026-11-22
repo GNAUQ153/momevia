@@ -36,7 +36,7 @@ test('priority works before pagination and respects search, free-only and photo-
   const ordered=prioritizeTemplates(filterTemplates(rows,{freeOnly:true,photoOnly:true}));
   assert.deepEqual(paginateTemplates(ordered,1).items.map(t=>t.id),PRIORITY_TEMPLATE_IDS);
   const wedding=prioritizeTemplates(filterTemplates(rows,{search:'đám cưới'}));
-  assert.deepEqual(wedding.map(t=>t.id),['hai-phong-bi']);
+  assert.deepEqual(wedding.map(t=>t.id),['hai-phong-bi', 'loi-moi-ben-hien']);
   assert.deepEqual(prioritizeTemplates(filterTemplates(rows,{search:'no matching template'})),[]);
 });
 

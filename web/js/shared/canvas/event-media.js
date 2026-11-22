@@ -1,6 +1,12 @@
+import { REALISTIC_MEDIA } from './realistic-media.js';
+import { INTERACTIVE_MEDIA } from './interactive-media.js';
 // Immutable, generated Originals. No arbitrary paths or remote image URLs.
+export const REALISTIC_ARTWORK_LABEL = 'Momevia Original photography-style artwork v3';
+export const ORIGINAL_ARTWORK_LABEL = 'Momevia Original artwork v2';
 export const EVENT_ARTWORK_LABEL = 'Momevia Original artwork v1';
 export const EVENT_MEDIA = Object.freeze({
+  ...REALISTIC_MEDIA,
+  ...INTERACTIVE_MEDIA,
   'event-birthday-album-5190e92b69f2': { file: 'birthday-album-5190e92b69f2.webp', sha256: '5190e92b69f2e536995315a8de6a6c4a1bdf1fa15888b3b49d1f83972d93ea1b', width: 900, height: 1107, previewOnly: true },
   'event-wedding-album-b8ee7c30318b': { file: 'wedding-album-b8ee7c30318b.webp', sha256: 'b8ee7c30318b8fd9752c83d2678d18acbaa4109156fd7ec4875f522f278c1fc9', width: 900, height: 1350, previewOnly: true },
   'event-graduation-album-6d113d2dc27b': { file: 'graduation-album-6d113d2dc27b.webp', sha256: '6d113d2dc27b1d6fb564b0d25b3430260375ac023482566266c54a25631c3147', width: 900, height: 1350, previewOnly: true },

@@ -1,3 +1,4 @@
+import { SEMANTIC_TEMPLATE_IDS, captureSemanticRoles } from '../../../web/js/shared/canvas/template-slots.js';
 import { createHash, randomUUID } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -29,7 +30,7 @@ export function designView(d) {
   const document = copy(d.document);
   const reviewTemplateDefaults = d.source.kind === 'template' && d.source.templateVersionId && d.provenance?.adapter === 'creator-v1'
     && d.policy?.kind === 'creator-template' && clearTemplateBindingDefaults(document, d.policy.editableBindings);
-  return { id: d.id, title: d.title, source: copy(d.source), policy: copy(d.policy), purpose: d.provenance?.purpose, revision: d.revision, schemaVersion: document.schemaVersion, document, documentHash: d.documentHash,
+  return { ...(d.provenance?.restyledFrom ? {restyledFrom:copy(d.provenance.restyledFrom)} : {}), id: d.id, title: d.title, source: copy(d.source), policy: copy(d.policy), purpose: d.provenance?.purpose, revision: d.revision, schemaVersion: document.schemaVersion, document, documentHash: d.documentHash,
     ...(reviewTemplateDefaults ? { reviewTemplateDefaults } : {}),
     ...(d.provenance?.startingLocale ? { startingLocale: d.provenance.startingLocale } : {}),
     createdAt: d.createdAt, updatedAt: d.updatedAt };
@@ -80,7 +81,7 @@ export class DesignsService {
     return { source: { kind: 'template', templateId: template.id, templateVersionId }, provenance: { adapter: 'legacy-v1', templateHash }, template };
   }
   async create(user, input, { sourceFor = () => this.source(input.source), requestHash = hash(input), locale } = {}) {
-    this.requireEdit(); fields(input, ['source', 'presetId', 'mutationId', 'title', 'purpose']); uuid(input.mutationId);
+    this.requireEdit(); fields(input, ['source', 'presetId', 'mutationId', 'title', 'purpose', 'trialBindings']); uuid(input.mutationId);
     if (input.purpose !== undefined && (input.purpose !== 'creator' || input.source?.kind !== 'blank' || !['creator','admin'].includes(user.role)))
       throw canvasError(403, 'CREATOR_REQUIRED', 'Chỉ Creator được tạo nháp mẫu.');
     const previous = await this.repository.findCreate(user.sub, input.mutationId, requestHash);
@@ -120,9 +121,16 @@ export class DesignsService {
     const templateTitle = templateTitleKey ? localize(templateTitleKey) : resolved.template?.title;
     const defaultTitle = templateTitle ? localize('templates.draft.from', { title: templateTitle }).slice(0, 120)
       : localize('templates.draft.untitled');
+    if (input.trialBindings !== undefined) {
+      fields(input.trialBindings,['recipientName','senderName','message']);
+      if (resolved.version || input.purpose) throw canvasError(422,'TRIAL_SOURCE_UNSUPPORTED','Mẫu này không hỗ trợ dữ liệu thử.');
+      for (const [key,value] of Object.entries(input.trialBindings)) document.bindings[key].value=value;
+      validateDocument(document);
+    }
     const record = { id, ownerId: user.sub, title: title(input.title || defaultTitle),
       source: resolved.source, provenance: { ...resolved.provenance, ...(input.purpose ? { purpose: input.purpose } : {}),
-        ...(locale && isSystemTemplate(resolved.template) ? { startingLocale: locale } : {}) }, policy, revision: 1, schemaVersion: document.schemaVersion,
+        ...(locale && isSystemTemplate(resolved.template) ? { startingLocale: locale } : {}),
+        ...(!resolved.document && !resolved.version && SEMANTIC_TEMPLATE_IDS.includes(resolved.source.templateId) ? {slotMap:{templateVersionId:resolved.source.templateVersionId,elements:captureSemanticRoles(document)}} : {}) }, policy, revision: 1, schemaVersion: document.schemaVersion,
       document, documentHash: hash(document), createdAt: now, updatedAt: now, archivedAt: null };
     validateDocument(document);
     const result = await this.repository.create(user.sub, input.mutationId, requestHash, record, assets);
@@ -223,7 +231,9 @@ export class DesignsService {
     const policy = copy(current.policy); policy.lockedElements = Object.fromEntries(Object.entries(policy.lockedElements || {}).map(([key, value]) => [mapping.get(key) || key, value]));
     if (policy.photoId) policy.photoId = mapping.get(policy.photoId);
     const now = new Date().toISOString();
-    const record = { ...copy(current), id: randomUUID(), title: title(`${current.title.slice(0, 108)} (bản sao)`), document, documentHash: hash(document), revision: 1, policy, createdAt: now, updatedAt: now, archivedAt: null };
+    const provenance=copy(current.provenance);
+    if(current.policy.kind==='sender-basic' && SEMANTIC_TEMPLATE_IDS.includes(current.source.templateId))provenance.slotMap={templateVersionId:current.source.templateVersionId,elements:captureSemanticRoles(current.document,current.provenance?.slotMap?.elements,mapping)};
+    const record = { ...copy(current), provenance, id: randomUUID(), title: title(`${current.title.slice(0, 108)} (bản sao)`), document, documentHash: hash(document), revision: 1, policy, createdAt: now, updatedAt: now, archivedAt: null };
     await this.assetsFor(user.sub, document);
     const result = await this.repository.create(user.sub, input.mutationId, hash({ duplicateOf: id, ...input }), record);
     return { ...result, design: designView(result.design) };

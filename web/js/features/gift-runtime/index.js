@@ -34,6 +34,7 @@ export function mountPlayer(
     navigationIntent = null;
   const shell = globalThis.document.createElement("div");
   shell.className = `gift-runtime gift-runtime-mode-${mode}`;
+  if(effectPreview?.family)shell.dataset.effectPreview=effectPreview.family;
   shell.style.maxWidth = `${document.responsive.desktop.maxContentWidth}px`;
   const marker = globalThis.document.createElement("p");
   marker.className = "gift-runtime-mode-label";
@@ -73,6 +74,7 @@ export function mountPlayer(
   skip.addEventListener("click", () => typewriters.forEach(finish => finish()), { signal: lifetime.signal });
   toolbar.append(motionControl, skip);
   const updateMotionControl = () => {
+    shell.dataset.motion=motion.enabled()?"on":"off";
     motionControl.setAttribute("aria-pressed", String(!motion.enabled()));
     motionControl.disabled = preference.matches;
     if (!motion.enabled()) motion.cancel();
@@ -84,6 +86,8 @@ export function mountPlayer(
   }, {signal:lifetime.signal});
   preference.addEventListener("change", updateMotionControl, {signal:lifetime.signal});
   updateMotionControl();
+  const syncVisibility=()=>{shell.dataset.visibility=globalThis.document.hidden?'hidden':'visible';if(globalThis.document.hidden)motion.pause();else motion.resume();};
+  globalThis.document.addEventListener('visibilitychange',syncVisibility,{signal:lifetime.signal});syncVisibility();
   shell.append(marker, stage, progress, navigation, status);
   if (document.schemaVersion === 2 && (document.scenes.some(scene => scene.effects) || document.elements.some(element => element.effects)))
     shell.insertBefore(toolbar, stage);

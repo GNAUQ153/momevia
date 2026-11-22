@@ -1,3 +1,5 @@
+import { RESTYLE_PAIRS } from '../shared/canvas/template-slots.js';
+import { openTemplateTrial } from '../features/catalog/template-trial.js';
 import { captureTranslator, createLocaleControl, currentLocale, message, onLocaleChange, setAttr, setText, t } from "../core/i18n.js";
 import { errorCopy } from "../core/api.js";
 import {
@@ -25,7 +27,7 @@ import { submissionChanges } from "../shared/canvas/submission.js";
 import { giftLinkDescription } from "../shared/gift-permissions.js";
 import { framePhoto, MEMORY_TEMPLATE_ID, memoryGreetingStarterKeys } from "../shared/canvas/basic-templates.js";
 import { materializeTemplateStart } from '../features/canvas-editor/template-start.js';
-import { createEventFields, updateEventFields, storyAlbum, storyClock } from '../features/canvas-editor/event-fields.js';
+import { createEventFields, updateEventFields, createStoryTextFields, updateStoryTextFields, storyAlbum, storyClock } from '../features/canvas-editor/event-fields.js';
 import { predictionCard, PREDICTION_KIND } from '../shared/canvas/prediction.js';
 import { createPredictionFields, updatePredictionFields } from '../features/canvas-editor/prediction-fields.js';
 import { celebrationFields } from '../features/canvas-editor/celebration-fields.js';
@@ -416,6 +418,8 @@ export function mountDesigner(
         maxlength: 120,
       }),
       statusNode(),
+      design.restyledFrom ? button(message("restyle.original"),"restyle-original") : null,
+      design.policy?.kind === "sender-basic" && RESTYLE_PAIRS[design.source.templateId] ? button(message("restyle.title"), "restyle") : null,
       design.source?.kind === "template" ? button("", "toggle-mode", { class: "editor-mode" }) : null,
     );
     const top = node("header", { class: "editor-topbar" }, heading, tools);
@@ -464,8 +468,9 @@ export function mountDesigner(
               ),
           ),
         node("div", { class: "editor-quick-only" },
+          design.policy?.kind === 'sender-basic' ? createStoryTextFields(store.get().document) : null,
           predictionCard(store.get().document) ? createPredictionFields(predictionCard(store.get().document)) : null,
-          design.policy?.kind === 'sender-basic' && ['birthday-radiance','hai-phong-bi','proud-of-you'].includes(design.source.templateId) ? createEventFields(store.get().document) : null,
+          design.policy?.kind === 'sender-basic' && ['birthday-radiance','hai-phong-bi','proud-of-you','loi-moi-ben-hien','cuon-phim-ngay-ay'].includes(design.source.templateId) ? createEventFields(store.get().document) : null,
           design.source.templateId === MEMORY_TEMPLATE_ID ? node("div", { class: "editor-greeting-starters" },
             node("p", { class: "editor-help" }, message("editor.quick.startGreeting")),
             ...memoryGreetingStarterKeys.map((key, index) => button(message(key), "greeting-starter", { "data-index": index })),
@@ -778,18 +783,18 @@ export function mountDesigner(
       const prefix = `effect.${family}.`;
       return [node("fieldset", { class: "editor-effect-settings" },
         node("legend", {}, family === 'ambience' && model.effects?.celebrations ? message('editor.celebrations.once') : message(`editor.effects.family.${family}`)),
-        select(message("editor.interface.effects"), prefix + "id", preset?.id, [["", message("editor.interface.effectOff")], ...options.map(([id]) => [id, id === preset?.id && preset.definition ? libraryText(preset.definition.title, currentLocale()) : effectLabel(id, currentLocale())])]),
+        select(message("editor.interface.effects"), prefix + "id", preset?.id, [["", message("editor.interface.effectOff")], ...options.map(([id]) => [id, id === preset?.id && preset.definition ? libraryText(preset.definition.title, currentLocale()) : /^[SEATBR][0-9]{2}$/.test(id) ? message(`editor.effects.preset.${id}`) : effectLabel(id, currentLocale())])]),
         preset && family !== "surface" ? select(message("editor.interface.speed"), prefix + "speed", preset.speed || "normal",
           [["slow", message("editor.interface.slow")], ["normal", message("editor.interface.normal")], ["fast", message("editor.interface.fast")]]) : null,
         preset && family === "entrance" ? select(message("editor.interface.delay"), prefix + "delay", preset.delay || 0,
-          [[0, "Ngay"], [150, "150 ms"], [300, "300 ms"]]) : null,
+          [[0, message("editor.interface.delayImmediate")], [150, "150 ms"], [300, "300 ms"]]) : null,
         preset && family === "ambience" ? select(message("editor.interface.density"), prefix + "density", preset.density || "normal",
           [["sparse", message("editor.interface.sparse")], ["normal", message("editor.interface.normal")]]) : null,
         preset?.definition?.animation.engine === 'particles' ? field(message('editor.celebrations.loop'), node('input', {
           type: 'checkbox', checked: preset.loop === true, 'data-editor-field': prefix + 'loop',
         })) : null,
-        preset && ["S02", "S04"].includes(preset.id) ? input(message("editor.interface.stroke"), prefix + "color",
-          preset.color || (preset.id === "S02" ? "#6D488A" : "#F3DA97"), { type: "color" }) : null,
+        preset && (["S02", "S04"].includes(preset.id) || preset.definition?.animation.styles?.shadowBlur !== undefined) ? input(message(preset.definition?.animation.styles?.shadowBlur !== undefined ? "adminLibrary.style.shadowColor" : "editor.interface.stroke"), prefix + "color",
+          preset.color || preset.definition?.animation.styles?.shadowColor || (preset.id === "S02" ? "#6D488A" : "#F3DA97"), { type: "color" }) : null,
         preset ? node("div", { class: "editor-control-row" },
           button(message("editor.interface.preview"), "effect-preview", { "data-family": family }),
           button(message("editor.interface.removeEffect"), "effect-remove", { "data-family": family })) : null,
@@ -801,6 +806,8 @@ export function mountDesigner(
   function interactionFields(model) {
     const p = model.props, spec = interactionKinds[p.kind], doc = store.get().document;
     const fields = [input(message("editor.interface.blockBackground"), "props.color", p.color, { type: "color" })];
+    if (p.kind === 'light-a-candle') fields.push(select(message('interactive.candleAppearance'),'props.appearance',p.appearance || 'classic',[['classic',message('interactive.candleClassic')],['cake-overlay-v1',message('interactive.candleOverlay')],['cake-photo-v2',message('interactive.candlePhoto')]]));
+    if(p.kind==='foldout-letter')fields.push(select(message('interactive.foldPaper'),'props.appearance',p.appearance || 'classic',[['classic',message('interactive.foldClassic')],['paper-fold-v2',message('interactive.foldPaper')]]));
     if (p.kind === PREDICTION_KIND) return [...fields, createPredictionFields(model, 'inspector')];
     for (const [i, entry] of (p.entries || []).entries()) {
       fields.push(input(message(`editor.interactionField.${p.kind}.${i}.0`), `entry.${i}.heading`, entry.heading, { maxlength: 120 }));
@@ -1197,6 +1204,7 @@ export function mountDesigner(
     renderAssets();
     main.querySelector(".editor-quick-photo").hidden = !quickPhotoFrame();
     updateEventFields(main, doc, assetUrl);
+    updateStoryTextFields(main,doc);
     updatePredictionFields(main, doc);
     const removePhoto = main.querySelector('[data-editor-action="remove-frame-photo"]');
     if (removePhoto) removePhoto.hidden = !framePhoto(doc, quickPhotoFrame());
@@ -1371,6 +1379,7 @@ export function mountDesigner(
       const photo = element.props.photos?.find(item => item.id === slotId);
       if (!photo) return;
       photo.assetId = assetId;
+      if(element.props.kind === "swipe-album" && element.props.optional === true && design.policy?.kind !== "creator-template") photo.focalPoint={x:.5,y:.5};
     } else if (isLegacyFrame(element)) {
       value.document = insertPhotoFrame(value.document, assetId, elementId);
       return;
@@ -2112,6 +2121,8 @@ export function mountDesigner(
       openPreview({ family: 'ambience', sceneId: currentScene().id, celebrationId: target.dataset.celebration });
       return;
     }
+    if (name === "restyle-original") {await flushSave();navigate(`/design/${design.restyledFrom.designId}?mode=quick`);return;}
+    if (name === "restyle") return openTemplateTrial({templateId:design.source.templateId,sourceDesign:design,request,navigate,save:()=>session.save(),signal});
     if (name === "effect-preview") {
       openPreview({ family: target.dataset.family, elementId: selection, sceneId: currentScene().id });
       return;
@@ -2424,6 +2435,8 @@ export function mountDesigner(
           if (card) card.props[field] = field === 'prediction' ? value || null : value;
           return;
         }
+        if (key.startsWith('story-text.')) {const e=next.document.elements.find(e=>e.id===key.split('.')[1]);if(e)e.props.text=value;return;}
+        if (key.startsWith('story-fold.')) {const [,id,index,property]=key.split('.');const e=next.document.elements.find(e=>e.id===id);if(e)e.props.entries[index][property]=value;return;}
         if (key.startsWith("binding.")) {
           next.document.bindings[key.slice(8)].value = value;
           return;

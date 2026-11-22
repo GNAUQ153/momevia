@@ -55,7 +55,7 @@ function animationFields(item) {
   if (d.engine === 'builtin') fields.push(choose('animation.builtin', d.builtinId, prefix + 'builtinId', Object.values(CORE_EFFECT_IDS).flat().map(id => [id, t(`editor.effects.preset.${id}`)])));
   if (['builtin','keyframes','particles'].includes(d.engine)) fields.push(grid(number('animation.duration', d.duration, prefix + 'duration', 100, 10000, { 'data-optional': 'true' }),
     ...(d.engine === 'keyframes' ? [choose('animation.easing', d.easing || 'ease-out', prefix + 'easing', ['linear','ease','ease-in','ease-out','ease-in-out'].map(id => [id, t(`adminLibrary.easing.${id}`)])),
-      number('animation.iterations', d.iterations || 1, prefix + 'iterations', 1, 5, { step: 1 })] : [])));
+      number('animation.iterations', d.iterations || 1, prefix + 'iterations', 1, 5, { step: 1 }),choose('animation.composite',d.composite || 'replace',prefix+'composite',[['replace',t('adminLibrary.composite.replace')],['add',t('adminLibrary.composite.add')]])] : [])));
   if (d.engine === 'keyframes') fields.push(node('div', { class: 'library-admin__keyframes' },
     node('p', { class: 'library-admin__help' }, message('adminLibrary.animation.frameHelp')),
     ...(d.keyframes || []).map((frame, index) => node('section', { class: 'library-admin__keyframe' },
@@ -67,7 +67,11 @@ function animationFields(item) {
     action('animation.addFrame', 'add-frame', { disabled: d.keyframes.length >= 16 })));
   if (d.engine === 'surface') fields.push(grid(...['color','backgroundColor','borderColor','shadowColor'].map(key => input(`style.${key}`, d.styles?.[key], prefix + 'styles.' + key,
     { placeholder: '#RRGGBB', pattern: '#[0-9a-fA-F]{6}', 'data-optional': 'true' })),
-  ...['borderWidth','borderRadius','shadowBlur'].map(key => number(`style.${key}`, d.styles?.[key], prefix + 'styles.' + key, 0, 128, { 'data-optional': 'true' }))));
+  ...['borderWidth','borderRadius','shadowBlur','blur'].map(key => number(`style.${key}`, d.styles?.[key], prefix + 'styles.' + key, 0, key==='blur'?32:128, { 'data-optional': 'true' })),
+  ...['shadowX','shadowY'].map(key=>number(`style.${key}`,d.styles?.[key],prefix+'styles.'+key,-64,64,{'data-optional':'true'})),
+  number('style.shadowOpacity',d.styles?.shadowOpacity,prefix+'styles.shadowOpacity',0,1,{step:.01,'data-optional':'true'}),
+  choose('style.shadowMode',d.styles?.shadowMode||'box',prefix+'styles.shadowMode',[['box',t('adminLibrary.shadow.box')],['alpha',t('adminLibrary.shadow.alpha')]]),
+  choose('style.texture',d.styles?.texture||'',prefix+'styles.texture',[['',t('adminLibrary.texture.none')],['paper-grain-v1',t('adminLibrary.texture.paper')]],{'data-optional':'true'})));
   if (d.engine === 'particles') fields.push(input('animation.glyphs', d.glyphs?.join(' '), '', { 'data-operation': 'glyphs', 'data-field': 'glyphs', maxlength: 80, required: true }),
     input('animation.colors', d.colors?.join(', '), '', { 'data-operation': 'colors', 'data-field': 'particle-colors', maxlength: 80, required: true }),
     grid(number('animation.count', d.count, prefix + 'count', 1, 24, { step: 1, required: true }), number('animation.drift', d.drift, prefix + 'drift', -300, 300, { 'data-optional': 'true' })));

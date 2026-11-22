@@ -10,6 +10,7 @@ const metaKeys = new Map(Object.entries(vi)
 
 export function templateFieldKey(template, field) {
   if (!isSystemTemplate(template)) return undefined;
+  if (field === 'paletteLabel' && template.palette) return `templates.meta.palette.${template.palette}`;
   if (field === 'title' || field === 'subtitle') {
     const key = templateCopyKey(template.id, field);
     return vi[key] === template[field] ? key : undefined;

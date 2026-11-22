@@ -1,3 +1,4 @@
+import { eventRecipes, eventRecipe } from './event-recipes.js';
 import { libraryEntries, libraryEntry, libraryText } from './library-state.js';
 import { allowsEffect, builtinEffectApplies } from './library-contract.js';
 const group = (label, prefix, names) => Object.freeze({
@@ -20,15 +21,15 @@ export function effectsFor(family, element, { builtin = false } = {}) {
   const configured = !builtin && libraryEntries('effect');
   if (configured) return configured.filter(row => row.definition.family === family && allowsEffect(row.definition.targets, element))
     .map(row => [row.id, libraryText(row.definition.title)]);
-  const options = Object.entries(effectFamilies[family].presets);
-  if (!element) return family === 'surface' ? options.filter(([id]) => id === 'S03') : options;
+  const options = [...Object.entries(effectFamilies[family].presets), ...(!builtin ? eventRecipes.filter(r=>r.family===family && allowsEffect(r.targets,element)).map(r=>[r.id,libraryText(r.title)]) : [])];
+  if (!element) return family === 'surface' ? options.filter(([id]) => id === 'S03' || (!builtin && eventRecipes.some(r=>r.id===id&&r.targets.scenes))) : options;
   return options.filter(([id]) => builtinEffectApplies(id, element));
 }
 export function effectLabel(id, locale = 'vi') { return libraryText(libraryEntry('effect', id)?.definition.title, locale) ||
-  Object.values(effectFamilies).flatMap(f => Object.entries(f.presets)).find(([key]) => key === id)?.[1] || id; }
+  libraryText(eventRecipes.find(r=>r.id===id)?.title,locale) || Object.values(effectFamilies).flatMap(f => Object.entries(f.presets)).find(([key]) => key === id)?.[1] || id; }
 export function effectPreset(id, family) {
   const item = libraryEntry('effect', id);
-  if (!item) return { id };
+  if (!item) return eventRecipes.some(r=>r.id===id) ? eventRecipe(id) : { id };
   const value = item.definition, animation = libraryEntry('animation', value.animationId);
   if (!animation) throw new Error('Canvas library animation unavailable.');
   return { id, ...structuredClone(value.defaults || {}), definition: { id, revision: item.revision, family,

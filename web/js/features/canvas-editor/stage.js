@@ -34,7 +34,8 @@ export function createStage(
   let zoom = 1,
     gesture = null,
     disposed = false;
-  let selectionOutline, inlineEditor;
+  let selectionOutline, inlineEditor, renderLifecycle;
+  signal.addEventListener('abort',()=>renderLifecycle?.abort(),{once:true});
   function setZoom(value) {
     if (gesture && value !== zoom) gesture.rect = null;
     zoom = value;
@@ -46,7 +47,8 @@ export function createStage(
     surround.style.height = `${size.height * zoom}px`;
   }
   function render() {
-    if (disposed || gesture || inlineEditor) return;
+    if (disposed || signal.aborted || gesture || inlineEditor) return;
+    renderLifecycle?.abort();renderLifecycle=new AbortController();
     const doc = store.get().document,
       scene =
         doc.scenes.find((item) => item.id === getSceneId()) || doc.scenes[0];
@@ -64,7 +66,7 @@ export function createStage(
         document: doc,
         assetUrl,
         mode: "editor",
-        signal,
+        signal:renderLifecycle.signal,
       });
       applyLayout(item, element, doc.artboard.baseSize, { responsive: false });
       item.style.zIndex = String(scene.elementIds.indexOf(id));

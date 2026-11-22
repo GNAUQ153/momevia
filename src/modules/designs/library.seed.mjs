@@ -1,3 +1,4 @@
+import { eventRecipes } from '../../../web/js/shared/canvas/event-recipes.js';
 import { registry } from '../../../web/js/shared/canvas/registry.js';
 import { catalog } from '../../../web/js/features/canvas-editor/library.js';
 import { effectFamilies, effectsFor } from '../../../web/js/shared/canvas/effects.js';
@@ -38,6 +39,10 @@ export function builtinLibraryItems() {
           ...(id === 'R04' ? { kinds: ['light-a-candle'] } : {}), ...(id === 'R03' ? { excludeKinds: ['event-countdown','photo-comparison'] } : {}) },
         defaults: { ...(family !== 'surface' ? { speed: 'normal' } : {}), ...(family === 'entrance' ? { delay: 0 } : {}), ...(family === 'ambience' ? { density: 'normal' } : {}) },
       });
+    }
+    for (const {id,animation,...definition} of eventRecipes) {
+      add('animation', id, animation);
+      add('effect', id, {...definition, animationId:id});
     }
     // Capture the complete compositions, not names pointing back to JS factories.
     for (const [index, group] of catalog.entries()) for (const card of group.items) add('element', card.id, {

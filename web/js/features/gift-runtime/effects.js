@@ -22,19 +22,21 @@ export function applySurface(node, preset) {
 }
 
 export function createMotion(isEnabled) {
-  const pending = new Set();
+  const pending = new Set(), animations=new Set();
+  let paused=false;
   function run(node, keyframes, options, signal, cleanup = () => {}) {
     if (!isEnabled() || signal?.aborted || !node.animate) {
       cleanup();
       return Promise.resolve();
     }
     const animation = node.animate(keyframes, { easing: standard, ...options });
+    animations.add(animation);if(paused)animation.pause();
     const stop = () => animation.cancel();
     pending.add(stop);
     signal?.addEventListener("abort", stop, {once:true});
     return animation.finished.catch(() => {}).finally(() => {
       animation.cancel();
-      pending.delete(stop);
+      pending.delete(stop);animations.delete(animation);
       signal?.removeEventListener("abort", stop);
       cleanup();
     });
@@ -43,7 +45,7 @@ export function createMotion(isEnabled) {
     pending.add(stop);
     return () => pending.delete(stop);
   }
-  return { run, track, cancel: () => pending.forEach(stop => stop()), enabled: isEnabled };
+  return { run, track, pause:()=>{paused=true;animations.forEach(a=>a.pause());}, resume:()=>{paused=false;if(isEnabled())animations.forEach(a=>a.play());}, cancel: () => pending.forEach(stop => stop()), enabled: isEnabled };
 }
 
 const typewriters = new WeakMap();

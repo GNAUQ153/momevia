@@ -96,7 +96,7 @@ try {
     password: 'SyntheticOnly123', confirmPassword: 'SyntheticOnly123' });
   cookie = register.response.headers.get('set-cookie').split(';')[0];
   const { library } = (await request('/api/designs/library')).value;
-  assert.equal(library.items.length, 387); configureLibrary(library);
+  assert.equal(library.items.length, 415); configureLibrary(library);
   design = (await request('/api/designs/designs', { source: { kind: 'blank' }, presetId: 'envelope-basic', mutationId: randomUUID() })).value.design;
   const cards = catalog.flatMap(g => g.items);
   for (const card of cards) {
@@ -104,7 +104,7 @@ try {
     doc.elements.push(...elements); doc.scenes[0].elementIds.push(...elements.map(e => e.id));
     await check(doc); counts.libraryFactories++;
   }
-  console.log('PASS 172 library factories: editor save session -> HTTP -> MySQL -> fresh connection -> HTTP read');
+  console.log('PASS 181 library factories: editor save session -> HTTP -> MySQL -> fresh connection -> HTTP read');
   for (const [family, { presets }] of Object.entries(effectFamilies)) for (const id of Object.keys(presets)) {
     const doc = sampleBindings(createDocument({ presetId: 'envelope-basic' })); let model = doc.scenes[0];
     if (!['transition', 'ambience'].includes(family)) {

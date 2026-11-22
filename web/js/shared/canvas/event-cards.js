@@ -1,3 +1,4 @@
+import { upgradeEventCard } from './event-upgrade.js';
 import { eventMediaId, EVENT_ARTWORK_LABEL } from './event-media.js';
 import { expandEventStory } from './event-story.js';
 // Photographs, wording and controls stay separate editable layers.
@@ -97,6 +98,7 @@ export function paintEventCard(id, doc, { shape, line, text, binding, action, ad
     reply();
   }
   expandEventStory(id, doc, { add, text, binding, action, shape }, p, localize);
+  upgradeEventCard(id, doc, localize);
   const names = {
     'cake-bottom': 'Thân bánh', 'cake-top': 'Tầng bánh', 'cake-plate': 'Đĩa bánh', 'cake-icing': 'Lớp kem',
     'name-ribbon': 'Dải giấy tên', 'ring-one': 'Nhẫn xanh', 'ring-two': 'Nhẫn mâm xôi',

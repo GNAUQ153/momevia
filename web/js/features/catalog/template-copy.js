@@ -14,11 +14,11 @@ export function templateValue(template, field) {
 }
 
 export function templateSearchFields(template) {
-  return ['title', 'subtitle', 'style', 'category']
+  return ['title', 'subtitle', 'style', 'category', 'paletteLabel']
     .map(field => templateFieldKey(template, field)).filter(Boolean).map(key => t(key));
 }
 
-const coverRevision = 6;
+const coverRevision = 7;
 export function templateCover(id) {
   if (libraryEntry('template', id)) return attr('src', 'templates.assets.databaseCover', { id: encodeURIComponent(id), revision: librarySnapshot().revision });
   return attr('src', 'templates.assets.cover', { id: encodeURIComponent(id), revision: coverRevision });

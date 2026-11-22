@@ -53,10 +53,15 @@ export class JsonDesignRepository {
     const record = this.read().creates[`${ownerId}:${mutationId}`];
     return record ? this.replay(record, requestHash) : null;
   }
-  async create(ownerId, mutationId, requestHash, record, assets = []) {
+  async create(ownerId, mutationId, requestHash, record, assets = [], precondition) {
     return this.change(state => {
       const key = `${ownerId}:${mutationId}`;
       if (state.creates[key]) return this.replay(state.creates[key], requestHash);
+      if (precondition) {
+        const source = this.owner(state, ownerId, precondition.id);
+        if (source.archivedAt || source.revision !== precondition.expectedRevision || source.documentHash !== precondition.expectedDocumentHash) throw canvasError(409,'REVISION_CONFLICT','Bản gốc đã đổi. Xem lại trước khi tạo bản mới.');
+        for (const ref of record.document.assets) if (!assets.some(a=>a.id===ref.assetId) && (state.assets[ref.assetId]?.ownerId !== ownerId || state.assets[ref.assetId]?.status !== 'ready')) throw canvasError(422,'ASSET_NOT_READY','Ảnh không còn khả dụng.');
+      }
       const result = { design: record, replayed: false };
       for (const asset of assets) state.assets[asset.id] = clone(asset);
       state.designs[record.id] = clone(record); state.creates[key] = { requestHash, result: clone(result) };

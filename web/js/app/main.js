@@ -177,12 +177,14 @@ function readCatalogUrl() {
   state.filter = state.templates.some(template => template.style === style) ? style : 'all';
   state.freeOnly = query.get('free') === '1';
   state.photoOnly = query.get('photo') === '1';
+  state.occasion = query.get('occasion') || 'all';state.palette=query.get('palette') || 'all';
   state.catalogPage = Number(query.get('page')) || 1;
 }
 function commitCatalogFilters() {
   syncCatalogResults();
   const url = new URL(location.href);
   const options = {
+    occasion:state.occasion==='all'?'':state.occasion,palette:state.palette==='all'?'':state.palette,
     q: state.search, style: state.filter === 'all' ? '' : state.filter,
     free: state.freeOnly ? '1' : '', photo: state.photoOnly ? '1' : '',
     page: state.catalogPage > 1 ? state.catalogPage : '',
@@ -1021,6 +1023,8 @@ async function handleAction(action, element) {
     state.catalogPage = 1;
     state.freeOnly = false;
     state.photoOnly = false;
+    state.occasion=state.palette="all";
+    for(const id of ["occasion-filter","palette-filter"]){const control=document.getElementById(id);if(control)control.value="all";}
     const style = document.getElementById("style-filter");
     if (style) style.value = state.filter;
     const search = document.getElementById("template-search");
@@ -1039,6 +1043,8 @@ async function handleAction(action, element) {
     state.filter = "all";
     state.freeOnly = false;
     state.photoOnly = false;
+    state.occasion=state.palette="all";
+    for(const id of ["occasion-filter","palette-filter"]){const control=document.getElementById(id);if(control)control.value="all";}
     const style = document.getElementById("style-filter");
     const free = document.getElementById("free-filter");
     const photo = document.getElementById("photo-filter");
@@ -1381,6 +1387,7 @@ document.addEventListener("change", async (event) => {
     updateAdminPaymentList();
     return;
   }
+  if (["occasion-filter","palette-filter"].includes(event.target.id)) {state[event.target.id==="occasion-filter"?"occasion":"palette"]=event.target.value;state.catalogPage=1;commitCatalogFilters();return;}
   if (event.target.id === "style-filter") {
     state.filter = event.target.value;
     state.catalogPage = 1;

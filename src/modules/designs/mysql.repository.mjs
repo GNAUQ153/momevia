@@ -199,7 +199,7 @@ export class MySqlDesignsRepository {
     );
     return designFromRow(rows[0]);
   }
-  async create(ownerId, mutationId, requestHash, design, assets = []) {
+  async create(ownerId, mutationId, requestHash, design, assets = [], precondition) {
     return canvasTransaction(this.client, async (tx) => {
       await lockOwner(tx, ownerId);
       const [requests] = await tx.execute(
@@ -213,6 +213,18 @@ export class MySqlDesignsRepository {
           [requests[0].design_id, ownerId],
         );
         return { design: designFromRow(rows[0]), replayed: true };
+      }
+      if (precondition) {
+        const source = await lockedDesign(tx, ownerId, precondition.id);
+        sameRevision(source, precondition.expectedRevision, precondition.expectedDocumentHash);
+        for (const item of precondition.templates || []) {
+          const [rows] = await tx.execute('SELECT price_vnd,status,creator_id FROM templates WHERE id=? FOR SHARE',[item.id]);
+          if(rows.length!==1 || rows[0].status!=='published' || Number(rows[0].price_vnd)!==item.price || rows[0].creator_id!==null) throw canvasError(409,'RESTYLE_TARGET_CHANGED','Quyền hoặc giá mẫu đã đổi. Xem lại trước khi tạo bản mới.');
+        }
+        for (const item of precondition.libraryRevisions || []) {
+          const [rows] = await tx.execute("SELECT revision,status FROM canvas_library_items WHERE kind='template' AND id=? FOR SHARE",[item.id]);
+          if(rows.length!==1 || rows[0].status!=='active' || Number(rows[0].revision)!==item.revision) throw canvasError(409,'RESTYLE_TARGET_CHANGED','Phiên bản thư viện đã đổi. Xem lại trước khi tạo bản mới.');
+        }
       }
       await tx.execute(
         `INSERT INTO designs

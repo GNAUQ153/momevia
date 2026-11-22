@@ -58,7 +58,7 @@ async function fixture(name, legacy = false, existingTemplates) {
 try {
   const current = await fixture('current');
   const catalog = (await current.request('/catalog/templates', undefined, 200, false)).templates;
-  assert.equal(catalog.length, 25); let published = 0;
+  assert.equal(catalog.length, 28); let published = 0;
   for (const template of catalog) {
     const mutationId = randomUUID(); const created = await current.request('/designs/designs', { source: { kind: 'template', templateId: template.id }, presetId: 'envelope-basic', mutationId }, 201);
     let d = created.design;
@@ -107,7 +107,7 @@ try {
   }
   assert.equal(published, templates.filter(template => template.price === 0).length); assert.deepEqual((await current.request('/checkout/orders')).orders, []);
   const page = await fetch(current.base + '/template/sunny-wishes'); const markup = await page.text(); assert(markup.includes('/css/template-library.css')); assert.doesNotMatch(page.headers.get('content-security-policy'), /unsafe-inline|unsafe-eval/);
-  console.log('PASS Current JSON API: 25 templates create/save/reload, free publications, paid license gate, 25 SVG covers.');
+  console.log('PASS Current JSON API: 28 templates create/save/reload, free publications, paid license gate, 28 SVG covers.');
 
   const addedIds = new Set(addedSystemTemplates.map(template => template.id));
   const originals = templates.filter(template => !addedIds.has(template.id));
@@ -147,7 +147,7 @@ try {
   recovered.document.bindings.message.value = 'Nội dung ở một tab khác';
   await legacy.request(`/designs/designs/${recovered.id}/save`, { expectedRevision: 2, mutationId: randomUUID(), title: recovered.title, document: recovered.document });
   const latest = await materializeTemplateStart(original, { template, createMutationId: key, request }); assert.equal(latest.revision, 3); assert.equal(latest.document.bindings.message.value, 'Nội dung ở một tab khác');
-  assert.equal(Object.keys(BASIC_TEMPLATES).length, 25);
+  assert.equal(Object.keys(BASIC_TEMPLATES).length, 28);
   console.log('PASS Cached-v1 fixture: updated client materializes template through real CAS; lost ACK retries identical key/body; latest draft edits/source/policy survive.');
 } finally {
   for (const app of apps) { await new Promise(resolve => app.server.close(resolve)); await app.close(); }

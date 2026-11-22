@@ -1,3 +1,4 @@
+import { EVENT_CLUSTER_IDS } from '../../web/js/shared/canvas/event-clusters.js';
 import assert from 'node:assert/strict';
 import path from 'node:path';
 import { chromium } from 'playwright';
@@ -157,14 +158,14 @@ export async function runExpandedBrowser(base, cookie, {cards, controls}, artifa
     await addTab.click();
     // Không giảm bộ cũ: 100 khối gốc + 24 họa tiết Phase 5.4 + 48 vector Phase 5.5.
     const catalogIds = catalog.flatMap(group => group.items.map(item => item.id));
-    assert.equal(catalogIds.filter(id => !/^m5[45]-/.test(id)).length, 100, 'Không được thiếu 100 elements gốc');
+    assert.equal(catalogIds.filter(id => !/^m5[45]-/.test(id) && !EVENT_CLUSTER_IDS.includes(id)).length, 100, 'Không được thiếu 100 elements gốc');
     assert.equal(catalogIds.filter(id => id.startsWith('m54-')).length, 24, 'Không được mất sticker Phase 5.4');
     assert.equal(catalogIds.filter(id => id.startsWith('m55-')).length, 48, 'Phải có đủ 48 hình trang trí mới');
-    assert.equal(new Set(catalogIds).size, 172, 'Không được trùng ID element');
+    assert.equal(new Set(catalogIds).size, 181, 'Không được trùng ID element');
     const visibleIds = await page.locator('[data-block]:visible').evaluateAll(nodes => nodes.map(node => node.dataset.block));
     assert.deepEqual(visibleIds.slice().sort(), catalogIds.slice().sort(),
-      'Thư viện phải hiển thị đủ 172 elements, không thiếu hoặc trùng mục');
-    assert.match(await page.locator('#editor-block-count').innerText(), /172/);
+      'Thư viện phải hiển thị đủ 181 elements, không thiếu hoặc trùng mục');
+    assert.match(await page.locator('#editor-block-count').innerText(), /181/);
     await shot(page,'library-1440.png');
     const search = page.locator('[data-block-search]');
     await search.fill('con dau');
@@ -192,7 +193,7 @@ export async function runExpandedBrowser(base, cookie, {cards, controls}, artifa
     await control('filter-blocks').filter({hasText:'Vừa dùng'}).click();
     assert.equal(await page.locator('[data-block]:visible').count(), 12);
     await control('filter-blocks').filter({hasText:'Tất cả'}).click();
-    assert.equal(await page.locator('[data-block]:visible').count(), 172);
+    assert.equal(await page.locator('[data-block]:visible').count(), 181);
     if (artifacts) {
       await page.evaluate(() => {
         const doc = globalThis.document;
@@ -296,10 +297,11 @@ export async function runExpandedBrowser(base, cookie, {cards, controls}, artifa
     await stage.locator('.gift-runtime-swipe-album').click({position:{x:11,y:11}});
     const previous = (await draft()).elements.find(element=>element.props.kind==='swipe-album');
     const [upload] = await Promise.all([
-      page.waitForResponse(response => response.url().endsWith('/assets') && response.status()===201),
+      page.waitForResponse(response => response.url().endsWith('/assets') && response.request().method()==='POST'),
       page.locator('[data-editor-field="upload"][data-slot="photo-1"]')
         .setInputFiles({name:'slot.png',mimeType:'image/png',buffer:await syntheticPhoto(2)}),
     ]);
+    assert.equal(upload.status(),201,await upload.text());
     const assetId = (await upload.json()).asset.id;
     await field('slot.photo-1.alt').fill('Ảnh thay thế riêng cho ô đầu');
     await field('slot.photo-1.caption').fill('Chú thích ô đầu sau thay');

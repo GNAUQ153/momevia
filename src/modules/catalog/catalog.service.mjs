@@ -1,3 +1,4 @@
+import { librarySnapshot } from '../../../web/js/shared/canvas/library-state.js';
 import { randomUUID } from 'node:crypto';
 import { HttpError } from '../../shared/http.mjs';
 import { sanitizeText, sanitizeOptionalText } from '../../shared/security.mjs';
@@ -9,9 +10,16 @@ import { serverText } from '../../shared/locale.mjs';
 import { eventMetadata } from './event-metadata.mjs';
 import { prioritizeTemplates } from '../../../web/js/shared/template-order.js';
 
-const publicFields = ['id', 'title', 'subtitle', 'theme', 'style', 'price', 'scenes', 'effect', 'creator', 'featured', 'category', 'status', 'createdAt', 'isSeasonal', 'season', 'availableFrom', 'availableTo'];
+const publicFields = ['id', 'title', 'subtitle', 'theme', 'style', 'price', 'scenes', 'effect', 'creator', 'featured', 'category', 'status', 'createdAt', 'isSeasonal', 'season', 'availableFrom', 'availableTo', 'palette', 'paletteLabel', 'paletteColors'];
 export function publicTemplate(template) {
   template = eventMetadata(template);
+  const ownPalettes={
+    'birthday-radiance':['birthdayPaper',['#FFF5DC','#362644','#FFD056','#68374B']],
+    'hai-phong-bi':['weddingPaper',['#FFF8EB','#442638','#F4C9C4','#47715C']],
+    'proud-of-you':['nightPaper',['#172849','#FFF8E7','#FFC857','#315B82']],
+  };
+  const palette=ownPalettes[template.id] || {sage:['greenPaper',['#F8F1E6','#263C32','#59705B','#AA5744']],cream:['warmPaper',['#F6EBD9','#352B30','#825943','#DEA99C']],sky:['bluePaper',['#E6EFF1','#21394C','#375B6A','#E9BA63']],navy:['bluePaper',['#E6EFF1','#21394C','#375B6A','#E9BA63']],lilac:['pinkPaper',['#F5EFFF','#7757A2','#F4C9C4','#263C32']]}[template.theme];
+  if(palette && template.creatorId==='system')template={...template,palette:palette[0],paletteLabel:serverText('vi',`templates.meta.palette.${palette[0]}`),paletteColors:palette[1]};
   const view = Object.fromEntries(publicFields.filter(key => Object.hasOwn(template, key)).map(key => [key, template[key]]));
   if (template.creatorId === 'system' && template.creator === 'Momevia Originals' && !template.versionId && !template.creatorDesignId)
     view.systemOwned = true;
@@ -35,6 +43,8 @@ export class CatalogService {
   constructor(repository, favorites) { this.repo = repository; this.favorites = favorites; }
 
   async isPublic(template) {
+    if (template?.creatorId==='system' && librarySnapshot() && librarySnapshot().items.some(r=>r.kind==='template'&&r.id===template.id&&r.status!=='active')) return false;
+    if (['loi-moi-ben-hien','cuon-phim-ngay-ay','ban-do-ngay-ra-truong'].includes(template?.id) && librarySnapshot() && !librarySnapshot().items.some(r=>r.kind==='template'&&r.id===template.id&&r.status==='active')) return false;
     return template?.status === 'published' && (!template.creatorDesignId || Boolean(template.versionId && await this.creatorTemplates.canCreate(template.creatorId)));
   }
   async publicList() {
@@ -42,11 +52,11 @@ export class CatalogService {
     const visible = await Promise.all(items.map(item => this.isPublic(item)));
     return prioritizeTemplates(items.filter((_, index) => visible[index]).map(publicTemplate));
   }
-  async search({ q = '', style = '', locale = 'vi' }) {
+  async search({ q = '', style = '', category = '', palette = '', locale = 'vi' }) {
     let items = await this.publicList();
     q = searchText(q.trim());
     if (q) items = items.filter(item => {
-      const fields = ['title', 'subtitle', 'creator', 'style', 'category'];
+      const fields = ['title', 'subtitle', 'creator', 'style', 'category', 'paletteLabel'];
       return fields.some(field => {
         if (searchText(item[field]).includes(q)) return true;
         const key = templateFieldKey(item, field);
@@ -54,6 +64,8 @@ export class CatalogService {
       });
     });
     if (style && style !== 'all' && style !== 'Tất cả') items = items.filter(item => item.style === style);
+    if(category && category!=='all')items=items.filter(t=>t.category===category);
+    if(palette && palette!=='all')items=items.filter(t=>t.palette===palette);
     return items;
   }
   async publishedIds() { return new Set((await this.publicList()).map(template => template.id)); }

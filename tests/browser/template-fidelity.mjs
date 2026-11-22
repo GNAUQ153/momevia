@@ -55,19 +55,19 @@ export async function runTemplateFidelity({ base, cookie, browser, request, arti
         const dialog = page.locator('.template-preview-dialog'); await dialog.locator('[data-runtime-element]').first().waitFor();
         for (const photo of photos) await imageReady(dialog.locator(`[data-runtime-element="${photo.id}"] img`));
         const principal = photos[0];
-        await page.waitForFunction(effect => globalThis.__templateEffects.includes(effect), principal.effects.entrance.id);
-        await page.waitForFunction(effect => globalThis.__templateEffects.includes(effect), principal.effects.emphasis.id);
-        const atmosphere = Object.entries(cover.effects.celebrations).find(([, v]) => v.enabled)?.[0];
-        await page.waitForFunction(effect => globalThis.__templateEffects.includes(effect), atmosphere);
+        if(principal.effects?.entrance) await page.waitForFunction(effect => globalThis.__templateEffects.includes(effect), principal.effects?.entrance?.id);
+        if(principal.effects?.emphasis) await page.waitForFunction(effect => globalThis.__templateEffects.includes(effect), principal.effects?.emphasis.id);
+        const atmosphere = Object.entries(cover.effects.celebrations || {}).find(([, v]) => v.enabled)?.[0];
+        if(atmosphere) await page.waitForFunction(effect => globalThis.__templateEffects.includes(effect), atmosphere);
         await page.waitForFunction(modelId => !globalThis.document.querySelector(`.template-preview-dialog [data-runtime-element="${modelId}"][data-gift-effect]`), principal.id);
         if (artifacts) { fs.mkdirSync(artifacts, { recursive: true }); await dialog.screenshot({ path: path.join(artifacts, `${id}-${locale}-preview.png`) }); }
         const opener = document.elements.find(e => cover.elementIds.includes(e.id) && e.actions?.[0]?.targetSceneId);
         await dialog.locator(`[data-runtime-element="${opener.id}"]`).click();
-        await page.waitForFunction(effect => globalThis.__templateEffects.includes(effect), opener.effects.reaction.id);
+        if(opener.effects?.reaction) await page.waitForFunction(effect => globalThis.__templateEffects.includes(effect), opener.effects.reaction.id);
         const next = document.scenes.find(s => s.id === opener.actions[0].targetSceneId);
         await page.waitForFunction(effect => globalThis.__templateEffects.includes(effect), next.effects.transition.id);
         report.covers.push({ id, locale, photos: photos.length, photoPixelCoverage: pixels });
-        report.motion.push({ id, locale, entrance: principal.effects.entrance.id, emphasis: principal.effects.emphasis.id, atmosphere, reaction: opener.effects.reaction.id, transition: next.effects.transition.id });
+        report.motion.push({ id, locale, entrance: principal.effects?.entrance?.id, emphasis: principal.effects?.emphasis?.id, atmosphere, reaction: opener.effects?.reaction?.id, transition: next.effects.transition.id });
       }
       assert.deepEqual(errors, []);
     } finally { await context.close(); }

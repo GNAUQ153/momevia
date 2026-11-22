@@ -1,3 +1,4 @@
+import { createGzip } from 'node:zlib';
 import fs from 'node:fs';
 import path from 'node:path';
 import { projectRoot } from '../shared/paths.mjs';
@@ -44,6 +45,10 @@ export function staticFile(req, res, url, { cacheControl } = {}) {
     'x-frame-options': 'DENY',
     'content-security-policy': "default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://www.gstatic.com https://upload.wikimedia.org; connect-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'",
   };
+  const compressible = type.startsWith('text/') || ['image/svg+xml','application/json'].includes(type);
+  const gzip = compressible && String(req.headers['accept-encoding'] || '').split(',').some(value => /^gzip(?:\s*;.*)?$/i.test(value.trim()) && !/;\s*q=0(?:\.0*)?(?:;|$)/i.test(value.trim()));
+  headers.vary = 'Accept-Encoding';
+  if (gzip) headers['content-encoding'] = 'gzip';
   if (req.method === 'HEAD') {
     res.writeHead(200, headers);
     return res.end();
@@ -58,5 +63,7 @@ export function staticFile(req, res, url, { cacheControl } = {}) {
     }
   });
   res.writeHead(200, headers);
-  return source.pipe(res);
+  if (!gzip) return source.pipe(res);
+  const compressed = createGzip();compressed.on('error', () => res.destroy());
+  return source.pipe(compressed).pipe(res);
 }

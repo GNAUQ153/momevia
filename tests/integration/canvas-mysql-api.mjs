@@ -119,6 +119,25 @@ try{
     assert.equal((await request(`/api/designs/designs/${blank.id}`,{cookie:otherCookie})).status,404);
     assert.equal((await request(`/api/designs/designs/${blank.id}/save`,{method:'POST',cookie,body:{...winner,source:{kind:'blank'}}})).status,422);
   });
+  await check('MySQL restyle: both directions, owner ACL, target provenance/price, CAS and concurrent idempotency',async()=>{
+    for(const [sourceId,targetTemplateId]of [['sunny-wishes','confetti'],['confetti','sunny-wishes']]){
+      let original=await create({kind:'template',templateId:sourceId});original=await save(original,fill(original));
+      const input={targetTemplateId,expectedRevision:original.revision,expectedDocumentHash:original.documentHash};
+      const preview=await post(`/api/designs/designs/${original.id}/restyle/preview`,cookie,input);
+      const duplicate=(await post(`/api/designs/designs/${original.id}/duplicate`,cookie,{mutationId:uuid()},201)).design;
+      const duplicatePreview=await post(`/api/designs/designs/${duplicate.id}/restyle/preview`,cookie,{targetTemplateId,expectedRevision:duplicate.revision,expectedDocumentHash:duplicate.documentHash});assert.deepEqual(duplicatePreview.missing,[]);
+      assert.equal((await request(`/api/designs/designs/${original.id}/restyle/preview`,{method:'POST',cookie:otherCookie,body:input})).status,404);
+      const command={...input,targetTemplateVersionId:preview.plan.targetVersion,planHash:preview.planHash,mutationId:uuid()};
+      const pair=await Promise.all([post(`/api/designs/designs/${original.id}/restyle`,cookie,command,201),post(`/api/designs/designs/${original.id}/restyle`,cookie,command,201)]);
+      assert.equal(pair[0].design.id,pair[1].design.id);assert.equal(pair[0].design.source.templateId,targetTemplateId);assert.equal(pair[0].design.source.templateVersionId,preview.plan.targetVersion);assert.equal(pair[0].design.policy.kind,'sender-basic');assert.deepEqual((await getDesign(original.id)).document,original.document);
+      await admin.execute('UPDATE templates SET price_vnd=12345 WHERE id=?',[targetTemplateId]);
+      await post(`/api/designs/designs/${original.id}/restyle/preview`,cookie,input,403);
+      await admin.execute('UPDATE templates SET price_vnd=0 WHERE id=?',[targetTemplateId]);
+      const edited=structuredClone(original.document);edited.bindings.message.value='Changed in another tab';await save(original,edited);
+      await post(`/api/designs/designs/${original.id}/restyle`,cookie,{...command,mutationId:uuid()},409);
+      assert.equal((await post(`/api/designs/designs/${original.id}/restyle`,cookie,command,201)).design.id,pair[0].design.id);
+    }
+  });
   let imageAsset;
   await check('C09 real re-encode asset upload, owner ACL, crop persisted, publish ready',async()=>{
     const bytes=await sharp({create:{width:32,height:24,channels:3,background:'#abcdef'}}).png().toBuffer();const mutation=uuid();

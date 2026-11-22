@@ -300,3 +300,6 @@
   font-weight: 750;
   color: var(--purple);
 }
+
+/* Reserve the initial viewport while a route loads, keeping the footer still. */
+#main{min-height:100svh}

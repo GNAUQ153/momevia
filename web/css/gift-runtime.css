@@ -273,3 +273,54 @@ span.gift-comparison-range { min-height: 6px; background: #674392; border-radius
 
 .gift-prediction-chosen:focus-visible { outline: 2px solid #77539B; outline-offset: 4px; }
 .gift-prediction-brand { margin: 0; color: #6E496C; text-align: center; font-size: 12px; line-height: 1.5; }
+
+/* Versioned candle overlay: real image, unlit wick, separate flame and text CTA. */
+.gift-runtime-interaction.gift-cake-overlay{padding:0;background:transparent!important;overflow:visible;pointer-events:none}
+.gift-cake-overlay .gift-candle-art{position:relative;width:100%;aspect-ratio:1000/700;pointer-events:none}
+.gift-cake-overlay .gift-interaction-candle{position:absolute;left:calc(50% - 9px);top:24.6%;margin:0;background:transparent;height:1px}
+.gift-cake-overlay .gift-candle-flame{background:transparent}
+.gift-cake-overlay .gift-interaction-button{pointer-events:auto;min-height:44px}
+.gift-letter-fold summary{min-height:44px;display:flex;align-items:center}
+
+.gift-runtime-compact-envelope{flex-direction:row;gap:10px;box-shadow:inset 0 -3px #00000012}
+.gift-runtime-compact-envelope .gift-control-illustration{flex:0 0 32px;width:32px;height:25px;min-width:0}
+.gift-runtime-compact-envelope .gift-runtime-control-label{flex:0 1 auto;min-width:0}
+
+/* Responsive reading keeps primary controls reachable on a 320px screen. */
+.gift-runtime .gift-runtime-control{min-height:44px!important}
+
+/* Long public-report/share labels reflow at high zoom. */
+.is-playing-gift .btn{max-width:100%;min-width:0;white-space:normal;overflow-wrap:anywhere}
+
+/* Keep long real captions in normal flow; only the photographic surface tilts. */
+.gift-album-story .gift-album-frame:has(> figcaption:not([hidden])){transform:none}
+.gift-album-story .gift-album-frame:has(> figcaption:not([hidden])) .gift-interaction-picture{transform:rotate(-1.5deg)}
+
+/* Motion remains optional, including native CSS animations of versioned parts. */
+.gift-runtime[data-motion="off"] *, .gift-runtime[data-motion="off"] *::before, .gift-runtime[data-motion="off"] *::after{animation:none!important;transition:none!important}
+.gift-runtime[data-visibility="hidden"] *{animation-play-state:paused!important}
+.gift-paper-fold-v2 .gift-letter-fold{position:relative;padding:12px 14px;border-radius:3px;border-color:#CDBEA6;background:linear-gradient(180deg,#FFFFFF66,transparent 28px),var(--gift-letter-paper,#F8F1E6);box-shadow:0 3px 9px #352B3018,inset 0 1px #FFFFFFB3}
+.gift-paper-fold-v2 .gift-letter-fold::after{content:"";position:absolute;pointer-events:none;inset:auto 0 0;height:1px;background:#AA907744}
+.gift-paper-fold-v2 .gift-letter-fold[open] p{transform-origin:top;animation:gift-letter-unfold 380ms ease-out both}
+@keyframes gift-letter-unfold{from{opacity:.5;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+
+.gift-runtime-envelope.gift-envelope-photo-control{box-shadow:none;border-radius:8px;padding:calc(var(--gift-envelope-art-space,130px) + 8px) 0 0;display:flex;flex-direction:column;justify-content:flex-end;align-items:stretch;gap:0}
+.gift-envelope-footer{display:flex;align-items:center;justify-content:center;gap:10px;min-height:44px;padding:10px 12px;border-radius:10px;background:#7757A2;color:#fff;box-shadow:0 5px 12px #352B3026;transition:box-shadow 180ms ease,translate 180ms ease}
+.gift-envelope-footer .gift-control-illustration{flex:0 0 32px;width:32px;height:25px;min-width:0}
+.gift-envelope-footer .gift-runtime-control-label{min-width:0}
+@media(hover:hover){.gift-envelope-photo-control:hover .gift-envelope-footer{translate:0 -2px;box-shadow:0 8px 18px #352B3033}}
+
+.gift-cake-photo-v2 .gift-interaction-candle{left:calc(var(--gift-candle-x,50%) - var(--gift-flame-half,9px));top:var(--gift-candle-y,16%);width:calc(var(--gift-flame-half,9px) * 2)}
+.gift-cake-photo-v2 .gift-interaction-candle .gift-candle-flame{left:var(--gift-flame-x,-3px);top:var(--gift-flame-y,-41.52px);width:var(--gift-flame-w,24px);height:var(--gift-flame-h,48px);visibility:hidden;opacity:0;background:none!important;border-radius:0;transform-origin:50% 86.5%}
+.gift-cake-photo-v2 .is-lit .gift-candle-flame{visibility:visible;opacity:1}
+.gift-candle-texture{display:block;width:100%;height:100%;object-fit:contain;transform-origin:50% 86.5%;filter:drop-shadow(0 0 4px #FFC85788)}
+.gift-cake-photo-v2 .is-lit .gift-candle-texture{animation:gift-flame-breathe 1700ms ease-in-out infinite}
+.gift-cake-photo-v2 .is-lit .gift-candle-flame::before{content:"";position:absolute;inset:8% -65% -10%;pointer-events:none;background:radial-gradient(ellipse,#FFD27635,transparent 70%)}
+.gift-cake-photo-v2 .gift-flame-fallback{background:radial-gradient(ellipse at 50% 70%,#FFF6B8,#F4A63C 48%,transparent 72%)!important;border-radius:70% 20% 60% 35%}
+@keyframes gift-flame-breathe{0%,100%{opacity:.95;transform:rotate(-1deg) scaleY(.98)}45%{opacity:1;transform:rotate(1.5deg) scaleY(1.035)}70%{opacity:.96;transform:rotate(-.6deg) scaleY(1)}}
+
+.gift-runtime[data-motion="on"] .gift-runtime-button{transition:scale 160ms ease-out,box-shadow 160ms ease-out}
+.gift-runtime[data-motion="on"] .gift-runtime-button:active{scale:.985}
+.gift-runtime[data-motion="on"] .gift-envelope-photo-control:active .gift-envelope-footer{scale:.985}
+
+.gift-runtime[data-effect-preview] *, .gift-runtime[data-effect-preview] *::before{animation:none!important;transition:none!important}

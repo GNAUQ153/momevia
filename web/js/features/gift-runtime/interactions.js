@@ -1,3 +1,5 @@
+import { CANDLE_SKINS } from '../../shared/canvas/candle-skins.js';
+import { eventMediaUrl } from '../../shared/canvas/event-media.js';
 import { predictionResult } from '../../shared/canvas/prediction.js';
 import { interactionKinds } from "../../shared/canvas/interactions.js";
 import { heartPieces } from "../../shared/canvas/artwork.js";
@@ -156,6 +158,7 @@ export function renderInteraction(model, { mode, signal, motion, bindings, rende
     }
     root.append(covered, bypass);
   } else if (kind === "foldout-letter") {
+    if(model.props.appearance==='paper-fold-v2'){root.classList.add('gift-paper-fold-v2');root.style.setProperty('--gift-letter-paper',color); }
     for (const [index, entry] of entries.entries()) {
       const fold = node(live ? "details" : "div", "gift-letter-fold");
       const label = node(live ? "summary" : "span", "", entry.heading);
@@ -172,14 +175,20 @@ export function renderInteraction(model, { mode, signal, motion, bindings, rende
     const picture = node("div", "gift-interaction-picture");
     const caption = node("figcaption", "gift-interaction-copy");
     const indicator = status("");
-    let index = 0, start;
+    let index = 0, start, pageMotion;
+    signal?.addEventListener('abort',()=>pageMotion?.abort(),{once:true});
     const setPage = (target, automatic = false) => {
       if (target < 0 || target >= pages.length) return;
+      const changed=target!==index,direction=target>index?1:-1;pageMotion?.abort();
       index = target;
       root.dataset.albumIndex = String(index);
       picture.replaceChildren(!available.length && model.props.optional
         ? node('p', 'gift-album-empty', label('gift.interactions.albumEmpty')) : renderPhoto(pages[index]));
-      if (automatic && motion?.enabled()) void motion.run(picture, [{ transform: 'perspective(700px) rotateY(-24deg) scale(.96)', opacity: .2 }, { transform: 'perspective(700px) rotateY(0deg) scale(1)', opacity: 1 }], { duration: 450 }, signal);
+      if(changed&&motion?.enabled()){
+        const controller=pageMotion=new AbortController(),img=picture.querySelector('img');
+        const play=()=>{if(signal?.aborted||controller.signal.aborted)return;void motion.run(picture,automatic?[{transform:'perspective(700px) rotateY(-12deg) scale(.98)',opacity:.55},{transform:'perspective(700px) rotateY(0deg) scale(1)',opacity:1}]:[{transform:`translateX(${direction*9}px)`,opacity:.55},{transform:'translateX(0px)',opacity:1}],{duration:automatic?420:240},controller.signal);};
+        if(img&&!img.complete)img.decode().then(()=>{if(picture.contains(img))play();}).catch(()=>{});else play();
+      }
       caption.textContent = pages[index].caption;
       caption.hidden = !pages[index].caption;
       setText(indicator, label("gift.interactions.albumPage", { index: index + 1, total: pages.length }));
@@ -281,6 +290,13 @@ export function renderInteraction(model, { mode, signal, motion, bindings, rende
     const flame = node("span","gift-candle-flame");
     candle.setAttribute("aria-hidden","true");
     candle.append(flame);
+    if(model.props.appearance==='cake-photo-v2'){
+      root.classList.add('gift-cake-photo-v2');
+      const skin=CANDLE_SKINS[model.props.appearance],anchor=skin.wick;
+      root.style.setProperty('--gift-candle-x',`${anchor.x*100}%`);root.style.setProperty('--gift-candle-y',`${anchor.y*100}%`);
+      const texture=node('img','gift-candle-texture');texture.alt='';texture.setAttribute('aria-hidden','true');
+      texture.addEventListener('error',()=>{texture.remove();flame.classList.add('gift-flame-fallback');},{signal});flame.append(texture);texture.src=eventMediaUrl(skin.flameId);
+    }
     const wish = status("");
     let lit = false;
     const light = button(first.heading, () => {
@@ -292,7 +308,10 @@ export function renderInteraction(model, { mode, signal, motion, bindings, rende
       wish.textContent = first.body;
     });
     if (live) light.setAttribute("aria-pressed","false");
-    root.append(candle,light,wish);
+    if (['cake-overlay-v1','cake-photo-v2'].includes(model.props.appearance)) {
+      root.classList.add('gift-cake-overlay');
+      const art=node('div','gift-candle-art');art.append(candle);root.append(art,light,wish);
+    } else root.append(candle,light,wish);
   } else if (kind === "heart-puzzle") {
     const pieces = node("div", "gift-heart-pieces");
     const assembled = node("div", "gift-heart-assembled");

@@ -1,3 +1,4 @@
+import { RESTYLE_PAIRS } from '../../shared/canvas/template-slots.js';
 import { attr, createLocaleControl, message, onLocaleChange, setAttr, text, t } from '../../core/i18n.js';
 import { isSystemTemplate } from '../../shared/template-copy.js';
 import { templateField, templateValue } from './template-copy.js';
@@ -14,6 +15,11 @@ export function templatePreviewDialog(template) {
 }
 
 export function mountTemplatePreview(host, template, { api, onOpen, autoOpen = false, getTemplate = () => template }) {
+  if (RESTYLE_PAIRS[template.id]) {
+    const button=document.createElement('button');button.className='btn btn--outline';button.textContent=t('restyle.trial');
+    host.querySelector('.detail-start-actions')?.append(button);
+    button.addEventListener('click',async()=>{const {openTemplateTrial}=await import('./template-trial.js');await openTemplateTrial({templateId:template.id,request:(url,body)=>body?api.post(url,body):api.get(url),navigate:path=>{location.href=path;}});});
+  }
   const dialog = host.querySelector('.template-preview-dialog');
   const close = dialog.querySelector('[data-template-close]');
   const reset = dialog.querySelector('[data-template-reset]');

@@ -1,3 +1,13 @@
+## Unreleased — Thiệp tương tác G0–G5 local (2026-11-22)
+
+- Cải tiến Hai phong bì, Birthday Radiance và Proud of You cho thiết kế mới; thêm Lời mời bên hiên, Cuộn phim ngày ấy và Bản đồ ngày ra trường với nội dung VI/EN, artwork nguyên bản, album tùy chọn và điều hướng đọc được khi giảm chuyển động.
+- Thêm tám recipe ghim phiên bản và chín cụm element trong thư viện hiện hữu; giữ một player cho Studio/preview/public, 10 loại element và các snapshot cũ.
+- Bổ sung tám ảnh phong cách chụp thật nguyên bản, bóng đổ theo silhouette/bóng tiếp xúc, grain giấy, lớp lửa riêng, tua đu đưa, ảnh hạ nhẹ và thư gấp; giảm chuyển động vào trạng thái cuối, hủy motion khi rời cảnh.
+- Catalog lọc dịp/bảng màu; thử Sunny Wishes ↔ Confetti trước khi tạo, hoặc tạo nháp độc lập từ draft với mapping semantic, quyền/asset, CAS và idempotency phía server.
+- Gói đồng bộ thư viện 387 → 415 mục có preview, dependency, conflict theo revision, history, chạy lại và rollback; CLI chỉ cho schema QA loopback.
+- Giảm tải tệp tĩnh bằng gzip, trì hoãn module thử đổi mẫu, ổn định vị trí footer khi tải và sửa reflow/vùng chạm. Album tùy chọn reset crop đúng ô khi thay ảnh, giữ quy ước ảnh/album cũ và policy Creator.
+- Bàn giao local và bằng chứng tại `docs/INTERACTIVE_CARDS_G0_G5.md`. Giá ba mẫu mới là fixture 0đ, chờ quyết định sản phẩm. LCP lab còn vượt 2,5 giây; thử năm người và thiết bị thật chưa chạy. Không deploy/push/ghi production.
+
 ## Unreleased — Sửa hồi quy CI Canvas và MySQL của PR #19 (2026-11-22)
 
 - Chỉ tải thư viện chỉnh sửa khi mở các trang ngoài `/g/...`; người nhận mở quà trực tiếp không phụ thuộc API thư viện hoặc tải module editor. Điều hướng từ quà sang thư viện vẫn tải cấu hình Canvas.

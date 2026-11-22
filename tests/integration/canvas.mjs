@@ -243,6 +243,9 @@ try {
     });
   });
   if (process.argv.includes('--browser')) {
+    // Start the UI workload with fresh in-memory quotas after the bulk API workload.
+    // Keep the isolated fixture's JSON and owner identity; production limits stay intact.
+    await stop(); await launch();
     const { runExpandedBrowser } = await import('../browser/canvas-expanded.mjs');
     await check('172 UI cards, 33 effects, touch/keyboard, and three public V2 QA cards', () =>
       runExpandedBrowser(base, owner.cookie, expanded, expandedArtifacts));

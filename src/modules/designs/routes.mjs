@@ -1,3 +1,7 @@
+import { createDocument } from '../../../web/js/shared/canvas/presets.js';
+import { serverText } from '../../shared/locale.mjs';
+import { RESTYLE_PAIRS } from '../../../web/js/shared/canvas/template-slots.js';
+import { previewRestyle, createRestyle } from './restyle.mjs';
 import fs from 'node:fs';
 import { parseJson, sendJson } from '../../shared/http.mjs';
 import { canvasError } from './errors.mjs';
@@ -35,6 +39,13 @@ export function registerDesignRoutes(router, { service, assets, resolveUser, con
     const input = await parseJson(req, 1500000);
     sendJson(res, 200, await service.library.preview(actor, params.kind, params.id, input, input.locale === 'en' ? 'en' : 'vi'));
   });
+  router.on('POST', '/template-trial', async ({req,res}) => {
+    const input=await parseJson(req,4096);
+    if (!RESTYLE_PAIRS[input.templateId]) throw canvasError(422,'RESTYLE_INCOMPATIBLE','Mẫu này chưa có bản phối tương thích.');
+    await service.library?.refresh();
+    const resolved=await service.source({kind:'template',templateId:input.templateId});
+    sendJson(res,200,{source:resolved.source,document:createDocument({template:resolved.template,localize:(key,params)=>serverText(requestLocale(req),key,params)})});
+  });
   router.on('GET', '/designs', async ({ req, res, url }) => {
     const numberParam = (key, fallback, max) => { const raw = url.searchParams.get(key); if (raw === null) return fallback; const value = Number(raw); return Number.isSafeInteger(value) && value >= 0 ? Math.min(max, value) : fallback; };
     const limit = Math.max(1, numberParam('limit', 50, 100)); const offset = numberParam('offset', 0, 1000000);
@@ -45,6 +56,8 @@ export function registerDesignRoutes(router, { service, assets, resolveUser, con
     await service.create(await writeUser(req), await parseJson(req, 16384), { locale: requestLocale(req) })));
   router.on('GET', '/designs/:id', async ({ req, res, params }) => sendJson(res, 200, { design: designView(await service.get(await user(req), params.id)) }));
   router.on('POST', '/designs/:id/save', async ({ req, res, params }) => sendJson(res, 200, await service.save(await writeUser(req), params.id, await parseJson(req, 600000))));
+  router.on('POST', '/designs/:id/restyle/preview', async ({req,res,params}) => sendJson(res,200,await previewRestyle(service,await user(req),params.id,await parseJson(req,8192),requestLocale(req))));
+  router.on('POST', '/designs/:id/restyle', async ({req,res,params}) => sendJson(res,201,await createRestyle(service,await writeUser(req),params.id,await parseJson(req,8192),requestLocale(req))));
   router.on('POST', '/designs/:id/duplicate', async ({ req, res, params }) => sendJson(res, 201, await service.duplicate(await writeUser(req), params.id, await parseJson(req, 4096))));
   router.on('POST', '/designs/:id/archive', async ({ req, res, params }) => {
     service.requireEdit(); const actor = await writeUser(req); await service.get(actor, params.id);

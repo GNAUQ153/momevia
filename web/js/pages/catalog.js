@@ -26,6 +26,7 @@ export function createCatalogViews({
       search: state.search,
       freeOnly: state.freeOnly,
       photoOnly: state.photoOnly,
+      category: state.occasion || "all",palette:state.palette || "all",
       searchFields: templateSearchFields,
     }));
   }
@@ -41,7 +42,7 @@ export function createCatalogViews({
   }
 
   function hasFilters() {
-    return Boolean(state.search.trim() || state.freeOnly || state.photoOnly || state.filter !== 'all');
+    return Boolean(state.search.trim() || state.freeOnly || state.photoOnly || state.filter !== 'all' || (state.occasion && state.occasion !== 'all') || (state.palette && state.palette !== 'all'));
   }
 
   function syncCatalogResults() {
@@ -108,6 +109,8 @@ export function createCatalogViews({
           <option value="all" ${state.filter === "all" ? "selected" : ""}>${text('catalog.filters.all', { count: state.templates.length })}</option>
           ${options.join('')}
         </select>${icon("chevron-down", 18)}</label>
+        <label class="catalog-style-select"><span>${text('catalog.filters.occasion')}</span><select id="occasion-filter" ${attr('aria-label','catalog.filters.occasion')}><option value="all">${text('catalog.filters.allOccasions')}</option>${[...new Set(state.templates.map(t=>t.category))].map(value=>`<option value="${e(value)}" ${state.occasion===value?'selected':''}>${templateMetaKey('category',value)?text(templateMetaKey('category',value)):e(value)}</option>`).join('')}</select></label>
+        <label class="catalog-style-select"><span>${text('catalog.filters.palette')}</span><select id="palette-filter" ${attr('aria-label','catalog.filters.palette')}><option value="all">${text('catalog.filters.allPalettes')}</option>${[...new Map(state.templates.filter(t=>t.palette).map(t=>[t.palette,t.paletteLabel])).entries()].map(([value,label])=>`<option value="${e(value)}" ${state.palette===value?'selected':''}>${text(`templates.meta.palette.${value}`)||e(label)}</option>`).join('')}</select></label>
         <label class="catalog-free-filter"><input id="free-filter" type="checkbox" ${state.freeOnly ? "checked" : ""}/><span>${text("common.price.free")}</span></label>
         <label class="catalog-free-filter"><input id="photo-filter" type="checkbox" ${state.photoOnly ? "checked" : ""}/><span>${text("catalog.filters.photo")}</span></label>
         <button type="button" class="catalog-reset" data-action="clear-filters">${icon("close", 15)} ${text("catalog.filters.reset")}</button>
@@ -132,7 +135,7 @@ export function createCatalogViews({
           ${buttonLink(`/create/${encodeURIComponent(template.id)}?mode=quick${version}`, text("catalog.detail.use"), "btn--dark", false)}
           <button class="btn btn--outline" type="button" data-template-preview aria-haspopup="dialog">${text("catalog.detail.preview")} ${icon('eye', 17)}</button>
         </div>
-        <p class="detail-subtitle">${templateField(template, 'subtitle')}</p>
+        <p class="detail-palette">${template.palette ? text(`templates.meta.palette.${template.palette}`) : ""}</p><p class="detail-subtitle">${templateField(template, 'subtitle')}</p>
         <p class="detail-meta">${text('catalog.detail.meta', { creator: template.creator, count: template.scenes })}</p>
         <div class="detail-secondary-actions">
           <div class="detail-favorite-row">${favoriteButton(template.id, "favorite-button--inline")}<span>${text("catalog.detail.favoriteHint")}</span></div>

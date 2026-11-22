@@ -1,3 +1,4 @@
+import { LIMITS } from '../../shared/canvas/registry.js';
 import { message } from '../../core/i18n.js';
 import { node, field, input, button, select } from './dom.js';
 import { localEventTime } from '../../shared/canvas/interactions.js';
@@ -25,7 +26,7 @@ export function createEventFields(doc) {
       node('summary', {}, message('templates.story.photo', { index: index + 1 })),
       node('div', { 'data-event-photo-preview': photo.id }),
       field(copy('upload'), node('input', { type: 'file', accept: 'image/png,image/jpeg,image/webp', 'data-editor-field': 'event-photo', 'data-target': album.id, 'data-slot': photo.id })),
-      input(copy('caption'), `event-caption.${photo.id}`, photo.caption, { maxlength: 240 }),
+      field(copy('caption'),node('textarea',{'data-editor-field':`event-caption.${photo.id}`,maxlength:LIMITS.text,rows:3},photo.caption)),
       input(copy('alt'), `event-alt.${photo.id}`, photo.alt, { maxlength: 240 }),
       button(copy('remove'), 'event-remove-photo', { 'data-slot': photo.id }),
     )),
@@ -55,4 +56,19 @@ export function updateEventFields(root, doc, assetUrl) {
     preview.dataset.src = src;
     preview.replaceChildren(...(src ? [node('img', { src, alt: photo.alt || '', width: 90, height: 90 })] : []));
   }
+}
+
+export function createStoryTextFields(doc) {
+  const texts=doc.elements.filter(e=>e.type==='text' && /^(event-(date|location|note|[12]-(time|activity|address))|milestone-[123]-(title|body)|album-story|present-story)$/.test(e.id));
+  return node('fieldset',{class:'editor-event-fields'},...texts.map(e=>field(e.name || e.id,node('textarea',{'data-editor-field':`story-text.${e.id}`,rows:3,maxlength:4000},e.props.text))),
+    ...doc.elements.filter(e=>e.props.kind==='foldout-letter').flatMap(e=>e.props.entries.flatMap((entry,i)=>[
+      input(message('editor.interactionField.foldout-letter.'+i+'.0'),`story-fold.${e.id}.${i}.heading`,entry.heading,{maxlength:120}),
+      field(message('editor.interactionField.foldout-letter.'+i+'.1'),node('textarea',{'data-editor-field':`story-fold.${e.id}.${i}.body`,rows:3,maxlength:4000},entry.body)),
+    ])));
+}
+export function updateStoryTextFields(root,doc){
+ for(const input of root.querySelectorAll('[data-editor-field^="story-text."], [data-editor-field^="story-fold."]')){
+  if(input===document.activeElement)continue;const [kind,id,index,field]=input.dataset.editorField.split('.'),e=doc.elements.find(e=>e.id===id);
+  if(e)input.value=kind==='story-text'?e.props.text:e.props.entries[index][field];
+ }
 }

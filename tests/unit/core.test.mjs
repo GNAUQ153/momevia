@@ -29,7 +29,7 @@ test('ID: tạo slug đủ độ dài và URL-safe', () => {
   assert.match(randomId(24), /^[A-Za-z0-9_-]{32}$/);
 });
 test('Dữ liệu mẫu: 25 mẫu, giá nguyên không âm, không lặp ID', () => {
-  assert.equal(templates.length, 25);
+  assert.equal(templates.length, 28);
   assert.equal(new Set(templates.map(t => t.id)).size, templates.length);
   for (const template of templates) {
     assert(Number.isInteger(template.price) && template.price >= 0);

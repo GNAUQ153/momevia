@@ -1,0 +1,64 @@
+[
+  {
+    "direction": "sunny-wishes → confetti",
+    "sourceId": "b1a7ba24-ce9f-434e-9bed-a6c20e075f2e",
+    "newId": "b3f8e75b-647f-4eef-b413-b2b6dd332549",
+    "carried": [
+      "binding:recipientName",
+      "binding:senderName",
+      "binding:message",
+      "text:cover-title",
+      "label:open-gift",
+      "text:cover-note",
+      "text:message-heading",
+      "text:message-from-label",
+      "label:to-message",
+      "text:reply-heading",
+      "text:reply-intro",
+      "label:replay-gift"
+    ],
+    "sourceVersion": "c2e0fe01-4263-5255-840b-022efa61c3bb",
+    "targetVersion": "9ee7f506-3ff3-531b-8530-2dc96217816f",
+    "duplicatedDraftRolesPreserved": true,
+    "retryOneDraft": true,
+    "staleTab409": true,
+    "missingPrivatePhotoRequiresConfirmation": true,
+    "originalIntact": true
+  },
+  {
+    "direction": "confetti → sunny-wishes",
+    "sourceId": "b02bb77f-7fdd-40f1-a406-1d2a23b667ec",
+    "newId": "ed90c073-4f0b-4432-85a0-acbaa96ee506",
+    "carried": [
+      "binding:recipientName",
+      "binding:senderName",
+      "binding:message",
+      "text:cover-title",
+      "label:open-gift",
+      "text:cover-note",
+      "text:message-heading",
+      "text:message-from-label",
+      "label:to-message",
+      "text:reply-heading",
+      "text:reply-intro",
+      "label:replay-gift"
+    ],
+    "sourceVersion": "9ee7f506-3ff3-531b-8530-2dc96217816f",
+    "targetVersion": "c2e0fe01-4263-5255-840b-022efa61c3bb",
+    "duplicatedDraftRolesPreserved": true,
+    "retryOneDraft": true,
+    "staleTab409": true,
+    "missingPrivatePhotoRequiresConfirmation": true,
+    "originalIntact": true
+  },
+  {
+    "legacy": "v1",
+    "slug": "lErilkShQr9C61pVfM4VYZoeHr2GJyHX",
+    "snapshotPreserved": true
+  },
+  {
+    "legacy": "old-v2",
+    "slug": "m6hdu26hTPX975fPeaCAAks52OvW8t0C",
+    "snapshotPreserved": true
+  }
+]

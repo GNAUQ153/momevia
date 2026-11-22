@@ -1,6 +1,6 @@
 import { canonicalText } from '../../../web/js/shared/locale.js';
 
-// Dữ liệu minh họa; ảnh tác phẩm được tạo bằng CSS, không sử dụng hình ảnh có bản quyền.
+// Mẫu hệ thống có scene/element chỉnh sửa được; nguồn/quyền artwork theo manifest từng bộ.
 export const templates = [
   { id: 'midnight-bloom', title: canonicalText('templates.midnight-bloom.title'), subtitle: canonicalText('templates.midnight-bloom.subtitle'), theme: 'violet', style: canonicalText('templates.meta.style.romantic'), price: 59000, scenes: 3, effect: canonicalText('templates.meta.effect.bloom'), creator: 'Momevia Originals', featured: true },
   { id: 'sunny-wishes', title: canonicalText('templates.sunny-wishes.title'), subtitle: canonicalText('templates.sunny-wishes.subtitle'), theme: 'sunshine', style: canonicalText('templates.meta.style.playful'), price: 0, scenes: 3, effect: canonicalText('templates.meta.effect.cardFlip'), creator: 'Momevia Originals', featured: true },
@@ -30,6 +30,10 @@ export const templates = [
   { id: 'gentle-apology', title: canonicalText('templates.gentle-apology.title'), subtitle: canonicalText('templates.gentle-apology.subtitle'), theme: 'cream', style: canonicalText('templates.meta.style.minimal'), category: canonicalText('templates.meta.category.apology'), price: 0, scenes: 3, effect: canonicalText('templates.meta.effect.openLetter'), creator: 'Momevia Originals' },
   { id: 'calm-light', title: canonicalText('templates.calm-light.title'), subtitle: canonicalText('templates.calm-light.subtitle'), theme: 'mint', style: canonicalText('templates.meta.style.nature'), category: canonicalText('templates.meta.category.encouragement'), price: 0, scenes: 3, effect: canonicalText('templates.meta.effect.glow'), creator: 'Momevia Originals' },
 
+  // Giá ba mẫu mới là fixture local; cần quyết định sản phẩm trước phát hành thật.
+  { id: 'loi-moi-ben-hien', title: canonicalText('templates.loi-moi-ben-hien.title'), subtitle: canonicalText('templates.loi-moi-ben-hien.subtitle'), theme: 'sage', style: canonicalText('templates.meta.style.nature'), category: canonicalText('templates.meta.category.wedding'), price: 0, scenes: 5, effect: canonicalText('templates.meta.effect.openLetter'), creator: 'Momevia Originals' },
+  { id: 'cuon-phim-ngay-ay', title: canonicalText('templates.cuon-phim-ngay-ay.title'), subtitle: canonicalText('templates.cuon-phim-ngay-ay.subtitle'), theme: 'cream', style: canonicalText('templates.meta.style.nostalgic'), category: canonicalText('templates.meta.category.friendship'), price: 0, scenes: 4, effect: canonicalText('templates.meta.effect.openLetter'), creator: 'Momevia Originals' },
+  { id: 'ban-do-ngay-ra-truong', title: canonicalText('templates.ban-do-ngay-ra-truong.title'), subtitle: canonicalText('templates.ban-do-ngay-ra-truong.subtitle'), theme: 'sky', style: canonicalText('templates.meta.style.elegant'), category: canonicalText('templates.meta.category.graduation'), price: 0, scenes: 5, effect: canonicalText('templates.meta.effect.openLetter'), creator: 'Momevia Originals' },
 ].map(template => ({
   ...template,
   category: template.category || canonicalText('templates.meta.category.birthday'),
@@ -38,4 +42,4 @@ export const templates = [
   createdAt: '2026-11-01T00:00:00.000Z',
 }));
 // Chỉ chèn mẫu hệ thống chưa tồn tại; không cập nhật đè giá, trạng thái hay snapshot cũ.
-export const addedSystemTemplates = templates.filter(template => ['mot-ky-niem', 'hai-phong-bi', 'to-doan-cau-se-chon'].includes(template.id) || template.isSeasonal || ['birthday-radiance', 'thank-you-bloom', 'proud-of-you', 'faraway-hug', 'gentle-apology', 'calm-light'].includes(template.id));
+export const addedSystemTemplates = templates.filter(template => ['loi-moi-ben-hien','cuon-phim-ngay-ay','ban-do-ngay-ra-truong','mot-ky-niem', 'hai-phong-bi', 'to-doan-cau-se-chon'].includes(template.id) || template.isSeasonal || ['birthday-radiance', 'thank-you-bloom', 'proud-of-you', 'faraway-hug', 'gentle-apology', 'calm-light'].includes(template.id));

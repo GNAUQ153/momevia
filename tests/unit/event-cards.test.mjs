@@ -26,7 +26,7 @@ test('expanded event cards have 5/6 V2 scenes, private photo slots, both optiona
     const localize = key => serverText(locale, key);
     const draft = createDocument({ template: { id }, localize });
     assert.equal(draft.schemaVersion, 2); assert.equal(requiresCanvasV2(draft), true);
-    assert.equal(draft.scenes.length, id === 'hai-phong-bi' ? 6 : 5); assert.equal(draft.assets.length, 1);
+    assert.equal(draft.scenes.length, id === 'hai-phong-bi' ? 6 : 5); assert.equal(draft.assets.length, id === 'hai-phong-bi' ? 3 : 1);
     const album = draft.elements.find(e => e.id === 'event-album');
     assert.equal(publicTemplate(templates.find(t=>t.id===id)).personalization.photoFrames,3,'Catalog photo filter exposes all three upload slots');
     assert.equal(album.props.photos.length, 3); assert(album.props.photos.every(p => p.assetId === null));

@@ -91,17 +91,19 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Xóa biến `layout` không sử dụng trong `renderInspector()` của `designer.js` sau khi tách Inspector; giữ nguyên `props` và các kiểm tra chức năng.
-- Không thay đổi schema Canvas, API, phân quyền hoặc dữ liệu thiệp.
+- Bổ sung 6 bản nhạc nội bộ (sinh nhật, đám cưới, Giáng sinh, Tết dương lịch, Tết Nguyên đán, Valentine); lưu script tổng hợp sóng để tái tạo và ghi nguồn gốc tài nguyên.
+- Sender lọc thư viện nhạc theo dịp, cảm xúc và từ khóa; hiển thị nhãn VI/EN cùng layout, bổ sung CSS music-occasion rõ ràng, hỗ trợ bàn phím, reduced-motion và hiệu ứng chiều sâu nhẹ.
+- Giữ 4 bài nhạc cũ, cơ chế nghe thử/chỉnh âm lượng/Undo/Redo và Recipient opt-in; Canvas vẫn chỉ lưu `{ id, volume }`, không sửa schema, API, quyền Creator hoặc database.
+- Thêm unit test cho audio asset, bộ lọc, i18n, giới hạn ID/URL và bản sao Canvas; cập nhật hướng dẫn kiểm thử và đánh giá source mới.
 
 **Các commit gần nhất trên `main`:**
 
+- `015a350` — feat: add occasion-based Canvas music library and bilingual filters (2026-11-22)
 - `8f55a9e` — refactor: extract Canvas Inspector controls and policy helpers (2026-11-22)
 - `a537c01` — fix: remove unused layout binding after Inspector refactor (2026-11-22)
 - `38c6e9b` — refactor: extract Canvas scene and layer panels (2026-11-22)
 - `6df506d` — refactor: extract Canvas preview and gift access dialogs (2026-11-22)
 - `d81f1b5` — refactor: extract music panel and add bilingual track search (2026-11-22)
-- `a4368e9` — feat: expand Canvas music library with mood browsing (2026-11-22)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

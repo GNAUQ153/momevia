@@ -56,7 +56,7 @@ import { cropEditor } from "../features/canvas-editor/crop.js";
 import { canOpenAdvancedEditor, scenePositionLabel, selectionDescription } from "../features/canvas-editor/editor-experience.js";
 import { canStartInlineFabric, assertInlineFabricRevision } from "../features/canvas-editor/fabric-inline.js";
 import { icon } from "../ui/icons.js";
-import { SOUNDTRACKS } from '../shared/canvas/soundtracks.js';
+import { SOUNDTRACKS, soundtrackById } from '../shared/canvas/soundtracks.js';
 import { createSoundtrackPlayback } from '../features/gift-runtime/soundtrack.js';
 import {
   node,
@@ -504,6 +504,34 @@ export function mountDesigner(
             ['', message('editor.music.none')],
             ...SOUNDTRACKS.map(track => [track.id, message(track.titleKey)]),
           ]),
+          node('div', { class: 'editor-music-library' },
+            node('label', { class: 'editor-music-filter' },
+              node('span', {}, message('editor.music.mood')),
+              node('select', { 'data-editor-music-filter': '', 'aria-label': message('editor.music.mood') },
+                node('option', { value: 'all' }, message('editor.music.all')),
+                node('option', { value: 'gentle' }, message('editor.music.gentle')),
+                node('option', { value: 'joyful' }, message('editor.music.joyful')),
+              ),
+            ),
+            node('div', { class: 'editor-music-grid', role: 'group', 'aria-label': message('editor.music.browse') },
+              button(message('editor.music.none'), 'soundtrack-pick', {
+                class: 'editor-music-track', 'data-track-id': '', 'data-music-mood': 'all',
+                'aria-pressed': !store.get().document.soundtrack ? 'true' : 'false',
+              }),
+              ...SOUNDTRACKS.map(track => node('button', {
+                type: 'button', class: 'editor-music-track', 'data-editor-action': 'soundtrack-pick',
+                'data-track-id': track.id, 'data-music-mood': track.mood,
+                'aria-pressed': store.get().document.soundtrack?.id === track.id ? 'true' : 'false',
+              },
+                node('strong', { class: 'editor-music-track-title' }, message(track.titleKey)),
+                node('span', { class: 'editor-music-track-description' }, message(track.descriptionKey)),
+                node('span', { class: 'editor-music-track-meta' },
+                  message(track.mood === 'gentle' ? 'editor.music.gentle' : 'editor.music.joyful'),
+                  ` · 0:${String(track.durationSeconds).padStart(2, '0')}`,
+                ),
+              )),
+            ),
+          ),
           node('label', { class: 'editor-music-volume' },
             node('span', {}, message('editor.music.volume')),
             node('input', {
@@ -1263,6 +1291,11 @@ export function mountDesigner(
     const soundtrackId = doc.soundtrack?.id || '';
     const musicSelect = main.querySelector('[data-editor-field="soundtrack"]');
     if (musicSelect && musicSelect !== document.activeElement) musicSelect.value = soundtrackId;
+    for (const trackButton of main.querySelectorAll('[data-editor-action="soundtrack-pick"]')) {
+      const selected = trackButton.dataset.trackId === soundtrackId;
+      trackButton.setAttribute('aria-pressed', String(selected));
+      trackButton.classList.toggle('is-selected', selected);
+    }
     const volumeRange = main.querySelector('[data-editor-field="soundtrack-volume"]');
     const volumePercent = Math.round((doc.soundtrack?.volume ?? 0.55) * 100);
     if (volumeRange) {
@@ -2073,6 +2106,16 @@ export function mountDesigner(
       await initialize(current);
       return;
     }
+    if (name === 'soundtrack-pick') {
+      const id = target.dataset.trackId ?? '';
+      if (id && !soundtrackById(id)) return;
+      const musicSelect = main.querySelector('[data-editor-field="soundtrack"]');
+      if (!musicSelect || musicSelect.value === id) return;
+      // Dùng chung handler của dropdown để duy trì validation, Undo/Redo và trạng thái nghe thử.
+      musicSelect.value = id;
+      await change({ target: musicSelect });
+      return;
+    }
     if (name === 'soundtrack-preview') {
       const selectedTrack = store?.get().document.soundtrack;
       if (!selectedTrack) return;
@@ -2442,6 +2485,13 @@ export function mountDesigner(
     }
   }
   async function change(event) {
+    if (event.target.matches('[data-editor-music-filter]')) {
+      const mood = event.target.value;
+      for (const card of main.querySelectorAll('[data-editor-action="soundtrack-pick"]')) {
+        card.hidden = Boolean(card.dataset.trackId) && mood !== 'all' && card.dataset.musicMood !== mood;
+      }
+      return;
+    }
     if (event.target.matches("[data-block-group-select]")) {
       filterBlocks(main.querySelector("[data-block-search]").value);
       return;

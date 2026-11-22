@@ -89,18 +89,19 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Chỉ tải thư viện chỉnh sửa khi mở các trang ngoài `/g/...`; người nhận mở quà trực tiếp không phụ thuộc API thư viện hoặc tải module editor. Điều hướng từ quà sang thư viện vẫn tải cấu hình Canvas.
-- Kiểm tra catalog MySQL đối chiếu đầy đủ ID với seed hiện tại, thay cho số lượng 24 đã cũ; giữ kiểm tra tạo nháp, quyền xuất bản và dữ liệu catalog không bị thay đổi.
-- Giữ nguyên các assertion về request của player công khai, module được tải và khả năng xem quà khi catalog hoặc xác thực gặp lỗi.
+- Sender có thể chọn 2 giai điệu nội bộ hoặc không dùng nhạc, nghe thử trong Designer và lưu lựa chọn vào Canvas V2; bản V1 cũ không bị sửa tự động.
+- Recipient có nút Phát/Tạm dừng nhạc, không autoplay; xử lý trường hợp trình duyệt chặn âm thanh, dọn playback khi ẩn tab/đổi trang.
+- Server chỉ nhận ID nhạc allowlist, không nhận URL ngoài; snapshot công khai giữ lựa chọn, tặng lại từ bố cục không sao chép nhạc cũ, policy Creator vẫn khóa các thành phần còn lại.
+- Thêm MP3 tổng hợp gốc, giao diện VI/EN, `music-controls.css`, MIME audio/mpeg, kiểm thử schema/playback/HTTP và tài liệu đánh giá source mới.
 
 **Các commit gần nhất trên `main`:**
 
+- `caf9e79` — feat: add opt-in background music to Canvas gifts (2026-11-22)
 - `daa4466` — Merge pull request #19 from GNAUQ153:feat/guess-your-choice (2026-11-22)
 - `51f3431` — feat: improve marketing journey mobile interactions (2026-11-22)
 - `57008bf` — fix: keep marketing hero indicators below artwork on mobile (2026-11-22)
 - `3930b34` — perf: add repeatable marketing lab reports and comparison (2026-11-22)
 - `5f714b3` — test: wait for responsive navigation to finish closing (2026-11-22)
-- `ad9d498` — perf: pause offscreen marketing ambiance and add local lab metrics (2026-11-22)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

@@ -1,3 +1,10 @@
+## Unreleased — Tách Scene/Layer Panel khỏi Canvas Designer (2026-11-22)
+
+- Tách dựng danh sách Scene/Layers và cache thumbnail sang `features/canvas-editor/scene-layer-panel.js`, giảm trách nhiệm DOM trong `designer.js`.
+- Tạo danh sách Layer từ một chỉ mục theo ID, giữ thứ tự xếp chồng, trạng thái chọn, khóa/ẩn và nhãn hỗ trợ truy cập; bỏ qua ID đã mất thay vì gây lỗi giao diện khi mở nháp cũ.
+- Giữ nguyên menu thao tác Scene, focus sau đổi tên/sắp xếp, logic khóa mẫu Creator và cache thumbnail được xóa khi chuyển thiết kế.
+- Bổ sung 9 unit test cho Scene/Layers; không sửa schema Canvas, dữ liệu người dùng, nhạc nền, API, MySQL, thanh toán, font hoặc VI/EN.
+
 ## Unreleased — Tách modal xem trước và quyền chia sẻ Canvas Designer (2026-11-22)
 
 - Chuyển hộp thoại xem trước thiệp sang `canvas-editor/preview-dialog.js`, giữ nguyên Player/Preview và thao tác sửa, bắt đầu lại, gửi thiệp; giải phóng Player khi đóng hoặc chuyển trang.

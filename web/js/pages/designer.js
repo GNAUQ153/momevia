@@ -53,11 +53,11 @@ import { createDiscoveryPanel, filterDiscoveryPanel } from "../features/canvas-e
 import { cropEditor } from "../features/canvas-editor/crop.js";
 import { canOpenAdvancedEditor, scenePositionLabel, selectionDescription } from "../features/canvas-editor/editor-experience.js";
 import { canStartInlineFabric, assertInlineFabricRevision } from "../features/canvas-editor/fabric-inline.js";
-import { icon } from "../ui/icons.js";
 import { soundtrackById } from '../shared/canvas/soundtracks.js';
 import { createMusicPanel, filterMusicPanel, syncMusicPanel } from '../features/canvas-editor/music-panel.js';
 import { openCanvasPreview } from "../features/canvas-editor/preview-dialog.js";
 import { openGiftAccessDialog } from "../features/canvas-editor/gift-access-dialog.js";
+import { createSceneLayerPanel } from "../features/canvas-editor/scene-layer-panel.js";
 import { createSoundtrackPlayback } from '../features/gift-runtime/soundtrack.js';
 import {
   node,
@@ -632,114 +632,18 @@ export function mountDesigner(
     stageObserver.observe(main.querySelector(".editor-stage-scroll"));
     renderAll();
   }
-  function renderLayers() {
-    const host = main.querySelector(".editor-layers");
-    if (!host) return;
-    if (quickMode) {
-      host.replaceChildren();
-      return;
-    }
-    const scene = currentScene();
-    host.replaceChildren(
-      ...[...scene.elementIds].reverse().map((idValue) => {
-        const item = store
-          .get()
-          .document.elements.find((element) => element.id === idValue);
-        const label = item.name || registry[item.type].label;
-        const locked = item.locked || design.policy?.lockedElements?.[item.id];
-        const hidden = item.visible === false;
-        const choice = button(
-          label,
-          "select",
-          {
-            "data-id": idValue,
-            class: selection === idValue ? "is-selected" : "",
-            "aria-pressed": selection === idValue,
-            "aria-label": message("editor.interface.layerLabel", {
-              name: label, hidden: hidden ? { format: "message", key: "editor.interface.layerHidden" } : "",
-              locked: locked ? { format: "message", key: "editor.interface.layerLocked" } : "",
-            }),
-          },
-        );
-        if (hidden || locked) {
-          const flags = node("span", { class: "editor-layer-flags", "aria-hidden": "true" });
-          flags.innerHTML = (hidden ? icon("eye-off", 15) : "") + (locked ? icon("lock", 15) : "");
-          choice.append(flags);
-        }
-        return choice;
-      }),
-    );
-  }
-  const sceneThumbs = new Map();
-  function renderScenes() {
-    const host = main.querySelector(".editor-scenes");
-    if (!host) return;
-    const doc = store.get().document;
-    const indexed = quickMode ? null : new Map(doc.elements.map(model => [model.id, model]));
-    const structure = JSON.stringify([quickMode, design.policy?.kind, doc.entrySceneId, doc.scenes.map(({ id, name }) => [id, name])]);
-    function updateThumbnail(card, scene) {
-      if (quickMode) return;
-      const models = scene.elementIds.map(id => indexed.get(id));
-      const bindings = models.map(model => doc.bindings[model?.props.textBinding]?.value);
-      const signature = JSON.stringify([doc.artboard.baseSize, scene.background, scene.effects?.surface, models, bindings]);
-      const cached = sceneThumbs.get(scene.id);
-      const thumbnail = cached?.signature === signature
-        ? cached.thumbnail : sceneThumbnail(doc, scene, { assetUrl, indexed });
-      sceneThumbs.set(scene.id, { signature, thumbnail });
-      const current = card.querySelector(".editor-thumbnail");
-      if (current === thumbnail) return;
-      if (current) current.replaceWith(thumbnail);
-      else card.prepend(thumbnail);
-    }
-    if (host.dataset.structure === structure) {
-      for (const [index, wrapper] of [...host.children].entries()) {
-        const scene = doc.scenes[index];
-        const card = wrapper.firstElementChild;
-        const selected = scene.id === sceneId;
-        card.classList.toggle("is-selected", selected);
-        card.setAttribute("aria-pressed", String(selected));
-        updateThumbnail(card, scene);
-      }
-      return;
-    }
-    host.dataset.structure = structure;
-    for (const id of sceneThumbs.keys()) if (!doc.scenes.some(scene => scene.id === id)) sceneThumbs.delete(id);
-    const active = document.activeElement;
-    const focusedId = host.contains(active) ? active.closest("[data-scene]")?.dataset.scene : null;
-    const openId = host.querySelector("details[open]")?.closest("[data-scene]").dataset.scene;
-    const locked = design.policy?.kind === "creator-template";
-    host.replaceChildren(...doc.scenes.map((scene, index) => {
-      const entry = scene.id === doc.entrySceneId;
-      const selected = scene.id === sceneId;
-      const card = button("", "scene-select", {
-        "data-id": scene.id, "aria-pressed": selected,
-        class: `editor-scene-choice${selected ? " is-selected" : ""}`,
-      });
-      updateThumbnail(card, scene);
-      card.append(node("span", { class: "editor-scene-name" }, scene.name));
-      if (entry && !quickMode) card.append(node("span", { class: "editor-scene-entry" }, message("editor.scene.entry")));
-      const summary = node("summary", { "aria-label": message("editor.interface.sceneMenu", { name: scene.name }) });
-      summary.innerHTML = icon("more", 18);
-      const menu = node("details", { class: "editor-scene-menu editor-layout-only" },
-        summary,
-        node("div", { class: "editor-scene-menu-actions" }, ...sceneActions.map(([label, action]) =>
-          button(message(`editor.interface.sceneAction.${action}`), action, {
-            "data-id": scene.id, disabled:
-              action === "scene-up" && index === 0 ||
-              action === "scene-down" && index === doc.scenes.length - 1 ||
-              action === "scene-entry" && entry ||
-              action === "scene-delete" && doc.scenes.length === 1,
-          }))));
-      menu.open = scene.id === openId;
-      return node("div", { class: "editor-scene-card", "data-scene": scene.id }, card, locked ? null : menu);
-    }));
-    if (focusedId) {
-      const card = host.querySelector(`[data-scene="${CSS.escape(focusedId)}"]`);
-      const focusTarget = active.matches("summary") ? card?.querySelector("summary") :
-        active.dataset.editorAction !== "scene-select" ? card?.querySelector("summary") : card?.firstElementChild;
-      focusTarget?.focus({ preventScroll: true });
-    }
-  }
+  // Chỉ điều phối; DOM và cache thumbnail nằm trong Scene/Layer Panel riêng.
+  const sceneLayerPanel = createSceneLayerPanel({
+    main,
+    getDocument: () => store.get().document,
+    getSceneId: () => sceneId,
+    getSelection: () => selection,
+    getPolicy: () => design.policy,
+    isQuickMode: () => quickMode,
+    assetUrl,
+    message,
+  });
+  const { renderLayers, renderScenes } = sceneLayerPanel;
   function renderAssets() {
     const host = main.querySelector(".editor-assets");
     if (!host) return;
@@ -1245,7 +1149,7 @@ export function mountDesigner(
   }
   async function initialize(loaded) {
     if (disposed) return;
-    sceneThumbs.clear();
+    sceneLayerPanel.clear();
     unsubscribe?.();
     session?.dispose();
     stage?.dispose();

@@ -368,6 +368,11 @@ async function render() {
   try {
     const segments = location.pathname.split("/").filter(Boolean);
     const [route, id] = segments;
+    if (route !== "g") {
+      try { await loadLibrary(); }
+      catch { /* Designer reports and retries library failures on its own route. */ }
+      if (generation !== renderGeneration) return;
+    }
     let catalogFailed = false;
     if (route && route !== "g") {
       const results = await loadPageData(route);
@@ -1619,6 +1624,10 @@ function loadOnce(load) {
 const loadIdentity = loadOnce(async () => setUser((await api.get("/auth/me")).user));
 const loadProviders = loadOnce(async () => { state.providers = await api.get("/auth/providers"); });
 const loadCatalog = loadOnce(loadTemplates);
+const loadLibrary = loadOnce(async () => {
+  const { loadCanvasLibrary } = await import('../features/canvas-editor/library-client.js');
+  await loadCanvasLibrary(api, document.documentElement.lang);
+});
 const catalogRoutes = new Set(["explore", "favorites"]);
 const favoriteRoutes = new Set(["explore", "template", "favorites", "studio"]);
 function loadPageData(route) {
@@ -1630,8 +1639,4 @@ function loadPageData(route) {
   return Promise.allSettled(loads);
 }
 await initializeLocale();
-try {
-  const { loadCanvasLibrary } = await import('../features/canvas-editor/library-client.js');
-  await loadCanvasLibrary(api, document.documentElement.lang);
-} catch { /* Designer reports and retries library failures on its own route. */ }
 render();

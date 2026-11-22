@@ -1,3 +1,9 @@
+## Unreleased — Sửa hồi quy CI Canvas và MySQL của PR #19 (2026-11-22)
+
+- Chỉ tải thư viện chỉnh sửa khi mở các trang ngoài `/g/...`; người nhận mở quà trực tiếp không phụ thuộc API thư viện hoặc tải module editor. Điều hướng từ quà sang thư viện vẫn tải cấu hình Canvas.
+- Kiểm tra catalog MySQL đối chiếu đầy đủ ID với seed hiện tại, thay cho số lượng 24 đã cũ; giữ kiểm tra tạo nháp, quyền xuất bản và dữ liệu catalog không bị thay đổi.
+- Giữ nguyên các assertion về request của player công khai, module được tải và khả năng xem quà khi catalog hoặc xác thực gặp lỗi.
+
 ## Unreleased — Rà soát luồng Admin đến canvas (2026-11-22)
 
 - Sửa thứ tự danh sách lớp theo thứ tự xếp chồng của cảnh, giữ đúng lớp đang chọn khi sắp xếp; giới hạn lại lựa chọn cảnh/lớp khi chuyển giữa VI/EN có số cảnh khác nhau.

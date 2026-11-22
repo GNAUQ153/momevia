@@ -148,9 +148,10 @@ try{
     assert.equal((await request(`/api/gifts/gifts/${blankGift.slug}/assets/${imageAsset.id}`)).status,200);
     assert.equal(providerCreates,0,'Blank must create no checkout');
   });
-  await check('C02 catalog has 24 presets, free template publishes and data stays intact',async()=>{
-    const originals=JSON.stringify((await json('/api/catalog/templates')).templates);
-    assert.equal(JSON.parse(originals).length,24);
+  await check('C02 catalog matches all seeded presets, free template publishes and data stays intact',async()=>{
+    const catalog=(await json('/api/catalog/templates')).templates;
+    const originals=JSON.stringify(catalog);
+    assert.deepEqual(catalog.map(template=>template.id).sort(),templates.map(template=>template.id).sort());
     for(const template of templates){const d=await create({kind:'template',templateId:template.id});assert.equal(d.source.templateId,template.id);assert.equal(d.document.scenes.length,template.scenes,template.id);}
     const free=await create({kind:'template',templateId:'confetti'});const saved=await save(free,fill(free));assert.equal((await preflight(saved)).canPublish,true);
     await post('/api/gifts/gifts/from-design',cookie,publishBody(saved),201);

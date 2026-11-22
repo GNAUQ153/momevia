@@ -1,3 +1,10 @@
+## Unreleased — Auth Experience V7: thống nhất bố cục Login/Register (2026-11-22)
+
+- Thiết kế lại Login/Register bằng layout hai cột thoáng trên desktop và form một cột khi tablet/mobile: font nhập liệu 16px, nhãn 14px, nút 54px, focus rõ, có thương hiệu Momevia trên mobile và ảnh 3D hiện có chuyển động nhẹ (tôn trọng reduced-motion).
+- Giữ CTA “Đăng ký ngay”, liên kết “Đăng nhập ngay” và Quên mật khẩu. Chỉ hiển thị Google/Zalo khi thực sự được cấu hình; không đặt nút OAuth vô hiệu gây nhầm lẫn.
+- Tập trung toàn bộ CSS Auth tại `auth-pages.css`, loại bỏ lớp override Auth tại `ui-polish.css`, chuẩn hóa CSS còn lại để tránh viết dồn dòng; đưa hai stylesheet vào quality gate, bổ sung kiểm thử layout, accessibility, provider và VI/EN.
+- Không sửa session, xử lý mật khẩu, database, Canvas, Music Library, payment hoặc support workflow.
+
 ## Unreleased — Auth Signup CTA & Support Locale UX (2026-11-22)
 
 - Khôi phục liên kết “Đăng ký ngay” trên trang đăng nhập: sửa selector CSS ẩn nhầm link và đặt CTA đăng ký ngay dưới form, vẫn giữ liên kết quên mật khẩu và đăng nhập ở trang đăng ký.

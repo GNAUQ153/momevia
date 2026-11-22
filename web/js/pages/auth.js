@@ -10,10 +10,18 @@ export function createAuthViews({ state, buttonLink }) {
       "https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg";
     const zaloLogo =
       "https://upload.wikimedia.org/wikipedia/commons/9/91/Icon_of_Zalo.svg";
-    const social = (provider, enabled, label, logo) =>
-      enabled
-        ? `<a class="auth-social" href="/api/auth/${provider}" ${attr("aria-label", registering ? "auth.providers.registerWith" : "auth.providers.signInWith", { provider: label })}><img class="provider-logo" src="${logo}" alt=""/><span>${label}</span></a>`
-        : `<button type="button" class="auth-social" disabled ${attr("title", "auth.providers.notConnected", { provider: label })} ${attr("aria-label", "auth.providers.notEnabled", { provider: label })}><img class="provider-logo" src="${logo}" alt=""/><span>${label}</span></button>`;
+    // Chỉ đưa phương thức thực sự được cấu hình lên UI; không tạo nút vô hiệu.
+    const enabledProviders = [
+      ["google", "Google", googleLogo, Boolean(state.providers.google)],
+      ["zalo", "Zalo", zaloLogo, Boolean(state.providers.zalo)],
+    ].filter(([, , , enabled]) => enabled);
+    const social = (provider, label, logo) =>
+      `<a class="auth-social" href="/api/auth/${provider}" ${attr("aria-label", registering ? "auth.providers.registerWith" : "auth.providers.signInWith", { provider: label })}><img class="provider-logo" src="${logo}" alt=""/><span>${label}</span></a>`;
+    const socialSection = enabledProviders.length ? `
+      <div class="auth-divider" role="separator"><span>${text(registering ? "auth.providers.orRegister" : "auth.providers.orLogin")}</span></div>
+      <div class="auth-buttons${enabledProviders.length === 1 ? " auth-buttons--single" : ""}">
+        ${enabledProviders.map(([provider, label, logo]) => social(provider, label, logo)).join("")}
+      </div>` : "";
     const passwordField = (
       name,
       label,
@@ -23,7 +31,7 @@ export function createAuthViews({ state, buttonLink }) {
         <input name="${name}" type="password" autocomplete="${autocomplete}" minlength="${registering ? 10 : 1}" maxlength="128" required ${attr("placeholder", registering ? "auth.password.minimum" : "auth.password.placeholder")}/>
         <button type="button" class="auth-toggle-password" data-action="toggle-password" ${attr("aria-label", "auth.password.show")} aria-pressed="false">${icon("eye", 20)}</button>
       </span></label>`;
-    return `<section class="auth-page auth-page--${mode}"><div class="container auth-layout">
+    return `<section class="auth-page auth-page--${registering ? "register" : "login"}" aria-labelledby="auth-page-title"><div class="container auth-layout">
       <aside class="auth-showcase" ${attr("aria-label", "auth.showcase.about")}>
         <div class="auth-showcase__top"><img src="/assets/momevia-icon-128.png" width="43" height="43" alt=""/><span>momevia<span class="auth-showcase__dot">.</span></span></div>
         <div class="auth-showcase__art" aria-hidden="true">
@@ -41,9 +49,10 @@ export function createAuthViews({ state, buttonLink }) {
         </div>
       </aside>
       <div class="auth-panel">
+        <div class="auth-panel__brand" aria-label="Momevia"><img src="/assets/momevia-icon-128.png" width="40" height="40" alt=""/><span>momevia<span class="auth-showcase__dot">.</span></span></div>
         <div class="auth-panel__top"><a href="/" data-link class="auth-back">${icon("arrow-left", 17)} ${text("shell.nav.home")}</a>
           <span class="auth-panel__welcome">${registering ? text("auth.register.badge") : text("auth.login.badge")}</span></div>
-        <div class="auth-panel__intro"><h1>${registering ? text("auth.register.title") : text("auth.login.title")}</h1>
+        <div class="auth-panel__intro"><h1 id="auth-page-title">${registering ? text("auth.register.title") : text("auth.login.title")}</h1>
           <p class="auth-lead">${registering ? text("auth.register.lead") : text("auth.login.lead")}</p></div>
         <form id="${registering ? "register-form" : "email-login-form"}" class="auth-form" ${attr("aria-label", registering ? "auth.register.form" : "auth.login.form")}>
           ${registering
@@ -62,9 +71,7 @@ export function createAuthViews({ state, buttonLink }) {
         ${registering ? "" : `<p class="auth-recovery-link"><a href="/recover" data-link>${text("auth.recovery.link")}</a></p>
         <p class="auth-switch auth-switch--signup">${text("auth.login.noAccount")}
           <a href="/register" data-link>${text("auth.register.switch")}</a></p>`}
-        <div class="auth-divider" role="separator"><span>${text(registering ? "auth.providers.orRegister" : "auth.providers.orLogin")}</span></div>
-        <div class="auth-buttons">${social("google", state.providers.google, "Google", googleLogo)}${social("zalo", state.providers.zalo, "Zalo", zaloLogo)}</div>
-        ${!state.providers.google || !state.providers.zalo ? `<p class="auth-provider-note">${text("auth.providers.disabled")}</p>` : ""}
+        ${socialSection}
         ${registering ? `<p class="auth-switch">${text("auth.register.haveAccount")} <a href="/login" data-link>${text("auth.login.switch")}</a></p>` : ""}
         <p class="auth-policy-note">${text("auth.policies.prefix")} <a href="/policies/general" data-link>${text("auth.policies.general")}</a> ${text("auth.policies.conjunction")} <a href="/policies/privacy" data-link>${text("shell.footer.privacy")}</a>.</p>
         <button type="button" class="btn btn--outline auth-support" data-action="support">${text("common.actions.support")}</button>

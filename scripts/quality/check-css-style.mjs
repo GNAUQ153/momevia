@@ -11,6 +11,8 @@ export const monitoredStylesheets = Object.freeze([
   'gift-runtime.css',
   'editor.css',
   'upgrade.css',
+  'auth-pages.css',
+  'ui-polish.css',
 ]);
 
 /**

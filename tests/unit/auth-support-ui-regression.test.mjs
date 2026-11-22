@@ -18,7 +18,7 @@ test("Login có một CTA Đăng ký ngay, dẫn đúng /register và nằm trư
   assert.match(html, /Đăng ký ngay/);
   assert.equal((html.match(/href="\/register"/g) || []).length, 1);
   assert.ok(html.indexOf("auth-switch--signup") > html.indexOf("email-login-form"));
-  assert.ok(html.indexOf("auth-switch--signup") < html.indexOf("auth-divider"));
+  assert.doesNotMatch(html, /class="auth-divider"/); // Không hiện lựa chọn SSO chưa được cấu hình.
   assert.match(html, /href="\/recover" data-link/);
 });
 
@@ -36,7 +36,7 @@ test("CSS không còn ẩn liên kết .auth-switch và có vùng bấm/focus r�
   assert.doesNotMatch(css, /\.auth-switch a\s*,\s*\.is-auth \.site-tools\s*\{\s*display:\s*none/);
   assert.match(css, /\.auth-page \.auth-switch\.auth-switch--signup\s*\{[^}]*border: 1px solid/);
   assert.match(css, /\.auth-switch a,\s*\.auth-recovery-link a\s*\{/);
-  assert.match(css, /\.auth-switch a:focus-visible\s*\{/);
+  assert.match(css, /\.auth-switch a:focus-visible/);
 });
 
 test("Support form và màn thành công không chèn bộ chuyển ngôn ngữ riêng", () => {

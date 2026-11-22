@@ -10,12 +10,15 @@ import {
 
 const project = fileURLToPath(new URL('../../', import.meta.url));
 
-test('Bảy stylesheet trọng điểm không còn khai báo dồn dòng hoặc duplicate property', () => {
+test('Chín stylesheet trọng điểm không còn khai báo dồn dòng hoặc duplicate property', () => {
   const results = auditMonitoredCss(project);
-  assert.equal(results.length, 7);
+  assert.equal(results.length, monitoredStylesheets.length);
+  assert.ok(results.length >= 9);
   assert.deepEqual(results.flatMap(result => result.errors), []);
   assert.ok(results.reduce((count, result) => count + result.declarationCount, 0) > 2200);
   assert.ok(monitoredStylesheets.includes('gift-runtime.css'));
+  assert.ok(monitoredStylesheets.includes('auth-pages.css'));
+  assert.ok(monitoredStylesheets.includes('ui-polish.css'));
 });
 
 test('Bộ kiểm tra phát hiện CSS viết dồn dòng và trùng thuộc tính cùng rule', () => {

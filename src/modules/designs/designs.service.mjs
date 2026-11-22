@@ -3,8 +3,9 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { validateDocument, canonicalStringify, createDocument, duplicateDocument, assetIds, publicDocument } from '../../../web/js/shared/canvas/index.js';
 import { runtimeVersionFor } from '../../../web/js/shared/canvas/schema.js';
+import { PREDICTION_KIND } from '../../../web/js/shared/canvas/prediction.js';
 import { photoSlots } from '../../../web/js/shared/canvas/interactions.js';
-import { clearTemplateBindingDefaults, lockedVisibleNames } from '../../../web/js/shared/canvas/personalization.js';
+import { clearTemplateBindingDefaults, lockedVisibleNames, visibleBindingKeys } from '../../../web/js/shared/canvas/personalization.js';
 import { cleanGiftLayout } from '../../../web/js/shared/canvas/clean-layout.js';
 import { randomId } from '../../shared/security.mjs';
 import { canvasError, fields, owned, revision, uuid } from './errors.mjs';
@@ -13,6 +14,7 @@ import { serverText } from '../../shared/locale.mjs';
 import { isSystemTemplate, templateFieldKey } from '../../../web/js/shared/template-copy.js';
 import { materializeBuiltinMedia } from './builtin-media.mjs';
 import { EVENT_MEDIA } from '../../../web/js/shared/canvas/event-media.js';
+import { libraryEntry, librarySnapshot } from '../../../web/js/shared/canvas/library-state.js';
 
 export const hash = value => `sha256:${createHash('sha256').update(canonicalStringify(value)).digest('hex')}`;
 const copy = value => structuredClone(value);
@@ -63,6 +65,8 @@ export class DesignsService {
     if (input.kind === 'blank') { fields(input, ['kind']); return { source: { kind: 'blank' }, provenance: { adapter: 'blank' } }; }
     if (input.kind !== 'template' || typeof input.templateId !== 'string' || !/^[\w-]{1,128}$/.test(input.templateId)) throw canvasError(422, 'INVALID_SOURCE', 'Nguồn thiết kế không hợp lệ.');
     const template = await this.catalog.getTemplate(input.templateId);
+    if (this.profile?.mode === 'mysql' && librarySnapshot()?.items.some(row => row.kind === 'template' && row.id === template.id && row.status !== 'active'))
+      throw canvasError(403, 'LIBRARY_TEMPLATE_DISABLED', 'Mẫu bố cục đang tạm tắt trong thư viện.');
     if (template.versionId) {
       const version = await this.catalog.approvedVersion(template.id, input.templateVersionId || template.versionId);
       return { source: { kind: 'template', templateId: template.id, templateVersionId: version.id },
@@ -81,8 +85,11 @@ export class DesignsService {
       throw canvasError(403, 'CREATOR_REQUIRED', 'Chỉ Creator được tạo nháp mẫu.');
     const previous = await this.repository.findCreate(user.sub, input.mutationId, requestHash);
     if (previous) return { ...previous, design: designView(previous.design) };
-    if (input.presetId !== undefined && !['blank', 'envelope-basic', 'celebration'].includes(input.presetId)) throw canvasError(422, 'INVALID_PRESET', 'Bố cục chưa được hỗ trợ.');
+    await this.library?.refresh();
+    if (input.presetId !== undefined && (this.profile?.mode === 'mysql' ? !libraryEntry('preset', input.presetId) : !['blank', 'envelope-basic', 'celebration'].includes(input.presetId))) throw canvasError(422, 'INVALID_PRESET', 'Bố cục chưa được hỗ trợ.');
     const resolved = await sourceFor();
+    if (this.profile?.mode === 'mysql' && !resolved.document && !resolved.version && !resolved.template && !libraryEntry('preset', input.presetId || 'blank'))
+      throw canvasError(422, 'INVALID_PRESET', 'Bố cục đang tạm tắt trong thư viện.');
     const localize = (key, params) => serverText(locale ?? 'vi', key, params);
     const document = validateDocument(resolved.document || resolved.version?.document || createDocument({
       presetId: input.presetId || (resolved.template ? 'envelope-basic' : 'blank'), template: resolved.template, localize,
@@ -227,7 +234,19 @@ export class DesignsService {
     const { document, reviewTemplateDefaults } = designView(design);
     const editable = design.policy?.kind === 'creator-template' ? design.policy.editableBindings : null;
     if (reviewTemplateDefaults) blockers.push(preflightCopy('document.bindings', 'REVIEW_TEMPLATE_DEFAULTS', 'editor.preflight.reviewDefaults'));
-    try { validateDocument(document, { mode: 'publish', requiredBindings: [] }); } catch (error) { blockers.push(...(error.details || [{ path: 'document', code: 'INVALID_DOCUMENT', message: error.message }])); }
+    try { validateDocument(document, { mode: 'publish', requiredBindings: [] }); }
+    catch (error) {
+      for (const detail of error.details || [{ path: 'document', code: 'INVALID_DOCUMENT', message: error.message }]) {
+        const index = /^elements\.(\d+)\.props\.(\w+)$/.exec(detail.path || '');
+        if (index && document.elements[Number(index[1])]?.props.kind === PREDICTION_KIND &&
+          (index[2] === 'prediction' || ['PREDICTION_CONTENT_REQUIRED', 'PREDICTION_DUPLICATE_CHOICES'].includes(detail.code))) {
+          const field = index[2];
+          blockers.push(preflightCopy(detail.path, detail.code, detail.code === 'PREDICTION_DUPLICATE_CHOICES' ? 'prediction.duplicate'
+            : field === 'prediction' ? 'prediction.chooseRequired' : 'prediction.required',
+          { field: { format: 'message', key: `prediction.${field}` } }));
+        } else blockers.push(detail);
+      }
+    }
     // Apply this rule to new publications. Existing gift snapshots use the reader's structural validation.
     const { bindings, elements } = document;
     const hasContent = elements.some(element => {
@@ -259,8 +278,12 @@ export class DesignsService {
     }
     if (authorization.status !== 'allowed') blockers.push(preflightCopy('source', authorization.reasonCodes[0], 'editor.preflight.permission'));
     const values = design.document.bindings;
+    const predictionStory = elements.some(e => e.type === 'interaction' && e.props.kind === PREDICTION_KIND && e.visible !== false && e.opacity !== 0);
+    const visibleBindings = visibleBindingKeys(document);
     for (const [key, max] of [['recipientName', 60], ['senderName', 60], ['message', 1000]]) {
       if (editable && !editable.includes(key)) continue;
+      // This interaction supplies two endings instead of an unused general greeting.
+      if (key === 'message' && predictionStory && !visibleBindings.has(key)) continue;
       const v = values[key]?.value;
       if (typeof v !== 'string' || !v.trim() || v.length > max)
         blockers.push(preflightCopy(`bindings.${key}`, 'BINDING_REQUIRED', 'editor.preflight.binding',

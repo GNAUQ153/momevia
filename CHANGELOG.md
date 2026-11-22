@@ -1,3 +1,56 @@
+## Unreleased — Sửa hồi quy CI Canvas và MySQL của PR #19 (2026-11-22)
+
+- Chỉ tải thư viện chỉnh sửa khi mở các trang ngoài `/g/...`; người nhận mở quà trực tiếp không phụ thuộc API thư viện hoặc tải module editor. Điều hướng từ quà sang thư viện vẫn tải cấu hình Canvas.
+- Kiểm tra catalog MySQL đối chiếu đầy đủ ID với seed hiện tại, thay cho số lượng 24 đã cũ; giữ kiểm tra tạo nháp, quyền xuất bản và dữ liệu catalog không bị thay đổi.
+- Giữ nguyên các assertion về request của player công khai, module được tải và khả năng xem quà khi catalog hoặc xác thực gặp lỗi.
+
+## Unreleased — Rà soát luồng Admin đến canvas (2026-11-22)
+
+- Sửa thứ tự danh sách lớp theo thứ tự xếp chồng của cảnh, giữ đúng lớp đang chọn khi sắp xếp; giới hạn lại lựa chọn cảnh/lớp khi chuyển giữa VI/EN có số cảnh khác nhau.
+- Giữ nguyên thứ tự biến đổi khi sửa từng thông số keyframe; bỏ mục mới chưa lưu trở về mục đã có, không báo nhầm đã lưu.
+- Đối chiếu nội dung với DB khi thử lại sau mất phản hồi của lần lưu đã commit; không ghi thêm revision và vẫn bảo vệ thay đổi khác của người sửa đồng thời.
+- Xem thử mục đã tắt cùng các phụ thuộc trong bản tạm chỉ đọc; thao tác bật/lưu thật vẫn kiểm tra đầy đủ trạng thái phụ thuộc.
+- Bổ sung kiểm tra trình duyệt cho mất ACK lúc tạo/sửa, chuỗi bật/tắt, VI/EN khác số cảnh, sắp xếp lớp, phiên bản canvas cũ/mới và tạo bề mặt/hạt bằng Admin.
+
+## Unreleased — Ngắt tunnel, HTTPS bằng chứng chỉ (2026-11-21)
+
+- Ngắt Cloudflare theo yêu cầu; đổi `demo:https` sang chứng chỉ localhost trực tiếp trên 4110, không tạo kết nối Internet. Giữ profile/kho dữ liệu và cổng 4100.
+- Server hỗ trợ `HTTPS_CERT_FILE` / `HTTPS_KEY_FILE`, kiểm tra cặp PEM trước khi mở kho dữ liệu, không hạ xuống HTTP khi sai cấu hình. Thêm kiểm thử handshake, cookie, origin và quà HTTPS.
+- Chuẩn bị Caddyfile Let's Encrypt và service chạy trên VPS; chưa cấp chứng chỉ tên miền thật hay triển khai máy chủ khi chưa có thông tin đích. Chứng chỉ tự ký chỉ để thử và không được cài vào kho tin cậy.
+
+## Unreleased — Quản lý thư viện trong Admin (2026-11-22)
+
+- Thêm `/admin/library` và đường dẫn trong trang Admin/menu tài khoản: tìm/lọc, thêm/sửa/nhân bản, bật/tắt Element, Hiệu ứng, Chuyển động và Bố cục bằng biểu mẫu VI/EN.
+- Trình chỉnh thành phần/cảnh, bảng mốc chuyển động, cấu hình bề mặt/hạt, chọn đối tượng áp dụng và bản xem thử trực tiếp dùng chung canvas runtime.
+- Xem thử chỉ đọc, giữ bản đang nhập khi lỗi mạng/xung đột phiên bản, bảo vệ thay đổi chưa lưu; kiểm tra quyền Admin ở cả giao diện lẫn API.
+- Thêm kiểm tra cho 266 bản xem thử và hành trình Admin qua MySQL đến designer, gồm phụ thuộc, hai ngôn ngữ, retry, xung đột và bốn kích thước màn hình.
+
+## Unreleased — Thư viện canvas quản lý từ MySQL (2026-11-22)
+
+- Lưu đầy đủ 172 element/cụm, 33 effect, 33 animation, 3 starter, 25 mẫu thiệp, 111 vector và 10 mô tả primitive trong thư viện có revision.
+- Editor tải danh mục từ DB; hỗ trợ thêm mới cụm element, vector, preset, keyframe, bề mặt và hạt bằng dữ liệu, không đăng ký ID trong frontend.
+- Cấu hình và đường nét được giữ kèm tài liệu; sửa/tắt thư viện không đổi nháp hoặc quà đã lưu. Có API Admin với kiểm tra revision/lịch sử và CLI quản lý tại máy.
+- Kiểm thử MySQL thật qua SQL-only additions, Admin/CAS, editor, xuất bản, tải lại, đổi/tắt định nghĩa và giảm chuyển động; giữ các kiểm tra cũ của 172 element và 33 effect.
+
+## Unreleased — Chuyển canvas JSON sang MySQL (2026-11-21)
+
+- Thêm importer canvas offline vào DB rỗng, sao lưu dữ liệu/ảnh, transaction và đối chiếu đọc lại; giữ nguồn gốc và ánh xạ phiên bản trùng trong DB.
+- Giữ chính xác tọa độ/hình ảnh và hash bằng chuỗi JSON có kiểm tra JSON_VALID; yêu cầu migration 012 khi chạy canvas trên MySQL.
+- Profile demo giữ cấu hình MySQL qua restart; backup hỗ trợ các asset Creator dùng chung tệp đã xác minh hash.
+- Bổ sung kiểm tra thực trên MySQL cho 172 mẫu element, 33 effect, 18 tổ hợp hiệu ứng lặp, snapshot quà, ảnh/crop, restart và lưu/tải lại bằng trình duyệt.
+
+## Unreleased — HTTPS cho demo hiện có (2026-11-21)
+
+- Thêm `npm run demo:https`, dùng lại backend 4110 và tự nhận diện profile demo cũ, giữ khóa phiên/tài khoản/nháp/quà. Link và QR lấy đúng địa chỉ HTTPS; origin kiểm tra chính xác, cookie có Secure.
+- Thêm `--public-base-url` và `--profile` cho web demo; tải cloudflared chính thức có kiểm SHA-256. Khởi động lặp lại giữ URL đang chạy; dừng không xóa dữ liệu.
+- Chuẩn bị quà Minh–An trên 4110/HTTPS và dừng bản thử 4116. Kiểm tra trình duyệt qua HTTPS, QR, hai nhánh và hồi quy launcher.
+
+## Unreleased — Tớ đoán cậu sẽ chọn… (2026-11-21)
+
+- Thêm mẫu sinh nhật miễn phí, biểu mẫu cá nhân hóa với dự đoán A/B ổn định và hai lời kết, lưu nháp dở và kiểm tra trước khi gửi.
+- Thẻ Canvas V2 cùng cảnh chỉ dựng kết quả sau lựa chọn; dùng chung cho preview/link thật, có Chơi lại, khóa chạm liên tiếp, trợ năng, giảm chuyển động và VI/EN. Snapshot giữ dự đoán khi sửa nháp; tặng lại xóa câu chuyện cũ.
+- Bổ sung unit và browser qua thư viện đến xuất bản, đủ bốn nhánh. Bàn giao demo Minh–An cổng 4116 và kịch bản quay trong `docs/TO_DOAN_CAU_SE_CHON_BAN_DAU.md`; chưa triển khai production hoặc kiểm thử điện thoại vật lý/MySQL thật.
+
 ## Unreleased — Marketing Journey mobile swipe & readable steps (2026-11-22)
 
 - Trải nghiệm Create → Share → Open → Reply → Keep trên mobile: năm nút chuyển sang danh sách cuộn ngang với cỡ chữ 13px thay vì ép chữ 11px vào một hàng; không gây tràn ngang trang.

@@ -1,4 +1,5 @@
 export const interactionKinds = Object.freeze({
+  "prediction-choice": { label: "Tớ đoán cậu sẽ chọn…", prediction: true, icon: "?", size: [342, 550] },
   "flip-card": { label: "Thẻ lật hai mặt", fields: [["Mặt trước", "Mặt sau"]], icon: "↺", size: [320, 178] },
   "scratch-ticket": { label: "Vé cào bật mí", fields: [["Nhãn lớp phủ", "Lời bật mí"]], icon: "✦", size: [326, 196] },
   "foldout-letter": { label: "Thư gấp ba nếp", fields: Array.from({length:3}, (_, i) => [`Tên nếp ${i+1}`, `Nội dung nếp ${i+1}`]), icon: "▤", size: [336, 230] },

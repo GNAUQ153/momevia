@@ -58,7 +58,7 @@ async function fixture(name, legacy = false, existingTemplates) {
 try {
   const current = await fixture('current');
   const catalog = (await current.request('/catalog/templates', undefined, 200, false)).templates;
-  assert.equal(catalog.length, 24); let published = 0;
+  assert.equal(catalog.length, 25); let published = 0;
   for (const template of catalog) {
     const mutationId = randomUUID(); const created = await current.request('/designs/designs', { source: { kind: 'template', templateId: template.id }, presetId: 'envelope-basic', mutationId }, 201);
     let d = created.design;
@@ -76,6 +76,8 @@ try {
     }
     assert.deepEqual(d.document, expectedPreset); assert.equal(d.source.templateId, template.id); assert.equal(d.source.kind, 'template');
     const originalSource = structuredClone(d.source);
+    const prediction = d.document.elements.find(e => e.props.kind === 'prediction-choice');
+    if (prediction) Object.assign(prediction.props, { question: 'Bữa tối nào?', optionA: 'Quán mì', optionB: 'Vào bếp', prediction: 'A', reason: 'Kỷ niệm năm nhất.', endingA: 'Hẹn ở quán.', endingB: 'Tớ sẽ nấu.' });
     d.document.bindings.recipientName.value = 'Nguyễn Mai'; d.document.bindings.senderName.value = 'Trần An'; d.document.bindings.message.value = `Lời chúc thử nghiệm mẫu ${template.title}, giữ đầy đủ dấu tiếng Việt.`;
     await current.request(`/designs/designs/${d.id}/save`, { expectedRevision: d.revision, mutationId: randomUUID(), title: d.title, document: d.document });
     const expected = structuredClone(d.document); d = (await current.request(`/designs/designs/${d.id}`)).design; assert.equal(d.revision, 2); assert.deepEqual(d.document, expected); assert.deepEqual(d.source, originalSource);
@@ -105,14 +107,14 @@ try {
   }
   assert.equal(published, templates.filter(template => template.price === 0).length); assert.deepEqual((await current.request('/checkout/orders')).orders, []);
   const page = await fetch(current.base + '/template/sunny-wishes'); const markup = await page.text(); assert(markup.includes('/css/template-library.css')); assert.doesNotMatch(page.headers.get('content-security-policy'), /unsafe-inline|unsafe-eval/);
-  console.log('PASS Current JSON API: 24 templates create/save/reload, free publications, paid license gate, 24 SVG covers.');
+  console.log('PASS Current JSON API: 25 templates create/save/reload, free publications, paid license gate, 25 SVG covers.');
 
   const addedIds = new Set(addedSystemTemplates.map(template => template.id));
   const originals = templates.filter(template => !addedIds.has(template.id));
   const existing = await fixture('existing', false, originals);
   const updated = (await existing.request('/catalog/templates', undefined, 200, false)).templates;
   assert.deepEqual(updated, catalog);
-  console.log('PASS Existing JSON catalog: appended 12 missing templates and preserved all 12 originals.');
+  console.log(`PASS Existing JSON catalog: appended ${updated.length - originals.length} missing templates and preserved all ${originals.length} originals.`);
 
   const localizedStart = { source: { kind: 'template', templateId: 'sunny-wishes' }, mutationId: randomUUID() };
   const english = (await current.request('/designs/designs', localizedStart, 201, true, 'en')).design;
@@ -145,7 +147,7 @@ try {
   recovered.document.bindings.message.value = 'Nội dung ở một tab khác';
   await legacy.request(`/designs/designs/${recovered.id}/save`, { expectedRevision: 2, mutationId: randomUUID(), title: recovered.title, document: recovered.document });
   const latest = await materializeTemplateStart(original, { template, createMutationId: key, request }); assert.equal(latest.revision, 3); assert.equal(latest.document.bindings.message.value, 'Nội dung ở một tab khác');
-  assert.equal(Object.keys(BASIC_TEMPLATES).length, 24);
+  assert.equal(Object.keys(BASIC_TEMPLATES).length, 25);
   console.log('PASS Cached-v1 fixture: updated client materializes template through real CAS; lost ACK retries identical key/body; latest draft edits/source/policy survive.');
 } finally {
   for (const app of apps) { await new Promise(resolve => app.server.close(resolve)); await app.close(); }

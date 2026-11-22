@@ -23,6 +23,7 @@ fs.mkdirSync(output, { recursive: true });
 // Allowlist roots; never package local settings, generated business data or dependencies.
 const roots = [
   'src', 'services', 'web', 'scripts', 'tests', 'docs',
+  'deploy/https',
   '.github',
   'database/compose.yml',
   'database/migrations',

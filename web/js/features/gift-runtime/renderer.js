@@ -20,7 +20,7 @@ const navigationArt = {
   ],
 };
 
-function clipPhoto(frame, mask) {
+function clipPhoto(frame, mask, maskPath) {
   const clipId = `gift-photo-clip-${++clipSequence}`;
   const svg = drawVector([]);
   const clip = globalThis.document.createElementNS(svgNamespace, "clipPath");
@@ -28,7 +28,7 @@ function clipPhoto(frame, mask) {
   svg.classList.add("gift-runtime-clip");
   clip.id = clipId;
   clip.setAttribute("clipPathUnits", "objectBoundingBox");
-  path.setAttribute("d", masks[mask]);
+  path.setAttribute("d", maskPath || masks[mask]);
   path.setAttribute("transform", "scale(.01)");
   clip.append(path);
   svg.append(clip);
@@ -205,7 +205,7 @@ export function renderElement(
       node.classList.add("gift-runtime-photo");
       if (p.caption) node.classList.add("gift-runtime-photo-captioned");
       frame.style.borderRadius = `${p.radius || 0}px`;
-      if (p.mask) clipPhoto(frame, p.mask);
+      if (p.mask) clipPhoto(frame, p.mask, p.maskPath);
       node.append(frame);
       if (p.caption) node.append(element("p", "gift-runtime-photo-caption", p.caption));
     }
@@ -274,7 +274,7 @@ export function renderElement(
       );
   } else if (type === "interaction") {
     node = renderInteraction(model, {
-      mode, signal, motion, activate, renderArt: drawVector,
+      mode, signal, motion, bindings: document.bindings, activate, renderArt: drawVector,
       renderPhoto: photo => renderElement({
         id: photo.id, type: "image",
         props: { assetId: photo.assetId, fit: "cover", focalPoint: photo.focalPoint, optional: true },

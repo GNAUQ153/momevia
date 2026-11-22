@@ -65,6 +65,11 @@ export const originalStickerIds = Object.freeze(['heart','star','flower','sparkl
 
 export function vectorParts(model) {
   const { type, props: p } = model;
+  if (model.artwork) return model.artwork.paths.map(part => ({ d: part.d,
+    fill: part.fill === 'color' ? p.color : part.fill === 'strokeColor' ? p.strokeColor : part.fill || 'none',
+    ...(part.stroke ? { stroke: part.stroke === 'color' ? p.color : part.stroke === 'strokeColor' ? p.strokeColor : part.stroke } : {}),
+    ...(part.strokeWidth !== undefined ? { 'stroke-width': part.strokeWidth === 'strokeWidth' ? p.strokeWidth : part.strokeWidth } : {}),
+    ...(part.dash ? { 'stroke-dasharray': part.dash } : {}) }));
   if (type === 'sticker' && Object.hasOwn(stickerArt,p.stickerId)) {
     const [fill, stroke] = stickerArt[p.stickerId];
     return [fill && { d:fill, fill:p.color },

@@ -1,0 +1,18 @@
+[Unit]
+Description=Momevia application
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=momevia
+Group=momevia
+WorkingDirectory=/opt/momevia
+EnvironmentFile=/etc/momevia/momevia.env
+ExecStart=/usr/bin/node /opt/momevia/dev.mjs
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target

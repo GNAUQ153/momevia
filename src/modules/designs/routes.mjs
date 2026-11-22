@@ -14,6 +14,27 @@ export function registerDesignRoutes(router, { service, assets, resolveUser, con
   const user = req => resolveUser(req, config.jwtSecret);
   const writeUser = async req => { const actor = await user(req); if (!writeLimit.consume(actor.sub)) throw canvasError(429, 'CANVAS_RATE_LIMIT', 'Bạn thao tác quá nhanh. Thử lại sau.'); return actor; };
   router.on('GET', '/health', ({ res }) => sendJson(res, 200, { name: 'designs', ok: true, profile: service.profile, capabilities: service.flags }));
+  router.on('GET', '/library', async ({ res }) => sendJson(res, 200, { library: await service.library.refresh() }));
+  router.on('GET', '/library/templates/:id/cover', async ({ res, params, url }) => {
+    const svg = await service.library.cover(params.id, url.searchParams.get('locale') === 'en' ? 'en' : 'vi');
+    res.writeHead(200, { 'content-type': 'image/svg+xml; charset=utf-8', 'cache-control': 'no-store', 'x-content-type-options': 'nosniff' });
+    res.end(svg);
+  });
+  router.on('GET', '/admin/library', async ({ req, res }) => {
+    if ((await user(req)).role !== 'admin') throw canvasError(403, 'ADMIN_REQUIRED', 'Admin required.');
+    sendJson(res, 200, { library: await service.library.refresh({ admin: true }) });
+  });
+  router.on('POST', '/admin/library/:kind/:id', async ({ req, res, params }) => {
+    const actor = await writeUser(req);
+    if (actor.role !== 'admin') throw canvasError(403, 'ADMIN_REQUIRED', 'Admin required.');
+    sendJson(res, 200, { library: await service.library.put(actor, params.kind, params.id, await parseJson(req, 1500000)) });
+  });
+  router.on('POST', '/admin/library/preview/:kind/:id', async ({ req, res, params }) => {
+    const actor = await writeUser(req);
+    if (actor.role !== 'admin') throw canvasError(403, 'ADMIN_REQUIRED', 'Admin required.');
+    const input = await parseJson(req, 1500000);
+    sendJson(res, 200, await service.library.preview(actor, params.kind, params.id, input, input.locale === 'en' ? 'en' : 'vi'));
+  });
   router.on('GET', '/designs', async ({ req, res, url }) => {
     const numberParam = (key, fallback, max) => { const raw = url.searchParams.get(key); if (raw === null) return fallback; const value = Number(raw); return Number.isSafeInteger(value) && value >= 0 ? Math.min(max, value) : fallback; };
     const limit = Math.max(1, numberParam('limit', 50, 100)); const offset = numberParam('offset', 0, 1000000);

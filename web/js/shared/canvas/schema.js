@@ -1,12 +1,14 @@
 import { registry, STICKERS, FONT_TOKENS, BINDINGS, LIMITS } from './registry.js';
 import { lines, masks, originalStickerIds, shapes } from './artwork.js';
+import { predictionFields, normalizeChoice } from './prediction.js';
 import { interactionKinds, photoSlots } from './interactions.js';
 import { effectsFor, effectSpeed, elementEffectFamilies, sceneEffectFamilies, CELEBRATION_IDS } from './effects.js';
+import { validatePortableEffect, validateVector } from './library-contract.js';
 
 export const CANVAS_VERSIONS = Object.freeze([1, 2]);
 export const runtimeVersionFor = document => document.schemaVersion;
 export const requiresCanvasV2 = document => document.scenes.some(scene => scene.effects) || document.elements.some(e =>
-  e.type === 'interaction' || e.effects ||
+  e.type === 'interaction' || e.effects || e.artwork ||
   ['dropCap', 'pattern', 'mask', 'optional', 'caption'].some(key => own(e.props, key)) ||
   (e.type === 'sticker' && !originalStickerIds.includes(e.props.stickerId)) ||
   (e.type === 'shape' && Object.hasOwn(shapes, e.props.kind)));
@@ -44,6 +46,7 @@ function validateInteraction(p, path, assets, publishing) {
   enumeration(p.kind, `${path}.kind`, Object.keys(interactionKinds));
   const spec = interactionKinds[p.kind];
   const keys = ['kind', 'color', ...(spec.fields ? ['entries'] : []),
+    ...(spec.prediction ? [...Object.keys(predictionFields), 'prediction'] : []),
     ...(spec.slots ? ['photos'] : []), ...(spec.clock ? ['eventAt', 'timeZone'] : [])];
   const extras = [...(p.kind === 'swipe-album' ? ['optional', 'autoplay'] : []), ...(spec.clock ? ['optional', 'clockMode'] : [])];
   object(p, path, [...keys, ...extras], keys);
@@ -51,6 +54,15 @@ function validateInteraction(p, path, assets, publishing) {
   if (own(p, 'autoplay')) boolean(p.autoplay, `${path}.autoplay`);
   if (own(p, 'clockMode')) enumeration(p.clockMode, `${path}.clockMode`, ['countdown', 'elapsed']);
   color(p.color, `${path}.color`);
+  if (spec.prediction) {
+    for (const [key, max] of Object.entries(predictionFields)) {
+      string(p[key], `${path}.${key}`, max);
+      if (publishing && !p[key].trim()) fail(`${path}.${key}`, 'Nhập nội dung cho trường này.', 'PREDICTION_CONTENT_REQUIRED');
+    }
+    if (p.prediction !== null || publishing) enumeration(p.prediction, `${path}.prediction`, ['A', 'B']);
+    if (publishing && normalizeChoice(p.optionA) === normalizeChoice(p.optionB))
+      fail(`${path}.optionB`, 'Hai lựa chọn cần khác nhau sau khi bỏ khoảng trắng thừa.', 'PREDICTION_DUPLICATE_CHOICES');
+  }
   if (spec.fields) {
     array(p.entries, `${path}.entries`, spec.fields.length);
     if (p.entries.length !== spec.fields.length) fail(`${path}.entries`, 'Thiếu vùng nội dung tương tác.');
@@ -112,21 +124,26 @@ function validateEffects(effects, path, model) {
       object(preset,q,CELEBRATION_IDS);
       for (const [id, settings] of Object.entries(preset)) {
         const at = `${q}.${id}`;
-        object(settings,at,['enabled','speed','density','loop'],['enabled']);
+        object(settings,at,['enabled','speed','density','loop','definition'],['enabled']);
         boolean(settings.enabled,`${at}.enabled`);
         if (own(settings,'speed')) enumeration(settings.speed,`${at}.speed`,Object.keys(effectSpeed));
         if (own(settings,'density')) enumeration(settings.density,`${at}.density`,['sparse','normal','dense']);
         if (own(settings,'loop')) boolean(settings.loop,`${at}.loop`);
+        if (settings.definition) { try { validatePortableEffect(settings.definition, 'ambience'); if (settings.definition.id !== id) fail(at, 'Effect identity mismatch.'); } catch (e) { fail(at, e.message); } }
       }
       continue;
     }
     const option = { surface: 'color', entrance: 'delay', ambience: 'density' }[family];
-    object(preset,q,['id', ...(family === 'surface' ? [] : ['speed']), ...(option ? [option] : [])],['id']);
-    enumeration(preset.id,`${q}.id`, effectsFor(family, model).map(([id]) => id));
+    object(preset,q,['id','definition', ...(family === 'surface' ? [] : ['speed']), ...(family === 'ambience' ? ['loop'] : []), ...(option ? [option] : [])],['id']);
+    if (preset.definition) {
+      try { validatePortableEffect(preset.definition, family, model); } catch (e) { fail(q, e.message); }
+      if (preset.definition.id !== preset.id) fail(q, 'Effect identity mismatch.');
+    } else enumeration(preset.id,`${q}.id`, effectsFor(family, model, { builtin: true }).map(([id]) => id));
     if (own(preset,'speed')) enumeration(preset.speed,`${q}.speed`,Object.keys(effectSpeed));
     if (own(preset,'delay')) enumeration(preset.delay,`${q}.delay`,[0,150,300]);
     if (own(preset,'color')) color(preset.color,`${q}.color`);
     if (own(preset,'density')) enumeration(preset.density,`${q}.density`,['sparse','normal']);
+    if (own(preset,'loop')) boolean(preset.loop,`${q}.loop`);
   }
 }
 
@@ -172,7 +189,8 @@ export function validateDocument(document, { mode = 'draft', requiredBindings = 
   }
   id(document.entrySceneId, 'entrySceneId'); if (!sceneIds.has(document.entrySceneId)) fail('entrySceneId', 'Cảnh mở đầu không tồn tại.');
   for (const [i, e] of document.elements.entries()) {
-    const p = `elements.${i}`; object(e, p, ['id', 'type', 'elementVersion', 'layout', 'props', 'accessibility', 'actions', 'name', 'visible', 'locked', 'opacity', 'effects'], ['id', 'type', 'elementVersion', 'layout', 'props', 'accessibility']);
+    const p = `elements.${i}`; object(e, p, ['id', 'type', 'elementVersion', 'layout', 'props', 'accessibility', 'actions', 'name', 'visible', 'locked', 'opacity', 'effects', 'artwork'], ['id', 'type', 'elementVersion', 'layout', 'props', 'accessibility']);
+    if (e.artwork) { if (!['shape','line','sticker'].includes(e.type)) fail(p, 'Vector artwork requires a vector element.'); try { validateVector(e.artwork); } catch (error) { fail(p, error.message); } }
     id(e.id, `${p}.id`); if (elementIds.has(e.id) || sceneIds.has(e.id)) fail(`${p}.id`, 'Node trùng ID.'); elementIds.add(e.id);
     if (!own(registry, e.type)) fail(`${p}.type`, 'Element chưa được hỗ trợ.', 'UNSUPPORTED_ELEMENT'); enumeration(e.elementVersion, `${p}.elementVersion`, [1]);
     if (own(e, 'name')) string(e.name, `${p}.name`, 100); if (own(e, 'visible')) boolean(e.visible, `${p}.visible`); if (own(e, 'locked')) boolean(e.locked, `${p}.locked`); if (own(e, 'opacity')) number(e.opacity, `${p}.opacity`, 0, 1);
@@ -191,19 +209,20 @@ export function validateDocument(document, { mode = 'draft', requiredBindings = 
       else if (k === 'fontSize') number(v, q, 10, 160);
       else if (k === 'lineHeight') number(v, q, 1, 3);
       else if (k === 'dropCap') boolean(v, q);
-      else if (k === 'mask') enumeration(v, q, Object.keys(masks));
+      else if (k === 'mask') { if (!e.props.maskPath) enumeration(v, q, Object.keys(masks)); else id(v, q); }
+      else if (k === 'maskPath') { try { validateVector({ paths: [{ d: v }] }); } catch (error) { fail(q, error.message); } }
       else if (k === 'optional') boolean(v, q);
       else if (k === 'caption') string(v, q, LIMITS.text);
-      else if (k === 'pattern') enumeration(v, q, Object.keys(lines));
+      else if (k === 'pattern') { if (!e.artwork) enumeration(v, q, Object.keys(lines)); else id(v, q); }
       else if (k === 'align') enumeration(v, q, ['left', 'center', 'right']);
       else if (k === 'color' || k === 'strokeColor') color(v, q);
       else if (k === 'radius') number(v, q, 0, 512);
       else if (k === 'strokeWidth') number(v, q, 0, 40);
-      else if (k === 'kind') enumeration(v, q, ['rectangle', 'ellipse', 'line', ...Object.keys(shapes)]);
+      else if (k === 'kind') { if (!e.artwork) enumeration(v, q, ['rectangle', 'ellipse', 'line', ...Object.keys(shapes)]); else id(v, q); }
       else if (k === 'fit') enumeration(v, q, ['cover', 'contain']);
       else if (k === 'focalPoint') { object(v, q, ['x', 'y'], ['x', 'y']); number(v.x, `${q}.x`, 0, 1); number(v.y, `${q}.y`, 0, 1); }
       else if (k === 'assetId') { if (v === null && (mode === 'draft' || e.props.optional)) continue; id(v, q); if (!assets.has(v)) fail(q, 'Asset chưa được khai báo.', 'ASSET_REFERENCE'); }
-      else if (k === 'stickerId') enumeration(v, q, Object.keys(STICKERS));
+      else if (k === 'stickerId') { if (!e.artwork) enumeration(v, q, Object.keys(STICKERS)); else id(v, q); }
       else if (k === 'preset') enumeration(v, q, ['classic']);
     }
     if (e.type === 'text' && !own(e.props, 'text') && !own(e.props, 'textBinding')) fail(`${p}.props`, 'Văn bản cần literal hoặc binding.');
@@ -252,7 +271,7 @@ export function publicDocument(document) {
   return {
     schemaVersion: d.schemaVersion, registryVersion: d.registryVersion, artboard: d.artboard, entrySceneId: d.entrySceneId,
     bindings: d.bindings, assets: d.assets.filter(a => used.has(a.assetId)), scenes: d.scenes,
-    elements: d.elements.map(e => ({ id: e.id, type: e.type, elementVersion: e.elementVersion, layout: e.layout, props: e.props, accessibility: e.accessibility, ...(e.actions ? { actions: e.actions } : {}), ...(e.effects ? { effects: e.effects } : {}), ...(own(e, 'visible') ? { visible: e.visible } : {}), ...(own(e, 'opacity') ? { opacity: e.opacity } : {}) })),
+    elements: d.elements.map(e => ({ id: e.id, type: e.type, elementVersion: e.elementVersion, layout: e.layout, props: e.props, accessibility: e.accessibility, ...(e.actions ? { actions: e.actions } : {}), ...(e.effects ? { effects: e.effects } : {}), ...(e.artwork ? { artwork: e.artwork } : {}), ...(own(e, 'visible') ? { visible: e.visible } : {}), ...(own(e, 'opacity') ? { opacity: e.opacity } : {}) })),
     responsive: d.responsive,
   };
 }

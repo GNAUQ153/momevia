@@ -1,4 +1,4 @@
-import { captureTranslator, createLocaleControl, message, onLocaleChange, setAttr, setText, t } from "../core/i18n.js";
+import { captureTranslator, createLocaleControl, currentLocale, message, onLocaleChange, setAttr, setText, t } from "../core/i18n.js";
 import { errorCopy } from "../core/api.js";
 import {
   createElement,
@@ -8,14 +8,17 @@ import {
   isPhotoFrame,
   assetIds,
   createDocument,
-  PRESETS,
   LIMITS,
 } from "../shared/canvas/index.js";
 import { mountPlayer } from "../features/gift-runtime/index.js";
 import { requiresCanvasV2 } from "../shared/canvas/schema.js";
 import { lines, masks, shapes } from "../shared/canvas/artwork.js";
 import { eventTimeFromLocal, interactionKinds, localEventTime, photoSlots } from "../shared/canvas/interactions.js";
-import { effectsFor, elementEffectFamilies, sceneEffectFamilies } from "../shared/canvas/effects.js";
+import { effectsFor, elementEffectFamilies, sceneEffectFamilies, effectPreset, effectLabel } from "../shared/canvas/effects.js";
+import { starterPresets } from '../shared/canvas/presets.js';
+import { loadCanvasLibrary, configureLibrary } from '../features/canvas-editor/library-client.js';
+import { librarySnapshot, libraryText, artworkChoices } from '../shared/canvas/library-state.js';
+import { refreshElementArtwork } from '../shared/canvas/library-materialize.js';
 import { textFont } from "../features/gift-runtime/renderer.js";
 import { bindingLabels, clearTemplateBindingDefaults, lockedVisibleNames, visibleBindingKeys } from "../shared/canvas/personalization.js";
 import { submissionChanges } from "../shared/canvas/submission.js";
@@ -23,6 +26,8 @@ import { giftLinkDescription } from "../shared/gift-permissions.js";
 import { framePhoto, MEMORY_TEMPLATE_ID, memoryGreetingStarterKeys } from "../shared/canvas/basic-templates.js";
 import { materializeTemplateStart } from '../features/canvas-editor/template-start.js';
 import { createEventFields, updateEventFields, storyAlbum, storyClock } from '../features/canvas-editor/event-fields.js';
+import { predictionCard, PREDICTION_KIND } from '../shared/canvas/prediction.js';
+import { createPredictionFields, updatePredictionFields } from '../features/canvas-editor/prediction-fields.js';
 import { celebrationFields } from '../features/canvas-editor/celebration-fields.js';
 import { CELEBRATION_IDS, celebrationSettings } from '../shared/canvas/effects.js';
 import { createEditorStore } from "../features/canvas-editor/store.js";
@@ -105,7 +110,15 @@ export function mountDesigner(
   const removeLocaleListener = onLocaleChange(() => {
     if (disposed || !main.isConnected) return;
     const search = main.querySelector('[data-block-search]');
-    if (search) filterBlocks(search.value);
+    const query = search?.value || '';
+    const snapshot = librarySnapshot();
+    if (snapshot) {
+      configureLibrary(snapshot, currentLocale());
+      const panel = main.querySelector('#editor-panel-add');
+      if (panel?.hasChildNodes()) { panel.replaceChildren(...blockLibrary()); panel.querySelector('[data-block-search]').value = query; }
+      if (store) renderInspector(); else if (!creating) picker();
+    }
+    if (main.querySelector('[data-block-search]')) filterBlocks(query);
   });
   signal.addEventListener('abort', removeLocaleListener, { once: true });
   let inlineFabricSession = null;
@@ -451,6 +464,7 @@ export function mountDesigner(
               ),
           ),
         node("div", { class: "editor-quick-only" },
+          predictionCard(store.get().document) ? createPredictionFields(predictionCard(store.get().document)) : null,
           design.policy?.kind === 'sender-basic' && ['birthday-radiance','hai-phong-bi','proud-of-you'].includes(design.source.templateId) ? createEventFields(store.get().document) : null,
           design.source.templateId === MEMORY_TEMPLATE_ID ? node("div", { class: "editor-greeting-starters" },
             node("p", { class: "editor-help" }, message("editor.quick.startGreeting")),
@@ -757,19 +771,23 @@ export function mountDesigner(
   function effectFields(model, element) {
     const categories = element ? elementEffectFamilies : sceneEffectFamilies;
     const fields = categories.flatMap(family => {
-      const options = effectsFor(family, element).filter(([id]) => !(family === 'ambience' && model.effects?.celebrations && CELEBRATION_IDS.includes(id)));
-      if (!options.length) return [];
       const preset = model.effects?.[family];
+      const options = effectsFor(family, element).filter(([id]) => !(family === 'ambience' && model.effects?.celebrations && CELEBRATION_IDS.includes(id)));
+      if (preset && !options.some(([id]) => id === preset.id)) options.push([preset.id, preset.id]);
+      if (!options.length) return [];
       const prefix = `effect.${family}.`;
       return [node("fieldset", { class: "editor-effect-settings" },
         node("legend", {}, family === 'ambience' && model.effects?.celebrations ? message('editor.celebrations.once') : message(`editor.effects.family.${family}`)),
-        select(message("editor.interface.effects"), prefix + "id", preset?.id, [["", message("editor.interface.effectOff")], ...options.map(([id]) => [id, message(`editor.effects.preset.${id}`)])]),
+        select(message("editor.interface.effects"), prefix + "id", preset?.id, [["", message("editor.interface.effectOff")], ...options.map(([id]) => [id, id === preset?.id && preset.definition ? libraryText(preset.definition.title, currentLocale()) : effectLabel(id, currentLocale())])]),
         preset && family !== "surface" ? select(message("editor.interface.speed"), prefix + "speed", preset.speed || "normal",
           [["slow", message("editor.interface.slow")], ["normal", message("editor.interface.normal")], ["fast", message("editor.interface.fast")]]) : null,
         preset && family === "entrance" ? select(message("editor.interface.delay"), prefix + "delay", preset.delay || 0,
           [[0, "Ngay"], [150, "150 ms"], [300, "300 ms"]]) : null,
         preset && family === "ambience" ? select(message("editor.interface.density"), prefix + "density", preset.density || "normal",
           [["sparse", message("editor.interface.sparse")], ["normal", message("editor.interface.normal")]]) : null,
+        preset?.definition?.animation.engine === 'particles' ? field(message('editor.celebrations.loop'), node('input', {
+          type: 'checkbox', checked: preset.loop === true, 'data-editor-field': prefix + 'loop',
+        })) : null,
         preset && ["S02", "S04"].includes(preset.id) ? input(message("editor.interface.stroke"), prefix + "color",
           preset.color || (preset.id === "S02" ? "#6D488A" : "#F3DA97"), { type: "color" }) : null,
         preset ? node("div", { class: "editor-control-row" },
@@ -783,6 +801,7 @@ export function mountDesigner(
   function interactionFields(model) {
     const p = model.props, spec = interactionKinds[p.kind], doc = store.get().document;
     const fields = [input(message("editor.interface.blockBackground"), "props.color", p.color, { type: "color" })];
+    if (p.kind === PREDICTION_KIND) return [...fields, createPredictionFields(model, 'inspector')];
     for (const [i, entry] of (p.entries || []).entries()) {
       fields.push(input(message(`editor.interactionField.${p.kind}.${i}.0`), `entry.${i}.heading`, entry.heading, { maxlength: 120 }));
       if (spec.fields[i][1]) fields.push(field(message(`editor.interactionField.${p.kind}.${i}.1`), node("textarea", {
@@ -971,17 +990,17 @@ export function mountDesigner(
               ["rectangle", message("editor.interface.shapeRectangle")],
               ["ellipse", message("editor.interface.shapeEllipse")],
               ["line", message("editor.interface.shapeLine")],
-              ...Object.keys(shapes).map((id, i) => [id, message(`editor.interface.shape.${["triangle", "diamond", "hexagon", "arch", "ribbon", "bubble"][i]}`)]),
+              ...artworkChoices('shape', Object.keys(shapes).map((id, i) => [id, message(`editor.interface.shape.${["triangle", "diamond", "hexagon", "arch", "ribbon", "bubble"][i]}`)]), currentLocale()),
             ]),
           );
         else if (key === "mask" && props.mask)
           children.push(select(message("editor.interface.imageMask"), "props.mask", props.mask,
-            Object.keys(masks).map((id, i) => [id, message(`editor.interface.mask.${["round", "arch", "heart", "torn"][i]}`)])));
+            artworkChoices('mask', Object.keys(masks).map((id, i) => [id, message(`editor.interface.mask.${["round", "arch", "heart", "torn"][i]}`)]), currentLocale())));
         else if (key === "caption" && Object.hasOwn(props, key))
           children.push(field(message("editor.interface.caption"), node("textarea", { "data-editor-field": "props.caption", maxlength: LIMITS.text, rows: 3 }, props.caption)));
         else if (key === "pattern" && props.pattern)
           children.push(select(message("editor.interface.linePattern"), "props.pattern", props.pattern,
-            Object.keys(lines).map((id, i) => [id, message(`editor.interface.pattern.${["arc", "stitch", "arrow", "wave", "brace", "corners"][i]}`)])));
+            artworkChoices('line', Object.keys(lines).map((id, i) => [id, message(`editor.interface.pattern.${["arc", "stitch", "arrow", "wave", "brace", "corners"][i]}`)]), currentLocale())));
         else if (key === "fit")
           children.push(
             select(message("editor.interface.photoFrame"), "props.fit", props.fit, [
@@ -995,10 +1014,10 @@ export function mountDesigner(
               message("editor.interface.sticker"),
               "props.stickerId",
               props.stickerId,
-              Object.entries(stickerNames).map(([id, title]) => [id, title]),
+              artworkChoices('sticker', Object.entries(stickerNames), currentLocale()),
             ),
           );
-        else if (!["preset", "pattern", "mask", "caption", "optional"].includes(key))
+        else if (!["preset", "pattern", "mask", "maskPath", "caption", "optional"].includes(key))
           children.push(
             input(
               { label: message("editor.interface.label.button"), title: message("editor.interface.label.title"), submitLabel: message("editor.interface.label.submitLabel") }[
@@ -1178,6 +1197,7 @@ export function mountDesigner(
     renderAssets();
     main.querySelector(".editor-quick-photo").hidden = !quickPhotoFrame();
     updateEventFields(main, doc, assetUrl);
+    updatePredictionFields(main, doc);
     const removePhoto = main.querySelector('[data-editor-action="remove-frame-photo"]');
     if (removePhoto) removePhoto.hidden = !framePhoto(doc, quickPhotoFrame());
     const quickText = main.querySelector('[data-editor-field="quick-template-text"]');
@@ -1199,6 +1219,7 @@ export function mountDesigner(
       const control = main.querySelector(
         `[data-editor-field="binding.${key}"]`,
       );
+      if (control && key === 'message') control.closest('label').hidden = Boolean(predictionCard(doc) && !visibleBindingKeys(doc).has('message'));
       if (control && control !== document.activeElement)
         control.value = doc.bindings[key].value;
     }
@@ -1308,11 +1329,11 @@ export function mountDesigner(
         node(
           "div",
           { class: "editor-start-options" },
-          ...PRESETS.map(({ id, labelKey }) => {
+          ...starterPresets(captureTranslator()).map(({ id, labelKey, label }) => {
             const doc = sampleBindings(createDocument({ presetId: id }));
             const scene = doc.scenes.find(scene => scene.id === doc.entrySceneId);
-            const card = button("", starterActions[id], { class: "editor-start-card", "data-preset": id });
-            card.append(sceneThumbnail(doc, scene, { width: 104 }), node("span", {}, message(labelKey)));
+            const card = button("", starterActions[id] || 'create-library-preset', { class: "editor-start-card", "data-preset": id });
+            card.append(sceneThumbnail(doc, scene, { width: 104 }), node("span", {}, labelKey ? message(labelKey) : label));
             return card;
           }),
         ),
@@ -1609,7 +1630,8 @@ export function mountDesigner(
       if (!preflight.canPublish) {
         showBlockers(preflight.blockers || []);
         const messages = (preflight.blockers || [])
-          .map(item => `${item.path ? `${item.path}: ` : ""}${item.messageKey ? t(item.messageKey, item.messageParams) : item.message}`)
+          .map(item => item.messageKey?.startsWith("prediction.") ? t(item.messageKey, item.messageParams)
+            : `${item.path ? `${item.path}: ` : ""}${item.messageKey ? t(item.messageKey, item.messageParams) : item.message}`)
           .join("\n");
         throw new Error(
           messages || t("editor.preflight.cannotPublish", { status: preflight.authorization.status }),
@@ -1689,14 +1711,18 @@ export function mountDesigner(
         const binding = /^bindings\.(recipientName|senderName|message)/.exec(
           path,
         )?.[1];
+        const predictionField = element?.props.kind === PREDICTION_KIND ? path.split('.props.')[1] : null;
+        const predictionLabel = predictionField ? message(blocker.code === 'PREDICTION_DUPLICATE_CHOICES' ? 'prediction.duplicate'
+          : predictionField === 'prediction' ? 'prediction.chooseRequired' : 'prediction.required', { field: { format: 'message', key: `prediction.${predictionField}` } }) : label;
         const control = button(
-          label,
+          predictionLabel,
           "focus-blocker",
           {
             "data-id": element?.id,
-            "data-field": binding ? `binding.${binding}` : null,
+            "data-field": predictionField && quickMode ? `prediction.${element.id}.${predictionField}` : binding ? `binding.${binding}` : null,
             "data-photo-slot": slot?.id,
-            "data-element-field": slot && missingPhoto[2] === "alt" ? `slot.${slot.id}.alt`
+            "data-element-field": predictionField && !quickMode ? `prediction.${element.id}.${predictionField}`
+              : slot && missingPhoto[2] === "alt" ? `slot.${slot.id}.alt`
               : missingDoor && element?.props.kind === "scene-choices" ? `door.${missingDoor[1]}`
                 : path.endsWith(".props.eventAt") ? "event-time" : null,
           },
@@ -1762,7 +1788,7 @@ export function mountDesigner(
       await navigate(design?.purpose === "creator" ? "/creator" : "/studio");
       return;
     }
-    if (Object.values(starterActions).includes(name)) {
+    if (Object.values(starterActions).includes(name) || name === 'create-library-preset') {
       target.disabled = true;
       try {
         await create(target.dataset.preset, {
@@ -1894,6 +1920,10 @@ export function mountDesigner(
       return;
     }
     if (name === "focus-blocker") {
+      if (target.dataset.field?.startsWith('prediction.') && quickMode) {
+        main.querySelector(`[data-editor-field="${CSS.escape(target.dataset.field)}"]`)?.focus();
+        return;
+      }
       if (target.dataset.id) {
         if (quickMode) switchMode();
         selection = target.dataset.id;
@@ -1908,7 +1938,7 @@ export function mountDesigner(
         const focus = target.dataset.elementField
           ? `[data-editor-field="${CSS.escape(target.dataset.elementField)}"]`
           : target.dataset.photoSlot ? `[data-slot="${CSS.escape(target.dataset.photoSlot)}"]` : null;
-        if (focus) main.querySelector(focus)?.focus();
+        if (focus) main.querySelector(".editor-inspector")?.querySelector(focus)?.focus();
       }
       if (target.dataset.field) {
         showLibrary("content");
@@ -2388,6 +2418,12 @@ export function mountDesigner(
           next.title = String(value).trim() || "Món quà của tôi";
           return;
         }
+        if (key.startsWith('prediction.')) {
+          const [, id, field] = key.split('.');
+          const card = next.document.elements.find(e => e.id === id && e.type === 'interaction' && e.props.kind === PREDICTION_KIND);
+          if (card) card.props[field] = field === 'prediction' ? value || null : value;
+          return;
+        }
         if (key.startsWith("binding.")) {
           next.document.bindings[key.slice(8)].value = value;
           return;
@@ -2427,6 +2463,10 @@ export function mountDesigner(
           const settings = celebrationSettings(scene.effects);
           if (CELEBRATION_IDS.includes(scene.effects.ambience?.id)) delete scene.effects.ambience;
           settings[id][property] = value;
+          if (settings[id].enabled && !settings[id].definition) {
+            const definition = effectPreset(id, 'ambience').definition;
+            if (definition) settings[id].definition = definition;
+          }
           scene.effects.celebrations = settings;
           return;
         }
@@ -2435,7 +2475,7 @@ export function mountDesigner(
           const model = next.document.elements.find(item => item.id === selection) ||
             next.document.scenes.find(scene => scene.id === sceneId);
           if (field === "id") {
-            if (value) (model.effects ??= {})[family] = { id: value };
+            if (value) (model.effects ??= {})[family] = effectPreset(value, family);
             else {
               delete model.effects?.[family];
               if (model.effects && !Object.keys(model.effects).length) delete model.effects;
@@ -2500,6 +2540,7 @@ export function mountDesigner(
         if (group === "element") item[fieldName] = value;
         else if (["props", "layout", "accessibility"].includes(group))
           item[group][fieldName] = value;
+        if (group === 'props' && (['stickerId','mask','pattern'].includes(fieldName) || fieldName === 'kind' && item.type === 'shape')) refreshElementArtwork(item);
         if (
           ["label", "title"].includes(fieldName) &&
           ["button", "envelope", "gift-box"].includes(item.type)
@@ -2691,6 +2732,7 @@ export function mountDesigner(
   }
   const ready = (async () => {
     if (!ownerId) throw new Error(t("editor.interface.notReady"));
+    await loadCanvasLibrary({ get: path => request(path) }, currentLocale());
     if (id)
       await initialize(
         (await request(`/designs/designs/${encodeURIComponent(id)}`)).design,

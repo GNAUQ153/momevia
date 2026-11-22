@@ -8,6 +8,10 @@ Chạy `npm ci`, `npm run build` rồi `npm start`. Ứng dụng mặc định n
 
 `.env.example` ghi các cờ runtime. Có thể cấp một tài khoản QA khi startup bằng nhóm `TEST_ACCOUNT_*`, với vai trò `sender`, `creator` hoặc `admin`. Dùng email riêng cho tài khoản opt-in. Tắt cờ ngừng khởi tạo thêm tài khoản. [Web demo nhiều vai trò](DEMO_WEB.md)
 
+## Chứng chỉ HTTPS và máy chủ riêng
+
+Ứng dụng có thể đọc `HTTPS_CERT_FILE` và `HTTPS_KEY_FILE` để phục vụ HTTPS trực tiếp. Khi dùng Caddy/reverse proxy cấp chứng chỉ, để trống hai biến này và giữ `PUBLIC_BASE_URL` là HTTPS. [Cấu hình PEM, chứng chỉ localhost và mẫu VPS/Caddy tự gia hạn](HTTPS_CERTIFICATES.md). Cloudflare Quick Tunnel đã được ngắt theo yêu cầu.
+
 ## Lưu trữ, migration và khôi phục
 
 JSON là mặc định và dùng một backend process. Khi dùng MySQL 8.4, canvas cần Identity/Catalog/Designs/Gifts cùng profile. Mẫu trả phí cần Checkout cùng profile. Support có adapter riêng. Cờ storage quyết định kho sử dụng, dữ liệu chỉ chuyển qua quy trình import.

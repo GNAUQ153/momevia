@@ -167,6 +167,9 @@ export class MySqlDesignsRepository {
         "CANVAS_MIGRATION_REQUIRED",
         "Canvas cần migration 006 đã được kiểm chứng.",
       );
+    const [lossless] = await this.client.execute("SELECT version FROM schema_migrations WHERE version='012_canvas_lossless_json'");
+    if (!lossless.length)
+      throw canvasError(503, 'CANVAS_MIGRATION_REQUIRED', 'Canvas cần migration 012 để lưu chính xác tọa độ và mã kiểm tra tài liệu.');
     await this.client.execute("SELECT id, document_hash FROM designs LIMIT 0");
     // A migration ledger row alone is insufficient after interrupted DDL or a
     // partial restore. Verify every relation used by the publication boundary.

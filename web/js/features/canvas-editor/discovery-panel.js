@@ -24,15 +24,15 @@ export function createDiscoveryPanel({ policy, discoveryMode, signal }) {
     }
   }, { rootMargin: "120px" });
   signal.addEventListener("abort", () => lazy.disconnect(), { once: true });
-  const groups = catalog.map(({ label, items }, index) => node("section", { class: "editor-block-group", "data-block-group": index },
-    node("h3", {}, message(`editor.library.group.${index}`)),
+  const groups = catalog.map(({ label, items, database }, index) => node("section", { class: "editor-block-group", "data-block-group": index },
+    node("h3", {}, database ? label : message(`editor.library.group.${index}`)),
     node("div", { class: "editor-block-grid" }, ...items.map(block => {
       const control = button("", "add", {
-        "data-block": block.id, "aria-label": message(`editor.library.item.${block.id}`),
+        "data-block": block.id, "aria-label": block.database ? block.title : message(`editor.library.item.${block.id}`),
         disabled: policy?.kind === "creator-template",
       });
       cards.set(control, block);
-      control.append(node("span", {}, message(`editor.library.item.${block.id}`)));
+      control.append(node("span", {}, block.database ? block.title : message(`editor.library.item.${block.id}`)));
       lazy.observe(control);
       return control;
     })),
@@ -55,7 +55,7 @@ export function createDiscoveryPanel({ policy, discoveryMode, signal }) {
       message("editor.interface.totalBlocks", { count: catalog.flatMap(group => group.items).length })),
     field(message("editor.interface.group"), node("select", { "data-block-group-select": "" },
       node("option", { value: "" }, message("editor.interface.allCount", { count: cards.size })),
-      ...catalog.map(({ label, items }, index) => node("option", { value: index }, message("editor.library.groupCount", { group: { format: "message", key: `editor.library.group.${index}` }, count: items.length }))))),
+      ...catalog.map(({ label, items, database }, index) => node("option", { value: index }, message("editor.library.groupCount", { group: database ? label : { format: "message", key: `editor.library.group.${index}` }, count: items.length }))))),
     node("div", { class: "editor-help", "data-block-empty": "", hidden: true },
       node("p", { role: "status" }, message("editor.interface.noBlocks")),
       button(message("editor.interface.clearSearch"), "clear-block-search")),

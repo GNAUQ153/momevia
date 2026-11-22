@@ -1,4 +1,6 @@
 import http from 'node:http';
+import https from 'node:https';
+import { loadTlsOptions } from '../shared/tls.mjs';
 import { environment } from '../shared/config.mjs';
 import { HttpError, sendError, serverTimeouts, localizedError } from '../shared/http.mjs';
 import { isInternalRoute } from '../shared/proxy.mjs';
@@ -27,6 +29,7 @@ const prefixes = [
 ];
 
 export async function createHttpApp(config = environment(), { paymentProviders, paymentEnv, sendRecoveryMail, recoveryNow, staticOptions } = {}) {
+  const tlsOptions = loadTlsOptions(config);
   const identity = await identityApp(config, { sendRecoveryMail, recoveryNow });
   // Phiên và role được xác nhận từ Identity module tại mỗi request, kể cả sau khi logout.
   const resolveUser = async (req, _secret, required = true) => {
@@ -91,7 +94,7 @@ export async function createHttpApp(config = environment(), { paymentProviders, 
   });
   const modules = { identity, catalog, checkout, gifts, support, designs };
 
-  const server = http.createServer(serverTimeouts, (req, res) => {
+  const server = (tlsOptions ? https : http).createServer({ ...serverTimeouts, ...tlsOptions }, (req, res) => {
     try {
       const url = new URL(req.url, config.baseUrl);
       const matching = prefixes.find(([prefix]) => url.pathname === prefix || url.pathname.startsWith(`${prefix}/`));
@@ -125,7 +128,7 @@ export async function createHttpApp(config = environment(), { paymentProviders, 
     server,
     modules,
     listen(port = 4100, host = '127.0.0.1') {
-      server.listen(port, host, () => console.log(`[Momevia] http://${host}:${port} — một backend process`));
+      server.listen(port, host, () => console.log(`[Momevia] ${tlsOptions ? 'https' : 'http'}://${host}:${port} — một backend process`));
       return server;
     },
     async close() { await Promise.all(Object.values(modules).map(module => module.close?.())); },

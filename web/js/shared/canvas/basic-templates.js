@@ -3,7 +3,10 @@ import { templateCopyKey } from '../template-copy.js';
 import { createElement } from './registry.js';
 import { validateDocument } from './schema.js';
 import { COLLECTION_2027, paintCollectionCover } from './collection-2027.js';
+import { emptyPrediction } from './prediction.js';
 import { paintEventCard } from './event-cards.js';
+import { libraryDocument } from './library-state.js';
+import { pinDocumentArtwork } from './library-materialize.js';
 
 // Built-in editable compositions, not Creator-approved versions or new products.
 // Existing IDs, prices and provenance stay with Catalog; only new starting layouts change.
@@ -23,6 +26,7 @@ export const BASIC_TEMPLATES = Object.freeze({
   'tiny-celebration': { motif: 'gift', name: canonicalText('templates.tiny-celebration.name'), bg: '#E0EFE7', paper: '#F7FAF2', ink: '#315D50', accent: '#82B29C', detail: '#C8DCC1', button: '#477B67', headline: canonicalText('templates.tiny-celebration.headline'), note: canonicalText('templates.tiny-celebration.note'), font: 'heading' },
   'mot-ky-niem': { motif: 'memory', name: canonicalText('templates.mot-ky-niem.name'), bg: '#F2EDE3', paper: '#FFF9EC', ink: '#273C40', accent: '#738E86', detail: '#C98461', button: '#355658', headline: canonicalText('templates.mot-ky-niem.headline'), note: canonicalText('templates.mot-ky-niem.note'), font: 'serif' },
   'hai-phong-bi': { motif: 'two-letters', name: canonicalText('templates.hai-phong-bi.name'), bg: '#FFF8EB', paper: '#FFF8EB', ink: '#442638', accent: '#F4C9C4', detail: '#47715C', button: '#963851', headline: canonicalText('templates.hai-phong-bi.headline'), font: 'serif' },
+  'to-doan-cau-se-chon': { motif: 'prediction', name: canonicalText('templates.to-doan-cau-se-chon.title'), bg: '#F5EFFF', paper: '#FFFAF6', ink: '#442638', accent: '#A987C9', detail: '#E8A5BC', button: '#77539B', headline: canonicalText('templates.to-doan-cau-se-chon.title'), font: 'serif' },
   ...COLLECTION_2027,
 });
 export const MEMORY_TEMPLATE_ID = 'mot-ky-niem';
@@ -41,6 +45,8 @@ const LAYER_NAMES = {
 };
 
 export function createBasicTemplate(template, localize = canonicalText) {
+  const configured = libraryDocument('template', template?.id, localize);
+  if (configured) return validateDocument(pinDocumentArtwork(configured));
   const definition = basicTemplateDefinition(template?.id);
   if (!definition) return null;
   const p = {
@@ -79,6 +85,18 @@ export function createBasicTemplate(template, localize = canonicalText) {
     line(scene, `${prefix}-stem`, [x - height / 2, y + height / 2, height, 2, -90], color, 2);
     for (let i = 0; i < 4; i++) shape(scene, `${prefix}-leaf-${i}`, [x + (i % 2 ? 4 : -14), y + i * 28, 17, 42, i % 2 ? 33 : -33], i % 2 ? color : p.detail);
   };
+
+  if (p.motif === 'prediction') {
+    doc.schemaVersion = doc.registryVersion = 2;
+    doc.scenes = [doc.scenes[0]];
+    text(0, 'cover-title', p.headline, [30, 38, 330, 94], 32, p.ink, 'serif');
+    doc.elements.at(-1).accessibility = { role: 'heading', level: 1 };
+    binding(0, 'text-sender', 'senderName', [30, 136, 150, 44], 19);
+    text(0, 'gift-arrow', '→', [181, 136, 28, 44], 19);
+    binding(0, 'text-recipient', 'recipientName', [210, 136, 150, 44], 19);
+    add(0, 'interaction', 'prediction-card', [24, 204, 342, 550], { kind: 'prediction-choice', color: p.paper, ...emptyPrediction() });
+    return validateDocument(doc);
+  }
 
   if (paintEventCard(template.id, doc, { shape, line, text, binding, action, add }, p, localize)) return validateDocument(doc);
 

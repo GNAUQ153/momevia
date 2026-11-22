@@ -1,6 +1,61 @@
 # Thiết kế và gửi quà trên web
 
+Canvas hỗ trợ lưu MySQL, gồm toàn bộ nội dung/bố cục element và cấu hình effect, animation, chuyển cảnh, tốc độ, độ trễ, mật độ, lặp. Quà đã xuất bản giữ snapshot riêng. Ảnh được lưu thành tệp bất biến, DB giữ metadata và các tham chiếu; sao lưu cần cả DB và thư mục ảnh. Triển khai MySQL cần migration 013 (bao gồm định dạng chính xác ở 012) và chuyển dữ liệu bằng importer canvas; xem [hướng dẫn demo](DEMO_WEB.md#hồ-sơ-đã-chuyển-mysql).
+
 ## Sender
+
+### Thư viện trên MySQL
+
+Admin mở **Thư viện canvas** từ trang Admin hoặc menu tài khoản, tại `/admin/library`. Có bốn nhóm Element, Hiệu ứng, Chuyển động và Bố cục; nhóm Bố cục bao gồm các bố cục khởi đầu và mẫu thiệp hiện có.
+
+1. Tìm theo tên/mã và lọc mục đang bật hoặc đã tắt. Chọn mục để sửa, bấm **Thêm mục** để tạo mới, hoặc **Nhân bản** để bắt đầu từ một mục sẵn có.
+2. Nhập tên VI/EN. Element có thể ghép nhiều thành phần; chuyển động có bảng các mốc, bề mặt hoặc hạt; hiệu ứng chọn chuyển động và đối tượng áp dụng; bố cục chỉnh từng cảnh và từng ngôn ngữ.
+3. Bản xem thử tự cập nhật khi dừng nhập. **Phát thử** chạy lại chuyển động; dữ liệu minh họa và ảnh xem thử không được ghi vào mục đang sửa.
+4. Bấm **Lưu thay đổi** (hoặc Ctrl/Cmd+S). **Tắt mục**/**Bật mục** lưu cả trạng thái và các thay đổi trên biểu mẫu. Nếu có mục khác phụ thuộc, thao tác bị chặn và liệt kê các mục liên quan.
+5. Khi có người khác sửa cùng mục, giao diện giữ bản đang nhập; có thể tải bản mới hoặc nhân bản thay đổi. Lỗi kết nối giữ nguyên biểu mẫu để thử lưu lại. Nếu DB đã ghi nhưng trình duyệt mất phản hồi, lần thử lại đối chiếu bản đã lưu và không tạo thêm phiên bản. Tải lại designer để thấy các mục mới.
+
+Xem trước là thao tác chỉ đọc. Việc sửa/tắt mục thư viện không thay đổi các thiệp và quà đã lưu cấu hình riêng. Chỉ Admin được mở màn hình và gọi API quản lý/xem thử; các vai trò khác vẫn có thể dùng danh mục công khai trong designer.
+
+Có thể xem thử mục đã tắt và chuyển động liên quan mà không bật chúng trong thư viện. Muốn bật hoặc lưu thật vẫn phải bật các phụ thuộc theo đúng thứ tự. Các cảnh VI/EN được chỉnh riêng; chuyển ngôn ngữ sẽ chọn một cảnh/lớp hợp lệ của ngôn ngữ đó.
+
+Kiểm tra chuyên sâu: thêm `CANVAS_ADMIN_DEEP_AUDIT=true` khi chạy `npm run test:canvas:storage` với cấu hình schema QA riêng. Bộ thử này tạo/sửa/tắt bằng giao diện, đưa mục vào canvas, kiểm tra ảnh hưởng của các phiên bản thư viện, lỗi mất phản hồi sau commit và các kiểu chuyển động khác nhau. Có thể kết hợp `CANVAS_LIBRARY_EXPANDED_BROWSER=true` để chạy thêm toàn bộ hồi quy canvas.
+
+Migration 013 thêm `canvas_library_items` và `canvas_library_history`. Canvas tải thư viện qua `GET /api/designs/library`, có thể thêm mục mới bằng DB/API rồi tải lại editor. Ảnh bìa mẫu cũng được dựng lại từ tài liệu DB, có VI/EN. Không cần đăng ký thêm ID trong danh sách frontend. Cấu hình đã chèn được giữ trong tài liệu nên thay đổi thư viện chỉ tác động các lần chèn/tạo mới.
+
+| kind | Nội dung quản lý |
+| --- | --- |
+| `element` | Tên VI/EN, nhóm, từ khóa và danh sách layer của một element/cụm tái sử dụng |
+| `element_type` | Thông số mặc định của 10 primitive đã có bộ dựng hình |
+| `artwork` | Đường nét SVG dạng dữ liệu cho sticker/hình/nét/mặt nạ |
+| `animation` | Engine `builtin`, `keyframes`, `surface` hoặc `particles` và các thông số |
+| `effect` | Nhóm hiệu ứng, mục animation dùng, loại element/cảnh áp dụng và mặc định |
+| `preset` | Bố cục khởi đầu VI/EN, xuất hiện ở trang Tự thiết kế |
+| `template` | Tài liệu VI/EN của mẫu theo ID trong Catalog; giá/quyền vẫn do Catalog quản lý |
+
+Xuất thư viện hiện tại: `npm run db:canvas-library -- --export <file-mới.json>`. Sửa hoặc tạo một mục bằng `npm run db:canvas-library -- --put <mục.json>`. File mục gồm `kind`, `id`, `expectedRevision` (0 khi tạo mới), `status` (`active`/`disabled`), `sortOrder` và `definition`. Thông tin kết nối lấy từ `.env`/môi trường của DB cần quản lý. CLI kiểm tra toàn bộ quan hệ trước khi ghi; không tự ghi đè revision mới hơn.
+
+Admin đang đăng nhập có thể dùng `GET /api/designs/admin/library` và `POST /api/designs/admin/library/:kind/:id` với cùng nội dung (không cần `kind`/`id` trong body). API lưu phiên bản cũ trong history; tài khoản khác bị từ chối. Giao diện `/admin/library` dùng các API này và `POST /api/designs/admin/library/preview/:kind/:id` để xem thử chưa lưu.
+
+Cũng có thể dùng SQL để thêm/sửa `definition` (JSON), tăng `revision`, đặt `status` và `sort_order` trong `canvas_library_items`. Sau đó tải `GET /api/designs/library` để kiểm tra toàn bộ cấu hình. Nên dùng CLI/API để có kiểm tra và lịch sử; cập nhật SQL trực tiếp không tự ghi lịch sử API. Tắt mục bằng `status='disabled'`. Muốn tắt animation đang được dùng, tắt các effect phụ thuộc trước.
+
+Ví dụ file tạo một animation mới (sau đó tạo một mục `effect` có `family='entrance'`, `animationId='my-gentle-rise'`, `targets.types=['text','image']` để đưa vào bộ chọn):
+
+```json
+{
+  "kind": "animation", "id": "my-gentle-rise", "expectedRevision": 0,
+  "definition": {
+    "engine": "keyframes", "duration": 700, "easing": "ease-out",
+    "keyframes": [
+      { "opacity": 0, "transform": "translateY(24px) scale(0.96)" },
+      { "opacity": 1, "transform": "translateY(0px) scale(1)" }
+    ]
+  }
+}
+```
+
+Các thành phần mới có thể ghép từ primitive hiện có và các chuyển động khai báo được kiểm tra. Loại tương tác/bộ dựng hình hoàn toàn mới cần thêm bộ xử lý trong ứng dụng. Dữ liệu DB không thực thi JavaScript, HTML hay CSS tùy ý. Keyframe tối đa 16 mốc, thời lượng 100–10.000 ms, tối đa 5 lượt mỗi lần chạy; hạt có tối đa 24 phần tử và dừng khi rời cảnh hoặc bật giảm chuyển động.
+
+### Thao tác gửi
 
 1. Chọn **Dùng mẫu** để điền các trường mẫu hỗ trợ. Chọn **Chỉnh bố cục** để mở editor. Studio nhớ chế độ gần nhất theo tài khoản và nháp. **Tự thiết kế** hiển thị hình của ba bố cục khởi đầu gồm Trang trống, Phong bì và lời chúc, Hộp quà sinh nhật.
 2. Điền tên hai bên và lời chúc. Mẫu có khung ảnh cho thay PNG/JPEG/WebP tới 2 MiB. Vùng khóa lấy từ phiên bản đã duyệt.
@@ -10,6 +65,10 @@
 6. Studio hiển thị thời hạn, trạng thái quà và bộ lọc **Chưa đọc** trong hộp thư. **Tặng người khác từ bố cục này** tạo nháp sạch, dùng đúng phiên bản nguồn khi còn quyền. **Lưu trữ bản nháp** cất nháp. **Ngừng chia sẻ món quà** thu hồi quyền mở link, ảnh và hồi đáp công khai.
 
 Link mời cấp quyền cho người giữ link. Người nhận hồi đáp theo quyền đã chọn khi gửi. Quà legacy giữ quyền ban đầu đến khi hết hạn hoặc bị thu hồi. Quà đã gửi giữ bản chụp và ảnh từ thời điểm xuất bản.
+
+### Tớ đoán cậu sẽ chọn…
+
+Trong thư viện, tìm **Tớ đoán** và chọn mẫu sinh nhật miễn phí của Momevia Originals. **Dùng mẫu** mở nháp trống có câu hỏi, hai lựa chọn, một dự đoán A/B, lý do và lời kết riêng cho từng lựa chọn. Có thể lưu khi đang viết dở. Khi gửi, điền đủ nội dung và giữ hai lựa chọn khác nhau. Đổi nhãn lựa chọn không đổi mã dự đoán. Người nhận chọn rồi mới thấy dự đoán; lời kết theo điều người nhận chọn. **Chơi lại** hoặc tải lại giữ nguyên dự đoán đã gửi. [Demo sinh nhật và kịch bản quay](TO_DOAN_CAU_SE_CHON_BAN_DAU.md).
 
 ### Chỉnh bố cục
 

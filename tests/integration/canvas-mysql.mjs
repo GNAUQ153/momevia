@@ -91,7 +91,9 @@ try {
   await admin.query(await fs.readFile(new URL('../../database/migrations/008_gift_reply_read_state.sql', import.meta.url), 'utf8'));
   const [[preservedReply]] = await admin.execute('SELECT message,read_status FROM gift_replies WHERE id=?', [oldReply]);
   assert.deepEqual({ ...preservedReply }, { message: 'Lời cũ', read_status: null });
-  await check('C25 upgrade 001–008 preserves legacy gift/reply, excludes old replies from unread, and preserves FK rules', async () => {
+  for (const name of ['009_payment_reconciliation_audit.sql', '010_refund_review.sql', '011_json_storage_imports.sql', '012_canvas_lossless_json.sql'])
+    await admin.query(await fs.readFile(new URL(`../../database/migrations/${name}`, import.meta.url), 'utf8'));
+  await check('C25 upgrade 001–012 preserves legacy gift/reply, excludes old replies from unread, and preserves FK rules', async () => {
     await repo.ready();
     const preservedGift = await new MySqlGiftsRepository(db).getBySlug(legacySlug);
     assert.equal(preservedGift.id, legacy.id);

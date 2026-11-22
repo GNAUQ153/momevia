@@ -1,6 +1,7 @@
 import { attr, t, text } from '../../core/i18n.js';
 import { escapeHtml as e } from '../../shared/locale.js';
 import { templateFieldKey } from '../../shared/template-copy.js';
+import { libraryEntry, librarySnapshot } from '../../shared/canvas/library-state.js';
 
 export function templateField(template, field) {
   const key = templateFieldKey(template, field);
@@ -19,6 +20,7 @@ export function templateSearchFields(template) {
 
 const coverRevision = 6;
 export function templateCover(id) {
+  if (libraryEntry('template', id)) return attr('src', 'templates.assets.databaseCover', { id: encodeURIComponent(id), revision: librarySnapshot().revision });
   return attr('src', 'templates.assets.cover', { id: encodeURIComponent(id), revision: coverRevision });
 }
 

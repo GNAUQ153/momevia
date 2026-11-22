@@ -40,4 +40,3 @@ test('Browser regression vẫn chống tràn ngang và xác nhận menu hoạt �
   assert.match(browserTest, /await toggle\.press\('Escape'\)/);
   assert.match(browserTest, /compactFontSize >= 14/);
 });
-

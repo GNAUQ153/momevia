@@ -30,7 +30,7 @@ function photoSvg(photo, media, w, h, id) {
   } else if (photo.optional) inner = `<svg width="${w}" height="${h}" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M0 0H100V100H0Z" fill="#EBDEF4"/><circle cx="71" cy="29" r="11" fill="#FFF2C9"/><path d="M0 82 28 43 54 72 67 55 100 87V100H0Z" fill="#AD94BF"/><path d="M0 92 23 75 46 87 77 73 100 86V100H0Z" fill="#7F698F"/></svg>`;
   if (!inner) return '';
   if (photo.mask || photo.optional || media?.width) {
-    const clip = photo.mask ? `<path d="${masks[photo.mask]}" transform="scale(${w/100} ${h/100})"/>` : `<rect width="${w}" height="${h}" rx="${photo.radius || 0}"/>`;
+    const clip = photo.mask ? `<path d="${escape(photo.maskPath || masks[photo.mask])}" transform="scale(${w/100} ${h/100})"/>` : `<rect width="${w}" height="${h}" rx="${photo.radius || 0}"/>`;
     return `<clipPath id="photo-${id}">${clip}</clipPath><g clip-path="url(#photo-${id})">${inner}</g>`;
   }
   return inner;
@@ -46,6 +46,7 @@ function interactionSvg(node, images) {
   const { label, icon } = interactionKinds[p.kind];
   const background = `<rect width="${w}" height="${h}" rx="14" fill="${p.color}"/>`;
   const panel = (x,y,width,height,fill='#FFF7EE') => `<rect x="${x}" y="${y}" width="${width}" height="${height}" rx="8" fill="${fill}"/>`;
+  if (p.kind === 'prediction-choice') return background + labelSvg(p.question, 20, 42, w-40, 22) + ['A', 'B'].map((id, i) => panel(16, 170+i*112, w-32, 94, i ? '#FBE8EB' : '#F4EBFA') + labelSvg(`${id} · ${p['option'+id]}`, 28, 206+i*112, w-56, 18)).join('');
   if (p.photos) {
     const compare = p.kind === 'photo-comparison';
     const a = (compare ? p.photos[0] : p.photos.find(photo => photo.assetId)) || p.photos[0], b = p.photos[1];

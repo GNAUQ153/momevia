@@ -1,5 +1,19 @@
 # Web demo Momevia
 
+## Hồ sơ đã chuyển MySQL
+
+Profile đã chuyển có `storage.json` nằm cạnh `app/`; launcher và backend đọc cấu hình này mỗi lần khởi động, kể cả khi được mở lại qua HTTPS. Identity, Catalog, Checkout, Gifts, Designs và Support cùng dùng DB của profile. File này chứa thông tin kết nối riêng, không chia sẻ hoặc commit. Profile mới chưa chuyển vẫn khởi tạo bằng JSON.
+
+Các profile hiện có được chuyển độc lập, giữ nguyên tài khoản, ID nháp, link quà, quyền truy cập, phản hồi và tệp ảnh. Không trộn dữ liệu của nhiều profile vào một DB. JSON gốc được giữ để đối chiếu; sau chuyển, chỉnh sửa mới nằm trong MySQL.
+
+Trước khi chuyển một profile khác: dừng writer, chạy `npm run db:migrate` đến migration 013 trên DB đích rỗng, rồi dùng `npm run db:import:canvas -- --root <app-root> --backup <thư-mục-mới> --offline --apply`. Kết nối DB lấy từ môi trường hiện tại. Importer kiểm tra tài liệu, ảnh, khóa ngoại, số lượng và dữ liệu đọc lại trong cùng transaction; lỗi sẽ rollback. Không dùng importer legacy với canvas.
+
+Migration 012 lưu chuỗi JSON nguyên vẹn bằng LONGTEXT có CHECK JSON_VALID để MySQL không làm tròn tọa độ và thay đổi hash. Các phiên bản trùng nội dung tại cùng revision dùng một bản chuẩn; JSON gốc và ánh xạ ID được lưu trong `json_storage_imports` cùng bản sao ngoài DB. Không thay đổi slug hay nội dung quà.
+
+`npm run test:canvas:storage` kiểm tra trên một schema QA mới, yêu cầu các biến `CANVAS_QA_MYSQL_ISOLATED=true`, `CANVAS_QA_MYSQL_DATABASE=momevia_canvas_qa_…`, `CANVAS_QA_MYSQL_PORT`, `CANVAS_QA_MYSQL_USER` và `CANVAS_QA_MYSQL_PASSWORD`. Bộ thử bao phủ 172 mẫu element, 33 effect, 18 tổ hợp hiệu ứng lặp, ảnh/crop, hash thập phân, quà bất biến, restart và đổi hiệu ứng trên giao diện rồi tải lại. Thư viện và preset lấy từ DB qua migration 013; engine JavaScript dựng hình/chạy chuyển động nằm trong ứng dụng. Thêm `CANVAS_LIBRARY_EXPANDED_BROWSER=true` để chạy toàn bộ 172 thumbnail/chèn/undo, 33 preview effect và 3 thiệp tại 320/390/768/1440 px. [Quản lý thư viện](CANVAS_SENDER_GUIDE.md#thư-viện-trên-mysql).
+
+## Khởi động demo
+
 ```powershell
 npm ci
 npm run demo:web
@@ -11,7 +25,7 @@ Mở [localhost:4110](http://localhost:4110) hoặc [127.0.0.1:4110](http://127.
 npm run demo:web -- --port 4112
 ```
 
-Mặc định script theo dõi `web`, `src`, `dev.mjs`, `package.json` và hai helper `web-demo-client.js`, `web-demo-server.mjs`. Lưu HTML/CSS/JS/ảnh sẽ cập nhật bản demo; sửa backend sẽ tự khởi động lại backend thử. Tài khoản, phiên, ảnh tải lên, nháp, quà và các URL đã tạo không bị sao lại hay seed lại. File nguồn bị xóa cũng được gỡ khỏi bản mã demo. Nếu sửa chính launcher `web-demo.mjs` hoặc bộ đồng bộ `web-demo-sync.mjs`, hãy dừng rồi chạy lại lệnh demo.
+Mặc định script theo dõi `web`, `src`, `dev.mjs`, `package.json` và hai helper `web-demo-client.js`, `web-demo-server.mjs`. Lưu HTML/CSS/JS/ảnh sẽ cập nhật bản demo; sửa backend sẽ tự khởi động lại backend thử. Tài khoản, phiên, ảnh tải lên, nháp, quà và các URL đã tạo không bị sao lại hay seed lại. File nguồn bị xóa cũng được gỡ khỏi bản mã demo. Nếu sửa chính launcher `web-demo.mjs`, cấu hình `web-demo-config.mjs` hoặc bộ đồng bộ `web-demo-sync.mjs`, hãy dừng rồi chạy lại lệnh demo.
 
 Trang chủ, thư viện, chi tiết mẫu, bảng giá và giới thiệu tự tải lại sau cập nhật. Khi đang nhập vào ô hoặc mở preview, việc tải lại đợi tới lúc bạn rời ô/đóng preview. Các trang chỉnh thiệp, đăng nhập, quản trị và quà người nhận **không tự tải lại**; hãy lưu công việc rồi tải lại bằng trình duyệt. Tài nguyên demo dùng `no-store` để tránh giữ mã/ảnh cũ. Ứng dụng thông thường giữ chính sách cache hiện có.
 
@@ -25,7 +39,7 @@ npm run demo:web -- --port 4112 --allowed-origin "https://your-tunnel-4112.asse.
 
 Có thể lặp lại `--allowed-origin` cho nhiều URL hoặc đặt `ALLOWED_ORIGINS` trong môi trường. Server không tự tin `Host`/`X-Forwarded-Host` và không cho phép toàn bộ domain tunnel. Các URL khác vẫn bị chặn. Với ứng dụng thông thường, đặt `PUBLIC_BASE_URL` theo địa chỉ chia sẻ chính để các link quà tạo mới dùng đúng domain; `ALLOWED_ORIGINS` chỉ thêm địa chỉ được phép thao tác, không đổi link quà đã có.
 
-`local/web-demo-<cổng>/tai-khoan-demo.json` chứa mật khẩu ngẫu nhiên. `trang-thai-demo.json` chứa URL của các bước. Khóa phiên, tài khoản, dữ liệu và ảnh được tạo trong profile riêng. Demo tắt merchant và OAuth.
+`local/web-demo-<cổng>/tai-khoan-demo.json` chứa mật khẩu ngẫu nhiên; máy có profile cũ 4110 dùng `local/web-demo-20261118/tai-khoan-demo.json`. `trang-thai-demo.json` chứa URL của các bước. Khóa phiên, tài khoản, dữ liệu và ảnh được tạo trong profile riêng. Demo tắt merchant và OAuth.
 
 | Vai trò | Email | Điểm vào |
 | --- | --- | --- |
@@ -37,3 +51,19 @@ Có thể lặp lại `--allowed-origin` cho nhiều URL hoặc đặt `ALLOWED_
 Mỗi vai trò có thể dùng một hồ sơ trình duyệt riêng. Với nháp có giá, chọn **Xem như người nhận → Gửi → Cấp quyền dùng thử**. Quyền được cấp qua đơn `demo_paid`. Sau khi trở về cùng nháp, bấm gửi lại để chọn quyền và xuất bản.
 
 CI dùng `npm run demo:web -- --port 4111 --prepare` để khởi tạo, xác minh các trạng thái bằng API rồi dừng. Các file sinh ra nằm trong thư mục được Git bỏ qua. [Kịch bản beta và ghi tay](SENDER_CREATOR_BETA.md)
+
+## HTTPS bằng chứng chỉ, không dùng tunnel
+
+Cloudflare đã ngắt theo yêu cầu. `npm run demo:https` hiện chạy **HTTPS trực tiếp trên cùng cổng 4110**, dùng chứng chỉ localhost tự ký để thử trong máy. Không tạo URL Internet, không tự cài CA vào kho tin cậy. Trình duyệt có thể hiện cảnh báo chứng chỉ; điện thoại không mở được localhost của máy này.
+
+```powershell
+npm run demo:https
+```
+
+Mở **https://127.0.0.1:4110**. Giữ profile, tài khoản, dữ liệu và cấu hình JSON/MySQL đã chọn. Để về HTTP: dừng HTTPS bằng Ctrl+C rồi `npm run demo:web`. Cổng 4100 không bị đổi.
+
+Ứng dụng đã có hỗ trợ nạp chứng chỉ PEM, cùng mẫu cấu hình Caddy và dịch vụ tự chạy trên VPS. Chứng chỉ công khai cho tên miền thật chưa được cấp vì chưa có tên miền/máy chủ đích. **[Cấu hình chứng chỉ HTTPS và máy chủ riêng](HTTPS_CERTIFICATES.md)**.
+
+## Demo “Tớ đoán cậu sẽ chọn…”
+
+Quà Minh tặng An vẫn nằm trong profile demo 4110, hiện chỉ mở qua HTTPS cục bộ. Link Cloudflare đã ngắt. [Link cục bộ, nội dung và kịch bản quay](TO_DOAN_CAU_SE_CHON_BAN_DAU.md).

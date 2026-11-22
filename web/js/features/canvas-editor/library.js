@@ -121,9 +121,10 @@ const searchIndex = new Map(catalog.flatMap(({ items }) => items.map(block => [
   block.id, normalized(`${block.title} ${block.group} ${block.keywords}`),
 ])));
 export function matchesBlock(block, query) {
-  const label = searchIndex.get(block.id);
+  const label = block.database ? normalized(`${block.title} ${block.group} ${block.keywords}`) : searchIndex.get(block.id);
   return normalized(query).trim().split(/\s+/).every(word => label.includes(word));
 }
+export function replaceCatalog(groups) { catalog.splice(0, catalog.length, ...groups); }
 
 export function sampleBindings(document) {
   document.bindings.recipientName.value = "Gửi Ánh Mai";

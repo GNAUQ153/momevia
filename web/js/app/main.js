@@ -368,6 +368,11 @@ async function render() {
   try {
     const segments = location.pathname.split("/").filter(Boolean);
     const [route, id] = segments;
+    if (route !== "g") {
+      try { await loadLibrary(); }
+      catch { /* Designer reports and retries library failures on its own route. */ }
+      if (generation !== renderGeneration) return;
+    }
     let catalogFailed = false;
     if (route && route !== "g") {
       const results = await loadPageData(route);
@@ -616,6 +621,11 @@ async function render() {
         const [{ version }, { mountReview }] = await Promise.all([api.get(endpoint), import("../features/catalog/review.js")]);
         if (generation !== renderGeneration) return;
         routeController = mountReview(main, { version, endpoint, api, navigate });
+      } else if (id === 'library' && segments.length === 2) {
+        const { mountAdminLibrary } = await import('../features/admin-library/index.js');
+        if (generation !== renderGeneration) return;
+        routeController = mountAdminLibrary(main, { api });
+        await routeController.ready;
       } else if (id === "payments" && segments.length === 2) {
         refundQueue = { filter: 'active', cursors: [null], index: 0, nextCursor: null };
         const lifetime = new AbortController();
@@ -1614,6 +1624,10 @@ function loadOnce(load) {
 const loadIdentity = loadOnce(async () => setUser((await api.get("/auth/me")).user));
 const loadProviders = loadOnce(async () => { state.providers = await api.get("/auth/providers"); });
 const loadCatalog = loadOnce(loadTemplates);
+const loadLibrary = loadOnce(async () => {
+  const { loadCanvasLibrary } = await import('../features/canvas-editor/library-client.js');
+  await loadCanvasLibrary(api, document.documentElement.lang);
+});
 const catalogRoutes = new Set(["explore", "favorites"]);
 const favoriteRoutes = new Set(["explore", "template", "favorites", "studio"]);
 function loadPageData(route) {

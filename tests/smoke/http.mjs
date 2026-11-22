@@ -57,7 +57,12 @@ async function upgrade(base) {
   const front = await fetch(base);
   assert.equal(front.status, 200);
   const html = await front.text();
-  for (const marker of ['Momevia', '/css/upgrade.css', 'data-action="support"']) assert(html.includes(marker));
+  for (const marker of ['Momevia', 'data-action="support"']) assert(html.includes(marker));
+  if (!html.includes('/css/upgrade.css')) {
+    const sheet=html.match(/data-full-css="(\/assets\/app\/styles-[\w-]+\.css)"/)?.[1];
+    assert(sheet,'Built HTML must identify its complete stylesheet.');
+    const response=await fetch(base+sheet);assert.equal(response.status,200);assert((await response.text()).includes('.brand-mark'),'Built stylesheet must include the upgrade brand styles.');
+  }
   const logo = await fetch(base + '/assets/momevia-logo-3d.png');
   assert.equal(logo.status, 200);
   assert.match(logo.headers.get('content-type'), /^image\/png/);

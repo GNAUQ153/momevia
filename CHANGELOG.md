@@ -1,3 +1,11 @@
+## Unreleased — Âm thanh Canvas local (2026-11-22)
+
+- Thêm nút âm thanh, âm khi nhấn độc lập với điều hướng, thư viện 40 WAV gốc CC0 có phiên bản/hồ sơ nguồn/hash và bộ chọn VI/EN.
+- Thêm tải nguồn/tỉa trên thiết bị, waveform, mốc nhập giây, volume, xuất đoạn PCM16 mono 44,1 kHz, undo/autosave và replay upload an toàn.
+- Canvas v3, migration 014, pin/quyền media cá nhân, Creator cover chỉ xử lý ảnh, làm sạch âm cá nhân khi tặng lại, backup/import/restore và công cụ kiểm kê orphan.
+- Player preview/public chung mở im lặng, bật âm chủ động, một voice, chuẩn bị âm sau opt-in và hủy yêu cầu cũ. Các quà đã gửi còn đọc/phát khi tạm tắt tạo SFX mới.
+- Bằng chứng, 40 âm, giới hạn trình duyệt/thiết bị và cách chạy tại `docs/SFX_LOCAL_HANDOFF_20261122.md`. Chỉ local, chưa push/deploy.
+
 ## Unreleased — Tối ưu tải thiệp local (2026-11-22)
 
 - Đóng gói ESM/CSS có hash, tải phần chỉnh sửa/QR/Creator/Admin theo nhu cầu, dùng metadata Catalog công khai trong HTML và tải bìa đúng viewport.

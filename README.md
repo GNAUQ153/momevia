@@ -91,18 +91,19 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Khôi phục liên kết “Đăng ký ngay” trên trang đăng nhập: sửa selector CSS ẩn nhầm link và đặt CTA đăng ký ngay dưới form, vẫn giữ liên kết quên mật khẩu và đăng nhập ở trang đăng ký.
-- Bỏ bộ chuyển ngôn ngữ riêng trong form hỗ trợ và thông báo gửi yêu cầu thành công; nội dung vẫn dùng ngôn ngữ VI/EN của hệ thống, những hộp thoại khác không đổi.
-- Bổ sung kiểm thử hồi quy markup/CSS, hành vi modal và chuyển ngôn ngữ; không sửa API, dữ liệu đăng ký hay phân quyền.
+- Thiết kế lại Login/Register bằng layout hai cột thoáng trên desktop và form một cột khi tablet/mobile: font nhập liệu 16px, nhãn 14px, nút 54px, focus rõ, có thương hiệu Momevia trên mobile và ảnh 3D hiện có chuyển động nhẹ (tôn trọng reduced-motion).
+- Giữ CTA “Đăng ký ngay”, liên kết “Đăng nhập ngay” và Quên mật khẩu. Chỉ hiển thị Google/Zalo khi thực sự được cấu hình; không đặt nút OAuth vô hiệu gây nhầm lẫn.
+- Tập trung toàn bộ CSS Auth tại `auth-pages.css`, loại bỏ lớp override Auth tại `ui-polish.css`, chuẩn hóa CSS còn lại để tránh viết dồn dòng; đưa hai stylesheet vào quality gate, bổ sung kiểm thử layout, accessibility, provider và VI/EN.
+- Không sửa session, xử lý mật khẩu, database, Canvas, Music Library, payment hoặc support workflow.
 
 **Các commit gần nhất trên `main`:**
 
+- `a849ab0` — feat: redesign responsive login and registration experience (2026-11-22)
 - `7ed1b4e` — fix: restore signup CTA and simplify support language UI (2026-11-22)
 - `2887c24` — style: standardize CSS and guard visual quality (2026-11-22)
 - `015a350` — feat: add occasion-based Canvas music library and bilingual filters (2026-11-22)
 - `8f55a9e` — refactor: extract Canvas Inspector controls and policy helpers (2026-11-22)
 - `a537c01` — fix: remove unused layout binding after Inspector refactor (2026-11-22)
-- `38c6e9b` — refactor: extract Canvas scene and layer panels (2026-11-22)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

@@ -238,3 +238,35 @@
     transition: none;
   }
 }
+
+/* Tìm kiếm nhanh trong danh mục nhạc; không thay đổi điều khiển Canvas. */
+.editor-music-search {
+  display: grid;
+  gap: 6px;
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 650;
+  color: var(--ink);
+}
+.editor-music-search input {
+  width: 100%;
+  min-width: 0;
+  min-height: var(--ui-control-min-height, 44px);
+  padding: 10px 12px;
+  border: 1px solid var(--ui-panel-border);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  font-weight: 400;
+}
+.editor-music-search input:focus-visible {
+  outline: 3px solid var(--ui-focus-ring);
+  outline-offset: 3px;
+}
+.editor-music-results {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}

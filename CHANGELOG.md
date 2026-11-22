@@ -1,3 +1,9 @@
+## Unreleased — Music Library 3.1: tìm kiếm và tách giao diện Editor (2026-11-22)
+
+- Tách UI thẻ nhạc, bộ lọc, trạng thái chọn và âm lượng khỏi `designer.js` vào `features/canvas-editor/music-panel.js` để giảm phạm vi thay đổi khi nâng cấp Canvas.
+- Sender tìm nhạc theo tên/mô tả ở VI và EN, không phân biệt dấu trong tiếng Việt, kết hợp bộ lọc cảm xúc; thông báo số kết quả hoặc trạng thái rỗng cho trình đọc màn hình.
+- Giữ nguyên danh mục bốn bài, thao tác chọn, nghe thử, Undo/Redo, schema `{ id, volume }`, Recipient Player, quyền truy cập và API. Bổ sung kiểm thử i18n/metadata, xác minh CSS dễ đọc và tương thích với file cũ.
+
 ## Unreleased — Music Library 3.0: chọn giai điệu theo cảm xúc (2026-11-22)
 
 - Thêm hai giai điệu gốc tổng hợp `dreamy-night` và `little-celebration`, có script tái tạo và hồ sơ nguồn gốc, không dùng tài nguyên âm thanh bên thứ ba.

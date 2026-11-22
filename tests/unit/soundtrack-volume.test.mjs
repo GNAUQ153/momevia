@@ -11,10 +11,10 @@ function mockAudio() {
     preload: '',
     loop: false,
     src: '',
-    pause() {},
+    pause() { },
     play() { return Promise.resolve(); },
-    removeAttribute() {},
-    load() {},
+    removeAttribute() { },
+    load() { },
   };
 }
 
@@ -48,26 +48,26 @@ test('Từ chối âm lượng không hợp lệ và giữ nguyên giá trị c�
 });
 
 test('Snapshot công khai giữ âm lượng của Sender, không có âm lượng Recipient', () => {
-  const doc = createDocument({presetId:'blank'});
+  const doc = createDocument({ presetId: 'blank' });
   doc.schemaVersion = 2;
   doc.registryVersion = 2;
-  doc.soundtrack = {id:'bright-day', volume:0.25};
-  const result = publicDocument(validateDocument(doc, {mode:'publish',requiredBindings:[]}));
-  assert.deepEqual(result.soundtrack, {id:'bright-day',volume:0.25});
+  doc.soundtrack = { id: 'bright-day', volume: 0.25 };
+  const result = publicDocument(validateDocument(doc, { mode: 'publish', requiredBindings: [] }));
+  assert.deepEqual(result.soundtrack, { id: 'bright-day', volume: 0.25 });
 });
 
 test('Control VI/EN có đầy đủ khóa dịch và không thêm nguồn phát ngoài danh mục', () => {
   const vi = JSON.parse(fs.readFileSync('web/assets/locales/vi.json', 'utf8'));
   const en = JSON.parse(fs.readFileSync('web/assets/locales/en.json', 'utf8'));
-  for (const key of ['editor.music.volume','editor.history.setMusicVolume','gift.music.volume']) {
+  for (const key of ['editor.music.volume', 'editor.history.setMusicVolume', 'gift.music.volume']) {
     assert.equal(typeof vi[key], 'string');
     assert.equal(typeof en[key], 'string');
     assert.ok(vi[key].length > 1 && en[key].length > 1);
   }
-  const designer = fs.readFileSync('web/js/pages/designer.js', 'utf8');
+  const musicPanel = fs.readFileSync('web/js/features/canvas-editor/music-panel.js', 'utf8');
   const player = fs.readFileSync('web/js/features/gift-runtime/index.js', 'utf8');
-  assert.match(designer, /data-editor-field['"]:\s*['"]soundtrack-volume['"]/);
-  assert.match(designer, /editor\.music\.volume/);
+  assert.match(musicPanel, /data-editor-field[\"']:\s*[\"']soundtrack-volume[\"']/);
+  assert.match(musicPanel, /editor\.music\.volume/);
   assert.match(player, /gift\.music\.volume/);
   assert.match(player, /soundtrackPlayback\.setVolume\(percent \/ 100\)/);
 });

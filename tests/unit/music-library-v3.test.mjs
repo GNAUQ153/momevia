@@ -72,11 +72,12 @@ test('Bản mới và bản cũ lưu cùng schema Canvas; không lưu mood, URL 
 
 test('Designer giữ select, dùng cùng handler để commit và hỗ trợ aria-pressed cho thẻ', () => {
   const designer = readFileSync(resolve(root, 'web/js/pages/designer.js'), 'utf8');
+  const panel = readFileSync(resolve(root, 'web/js/features/canvas-editor/music-panel.js'), 'utf8');
   const css = readFileSync(resolve(root, 'web/css/music-controls.css'), 'utf8');
   assert.match(designer, /soundtrack-pick/);
   assert.match(designer, /await change\(\{ target: musicSelect \}\)/);
-  assert.match(designer, /data-editor-music-filter/);
-  assert.match(designer, /aria-pressed/);
+  assert.match(panel, /data-editor-music-filter/);
+  assert.match(panel, /aria-pressed/);
   assert.match(css, /\.editor-music-track\[hidden\]\s*\{\s*display:\s*none;/);
   assert.match(css, /prefers-reduced-motion/);
 });

@@ -1,3 +1,13 @@
+## Unreleased — Sửa ESLint Canvas Inspector sau refactor (2026-11-22)
+
+- Xóa biến `layout` không sử dụng trong `renderInspector()` của `designer.js` sau khi tách Inspector; giữ nguyên `props` và các kiểm tra chức năng.
+- Không thay đổi schema Canvas, API, phân quyền hoặc dữ liệu thiệp.
+## Unreleased — Tách trường thuộc tính và khóa UI Canvas Inspector (2026-11-22)
+
+- Tách dựng trường hình/sticker, tọa độ/kích thước/opacity và nút Layer khỏi `designer.js` sang `canvas-editor/inspector-fields.js` để dễ kiểm thử và bảo trì.
+- Giữ nguyên `data-editor-field`, `data-editor-action`, giới hạn giá trị, VI/EN và trạng thái mở Geometry; tách quyết định khóa UI của mẫu Creator thành hàm thuần, mặc định từ chối thao tác không được cấp quyền.
+- Thêm 9 unit test cho field theo loại, cảnh báo ngoài artboard, khóa quyền, thao tác Layer và tích hợp Designer. Không đổi Canvas JSON, API, thanh toán, nhạc nền hoặc quyền kiểm tra phía server.
+
 ## Unreleased — Tách Scene/Layer Panel khỏi Canvas Designer (2026-11-22)
 
 - Tách dựng danh sách Scene/Layers và cache thumbnail sang `features/canvas-editor/scene-layer-panel.js`, giảm trách nhiệm DOM trong `designer.js`.

@@ -1,3 +1,11 @@
+## Unreleased — Auth Experience V9: bố cục tối hai cột theo ảnh tham khảo (2026-11-22)
+
+- Khi hợp nhất PR #22, cập nhật browser regression cho header/footer Auth V9: kiểm tra hai link điều khoản ngay trong form, đổi VI/EN ở header và kiểm tra menu mobile trên trang danh mục.
+- Thiết kế lại `/login` và `/register` theo bố cục tham chiếu: nền tối tím–mận có lưới mờ, thẻ giới thiệu bên trái, form glass-card bên phải; giữ nhận diện Momevia, font Plus Jakarta Sans/Inter/Lora và chuyển động nhẹ có tùy chọn reduced motion.
+- Trên trang xác thực, thu gọn site header còn logo và bộ chọn VI/EN chung, ẩn navigation/footer dài để form xuất hiện sớm hơn; các route khôi phục mật khẩu và phần còn lại của website không bị thay đổi.
+- Chuyển Google/Zalo xuống sau form như bố cục tham khảo, giữ nguyên OAuth allowlist và trạng thái vô hiệu hóa khi backend chưa cấu hình; giữ link Đăng ký ngay, quên mật khẩu, điều khoản và form hỗ trợ.
+- Tạo regression test V9 về layout, i18n, OAuth, responsiveness, reduced motion và cache CSS; cập nhật bài test V8 theo thứ tự UI mới. Không thay đổi API, database, mật khẩu, session hoặc quyền truy cập.
+
 ## Unreleased — Sửa hồi quy catalog trong CI PR #22 (2026-11-22)
 
 - Giữ DOM thiệp và ảnh bìa đã tải khi bộ lọc trả cùng nội dung, tránh thay ảnh khi chỉ đổi chữ hoa/thường của từ khóa. Bìa, bản dịch và nội dung thay đổi vẫn được cập nhật.

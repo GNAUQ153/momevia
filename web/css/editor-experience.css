@@ -346,6 +346,37 @@
     border-radius: 20px 20px 0 0;
   }
 
+  /* Lớp nền cho bottom sheet: tách vùng chỉnh sửa khỏi Canvas và tránh chạm nhầm. */
+  .editor-workspace button.editor-sheet-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100dvh;
+    z-index: 35;
+    padding: 0;
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+    background: rgb(25 14 44 / 48%);
+    box-shadow: none;
+    cursor: default;
+    touch-action: none;
+  }
+
+  .editor-workspace button.editor-sheet-backdrop[hidden] {
+    display: none;
+  }
+
+  .editor-workspace .editor-sheet-open {
+    overscroll-behavior: contain;
+  }
+
+  .editor-workspace .editor-sheet-open [data-editor-action="close-sheet"]:focus-visible {
+    outline: 3px solid #724bcc;
+    outline-offset: 3px;
+  }
+
   .editor-fabric-dialog {
     width: 100vw;
     height: 100dvh;

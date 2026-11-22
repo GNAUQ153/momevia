@@ -46,6 +46,7 @@ import { openRecoveryCenter } from "../features/canvas-editor/recovery-center.js
 import { renderCanvasConflictReview } from "../features/canvas-editor/conflict-review.js";
 import { describeSaveFeedback } from "../features/canvas-editor/save-feedback.js";
 import { hasPendingEditorWork, historyShortcut } from "../features/canvas-editor/editor-guards.js";
+import { nextSheetFocus } from "../features/canvas-editor/mobile-sheet.js";
 import { createStage } from "../features/canvas-editor/stage.js";
 import { applyFabricWorkspacePatch } from "../features/canvas-editor/fabric-workspace.js";
 import { sceneThumbnail, thumbnail } from "../features/canvas-editor/thumbnail.js";
@@ -640,6 +641,12 @@ export function mountDesigner(
         ),
         node("div", { class: "editor-grid" }, sidebar, stageArea, inspector),
         sceneBar,
+        button("", "close-sheet", {
+          class: "editor-sheet-backdrop",
+          hidden: true,
+          tabindex: -1,
+          "aria-hidden": "true",
+        }),
         dock,
       ),
     );
@@ -1480,38 +1487,49 @@ export function mountDesigner(
       kind === "inspector" ? ".editor-inspector" :
         kind === "scenes" ? ".editor-scene-bar" : ".editor-library",
     );
-    closeSheet();
+    if (!target) return;
+    // Không trả focus về dock khi chuyển nhanh giữa các bảng mobile.
+    closeSheet(false);
     if (target.matches(".editor-library")) showLibrary(kind === "layers" ? "layers" : kind === "content" ? "content" : "add");
     const dockTrigger = trigger?.closest(".editor-mobile-dock") ? trigger :
       main.querySelector(`[data-editor-action="sheet-${kind === "content" ? "library" : kind}"]`);
+    const backdrop = main.querySelector(".editor-sheet-backdrop");
     const background = [];
     for (let panel = target; panel && !panel.matches(".editor-workspace"); panel = panel.parentElement) {
       for (const peer of panel.parentElement.children) {
-        if (peer !== panel && !peer.inert) {
+        // Backdrop phải nhận click để có thể đóng sheet, còn vùng phía sau bị inert.
+        if (peer !== panel && peer !== backdrop && !peer.inert) {
           peer.inert = true;
           background.push(peer);
         }
       }
     }
-    sheet = { target, previous: trigger || document.activeElement, dockTrigger, background };
+    sheet = { target, previous: trigger || document.activeElement, dockTrigger, background, backdrop };
     dockTrigger?.setAttribute("aria-expanded", "true");
     target.classList.add("editor-sheet-open");
     target.setAttribute("role", "dialog");
     target.setAttribute("aria-modal", "true");
     target.setAttribute("tabindex", "-1");
-    target.focus();
+    if (backdrop) backdrop.hidden = false;
+    // Tập trung vào nút đóng; nếu không có thì tập trung container.
+    const closeControl = target.querySelector('[data-editor-action="close-sheet"]');
+    (closeControl?.getClientRects().length ? closeControl : target).focus({ preventScroll: true });
   }
-  function closeSheet() {
+  function closeSheet(restoreFocus = true) {
     if (!sheet) return;
     sheet.target.classList.remove("editor-sheet-open");
     sheet.target.removeAttribute("tabindex");
     sheet.target.removeAttribute("role");
     sheet.target.removeAttribute("aria-modal");
-    const { previous, dockTrigger, background } = sheet;
+    const { previous, dockTrigger, background, backdrop } = sheet;
+    if (backdrop) backdrop.hidden = true;
     for (const panel of background) panel.inert = false;
     dockTrigger?.setAttribute("aria-expanded", "false");
     sheet = null;
-    (previous?.isConnected && previous.getClientRects().length ? previous : dockTrigger)?.focus();
+    if (restoreFocus) {
+      const candidate = previous?.isConnected && previous.getClientRects().length ? previous : dockTrigger;
+      if (candidate?.isConnected && candidate.getClientRects().length) candidate.focus({ preventScroll: true });
+    }
   }
   mobile.addEventListener("change", () => {
     if (!mobile.matches) closeSheet();
@@ -2436,14 +2454,14 @@ export function mountDesigner(
       if (disposed || !store || composing || event.isComposing) return;
       if (event.key === "Escape") {
         if (document.querySelector("dialog[open]")) return;
-        if (stage.gestureActive) {
-          event.preventDefault();
-          stage.cancel();
-          return;
-        }
         if (sheet) {
           event.preventDefault();
           closeSheet();
+          return;
+        }
+        if (stage.gestureActive) {
+          event.preventDefault();
+          stage.cancel();
           return;
         }
         const menu = event.target.closest(".editor-scene-menu[open]");
@@ -2460,22 +2478,15 @@ export function mountDesigner(
         return;
       }
       if (sheet && event.key === "Tab") {
-        const controls = [
-          ...sheet.target.querySelectorAll(
-            'button,input,textarea,select,summary,[tabindex="0"]',
-          ),
-        ].filter((control) => !control.disabled && control.getClientRects().length),
-          first = controls[0],
-          last = controls.at(-1);
-        if (event.shiftKey && document.activeElement === first) {
+        const next = nextSheetFocus(sheet.target, document.activeElement, event.shiftKey);
+        if (next) {
           event.preventDefault();
-          last?.focus();
-        } else if (!event.shiftKey && document.activeElement === last) {
-          event.preventDefault();
-          first?.focus();
+          next.focus({ preventScroll: true });
         }
         return;
       }
+      // Không cho shortcut Undo/Redo hoặc dịch lớp hoạt động phía sau modal sheet.
+      if (sheet) return;
       if (stopKeys(event.target) || document.querySelector("dialog[open]"))
         return;
       const historyAction = historyShortcut(event);
@@ -2573,6 +2584,8 @@ export function mountDesigner(
       disposed = true;
       if (inlineFabricSession?.dialog) dialogs.delete(inlineFabricSession.dialog);
       inlineFabricSession?.close();
+      // Hoàn nguyên inert của phần nền trước khi rời màn hình thiết kế.
+      closeSheet(false);
       lifecycle.abort();
       musicPreview?.dispose();
       session?.dispose();

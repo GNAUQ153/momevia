@@ -1,3 +1,10 @@
+## Unreleased — V15: Canvas mobile bottom sheet và keyboard accessibility (2026-11-23)
+
+- Nâng cấp các bảng Thêm, Lớp, Thuộc tính và Cảnh trên mobile thành bottom sheet có nền che, chạm nền để đóng, tránh chạm nhầm vùng Canvas phía sau.
+- Chuẩn hóa vòng focus bằng Tab/Shift+Tab; khi mở ưu tiên nút Đóng, khi đóng trả focus về nút đã mở, đóng khi đổi breakpoint và hoàn nguyên `inert` nếu rời Designer.
+- Trong lúc sheet mở, chặn shortcut Undo/Redo/chỉnh lớp đi xuyên xuống Canvas; Escape đóng sheet trước thay vì huỷ thao tác nền.
+- Tách logic điều hướng focus sang `mobile-sheet.js`, thêm 10 unit regression test và mở rộng browser regression ở 320/390/768px. Không thay đổi API, dữ liệu thiệp, thanh toán hoặc OAuth.
+
 ## Unreleased — V14.1: Khắc phục browser regression Preview (2026-11-23)
 
 - Sửa thứ tự thao tác trong `tests/browser/home.mjs`: mở hộp thoại Preview trước, đợi hiển thị rồi mới đọc CTA “Dùng mẫu”; tránh Playwright chờ 30 giây vì dialog chưa mở.

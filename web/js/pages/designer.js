@@ -2089,7 +2089,7 @@ export function mountDesigner(
     }
   }
   async function change(event) {
-    if (event.target.matches('[data-editor-music-filter]')) {
+    if (event.target.matches('[data-editor-music-filter], [data-editor-music-occasion]')) {
       filterMusicPanel(main);
       return;
     }

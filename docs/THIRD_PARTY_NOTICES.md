@@ -27,3 +27,7 @@ Logo 3D của Momevia là hình tạo mới bằng AI theo yêu cầu người d
 - **jsQR 1.4.0** — Apache-2.0, https://github.com/cozmo/jsQR ; chỉ dùng trong kiểm thử để giải mã QR và đối chiếu link gốc.
 - **ESLint 10.15.0** và **globals 17.14.0** — MIT, https://eslint.org/ và https://github.com/sindresorhus/globals ; chỉ dùng trong quality check để kiểm tra định danh/import và môi trường Node/browser.
 - **Playwright 1.65.1** — Apache-2.0, https://playwright.dev/ ; chỉ dùng trong browser regression trên fixture. Browser binary được cài riêng hoặc dùng Edge có sẵn, không đóng gói trong gói nguồn.
+
+## Nhạc nền tự tổng hợp theo dịp (Music Occasion V4)
+
+Sáu MP3 mới trong `web/assets/music/` được tạo từ thuật toán, hòa âm và chuỗi nốt biên soạn trong `scripts/assets/generate-occasion-music.py`. Không dùng sample hoặc audio từ bên thứ ba. Công cụ tái tạo yêu cầu Python/NumPy/FFmpeg khi bảo trì, không tải thêm SDK vào trình duyệt và không phát nhạc tự động. Cần nhóm dự án phê duyệt chính sách bản quyền trước khi sử dụng thương mại.

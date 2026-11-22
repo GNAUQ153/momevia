@@ -29,6 +29,8 @@
 
 **Còn đang hoàn thiện:** vòng đời hủy/retry thanh toán an toàn, hoàn tiền/đối soát vận hành, định giá và chi trả Creator, tự động thu phí gói. Trang Pricing không đồng nghĩa đã có subscription thực tế.
 
+**Nhạc nền Canvas:** Thư viện 10 giai điệu nội bộ (6 bài theo sinh nhật, đám cưới, Giáng sinh, Tết dương lịch, Tết Nguyên đán, Valentine); Sender lọc theo dịp/cảm xúc, nghe thử và chỉnh âm lượng. Recipient chủ động bấm phát. Hướng dẫn tại [Music Occasion V4](docs/MUSIC_OCCASIONS_V4.md).
+
 ## Chạy localhost (mặc định JSON)
 
 **Yêu cầu:** Node.js 22.13+ (nhánh 22) hoặc Node.js 24+, npm. Mở Terminal tại thư mục gốc dự án.

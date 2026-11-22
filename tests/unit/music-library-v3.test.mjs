@@ -11,8 +11,8 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const translations = lang => JSON.parse(readFileSync(resolve(root, `web/assets/locales/${lang}.json`), 'utf8'));
 
 test('Thư viện có bốn bản nội bộ, ID/đường dẫn cố định và metadata rõ ràng', () => {
-  assert.equal(SOUNDTRACKS.length, 4);
-  assert.equal(new Set(SOUNDTRACKS.map(track => track.id)).size, 4);
+  assert.equal(SOUNDTRACKS.length, 10);
+  assert.equal(new Set(SOUNDTRACKS.map(track => track.id)).size, 10);
   for (const track of SOUNDTRACKS) {
     assert.match(track.id, /^[a-z][a-z0-9-]*$/);
     assert.equal(track.src, `/assets/music/${track.id}.mp3`);
@@ -31,8 +31,8 @@ test('Thư viện có bốn bản nội bộ, ID/đường dẫn cố định v�
 test('Bộ lọc tâm trạng không sửa dữ liệu và từ chối giá trị không xác định', () => {
   const gentle = tracksForMood('gentle');
   const joyful = tracksForMood('joyful');
-  assert.equal(gentle.length, 2);
-  assert.equal(joyful.length, 2);
+  assert.equal(gentle.length, 4);
+  assert.equal(joyful.length, 6);
   assert.deepEqual([...gentle, ...joyful].map(track => track.id).sort(), SOUNDTRACKS.map(track => track.id).sort());
   assert.equal(tracksForMood('all'), SOUNDTRACKS);
   assert.deepEqual(tracksForMood('https://evil.example'), []);

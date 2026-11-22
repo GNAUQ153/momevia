@@ -1,6 +1,6 @@
 // Giao diện chọn nhạc dùng chung cho hai ngôn ngữ; không thay đổi Canvas JSON.
 import { message, setText, t } from "../../core/i18n.js";
-import { SOUNDTRACKS } from "../../shared/canvas/soundtracks.js";
+import { SOUNDTRACKS, SOUNDTRACK_OCCASIONS } from "../../shared/canvas/soundtracks.js";
 import { button, node, select } from "./dom.js";
 
 // Chuẩn hoá dấu tiếng Việt để người dùng có thể gõ "binh minh" hoặc "bình minh".
@@ -14,15 +14,17 @@ export function normalizeMusicQuery(value) {
 }
 
 // Chỉ tìm trong metadata của các bản nhạc allowlist; không phân tích HTML hay URL ngoài.
-export function matchingMusicTracks({ query = "", mood = "all", translate = t } = {}) {
+export function matchingMusicTracks({ query = "", mood = "all", occasion = "all", translate = t } = {}) {
   const normalizedQuery = normalizeMusicQuery(query);
   return SOUNDTRACKS.filter(track => {
     if (mood !== "all" && track.mood !== mood) return false;
+    if (occasion !== "all" && track.occasion !== occasion) return false;
     if (!normalizedQuery) return true;
     const tokens = [
       translate(track.titleKey),
       translate(track.descriptionKey),
       translate(`editor.music.${track.mood}`),
+      translate(`editor.music.occasion.${track.occasion}`),
     ];
     return tokens.some(value => normalizeMusicQuery(value).includes(normalizedQuery));
   });
@@ -50,6 +52,14 @@ export function createMusicPanel(soundtrack) {
           node("option", { value: "joyful" }, message("editor.music.joyful")),
         ),
       ),
+      node("label", { class: "editor-music-occasion-filter" },
+        node("span", {}, message("editor.music.occasion")),
+        node("select", { "data-editor-music-occasion": "", "aria-label": message("editor.music.occasion") },
+          node("option", { value: "all" }, message("editor.music.occasion.all")),
+          ...SOUNDTRACK_OCCASIONS.map(occasion => node("option", { value: occasion },
+            message(`editor.music.occasion.${occasion}`))),
+        ),
+      ),
       node("label", { class: "editor-music-search" },
         node("span", {}, message("editor.music.search")),
         node("input", {
@@ -69,11 +79,14 @@ export function createMusicPanel(soundtrack) {
         ...SOUNDTRACKS.map(track => node("button", {
           type: "button", class: "editor-music-track", "data-editor-action": "soundtrack-pick",
           "data-track-id": track.id, "data-music-mood": track.mood,
+          "data-music-occasion": track.occasion,
           "aria-pressed": selectedId === track.id ? "true" : "false",
         },
           node("strong", { class: "editor-music-track-title" }, message(track.titleKey)),
           node("span", { class: "editor-music-track-description" }, message(track.descriptionKey)),
           node("span", { class: "editor-music-track-meta" },
+            message(`editor.music.occasion.${track.occasion}`),
+            " · ",
             message(track.mood === "gentle" ? "editor.music.gentle" : "editor.music.joyful"),
             ` · 0:${String(track.durationSeconds).padStart(2, "0")}`,
           ),
@@ -123,9 +136,10 @@ export function syncMusicPanel(main, soundtrack, { playing = false } = {}) {
 // Kết hợp bộ lọc cảm xúc và ô tìm kiếm, luôn giữ lựa chọn "không dùng nhạc".
 export function filterMusicPanel(main) {
   const filter = main.querySelector("[data-editor-music-filter]");
+  const occasion = main.querySelector("[data-editor-music-occasion]");
   const input = main.querySelector("[data-editor-music-search]");
   if (!filter || !input) return 0;
-  const tracks = matchingMusicTracks({ mood: filter.value, query: input.value });
+  const tracks = matchingMusicTracks({ mood: filter.value, occasion: occasion?.value || "all", query: input.value });
   const ids = new Set(tracks.map(track => track.id));
   for (const button of main.querySelectorAll('[data-editor-action="soundtrack-pick"]')) {
     button.hidden = Boolean(button.dataset.trackId) && !ids.has(button.dataset.trackId);

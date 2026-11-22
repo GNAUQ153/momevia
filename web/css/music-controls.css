@@ -153,6 +153,7 @@
 .editor-music-library {
   display: grid;
   gap: 12px;
+  perspective: 1000px;
 }
 .editor-music-filter {
   display: grid;

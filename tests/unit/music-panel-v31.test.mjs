@@ -16,9 +16,9 @@ test("Tìm tên bài nhạc bằng tiếng Việt có dấu hoặc không dấu"
 });
 
 test("Tìm theo tên và mô tả tiếng Anh; kết hợp bộ lọc cảm xúc", () => {
-  assert.deepEqual(matchingMusicTracks({ query: "Bright", translate: localize(en, "en") }).map(x => x.id), ["bright-day"]);
-  assert.deepEqual(matchingMusicTracks({ query: "warm", mood: "joyful", translate: localize(en, "en") }).map(x => x.id), ["bright-day"]);
-  assert.equal(matchingMusicTracks({ query: "warm", mood: "gentle", translate: localize(en, "en") }).length, 0);
+  assert.deepEqual(matchingMusicTracks({ query: "Bright", occasion: "general", translate: localize(en, "en") }).map(x => x.id), ["bright-day"]);
+  assert.deepEqual(matchingMusicTracks({ query: "warm", mood: "joyful", occasion: "general", translate: localize(en, "en") }).map(x => x.id), ["bright-day"]);
+  assert.equal(matchingMusicTracks({ query: "warm", mood: "gentle", occasion: "general", translate: localize(en, "en") }).length, 0);
   assert.equal(matchingMusicTracks({ mood: "other" }).length, 0);
   assert.equal(matchingMusicTracks({}).length, SOUNDTRACKS.length);
 });

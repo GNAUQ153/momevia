@@ -50,7 +50,7 @@ test('Reject unknown, remote, and malformed track references', () => {
 });
 
 test('Local allowlist contains only known paths and regifting removes previous sender music', () => {
-  assert.equal(SOUNDTRACKS.length, 4);
+  assert.equal(SOUNDTRACKS.length, 10);
   for (const track of SOUNDTRACKS) {
     assert.ok(track.src.startsWith('/assets/music/'));
     assert.ok(track.src.endsWith('.mp3'));

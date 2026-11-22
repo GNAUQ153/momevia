@@ -1,0 +1,39 @@
+/* Music Occasion 4.0: chỉ các lớp CSS bổ sung, không ghi đè quy tắc cũ. */
+.editor-music-occasion-filter {
+  display: grid;
+  gap: 6px;
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 650;
+  color: var(--ink);
+}
+
+.editor-music-occasion-filter select {
+  width: 100%;
+  min-width: 0;
+  min-height: var(--ui-control-min-height);
+  padding: 10px 12px;
+  border: 1px solid var(--ui-panel-border);
+  border-radius: var(--radius-sm);
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+}
+
+.editor-music-occasion-filter select:focus-visible {
+  outline: 3px solid var(--ui-focus-ring);
+  outline-offset: 3px;
+}
+
+/* Chiều sâu nhẹ, không buộc người dùng phải xem animation. */
+.editor-music-track[data-music-occasion]:hover:not(:disabled) {
+  transform: translateY(-2px) rotateX(1deg);
+  box-shadow: var(--shadow-soft);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .editor-music-track[data-music-occasion]:hover:not(:disabled) {
+    transform: none;
+    box-shadow: none;
+  }
+}

@@ -1,3 +1,9 @@
+## Unreleased — Sửa hồi quy catalog trong CI PR #22 (2026-11-22)
+
+- Giữ DOM thiệp và ảnh bìa đã tải khi bộ lọc trả cùng nội dung, tránh thay ảnh khi chỉ đổi chữ hoa/thường của từ khóa. Bìa, bản dịch và nội dung thay đổi vẫn được cập nhật.
+- Kiểm tra trình duyệt đợi bìa thực sự tải rồi xác minh cả thiệp và ảnh được giữ nguyên qua lần lọc tương đương.
+- Ca lỗi/retry catalog loại bootstrap công khai khỏi HTML fixture để đi qua API thật; vẫn xác minh yêu cầu 503 và tải lại thành công.
+
 ## Unreleased — Auth Experience V8: cải thiện form và khôi phục Google/Zalo (2026-11-22)
 
 - Thiết kế lại Login/Register theo layout sáng, tập trung vào form một cột trên desktop và mobile, input 16px, nút 52–54px, khoảng cách/typography đồng bộ, giữ hình 3D hiện có và hỗ trợ reduced motion.

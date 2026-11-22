@@ -6,6 +6,7 @@ import { personalizationText, templateCover, templateField, templateSearchFields
 import { featuredSeasons, isInSeason } from "../features/catalog/seasonal.js";
 import { templatePreviewDialog } from "../features/catalog/template-preview.js";
 import { prioritizeTemplates } from '../shared/template-order.js';
+import { preserveLoadedCovers } from '../core/cover-loading.js';
 import {
   filterTemplates,
   styleOptions,
@@ -60,6 +61,7 @@ export function createCatalogViews({
     grid.classList.add("catalog-grid--updated");
     const next = [...fragment.content.children].map(candidate => {
       const current = retained.get(candidate.dataset.templateId);
+      if(current)preserveLoadedCovers(current,candidate);
       return current?.isEqualNode(candidate) ? current : candidate;
     });
     const keep = new Set(next);

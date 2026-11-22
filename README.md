@@ -89,18 +89,18 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Sender chỉnh âm lượng nhạc nền từ 0–100%, có số phần trăm và nghe thử ngay khi kéo; mỗi lần thả thanh tạo một mốc Undo/Redo và bảo toàn giá trị khi đổi nhạc.
-- Recipient tự chỉnh âm lượng khi mở thiệp mà không sửa bản snapshot công khai, không yêu cầu API và không autoplay; kiểm tra đầu vào trước khi cập nhật HTMLAudioElement.
-- Thêm nhãn VI/EN, responsive/focus và bài test cho giới hạn âm lượng, schema công khai, không phát tự động và nhãn giao diện. Giữ nguyên các SVG thuộc PR của Lộc và toàn bộ nghiệp vụ hiện có.
+- Bộ phát nhạc cập nhật đúng nút Phát/Tạm dừng nếu audio lỗi sau khi `play()` thành công, bị dừng bằng media controls hoặc phát hết bất thường; không tự bật lại khi Promise phát đến muộn.
+- Sender nghe thử trong Designer tự dừng khi tab bị ẩn; các sự kiện audio được gỡ khi huỷ trình phát, giữ nguyên chỉ phát nhạc khi người dùng chủ động chọn.
+- Thêm test cho lỗi âm thanh muộn, sự kiện tạm dừng bên ngoài, retry, đóng Player và tích hợp listener theo vòng đời Editor. Không sửa schema Canvas, bản nhạc, API hoặc snapshot quà.
 
 **Các commit gần nhất trên `main`:**
 
+- `b612ed1` — fix: synchronize music playback state and pause hidden previews (2026-11-22)
 - `2256a99` — feat: add sender and recipient soundtrack volume controls (2026-11-22)
 - `caf9e79` — feat: add opt-in background music to Canvas gifts (2026-11-22)
 - `daa4466` — Merge pull request #19 from GNAUQ153:feat/guess-your-choice (2026-11-22)
 - `51f3431` — feat: improve marketing journey mobile interactions (2026-11-22)
 - `57008bf` — fix: keep marketing hero indicators below artwork on mobile (2026-11-22)
-- `3930b34` — perf: add repeatable marketing lab reports and comparison (2026-11-22)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

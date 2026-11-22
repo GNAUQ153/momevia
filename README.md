@@ -91,17 +91,17 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Đóng gói duy nhất `database/updates/interactive-cards-20261122-v1.json` theo allowlist để bài test library rollout chạy được trong bản release độc lập; không đóng gói toàn bộ thư mục updates hoặc dữ liệu vận hành.
-- Bổ sung regression test xác minh bundle có trong release manifest và từ chối đưa tệp update ngoài allowlist vào bản phát hành. Không thay đổi UI, Auth V10, database schema, dữ liệu hay logic rollout.
+- Thay biểu tượng Zalo giả (chữ Z) trên `/login` bằng SVG Zalo nhận diện bong bóng thoại và chữ “Zalo” được lưu nội bộ tại `web/assets/brand/zalo.svg`.
+- Giữ nguyên Google, phân quyền OAuth đã cấu hình/chưa cấu hình, trang Đăng ký không có social login; bổ sung CSS và regression test, tài liệu nguồn logo.
 
 **Các commit gần nhất trên `main`:**
 
+- `d36c664` — fix(auth): use Zalo brand icon and sync web assets (2026-11-23)
 - `4e6173a` — fix: include interactive cards rollout bundle in release package (2026-11-23)
 - `ac1e5a5` — fix: refine auth UX and update password minimum to 8 characters (2026-11-22)
 - `9556034` — Merge pull request #22 from GNAUQ153:perf/interactive-cards-lcp (2026-11-22)
 - `678dedc` — feat: redesign Momevia authentication with dark split layout (2026-11-22)
 - `68020d4` — feat: improve auth UX and restore visible Google Zalo options (2026-11-22)
-- `a849ab0` — feat: redesign responsive login and registration experience (2026-11-22)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

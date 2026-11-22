@@ -91,19 +91,19 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Bổ sung 6 bản nhạc nội bộ (sinh nhật, đám cưới, Giáng sinh, Tết dương lịch, Tết Nguyên đán, Valentine); lưu script tổng hợp sóng để tái tạo và ghi nguồn gốc tài nguyên.
-- Sender lọc thư viện nhạc theo dịp, cảm xúc và từ khóa; hiển thị nhãn VI/EN cùng layout, bổ sung CSS music-occasion rõ ràng, hỗ trợ bàn phím, reduced-motion và hiệu ứng chiều sâu nhẹ.
-- Giữ 4 bài nhạc cũ, cơ chế nghe thử/chỉnh âm lượng/Undo/Redo và Recipient opt-in; Canvas vẫn chỉ lưu `{ id, volume }`, không sửa schema, API, quyền Creator hoặc database.
-- Thêm unit test cho audio asset, bộ lọc, i18n, giới hạn ID/URL và bản sao Canvas; cập nhật hướng dẫn kiểm thử và đánh giá source mới.
+- Chuẩn hóa 7 stylesheet trọng điểm (Admin Library, Template Preview, Gift Runtime, Canvas Editor, Recovery, Conflict Review và Upgrade): một khai báo CSS mỗi dòng, giữ thứ tự selector/media/keyframe và nội dung thiết kế hiện có.
+- Cải thiện mức đọc ở mobile: nút Preview 14px, badge/trạng thái Admin 13px, tab Admin 14px, nút Recovery tối thiểu 44px và thanh lưu tính safe-area; không tạo thêm lớp CSS override.
+- Thêm `scripts/quality/check-css-style.mjs` vào `npm run check` và 7 unit test kiểm tra mã viết dồn, thuộc tính lặp trong cùng rule, parser với string/comment, breakpoint có chủ ý và mobile typography.
+- Không sửa cấu trúc Canvas, API, MySQL, payment, nhạc theo dịp, bản dịch VI/EN, font hay 3D marketing. Kiểm toán CSS theo từng nhóm để tránh hồi quy diện rộng.
 
 **Các commit gần nhất trên `main`:**
 
+- `2887c24` — style: standardize CSS and guard visual quality (2026-11-22)
 - `015a350` — feat: add occasion-based Canvas music library and bilingual filters (2026-11-22)
 - `8f55a9e` — refactor: extract Canvas Inspector controls and policy helpers (2026-11-22)
 - `a537c01` — fix: remove unused layout binding after Inspector refactor (2026-11-22)
 - `38c6e9b` — refactor: extract Canvas scene and layer panels (2026-11-22)
 - `6df506d` — refactor: extract Canvas preview and gift access dialogs (2026-11-22)
-- `d81f1b5` — refactor: extract music panel and add bilingual track search (2026-11-22)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

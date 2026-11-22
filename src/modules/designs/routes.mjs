@@ -9,16 +9,24 @@ import { designView, giftSummary } from './designs.service.mjs';
 import { imageBody } from './assets.service.mjs';
 import { giftOwnerLinks } from '../gifts/links.mjs';
 import { requestLocale } from '../../shared/locale.mjs';
+import { AudioAssetsService, audioBody, sfxCatalog, librarySound } from './audio.service.mjs';
 
 export function streamAsset(res, file) {
   res.writeHead(200, { 'content-type': file.contentType, 'cache-control': 'private, no-store', 'x-content-type-options': 'nosniff' });
   const stream = fs.createReadStream(file.filePath); stream.on('error', () => res.destroy()); stream.pipe(res);
 }
 export function registerDesignRoutes(router, { service, assets, resolveUser, config, writeLimit }) {
+  const audio=new AudioAssetsService(service);
   const user = req => resolveUser(req, config.jwtSecret);
   const writeUser = async req => { const actor = await user(req); if (!writeLimit.consume(actor.sub)) throw canvasError(429, 'CANVAS_RATE_LIMIT', 'Bạn thao tác quá nhanh. Thử lại sau.'); return actor; };
   router.on('GET', '/health', ({ res }) => sendJson(res, 200, { name: 'designs', ok: true, profile: service.profile, capabilities: service.flags }));
   router.on('GET', '/library', async ({ res }) => sendJson(res, 200, { library: await service.library.refresh() }));
+  router.on('GET', '/sfx', async ({res})=>sendJson(res,200,{...sfxCatalog(),createEnabled:service.flags.sfxCreate!==false}));
+  router.on('GET', '/sfx/:version/:id', async ({res,params})=>streamAsset(res,librarySound(params.version,params.id)));
+  router.on('POST','/designs/:id/audio',async ({req,res,params})=>{
+    const actor=await writeUser(req);await service.get(actor,params.id);
+    sendJson(res,201,{asset:await audio.upload(actor,params.id,req.headers['x-mutation-id'],await audioBody(req))});
+  });
   router.on('GET', '/library/templates/:id/preview', async ({res,params})=>{
     await service.library.refresh();
     const template=await service.catalog.getTemplate(params.id);

@@ -2,7 +2,7 @@ import { HttpError, parseJson, sendJson } from '../../shared/http.mjs';
 import { previewTemplateDocument, versionView } from './creator-templates.mjs';
 import { sanitizeText } from '../../shared/security.mjs';
 import { previewSvg } from '../../../web/js/shared/canvas/cover-svg.js';
-import { assetIds } from '../../../web/js/shared/canvas/schema.js';
+import { imageAssetIds } from '../../../web/js/shared/canvas/schema.js';
 import sharp from 'sharp';
 
 export function registerCreatorRoutes(router, { service, user, designs, streamAsset }) {
@@ -18,7 +18,7 @@ export function registerCreatorRoutes(router, { service, user, designs, streamAs
   async function serveCover(res, version) {
     const document = previewTemplateDocument(version);
     const scene = document.scenes.find(item => item.id === (version.coverSceneId || document.entrySceneId));
-    const imageIds = assetIds({ elements: document.elements.filter(item => scene.elementIds.includes(item.id)
+    const imageIds = imageAssetIds({ elements: document.elements.filter(item => scene.elementIds.includes(item.id)
       && item.visible !== false && item.opacity !== 0) });
     const images = new Map();
     for (const id of imageIds) {

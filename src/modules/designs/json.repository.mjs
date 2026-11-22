@@ -5,6 +5,7 @@ import { replaceFileWithRetry } from '../../shared/atomic-file.mjs';
 import { canvasError, owned } from './errors.mjs';
 import { requireGiftPermission } from '../gifts/access.mjs';
 import { checkReplyReplay } from '../gifts/replies.mjs';
+import { AUDIO_LIMITS } from '../../../web/js/shared/canvas/audio-pcm.js';
 
 const empty = () => ({ formatVersion: 1, designs: {}, creates: {}, mutations: {}, assets: {}, contexts: {}, publications: {}, versions: {}, replies: {} });
 const clone = value => structuredClone(value);
@@ -81,8 +82,14 @@ export class JsonDesignRepository {
     });
   }
   async archive(ownerId, id) { return this.change(state => { this.owner(state, ownerId, id).archivedAt = new Date().toISOString(); return { archived: true }; }); }
-  async insertAsset(ownerId, designId, asset) {
-    return this.change(state => { this.owner(state, ownerId, designId); state.assets[asset.id] = clone(asset); return asset; });
+  async insertAsset(ownerId, designId, asset, {prepare}={}) {
+    return this.change(async state => {
+      this.owner(state, ownerId, designId);
+      const existing=state.assets[asset.id];
+      if(existing){if(existing.ownerId!==ownerId||existing.contentHash!==asset.contentHash)throw canvasError(409,'ASSET_MUTATION_CONFLICT','Nội dung tải lại không khớp.');await prepare?.();return existing;}
+      if(Object.values(state.assets).filter(a=>a.ownerId===ownerId&&a.status!=='removed').reduce((n,a)=>n+a.bytes,0)+asset.bytes>AUDIO_LIMITS.ownerBytes)throw canvasError(413,'ASSET_QUOTA','Tổng tài sản vượt giới hạn 50 MiB.');
+      await prepare?.();state.assets[asset.id]=clone(asset);return asset;
+    });
   }
   async getAsset(ownerId, id) { const asset = this.read().assets[id]; return asset?.ownerId === ownerId ? clone(asset) : null; }
   async attachContext(ownerId, orderId, mutationId, requestHash, context) {

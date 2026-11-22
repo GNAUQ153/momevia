@@ -16,6 +16,7 @@ const mime = {
   '.woff2': 'font/woff2',
   '.ico': 'image/x-icon',
   '.json': 'application/json',
+  '.wav': 'audio/wav',
 };
 export function staticFile(req, res, url, { cacheControl, publicCatalog } = {}) {
   // Chỉ phục vụ tệp thật nằm trong web; không đọc thư mục hoặc symlink ra ngoài.
@@ -44,7 +45,7 @@ export function staticFile(req, res, url, { cacheControl, publicCatalog } = {}) 
     'x-content-type-options': 'nosniff',
     'referrer-policy': 'no-referrer',
     'x-frame-options': 'DENY',
-    'content-security-policy': "default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://www.gstatic.com https://upload.wikimedia.org; connect-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'",
+    'content-security-policy': "default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://www.gstatic.com https://upload.wikimedia.org; connect-src 'self'; media-src 'self' blob:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'",
   };
   const compressible = type.startsWith('text/') || ['image/svg+xml','application/json'].includes(type);
   const encodings=new Map(String(req.headers['accept-encoding']||'').split(',').map(value=>{const [name,...params]=value.trim().toLowerCase().split(';'),quality=params.find(p=>p.trim().startsWith('q='));return [name,quality?Number(quality.trim().slice(2)):1];}));

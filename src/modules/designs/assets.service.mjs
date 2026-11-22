@@ -39,14 +39,14 @@ export class AssetsService {
     const storageKey = `${id}.${decoded.ext}`; const stage = path.join(d.mediaRoot, `${id}.${randomUUID()}.staging`); const final = path.join(d.mediaRoot, storageKey);
     fs.writeFileSync(stage, decoded.bytes, { flag: 'wx' });
     try {
-      if (fs.existsSync(final)) {
-        const existingHash = `sha256:${createHash('sha256').update(fs.readFileSync(final)).digest('hex')}`;
-        if (existingHash !== contentHash) throw canvasError(409, 'ASSET_MUTATION_CONFLICT', 'Nội dung ảnh không khớp mã tải ảnh.');
-        fs.unlinkSync(stage);
-      } else fs.renameSync(stage, final);
       const asset = { id, ownerId: user.sub, designId, status: 'ready', mime: input.mime, bytes: decoded.bytes.length, width: meta.width, height: meta.height,
         contentHash, storageKey, createdAt: new Date().toISOString() };
-      try { return this.view(await d.repository.insertAsset(user.sub, designId, asset)); }
+      try { return this.view(await d.repository.insertAsset(user.sub, designId, asset,{prepare:()=>{
+        if(fs.existsSync(final)){
+          const existingHash=`sha256:${createHash('sha256').update(fs.readFileSync(final)).digest('hex')}`;
+          if(existingHash!==contentHash)throw canvasError(409,'ASSET_MUTATION_CONFLICT','Nội dung ảnh không khớp mã tải ảnh.');
+        }else fs.renameSync(stage,final);
+      }})); }
       catch (error) {
         const committed = await d.repository.getAsset(user.sub, id);
         if (committed?.contentHash === contentHash) return this.view(committed);

@@ -54,6 +54,7 @@ export class DesignsService {
     Object.assign(this, { repository, publication, catalog, checkout, orders, config, flags, mediaRoot, profile });
   }
   requireEdit() { if (!this.flags.edit) throw canvasError(503, 'CANVAS_EDIT_DISABLED', 'Tạo và chỉnh thiết kế đang tạm tắt. Quà đã gửi vẫn đọc được.'); }
+  requireSoundCreate() { if(this.flags.sfxCreate===false)throw canvasError(503,'SFX_CREATE_DISABLED','Tạo âm thanh mới đang tạm tắt. Âm trong quà đã gửi vẫn dùng được.'); }
   async get(user, id) {
     uuid(id, 'designId'); const d = owned(await this.repository.get(user.sub, id));
     if (d.provenance?.purpose === 'creator' && !['creator', 'admin'].includes(user.role))
@@ -110,6 +111,7 @@ export class DesignsService {
       }
       for (const ref of document.assets) ref.assetId = mapping.get(ref.assetId);
       for (const element of document.elements) {
+        if(element.sound?.kind==='audio')element.sound.assetId=mapping.get(element.sound.assetId);
         for (const photo of photoSlots(element)) if (photo.assetId) photo.assetId = mapping.get(photo.assetId);
       }
       clearTemplateBindingDefaults(document);
@@ -159,7 +161,7 @@ export class DesignsService {
           const systemSnapshot = gift.documentSnapshot && current.systemOwned === true && current.creator === 'Momevia Originals'
             && !current.versionId && isSystemTemplate(current);
           resolved = await this.source(systemSnapshot ? { kind: 'template', templateId: source.templateId } : source);
-          if (systemSnapshot) {
+          if (systemSnapshot || (gift.documentSnapshot?.elements.some(e=>e.sound) && !resolved.version)) {
             const sharedImages = new Map();
             for (const ref of gift.documentSnapshot.assets) {
               const asset = await this.repository.getAsset(user.sub, ref.assetId);
@@ -209,6 +211,8 @@ export class DesignsService {
     for (const id of document.assets.map(a => a.assetId)) {
       const a = await this.repository.getAsset(ownerId, id);
       if (!a || a.status !== 'ready') throw canvasError(422, 'ASSET_NOT_READY', 'Ảnh không thuộc tài khoản hoặc chưa sẵn sàng.', [{ path: `assets.${id}`, code: 'ASSET_NOT_READY' }]);
+      const ref=document.assets.find(ref=>ref.assetId===id);
+      if(ref.kind!==(a.mediaKind||'image'))throw canvasError(422,'ASSET_KIND','Kiểu tài sản không khớp nội dung.');
       if (creator && (await this.repository.get(ownerId, a.designId))?.provenance?.purpose !== 'creator')
         throw canvasError(403, 'PRIVATE_SENDER_ASSET', 'Chỉ ảnh tải từ Creator Studio được dùng để thiết kế mẫu.');
     }
@@ -219,6 +223,7 @@ export class DesignsService {
     const document = validateDocument(input.document, { mode: 'draft' }); const name = title(input.title);
     // Validate before adapter; adapter revalidates immutable policy under the same CAS lock.
     const design = await this.get(user, id);
+    if(this.flags.sfxCreate===false)for(const element of document.elements)if(element.sound&&canonicalStringify(element.sound)!==canonicalStringify(design.document.elements.find(e=>e.id===element.id)?.sound||null))this.requireSoundCreate();
     await this.assetsFor(user.sub, document, design.provenance?.purpose === 'creator');
     return this.repository.save(user.sub, id, { ...input, title: name, document, documentHash: hash(document), requestHash: hash(input), assetIds: assetIds(document) }, current => this.enforcePolicy(current, document));
   }
@@ -305,7 +310,7 @@ export class DesignsService {
       summary: { sceneCount: document.scenes.length, assetCount: assetIds(document).length }, ...(template ? { template: { id: template.id, title: template.title, price: template.price } } : {}) };
   }
   assetPath(asset) {
-    if (!/^[\da-f-]{36}\.(png|jpg|webp)$/.test(asset.storageKey)) throw canvasError(404, 'ASSET_NOT_FOUND', 'Không tìm thấy ảnh.');
+    if (!/^[\da-f-]{36}\.(png|jpg|webp|wav)$/.test(asset.storageKey)) throw canvasError(404, 'ASSET_NOT_FOUND', 'Không tìm thấy tài sản.');
     return path.join(this.mediaRoot, asset.storageKey);
   }
   assetExists(asset) { return fs.existsSync(this.assetPath(asset)); }

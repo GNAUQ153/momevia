@@ -149,8 +149,8 @@ export async function applyCanvasImport(plan, client, { label, beforeCommit = as
       [d.id, d.ownerId, d.title, d.source.kind, d.source.templateId || null, d.source.templateVersionId || null, json(d.provenance), json(d.policy),
         d.revision, d.schemaVersion, json(d.document), d.documentHash, date(d.createdAt), date(d.updatedAt), date(d.archivedAt)]);
     for (const a of Object.values(c.assets)) await insert(tx, 'design_assets',
-      'id,owner_id,design_id,status,mime,bytes,width,height,content_hash,storage_key,created_at',
-      [a.id, a.ownerId, a.designId, a.status, a.mime, a.bytes, a.width, a.height, a.contentHash, a.storageKey, date(a.createdAt)]);
+      'id,owner_id,design_id,status,mime,bytes,width,height,content_hash,storage_key,created_at,media_kind,duration_ms,sample_count,sample_rate,channels',
+      [a.id, a.ownerId, a.designId, a.status, a.mime, a.bytes, a.width, a.height, a.contentHash, a.storageKey, date(a.createdAt),a.mediaKind||'image',a.durationMs??null,a.sampleCount??null,a.sampleRate??null,a.channels??null]);
     for (const d of Object.values(c.designs)) for (const id of assetIds(d.document))
       await insert(tx, 'design_asset_refs', 'design_id,asset_id', [d.id, id]);
     for (const [key, value] of Object.entries(c.creates)) {

@@ -7,7 +7,7 @@ import {
 
 test('Designer giữ nguyên bậc zoom, tab thư viện và tác vụ cảnh', () => {
   assert.deepEqual(zoomLevels, [0.25, 0.5, 0.75, 1, 1.5, 2]);
-  assert.deepEqual(Object.keys(libraryTabs), ['add', 'content', 'assets', 'layers']);
+  assert.deepEqual(Object.keys(libraryTabs), ['add', 'content', 'assets', 'layers', 'sounds']);
   assert(sceneActions.some(([label, code]) => label === 'Nhân bản cảnh' && code === 'scene-duplicate'));
   assert.equal(starterActions.blank, 'create-blank');
 });

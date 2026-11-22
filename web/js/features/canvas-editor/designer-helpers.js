@@ -3,7 +3,7 @@
 import { node } from './dom.js';
 
 export const zoomLevels = [0.25, 0.5, 0.75, 1, 1.5, 2];
-export const libraryTabs = { add: "Thêm", content: "Nội dung", assets: "Ảnh", layers: "Lớp" };
+export const libraryTabs = { add: "Thêm", content: "Nội dung", assets: "Ảnh", layers: "Lớp", sounds:'Âm thanh' };
 export const sceneActions = [
   ["Nhân bản cảnh", "scene-duplicate"], ["Đưa cảnh lên", "scene-up"],
   ["Đưa cảnh xuống", "scene-down"], ["Chọn làm cảnh mở đầu", "scene-entry"],

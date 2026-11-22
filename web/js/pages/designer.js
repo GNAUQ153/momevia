@@ -14,6 +14,7 @@ import {
 } from "../shared/canvas/index.js";
 import { mountPlayer } from "../features/gift-runtime/index.js";
 import { requiresCanvasV2 } from "../shared/canvas/schema.js";
+import { usesSound, SOUND_TYPES } from '../shared/canvas/sound.js';
 import { lines, masks, shapes } from "../shared/canvas/artwork.js";
 import { eventTimeFromLocal, interactionKinds, localEventTime, photoSlots } from "../shared/canvas/interactions.js";
 import { effectsFor, elementEffectFamilies, sceneEffectFamilies, effectPreset, effectLabel } from "../shared/canvas/effects.js";
@@ -255,6 +256,7 @@ export function mountDesigner(
       next.document.schemaVersion = 2;
       next.document.registryVersion = 2;
     }
+    if(usesSound(next.document))next.document.schemaVersion=next.document.registryVersion=3;
     validateDocument(next.document);
     store.replace(next, label, options);
     clearError();
@@ -269,6 +271,34 @@ export function mountDesigner(
   }
   function assetUrl(assetId) {
     return `/api/designs/designs/${encodeURIComponent(design.id)}/assets/${encodeURIComponent(assetId)}`;
+  }
+  async function editSound({newButton=false}={}) {
+    if(assetPending||design.policy?.kind==='creator-template')return;
+    const model=newButton?null:selected(),elementId=model?.id;
+    if(model&&(!SOUND_TYPES.includes(model.type)||model.locked||design.policy?.lockedElements?.[model.id]||design.policy?.kind==='creator-template'))return;
+    const {openSoundEditor}=await import('../features/canvas-editor/sound-editor.js');
+    let uploadMutation=newId(),uploadBytes=null;
+    await openSoundEditor({current:model?.sound,assetUrl,registerDialog:dialog=>dialogs.add(dialog),
+      upload:async bytes=>{
+        if(bytes!==uploadBytes){uploadMutation=newId();uploadBytes=bytes;}
+        assetPending=true;
+        try{return (await request(`/designs/designs/${encodeURIComponent(design.id)}/audio`,undefined,{method:'POST',headers:{'content-type':'audio/wav','x-mutation-id':uploadMutation},body:bytes})).asset;}
+        finally{assetPending=false;}
+      },
+      onApply:sound=>{
+        let inserted;
+        commit(value=>{
+          let target=value.document.elements.find(e=>e.id===elementId);
+          if(!elementId){target=createElement('sound-button',{layout:{width:205,height:54}},t);placeBlock([target],stage.visibleArea(),value.document.elements.filter(e=>currentScene().elementIds.includes(e.id)));inserted=target.id;value.document.elements.push(target);value.document.scenes.find(s=>s.id===sceneId).elementIds.push(target.id);}
+          if(!target)throw new Error(t('sfx.targetMissing'));
+          target.sound=sound;
+          if(sound.kind==='audio'&&!value.document.assets.some(a=>a.assetId===sound.assetId))value.document.assets.push({assetId:sound.assetId,kind:'audio'});
+          const used=new Set(assetIds(value.document));value.document.assets=value.document.assets.filter(a=>used.has(a.assetId));
+        },t('sfx.history'));
+        if(inserted)choose(inserted);else renderInspector();
+      },
+      onRemove:()=>{commit(value=>{const target=value.document.elements.find(e=>e.id===elementId);if(target)delete target.sound;const used=new Set(assetIds(value.document));value.document.assets=value.document.assets.filter(a=>used.has(a.assetId));},t('sfx.remove'));renderInspector();},
+    });
   }
   function textOptions(element) {
     if (element?.type !== "text" || element.visible === false) return null;
@@ -497,6 +527,7 @@ export function mountDesigner(
         ),
       ),
       node("div", { "data-library-panel": "assets", id: "editor-panel-assets", class: "editor-assets" }),
+      node('div',{'data-library-panel':'sounds',id:'editor-panel-sounds'},node('h3',{},message('sfx.title')),node('p',{class:'editor-help'},message('sfx.hint')),button(message('sfx.addButton'),'sound-add',{disabled:design.policy?.kind==='creator-template'}),button(message('sfx.open'),'sound-picker',{disabled:design.policy?.kind==='creator-template'})),
       node("div", { "data-library-panel": "layers", id: "editor-panel-layers", class: "editor-layers" }),
     );
     const zoomControl = node(
@@ -960,6 +991,7 @@ export function mountDesigner(
         );
       }
       if (element.type === "interaction") children.push(...interactionFields(element));
+      if(SOUND_TYPES.includes(element.type)&&!element.locked&&!policy&&design.policy?.kind!=='creator-template')children.push(node('h3',{},message('sfx.onPress')),button(message(element.sound?'sfx.replace':'sfx.open'),'sound-picker'),element.sound?node('p',{class:'editor-help'},message(element.sound.kind==='library'?'sfx.library':'sfx.personal')):null);
       for (const key of element.type === "interaction" ? [] : registry[element.type].inspector) {
         if (
           [
@@ -1391,7 +1423,7 @@ export function mountDesigner(
     }
     if (!value.document.assets.some(item => item.assetId === assetId))
       value.document.assets.push({ assetId, kind: "image" });
-    if (design.policy?.kind === "creator-template" || value.document.schemaVersion === 2) {
+    if (design.policy?.kind === "creator-template" || value.document.schemaVersion >= 2) {
       const used = new Set(assetIds(value.document));
       value.document.assets = value.document.assets.filter(ref => used.has(ref.assetId));
     }
@@ -2067,6 +2099,9 @@ export function mountDesigner(
       showLibrary(target.dataset.tab);
       return;
     }
+    if(name==='sound-add'||name==='sound-picker'){
+      await editSound({newButton:name==='sound-add'||!SOUND_TYPES.includes(selected()?.type)});return;
+    }
     if (name === "filter-blocks") {
       discoveryMode = target.dataset.filterMode;
       filterBlocks(main.querySelector("[data-block-search]").value);
@@ -2556,7 +2591,7 @@ export function mountDesigner(
         if (group === 'props' && (['stickerId','mask','pattern'].includes(fieldName) || fieldName === 'kind' && item.type === 'shape')) refreshElementArtwork(item);
         if (
           ["label", "title"].includes(fieldName) &&
-          ["button", "envelope", "gift-box"].includes(item.type)
+          ["button", "envelope", "gift-box", "sound-button"].includes(item.type)
         )
           item.accessibility.label = value;
       },

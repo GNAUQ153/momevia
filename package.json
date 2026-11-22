@@ -8,7 +8,7 @@
   },
   "scripts": {
     "build": "node scripts/build/web.mjs",
-    "check": "node scripts/quality/check-source.mjs && node scripts/quality/check-ui-i18n.mjs --check",
+    "check": "node scripts/quality/check-source.mjs && node scripts/quality/check-ui-i18n.mjs --check && node scripts/quality/check-css-style.mjs",
     "changelog:check": "node scripts/quality/check-changelog.mjs --staged",
     "package": "node scripts/release/package.mjs",
     "verify:package": "node scripts/release/verify.mjs dist/release",

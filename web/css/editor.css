@@ -80,7 +80,7 @@ body.is-designing #main {
   min-height: 18px;
 }
 .editor-save-status::before {
-  content: '';
+  content: "";
   flex: none;
   width: 7px;
   height: 7px;
@@ -88,9 +88,15 @@ body.is-designing #main {
   background: currentColor;
 }
 .editor-save-status[data-tone="pending"],
-.editor-save-status[data-tone="saving"] { color: #7049a6; }
-.editor-save-status[data-tone="warning"] { color: #995d09; }
-.editor-save-status[data-tone="danger"] { color: #a13345; }
+.editor-save-status[data-tone="saving"] {
+  color: #7049a6;
+}
+.editor-save-status[data-tone="warning"] {
+  color: #995d09;
+}
+.editor-save-status[data-tone="danger"] {
+  color: #a13345;
+}
 .editor-save-hint {
   color: var(--muted);
   font-size: 11px;
@@ -101,7 +107,11 @@ body.is-designing #main {
   .editor-save-status[data-tone="saving"]::before {
     animation: editor-status-pulse 1.2s ease-in-out infinite alternate;
   }
-  @keyframes editor-status-pulse { to { opacity: .3; } }
+  @keyframes editor-status-pulse {
+    to {
+      opacity: .3;
+    }
+  }
 }
 .editor-top-actions,
 .editor-control-row,
@@ -211,7 +221,9 @@ body.is-designing #main {
   background: #faf7ff;
   box-shadow: none;
 }
-.editor-workspace button[data-block]:not(:has(.editor-thumbnail)) { padding-top: 60px; }
+.editor-workspace button[data-block]:not(:has(.editor-thumbnail)) {
+  padding-top: 60px;
+}
 .editor-effect-settings, .editor-interaction-photo {
   min-inline-size: 0;
   margin: 0 0 9px;
@@ -219,7 +231,9 @@ body.is-designing #main {
   border: 1px solid #cbbbd4;
   border-radius: 10px;
 }
-.editor-effect-settings legend, .editor-interaction-photo legend { font-weight: 650; }
+.editor-effect-settings legend, .editor-interaction-photo legend {
+  font-weight: 650;
+}
 .editor-library [hidden],
 .editor-workspace button[data-block][hidden] {
   display: none;
@@ -1107,13 +1121,62 @@ body.is-designing #main {
     animation: none !important;
   }
 }
-.editor-event-fields { min-width: 0; margin: 16px 0; padding: 14px; border: 1px solid #DCCDBA; border-radius: 12px; background: #FFFCF6; }
-.editor-event-fields legend { font-weight: 650; font-size: 15px; }
-.editor-event-fields input[type="file"] { width: 100%; max-width: 100%; font-size: 12px; }
-.editor-event-photo { border-top: 1px solid #E4D8CA; padding-block: 8px; }
-.editor-event-photo summary { min-height: 44px; cursor: pointer; display: list-item; align-content: center; font-weight: 600; }
-.editor-event-photo img { display: block; object-fit: cover; border: 6px solid white; box-shadow: 0 2px 7px #44263822; margin-bottom: 12px; }
-.editor-celebration-settings { min-width: 0; margin-block: 16px; padding: 12px; border: 1px solid #C7B9DD; border-radius: 12px; }
-.editor-celebration-row { min-width: 0; margin-block: 12px; padding: 12px; border: 1px solid #DDD3E8; border-radius: 8px; background: #FFFCF6; }
-.editor-celebration-row legend { font-weight: 650; }
-.editor-celebration-row input[type="checkbox"] { width: 22px; height: 22px; margin: 4px 0 8px; accent-color: #77539B; }
+.editor-event-fields {
+  min-width: 0;
+  margin: 16px 0;
+  padding: 14px;
+  border: 1px solid #DCCDBA;
+  border-radius: 12px;
+  background: #FFFCF6;
+}
+.editor-event-fields legend {
+  font-weight: 650;
+  font-size: 15px;
+}
+.editor-event-fields input[type="file"] {
+  width: 100%;
+  max-width: 100%;
+  font-size: 12px;
+}
+.editor-event-photo {
+  border-top: 1px solid #E4D8CA;
+  padding-block: 8px;
+}
+.editor-event-photo summary {
+  min-height: 44px;
+  cursor: pointer;
+  display: list-item;
+  align-content: center;
+  font-weight: 600;
+}
+.editor-event-photo img {
+  display: block;
+  object-fit: cover;
+  border: 6px solid white;
+  box-shadow: 0 2px 7px #44263822;
+  margin-bottom: 12px;
+}
+.editor-celebration-settings {
+  min-width: 0;
+  margin-block: 16px;
+  padding: 12px;
+  border: 1px solid #C7B9DD;
+  border-radius: 12px;
+}
+.editor-celebration-row {
+  min-width: 0;
+  margin-block: 12px;
+  padding: 12px;
+  border: 1px solid #DDD3E8;
+  border-radius: 8px;
+  background: #FFFCF6;
+}
+.editor-celebration-row legend {
+  font-weight: 650;
+}
+.editor-celebration-row input[type="checkbox"] {
+  width: 22px;
+  height: 22px;
+  margin: 4px 0 8px;
+  accent-color: #77539B;
+}

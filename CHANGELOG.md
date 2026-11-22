@@ -1,3 +1,10 @@
+## Unreleased — Visual System & CSS Quality V5 (2026-11-22)
+
+- Chuẩn hóa 7 stylesheet trọng điểm (Admin Library, Template Preview, Gift Runtime, Canvas Editor, Recovery, Conflict Review và Upgrade): một khai báo CSS mỗi dòng, giữ thứ tự selector/media/keyframe và nội dung thiết kế hiện có.
+- Cải thiện mức đọc ở mobile: nút Preview 14px, badge/trạng thái Admin 13px, tab Admin 14px, nút Recovery tối thiểu 44px và thanh lưu tính safe-area; không tạo thêm lớp CSS override.
+- Thêm `scripts/quality/check-css-style.mjs` vào `npm run check` và 7 unit test kiểm tra mã viết dồn, thuộc tính lặp trong cùng rule, parser với string/comment, breakpoint có chủ ý và mobile typography.
+- Không sửa cấu trúc Canvas, API, MySQL, payment, nhạc theo dịp, bản dịch VI/EN, font hay 3D marketing. Kiểm toán CSS theo từng nhóm để tránh hồi quy diện rộng.
+
 ## Unreleased — Music Occasion V4: nhạc theo sự kiện và lọc song ngữ (2026-11-22)
 
 - Bổ sung 6 bản nhạc nội bộ (sinh nhật, đám cưới, Giáng sinh, Tết dương lịch, Tết Nguyên đán, Valentine); lưu script tổng hợp sóng để tái tạo và ghi nguồn gốc tài nguyên.

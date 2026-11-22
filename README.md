@@ -89,18 +89,18 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Thêm hai giai điệu gốc tổng hợp `dreamy-night` và `little-celebration`, có script tái tạo và hồ sơ nguồn gốc, không dùng tài nguyên âm thanh bên thứ ba.
-- Sender chọn nhạc qua thẻ với bộ lọc cảm xúc Êm dịu/Tươi vui; giữ dropdown cũ, Undo/Redo, nghe thử, âm lượng và kiểm tra ID tại server. Hỗ trợ VI/EN, focus, aria-pressed, mobile và reduced motion.
-- Canvas vẫn chỉ lưu `soundtrack: { id, volume }`; Recipient không autoplay, không thay đổi API, MySQL hoặc quyền truy cập. Thêm test thư viện, audio, schema và metadata song ngữ.
+- Tách UI thẻ nhạc, bộ lọc, trạng thái chọn và âm lượng khỏi `designer.js` vào `features/canvas-editor/music-panel.js` để giảm phạm vi thay đổi khi nâng cấp Canvas.
+- Sender tìm nhạc theo tên/mô tả ở VI và EN, không phân biệt dấu trong tiếng Việt, kết hợp bộ lọc cảm xúc; thông báo số kết quả hoặc trạng thái rỗng cho trình đọc màn hình.
+- Giữ nguyên danh mục bốn bài, thao tác chọn, nghe thử, Undo/Redo, schema `{ id, volume }`, Recipient Player, quyền truy cập và API. Bổ sung kiểm thử i18n/metadata, xác minh CSS dễ đọc và tương thích với file cũ.
 
 **Các commit gần nhất trên `main`:**
 
+- `d81f1b5` — refactor: extract music panel and add bilingual track search (2026-11-22)
 - `a4368e9` — feat: expand Canvas music library with mood browsing (2026-11-22)
 - `b612ed1` — fix: synchronize music playback state and pause hidden previews (2026-11-22)
 - `2256a99` — feat: add sender and recipient soundtrack volume controls (2026-11-22)
 - `caf9e79` — feat: add opt-in background music to Canvas gifts (2026-11-22)
 - `daa4466` — Merge pull request #19 from GNAUQ153:feat/guess-your-choice (2026-11-22)
-- `51f3431` — feat: improve marketing journey mobile interactions (2026-11-22)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

@@ -33,3 +33,9 @@ Desktop.ini
 # SQL snapshot có thể chứa email, nội dung thiệp và hash mật khẩu.
 /database/private/
 skills-lock.json
+
+# Chứng chỉ và khóa riêng cấu hình tại máy/VPS; không đưa vào Git.
+*.pem
+*.key
+*.pfx
+*.p12

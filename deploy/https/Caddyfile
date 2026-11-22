@@ -1,0 +1,11 @@
+# Set MOMEVIA_DOMAIN and ACME_EMAIL on the server before starting Caddy.
+# No certificate is requested until this config runs on the target server.
+{
+    email {$ACME_EMAIL}
+    acme_ca https://acme-v02.api.letsencrypt.org/directory
+}
+
+{$MOMEVIA_DOMAIN} {
+    encode zstd gzip
+    reverse_proxy 127.0.0.1:4100
+}

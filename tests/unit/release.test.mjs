@@ -20,6 +20,8 @@ test('Gói nguồn loại secret/data/dependency và phát hiện file bị sử
     for(const file of ['gateway.mjs','dev.mjs','start-local.bat','package-lock.json','README.md','CHANGELOG.md','.env.example','.gitignore','eslint.config.mjs']) write(file);
     write('package.json',JSON.stringify({version:'test'}));
     write('web/js/vendor/qrcode.js');
+    write('deploy/https/Caddyfile', '{$MOMEVIA_DOMAIN} { reverse_proxy 127.0.0.1:4100 }');
+    write('deploy/https/momevia.service', '[Service]\nExecStart=/usr/bin/node /opt/momevia/dev.mjs');
     // The release allowlist also includes MySQL schema and tooling.
     write('database/compose.yml', 'services: {}\n');
     write('database/verify.sql', 'SELECT 1;\n');
@@ -36,6 +38,7 @@ test('Gói nguồn loại secret/data/dependency và phát hiện file bị sử
       'docs/local/notes.md','docs/coverage/index.html','web/test-results/results.json',
       'docs/Thumbs.db','docs/.eslintcache',
       'web/.npmrc','services/secrets/server.pem','services/secrets/server.key',
+      'deploy/https/privkey.pem','deploy/https/server.key',
       'docs/credentials.json','docs/service-account.prod.json','database/backup.sql.gz',
       'web/.git/config'];
     for(const file of excludedFiles) write(file,'PRIVATE_SENTINEL');
@@ -55,6 +58,8 @@ test('Gói nguồn loại secret/data/dependency và phát hiện file bị sử
     assert(fs.existsSync(path.join(release,'docs/ARCHITECTURE.md')));
     assert(fs.existsSync(path.join(release,'docs/licenses/example-MIT.txt')));
     assert(fs.existsSync(path.join(release,'web/js/vendor/qrcode.js')));
+    assert(fs.existsSync(path.join(release,'deploy/https/Caddyfile')));
+    assert(fs.existsSync(path.join(release,'deploy/https/momevia.service')));
     assert(fs.existsSync(path.join(release,'database/compose.yml')));
     assert(fs.existsSync(path.join(release,'database/migrations/001_initial.sql')));
     assert(fs.existsSync(path.join(release,'database/migrations/003_identity_catalog.sql')));

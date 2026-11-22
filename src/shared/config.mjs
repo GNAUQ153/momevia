@@ -25,6 +25,8 @@ export function environment() {
   const demoEnabled = process.env.DEMO_AUTH_ENABLED === 'true' && process.env.NODE_ENV !== 'production';
   return {
     baseUrl: process.env.PUBLIC_BASE_URL || 'http://localhost:4100',
+    httpsCertFile: process.env.HTTPS_CERT_FILE || '',
+    httpsKeyFile: process.env.HTTPS_KEY_FILE || '',
     allowedOrigins: parseAllowedOrigins(process.env.ALLOWED_ORIGINS),
     jwtSecret: process.env.JWT_SECRET,
     internalKey: process.env.INTERNAL_SERVICE_KEY,

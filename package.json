@@ -43,7 +43,10 @@
     "db:canvas-library": "node database/scripts/canvas-library.mjs",
     "db:import:gifts-checkout": "node database/scripts/import-gifts-checkout.mjs",
     "i18n:audit": "node scripts/quality/check-ui-i18n.mjs --report",
-    "test:prediction:browser": "node tests/integration/prediction-choice.mjs"
+    "test:prediction:browser": "node tests/integration/prediction-choice.mjs",
+    "demo:https": "npm run build && node scripts/dev/web-demo-https.mjs",
+    "cert:local": "node scripts/dev/certificate-local.mjs",
+    "test:https": "node tests/integration/https.mjs"
   },
   "dependencies": {
     "@payos/node": "2.0.6",

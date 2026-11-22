@@ -1,3 +1,9 @@
+## Unreleased — Ngắt tunnel, HTTPS bằng chứng chỉ (2026-11-21)
+
+- Ngắt Cloudflare theo yêu cầu; đổi `demo:https` sang chứng chỉ localhost trực tiếp trên 4110, không tạo kết nối Internet. Giữ profile/kho dữ liệu và cổng 4100.
+- Server hỗ trợ `HTTPS_CERT_FILE` / `HTTPS_KEY_FILE`, kiểm tra cặp PEM trước khi mở kho dữ liệu, không hạ xuống HTTP khi sai cấu hình. Thêm kiểm thử handshake, cookie, origin và quà HTTPS.
+- Chuẩn bị Caddyfile Let's Encrypt và service chạy trên VPS; chưa cấp chứng chỉ tên miền thật hay triển khai máy chủ khi chưa có thông tin đích. Chứng chỉ tự ký chỉ để thử và không được cài vào kho tin cậy.
+
 ## Unreleased — Thư viện canvas quản lý từ MySQL (2026-11-22)
 
 - Lưu đầy đủ 172 element/cụm, 33 effect, 33 animation, 3 starter, 25 mẫu thiệp, 111 vector và 10 mô tả primitive trong thư viện có revision.
@@ -11,6 +17,12 @@
 - Giữ chính xác tọa độ/hình ảnh và hash bằng chuỗi JSON có kiểm tra JSON_VALID; yêu cầu migration 012 khi chạy canvas trên MySQL.
 - Profile demo giữ cấu hình MySQL qua restart; backup hỗ trợ các asset Creator dùng chung tệp đã xác minh hash.
 - Bổ sung kiểm tra thực trên MySQL cho 172 mẫu element, 33 effect, 18 tổ hợp hiệu ứng lặp, snapshot quà, ảnh/crop, restart và lưu/tải lại bằng trình duyệt.
+
+## Unreleased — HTTPS cho demo hiện có (2026-11-21)
+
+- Thêm `npm run demo:https`, dùng lại backend 4110 và tự nhận diện profile demo cũ, giữ khóa phiên/tài khoản/nháp/quà. Link và QR lấy đúng địa chỉ HTTPS; origin kiểm tra chính xác, cookie có Secure.
+- Thêm `--public-base-url` và `--profile` cho web demo; tải cloudflared chính thức có kiểm SHA-256. Khởi động lặp lại giữ URL đang chạy; dừng không xóa dữ liệu.
+- Chuẩn bị quà Minh–An trên 4110/HTTPS và dừng bản thử 4116. Kiểm tra trình duyệt qua HTTPS, QR, hai nhánh và hồi quy launcher.
 
 ## Unreleased — Tớ đoán cậu sẽ chọn… (2026-11-21)
 

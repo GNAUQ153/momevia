@@ -89,18 +89,18 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Tách UI thẻ nhạc, bộ lọc, trạng thái chọn và âm lượng khỏi `designer.js` vào `features/canvas-editor/music-panel.js` để giảm phạm vi thay đổi khi nâng cấp Canvas.
-- Sender tìm nhạc theo tên/mô tả ở VI và EN, không phân biệt dấu trong tiếng Việt, kết hợp bộ lọc cảm xúc; thông báo số kết quả hoặc trạng thái rỗng cho trình đọc màn hình.
-- Giữ nguyên danh mục bốn bài, thao tác chọn, nghe thử, Undo/Redo, schema `{ id, volume }`, Recipient Player, quyền truy cập và API. Bổ sung kiểm thử i18n/metadata, xác minh CSS dễ đọc và tương thích với file cũ.
+- Chuyển hộp thoại xem trước thiệp sang `canvas-editor/preview-dialog.js`, giữ nguyên Player/Preview và thao tác sửa, bắt đầu lại, gửi thiệp; giải phóng Player khi đóng hoặc chuyển trang.
+- Tách lựa chọn quyền mở/gửi/đọc quà sang `canvas-editor/gift-access-dialog.js`, bổ sung kiểm tra tổ hợp lựa chọn, mô tả quyền bằng VI/EN thực sự (không chèn dấu phẩy vào giữa các câu) và đóng an toàn khi huỷ hoặc rời Editor. Không thay đổi kiểm tra phân quyền ở backend.
+- Bổ sung kiểm thử thuần cho lựa chọn quyền, bản tóm tắt link và liên kết module; giữ nguyên Canvas JSON, nhạc nền, API, giao diện VI/EN và dữ liệu người dùng.
 
 **Các commit gần nhất trên `main`:**
 
+- `6df506d` — refactor: extract Canvas preview and gift access dialogs (2026-11-22)
 - `d81f1b5` — refactor: extract music panel and add bilingual track search (2026-11-22)
 - `a4368e9` — feat: expand Canvas music library with mood browsing (2026-11-22)
 - `b612ed1` — fix: synchronize music playback state and pause hidden previews (2026-11-22)
 - `2256a99` — feat: add sender and recipient soundtrack volume controls (2026-11-22)
 - `caf9e79` — feat: add opt-in background music to Canvas gifts (2026-11-22)
-- `daa4466` — Merge pull request #19 from GNAUQ153:feat/guess-your-choice (2026-11-22)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

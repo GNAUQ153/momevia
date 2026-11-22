@@ -72,3 +72,16 @@ test('CTA xem thử hiển thị trên mobile với focus và chiều cao tối 
   assert.match(css, /\.template-preview-dialog :focus-visible\s*\{/);
   assert.match(css, /@media \(max-width:480px\)/);
 });
+
+// Guard chống hồi quy: modal đang đóng sẽ không có role=dialog hiển thị trong Playwright.
+test('Browser test chỉ kiểm tra CTA sau khi mở Preview modal bằng bàn phím', () => {
+  const browser = source('tests/browser/home.mjs');
+  const begin = browser.indexOf("const dialog = page.getByRole('dialog');");
+  const open = browser.indexOf("await page.keyboard.press('Enter');", begin);
+  const visible = browser.indexOf("await dialog.waitFor({ state: 'visible' });", open);
+  const href = browser.indexOf("useTemplate.getAttribute('href')", visible);
+  assert(begin >= 0, 'Home browser test phải tìm Preview dialog');
+  assert(open > begin, 'Mở Preview bằng Enter trước khi tìm CTA');
+  assert(visible > open, 'Chờ dialog hiển thị trước khi kiểm tra CTA');
+  assert(href > visible, 'Chỉ lấy URL CTA sau khi dialog đã mở');
+});

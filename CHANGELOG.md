@@ -1,3 +1,8 @@
+## Unreleased — V14.1: Khắc phục browser regression Preview (2026-11-23)
+
+- Sửa thứ tự thao tác trong `tests/browser/home.mjs`: mở hộp thoại Preview trước, đợi hiển thị rồi mới đọc CTA “Dùng mẫu”; tránh Playwright chờ 30 giây vì dialog chưa mở.
+- Thêm unit guard kiểm tra thứ tự `Enter → dialog visible → CTA href` để hạn chế tái diễn lỗi trong CI. Giữ nguyên code ứng dụng, API, Canvas và dữ liệu người dùng.
+
 ## Unreleased — V14: Xem trước và tạo thiệp liền mạch (2026-11-23)
 
 - Bổ sung CTA “Dùng mẫu” ngay trong hộp thoại xem trước thiệp ở trang chủ và trang chi tiết, giảm thao tác đóng modal rồi tìm lại nút tạo.

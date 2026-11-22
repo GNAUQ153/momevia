@@ -157,9 +157,13 @@ export async function runHomeBrowser(base) {
           assert.match(await image.getAttribute('src'), language === 'en' ? /\/en\/hai-phong-bi.svg/ : /templates\/hai-phong-bi.svg/);
           assert(!requests.some(request => request.url().includes('/gift-runtime/index.js')), 'Guest landing leaves the player unloaded');
           const dialog = page.getByRole('dialog');
-          assert.equal(await dialog.locator('[data-template-use]').getAttribute('href'), '/create/hai-phong-bi?mode=quick');
           await preview.focus();
           await page.keyboard.press('Enter');
+          await dialog.waitFor({ state: 'visible' });
+          // Chỉ đọc CTA sau khi modal đã mở; trước đó role dialog bị ẩn khỏi accessibility tree.
+          const useTemplate = dialog.locator('[data-template-use]');
+          await useTemplate.waitFor({ state: 'visible' });
+          assert.equal(await useTemplate.getAttribute('href'), '/create/hai-phong-bi?mode=quick');
           const entry = dialog.locator('[data-runtime-element="open-memory"]');
           await entry.waitFor();
           assert.match(await dialog.getAttribute('aria-label'), language === 'en' ? /Two Envelopes/i : /Hai phong bì/i);

@@ -277,6 +277,11 @@
   }
 }
 
+/* Thanh Hoàn tác/Làm lại gần vùng thiết kế, tránh làm chật header mobile. */
+.editor-workspace .editor-mobile-history {
+  display: none;
+}
+
 @media (max-width: 800px) {
   .editor-workspace {
     padding: 8px 8px 86px;
@@ -299,6 +304,42 @@
     min-width: 0;
     min-height: 44px;
     overflow-wrap: anywhere;
+  }
+
+  .editor-workspace:not(.is-quick) .editor-top-actions [data-editor-action="undo"],
+  .editor-workspace:not(.is-quick) .editor-top-actions [data-editor-action="redo"] {
+    display: none;
+  }
+
+  .editor-workspace:not(.is-quick) .editor-mobile-history {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    margin: 8px 0 12px;
+  }
+
+  .editor-workspace .editor-mobile-history .editor-history-control {
+    min-width: 0;
+    min-height: 48px;
+    padding: 10px 12px;
+    border: 1px solid #dcd0ed;
+    border-radius: 12px;
+    background: #ffffff;
+    color: #473265;
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.35;
+  }
+
+  .editor-workspace .editor-mobile-history .editor-history-control:disabled {
+    opacity: 0.48;
+    cursor: not-allowed;
+  }
+
+  .editor-workspace .editor-mobile-history .editor-history-control:focus-visible {
+    outline: 3px solid #724bcc;
+    outline-offset: 2px;
   }
 
   .editor-workspace .editor-top-actions button.editor-advanced-cta {

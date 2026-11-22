@@ -47,6 +47,7 @@ import { renderCanvasConflictReview } from "../features/canvas-editor/conflict-r
 import { describeSaveFeedback } from "../features/canvas-editor/save-feedback.js";
 import { hasPendingEditorWork, historyShortcut } from "../features/canvas-editor/editor-guards.js";
 import { nextSheetFocus } from "../features/canvas-editor/mobile-sheet.js";
+import { syncHistoryControls } from "../features/canvas-editor/history-controls.js";
 import { createStage } from "../features/canvas-editor/stage.js";
 import { applyFabricWorkspacePatch } from "../features/canvas-editor/fabric-workspace.js";
 import { sceneThumbnail, thumbnail } from "../features/canvas-editor/thumbnail.js";
@@ -581,6 +582,11 @@ export function mountDesigner(
       ),
       node("p", { class: "editor-selection-summary editor-layout-only", "data-editor-selection": "", role: "status", "aria-live": "polite" },
         message("editor.stage.select")),
+      // Các nút lịch sử được chuyển gần vùng thiết kế trên mobile, dùng chung store.
+      node("div", { class: "editor-mobile-history editor-layout-only", role: "group", "aria-label": message("editor.mobileHistory.title") },
+        button(message("editor.mobileHistory.undo"), "mobile-undo", { class: "editor-history-control", disabled: true }),
+        button(message("editor.mobileHistory.redo"), "mobile-redo", { class: "editor-history-control", disabled: true }),
+      ),
       node("div", { class: "editor-stage-scroll" }),
       node("div", { class: "editor-inline-mount", hidden: true, "aria-label": message("editor.stage.fabricLabel") }),
       node("details", { class: "editor-editing-help editor-layout-only" },
@@ -1019,10 +1025,8 @@ export function mountDesigner(
       !main.querySelector(".editor-inspector")?.contains(document.activeElement)
     )
       renderInspector();
-    const undo = main.querySelector('[data-editor-action="undo"]'),
-      redo = main.querySelector('[data-editor-action="redo"]');
-    if (undo) undo.disabled = !store.canUndo;
-    if (redo) redo.disabled = !store.canRedo;
+    // Desktop và mobile phải có cùng trạng thái khả dụng với lịch sử của store.
+    syncHistoryControls(main, { canUndo: store.canUndo, canRedo: store.canRedo });
     for (const [key] of Object.entries(bindingLabels)) {
       const control = main.querySelector(
         `[data-editor-field="binding.${key}"]`,
@@ -1797,11 +1801,11 @@ export function mountDesigner(
       await flushSave({ force: Boolean(design.reviewTemplateDefaults) });
       return;
     }
-    if (name === "undo") {
+    if (name === "undo" || name === "mobile-undo") {
       store.undo();
       return;
     }
-    if (name === "redo") {
+    if (name === "redo" || name === "mobile-redo") {
       store.redo();
       return;
     }

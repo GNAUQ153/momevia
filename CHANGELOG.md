@@ -1,3 +1,10 @@
+## Unreleased — Canvas Mobile History V16 (2026-11-23)
+
+- Đặt hai nút Hoàn tác/Làm lại bên cạnh vùng Canvas khi chỉnh bố cục trên mobile (320–800px), vùng chạm 48px; không làm chật header. Desktop và chế độ điền nhanh giữ nguyên bố cục.
+- Đồng bộ trạng thái disabled của toàn bộ nút Undo/Redo từ cùng Canvas store, tránh tình trạng nút mobile không phản ánh lịch sử thực.
+- Bổ sung nhãn VI/EN ngắn gọn, focus-visible rõ ràng và regression test cho responsive, touch target và trạng thái history.
+- Không thay đổi cấu trúc tài liệu, API lưu nháp, phân quyền, thanh toán, nhạc hoặc hệ thống undo/redo hiện tại.
+
 ## Unreleased — V15: Canvas mobile bottom sheet và keyboard accessibility (2026-11-23)
 
 - Nâng cấp các bảng Thêm, Lớp, Thuộc tính và Cảnh trên mobile thành bottom sheet có nền che, chạm nền để đóng, tránh chạm nhầm vùng Canvas phía sau.

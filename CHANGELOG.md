@@ -1,3 +1,9 @@
+## Unreleased — Tớ đoán cậu sẽ chọn… (2026-11-21)
+
+- Thêm mẫu sinh nhật miễn phí, biểu mẫu cá nhân hóa với dự đoán A/B ổn định và hai lời kết, lưu nháp dở và kiểm tra trước khi gửi.
+- Thẻ Canvas V2 cùng cảnh chỉ dựng kết quả sau lựa chọn; dùng chung cho preview/link thật, có Chơi lại, khóa chạm liên tiếp, trợ năng, giảm chuyển động và VI/EN. Snapshot giữ dự đoán khi sửa nháp; tặng lại xóa câu chuyện cũ.
+- Bổ sung unit và browser qua thư viện đến xuất bản, đủ bốn nhánh. Bàn giao demo Minh–An cổng 4116 và kịch bản quay trong `docs/TO_DOAN_CAU_SE_CHON_BAN_DAU.md`; chưa triển khai production hoặc kiểm thử điện thoại vật lý/MySQL thật.
+
 ## Unreleased — Tích hợp main vào mẫu sự kiện (2026-11-21)
 
 - Giữ đầy đủ nhật ký của cả hai nhánh khi giải quyết conflict PR #17.

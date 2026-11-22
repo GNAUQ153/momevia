@@ -3,8 +3,9 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { validateDocument, canonicalStringify, createDocument, duplicateDocument, assetIds, publicDocument } from '../../../web/js/shared/canvas/index.js';
 import { runtimeVersionFor } from '../../../web/js/shared/canvas/schema.js';
+import { PREDICTION_KIND } from '../../../web/js/shared/canvas/prediction.js';
 import { photoSlots } from '../../../web/js/shared/canvas/interactions.js';
-import { clearTemplateBindingDefaults, lockedVisibleNames } from '../../../web/js/shared/canvas/personalization.js';
+import { clearTemplateBindingDefaults, lockedVisibleNames, visibleBindingKeys } from '../../../web/js/shared/canvas/personalization.js';
 import { cleanGiftLayout } from '../../../web/js/shared/canvas/clean-layout.js';
 import { randomId } from '../../shared/security.mjs';
 import { canvasError, fields, owned, revision, uuid } from './errors.mjs';
@@ -227,7 +228,19 @@ export class DesignsService {
     const { document, reviewTemplateDefaults } = designView(design);
     const editable = design.policy?.kind === 'creator-template' ? design.policy.editableBindings : null;
     if (reviewTemplateDefaults) blockers.push(preflightCopy('document.bindings', 'REVIEW_TEMPLATE_DEFAULTS', 'editor.preflight.reviewDefaults'));
-    try { validateDocument(document, { mode: 'publish', requiredBindings: [] }); } catch (error) { blockers.push(...(error.details || [{ path: 'document', code: 'INVALID_DOCUMENT', message: error.message }])); }
+    try { validateDocument(document, { mode: 'publish', requiredBindings: [] }); }
+    catch (error) {
+      for (const detail of error.details || [{ path: 'document', code: 'INVALID_DOCUMENT', message: error.message }]) {
+        const index = /^elements\.(\d+)\.props\.(\w+)$/.exec(detail.path || '');
+        if (index && document.elements[Number(index[1])]?.props.kind === PREDICTION_KIND &&
+          (index[2] === 'prediction' || ['PREDICTION_CONTENT_REQUIRED', 'PREDICTION_DUPLICATE_CHOICES'].includes(detail.code))) {
+          const field = index[2];
+          blockers.push(preflightCopy(detail.path, detail.code, detail.code === 'PREDICTION_DUPLICATE_CHOICES' ? 'prediction.duplicate'
+            : field === 'prediction' ? 'prediction.chooseRequired' : 'prediction.required',
+          { field: { format: 'message', key: `prediction.${field}` } }));
+        } else blockers.push(detail);
+      }
+    }
     // Apply this rule to new publications. Existing gift snapshots use the reader's structural validation.
     const { bindings, elements } = document;
     const hasContent = elements.some(element => {
@@ -259,8 +272,12 @@ export class DesignsService {
     }
     if (authorization.status !== 'allowed') blockers.push(preflightCopy('source', authorization.reasonCodes[0], 'editor.preflight.permission'));
     const values = design.document.bindings;
+    const predictionStory = elements.some(e => e.type === 'interaction' && e.props.kind === PREDICTION_KIND && e.visible !== false && e.opacity !== 0);
+    const visibleBindings = visibleBindingKeys(document);
     for (const [key, max] of [['recipientName', 60], ['senderName', 60], ['message', 1000]]) {
       if (editable && !editable.includes(key)) continue;
+      // This interaction supplies two endings instead of an unused general greeting.
+      if (key === 'message' && predictionStory && !visibleBindings.has(key)) continue;
       const v = values[key]?.value;
       if (typeof v !== 'string' || !v.trim() || v.length > max)
         blockers.push(preflightCopy(`bindings.${key}`, 'BINDING_REQUIRED', 'editor.preflight.binding',

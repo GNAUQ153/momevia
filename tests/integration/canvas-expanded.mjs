@@ -185,7 +185,8 @@ export async function runExpandedApi(base, cookie, otherCookie, { artifacts, all
     const document = draft.document;
     document.schemaVersion = document.registryVersion = 2;
     for (const binding of Object.values(document.bindings)) binding.value = 'Tương tác Canvas QA';
-    document.scenes = Object.keys(interactionKinds).map(id => ({id,name:interactionKinds[id].label,
+    // This fixture exercises insertable library blocks; template-only interactions have their own end-to-end suite.
+    document.scenes = [...blocks.keys()].filter(id => Object.hasOwn(interactionKinds, id)).map(id => ({id,name:interactionKinds[id].label,
       background:{kind:'solid',color:'#FFF5EA'},elementIds:[]}));
     document.entrySceneId = document.scenes[0].id;
     document.elements = document.scenes.map(scene => {

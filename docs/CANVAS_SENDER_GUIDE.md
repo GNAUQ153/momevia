@@ -11,6 +11,10 @@
 
 Link mời cấp quyền cho người giữ link. Người nhận hồi đáp theo quyền đã chọn khi gửi. Quà legacy giữ quyền ban đầu đến khi hết hạn hoặc bị thu hồi. Quà đã gửi giữ bản chụp và ảnh từ thời điểm xuất bản.
 
+### Tớ đoán cậu sẽ chọn…
+
+Trong thư viện, tìm **Tớ đoán** và chọn mẫu sinh nhật miễn phí của Momevia Originals. **Dùng mẫu** mở nháp trống có câu hỏi, hai lựa chọn, một dự đoán A/B, lý do và lời kết riêng cho từng lựa chọn. Có thể lưu khi đang viết dở. Khi gửi, điền đủ nội dung và giữ hai lựa chọn khác nhau. Đổi nhãn lựa chọn không đổi mã dự đoán. Người nhận chọn rồi mới thấy dự đoán; lời kết theo điều người nhận chọn. **Chơi lại** hoặc tải lại giữ nguyên dự đoán đã gửi. [Demo sinh nhật và kịch bản quay](TO_DOAN_CAU_SE_CHON_BAN_DAU.md).
+
 ### Chỉnh bố cục
 
 - Vào **Thêm** để chọn trong 100 thẻ. Chọn **Tất cả** hoặc một trong bảy nhóm, rồi tìm bằng từ có dấu hoặc không dấu. Ví dụ, “con dau” tìm được Con dấu sáp và “anh ghep” tìm được Ảnh ghép một lớn hai nhỏ. Hình thu nhỏ hiển thị các lớp sẽ được chèn. [Danh mục 100 thẻ](CANVAS_100_ELEMENTS_PLAN.md#2-danh-mục-đích)

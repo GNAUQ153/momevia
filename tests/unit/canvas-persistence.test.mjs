@@ -9,7 +9,7 @@ import { JsonDesignRepository } from '../../src/modules/designs/json.repository.
 import { DesignsService, designView, hash, publicGiftView, giftSummary } from '../../src/modules/designs/designs.service.mjs';
 import { AssetsService } from '../../src/modules/designs/assets.service.mjs';
 import { GiftService } from '../../src/modules/gifts/gifts.service.mjs';
-import { createElement } from '../../web/js/shared/canvas/index.js';
+import { createElement, templatePreviewDocument } from '../../web/js/shared/canvas/index.js';
 import { templates } from '../../src/modules/catalog/seed.mjs';
 import { publicTemplate } from '../../src/modules/catalog/catalog.service.mjs';
 
@@ -334,4 +334,36 @@ test('checkout context retry after a newer draft preserves its original context 
   const replay = await f.service.attachContext(user, orderId, input);
   assert.equal(replay.contextId, first.contextId); assert.equal(replay.designRevision, a.revision); assert.equal(replay.replayed, true);
   const resumed = await f.service.context(user, orderId, first.contextId); assert.equal(resumed.changed, true); assert.equal(resumed.designId, a.id);
+});
+
+
+test('prediction preflight accepts two endings without unused greeting, preserves name rules and frozen publication', async t => {
+  const f = fixture(t);
+  const created = await create(f, { kind: 'template', templateId: 'to-doan-cau-se-chon' });
+  const document = templatePreviewDocument({ id: 'to-doan-cau-se-chon' });
+  document.bindings.message.value = '';
+  await f.service.save(user, created.id, { expectedRevision: created.revision, mutationId: randomUUID(), title: 'Minh tặng An', document });
+  const draft = designView(await f.service.get(user, created.id));
+  const before = await f.service.preflight(user, draft.id, { expectedRevision: draft.revision });
+  assert.equal(before.canPublish, true, JSON.stringify(before.blockers));
+  const published = await f.service.publish(user, publicationInput(draft, { access: { open: 'link', send: 'disabled', read: 'sender' } }));
+  const p = document.elements.find(e => e.props.kind === 'prediction-choice').props;
+  p.prediction = 'B'; p.reason = 'Changed after send';
+  await f.service.save(user, draft.id, { expectedRevision: draft.revision, mutationId: randomUUID(), title: 'Changed draft', document });
+  const snapshot = publicGiftView(published.gift).documentSnapshot;
+  assert.equal(snapshot.elements.find(e => e.props.kind === 'prediction-choice').props.prediction, 'A');
+  assert.notEqual(snapshot.elements.find(e => e.props.kind === 'prediction-choice').props.reason, p.reason);
+  const check = value => f.service.check({ ...draft, document: value });
+  document.bindings.senderName.value = '';
+  assert((await check(document)).blockers.some(b => b.path === 'bindings.senderName'));
+  document.bindings.senderName.value = 'Minh'; p.optionB = p.optionA;
+  const duplicate = await check(document);
+  assert(duplicate.blockers.some(b => b.messageKey === 'prediction.duplicate'));
+  p.optionB = 'Vào bếp'; p.reason = '';
+  assert((await check(document)).blockers.some(b => b.path.endsWith('.reason') && b.messageKey === 'prediction.required'));
+  p.reason = 'A reason';
+  // If a layout introduces a visible general greeting, it is required again.
+  const greeting = createElement('text', { id: 'extra-message', props: { textBinding: 'message' } });
+  document.elements.push(greeting); document.scenes[0].elementIds.push(greeting.id);
+  assert((await check(document)).blockers.some(b => b.path === 'bindings.message'));
 });

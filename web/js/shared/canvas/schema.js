@@ -1,5 +1,6 @@
 import { registry, STICKERS, FONT_TOKENS, BINDINGS, LIMITS } from './registry.js';
 import { lines, masks, originalStickerIds, shapes } from './artwork.js';
+import { predictionFields, normalizeChoice } from './prediction.js';
 import { interactionKinds, photoSlots } from './interactions.js';
 import { effectsFor, effectSpeed, elementEffectFamilies, sceneEffectFamilies, CELEBRATION_IDS } from './effects.js';
 
@@ -44,6 +45,7 @@ function validateInteraction(p, path, assets, publishing) {
   enumeration(p.kind, `${path}.kind`, Object.keys(interactionKinds));
   const spec = interactionKinds[p.kind];
   const keys = ['kind', 'color', ...(spec.fields ? ['entries'] : []),
+    ...(spec.prediction ? [...Object.keys(predictionFields), 'prediction'] : []),
     ...(spec.slots ? ['photos'] : []), ...(spec.clock ? ['eventAt', 'timeZone'] : [])];
   const extras = [...(p.kind === 'swipe-album' ? ['optional', 'autoplay'] : []), ...(spec.clock ? ['optional', 'clockMode'] : [])];
   object(p, path, [...keys, ...extras], keys);
@@ -51,6 +53,15 @@ function validateInteraction(p, path, assets, publishing) {
   if (own(p, 'autoplay')) boolean(p.autoplay, `${path}.autoplay`);
   if (own(p, 'clockMode')) enumeration(p.clockMode, `${path}.clockMode`, ['countdown', 'elapsed']);
   color(p.color, `${path}.color`);
+  if (spec.prediction) {
+    for (const [key, max] of Object.entries(predictionFields)) {
+      string(p[key], `${path}.${key}`, max);
+      if (publishing && !p[key].trim()) fail(`${path}.${key}`, 'Nhập nội dung cho trường này.', 'PREDICTION_CONTENT_REQUIRED');
+    }
+    if (p.prediction !== null || publishing) enumeration(p.prediction, `${path}.prediction`, ['A', 'B']);
+    if (publishing && normalizeChoice(p.optionA) === normalizeChoice(p.optionB))
+      fail(`${path}.optionB`, 'Hai lựa chọn cần khác nhau sau khi bỏ khoảng trắng thừa.', 'PREDICTION_DUPLICATE_CHOICES');
+  }
   if (spec.fields) {
     array(p.entries, `${path}.entries`, spec.fields.length);
     if (p.entries.length !== spec.fields.length) fail(`${path}.entries`, 'Thiếu vùng nội dung tương tác.');

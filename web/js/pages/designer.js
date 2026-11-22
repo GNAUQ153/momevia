@@ -23,6 +23,8 @@ import { giftLinkDescription } from "../shared/gift-permissions.js";
 import { framePhoto, MEMORY_TEMPLATE_ID, memoryGreetingStarterKeys } from "../shared/canvas/basic-templates.js";
 import { materializeTemplateStart } from '../features/canvas-editor/template-start.js';
 import { createEventFields, updateEventFields, storyAlbum, storyClock } from '../features/canvas-editor/event-fields.js';
+import { predictionCard, PREDICTION_KIND } from '../shared/canvas/prediction.js';
+import { createPredictionFields, updatePredictionFields } from '../features/canvas-editor/prediction-fields.js';
 import { celebrationFields } from '../features/canvas-editor/celebration-fields.js';
 import { CELEBRATION_IDS, celebrationSettings } from '../shared/canvas/effects.js';
 import { createEditorStore } from "../features/canvas-editor/store.js";
@@ -451,6 +453,7 @@ export function mountDesigner(
               ),
           ),
         node("div", { class: "editor-quick-only" },
+          predictionCard(store.get().document) ? createPredictionFields(predictionCard(store.get().document)) : null,
           design.policy?.kind === 'sender-basic' && ['birthday-radiance','hai-phong-bi','proud-of-you'].includes(design.source.templateId) ? createEventFields(store.get().document) : null,
           design.source.templateId === MEMORY_TEMPLATE_ID ? node("div", { class: "editor-greeting-starters" },
             node("p", { class: "editor-help" }, message("editor.quick.startGreeting")),
@@ -783,6 +786,7 @@ export function mountDesigner(
   function interactionFields(model) {
     const p = model.props, spec = interactionKinds[p.kind], doc = store.get().document;
     const fields = [input(message("editor.interface.blockBackground"), "props.color", p.color, { type: "color" })];
+    if (p.kind === PREDICTION_KIND) return [...fields, createPredictionFields(model, 'inspector')];
     for (const [i, entry] of (p.entries || []).entries()) {
       fields.push(input(message(`editor.interactionField.${p.kind}.${i}.0`), `entry.${i}.heading`, entry.heading, { maxlength: 120 }));
       if (spec.fields[i][1]) fields.push(field(message(`editor.interactionField.${p.kind}.${i}.1`), node("textarea", {
@@ -1178,6 +1182,7 @@ export function mountDesigner(
     renderAssets();
     main.querySelector(".editor-quick-photo").hidden = !quickPhotoFrame();
     updateEventFields(main, doc, assetUrl);
+    updatePredictionFields(main, doc);
     const removePhoto = main.querySelector('[data-editor-action="remove-frame-photo"]');
     if (removePhoto) removePhoto.hidden = !framePhoto(doc, quickPhotoFrame());
     const quickText = main.querySelector('[data-editor-field="quick-template-text"]');
@@ -1199,6 +1204,7 @@ export function mountDesigner(
       const control = main.querySelector(
         `[data-editor-field="binding.${key}"]`,
       );
+      if (control && key === 'message') control.closest('label').hidden = Boolean(predictionCard(doc) && !visibleBindingKeys(doc).has('message'));
       if (control && control !== document.activeElement)
         control.value = doc.bindings[key].value;
     }
@@ -1609,7 +1615,8 @@ export function mountDesigner(
       if (!preflight.canPublish) {
         showBlockers(preflight.blockers || []);
         const messages = (preflight.blockers || [])
-          .map(item => `${item.path ? `${item.path}: ` : ""}${item.messageKey ? t(item.messageKey, item.messageParams) : item.message}`)
+          .map(item => item.messageKey?.startsWith("prediction.") ? t(item.messageKey, item.messageParams)
+            : `${item.path ? `${item.path}: ` : ""}${item.messageKey ? t(item.messageKey, item.messageParams) : item.message}`)
           .join("\n");
         throw new Error(
           messages || t("editor.preflight.cannotPublish", { status: preflight.authorization.status }),
@@ -1689,14 +1696,18 @@ export function mountDesigner(
         const binding = /^bindings\.(recipientName|senderName|message)/.exec(
           path,
         )?.[1];
+        const predictionField = element?.props.kind === PREDICTION_KIND ? path.split('.props.')[1] : null;
+        const predictionLabel = predictionField ? message(blocker.code === 'PREDICTION_DUPLICATE_CHOICES' ? 'prediction.duplicate'
+          : predictionField === 'prediction' ? 'prediction.chooseRequired' : 'prediction.required', { field: { format: 'message', key: `prediction.${predictionField}` } }) : label;
         const control = button(
-          label,
+          predictionLabel,
           "focus-blocker",
           {
             "data-id": element?.id,
-            "data-field": binding ? `binding.${binding}` : null,
+            "data-field": predictionField && quickMode ? `prediction.${element.id}.${predictionField}` : binding ? `binding.${binding}` : null,
             "data-photo-slot": slot?.id,
-            "data-element-field": slot && missingPhoto[2] === "alt" ? `slot.${slot.id}.alt`
+            "data-element-field": predictionField && !quickMode ? `prediction.${element.id}.${predictionField}`
+              : slot && missingPhoto[2] === "alt" ? `slot.${slot.id}.alt`
               : missingDoor && element?.props.kind === "scene-choices" ? `door.${missingDoor[1]}`
                 : path.endsWith(".props.eventAt") ? "event-time" : null,
           },
@@ -1894,6 +1905,10 @@ export function mountDesigner(
       return;
     }
     if (name === "focus-blocker") {
+      if (target.dataset.field?.startsWith('prediction.') && quickMode) {
+        main.querySelector(`[data-editor-field="${CSS.escape(target.dataset.field)}"]`)?.focus();
+        return;
+      }
       if (target.dataset.id) {
         if (quickMode) switchMode();
         selection = target.dataset.id;
@@ -1908,7 +1923,7 @@ export function mountDesigner(
         const focus = target.dataset.elementField
           ? `[data-editor-field="${CSS.escape(target.dataset.elementField)}"]`
           : target.dataset.photoSlot ? `[data-slot="${CSS.escape(target.dataset.photoSlot)}"]` : null;
-        if (focus) main.querySelector(focus)?.focus();
+        if (focus) main.querySelector(".editor-inspector")?.querySelector(focus)?.focus();
       }
       if (target.dataset.field) {
         showLibrary("content");
@@ -2386,6 +2401,12 @@ export function mountDesigner(
       (next) => {
         if (key === "title") {
           next.title = String(value).trim() || "Món quà của tôi";
+          return;
+        }
+        if (key.startsWith('prediction.')) {
+          const [, id, field] = key.split('.');
+          const card = next.document.elements.find(e => e.id === id && e.type === 'interaction' && e.props.kind === PREDICTION_KIND);
+          if (card) card.props[field] = field === 'prediction' ? value || null : value;
           return;
         }
         if (key.startsWith("binding.")) {

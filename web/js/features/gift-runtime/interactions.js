@@ -1,3 +1,4 @@
+import { predictionResult } from '../../shared/canvas/prediction.js';
 import { interactionKinds } from "../../shared/canvas/interactions.js";
 import { heartPieces } from "../../shared/canvas/artwork.js";
 import { message as label, setAttr, setText } from "../../core/i18n.js";
@@ -9,7 +10,7 @@ function node(tag, css, text) {
   return element;
 }
 
-export function renderInteraction(model, { mode, signal, motion, renderPhoto, renderArt, activate }) {
+export function renderInteraction(model, { mode, signal, motion, bindings, renderPhoto, renderArt, activate }) {
   const { kind, color, entries, photos, eventAt, timeZone } = model.props;
   const spec = interactionKinds[kind];
   const root = node("section", `gift-runtime-interaction gift-runtime-${kind}`);
@@ -37,7 +38,55 @@ export function renderInteraction(model, { mode, signal, motion, renderPhoto, re
     return body;
   };
   const [first] = entries || [];
-  if (kind === "flip-card") {
+  if (kind === 'prediction-choice') {
+    const p = model.props;
+    let chosen = null;
+    const timers = new Set();
+    const clear = () => { for (const timer of timers) clearTimeout(timer); timers.clear(); };
+    signal?.addEventListener('abort', clear, { once: true });
+    const later = (fn, ms) => {
+      if (globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches || motion?.enabled() === false) { fn(); return; }
+      const timer = setTimeout(() => { timers.delete(timer); if (!signal?.aborted) fn(); }, ms);
+      timers.add(timer);
+    };
+    const start = () => {
+      clear(); chosen = null; delete root.dataset.choice;
+      root.replaceChildren(node('h3', 'gift-prediction-question', p.question));
+      const options = node('div', 'gift-prediction-options');
+      for (const id of ['A', 'B']) {
+        const control = button(`${id} · ${p['option' + id]}`, () => {
+          if (chosen !== null) return;
+          chosen = id; root.dataset.choice = id;
+          const result = predictionResult(p, id);
+          const selected = node('h3', 'gift-prediction-chosen', label('prediction.chosen', { choice: result.chosenLabel }));
+          selected.tabIndex = -1;
+          const reveal = node('div', 'gift-prediction-reveal');
+          reveal.setAttribute('aria-live', 'polite'); reveal.setAttribute('aria-atomic', 'false');
+          root.replaceChildren(selected, reveal);
+          selected.focus();
+          later(() => {
+            const guess = node('h3', 'gift-prediction-guessed', label('prediction.guessed', {
+              sender: bindings?.senderName?.value || label('prediction.sender'), choice: result.predictedLabel,
+            }));
+            reveal.append(guess, node('p', 'gift-interaction-copy gift-prediction-reason', result.reason));
+          }, 350);
+          later(() => {
+            const ending = node('div', 'gift-prediction-ending');
+            ending.append(node('p', 'gift-prediction-caption', label('prediction.ending')),
+              node('p', 'gift-interaction-copy', result.ending));
+            reveal.append(ending);
+            root.append(button(label('prediction.replay'), () => {
+              start(); root.querySelector('button')?.focus();
+            }, 'gift-prediction-replay'), node('p', 'gift-prediction-brand', label('prediction.brand')));
+          }, 5350);
+        }, 'gift-prediction-option');
+        if (live && !['A', 'B'].includes(p.prediction)) control.disabled = true;
+        options.append(control);
+      }
+      root.append(options);
+    };
+    start();
+  } else if (kind === "flip-card") {
     const back = status(first.heading);
     let flipped = false;
     const toggle = button(label("gift.interactions.flip"), () => {

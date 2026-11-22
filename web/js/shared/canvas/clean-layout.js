@@ -1,6 +1,7 @@
 import { clearTemplateBindingDefaults } from './personalization.js';
 import { duplicateDocument } from './schema.js';
 import { EVENT_ARTWORK_LABEL } from './event-media.js';
+import { emptyPrediction, PREDICTION_KIND } from './prediction.js';
 import { canonicalText } from '../locale.js';
 
 export function cleanGiftLayout(snapshot, { sharedImages = new Map() } = {}) {
@@ -32,6 +33,7 @@ export function cleanGiftLayout(snapshot, { sharedImages = new Map() } = {}) {
       element.props.submitLabel = 'Gửi lời đáp';
     }
     if (element.type === 'interaction') {
+      if (element.props.kind === PREDICTION_KIND) Object.assign(element.props, emptyPrediction());
       for (const entry of element.props.entries || []) {
         entry.heading = '';
         if (Object.hasOwn(entry, 'body')) entry.body = '';

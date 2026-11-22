@@ -16,7 +16,7 @@ function contrast(a, b) {
 
 test('all 12 shared template compositions are distinct, editable, deterministic and within v1 budgets', () => {
   const original = structuredClone(templates), signatures = new Set();
-  assert.equal(Object.keys(BASIC_TEMPLATES).length, 24);
+  assert.equal(Object.keys(BASIC_TEMPLATES).length, 25);
   const addedIds = new Set(addedSystemTemplates.map(template => template.id));
   for (const template of templates.filter(item => !addedIds.has(item.id))) {
     const d = createDocument({ template }); assert.equal(d.scenes.length, 3); assert(d.elements.length >= 18);
@@ -58,7 +58,7 @@ test('body/button contrast stays readable on the scene background, including lon
     const d = templatePreviewDocument({ id });
     assert(contrast(p.ink, p.bg) >= 4.5, `${id} cover contrast`);
     assert(contrast('#FFFFFF', p.button) >= 4.5, `${id} button contrast`);
-    const scene = d.scenes[1], message = d.elements.find(e => e.id === 'text-message');
+    const scene = d.scenes[1] || d.scenes[0], message = d.elements.find(e => e.id === 'text-message') || d.elements.find(e => e.id === 'cover-title');
     assert(contrast(message.props.color, scene.background.color) >= 4.5, `${id} message remains readable beyond decoration bounds`);
     for (const node of d.elements.filter(e => e.type !== 'shape' && e.type !== 'line' && e.type !== 'sticker')) {
       assert(node.layout.x >= 0 && node.layout.y >= 0 && node.layout.x + node.layout.width <= 390 && node.layout.y + node.layout.height <= 844, `${id} interactive/content bounds ${node.id}`);

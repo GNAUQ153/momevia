@@ -274,7 +274,7 @@ export function renderElement(
       );
   } else if (type === "interaction") {
     node = renderInteraction(model, {
-      mode, signal, motion, activate, renderArt: drawVector,
+      mode, signal, motion, bindings: document.bindings, activate, renderArt: drawVector,
       renderPhoto: photo => renderElement({
         id: photo.id, type: "image",
         props: { assetId: photo.assetId, fit: "cover", focalPoint: photo.focalPoint, optional: true },

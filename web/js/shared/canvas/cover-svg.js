@@ -46,6 +46,7 @@ function interactionSvg(node, images) {
   const { label, icon } = interactionKinds[p.kind];
   const background = `<rect width="${w}" height="${h}" rx="14" fill="${p.color}"/>`;
   const panel = (x,y,width,height,fill='#FFF7EE') => `<rect x="${x}" y="${y}" width="${width}" height="${height}" rx="8" fill="${fill}"/>`;
+  if (p.kind === 'prediction-choice') return background + labelSvg(p.question, 20, 42, w-40, 22) + ['A', 'B'].map((id, i) => panel(16, 170+i*112, w-32, 94, i ? '#FBE8EB' : '#F4EBFA') + labelSvg(`${id} · ${p['option'+id]}`, 28, 206+i*112, w-56, 18)).join('');
   if (p.photos) {
     const compare = p.kind === 'photo-comparison';
     const a = (compare ? p.photos[0] : p.photos.find(photo => photo.assetId)) || p.photos[0], b = p.photos[1];

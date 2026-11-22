@@ -3,6 +3,7 @@ import { validateDocument } from './schema.js';
 import { createBasicTemplate } from './basic-templates.js';
 import { canonicalText } from '../locale.js';
 import { EVENT_CARD_IDS } from './event-cards.js';
+import { predictionCard, predictionFields } from './prediction.js';
 import { eventMediaId } from './event-media.js';
 
 const palettes = {
@@ -50,6 +51,12 @@ export function templatePreviewDocument(template, localize = canonicalText) {
   doc.bindings.recipientName.value = localize('templates.preview.recipient');
   doc.bindings.senderName.value = localize('templates.preview.sender');
   doc.bindings.message.value = localize('templates.preview.greeting');
+  const prediction = predictionCard(doc);
+  if (prediction) {
+    doc.bindings.senderName.value = 'Minh'; doc.bindings.recipientName.value = 'An';
+    for (const key of Object.keys(predictionFields)) prediction.props[key] = localize(`prediction.sample.${key}`);
+    prediction.props.prediction = 'A';
+  }
   if (EVENT_CARD_IDS.includes(template?.id)) {
     for (const [binding, field] of [['recipientName', 'previewRecipient'], ['message', 'previewMessage']])
       doc.bindings[binding].value = localize(`templates.${template.id}.${field}`);

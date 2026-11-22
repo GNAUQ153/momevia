@@ -89,18 +89,18 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Bộ phát nhạc cập nhật đúng nút Phát/Tạm dừng nếu audio lỗi sau khi `play()` thành công, bị dừng bằng media controls hoặc phát hết bất thường; không tự bật lại khi Promise phát đến muộn.
-- Sender nghe thử trong Designer tự dừng khi tab bị ẩn; các sự kiện audio được gỡ khi huỷ trình phát, giữ nguyên chỉ phát nhạc khi người dùng chủ động chọn.
-- Thêm test cho lỗi âm thanh muộn, sự kiện tạm dừng bên ngoài, retry, đóng Player và tích hợp listener theo vòng đời Editor. Không sửa schema Canvas, bản nhạc, API hoặc snapshot quà.
+- Thêm hai giai điệu gốc tổng hợp `dreamy-night` và `little-celebration`, có script tái tạo và hồ sơ nguồn gốc, không dùng tài nguyên âm thanh bên thứ ba.
+- Sender chọn nhạc qua thẻ với bộ lọc cảm xúc Êm dịu/Tươi vui; giữ dropdown cũ, Undo/Redo, nghe thử, âm lượng và kiểm tra ID tại server. Hỗ trợ VI/EN, focus, aria-pressed, mobile và reduced motion.
+- Canvas vẫn chỉ lưu `soundtrack: { id, volume }`; Recipient không autoplay, không thay đổi API, MySQL hoặc quyền truy cập. Thêm test thư viện, audio, schema và metadata song ngữ.
 
 **Các commit gần nhất trên `main`:**
 
+- `a4368e9` — feat: expand Canvas music library with mood browsing (2026-11-22)
 - `b612ed1` — fix: synchronize music playback state and pause hidden previews (2026-11-22)
 - `2256a99` — feat: add sender and recipient soundtrack volume controls (2026-11-22)
 - `caf9e79` — feat: add opt-in background music to Canvas gifts (2026-11-22)
 - `daa4466` — Merge pull request #19 from GNAUQ153:feat/guess-your-choice (2026-11-22)
 - `51f3431` — feat: improve marketing journey mobile interactions (2026-11-22)
-- `57008bf` — fix: keep marketing hero indicators below artwork on mobile (2026-11-22)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

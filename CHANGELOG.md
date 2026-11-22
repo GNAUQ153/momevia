@@ -1,3 +1,9 @@
+## Unreleased — Rà soát luồng Admin đến canvas (2026-11-22)
+
+- Sửa thứ tự danh sách lớp theo thứ tự xếp chồng của cảnh, giữ đúng lớp đang chọn khi sắp xếp; giới hạn lại lựa chọn cảnh/lớp khi chuyển giữa VI/EN có số cảnh khác nhau.
+- Giữ nguyên thứ tự biến đổi khi sửa từng thông số keyframe; bỏ mục mới chưa lưu trở về mục đã có, không báo nhầm đã lưu.
+- Xem thử mục đã tắt cùng các phụ thuộc trong bản tạm chỉ đọc; thao tác bật/lưu thật vẫn kiểm tra đầy đủ trạng thái phụ thuộc.
+
 ## Unreleased — Ngắt tunnel, HTTPS bằng chứng chỉ (2026-11-21)
 
 - Ngắt Cloudflare theo yêu cầu; đổi `demo:https` sang chứng chỉ localhost trực tiếp trên 4110, không tạo kết nối Internet. Giữ profile/kho dữ liệu và cổng 4100.

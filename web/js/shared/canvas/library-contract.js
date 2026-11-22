@@ -20,7 +20,9 @@ export function validateVector(v) {
   return v;
 }
 export function validateAnimation(v, family) {
-  object(v, ['engine','builtinId','keyframes','duration','easing','iterations','styles','glyphs','colors','count','drift']);
+  object(v, ['engine','builtinId','keyframes','duration','easing','iterations','styles','glyphs','colors','count','drift','title']);
+  if (v.title !== undefined) check(typeof v.title === 'string' ? v.title.length <= 160 : v.title &&
+    typeof v.title === 'object' && Object.values(v.title).every(t => typeof t === 'string' && t.length <= 160), 'invalid animation title');
   check(['builtin','keyframes','surface','particles'].includes(v.engine), 'unknown animation engine');
   if (v.engine === 'builtin') check(CORE_EFFECT_IDS[family]?.includes(v.builtinId), 'builtin engine/family mismatch');
   if (v.engine === 'keyframes') {

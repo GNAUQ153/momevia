@@ -9,6 +9,7 @@ import { pinDocumentArtwork } from '../../../web/js/shared/canvas/library-materi
 import { registry, createElement } from '../../../web/js/shared/canvas/registry.js';
 import { validateDocument, canonicalStringify } from '../../../web/js/shared/canvas/schema.js';
 import { canvasError } from './errors.mjs';
+import { buildLibraryPreview, activatePreviewDependencies } from './library-preview.mjs';
 
 const check = (ok, message) => { if (!ok) throw canvasError(422, 'INVALID_LIBRARY_DEFINITION', message); };
 const parse = v => typeof v === 'string' ? JSON.parse(v) : v;
@@ -140,5 +141,29 @@ export class CanvasLibraryService {
         [kind, id, next.revision, next.status, next.sortOrder, JSON.stringify(next.definition)]);
     });
     return this.refresh({ admin: true });
+  }
+  async preview(user, kind, id, input, locale) {
+    if (user?.role !== 'admin') throw canvasError(403, 'ADMIN_REQUIRED', 'Admin required.');
+    if (!this.client) throw canvasError(503, 'LIBRARY_MYSQL_REQUIRED', 'Library management requires MySQL.');
+    check(['element','effect','animation','preset','template'].includes(kind) && libraryId(id), 'Invalid preview item.');
+    const rows = await this.rows(), old = rows.find(r => r.kind === kind && r.id === id);
+    const next = { kind, id, revision: (old?.revision || 0) + 1, status: 'active', sortOrder: input.sortOrder ?? old?.sortOrder ?? 10000, definition: input.definition ?? old?.definition };
+    const items = structuredClone([...rows.filter(r => r !== old), next]);
+    const proposed = items.find(r => r.kind === kind && r.id === id);
+    // Disabled dependencies are available to an Admin's private preview only.
+    // Persistence still validates the actual statuses of the whole library.
+    activatePreviewDependencies(proposed, items); validateLibrary(items);
+    const before = librarySnapshot();
+    try {
+      // Synchronous materialization only: an unsaved preview must never become
+      // another request's library snapshot or mutate any database record.
+      installLibrary({ items });
+      if (kind === 'animation') {
+        // The builder adds an ephemeral effect referring to this animation.
+        const result = buildLibraryPreview(proposed, items, locale, input.previewFamily);
+        return result;
+      }
+      return buildLibraryPreview(proposed, items, locale, input.previewFamily);
+    } finally { installLibrary(before); }
   }
 }

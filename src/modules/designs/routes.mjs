@@ -29,6 +29,12 @@ export function registerDesignRoutes(router, { service, assets, resolveUser, con
     if (actor.role !== 'admin') throw canvasError(403, 'ADMIN_REQUIRED', 'Admin required.');
     sendJson(res, 200, { library: await service.library.put(actor, params.kind, params.id, await parseJson(req, 1500000)) });
   });
+  router.on('POST', '/admin/library/preview/:kind/:id', async ({ req, res, params }) => {
+    const actor = await writeUser(req);
+    if (actor.role !== 'admin') throw canvasError(403, 'ADMIN_REQUIRED', 'Admin required.');
+    const input = await parseJson(req, 1500000);
+    sendJson(res, 200, await service.library.preview(actor, params.kind, params.id, input, input.locale === 'en' ? 'en' : 'vi'));
+  });
   router.on('GET', '/designs', async ({ req, res, url }) => {
     const numberParam = (key, fallback, max) => { const raw = url.searchParams.get(key); if (raw === null) return fallback; const value = Number(raw); return Number.isSafeInteger(value) && value >= 0 ? Math.min(max, value) : fallback; };
     const limit = Math.max(1, numberParam('limit', 50, 100)); const offset = numberParam('offset', 0, 1000000);

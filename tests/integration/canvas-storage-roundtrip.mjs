@@ -20,6 +20,8 @@ import { configureLibrary } from '../../web/js/features/canvas-editor/library-cl
 import { effectPreset } from '../../web/js/shared/canvas/effects.js';
 import { runLibraryManagement } from './canvas-library-management.mjs';
 import { runExpandedApi } from './canvas-expanded.mjs';
+import { runAdminLibraryUi } from '../browser/admin-library.mjs';
+import { runAdminLibraryDeepAudit } from '../browser/admin-library-audit.mjs';
 
 assert.equal(process.env.CANVAS_QA_MYSQL_ISOLATED, 'true', 'Explicit isolated QA opt-in required');
 const database = process.env.CANVAS_QA_MYSQL_DATABASE;
@@ -196,6 +198,14 @@ try {
     password: 'SyntheticOnly123', confirmPassword: 'SyntheticOnly123' });
   cookie = libraryUser.response.headers.get('set-cookie').split(';')[0];
   counts.libraryManagement = await runLibraryManagement({ base, cookie, admin, userId: libraryUser.value.user.id, request, browser });
+  const uiUser = await request('/api/auth/register', { name: 'Admin UI QA', email: `${randomUUID()}@example.test`, password: 'SyntheticOnly123', confirmPassword: 'SyntheticOnly123' });
+  cookie = uiUser.response.headers.get('set-cookie').split(';')[0];
+  counts.adminLibraryUi = await runAdminLibraryUi({ base, browser, admin, userId: uiUser.value.user.id, cookie, request, artifacts: process.env.BROWSER_ARTIFACT_DIR });
+  if (process.env.CANVAS_ADMIN_DEEP_AUDIT === 'true') {
+    const auditUser = await request('/api/auth/register', { name: 'Admin audit QA', email: `${randomUUID()}@example.test`, password: 'SyntheticOnly123', confirmPassword: 'SyntheticOnly123' });
+    cookie = auditUser.response.headers.get('set-cookie').split(';')[0];
+    counts.adminDeepAudit = await runAdminLibraryDeepAudit({ base, browser, admin, userId: auditUser.value.user.id, cookie, request, items: counts.adminLibraryUi, artifacts: process.env.BROWSER_ARTIFACT_DIR });
+  }
   await browser.close(); browser = null;
   console.log('PASS precise decimal/hash, image crop, pinned publication, idempotency, server restart, browser reload, invalid JSON and revision conflict');
   console.log(JSON.stringify({ status: 'PASS', database, ...counts }));

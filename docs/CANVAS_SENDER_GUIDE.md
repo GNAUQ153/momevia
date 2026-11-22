@@ -6,6 +6,20 @@ Canvas hỗ trợ lưu MySQL, gồm toàn bộ nội dung/bố cục element và
 
 ### Thư viện trên MySQL
 
+Admin mở **Thư viện canvas** từ trang Admin hoặc menu tài khoản, tại `/admin/library`. Có bốn nhóm Element, Hiệu ứng, Chuyển động và Bố cục; nhóm Bố cục bao gồm các bố cục khởi đầu và mẫu thiệp hiện có.
+
+1. Tìm theo tên/mã và lọc mục đang bật hoặc đã tắt. Chọn mục để sửa, bấm **Thêm mục** để tạo mới, hoặc **Nhân bản** để bắt đầu từ một mục sẵn có.
+2. Nhập tên VI/EN. Element có thể ghép nhiều thành phần; chuyển động có bảng các mốc, bề mặt hoặc hạt; hiệu ứng chọn chuyển động và đối tượng áp dụng; bố cục chỉnh từng cảnh và từng ngôn ngữ.
+3. Bản xem thử tự cập nhật khi dừng nhập. **Phát thử** chạy lại chuyển động; dữ liệu minh họa và ảnh xem thử không được ghi vào mục đang sửa.
+4. Bấm **Lưu thay đổi** (hoặc Ctrl/Cmd+S). **Tắt mục**/**Bật mục** lưu cả trạng thái và các thay đổi trên biểu mẫu. Nếu có mục khác phụ thuộc, thao tác bị chặn và liệt kê các mục liên quan.
+5. Khi có người khác sửa cùng mục, giao diện giữ bản đang nhập; có thể tải bản mới hoặc nhân bản thay đổi. Lỗi kết nối giữ nguyên biểu mẫu để thử lưu lại. Nếu DB đã ghi nhưng trình duyệt mất phản hồi, lần thử lại đối chiếu bản đã lưu và không tạo thêm phiên bản. Tải lại designer để thấy các mục mới.
+
+Xem trước là thao tác chỉ đọc. Việc sửa/tắt mục thư viện không thay đổi các thiệp và quà đã lưu cấu hình riêng. Chỉ Admin được mở màn hình và gọi API quản lý/xem thử; các vai trò khác vẫn có thể dùng danh mục công khai trong designer.
+
+Có thể xem thử mục đã tắt và chuyển động liên quan mà không bật chúng trong thư viện. Muốn bật hoặc lưu thật vẫn phải bật các phụ thuộc theo đúng thứ tự. Các cảnh VI/EN được chỉnh riêng; chuyển ngôn ngữ sẽ chọn một cảnh/lớp hợp lệ của ngôn ngữ đó.
+
+Kiểm tra chuyên sâu: thêm `CANVAS_ADMIN_DEEP_AUDIT=true` khi chạy `npm run test:canvas:storage` với cấu hình schema QA riêng. Bộ thử này tạo/sửa/tắt bằng giao diện, đưa mục vào canvas, kiểm tra ảnh hưởng của các phiên bản thư viện, lỗi mất phản hồi sau commit và các kiểu chuyển động khác nhau. Có thể kết hợp `CANVAS_LIBRARY_EXPANDED_BROWSER=true` để chạy thêm toàn bộ hồi quy canvas.
+
 Migration 013 thêm `canvas_library_items` và `canvas_library_history`. Canvas tải thư viện qua `GET /api/designs/library`, có thể thêm mục mới bằng DB/API rồi tải lại editor. Ảnh bìa mẫu cũng được dựng lại từ tài liệu DB, có VI/EN. Không cần đăng ký thêm ID trong danh sách frontend. Cấu hình đã chèn được giữ trong tài liệu nên thay đổi thư viện chỉ tác động các lần chèn/tạo mới.
 
 | kind | Nội dung quản lý |
@@ -20,7 +34,7 @@ Migration 013 thêm `canvas_library_items` và `canvas_library_history`. Canvas 
 
 Xuất thư viện hiện tại: `npm run db:canvas-library -- --export <file-mới.json>`. Sửa hoặc tạo một mục bằng `npm run db:canvas-library -- --put <mục.json>`. File mục gồm `kind`, `id`, `expectedRevision` (0 khi tạo mới), `status` (`active`/`disabled`), `sortOrder` và `definition`. Thông tin kết nối lấy từ `.env`/môi trường của DB cần quản lý. CLI kiểm tra toàn bộ quan hệ trước khi ghi; không tự ghi đè revision mới hơn.
 
-Admin đang đăng nhập có thể dùng `GET /api/designs/admin/library` và `POST /api/designs/admin/library/:kind/:id` với cùng nội dung (không cần `kind`/`id` trong body). API lưu phiên bản cũ trong history; tài khoản khác bị từ chối. Không có màn hình quản trị thư viện mới trong thay đổi này.
+Admin đang đăng nhập có thể dùng `GET /api/designs/admin/library` và `POST /api/designs/admin/library/:kind/:id` với cùng nội dung (không cần `kind`/`id` trong body). API lưu phiên bản cũ trong history; tài khoản khác bị từ chối. Giao diện `/admin/library` dùng các API này và `POST /api/designs/admin/library/preview/:kind/:id` để xem thử chưa lưu.
 
 Cũng có thể dùng SQL để thêm/sửa `definition` (JSON), tăng `revision`, đặt `status` và `sort_order` trong `canvas_library_items`. Sau đó tải `GET /api/designs/library` để kiểm tra toàn bộ cấu hình. Nên dùng CLI/API để có kiểm tra và lịch sử; cập nhật SQL trực tiếp không tự ghi lịch sử API. Tắt mục bằng `status='disabled'`. Muốn tắt animation đang được dùng, tắt các effect phụ thuộc trước.
 

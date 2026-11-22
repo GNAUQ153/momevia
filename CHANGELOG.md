@@ -2,13 +2,22 @@
 
 - Sửa thứ tự danh sách lớp theo thứ tự xếp chồng của cảnh, giữ đúng lớp đang chọn khi sắp xếp; giới hạn lại lựa chọn cảnh/lớp khi chuyển giữa VI/EN có số cảnh khác nhau.
 - Giữ nguyên thứ tự biến đổi khi sửa từng thông số keyframe; bỏ mục mới chưa lưu trở về mục đã có, không báo nhầm đã lưu.
+- Đối chiếu nội dung với DB khi thử lại sau mất phản hồi của lần lưu đã commit; không ghi thêm revision và vẫn bảo vệ thay đổi khác của người sửa đồng thời.
 - Xem thử mục đã tắt cùng các phụ thuộc trong bản tạm chỉ đọc; thao tác bật/lưu thật vẫn kiểm tra đầy đủ trạng thái phụ thuộc.
+- Bổ sung kiểm tra trình duyệt cho mất ACK lúc tạo/sửa, chuỗi bật/tắt, VI/EN khác số cảnh, sắp xếp lớp, phiên bản canvas cũ/mới và tạo bề mặt/hạt bằng Admin.
 
 ## Unreleased — Ngắt tunnel, HTTPS bằng chứng chỉ (2026-11-21)
 
 - Ngắt Cloudflare theo yêu cầu; đổi `demo:https` sang chứng chỉ localhost trực tiếp trên 4110, không tạo kết nối Internet. Giữ profile/kho dữ liệu và cổng 4100.
 - Server hỗ trợ `HTTPS_CERT_FILE` / `HTTPS_KEY_FILE`, kiểm tra cặp PEM trước khi mở kho dữ liệu, không hạ xuống HTTP khi sai cấu hình. Thêm kiểm thử handshake, cookie, origin và quà HTTPS.
 - Chuẩn bị Caddyfile Let's Encrypt và service chạy trên VPS; chưa cấp chứng chỉ tên miền thật hay triển khai máy chủ khi chưa có thông tin đích. Chứng chỉ tự ký chỉ để thử và không được cài vào kho tin cậy.
+
+## Unreleased — Quản lý thư viện trong Admin (2026-11-22)
+
+- Thêm `/admin/library` và đường dẫn trong trang Admin/menu tài khoản: tìm/lọc, thêm/sửa/nhân bản, bật/tắt Element, Hiệu ứng, Chuyển động và Bố cục bằng biểu mẫu VI/EN.
+- Trình chỉnh thành phần/cảnh, bảng mốc chuyển động, cấu hình bề mặt/hạt, chọn đối tượng áp dụng và bản xem thử trực tiếp dùng chung canvas runtime.
+- Xem thử chỉ đọc, giữ bản đang nhập khi lỗi mạng/xung đột phiên bản, bảo vệ thay đổi chưa lưu; kiểm tra quyền Admin ở cả giao diện lẫn API.
+- Thêm kiểm tra cho 266 bản xem thử và hành trình Admin qua MySQL đến designer, gồm phụ thuộc, hai ngôn ngữ, retry, xung đột và bốn kích thước màn hình.
 
 ## Unreleased — Thư viện canvas quản lý từ MySQL (2026-11-22)
 

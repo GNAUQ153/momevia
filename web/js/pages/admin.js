@@ -20,6 +20,7 @@ export function createAdminViews() {
           { href: '#admin-moderation', labelKey: 'role.admin.moderationLink', iconName: 'layers' },
           { href: '#admin-support', labelKey: 'role.admin.supportLink', iconName: 'message-circle' },
           { href: '/admin/payments', labelKey: 'admin.moderation.payments', iconName: 'shield' },
+          { href: '/admin/library', labelKey: 'adminLibrary.nav', iconName: 'layers' },
         ],
       })}
       <div class="role-workspace__metrics" role="group" ${attr('aria-label', 'role.workspace.loadedSummary')}>

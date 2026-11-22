@@ -616,6 +616,11 @@ async function render() {
         const [{ version }, { mountReview }] = await Promise.all([api.get(endpoint), import("../features/catalog/review.js")]);
         if (generation !== renderGeneration) return;
         routeController = mountReview(main, { version, endpoint, api, navigate });
+      } else if (id === 'library' && segments.length === 2) {
+        const { mountAdminLibrary } = await import('../features/admin-library/index.js');
+        if (generation !== renderGeneration) return;
+        routeController = mountAdminLibrary(main, { api });
+        await routeController.ready;
       } else if (id === "payments" && segments.length === 2) {
         refundQueue = { filter: 'active', cursors: [null], index: 0, nextCursor: null };
         const lifetime = new AbortController();

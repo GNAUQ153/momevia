@@ -8,6 +8,7 @@ import { fileURLToPath } from 'node:url';
 import { setTimeout as delay } from 'node:timers/promises';
 import { parseArgs } from 'node:util';
 import { seedWebDemo } from './web-demo-fixture.mjs';
+import { demoStorage } from './web-demo-config.mjs';
 import { parseAllowedOrigins } from '../../src/shared/request-origin.mjs';
 import { publishDemoRevision, syncWebDemo, watchWebDemo } from './web-demo-sync.mjs';
 
@@ -51,6 +52,7 @@ if (!fs.existsSync(path.join(appDir, 'node_modules')))
   fs.symlinkSync(path.join(root, 'node_modules'), path.join(appDir, 'node_modules'), 'junction');
 const runtime = readJson('runtime.json');
 const accounts = readJson('tai-khoan-demo.json');
+const storage = demoStorage(demoDir);
 const env = {
   ...process.env,
   NODE_ENV: 'development', PUBLIC_BASE_URL: base, HOST: '127.0.0.1', PORT: String(port),
@@ -64,6 +66,7 @@ const env = {
   TEST_ACCOUNT_ENABLED: 'true', TEST_ACCOUNT_ROLE: 'admin', TEST_ACCOUNT_NAME: accounts.admin.name,
   TEST_ACCOUNT_EMAIL: accounts.admin.email, TEST_ACCOUNT_PASSWORD: accounts.admin.password,
   CANVAS_EDIT_ENABLED: 'true', CANVAS_PUBLISH_ENABLED: 'true', CANVAS_READ_ENABLED: 'true', GIFT_TTL_DAYS: '365',
+  ...storage.env,
 };
 let child, exited, stopping = false, finish, disposeWatch, debounce;
 let refreshWork = Promise.resolve();
@@ -94,7 +97,7 @@ async function ready() {
     if (stopping || child.exitCode !== null || child.signalCode !== null) throw new Error('Máy chủ demo đã dừng.');
     const payload = await fetch(base + '/api/designs/health', { signal: AbortSignal.timeout(1500) })
       .then(response => response.ok ? response.json() : null).catch(() => null);
-    if (payload?.ok && payload.profile.mode === 'json') return;
+    if (payload?.ok && payload.profile.mode === storage.mode) return;
     await delay(250);
   }
   throw new Error('Máy chủ demo chưa sẵn sàng.');

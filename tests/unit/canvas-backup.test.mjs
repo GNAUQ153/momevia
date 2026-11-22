@@ -71,6 +71,21 @@ test('backup restores a V2 snapshot and the private bytes pinned by a nested alb
   assert.deepEqual(fs.readFileSync(path.join(f.restored,'assets',path.basename(f.assetFile))),fs.readFileSync(f.assetFile));
 });
 
+test('backup preserves Creator asset aliases sharing validated immutable bytes', async t => {
+  const f = await fixture(t);
+  const key = `${randomUUID()}.png`;
+  const sharedFile = path.join(path.dirname(f.assetFile), key);
+  fs.copyFileSync(f.assetFile, sharedFile);
+  await f.repository.change(state => {
+    for (const asset of Object.values(state.assets)) asset.storageKey = key;
+  });
+  exportCanvas({ source: f.source, target: f.backup, offline: true });
+  restoreCanvas({ source: f.backup, target: f.restored });
+  const state = new JsonDesignRepository(path.join(f.restored, 'canvas.json')).read();
+  assert.equal(Object.values(state.assets)[0].storageKey, key);
+  assert.deepEqual(fs.readFileSync(path.join(f.restored, 'assets', key)), fs.readFileSync(sharedFile));
+});
+
 test('canvas backup fails missing/corrupt media, invalid refs and corrupted backup before creating restore target', async t => {
   const f = await fixture(t), bytes = fs.readFileSync(f.assetFile);
   fs.unlinkSync(f.assetFile); assert.throws(() => exportCanvas({ source: f.source, target: f.backup, offline: true }), /missing asset/); assert.equal(fs.existsSync(f.backup), false);

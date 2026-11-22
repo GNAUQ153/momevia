@@ -152,10 +152,12 @@ function validateAggregate(state, records) {
   for (const [id, asset] of Object.entries(assets)) {
     check(
       asset.id === id &&
-        managedFile.test(asset.storageKey || "") &&
-        asset.storageKey.startsWith(`${id}.`),
+        managedFile.test(asset.storageKey || ""),
       "invalid asset identity/storage key.",
     );
+    // Creator-template copies receive a new asset ID but intentionally retain
+    // the pinned storageKey. Validate actual bytes/hash and owner references
+    // below rather than assuming that every storageKey starts with this ID.
     const file = records.get(`assets/${asset.storageKey}`);
     check(file, `missing asset bytes for ${id}.`);
     check(

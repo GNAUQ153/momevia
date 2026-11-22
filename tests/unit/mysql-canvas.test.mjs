@@ -43,6 +43,15 @@ test('missing canvas migration fails readiness clearly without mutating schema',
   await assert.rejects(repo.ready(),{status:503,code:'CANVAS_MIGRATION_REQUIRED'});
   assert(calls.every(sql=>sql.startsWith('SELECT')));
 });
+test('canvas refuses native JSON storage before the lossless document migration', async () => {
+  const calls = [];
+  const repo = new MySqlDesignsRepository({ async execute(sql) {
+    calls.push(sql); return [sql.includes("version='006_canvas'") ? [{ version: '006_canvas' }] : []];
+  } });
+  await assert.rejects(repo.ready(), error => error.code === 'CANVAS_MIGRATION_REQUIRED' && error.message.includes('012'));
+  assert(calls.every(sql => sql.startsWith('SELECT')));
+});
+
 test('migration006 keeps legacy FK and requires real immutable version for blank publication',()=>{
   const sql=fs.readFileSync(new URL('../../database/migrations/006_canvas.sql',import.meta.url),'utf8');
   assert.match(sql,/MODIFY COLUMN template_id VARCHAR\(128\) CHARACTER SET ascii COLLATE ascii_bin NULL/);

@@ -1,5 +1,17 @@
 # Web demo Momevia
 
+## Hồ sơ đã chuyển MySQL
+
+Profile đã chuyển có `storage.json` nằm cạnh `app/`; launcher và backend đọc cấu hình này mỗi lần khởi động, kể cả khi được mở lại qua HTTPS. Identity, Catalog, Checkout, Gifts, Designs và Support cùng dùng DB của profile. File này chứa thông tin kết nối riêng, không chia sẻ hoặc commit. Profile mới chưa chuyển vẫn khởi tạo bằng JSON.
+
+Các profile hiện có được chuyển độc lập, giữ nguyên tài khoản, ID nháp, link quà, quyền truy cập, phản hồi và tệp ảnh. Không trộn dữ liệu của nhiều profile vào một DB. JSON gốc được giữ để đối chiếu; sau chuyển, chỉnh sửa mới nằm trong MySQL.
+
+Trước khi chuyển một profile khác: dừng writer, chạy `npm run db:migrate` đến migration 012 trên DB đích rỗng, rồi dùng `npm run db:import:canvas -- --root <app-root> --backup <thư-mục-mới> --offline --apply`. Kết nối DB lấy từ môi trường hiện tại. Importer kiểm tra tài liệu, ảnh, khóa ngoại, số lượng và dữ liệu đọc lại trong cùng transaction; lỗi sẽ rollback. Không dùng importer legacy với canvas.
+
+Migration 012 lưu chuỗi JSON nguyên vẹn bằng LONGTEXT có CHECK JSON_VALID để MySQL không làm tròn tọa độ và thay đổi hash. Các phiên bản trùng nội dung tại cùng revision dùng một bản chuẩn; JSON gốc và ánh xạ ID được lưu trong `json_storage_imports` cùng bản sao ngoài DB. Không thay đổi slug hay nội dung quà.
+
+## Khởi động demo
+
 ```powershell
 npm ci
 npm run demo:web

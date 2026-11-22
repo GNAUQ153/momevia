@@ -1,3 +1,10 @@
+## Unreleased — Chuyển canvas JSON sang MySQL (2026-11-21)
+
+- Thêm importer canvas offline vào DB rỗng, sao lưu dữ liệu/ảnh, transaction và đối chiếu đọc lại; giữ nguồn gốc và ánh xạ phiên bản trùng trong DB.
+- Giữ chính xác tọa độ/hình ảnh và hash bằng chuỗi JSON có kiểm tra JSON_VALID; yêu cầu migration 012 khi chạy canvas trên MySQL.
+- Profile demo giữ cấu hình MySQL qua restart; backup hỗ trợ các asset Creator dùng chung tệp đã xác minh hash.
+- Bổ sung kiểm tra thực trên MySQL cho 172 mẫu element, 33 effect, 18 tổ hợp hiệu ứng lặp, snapshot quà, ảnh/crop, restart và lưu/tải lại bằng trình duyệt.
+
 ## Unreleased — Tớ đoán cậu sẽ chọn… (2026-11-21)
 
 - Thêm mẫu sinh nhật miễn phí, biểu mẫu cá nhân hóa với dự đoán A/B ổn định và hai lời kết, lưu nháp dở và kiểm tra trước khi gửi.

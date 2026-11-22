@@ -38,6 +38,7 @@
     "db:verify": "node database/scripts/mysql-verify.mjs",
     "test:database": "node --test tests/unit/mysql-*.test.mjs",
     "db:import:identity-catalog": "node database/scripts/import-identity-catalog.mjs",
+    "db:import:canvas": "node database/scripts/import-canvas-json.mjs",
     "db:import:gifts-checkout": "node database/scripts/import-gifts-checkout.mjs",
     "i18n:audit": "node scripts/quality/check-ui-i18n.mjs --report",
     "test:prediction:browser": "node tests/integration/prediction-choice.mjs"

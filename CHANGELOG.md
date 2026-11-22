@@ -4,6 +4,13 @@
 - Kiểm tra catalog MySQL đối chiếu đầy đủ ID với seed hiện tại, thay cho số lượng 24 đã cũ; giữ kiểm tra tạo nháp, quyền xuất bản và dữ liệu catalog không bị thay đổi.
 - Giữ nguyên các assertion về request của player công khai, module được tải và khả năng xem quà khi catalog hoặc xác thực gặp lỗi.
 
+## Unreleased — Khôi phục ảnh bìa mẫu từ DB (2026-11-22)
+
+- Dùng chung nguồn ảnh gốc đã kiểm hash và phông chữ nhúng cho ảnh bìa DB và ảnh bìa xuất tĩnh; khôi phục bánh sinh nhật, hai phong bì, mũ/bằng tốt nghiệp trên trang chủ và chi tiết mẫu.
+- Giữ độ dày nét vector khi dựng từ cấu hình đã lưu trong thư viện, theo đúng cách dựng primitive ban đầu.
+- Thêm kiểm tra ảnh bìa thực tế (ảnh nhúng, điểm ảnh và đối chiếu bản gốc VI/EN), hiệu ứng xem thử và toàn bộ tài liệu khi tạo/lưu/tải lại/xuất bản ba mẫu sự kiện.
+- Không thay đổi định nghĩa mẫu, thiết kế hoặc quà đã lưu trong DB.
+
 ## Unreleased — Rà soát luồng Admin đến canvas (2026-11-22)
 
 - Sửa thứ tự danh sách lớp theo thứ tự xếp chồng của cảnh, giữ đúng lớp đang chọn khi sắp xếp; giới hạn lại lựa chọn cảnh/lớp khi chuyển giữa VI/EN có số cảnh khác nhau.

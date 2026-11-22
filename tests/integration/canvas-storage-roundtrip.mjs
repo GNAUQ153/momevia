@@ -22,6 +22,7 @@ import { runLibraryManagement } from './canvas-library-management.mjs';
 import { runExpandedApi } from './canvas-expanded.mjs';
 import { runAdminLibraryUi } from '../browser/admin-library.mjs';
 import { runAdminLibraryDeepAudit } from '../browser/admin-library-audit.mjs';
+import { runTemplateFidelity } from '../browser/template-fidelity.mjs';
 
 assert.equal(process.env.CANVAS_QA_MYSQL_ISOLATED, 'true', 'Explicit isolated QA opt-in required');
 const database = process.env.CANVAS_QA_MYSQL_DATABASE;
@@ -197,6 +198,7 @@ try {
   const libraryUser = await request('/api/auth/register', { name: 'Quản lý thư viện QA', email: `${randomUUID()}@example.test`,
     password: 'SyntheticOnly123', confirmPassword: 'SyntheticOnly123' });
   cookie = libraryUser.response.headers.get('set-cookie').split(';')[0];
+  if (process.env.CANVAS_TEMPLATE_FIDELITY === 'true') counts.templateFidelity = await runTemplateFidelity({ base, cookie, browser, request, artifacts: process.env.BROWSER_ARTIFACT_DIR });
   counts.libraryManagement = await runLibraryManagement({ base, cookie, admin, userId: libraryUser.value.user.id, request, browser });
   const uiUser = await request('/api/auth/register', { name: 'Admin UI QA', email: `${randomUUID()}@example.test`, password: 'SyntheticOnly123', confirmPassword: 'SyntheticOnly123' });
   cookie = uiUser.response.headers.get('set-cookie').split(';')[0];

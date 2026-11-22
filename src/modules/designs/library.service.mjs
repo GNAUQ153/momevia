@@ -10,6 +10,7 @@ import { registry, createElement } from '../../../web/js/shared/canvas/registry.
 import { validateDocument, canonicalStringify } from '../../../web/js/shared/canvas/schema.js';
 import { canvasError } from './errors.mjs';
 import { buildLibraryPreview, activatePreviewDependencies } from './library-preview.mjs';
+import { builtinCoverResources } from './builtin-media.mjs';
 
 const check = (ok, message) => { if (!ok) throw canvasError(422, 'INVALID_LIBRARY_DEFINITION', message); };
 const parse = v => typeof v === 'string' ? JSON.parse(v) : v;
@@ -121,7 +122,8 @@ export class CanvasLibraryService {
       for (const [key, name] of [['recipientName','recipient'],['senderName','sender'],['message','greeting']])
         document.bindings[key].value = localize(`templates.preview.${name}`);
     }
-    return previewSvg(document);
+    this.coverResources ??= builtinCoverResources();
+    return previewSvg(document, undefined, this.coverResources.images, { serifWoff2: this.coverResources.serifWoff2 });
   }
   async put(user, kind, id, input) {
     check(user?.role === 'admin', 'Admin required.');

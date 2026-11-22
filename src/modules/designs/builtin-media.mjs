@@ -19,6 +19,11 @@ export function builtinCoverImages() {
     return [id, { url: `data:image/webp;base64,${media.bytes.toString('base64')}`, width: media.width, height: media.height }];
   }));
 }
+export function builtinCoverResources() {
+  // Static exports and DB-backed covers must use the same verified artwork
+  // and embedded typeface. SVG images do not inherit the app's loaded fonts.
+  return { images: builtinCoverImages(), serifWoff2: fs.readFileSync(new URL('../../../web/assets/fonts/lora-cover.woff2', import.meta.url)).toString('base64') };
+}
 export function materializeBuiltinMedia(document, { ownerId, designId, mediaRoot, createdAt }) {
   const assets = [];
   for (const ref of document.assets) {

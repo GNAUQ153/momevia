@@ -31,3 +31,15 @@ Logo 3D của Momevia là hình tạo mới bằng AI theo yêu cầu người d
 ## Nhạc nền tự tổng hợp theo dịp (Music Occasion V4)
 
 Sáu MP3 mới trong `web/assets/music/` được tạo từ thuật toán, hòa âm và chuỗi nốt biên soạn trong `scripts/assets/generate-occasion-music.py`. Không dùng sample hoặc audio từ bên thứ ba. Công cụ tái tạo yêu cầu Python/NumPy/FFmpeg khi bảo trì, không tải thêm SDK vào trình duyệt và không phát nhạc tự động. Cần nhóm dự án phê duyệt chính sách bản quyền trước khi sử dụng thương mại.
+
+
+## Natural Originals V4 · 2026-11-23
+
+Thư viện mẫu mới bổ sung ảnh và đồ họa có nguồn bên ngoài; ghi chú không dùng ảnh stock ở phần MVP ban đầu không áp dụng cho nhóm tài nguyên này.
+
+- 38 ảnh vật thể, hoa lá, giấy/vải và biến thể được tạo riêng bằng công cụ tạo ảnh tích hợp. Bộ prompt và mã ảnh bất biến: web/assets/event-cards/natural-v4/manifest.json. Đây là hình tạo bằng AI, không phải ảnh chụp hiện vật đã được xác thực.
+- 8 PNG từ Vijay Verma / 3Dicons (CC0), commit 8884d59e68a7bae0e0e2163af5b6c2ad992c01c8; 6 PNG thiên nhiên từ Kitbitz / CaptExcellent/kits-library-assets (CC0), commit c67532ddf21cef61827de203344282cc9c2cecae; 2 hình Openclipart (Almeidah và johnny_automatic, CC0); 2 hình SVG Repo được đánh dấu CC0 trên trang từng mục.
+- 2 bộ path tĩnh của Canvix (MIT, Copyright (c) 2026 Ashiq Hussain Mir), commit e931b2bf588a5c06e16668ce552c26e575080d61. Chỉ chuyển tọa độ path sang hệ 100 đơn vị; không chạy hàm hay phụ thuộc của repo. Thông báo MIT đầy đủ được giữ trong mã nguồn, phần legal comments của bundle và tệp Canvix-MIT.txt.
+- Uiverse Galaxy: tham khảo chuyển động lật thẻ của Javierrocadev, commit adbd2adde0a299a3956ea288fb444ec01891ca41. Viết lại thành recipe khai báo hữu hạn của Momevia; giữ thông báo MIT, không dùng tên thương hiệu hay bố cục mặt thẻ.
+
+Các tệp giấy phép đi cùng ở web/assets/event-cards/natural-v4/licenses/. Nguồn, tác giả, phiên bản, biến đổi và kết luận của cả 9 địa chỉ người dùng gửi nằm ở docs/template-refresh-natural-20261123/source-review-9.json. Không sao chép asset Canva, Envato, Freepik, Doory hoặc Grida vào thư viện mới. Không chạy lệnh, ứng dụng hay mã tải từ các trang/repo tham khảo.

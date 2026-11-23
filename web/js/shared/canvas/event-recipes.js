@@ -1,5 +1,6 @@
 // Momevia Originals, recipe v1. Definitions are pinned into each document.
 export const eventRecipes = [
+  {id:'paper-unfold-natural-v1',family:'entrance',title:{vi:'Giấy nghiêng mở vào cảnh',en:'Paper turns into view'},targets:{types:['image']},defaults:{speed:'normal',delay:0},animation:{engine:'keyframes',duration:650,easing:'ease-out',iterations:1,composite:'add',keyframes:[{opacity:0,transform:'perspective(1000px) rotateY(-28deg) translateX(-8px)'},{opacity:1,transform:'perspective(1000px) rotateY(3deg) translateX(0px)',offset:.8},{opacity:1,transform:'perspective(1000px) rotateY(0deg) translateX(0px)'}]}},
   { id: 'photo-settle-v1', family: 'entrance', title: { vi: 'Góc ảnh hạ xuống', en: 'A photo settles' }, targets: { types: ['image'] },
     defaults: { speed: 'normal', delay: 0 }, animation: { engine: 'keyframes', duration: 380, easing: 'ease-out', iterations: 1,
       keyframes: [{ transform: 'translateY(-6px) rotate(-3deg)' }, { transform: 'translateY(0px) rotate(1deg)', offset: .7 }, { transform: 'translateY(0px) rotate(0deg)' }] } },

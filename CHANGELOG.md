@@ -1,3 +1,7 @@
+## Unreleased — Mẫu quà tự nhiên · 1/8 (2026-11-23)
+
+- Bổ sung ảnh, hoa lá, chất liệu và đồ họa có nguồn/giấy phép; giữ tệp hash cũ.
+
 ## Unreleased — Bỏ nút tạm dừng chuyển mẫu ở trang chủ (2026-11-23)
 
 - Chỉ bỏ nút Tạm dừng/Tiếp tục dưới hình mẫu; giữ nguyên hiệu ứng, tự chuyển mẫu và ba nút chọn mẫu. Cập nhật kiểm thử theo giao diện này.

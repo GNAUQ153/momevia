@@ -201,6 +201,7 @@
   "adminLibrary.kind.animation": "Animations",
   "adminLibrary.kind.effect": "Effects",
   "adminLibrary.kind.element": "Elements",
+  "adminLibrary.kind.audio": "Audio",
   "adminLibrary.kind.preset": "Presets",
   "adminLibrary.layer.add": "Add element",
   "adminLibrary.layer.addType": "New element type",

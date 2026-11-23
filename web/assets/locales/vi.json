@@ -201,6 +201,7 @@
   "adminLibrary.kind.animation": "Chuyển động",
   "adminLibrary.kind.effect": "Hiệu ứng",
   "adminLibrary.kind.element": "Element",
+  "adminLibrary.kind.audio": "Âm thanh",
   "adminLibrary.kind.preset": "Bố cục",
   "adminLibrary.layer.add": "Thêm thành phần",
   "adminLibrary.layer.addType": "Loại thành phần mới",

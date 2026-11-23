@@ -11,6 +11,7 @@ import { designFromRow, assetFromRow, jsonValue, iso } from '../../src/modules/d
 import { assetIds, canonicalStringify, validateDocument } from '../../web/js/shared/canvas/index.js';
 import { readIdentityCatalogSnapshot, prepareIdentityCatalog } from './import-identity-catalog.mjs';
 import { exportCanvas, verifyCanvas } from '../../scripts/dev/canvas-backup.mjs';
+import { audioLibraryDefaults, validateAudioCuration } from '../../src/modules/designs/music-library.service.mjs';
 
 const check = (ok, message) => { if (!ok) throw new Error(`Canvas JSON import: ${message}`); };
 const same = (a, b) => canonicalStringify(a) === canonicalStringify(b);
@@ -29,7 +30,9 @@ export function readCanvasSnapshot(root) {
   const identity = readIdentityCatalogSnapshot(root);
   // Retain expired session records as well; the runtime already rejects them.
   prepareIdentityCatalog(identity);
+  const audioFile=path.join(root,'services/designs/data/music-library.json');
   return { ...identity, orders: readArray(root, 'checkout', 'orders.json'),
+    ...(fs.existsSync(audioFile)?{audioLibrary:JSON.parse(fs.readFileSync(audioFile,'utf8'))}:{}),
     gifts: readArray(root, 'gifts', 'gifts.json'), replies: readArray(root, 'gifts', 'replies.json'),
     requests: readArray(root, 'support', 'requests.json'),
     canvas: JSON.parse(fs.readFileSync(path.join(root, 'services/designs/data/canvas.json'), 'utf8')) };
@@ -37,6 +40,18 @@ export function readCanvasSnapshot(root) {
 
 export function planCanvasImport(snapshot) {
   const s = structuredClone(snapshot), c = s.canvas;
+  if(s.audioLibrary){
+    const audio=s.audioLibrary,bases=new Map(audioLibraryDefaults().map(row=>[row.key,row]));
+    check(audio.formatVersion===1&&Array.isArray(audio.items)&&Array.isArray(audio.history),'invalid music library');
+    check(new Set(audio.items.map(row=>row.key)).size===audio.items.length,'duplicate audio curation');
+    check(new Set(audio.history.map(row=>`${row.key}:${row.revision}`)).size===audio.history.length,'duplicate audio history');
+    for(const row of [...audio.items,...audio.history]){
+      const base=bases.get(row.key);check(base&&Number.isSafeInteger(row.revision)&&row.revision>0,'unresolved audio source/revision');
+      const {key,revision,...input}=row;
+      check(same(validateAudioCuration({...input,expectedRevision:revision-1},base),row),'invalid audio curation fields');
+      check(audio.items.some(item=>item.key===key&&item.revision>=revision),'unresolved audio history');
+    }
+  }
   check(c?.formatVersion === 1, 'unsupported aggregate');
   const users = new Set(s.users.map(u => u.id)), templates = new Set(s.templates.map(t => t.id));
   const versions = [], aliases = {}, byRevision = new Map();
@@ -81,6 +96,7 @@ export function planCanvasImport(snapshot) {
     check(o.grossAmount === o.platformFee + o.creatorAmount, 'order amount mismatch');
   }
   const counts = { users: s.users.length, templates: s.templates.length, sessions: s.sessions.length,
+    ...(s.audioLibrary?{musicCurations:s.audioLibrary.items.length,musicHistory:s.audioLibrary.history.length}:{}),
     favorites: s.favorites.length, orders: s.orders.length, designs: Object.keys(c.designs).length,
     creates: Object.keys(c.creates).length, mutations: Object.keys(c.mutations).length,
     assets: Object.keys(c.assets).length, versions: versions.length, versionAliases: Object.keys(aliases).length,
@@ -185,6 +201,10 @@ export async function applyCanvasImport(plan, client, { label, beforeCommit = as
       'id,code,user_id,legacy_user_id,name,email,topic,message,status,created_at,report_kind,report_target,assigned_to,resolution',
       [r.id, r.code, users.has(r.userId) ? r.userId : null, users.has(r.userId) ? null : r.userId || null,
         r.name, r.email, r.topic, r.message, r.status, date(r.createdAt), r.reportKind || null, r.reportTarget || null, r.assignedTo || null, r.resolution || null]);
+    if(s.audioLibrary){
+      for(const row of s.audioLibrary.items)await insert(tx,'music_library_overrides','id,revision,definition',[row.key,row.revision,json(row)]);
+      for(const row of s.audioLibrary.history)await insert(tx,'music_library_history','id,revision,snapshot',[row.key,row.revision,json(row)]);
+    }
     await insert(tx, 'json_storage_imports', 'id,source_label,source_hash,source_snapshot,version_aliases,counts',
       [randomUUID(), label, plan.sourceHash, json(s), json(plan.aliases), json(plan.counts)]);
     await verifyCanvasImport(plan, tx);
@@ -194,6 +214,13 @@ export async function applyCanvasImport(plan, client, { label, beforeCommit = as
 }
 
 export async function verifyCanvasImport(plan, client) {
+  if(plan.snapshot.audioLibrary){
+    for(const [table,field,expected] of [['music_library_overrides','definition',plan.snapshot.audioLibrary.items],['music_library_history','snapshot',plan.snapshot.audioLibrary.history]]){
+      const [rows]=await client.execute(`SELECT ${field} payload FROM ${table}`);
+      check(rows.length===expected.length,`${table} count mismatch`);
+      for(const row of rows){const value=jsonValue(row.payload);check(expected.some(item=>same(item,value)),`${table} payload mismatch`);}
+    }
+  }
   const c = plan.snapshot.canvas;
   const [draftRows] = await client.execute('SELECT * FROM designs');
   check(draftRows.length === plan.counts.designs, 'draft count mismatch');

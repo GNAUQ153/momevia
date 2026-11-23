@@ -1,6 +1,7 @@
 import { installLibrary, libraryText } from '../../shared/canvas/library-state.js';
 import { materializeModels } from '../../shared/canvas/library-materialize.js';
 import { replaceCatalog } from './library.js';
+import { installAudioCuration } from '../../shared/canvas/music-curation.js';
 
 export function configureLibrary(snapshot, locale = 'vi') {
   installLibrary(snapshot);
@@ -14,7 +15,8 @@ export function configureLibrary(snapshot, locale = 'vi') {
   replaceCatalog([...groups.values()]);
 }
 export async function loadCanvasLibrary(api, locale = 'vi') {
-  const { library } = await api.get('/designs/library');
+  const { library, audioLibrary } = await api.get('/designs/library');
+  installAudioCuration(audioLibrary);
   if (library) configureLibrary(library, locale);
   return library;
 }

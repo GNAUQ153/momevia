@@ -3,6 +3,7 @@
 - Bộ chọn SFX dùng 50 tệp v2 nhập từ tác giả bên ngoài, có bản thu vật thật/thiên nhiên, hiệu ứng giao diện và nhạc hiệu; giữ nguyên âm v1 đã ghim trong quà cũ.
 - Thêm 50 bản nhạc theo chủ đề: 44 CC0 từ Alex McCulloch / Pro Sensory và Emma_MA, 6 bản Hàn từ Korea Copyright Commission với ghi công, có cả nhạc có lời; bộ chọn mới không dùng các vòng nhạc tự tổng hợp. Mười ID nhạc cũ vẫn đọc/phát được để không đổi quà đã gửi.
 - Giữ nguồn, giấy phép, hash nguồn/đích, thời lượng đo, chỉnh sửa và credit tác giả trong repo; trình nhập chỉ tải/giải mã/cắt/chuẩn hóa, không sinh âm thay thế. Kho lưu generator tổng hợp cũ để bảo vệ các tệp đã ghim.
+- Bổ sung tab Âm thanh trong thư viện Admin (`/admin/library`), giữ `/admin/music-library` để mở thẳng tab này: quản lý nhạc/SFX, tên VI/EN, chủ đề, từ khóa và ngừng chọn mới; CAS/lịch sử trên JSON và MySQL qua migration 015; giữ âm đã ghim. Các dịch vụ nhạc trả phí chưa kết nối.
 - Sửa danh sách nhạc 50 mục trong cột Studio hẹp: mỗi mục một hàng, chiều cao theo nội dung và vùng cuộn riêng, tránh chữ chồng nhau.
 - Hiện nguồn nhạc trong Studio và player; hiển thị đúng phút/giây cho bản dài, bảo toàn lựa chọn cũ khi mở nháp, sửa tràn ngang thanh nhạc/credit trên mobile.
 - Kiểm chứng và danh mục được gom tại `docs/SYSTEM_CONTENT_INVENTORY_20261122.md`; raw downloads và công cụ QA nằm trong `local/`, không đóng gói. Chưa nghe duyệt bởi người hoặc kiểm trên thiết bị di động thật.

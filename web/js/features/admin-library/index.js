@@ -5,6 +5,7 @@ import { eventMediaUrl } from '../../shared/canvas/event-media.js';
 import { installLibrary } from '../../shared/canvas/library-state.js';
 import { eventTimeFromLocal } from '../../shared/canvas/interactions.js';
 import { libraryFields } from './fields.js';
+import { mountMusicLibrary } from '../music-library/index.js';
 import { categories, categoryFor, itemKey, itemTitle, fingerprint, makeItem, duplicateItem, animationDefaults,
   compatibleAnimation, getDocument, layers, setPath, metadata, editFrame, makeLayer, makeInteraction, removeScene, normalizeSelection, sameItemContent } from './model.js';
 
@@ -12,11 +13,12 @@ const button = (key, action, attrs = {}) => node('button', { type: 'button', cla
 const localized = key => message(`adminLibrary.${key}`);
 const copy = structuredClone;
 
-export function mountAdminLibrary(host, { api }) {
+export function mountAdminLibrary(host, { api, initialCategory = 'element' }) {
   const lifetime = new AbortController(), { signal } = lifetime;
   let rows = [], draft, base, original = '', category = 'element', contentLocale = currentLocale(), sceneIndex = 0, layerIndex = 0,
     query = '', stateFilter = 'all', saving = false, disposed = false, previewSequence = 0, previewTimer, previewAbort, player,
-    latestPreview = null, latestSignature = '', inViewport = true, addType = 'text', loaded = false;
+    latestPreview = null, latestSignature = '', inViewport = true, addType = 'text', loaded = false,
+    audioActive = false, audioController, canvasScroll = [];
   const title = node('h1', {}, localized('title'));
   const count = node('p', { class: 'library-admin__count', role: 'status' });
   const feedback = node('p', { class: 'library-admin__feedback', role: 'status', 'aria-live': 'polite', hidden: true });
@@ -46,14 +48,16 @@ export function mountAdminLibrary(host, { api }) {
     previewFamily, previewScenes, previewStatus, previewHost,
     button('backToForm', 'back-form', { class: 'btn btn--outline library-admin__mobile-return' }));
   const tabs = node('div', { class: 'library-admin__tabs', role: 'tablist', 'aria-label': localized('categories') },
-    ...categories.map(kind => button(`kind.${kind}`, 'category', { role: 'tab', id: `admin-library-tab-${kind}`, 'aria-controls': 'admin-library-workspace', 'data-kind': kind, 'aria-selected': kind === category, class: 'library-admin__tab' })));
+    ...[...categories, 'audio'].map(kind => button(`kind.${kind}`, 'category', { role: 'tab', id: `admin-library-tab-${kind}`, 'aria-controls': kind === 'audio' ? 'admin-library-audio' : 'admin-library-workspace', 'data-kind': kind, 'aria-selected': kind === category, class: 'library-admin__tab' })));
+  const canvasPanel = node('div', { id: 'admin-library-workspace', role: 'tabpanel', 'aria-labelledby': 'admin-library-tab-element' },
+    feedback, conflict, node('div', { class: 'library-admin__grid' }, node('aside', { class: 'library-admin__browser' }, search, filter, count, list), form, previewPanel));
+  const audioPanel = node('div', { id: 'admin-library-audio', role: 'tabpanel', 'aria-labelledby': 'admin-library-tab-audio', hidden: true });
   const root = node('section', { class: 'section library-admin', 'data-admin-library': '' },
     node('div', { class: 'library-admin__container' },
       node('a', { href: '/admin', 'data-link': '', class: 'library-admin__back' }, localized('back')),
       node('header', { class: 'library-admin__header' }, node('div', {}, title, node('p', {}, localized('intro'))),
         node('div', { class: 'library-admin__header-actions' }, button('newItem', 'new', { class: 'btn btn--dark', 'data-write': '' }), button('duplicate', 'duplicate', { 'data-write': '' }), button('reload', 'reload'))),
-      feedback, conflict, tabs,
-      node('div', { class: 'library-admin__grid', id: 'admin-library-workspace', role: 'tabpanel', 'aria-labelledby': 'admin-library-tab-element' }, node('aside', { class: 'library-admin__browser' }, search, filter, count, list), form, previewPanel)));
+      tabs, canvasPanel, audioPanel));
   host.replaceChildren(root);
   function dirty() { return Boolean(draft && (base?.revision === 0 || fingerprint(draft) !== original)); }
   function notify(key, type = 'info', params) { setText(feedback, localizedMessage(key, params)); feedback.hidden = false; feedback.dataset.tone = type; }
@@ -82,10 +86,34 @@ export function mountAdminLibrary(host, { api }) {
     return rows.filter(row => categoryFor(row.kind) === category && (stateFilter === 'all' || row.status === stateFilter) &&
       words.every(word => normalized(`${itemTitle(row, rows, currentLocale())} ${row.id}`).includes(word)));
   }
+  function updateTabs() {
+    const active = audioActive ? 'audio' : category;
+    canvasPanel.hidden = audioActive; audioPanel.hidden = !audioActive;
+    canvasPanel.setAttribute('aria-labelledby', `admin-library-tab-${category}`);
+    for (const tab of tabs.querySelectorAll('button')) {
+      tab.setAttribute('aria-selected', String(tab.dataset.kind === active)); tab.tabIndex = tab.dataset.kind === active ? 0 : -1;
+    }
+    for (const control of root.querySelectorAll('.library-admin__header-actions [data-write]')) control.hidden = audioActive;
+  }
+  function setAudioActive(active) {
+    const changed = audioActive !== active;
+    if (changed && active) canvasScroll = [list, fields, previewHost].map(region => ({ region, top: region.scrollTop, left: region.scrollLeft }));
+    if (changed && !active) audioController?.setActive(false);
+    audioActive = active; updateTabs();
+    if (active) {
+      clearTimeout(previewTimer); previewAbort?.abort(); previewSequence++; previewHost.removeAttribute('aria-busy');
+      if (!audioController) audioController = mountMusicLibrary(audioPanel, { api, embedded: true });
+    }
+    if (active) audioController?.setActive(true);
+    else if (changed) {
+      inViewport = true;
+      if (latestPreview) showPreview(latestPreview); else schedulePreview(true);
+      for (const { region, top, left } of canvasScroll) { region.scrollTop = top; region.scrollLeft = left; }
+    }
+  }
   function renderList() {
     const visible = filtered();
-    root.querySelector('#admin-library-workspace').setAttribute('aria-labelledby', `admin-library-tab-${category}`);
-    for (const tab of tabs.querySelectorAll('button')) { tab.setAttribute('aria-selected', String(tab.dataset.kind === category)); tab.tabIndex = tab.dataset.kind === category ? 0 : -1; }
+    updateTabs();
     setText(count, localizedMessage('count', { count: visible.length }));
     list.replaceChildren(...visible.map((row, index) => node('li', {}, node('button', { type: 'button', 'data-library-action': 'select', 'data-key': itemKey(row),
       class: draft && itemKey(row) === itemKey(draft) ? 'is-selected' : '', 'aria-pressed': Boolean(draft && itemKey(row) === itemKey(draft)),
@@ -107,7 +135,7 @@ export function mountAdminLibrary(host, { api }) {
     if (!force && !canDiscard()) return;
     base = copy(row); draft = copy(row); original = fingerprint(draft); sceneIndex = layerIndex = 0;
     conflict.hidden = true; feedback.hidden = true; latestPreview = null; latestSignature = '';
-    renderList(); renderFields(); schedulePreview(true);
+    renderList(); renderFields(); if (!audioActive) schedulePreview(true);
   }
   function mutate(fn, structural = false) {
     if (!draft || saving) return;
@@ -116,7 +144,7 @@ export function mountAdminLibrary(host, { api }) {
     if (structural) renderFields(); schedulePreview();
   }
   function showPreview(result) {
-    if (disposed || !inViewport) return;
+    if (disposed || !inViewport || audioActive) return;
     player?.dispose();
     const effectPreview = result.preferredSceneId ? { ...result.effectPreview, sceneId: result.preferredSceneId } : result.effectPreview;
     player = mountPlayer(previewHost, { document: result.document, mode: 'preview', assetUrl: eventMediaUrl, effectPreview });
@@ -271,7 +299,10 @@ export function mountAdminLibrary(host, { api }) {
     if (action === 'save') return;
     if (action === 'select') { const row = rows.find(r => itemKey(r) === control.dataset.key); if (row) selectItem(row); return; }
     if (action === 'category') {
+      if (control.dataset.kind === 'audio') { setAudioActive(true); return; }
+      if (audioActive && control.dataset.kind === category) { setAudioActive(false); return; }
       if (!canDiscard()) return;
+      setAudioActive(false);
       category = control.dataset.kind; query = ''; search.value = ''; draft = null;
       const first = filtered()[0]; if (first) selectItem(first, true); else { renderList(); renderFields(); } return;
     }
@@ -280,7 +311,7 @@ export function mountAdminLibrary(host, { api }) {
       const next = action !== 'new' && draft ? duplicateItem(draft, rows, t) : makeItem(category, rows, t);
       category = categoryFor(next.kind); selectItem(next, true); original = ''; mark(); return;
     }
-    if (action === 'reload' || action === 'reload-latest') { await load(true); return; }
+    if (action === 'reload' || action === 'reload-latest') { if (audioActive) await audioController?.reload(); else await load(true); return; }
     if (action === 'discard') {
       if (canDiscard()) {
         const target = base.revision > 0 ? base : rows.find(row => categoryFor(row.kind) === category);
@@ -321,13 +352,14 @@ export function mountAdminLibrary(host, { api }) {
     const next = event.key === 'Home' ? 0 : event.key === 'End' ? buttons.length - 1 : (index + (event.key === 'ArrowRight' ? 1 : -1) + buttons.length) % buttons.length;
     event.preventDefault(); buttons[next].focus(); buttons[next].click();
   }, { signal });
-  root.addEventListener('keydown', event => { if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's') { event.preventDefault(); void save(); } }, { signal });
+  root.addEventListener('keydown', event => { if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's') { event.preventDefault(); if (audioActive) audioController?.save(); else void save(); } }, { signal });
   window.addEventListener('beforeunload', event => { if (dirty()) { event.preventDefault(); event.returnValue = ''; } }, { signal });
   const removeLocale = onLocaleChange(() => { if (!disposed) { renderList(); renderFields(); schedulePreview(true); } });
   const observer = new IntersectionObserver(entries => { inViewport = entries[0].isIntersecting; if (!inViewport) { player?.dispose(); player = null; }
     else if (latestPreview && !player) showPreview(latestPreview); }, { threshold: .02 });
   observer.observe(previewHost);
   mark();
-  const ready = load();
-  return { ready, beforeLeave: canDiscard, dispose() { disposed = true; lifetime.abort(); previewAbort?.abort(); clearTimeout(previewTimer); observer.disconnect(); removeLocale(); player?.dispose(); } };
+  if (initialCategory === 'audio') setAudioActive(true);
+  const ready = Promise.all([load(), audioController?.ready]);
+  return { ready, beforeLeave: () => canDiscard() && (!audioController || audioController.beforeLeave()), dispose() { disposed = true; lifetime.abort(); previewAbort?.abort(); clearTimeout(previewTimer); observer.disconnect(); removeLocale(); player?.dispose(); audioController?.dispose(); } };
 }

@@ -69,6 +69,9 @@
   gap: 18px;
   align-items: start;
 }
+.library-admin [role="tabpanel"][hidden], .library-admin__form[hidden] {
+  display: none;
+}
 .library-admin__browser, .library-admin__form, .library-admin__preview {
   min-width: 0;
   border: 1px solid var(--ui-panel-border);

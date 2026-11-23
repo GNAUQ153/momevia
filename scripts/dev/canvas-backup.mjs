@@ -72,7 +72,7 @@ function safeDirectory(directory) {
 function entry(root, relative) {
   check(typeof relative === "string", "invalid backup member path.");
   check(
-    relative === "canvas.json" ||
+    relative === "canvas.json" || relative === 'music-library.json' ||
       (relative.startsWith("assets/") &&
         !relative.slice(7).includes("/") &&
         (managedFile.test(relative.slice(7)) ||
@@ -308,13 +308,14 @@ function writeFile(filename, bytes) {
   }
 }
 
+const aggregateMembers = root => ['canvas.json', ...(fs.existsSync(path.join(root,'music-library.json')) ? ['music-library.json'] : []), ...assetMembers(root)];
 export function exportCanvas({ source, target, offline = false } = {}) {
   check(
     offline === true,
     "--offline acknowledgement is required; stop all writers before export.",
   );
   const root = safeDirectory(source),
-    originalMembers = ["canvas.json", ...assetMembers(root)],
+    originalMembers = aggregateMembers(root),
     records = new Map();
   for (const relative of originalMembers)
     records.set(relative, readStable(entry(root, relative), relative === "canvas.json"));
@@ -328,7 +329,7 @@ export function exportCanvas({ source, target, offline = false } = {}) {
     writeFile(entry(destination, relative), current.bytes);
   }
   check(
-    same(originalMembers, ["canvas.json", ...assetMembers(root)]),
+    same(originalMembers, aggregateMembers(root)),
     "asset set changed during backup; stop writers and retry.",
   );
   for (const [relative, record] of records)
@@ -384,7 +385,7 @@ export function verifyCanvas({ source } = {}) {
   }
   check(
     files.has("canvas.json") &&
-      same([...files].sort(), ["canvas.json", ...assetMembers(root)].sort()),
+      same([...files].sort(), aggregateMembers(root).sort()),
     "backup file list mismatch.",
   );
   const counts = validateAggregate(

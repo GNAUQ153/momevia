@@ -1,4 +1,125 @@
 /* Music UI: không autoplay, dùng lại typography và token Momevia. */
+.music-admin--embedded {
+  padding: 0;
+}
+.music-admin--embedded > .library-admin__container {
+  width: 100%;
+}
+.music-admin__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-block: 16px;
+  border-block: 1px solid var(--line);
+}
+.music-admin__toolbar label {
+  display: grid;
+  gap: 6px;
+  flex: 1 1 150px;
+}
+.music-admin input,
+.music-admin select {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface, #fff);
+  font: inherit;
+}
+.music-admin__workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(280px, 1fr);
+  gap: 28px;
+  align-items: stretch;
+  height: clamp(420px, calc(100dvh - 430px), 900px);
+}
+.music-admin__list {
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  overflow-anchor: none;
+  scrollbar-width: thin;
+  padding-right: 8px;
+}
+.music-admin__row.is-selected {
+  background: var(--surface-soft, #f6f1fb);
+}
+.music-admin__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding-block: 18px;
+  border-bottom: 1px solid var(--line);
+  overflow-wrap: anywhere;
+}
+.music-admin__row > div:first-child {
+  min-width: 0;
+}
+.music-admin__row p {
+  margin: 6px 0;
+  color: var(--muted);
+}
+.music-admin__row-actions,
+.music-admin__save {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.music-admin__edit {
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  overflow-wrap: anywhere;
+}
+.music-admin__edit form {
+  display: grid;
+  gap: 14px;
+}
+.music-admin__edit label {
+  display: grid;
+  gap: 6px;
+}
+.music-admin__edit h2,
+.music-admin__edit p {
+  margin: 0;
+}
+.music-admin__edit dd {
+  margin: 6px 0 16px;
+}
+.music-admin__sources {
+  margin-top: 40px;
+}
+.music-admin__providers {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 20px;
+}
+@media (max-width: 760px) {
+  .music-admin__workspace {
+    grid-template-columns: minmax(0, 1fr);
+    height: auto;
+  }
+  .music-admin__list {
+    max-height: 50dvh;
+  }
+  .music-admin__row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .music-admin input,
+  .music-admin select {
+    font-size: 16px;
+  }
+}
 .editor-music-source,
 .gift-music-credit {
   color: var(--muted);

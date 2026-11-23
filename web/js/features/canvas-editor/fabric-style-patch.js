@@ -11,7 +11,8 @@ const ALLOWED_ALIGN = Object.freeze(['left', 'center', 'right']);
 
 export function styleFieldsFor(element) {
   if (!element || !['text', 'shape', 'image'].includes(element.type)) return [];
-  // Fabric hiện dựng chính xác hình chữ nhật và ellipse; shape vector khác chỉ có placeholder.
+  if(element.type==='shape'&&element.artwork)return [...(element.artwork.paths.some(p=>p.fill==='color')?['color']:[]),'opacity'];
+  // Unpinned custom shapes still require an explicit renderer.
   if (element.type === 'shape' && !['rectangle', 'ellipse'].includes(element.props?.kind)) return [];
   const specific = element.type === 'text' ? TEXT_FIELDS :
     element.type === 'shape' ? SHAPE_FIELDS : IMAGE_FIELDS;

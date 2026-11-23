@@ -23,6 +23,7 @@ export function fabricView(document, sceneId, policy = null, { includeHidden = f
     width: document.artboard.baseSize.width,
     height: document.artboard.baseSize.height,
     background: scene.background.color,
+    ...(scene.effects ? { effects: structuredClone(scene.effects) } : {}),
     elements: scene.elementIds.map(id => document.elements.find(item => item.id === id))
       .filter(item => item && (includeHidden || item.visible !== false))
       .map(item => ({
@@ -31,6 +32,9 @@ export function fabricView(document, sceneId, policy = null, { includeHidden = f
         type: item.type,
         layout: structuredClone(item.layout),
         props: structuredClone(item.props),
+        accessibility: structuredClone(item.accessibility),
+        ...(item.artwork ? { artwork: structuredClone(item.artwork) } : {}),
+        ...(item.effects ? { effects: structuredClone(item.effects) } : {}),
         text: item.type === 'text' ? displayText(item, document) : null,
         editable: canFabricEdit(item, policy),
         hidden: item.visible === false,
@@ -44,14 +48,16 @@ export function normalizedLayout(element, rect) {
   if (!rect || !Object.values(rect).every(Number.isFinite)) {
     throw new Error('Bố cục Fabric không hợp lệ.');
   }
-  const round = value => Math.round(value * 100) / 100;
+  // Opening and applying Fabric must not quantize untouched fractional geometry.
+  const round = (value, field) => Math.abs(value-element.layout[field]) < 1e-7
+    ? element.layout[field] : Math.round(value * 100) / 100;
   return {
     ...element.layout,
-    x: round(Math.max(-10000, Math.min(10000, rect.x))),
-    y: round(Math.max(-10000, Math.min(10000, rect.y))),
-    width: round(Math.max(1, Math.min(10000, rect.width))),
-    height: round(Math.max(1, Math.min(10000, rect.height))),
-    rotation: round(Math.max(-360, Math.min(360, rect.rotation))),
+    x: round(Math.max(-10000, Math.min(10000, rect.x)), 'x'),
+    y: round(Math.max(-10000, Math.min(10000, rect.y)), 'y'),
+    width: round(Math.max(1, Math.min(10000, rect.width)), 'width'),
+    height: round(Math.max(1, Math.min(10000, rect.height)), 'height'),
+    rotation: round(Math.max(-360, Math.min(360, rect.rotation)), 'rotation'),
   };
 }
 

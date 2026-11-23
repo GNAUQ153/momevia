@@ -42,7 +42,10 @@ export function propertyToFabric(shape, model, field, value) {
   let prop = {};
   switch (field) {
     case 'opacity': prop = { opacity: accepted }; break;
-    case 'color': prop = { fill: accepted }; break;
+    case 'color':
+      prop = { fill: accepted };
+      for(const child of shape.getObjects?.()||[])if(child.momeviaFillBinding)child.set('fill',accepted);
+      break;
     case 'strokeColor': prop = { stroke: accepted }; break;
     case 'strokeWidth': prop = { strokeWidth: accepted }; break;
     case 'radius': prop = { rx: accepted, ry: accepted }; break;

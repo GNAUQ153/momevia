@@ -2,6 +2,7 @@ import { validateDocument, runtimeVersionFor } from "../../shared/canvas/schema.
 import { message, setAttr, setText, t } from "../../core/i18n.js";
 import { focusVisibleTarget } from "../../core/motion.js";
 import { renderElement, applyLayout, updateElementCopy } from "./renderer.js";
+import {NATURAL_ARTWORK_LABEL} from '../../shared/canvas/event-media.js';
 import { applySurface, createMotion, playAmbience, playElement, playReaction, sceneTransition } from "./effects.js";
 import { playCelebrations } from './celebrations.js';
 import { createSceneNavigation } from './scene-navigation.js';
@@ -36,6 +37,11 @@ export function mountPlayer(
     navigationIntent = null;
   const shell = globalThis.document.createElement("div");
   shell.className = `gift-runtime gift-runtime-mode-${mode}`;
+  if(document.elements.some(e=>e.id==='reply-object-paper'&&e.type==='image'&&e.accessibility?.label===NATURAL_ARTWORK_LABEL)){
+    shell.classList.add('is-natural-stationery');
+    const accent=document.elements.find(e=>e.type==='button'&&e.props.color)?.props.color;
+    if(accent)shell.style.setProperty('--stationery-accent',accent);
+  }
   if(effectPreview?.family)shell.dataset.effectPreview=effectPreview.family;
   shell.style.maxWidth = `${document.responsive.desktop.maxContentWidth}px`;
   const marker = globalThis.document.createElement("p");
@@ -231,7 +237,7 @@ export function mountPlayer(
         actualEnd = 0;
       const content = nodes
         .filter(
-          ({ model }) => !["shape", "line", "sticker"].includes(model.type),
+          ({ model }) => !["shape", "line", "sticker"].includes(model.type)&&!(model.type==='image'&&model.accessibility.decorative&&model.accessibility.label===NATURAL_ARTWORK_LABEL),
         )
         .sort((a, b) => a.model.layout.y - b.model.layout.y);
       for (const { model, node } of nodes) {

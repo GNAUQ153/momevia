@@ -1,3 +1,7 @@
+## Unreleased — Bỏ nút tạm dừng chuyển mẫu ở trang chủ (2026-11-23)
+
+- Chỉ bỏ nút Tạm dừng/Tiếp tục dưới hình mẫu; giữ nguyên hiệu ứng, tự chuyển mẫu và ba nút chọn mẫu. Cập nhật kiểm thử theo giao diện này.
+
 ## Unreleased — Chuyển tiếp cuộn ở biên các cột thư viện (2026-11-23)
 
 - Cả danh sách, biểu mẫu và xem trước của Thư viện canvas/Âm thanh cho phép cuộn tiếp toàn trang khi cột đã đến đầu hoặc cuối. Khi cột còn khoảng cuộn, trang và các cột khác đứng yên.

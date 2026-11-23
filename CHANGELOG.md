@@ -1,3 +1,9 @@
+## Unreleased — Áp dụng mẫu vào DB đang dùng và kiểm 4100 (2026-11-23)
+
+- Cập nhật 87 mục thư viện trong momevia_dev theo snapshot/revision đã rà; backup đủ 36 bảng và 4 ảnh trước ghi. Giữ thứ tự thật, 34 bảng nghiệp vụ và byte ảnh cũ; chạy lại ghi thêm 0 mục.
+- Kiểm 21 mẫu từ DB thật, VI/EN và ba cảnh bằng bàn phím trên 4100. Lưu ảnh và báo cáo; unit bổ sung đạt 746/746.
+- Quy định LF cả SVG EN để build không tạo thay đổi giả trên Windows; giữ bí mật và backup riêng ngoài Git.
+
 ## Unreleased — Mẫu quà tự nhiên · 8/8 (2026-11-23)
 
 - Lưu bằng chứng trực quan, sổ nguồn và kết quả áp dụng trên DB đang dùng; không đưa backup riêng hoặc bí mật vào Git.

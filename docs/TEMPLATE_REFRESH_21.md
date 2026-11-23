@@ -2,7 +2,7 @@
 
 ## Áp dụng DB thật theo yêu cầu tiếp theo
 
-Đã cập nhật momevia_dev tại 127.0.0.1:3306: 75 hàng nội dung/mẫu và 12 element nguồn ngoài; tổng thư viện 480 hàng. 34 bảng nghiệp vụ và 4 tệp ảnh cũ giữ nguyên theo hash so với backup đủ 36 bảng. Chạy lại hai gói ghi thêm 0 hàng. Backup riêng ở database/private/natural-refresh-live-20261123, không commit. Chỉ khác thứ tự và UUID nội bộ so với baseline QA; đã giữ thứ tự thực tế và tạo expectedRevision/fingerprint đúng snapshot đang dùng. Cổng 4100 đang được chuyển sang mã tương thích, sẽ kiểm lại sau khi commit. [Bằng chứng áp dụng](template-refresh-natural-20261123/live/database-rollout.json).
+Đã cập nhật momevia_dev tại 127.0.0.1:3306: 75 hàng nội dung/mẫu và 12 element nguồn ngoài; tổng thư viện 480 hàng. 34 bảng nghiệp vụ và 4 tệp ảnh cũ giữ nguyên theo hash so với backup đủ 36 bảng. Chạy lại hai gói ghi thêm 0 hàng. Backup riêng ở database/private/natural-refresh-live-20261123, không commit. Chỉ khác thứ tự và UUID nội bộ so với baseline QA; đã giữ thứ tự thực tế và tạo expectedRevision/fingerprint đúng snapshot đang dùng. Cổng 4100 đã chạy mã mới: kiểm đủ 21 mẫu VI/EN, ba cảnh bằng bàn phím, bìa DB và 243 element; không tạo bản ghi người dùng để kiểm. Sau khởi động, 34 bảng nghiệp vụ và 4 ảnh cũ tiếp tục khớp hash backup. [Ảnh danh mục thật](template-refresh-natural-20261123/live/catalog-4100.png) · [Báo cáo trình duyệt 4100](template-refresh-natural-20261123/live/browser-4100.json). [Bằng chứng áp dụng](template-refresh-natural-20261123/live/database-rollout.json).
 
 Các phần QA bên dưới ghi lại kết quả trước lần áp dụng này. Kiểm bổ sung cho guard live đạt; unit hiện tại 746/746.
 
@@ -10,7 +10,7 @@ Bản hiện tại là **Natural Originals V4**, thay hướng minh họa vector
 
 - Chạy: [Danh mục QA 4121](http://localhost:4121/explore).
 - Xem toàn bộ bằng chứng: [21 mẫu, ba cảnh, 40 element, kệ mùa và báo cáo](http://localhost:4121/assets/template-natural-qa/index.html).
-- [4100](http://localhost:4100/explore) giữ nguyên. Repo gốc vẫn ở nhánh feat/recorded-audio-library và sạch; công việc nằm riêng tại P:/entrepreneuer/project/momevia-template-refresh-21, nhánh feat/template-refresh-21, xuất phát 38c465d007687f54190adcb521dadfea04ad9d40. Chưa commit, merge, push hoặc triển khai thực tế.
+- [4100](http://localhost:4100/explore) hiện dùng thư viện mới trong momevia_dev. Repo chạy chính ở nhánh feat/template-refresh-live-20261123; nhánh triển khai nội dung là feat/template-refresh-21, xuất phát 38c465d007687f54190adcb521dadfea04ad9d40. Tổng 9 commit, không commit trên main và chưa push. [Chuỗi commit](TEMPLATE_REFRESH_COMMITS.md).
 
 ## Trạng thái 21/21
 
@@ -79,11 +79,11 @@ Gói cập nhật đã chuẩn bị:
 
 Các gói có expectedRevision, snapshot trước và fingerprint, lịch sử, phát hiện Admin sửa riêng, tiếp tục sau gián đoạn, chạy lại không ghi thêm và hoàn nguyên bằng revision mới. Mục thêm mới chuyển disabled khi hoàn nguyên. Validator giới hạn đúng ID được rà. [Gói dựng lại cho cùng hash](template-refresh-natural-20261123/bundle-reproducibility.json); gói vector v1 được giữ nguyên. Sau rollback, muốn áp dụng lại cần baseline/revision mới, không bỏ qua CAS.
 
-CLI database/scripts/natural-library-rollout.mjs mặc định xem trước; chỉ nhận loopback DB có prefix momevia_canvas_qa_ và cờ QA rõ ràng. --from-vector-v1 chọn đường từ vector, --open-elements chọn gói 12 mục; --apply ghi, --apply --rollback hoàn nguyên. Chưa áp dụng gói nào vào DB thực tế.
+CLI database/scripts/natural-library-rollout.mjs mặc định xem trước; chỉ nhận loopback DB có prefix momevia_canvas_qa_ và cờ QA rõ ràng. --from-vector-v1 chọn đường từ vector, --open-elements chọn gói 12 mục; --apply ghi, --apply --rollback hoàn nguyên. Hai gói đã được áp dụng vào momevia_dev bằng baseline thực đã rà; đọc phần triển khai ở đầu tài liệu.
 
 ## Kiểm thử
 
-[Chi tiết](template-refresh-natural-20261123/test-results.json). Build và check đạt; **743/743 unit**, test:templates, test:canvas:browser và test:prediction:browser đạt. Bộ Canvas tổng hợp đi qua 243 element (một số nhãn console lịch sử còn ghi 172 nhưng assertion thực tế là 243/243). Không hạ giới hạn ghi hay bỏ kiểm quyền để đạt.
+[Chi tiết](template-refresh-natural-20261123/test-results.json). Build và check đạt; **746/746 unit**, test:templates, test:canvas:browser và test:prediction:browser đạt. Bộ Canvas tổng hợp đi qua 243 element (một số nhãn console lịch sử còn ghi 172 nhưng assertion thực tế là 243/243). Không hạ giới hạn ghi hay bỏ kiểm quyền để đạt.
 
 - 252 tổ hợp VI/EN × 320/390/1440 × chuyển động thường/giảm × 21 mẫu; đi đủ ba cảnh, điều khiển bằng bàn phím, gửi thử và phục hồi focus.
 - 126 tổ hợp tên 60 ký tự và lời chúc 1.000 ký tự; mobile, desktop và mô phỏng zoom 200%.
@@ -112,6 +112,7 @@ Median trang khám phá tăng từ 1.720 lên 2.308 giây trong lượt đo này
 
 ## Phạm vi còn chưa xác minh
 
-Chưa thử điện thoại vật lý, Safari/iOS, trình đọc màn hình hoặc bàn phím ảo thật. 243 thumbnail/chèn/undo không thay thế ảnh Fabric riêng của từng element cũ. Không gọi thanh toán/merchant thật, không sửa quà người dùng, không cập nhật ứng dụng hoặc DB ở 4100. Chưa hợp nhất với nhánh UI, push hay deploy. Các kết quả thiết bị là mô phỏng trình duyệt, các bản phát và lời đáp là dữ liệu QA.
+Chưa thử điện thoại vật lý, Safari/iOS, trình đọc màn hình hoặc bàn phím ảo thật. 243 thumbnail/chèn/undo không thay thế ảnh Fabric riêng của từng element cũ. Không gọi thanh toán/merchant thật, không sửa quà người dùng, đã cập nhật thư viện DB và ứng dụng 4100 theo yêu cầu bổ sung. Chưa push hoặc triển khai máy chủ bên ngoài. Các kết quả thiết bị là mô phỏng trình duyệt, các bản phát và lời đáp là dữ liệu QA.
 
 Các bằng chứng vector trước đổi hướng được lưu dưới docs/template-refresh-20261123; chỉ là lịch sử, không dùng thay kết quả Natural V4.
+

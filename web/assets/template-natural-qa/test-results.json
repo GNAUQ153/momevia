@@ -2,7 +2,7 @@
   "scope": "Natural Originals V4 plus 12 reviewed open-source additions",
   "unit": {
     "command": "npm test",
-    "passed": 743,
+    "passed": 746,
     "failed": 0,
     "skipped": 0
   },
@@ -116,7 +116,22 @@
     "screen readers",
     "real mobile virtual keyboards",
     "production payments",
-    "production database rollout",
-    "individual Fabric screenshots of every legacy element"
-  ]
+    "individual Fabric screenshots of every legacy element",
+    "external/public server deployment"
+  ],
+  "liveRollout": {
+    "url": "http://localhost:4100/explore",
+    "verifiedTemplates": 21,
+    "languages": [
+      "vi",
+      "en"
+    ],
+    "threeScenesByKeyboard": true,
+    "libraryRows": 480,
+    "elements": 243,
+    "noUserWrites": true,
+    "passed": true,
+    "businessTablesUnchanged": 34,
+    "existingMediaUnchanged": 4
+  }
 }

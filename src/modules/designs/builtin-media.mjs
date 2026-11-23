@@ -6,7 +6,7 @@ import { EVENT_MEDIA } from '../../../web/js/shared/canvas/event-media.js';
 import { photoSlots } from '../../../web/js/shared/canvas/interactions.js';
 import { canvasError } from './errors.mjs';
 export function builtinMedia(id) {
-  const spec = EVENT_MEDIA[id];
+  const spec = Object.hasOwn(EVENT_MEDIA,id)?EVENT_MEDIA[id]:null;
   if (!spec) return null;
   const file = fileURLToPath(new URL(`../../../web/assets/event-cards/${spec.file}`, import.meta.url));
   const bytes = fs.readFileSync(file);
@@ -16,7 +16,12 @@ export function builtinMedia(id) {
 }
 export function builtinCoverImages() {
   return new Map(Object.keys(EVENT_MEDIA).map(id => {
-    const media = builtinMedia(id);
+    let media = builtinMedia(id);
+    if(media.cover){
+      const source=media.cover,bytes=fs.readFileSync(new URL('../../../web/assets/event-cards/'+source.file,import.meta.url));
+      if(createHash('sha256').update(bytes).digest('hex')!==source.sha256)throw canvasError(503,'BUILTIN_MEDIA_UNAVAILABLE','Cover artwork integrity mismatch');
+      media={...source,bytes};
+    }
     return [id, { url: `data:image/webp;base64,${media.bytes.toString('base64')}`, width: media.width, height: media.height }];
   }));
 }

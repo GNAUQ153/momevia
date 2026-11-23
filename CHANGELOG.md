@@ -1,3 +1,7 @@
+## Unreleased — Mẫu quà tự nhiên · 2/8 (2026-11-23)
+
+- Dựng lại 21 mẫu ba cảnh và bìa danh mục/theo mùa từ cùng document.
+
 ## Unreleased — Mẫu quà tự nhiên · 1/8 (2026-11-23)
 
 - Bổ sung ảnh, hoa lá, chất liệu và đồ họa có nguồn/giấy phép; giữ tệp hash cũ.

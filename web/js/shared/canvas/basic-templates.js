@@ -8,6 +8,7 @@ import { emptyPrediction } from './prediction.js';
 import { paintEventCard } from './event-cards.js';
 import { libraryDocument } from './library-state.js';
 import { pinDocumentArtwork } from './library-materialize.js';
+import { paintRefreshedTemplate } from './refresh-21.js';
 
 // Built-in editable compositions, not Creator-approved versions or new products.
 // Existing IDs, prices and provenance stay with Catalog; only new starting layouts change.
@@ -105,6 +106,7 @@ export function createBasicTemplate(template, localize = canonicalText) {
   }
 
   if (paintEventCard(template.id, doc, { shape, line, text, binding, action, add }, p, localize)) return validateDocument(doc);
+  if (paintRefreshedTemplate(template.id, doc, { shape, line, text, binding, action, add }, p, localize)) return validateDocument(doc);
 
   if (p.motif === 'memory') {
     doc.scenes[0].background.color = p.paper;

@@ -87,8 +87,8 @@ function interactionSvg(node, images) {
     (p.kind === 'event-countdown' ? labelSvg('00 : 00 : 00',16,123,w-32,25) : '');
 }
 
-export function previewSvg(document, sceneId = document.entrySceneId, images = new Map(), { serifWoff2 } = {}) {
-  validateDocument(document, { mode: 'publish', requiredBindings: [] });
+export function previewSvg(document, sceneId = document.entrySceneId, images = new Map(), { serifWoff2,validationMode='publish' } = {}) {
+  validateDocument(document, { mode: validationMode, requiredBindings: [] });
   const scene = document.scenes.find(s => s.id === sceneId), size = document.artboard.baseSize;
   const nodes = new Map(document.elements.map(element => [element.id, element]));
   const content = scene.elementIds.map(id => {

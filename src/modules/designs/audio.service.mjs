@@ -4,9 +4,10 @@ import { fileURLToPath } from 'node:url';
 import { createHash, randomUUID } from 'node:crypto';
 import { AUDIO_LIMITS } from '../../../web/js/shared/canvas/audio-pcm.js';
 import { canvasError, uuid } from './errors.mjs';
+import { SFX_CURRENT_VERSION } from '../../../web/js/shared/canvas/sfx-index.js';
 
 const root=fileURLToPath(new URL('../../../web/assets/sfx/',import.meta.url));
-export function sfxCatalog(version=1) {
+export function sfxCatalog(version=SFX_CURRENT_VERSION) {
  if(!/^[1-9]\d{0,2}$/.test(String(version)))throw canvasError(404,'SFX_NOT_FOUND','Không tìm thấy phiên bản âm thanh.');
  const filename=path.join(root,`v${version}`,'catalog.json');if(!fs.existsSync(filename))throw canvasError(404,'SFX_NOT_FOUND','Không tìm thấy phiên bản âm thanh.');
  return JSON.parse(fs.readFileSync(filename,'utf8'));

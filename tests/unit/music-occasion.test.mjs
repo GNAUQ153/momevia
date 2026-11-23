@@ -12,29 +12,30 @@ import { translate } from '../../web/js/shared/locale.js';
 
 const translated = (dictionary, locale) => key => translate(dictionary, locale, key);
 const names = ['birthday', 'wedding', 'christmas', 'newyear', 'tet', 'valentine'];
+const expectedCounts = { birthday:4, wedding:4, christmas:4, newyear:4, tet:1, valentine:5, general:28 };
 
-test('Thư viện tăng lên 10 bài với sáu dịp riêng và không trùng ID', () => {
-  assert.equal(SOUNDTRACKS.length, 10);
+test('Thư viện có 50 bài với sáu dịp riêng và không trùng ID', () => {
+  assert.equal(SOUNDTRACKS.length, 50);
   assert.equal(new Set(SOUNDTRACKS.map(track => track.id)).size, SOUNDTRACKS.length);
   assert.deepEqual(SOUNDTRACK_OCCASIONS, ['general', ...names]);
   for (const occasion of names) {
     const tracks = SOUNDTRACKS.filter(track => track.occasion === occasion);
-    assert.equal(tracks.length, 1, occasion);
-    assert.equal(tracks[0].durationSeconds, 24);
+    assert.equal(tracks.length, expectedCounts[occasion], occasion);
+    assert.ok(tracks[0].durationSeconds >= 10 && tracks[0].durationSeconds <= 900);
     assert.ok(['gentle', 'joyful'].includes(tracks[0].mood));
     assert.equal(soundtrackById(tracks[0].id), tracks[0]);
   }
-  assert.equal(SOUNDTRACKS.filter(track => track.occasion === 'general').length, 4);
+  assert.equal(SOUNDTRACKS.filter(track => track.occasion === 'general').length, expectedCounts.general);
 });
 
 test('Mỗi MP3 là asset nội bộ, không cho đường dẫn hoặc URL từ ngoài', () => {
   for (const item of SOUNDTRACKS) {
     assert.match(item.id, /^[a-z0-9-]+$/);
-    assert.equal(item.src, `/assets/music/${item.id}.mp3`);
+    assert.equal(item.src, `/assets/music/v2/${item.id}.mp3`);
     const file = new URL(`../../web${item.src}`, import.meta.url);
     const magic = readFileSync(file).subarray(0, 3).toString('ascii');
     assert.equal(magic, 'ID3', item.id);
-    assert.ok(statSync(file).size > 50_000 && statSync(file).size < 500_000);
+    assert.ok(statSync(file).size > 50_000 && statSync(file).size < 12 * 1024 * 1024);
   }
   assert.equal(soundtrackById('https://example.org/a.mp3'), null);
   assert.equal(soundtrackById('../private'), null);
@@ -43,21 +44,21 @@ test('Mỗi MP3 là asset nội bộ, không cho đường dẫn hoặc URL từ
 test('Bộ lọc dịp và tâm trạng chỉ đọc metadata, không thay đổi thứ tự danh mục', () => {
   for (const occasion of names) {
     const matches = matchingMusicTracks({ occasion });
-    assert.equal(matches.length, 1, occasion);
-    assert.equal(matches[0].occasion, occasion);
+    assert.equal(matches.length, expectedCounts[occasion], occasion);
+    assert(matches.every(track => track.occasion === occasion));
   }
   assert.equal(matchingMusicTracks({ occasion: 'invalid' }).length, 0);
   assert.equal(matchingMusicTracks({ occasion: 'wedding', mood: 'joyful' }).length, 0);
-  assert.equal(matchingMusicTracks({ occasion: 'wedding', mood: 'gentle' }).length, 1);
+  assert.equal(matchingMusicTracks({ occasion: 'wedding', mood: 'gentle' }).length, 4);
   assert.deepEqual(matchingMusicTracks({ occasion: 'all' }), SOUNDTRACKS);
 });
 
 test('Tìm nhạc theo dịp ở VI/EN và hỗ trợ tiếng Việt không dấu', () => {
   assert.equal(normalizeMusicQuery('  ĐÁM CƯỚI  '), 'dam cuoi');
-  assert.equal(matchingMusicTracks({ query: 'dam cuoi', occasion: 'wedding', translate: translated(vi, 'vi') }).length, 1);
-  assert.equal(matchingMusicTracks({ query: 'sinh nhat', occasion: 'birthday', translate: translated(vi, 'vi') }).length, 1);
-  assert.equal(matchingMusicTracks({ query: 'Christmas', occasion: 'christmas', translate: translated(en, 'en') }).length, 1);
-  assert.equal(matchingMusicTracks({ query: 'wedding', occasion: 'wedding', translate: translated(en, 'en') }).length, 1);
+  assert.equal(matchingMusicTracks({ query: 'dam cuoi', occasion: 'wedding', translate: translated(vi, 'vi') }).length, 4);
+  assert.equal(matchingMusicTracks({ query: 'sinh nhat', occasion: 'birthday', translate: translated(vi, 'vi') }).length, 4);
+  assert.equal(matchingMusicTracks({ query: 'Christmas', occasion: 'christmas', translate: translated(en, 'en') }).length, 4);
+  assert.equal(matchingMusicTracks({ query: 'wedding', occasion: 'wedding', translate: translated(en, 'en') }).length, 4);
   assert.equal(matchingMusicTracks({ query: 'sinh nhat', occasion: 'birthday', translate: translated(en, 'en') }).length, 0);
 });
 

@@ -1,0 +1,205 @@
+{
+  "reason": "Preserve original bytes for gifts already pinned before externally sourced v2 audio.",
+  "files": [
+    {
+      "file": "web/assets/music/birthday-sparkle.mp3",
+      "sha256": "5f21e6a224f69d6f6985d649fb471d7f681b941e73a4070dd44e05bf85001269"
+    },
+    {
+      "file": "web/assets/music/bright-day.mp3",
+      "sha256": "7b7c06975cf2abd5ee276e4527ff6af49f404d06aae9332c56fd0e0b216189c1"
+    },
+    {
+      "file": "web/assets/music/calm-dawn.mp3",
+      "sha256": "057d9d4bc3f73dcc85f21e7651600ffb7cb538ea3fc38755bb7d8b0c90d32efa"
+    },
+    {
+      "file": "web/assets/music/christmas-lights.mp3",
+      "sha256": "747f60ab3d323b9015863a68c81cb35628d59488c86042d6aa0fd25baff71d91"
+    },
+    {
+      "file": "web/assets/music/dreamy-night.mp3",
+      "sha256": "43c3e99fb1810195b7f7a5b20256c4f91b8359784980991aeab15b641692bb29"
+    },
+    {
+      "file": "web/assets/music/little-celebration.mp3",
+      "sha256": "87f7f718df8fd11e345c313a903395f2c3f36a159d57d8acf2181562f79d1d5a"
+    },
+    {
+      "file": "web/assets/music/newyear-countdown.mp3",
+      "sha256": "ae874e3f859515bebc18c302beda2c02307fa253c3dfe829d62f9c2a8e19b862"
+    },
+    {
+      "file": "web/assets/music/tet-spring.mp3",
+      "sha256": "0f92e7d101e25f5b8e58562ea7a16233554c0e0984e9630fba5b791c4978fec4"
+    },
+    {
+      "file": "web/assets/music/valentine-whisper.mp3",
+      "sha256": "cee8f7a3f8b48a9d87931622706b018eadf340066d940dfa2cb5d9de985bbeb5"
+    },
+    {
+      "file": "web/assets/music/wedding-promise.mp3",
+      "sha256": "10d7018ef727bf2ec4bcf213f803cffe0429481bc90d9dfce4d609387b9922b5"
+    },
+    {
+      "file": "web/assets/sfx/v1/balloon-pop.wav",
+      "sha256": "4ec227207e13e0a03ac479cd1cb9a8ff700abc4a7e48917a030730d3276bde1e"
+    },
+    {
+      "file": "web/assets/sfx/v1/bird-call.wav",
+      "sha256": "97e49365e4e17921ebf07483321f81a1248428f36d06e6762f40c1a8ab1054a9"
+    },
+    {
+      "file": "web/assets/sfx/v1/birthday-chime.wav",
+      "sha256": "9cd589dbeb1fb1457a190ba817e42f8450b068bed110d5b9e746fe57c8f9cfb4"
+    },
+    {
+      "file": "web/assets/sfx/v1/box-pop.wav",
+      "sha256": "cba73e0c900d6629fc56c2bed13d72d1ed8394232a3adc32130365ce9b827f83"
+    },
+    {
+      "file": "web/assets/sfx/v1/bright-ending.wav",
+      "sha256": "8b1bd6738f6b7f10d55d51714811feaaeb3ce8a58b59ad00987bff543e64c112"
+    },
+    {
+      "file": "web/assets/sfx/v1/camera-shutter.wav",
+      "sha256": "55fb89985a837df8a2c3c2fb4783afef6af3df2e877224a90720f256f9269f2d"
+    },
+    {
+      "file": "web/assets/sfx/v1/candle-blow.wav",
+      "sha256": "0f1038bded08ec71d6fb1afd465fa28f36d68b24ff49ee78f4dcbf3e6a12748d"
+    },
+    {
+      "file": "web/assets/sfx/v1/choice-ding.wav",
+      "sha256": "9759a3ec8f167eb2953d87044efad3dfd857beaa8b7715efb5e6582373d74dbc"
+    },
+    {
+      "file": "web/assets/sfx/v1/clock-tick.wav",
+      "sha256": "e0bbd44bced9ef05de1c24ad72f0061f3a87cd65c4ccbf7788a4b5ba0e2290d5"
+    },
+    {
+      "file": "web/assets/sfx/v1/confetti-pop.wav",
+      "sha256": "65458355bde33e37de3076d0c659f1a05d89e2c1cb7fe43d25fb3d5b3514bd42"
+    },
+    {
+      "file": "web/assets/sfx/v1/fairy-dust.wav",
+      "sha256": "2bd5ecec0276b7cb035e32ab0c6787000a89a3c631b20c7fda7efdf678125159"
+    },
+    {
+      "file": "web/assets/sfx/v1/gentle-click.wav",
+      "sha256": "3104ff286a800b3c620e8fb20d1f3b38724912b594ea575e1f632e5965e27f3d"
+    },
+    {
+      "file": "web/assets/sfx/v1/gentle-wind.wav",
+      "sha256": "82ee1a2548b39a56fc3bbed8d64dc22731b7adf7c847785a5258679cbefb70ba"
+    },
+    {
+      "file": "web/assets/sfx/v1/gift-shake.wav",
+      "sha256": "0364cc5474d77d10c29d21e950f03e2d211007e1fd6bc0199e66aaebfc993307"
+    },
+    {
+      "file": "web/assets/sfx/v1/glass-twinkle.wav",
+      "sha256": "f3feaca1169b72295992b782ed6e3dd1cbd76ccd93e82093657febe66eb52d70"
+    },
+    {
+      "file": "web/assets/sfx/v1/goodnight-ending.wav",
+      "sha256": "7470a61026d082bf7d7c41f5309349d8ac227f47353bbe29cc53c23860e77c78"
+    },
+    {
+      "file": "web/assets/sfx/v1/heartbeat.wav",
+      "sha256": "6840d3b95ec802aa9572f3c57e112c3a58af2d850cc9ad6c270fb13234b8c875"
+    },
+    {
+      "file": "web/assets/sfx/v1/letter-unfold.wav",
+      "sha256": "ecbbcc7c84efcce4ecf37e946c625461ea064937c235fc34d931274aef0a67aa"
+    },
+    {
+      "file": "web/assets/sfx/v1/magic-reveal.wav",
+      "sha256": "61386dd10a74c4d7565882bccdde81c3cc91ad166c50363e74f73cd579c46164"
+    },
+    {
+      "file": "web/assets/sfx/v1/music-box.wav",
+      "sha256": "ac2de00797a149a34d38b656afc46c45d8d247da3a7cdbc01b6c37fad00820d1"
+    },
+    {
+      "file": "web/assets/sfx/v1/page-turn.wav",
+      "sha256": "31e0733293c620e83a8abb882581f980def8aca659a4d67ab0e092bc02df0797"
+    },
+    {
+      "file": "web/assets/sfx/v1/paper-rustle.wav",
+      "sha256": "d6103107fb2f16ee51519064b396f87fc73a10d1059f96f2e06c513c95ead4bf"
+    },
+    {
+      "file": "web/assets/sfx/v1/party-horn.wav",
+      "sha256": "4a15db4cf96dc88c50bf8e6097916ebc00a0d1da07b2be8dfc005e4841110233"
+    },
+    {
+      "file": "web/assets/sfx/v1/pen-sign.wav",
+      "sha256": "88e20ac29984b308347841b401113d63ee85466a7722436778668709ca3aadb9"
+    },
+    {
+      "file": "web/assets/sfx/v1/playful-ending.wav",
+      "sha256": "07f6cd79c5b32349649211c90c70b406505cf52aa19166603e60a1193682ddf2"
+    },
+    {
+      "file": "web/assets/sfx/v1/projector-click.wav",
+      "sha256": "3c8eeb7ab3cb4b5abd3a60a09a08c0a2c3776ca5f5bbef6add610cd678604b1b"
+    },
+    {
+      "file": "web/assets/sfx/v1/rain-window.wav",
+      "sha256": "c66b80063f41857fe17b30edfc8f12e09e60e70e7162d0c18f7b0906c39fcba4"
+    },
+    {
+      "file": "web/assets/sfx/v1/ribbon-untie.wav",
+      "sha256": "59fb4c91ac4605b073af0750965993beed7665de62ece9c8bd7a83db6431b363"
+    },
+    {
+      "file": "web/assets/sfx/v1/seal-peel.wav",
+      "sha256": "60f2384606795c0d34500845fb0c1440b357e7901a3a7a00525a7491335f0022"
+    },
+    {
+      "file": "web/assets/sfx/v1/shore-wave.wav",
+      "sha256": "31f993a76e3377665062d67cf65ee5ab8d318aa908c071886f0ce2990024be11"
+    },
+    {
+      "file": "web/assets/sfx/v1/soft-tap.wav",
+      "sha256": "82974a3084dc9a9e1f675f5e1803cad70aaa54652fccb65a6d7662a2633e9c97"
+    },
+    {
+      "file": "web/assets/sfx/v1/star-trail.wav",
+      "sha256": "6c47779a11d3c64a2d50e6c95f810b30632008cfcfcc248916a614056cc92f1c"
+    },
+    {
+      "file": "web/assets/sfx/v1/success-pair.wav",
+      "sha256": "6a1f709a2662ae2d1f21a06fb1b0df16a09f1fc296d8b70d70866aee671605ad"
+    },
+    {
+      "file": "web/assets/sfx/v1/swipe-whoosh.wav",
+      "sha256": "4ba087c1cecd3e67f52438517b69ce4a2b6cc9b18d3309c51804d1e9aaf1dcd3"
+    },
+    {
+      "file": "web/assets/sfx/v1/tender-ending.wav",
+      "sha256": "b3760948cd965ee07005999d2a45f93e7d2d27ba83afa00dcd2d1da2941c3d2d"
+    },
+    {
+      "file": "web/assets/sfx/v1/tiny-spark.wav",
+      "sha256": "25d078945695f79a0b5ed9dec17baa543ea42a240f1da1e79855ed861238e333"
+    },
+    {
+      "file": "web/assets/sfx/v1/warm-ending.wav",
+      "sha256": "ee2fd9fbcdb547a7c59738855adfec7eadb8c64404e999efcd5982074fafc0f4"
+    },
+    {
+      "file": "web/assets/sfx/v1/water-drop.wav",
+      "sha256": "0d61c7bb78737ec0126f8416c2fd1d585ebed6bbd64c9a2c2c2aa1e86d0ed7b7"
+    },
+    {
+      "file": "web/assets/sfx/v1/wood-lid.wav",
+      "sha256": "79bdf28f0ad442df4a3dac59cc95694b805629853a31a5b341977b11d7985a95"
+    },
+    {
+      "file": "web/assets/sfx/v1/wrap-tear.wav",
+      "sha256": "89b2e049eb9e2a5337ee030b1fd747e1f26bf7b6656d58968559d9a4bcd44d11"
+    }
+  ]
+}

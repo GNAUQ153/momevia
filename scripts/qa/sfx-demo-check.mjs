@@ -5,6 +5,7 @@ import { chromium,webkit } from 'playwright';
 import { execFileSync } from 'node:child_process';
 const file=process.argv[2];assert(file,'Provide the isolated demo session file.');
 const session=JSON.parse(fs.readFileSync(file,'utf8')),directory=path.dirname(path.resolve(file)),base=session.base;
+const currentSfx=JSON.parse(fs.readFileSync(new URL('../../web/assets/sfx/v2/catalog.json',import.meta.url),'utf8'));
 const report={physicalDevices:false,checks:[],webkit:{engine:'Playwright WebKit Windows',physicalSafari:false}};
 const browser=await chromium.launch({channel:'chrome',headless:true});let wk;
 try{
@@ -19,9 +20,9 @@ try{
  });
  page.on('request',r=>requests.push(r.url()));
  for(const [name,route]of [['catalog','/explore'],['gift-without-sound','/g/'+session.silentGift.slug]]){
-  requests.length=0;await page.goto(base+route);await page.locator(name==='catalog'?'#main h1':'.gift-runtime-stage').waitFor();await page.waitForTimeout(600);const audio=requests.filter(url=>/\/api\/designs\/sfx(?:\/|$)|\.wav(?:\?|$)/.test(url));assert.equal(audio.length,0);report.checks.push({name,audioRequests:0,result:'PASS'});
+  requests.length=0;await page.goto(base+route);await page.locator(name==='catalog'?'#main h1':'.gift-runtime-stage').waitFor();await page.waitForTimeout(600);const audio=requests.filter(url=>/\/api\/designs\/sfx(?:\/|$)|\.(?:wav|mp3)(?:\?|$)/.test(url));assert.equal(audio.length,0);report.checks.push({name,audioRequests:0,result:'PASS'});
  }
- await page.goto(base+'/g/'+session.gift.slug);await page.locator('[data-sound-control]').waitFor();assert.equal(await page.evaluate(()=>globalThis.__qaAudio.contexts.length),0);await page.getByRole('button',{name:'Bật âm thanh',exact:true}).tap();await page.waitForFunction(()=>globalThis.__qaAudio.decodes>=2);await page.locator('.gift-runtime-envelope').tap();await page.waitForFunction(()=>globalThis.__qaAudio.starts.length===1);const first=await page.evaluate(()=>globalThis.__qaAudio.starts[0]);assert.equal(first[1],0);assert.equal(first[2],.85);await page.getByRole('button',{name:'Nghe đoạn tín hiệu giữa',exact:true}).tap();await page.waitForFunction(()=>globalThis.__qaAudio.starts.length===2);await page.screenshot({path:path.join(directory,'demo-recipient.png'),fullPage:true});report.checks.push({name:'live recipient: opt-in preparation, envelope feedback and personal clip',result:'PASS',firstStartArguments:first});
+ await page.goto(base+'/g/'+session.gift.slug);await page.locator('[data-sound-control]').waitFor();assert.equal(await page.evaluate(()=>globalThis.__qaAudio.contexts.length),0);await page.getByRole('button',{name:'Bật âm thanh',exact:true}).tap();await page.waitForFunction(()=>globalThis.__qaAudio.decodes>=2);await page.locator('.gift-runtime-envelope').tap();await page.waitForFunction(()=>globalThis.__qaAudio.starts.length===1);const first=await page.evaluate(()=>globalThis.__qaAudio.starts[0]);assert.equal(first[1],0);assert.equal(first[2],currentSfx.assets.find(a=>a.id==='seal-peel').durationMs/1000);await page.getByRole('button',{name:'Nghe đoạn tín hiệu giữa',exact:true}).tap();await page.waitForFunction(()=>globalThis.__qaAudio.starts.length===2);await page.screenshot({path:path.join(directory,'demo-recipient.png'),fullPage:true});report.checks.push({name:'live recipient: opt-in preparation, envelope feedback and personal clip',result:'PASS',firstStartArguments:first});
  const mediaId=(await (await fetch(base+'/api/gifts/gifts/'+session.gift.slug)).json()).gift.documentSnapshot.elements.find(e=>e.sound?.kind==='audio').sound.assetId;
  wk=await webkit.launch({headless:true});const p=await wk.newPage({viewport:{width:390,height:844},hasTouch:true});
  await p.addInitScript(()=>{globalThis.__wkContexts=[];const Context=globalThis.AudioContext||globalThis.webkitAudioContext;if(Context)globalThis.AudioContext=class extends Context{constructor(options){super(options);globalThis.__wkContexts.push(this);}};});

@@ -9,6 +9,7 @@ import { DesignsService } from './designs.service.mjs';
 import { AssetsService } from './assets.service.mjs';
 import { registerDesignRoutes } from './routes.mjs';
 import { CanvasLibraryService } from './library.service.mjs';
+import { MusicLibraryService } from './music-library.service.mjs';
 
 export function canvasProfile(env = process.env) {
   const mode = env.DESIGNS_STORAGE || 'json';
@@ -26,6 +27,8 @@ export async function createApp(config, dependencies) {
   const publication = client ? new MySqlPublicationUnitOfWork(client) : repository;
   const service = new DesignsService({ repository, publication, config, flags, mediaRoot: dataPath('designs', 'assets'), profile, ...dependencies });
   service.library = library;
+  service.musicLibrary = new MusicLibraryService(client);
+  await service.musicLibrary.ready();
   const assets = new AssetsService(service); const router = new Router(); const writeLimit = new RateLimiter({ limit: 240, windowMs: 60_000 });
   registerDesignRoutes(router, { service, assets, config, resolveUser: dependencies.resolveUser, writeLimit });
   return { router, service, assets, repository, publication, library, profile, flags, writeLimit, close: async () => { writeLimit.close(); await client?.close(); } };

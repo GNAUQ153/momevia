@@ -1,3 +1,38 @@
+## Unreleased — Bỏ nút tạm dừng chuyển mẫu ở trang chủ (2026-11-23)
+
+- Chỉ bỏ nút Tạm dừng/Tiếp tục dưới hình mẫu; giữ nguyên hiệu ứng, tự chuyển mẫu và ba nút chọn mẫu. Cập nhật kiểm thử theo giao diện này.
+
+## Unreleased — Chuyển tiếp cuộn ở biên các cột thư viện (2026-11-23)
+
+- Cả danh sách, biểu mẫu và xem trước của Thư viện canvas/Âm thanh cho phép cuộn tiếp toàn trang khi cột đã đến đầu hoặc cuối. Khi cột còn khoảng cuộn, trang và các cột khác đứng yên.
+- Kiểm bằng wheel hai hướng trên cả sáu vùng cuộn trong MySQL QA; xác minh thêm ba vùng Âm thanh trên ứng dụng local 4100, không sửa metadata Admin.
+
+## Unreleased — Đồng bộ riêng giao diện Âm thanh (2026-11-23)
+
+- Dùng cùng bố cục và thành phần ba cột như các tab Canvas khác: danh sách, thông tin mục và nghe thử; thanh Lưu/Tắt hoặc Bật/Bỏ thay đổi/Nghe thử theo cùng phương pháp thao tác.
+- Bỏ mã nội bộ, phiên bản và mã băm khỏi phần hiển thị âm thanh. API, bằng chứng nguồn, quyền Admin, revision và media giữ nguyên.
+- Vùng thông tin và nghe thử chuyển tiếp cuộn xuống trang tại biên; danh sách vẫn giữ vùng cuộn riêng. Các quy tắc thay đổi chỉ nằm trong phạm vi tab Âm thanh.
+- Nghe thử dùng bộ phát hiện có, bổ sung âm lượng và tiến độ xem thử; mở tab vẫn im lặng và chọn sẵn thông tin bài đầu tiên.
+- Bỏ danh sách dịch vụ tham khảo khỏi giao diện nghe thử; chỉ giữ nguồn và giấy phép của mục đang chọn. Hai bộ lọc Loại âm thanh/Trạng thái nằm cùng hàng, giữ kích thước chạm trên mobile.
+
+## Unreleased — Cuộn và bố cục thư viện Admin (2026-11-23)
+
+- Giữ các nút danh sách Canvas/Âm thanh khi chỉ đổi lựa chọn; các cột desktop cuộn độc lập và giữ bản nháp, bộ lọc, vị trí cuộn khi đổi tab.
+- Giữ nhóm thông tin mở, tiêu điểm và vị trí con trỏ qua cập nhật/lưu Ctrl+S; khóa ô âm thanh trong lúc chờ phản hồi lưu để không mất chỉnh sửa mới.
+- Thu gọn tab Âm thanh: chọn sẵn bài đầu tiên để hiển thị thông tin, hàng chọn gọn, biểu mẫu hai cột, bộ lọc phụ và nguồn bản quyền có thể mở rộng. Mở tab không phát/tải tệp âm và không ghi metadata.
+- Sửa cùng nguyên nhân dựng lại nút trong danh sách lớp Studio; ca browser kiểm trực tiếp DOM và cuộn với hơn 30 lớp.
+- Ca kiểm tra panel dùng schema MySQL QA riêng có thư viện hợp lệ, kiểm API trước UI; giữ nguyên các assertion. Kiểm JSON cũ tiếp tục chạy riêng. Không chạy migration trên DB vận hành để phục vụ ca này.
+
+## Unreleased — SFX và nhạc nguồn tác giả (2026-11-23)
+
+- Bộ chọn SFX dùng 50 tệp v2 nhập từ tác giả bên ngoài, có bản thu vật thật/thiên nhiên, hiệu ứng giao diện và nhạc hiệu; giữ nguyên âm v1 đã ghim trong quà cũ.
+- Thêm 50 bản nhạc theo chủ đề: 44 CC0 từ Alex McCulloch / Pro Sensory và Emma_MA, 6 bản Hàn từ Korea Copyright Commission với ghi công, có cả nhạc có lời; bộ chọn mới không dùng các vòng nhạc tự tổng hợp. Mười ID nhạc cũ vẫn đọc/phát được để không đổi quà đã gửi.
+- Giữ nguồn, giấy phép, hash nguồn/đích, thời lượng đo, chỉnh sửa và credit tác giả trong repo; trình nhập chỉ tải/giải mã/cắt/chuẩn hóa, không sinh âm thay thế. Kho lưu generator tổng hợp cũ để bảo vệ các tệp đã ghim.
+- Bổ sung tab Âm thanh trong thư viện Admin (`/admin/library`), giữ `/admin/music-library` để mở thẳng tab này: quản lý nhạc/SFX, tên VI/EN, chủ đề, từ khóa và ngừng chọn mới; CAS/lịch sử trên JSON và MySQL qua migration 015; giữ âm đã ghim. Các dịch vụ nhạc trả phí chưa kết nối.
+- Sửa danh sách nhạc 50 mục trong cột Studio hẹp: mỗi mục một hàng, chiều cao theo nội dung và vùng cuộn riêng, tránh chữ chồng nhau.
+- Hiện nguồn nhạc trong Studio và player; hiển thị đúng phút/giây cho bản dài, bảo toàn lựa chọn cũ khi mở nháp, sửa tràn ngang thanh nhạc/credit trên mobile.
+- Kiểm chứng và danh mục được gom tại `docs/SYSTEM_CONTENT_INVENTORY_20261122.md`; raw downloads và công cụ QA nằm trong `local/`, không đóng gói. Chưa nghe duyệt bởi người hoặc kiểm trên thiết bị di động thật.
+
 ## Unreleased — Canvas Mobile History V16 (2026-11-23)
 
 - Đặt hai nút Hoàn tác/Làm lại bên cạnh vùng Canvas khi chỉnh bố cục trên mobile (320–800px), vùng chạm 48px; không làm chật header. Desktop và chế độ điền nhanh giữ nguyên bố cục.

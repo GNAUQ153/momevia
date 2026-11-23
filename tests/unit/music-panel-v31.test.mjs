@@ -11,14 +11,14 @@ const localize = (dict, code) => key => translate(dict, code, key);
 
 test("Tìm tên bài nhạc bằng tiếng Việt có dấu hoặc không dấu", () => {
   assert.equal(normalizeMusicQuery("  Đêm MƠ MÀNG  "), "dem mo mang");
-  assert.deepEqual(matchingMusicTracks({ query: "binh minh", translate: localize(vi, "vi") }).map(x => x.id), ["calm-dawn"]);
-  assert.deepEqual(matchingMusicTracks({ query: "MƠ MÀNG", translate: localize(vi, "vi") }).map(x => x.id), ["dreamy-night"]);
+  assert.deepEqual(matchingMusicTracks({ query: "ky niem trong mo", translate: localize(vi, "vi") }).map(x => x.id), ["music-dreamed"]);
+  assert.deepEqual(matchingMusicTracks({ query: "DỊU DÀNG YÊU THƯƠNG", translate: localize(vi, "vi") }).map(x => x.id), ["music-in-love"]);
 });
 
 test("Tìm theo tên và mô tả tiếng Anh; kết hợp bộ lọc cảm xúc", () => {
-  assert.deepEqual(matchingMusicTracks({ query: "Bright", occasion: "general", translate: localize(en, "en") }).map(x => x.id), ["bright-day"]);
-  assert.deepEqual(matchingMusicTracks({ query: "warm", mood: "joyful", occasion: "general", translate: localize(en, "en") }).map(x => x.id), ["bright-day"]);
-  assert.equal(matchingMusicTracks({ query: "warm", mood: "gentle", occasion: "general", translate: localize(en, "en") }).length, 0);
+  assert.deepEqual(matchingMusicTracks({ query: "spring", occasion: "tet", translate: localize(en, "en") }).map(x => x.id), ["music-sunny-side-up"]);
+  assert.deepEqual(matchingMusicTracks({ query: "forward", mood: "joyful", occasion: "general", translate: localize(en, "en") }).map(x => x.id), ["music-one-step"]);
+  assert.equal(matchingMusicTracks({ query: "forward", mood: "gentle", occasion: "general", translate: localize(en, "en") }).length, 0);
   assert.equal(matchingMusicTracks({ mood: "other" }).length, 0);
   assert.equal(matchingMusicTracks({}).length, SOUNDTRACKS.length);
 });

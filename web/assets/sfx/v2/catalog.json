@@ -1,0 +1,2239 @@
+{
+  "formatVersion": 1,
+  "version": 2,
+  "assets": [
+    {
+      "id": "seal-peel",
+      "version": 2,
+      "name": {
+        "vi": "Bóc băng dính niêm phong",
+        "en": "Peeling packing tape"
+      },
+      "group": "paper",
+      "groupName": {
+        "vi": "Thư và giấy",
+        "en": "Letters & paper"
+      },
+      "keywords": "Bóc băng dính niêm phong Peeling packing tape Thư và giấy Letters & paper",
+      "durationMs": 4160,
+      "sampleCount": 183456,
+      "sampleRate": 44100,
+      "channels": 1,
+      "mime": "audio/wav",
+      "bytes": 366956,
+      "sourceFile": "web/assets/sfx/v2/seal-peel.wav",
+      "author": "Jarebear1223",
+      "license": "CC0-1.0",
+      "evidence": "web/assets/audio-licenses/tape.json",
+      "sourceKind": "recording",
+      "sourceMember": "tape.mp3",
+      "sourceSha256": "2da1759f586cf9593c1d987fb78e6dab980af7447f50c05eb7a0eb8ac5d03a41",
+      "sourceStartMs": 0,
+      "modifications": "excerpt, mono 44.1kHz PCM16, peak normalization, 3ms/15ms edge fades; no synthesized content",
+      "sha256": "0cb41c3ee9036c23b5ea8396afb7f16490fc18d67ffadb877c3f4ba724291d11",
+      "provenance": {
+        "sourcePage": "https://freesound.org/people/Jarebear1223/sounds/618541/",
+        "author": "Jarebear1223",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "pageSha256": "5f3b1aa9a0fbe754a5b2335d89c372d4a1e31356291d2fb094ba613466c26c74",
+        "verifiedAt": "2026-11-22T16:54:32.971557+00:00",
+        "sourceDownloadUrl": "https://cdn.freesound.org/previews/618/618541_11526892-hq.mp3",
+        "sourceRepresentation": "author-hosted public high-quality MP3 preview",
+        "sourceFileSha256": "2da1759f586cf9593c1d987fb78e6dab980af7447f50c05eb7a0eb8ac5d03a41",
+        "bundledLicenseFiles": [],
+        "licenseEvidenceNote": "No separate license text in this download; the original author submission explicitly links CC0. See recorded author-page evidence."
+      }
+    },
+    {
+      "id": "letter-unfold",
+      "version": 2,
+      "name": {
+        "vi": "Mở nếp giấy",
+        "en": "Opening folded paper"
+      },
+      "group": "paper",
+      "groupName": {
+        "vi": "Thư và giấy",
+        "en": "Letters & paper"
+      },
+      "keywords": "Mở nếp giấy Opening folded paper Thư và giấy Letters & paper",
+      "durationMs": 487.6190476190476,
+      "sampleCount": 21504,
+      "sampleRate": 44100,
+      "channels": 1,
+      "mime": "audio/wav",
+      "bytes": 43052,
+      "sourceFile": "web/assets/sfx/v2/letter-unfold.wav",
+      "author": "Luckius",
+      "license": "CC0-1.0",
+      "evidence": "web/assets/audio-licenses/paper.json",
+      "sourceKind": "recording",
+      "sourceMember": "WAV/Paper Sound - 1.wav",
+      "sourceSha256": "d04ac578637259182dc4c9e03664217d9c80c0da90d5784563dbe43bd6a264cc",
+      "sourceStartMs": 0,
+      "modifications": "excerpt, mono 44.1kHz PCM16, peak normalization, 3ms/15ms edge fades; no synthesized content",
+      "sha256": "4ad293eb01d62ac878466715aa1887aa6daa902d3dd8cd3d017e1984135acfba",
+      "provenance": {
+        "sourcePage": "https://opengameart.org/content/various-paper-sound-effects",
+        "author": "Luckius",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "pageSha256": "2710d4029d4aa174b2668d74b388d558589e5f2d700194c1db27c9f744c1c10b",
+        "verifiedAt": "2026-11-22T16:54:32.822074+00:00",
+        "sourceDownloadUrl": "https://opengameart.org/sites/default/files/sounds_6.zip",
+        "archiveSha256": "aa1889414310c7cfdd8dc291c19d4e4fc21ec987e9238b0d961fb72449c263a4",
+        "bundledLicenseFiles": [],
+        "licenseEvidenceNote": "No separate license text in this download; the original author submission explicitly links CC0. See recorded author-page evidence."
+      }
+    },
+    {
+      "id": "page-turn",
+      "version": 2,
+      "name": {
+        "vi": "Lật trang sách",
+        "en": "Turning a book page"
+      },
+      "group": "paper",
+      "groupName": {
+        "vi": "Thư và giấy",
+        "en": "Letters & paper"
+      },
+      "keywords": "Lật trang sách Turning a book page Thư và giấy Letters & paper",
+      "durationMs": 768.6621315192743,
+      "sampleCount": 33898,
+      "sampleRate": 44100,
+      "channels": 1,
+      "mime": "audio/wav",
+      "bytes": 67840,
+      "sourceFile": "web/assets/sfx/v2/page-turn.wav",
+      "author": "Kenney Vleugels",
+      "license": "CC0-1.0",
+      "evidence": "web/assets/audio-licenses/rpg.json",
+      "sourceKind": "recording",
+      "sourceMember": "OGG/bookFlip1.ogg",
+      "sourceSha256": "fa81ac2fedc8c641661b87e349630a36c9800e795e0c800e029214efdbe26a7d",
+      "sourceStartMs": 0,
+      "modifications": "excerpt, mono 44.1kHz PCM16, peak normalization, 3ms/15ms edge fades; no synthesized content",
+      "sha256": "106045747fcaa723df717deaf2723950a46a6fc1212d3c26e23de221f5e068db",
+      "provenance": {
+        "sourcePage": "https://opengameart.org/content/50-rpg-sound-effects",
+        "author": "Kenney Vleugels",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "pageSha256": "a23185df63b8ec0461dcf834cf855151c8a6dba7e9431da2622ff9df0c0beb6f",
+        "verifiedAt": "2026-11-22T16:54:32.822074+00:00",
+        "sourceDownloadUrl": "https://opengameart.org/sites/default/files/RPGsounds_Kenney.zip",
+        "archiveSha256": "3ae398ad63e293f9c450bda22d5d81c3af69c74df66fc1400f33c012c0bbc231",
+        "bundledLicenseFiles": [
+          {
+            "archiveMember": "license.txt",
+            "path": "web/assets/audio-licenses/rpg-upstream-0.txt",
+            "sha256": "6f12f89bf8d1cc417b25afd1f8e6d9560b2b1d1ac2b175cf4ee9c377e180783d"
+          }
+        ]
+      }
+    },
+    {
+      "id": "paper-rustle",
+      "version": 2,
+      "name": {
+        "vi": "Giấy xào xạc",
+        "en": "Paper rustle"
+      },
+      "group": "paper",
+      "groupName": {
+        "vi": "Thư và giấy",
+        "en": "Letters & paper"
+      },
+      "keywords": "Giấy xào xạc Paper rustle Thư và giấy Letters & paper",
+      "durationMs": 2589.0249433106574,
+      "sampleCount": 114176,
+      "sampleRate": 44100,
+      "channels": 1,
+      "mime": "audio/wav",
+      "bytes": 228396,
+      "sourceFile": "web/assets/sfx/v2/paper-rustle.wav",
+      "author": "Luckius",
+      "license": "CC0-1.0",
+      "evidence": "web/assets/audio-licenses/paper.json",
+      "sourceKind": "recording",
+      "sourceMember": "WAV/Paper Sound - 4.wav",
+      "sourceSha256": "6736e9e27f1cf4799bc3dc04b0584ce3581fee6441b13cc6f6bc085d438bfc10",
+      "sourceStartMs": 0,
+      "modifications": "excerpt, mono 44.1kHz PCM16, peak normalization, 3ms/15ms edge fades; no synthesized content",
+      "sha256": "74c8e2f4a284475b90ba1b0add0c73b714bc1c5c82135a12aaf6482603e52ce7",
+      "provenance": {
+        "sourcePage": "https://opengameart.org/content/various-paper-sound-effects",
+        "author": "Luckius",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "pageSha256": "2710d4029d4aa174b2668d74b388d558589e5f2d700194c1db27c9f744c1c10b",
+        "verifiedAt": "2026-11-22T16:54:32.822074+00:00",
+        "sourceDownloadUrl": "https://opengameart.org/sites/default/files/sounds_6.zip",
+        "archiveSha256": "aa1889414310c7cfdd8dc291c19d4e4fc21ec987e9238b0d961fb72449c263a4",
+        "bundledLicenseFiles": [],
+        "licenseEvidenceNote": "No separate license text in this download; the original author submission explicitly links CC0. See recorded author-page evidence."
+      }
+    },
+    {
+      "id": "pen-sign",
+      "version": 2,
+      "name": {
+        "vi": "Xé giấy nhẹ",
+        "en": "Tearing paper"
+      },
+      "group": "paper",
+      "groupName": {
+        "vi": "Thư và giấy",
+        "en": "Letters & paper"
+      },
+      "keywords": "Xé giấy nhẹ Tearing paper Thư và giấy Letters & paper",
+      "durationMs": 499.22902494331066,
+      "sampleCount": 22016,
+      "sampleRate": 44100,
+      "channels": 1,
+      "mime": "audio/wav",
+      "bytes": 44076,
+      "sourceFile": "web/assets/sfx/v2/pen-sign.wav",
+      "author": "Luckius",
+      "license": "CC0-1.0",
+      "evidence": "web/assets/audio-licenses/paper.json",
+      "sourceKind": "recording",
+      "sourceMember": "WAV/Paper Ripped - 1.wav",
+      "sourceSha256": "79e862887ae205d2bfcf6ceea42faebae0115380c152b140b0427e36c845bc3e",
+      "sourceStartMs": 0,
+      "modifications": "excerpt, mono 44.1kHz PCM16, peak normalization, 3ms/15ms edge fades; no synthesized content",
+      "sha256": "d675267c98dfca222ccd522a56a58b65f070d6043033783a9fc768dbe79c9cab",
+      "provenance": {
+        "sourcePage": "https://opengameart.org/content/various-paper-sound-effects",
+        "author": "Luckius",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "pageSha256": "2710d4029d4aa174b2668d74b388d558589e5f2d700194c1db27c9f744c1c10b",
+        "verifiedAt": "2026-11-22T16:54:32.822074+00:00",
+        "sourceDownloadUrl": "https://opengameart.org/sites/default/files/sounds_6.zip",
+        "archiveSha256": "aa1889414310c7cfdd8dc291c19d4e4fc21ec987e9238b0d961fb72449c263a4",
+        "bundledLicenseFiles": [],
+        "licenseEvidenceNote": "No separate license text in this download; the original author submission explicitly links CC0. See recorded author-page evidence."
+      }
+    },
+    {
+      "id": "ribbon-untie",
+      "version": 2,
+      "name": {
+        "vi": "Vải nơ xào xạc",
+        "en": "Cloth ribbon rustle"
+      },
+      "group": "gift",
+      "groupName": {
+        "vi": "Hộp và quà",
+        "en": "Boxes & gifts"
+      },
+      "keywords": "Vải nơ xào xạc Cloth ribbon rustle Hộp và quà Boxes & gifts",
+      "durationMs": 661.0430839002267,
+      "sampleCount": 29152,
+      "sampleRate": 44100,
+      "channels": 1,
+      "mime": "audio/wav",
+      "bytes": 58348,
+      "sourceFile": "web/assets/sfx/v2/ribbon-untie.wav",
+      "author": "Kenney Vleugels",
+      "license": "CC0-1.0",
+      "evidence": "web/assets/audio-licenses/rpg.json",
+      "sourceKind": "recording",
+      "sourceMember": "OGG/cloth1.ogg",
+      "sourceSha256": "ddb93a3671233f95da0e0b10367f082f7eb42fa6caaddcf776410aa8833c747d",
+      "sourceStartMs": 0,
+      "modifications": "excerpt, mono 44.1kHz PCM16, peak normalization, 3ms/15ms edge fades; no synthesized content",
+      "sha256": "1217ce2afa54b7b29e4cc89dc459d42b9914ff7ad84e80c5222d041e57ee9115",
+      "provenance": {
+        "sourcePage": "https://opengameart.org/content/50-rpg-sound-effects",
+        "author": "Kenney Vleugels",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "pageSha256": "a23185df63b8ec0461dcf834cf855151c8a6dba7e9431da2622ff9df0c0beb6f",
+        "verifiedAt": "2026-11-22T16:54:32.822074+00:00",
+        "sourceDownloadUrl": "https://opengameart.org/sites/default/files/RPGsounds_Kenney.zip",
+        "archiveSha256": "3ae398ad63e293f9c450bda22d5d81c3af69c74df66fc1400f33c012c0bbc231",
+        "bundledLicenseFiles": [
+          {
+            "archiveMember": "license.txt",
+            "path": "web/assets/audio-licenses/rpg-upstream-0.txt",
+            "sha256": "6f12f89bf8d1cc417b25afd1f8e6d9560b2b1d1ac2b175cf4ee9c377e180783d"
+          }
+        ]
+      }
+    },
+    {
+      "id": "box-pop",
+      "version": 2,
+      "name": {
+        "vi": "Mở hộp và lớp bọc",
+        "en": "Opening a box and wrapping"
+      },
+      "group": "gift",
+      "groupName": {
+        "vi": "Hộp và quà",
+        "en": "Boxes & gifts"
+      },
+      "keywords": "Mở hộp và lớp bọc Opening a box and wrapping Hộp và quà Boxes & gifts",
+      "durationMs": 8000,
+      "sampleCount": 352800,
+      "sampleRate": 44100,
+      "channels": 1,
+      "mime": "audio/wav",
+      "bytes": 705644,
+      "sourceFile": "web/assets/sfx/v2/box-pop.wav",
+      "author": "SpliceSound",
+      "license": "CC0-1.0",
+      "evidence": "web/assets/audio-licenses/box.json",
+      "sourceKind": "recording",
+      "sourceMember": "box.mp3",
+      "sourceSha256": "dd7507e9c5d3b7f1a1deeea960502e0a777e0a29dce0f4c48775e6092a51f9bd",
+      "sourceStartMs": 0,
+      "modifications": "excerpt, mono 44.1kHz PCM16, peak normalization, 3ms/15ms edge fades; no synthesized content",
+      "sha256": "9b5f6b857130f5d1529a855c937198616f6db197460036c00f8402a137d8cca0",
+      "provenance": {
+        "sourcePage": "https://freesound.org/people/SpliceSound/sounds/188189/",
+        "author": "SpliceSound",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "pageSha256": "eeae26008d23dd5a9b629456bd0a20f3aff3f9f6563d0b271585d8a2c759e4a9",
+        "verifiedAt": "2026-11-22T16:54:33.017941+00:00",
+        "sourceDownloadUrl": "https://cdn.freesound.org/previews/188/188189_1480854-hq.mp3",
+        "sourceRepresentation": "author-hosted public high-quality MP3 preview",
+        "sourceFileSha256": "dd7507e9c5d3b7f1a1deeea960502e0a777e0a29dce0f4c48775e6092a51f9bd",
+        "bundledLicenseFiles": [],
+        "licenseEvidenceNote": "No separate license text in this download; the original author submission explicitly links CC0. See recorded author-page evidence."
+      }
+    },
+    {
+      "id": "gift-shake",
+      "version": 2,
+      "name": {
+        "vi": "Túi quà sột soạt",
+        "en": "Leather gift pouch handling"
+      },
+      "group": "gift",
+      "groupName": {
+        "vi": "Hộp và quà",
+        "en": "Boxes & gifts"
+      },
+      "keywords": "Túi quà sột soạt Leather gift pouch handling Hộp và quà Boxes & gifts",
+      "durationMs": 338.20861678004536,
+      "sampleCount": 14915,
+      "sampleRate": 44100,
+      "channels": 1,
+      "mime": "audio/wav",
+      "bytes": 29874,
+      "sourceFile": "web/assets/sfx/v2/gift-shake.wav",
+      "author": "Kenney Vleugels",
+      "license": "CC0-1.0",
+      "evidence": "web/assets/audio-licenses/rpg.json",
+      "sourceKind": "recording",
+      "sourceMember": "OGG/handleSmallLeather.ogg",
+      "sourceSha256": "ae3cbf695aa0a8b98b5a80a835be5a3ccbd5446a24db2235cd4c3cd6fc92ed96",
+      "sourceStartMs": 0,
+      "modifications": "excerpt, mono 44.1kHz PCM16, peak normalization, 3ms/15ms edge fades; no synthesized content",
+      "sha256": "df82e4b64a32ed3a866cf983d6c8c52c9fedd5da268781e7084b9b28328d85fe",
+      "provenance": {
+        "sourcePage": "https://opengameart.org/content/50-rpg-sound-effects",
+        "author": "Kenney Vleugels",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "pageSha256": "a23185df63b8ec0461dcf834cf855151c8a6dba7e9431da2622ff9df0c0beb6f",
+        "verifiedAt": "2026-11-22T16:54:32.822074+00:00",
+        "sourceDownloadUrl": "https://opengameart.org/sites/default/files/RPGsounds_Kenney.zip",
+        "archiveSha256": "3ae398ad63e293f9c450bda22d5d81c3af69c74df66fc1400f33c012c0bbc231",
+        "bundledLicenseFiles": [
+          {
+            "archiveMember": "license.txt",
+            "path": "web/assets/audio-licenses/rpg-upstream-0.txt",
+            "sha256": "6f12f89bf8d1cc417b25afd1f8e6d9560b2b1d1ac2b175cf4ee9c377e180783d"
+          }
+        ]
+      }
+    },
+    {
+      "id": "wood-lid",
+      "version": 2,
+      "name": {
+        "vi": "Bật chốt hộp",
+        "en": "Opening a metal latch"
+      },
+      "group": "gift",
+      "groupName": {
+        "vi": "Hộp và quà",
+        "en": "Boxes & gifts"
+      },
+      "keywords": "Bật chốt hộp Opening a metal latch Hộp và quà Boxes & gifts",
+      "durationMs": 261.3378684807256,
+      "sampleCount": 11525,
+      "sampleRate": 44100,
+      "channels": 1,
+      "mime": "audio/wav",
+      "bytes": 23094,
+      "sourceFile": "web/assets/sfx/v2/wood-lid.wav",
+      "author": "Kenney Vleugels",
+      "license": "CC0-1.0",
+      "evidence": "web/assets/audio-licenses/rpg.json",
+      "sourceKind": "recording",
+      "sourceMember": "OGG/metalLatch.ogg",
+      "sourceSha256": "ba9ba60b172b3ebc131a940f25793cd2e207aca7af73dc80d637277f060f1708",
+      "sourceStartMs": 0,
+      "modifications": "excerpt, mono 44.1kHz PCM16, peak normalization, 3ms/15ms edge fades; no synthesized content",
+      "sha256": "4576ca383a4089f4da74d9d65a9a505b2b4590a358400caeeb0ac4ad86df482a",
+      "provenance": {
+        "sourcePage": "https://opengameart.org/content/50-rpg-sound-effects",
+        "author": "Kenney Vleugels",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "pageSha256": "a23185df63b8ec0461dcf834cf855151c8a6dba7e9431da2622ff9df0c0beb6f",
+        "verifiedAt": "2026-11-22T16:54:32.822074+00:00",
+        "sourceDownloadUrl": "https://opengameart.org/sites/default/files/RPGsounds_Kenney.zip",
+        "archiveSha256": "3ae398ad63e293f9c450bda22d5d81c3af69c74df66fc1400f33c012c0bbc231",
+        "bundledLicenseFiles": [
+          {
+            "archiveMember": "license.txt",
+            "path": "web/assets/audio-licenses/rpg-upstream-0.txt",
+            "sha256": "6f12f89bf8d1cc417b25afd1f8e6d9560b2b1d1ac2b175cf4ee9c377e180783d"
+          }
+        ]
+      }
+    },
+    {
+      "id": "wrap-tear",
+      "version": 2,
+      "name": {
+        "vi": "Vò giấy gói",
+        "en": "Crumpling gift paper"
+      },
+      "group": "gift",
+      "groupName": {
+        "vi": "Hộp và quà",
+        "en": "Boxes & gifts"
+      },
+      "keywords": "Vò giấy gói Crumpling gift paper Hộp và quà Boxes & gifts",
+      "durationMs": 1149.3877551020407,
+      "sampleCount": 50688,
+      "sampleRate": 44100,
+      "channels": 1,
+      "mime": "audio/wav",
+      "bytes": 101420,
+      "sourceFile": "web/assets/sfx/v2/wrap-tear.wav",
+      "author": "Luckius",
+      "license": "CC0-1.0",
+      "evidence": "web/assets/audio-licenses/paper.json",
+      "sourceKind": "recording",
+      "sourceMember": "WAV/Paper Crushed - 1.wav",
+      "sourceSha256": "744102e4ba8e178d55edcb9d5b4bff18d2480f282aa24abd4f0683dc24aa81d2",
+      "sourceStartMs": 0,
+      "modifications": "excerpt, mono 44.1kHz PCM16, peak normalization, 3ms/15ms edge fades; no synthesized content",
+      "sha256": "d8533f6b52c22852f6f5ec15ceb3984753fccc1badb055e00d0a18555e1b38b9",
+      "provenance": {
+        "sourcePage": "https://opengameart.org/content/various-paper-sound-effects",
+        "author": "Luckius",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "pageSha256": "2710d4029d4aa174b2668d74b388d558589e5f2d700194c1db27c9f744c1c10b",
+        "verifiedAt": "2026-11-22T16:54:32.822074+00:00",
+        "sourceDownloadUrl": "https://opengameart.org/sites/default/files/sounds_6.zip",
+        "archiveSha256": "aa1889414310c7cfdd8dc291c19d4e4fc21ec987e9238b0d961fb72449c263a4",
+        "bundledLicenseFiles": [],
+        "licenseEvidenceNote": "No separate license text in this download; the original author submission explicitly links CC0. See recorded author-page evidence."
+      }
+    },
+    {
+      "id": "tiny-spark",
+      "version": 2,
+      "name": {
+        "vi": "Leng keng thủy tinh 1",
+        "en": "Glass sparkle 1"
+      },
+      "group": "sparkle",
+      "groupName": {
+        "vi": "Lấp lánh",
+        "en": "Sparkles"
+      },
+      "keywords": "Leng keng thủy tinh 1 Glass sparkle 1 Lấp lánh Sparkles",
+      "durationMs": 275.5328798185941,
+      "sampleCount": 12151,
+      "sampleRate": 44100,
+      "channels": 1,
+      "mime": "audio/wav",
+      "bytes": 24346,
+      "sourceFile": "web/assets/sfx/v2/tiny-spark.wav",
+      "author": "Kenney Vleugels",
+      "license": "CC0-1.0",
+      "evidence": "web/assets/audio-licenses/interface.json",
+      "sourceKind": "authored-sfx",
+      "sourceMember": "Audio/glass_001.ogg",
+      "sourceSha256": "183eebee20eb0a532b0b85104d139cbf2673eb66d95c3cc733ac9ea98362e7e8",
+      "sourceStartMs": 0,
+      "modifications": "excerpt, mono 44.1kHz PCM16, peak normalization, 3ms/15ms edge fades; no synthesized content",
+      "sha256": "d38bb40ab95d4ca289c8c11ce82d3df8c7841ada6f2226ac1290b42e7484586e",
+      "provenance": {
+        "sourcePage": "https://opengameart.org/content/interface-sounds",
+        "author": "Kenney Vleugels",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "pageSha256": "9642406fcecdf130da7db9628d7e021952cc610853968eae2ee7860b07161cf0",
+        "verifiedAt": "2026-11-22T16:54:32.894724+00:00",
+        "sourceDownloadUrl": "https://opengameart.org/sites/default/files/kenney_interfaceSounds.zip",
+        "archiveSha256": "f2193d072726d6758a5f7871b2dcc54dcce0d5c35c6f0a62f92549b327c81232",
+        "bundledLicenseFiles": [
+          {
+            "archiveMember": "License.txt",
+            "path": "web/assets/audio-licenses/interface-upstream-0.txt",
+            "sha256": "f7966c773bbed0eca6a9c75081c44a178b38eae112724dbb5fdfbd4192d118a9"
+          }
+        ]
+      }
+    },
+    {
+      "id": "fairy-dust",
+      "version": 2,
+      "name": {
+        "vi": "Leng keng thủy tinh 2",
+        "en": "Glass sparkle 2"
+      },
+      "group": "sparkle",
+      "groupName": {
+        "vi": "Lấp lánh",
+        "en": "Sparkles"
+      },
+      "keywords": "Leng keng thủy tinh 2 Glass sparkle 2 Lấp lánh Sparkles",
+      "durationMs": 122.40362811791383,
+      "sampleCount": 5398,
+      "sampleRate": 44100,
+      "channels": 1,
+      "mime": "audio/wav",
+      "bytes": 10840,
+      "sourceFile": "web/assets/sfx/v2/fairy-dust.wav",
+      "author": "Kenney Vleugels",
+      "license": "CC0-1.0",
+      "evidence": "web/assets/audio-licenses/interface.json",
+      "sourceKind": "authored-sfx",
+      "sourceMember": "Audio/glass_002.ogg",
+      "sourceSha256": "08e972c73e53c91d6d310e107e80db60edce78ae47225889a028e628a6f3da49",
+      "sourceStartMs": 0,
+      "modifications": "excerpt, mono 44.1kHz PCM16, peak normalization, 3ms/15ms edge fades; no synthesized content",
+      "sha256": "d426773ecb265e717f46b2d508ccdbea03ca9fa3c54800f35a073d8d1cca4ce8",
+      "provenance": {
+        "sourcePage": "https://opengameart.org/content/interface-sounds",
+        "author": "Kenney Vleugels",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "pageSha256": "9642406fcecdf130da7db9628d7e021952cc610853968eae2ee7860b07161cf0",
+        "verifiedAt": "2026-11-22T16:54:32.894724+00:00",
+        "sourceDownloadUrl": "https://opengameart.org/sites/default/files/kenney_interfaceSounds.zip",
+        "archiveSha256": "f2193d072726d6758a5f7871b2dcc54dcce0d5c35c6f0a62f92549b327c81232",
+        "bundledLicenseFiles": [
+          {
+            "archiveMember": "License.txt",
+            "path": "web/assets/audio-licenses/interface-upstream-0.txt",
+            "sha256": "f7966c773bbed0eca6a9c75081c44a178b38eae112724dbb5fdfbd4192d118a9"
+          }
+        ]
+      }
+    },
+    {
+      "id": "star-trail",
+      "version": 2,
+      "name": {
+        "vi": "Ngân dây đàn",
+        "en": "Plucked string sparkle"
+      },
+      "group": "sparkle",
+      "groupName": {
+        "vi": "Lấp lánh",
+        "en": "Sparkles"
+      },
+      "keywords": "Ngân dây đàn Plucked string sparkle Lấp lánh Sparkles",
+      "durationMs": 100,
+      "sampleCount": 4410,
+      "sampleRate": 44100,
+      "channels": 1,
+      "mime": "audio/wav",
+      "bytes": 8864,
+      "sourceFile": "web/assets/sfx/v2/star-trail.wav",
+      "author": "Kenney Vleugels",
+      "license": "CC0-1.0",
+      "evidence": "web/assets/audio-licenses/interface.json",
+      "sourceKind": "authored-sfx",
+      "sourceMember": "Audio/pluck_001.ogg",
+      "sourceSha256": "be97ec4893a02d6eccfb678daa76c83e34cb2583b834ec2593d2641def739fa4",
+      "sourceStartMs": 0,
+      "modifications": "excerpt, mono 44.1kHz PCM16, peak normalization, 3ms/15ms edge fades; no synthesized content",
+      "sha256": "27a2ab48ecd989ed2a0a8618ee57cbf30fedfb56fa4fa58561d89c77b2f11acf",
+      "provenance": {
+        "sourcePage": "https://opengameart.org/content/interface-sounds",
+        "author": "Kenney Vleugels",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "pageSha256": "9642406fcecdf130da7db9628d7e021952cc610853968eae2ee7860b07161cf0",
+        "verifiedAt": "2026-11-22T16:54:32.894724+00:00",
+        "sourceDownloadUrl": "https://opengameart.org/sites/default/files/kenney_interfaceSounds.zip",
+        "archiveSha256": "f2193d072726d6758a5f7871b2dcc54dcce0d5c35c6f0a62f92549b327c81232",
+        "bundledLicenseFiles": [
+          {
+            "archiveMember": "License.txt",
+            "path": "web/assets/audio-licenses/interface-upstream-0.txt",
+            "sha256": "f7966c773bbed0eca6a9c75081c44a178b38eae112724dbb5fdfbd4192d118a9"
+          }
+        ]
+      }
+    },
+    {
+      "id": "glass-twinkle",
+      "version": 2,
+      "name": {
+        "vi": "Leng keng thủy tinh 3",
+        "en": "Glass sparkle 3"
+      },
+      "group": "sparkle",
+      "groupName": {
+        "vi": "Lấp lánh",
+        "en": "Sparkles"
+      },
+      "keywords": "Leng keng thủy tinh 3 Glass sparkle 3 Lấp lánh Sparkles",
+      "durationMs": 120.77097505668934,
+      "sampleCount": 5326,
+      "sampleRate": 44100,
+      "channels": 1,
+      "mime": "audio/wav",
+      "bytes": 10696,
+      "sourceFile": "web/assets/sfx/v2/glass-twinkle.wav",
+      "author": "Kenney Vleugels",
+      "license": "CC0-1.0",
+      "evidence": "web/assets/audio-licenses/interface.json",
+      "sourceKind": "authored-sfx",
+      "sourceMember": "Audio/glass_003.ogg",
+      "sourceSha256": "9a6f16e3c2eff6fe5d017a4755a28306b14555728831cd00d70308e8f9689566",
+      "sourceStartMs": 0,
+      "modifications": "excerpt, mono 44.1kHz PCM16, peak normalization, 3ms/15ms edge fades; no synthesized content",
+      "sha256": "0a0f7d48d7aacf2b0e906ce91e2639d629c4a382ce8f8f8aaf53e9aeff4e92d3",
+      "provenance": {
+        "sourcePage": "https://opengameart.org/content/interface-sounds",
+        "author": "Kenney Vleugels",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "pageSha256": "9642406fcecdf130da7db9628d7e021952cc610853968eae2ee7860b07161cf0",
+        "verifiedAt": "2026-11-22T16:54:32.894724+00:00",
+        "sourceDownloadUrl": "https://opengameart.org/sites/default/files/kenney_interfaceSounds.zip",
+        "archiveSha256": "f2193d072726d6758a5f7871b2dcc54dcce0d5c35c6f0a62f92549b327c81232",
+        "bundledLicenseFiles": [
+          {
+            "archiveMember": "License.txt",
+            "path": "web/assets/audio-licenses/interface-upstream-0.txt",
+            "sha256": "f7966c773bbed0eca6a9c75081c44a178b38eae112724dbb5fdfbd4192d118a9"
+          }
+        ]
+      }
+    },
+    {
+      "id": "magic-reveal",
+      "version": 2,
+      "name": {
+        "vi": "Ngân dây đàn đôi",
+        "en": "Double plucked sparkle"
+      },
+      "group": "sparkle",
+      "groupName": {
+        "vi": "Lấp lánh",
+        "en": "Sparkles"
+      },
+      "keywords": "Ngân dây đàn đôi Double plucked sparkle Lấp lánh Sparkles",
+      "durationMs": 161.65532879818593,
+      "sampleCount": 7129,
+      "sampleRate": 44100,
+      "channels": 1,
+      "mime": "audio/wav",
+      "bytes": 14302,
+      "sourceFile": "web/assets/sfx/v2/magic-reveal.wav",
+      "author": "Kenney Vleugels",
+      "license": "CC0-1.0",
+      "evidence": "web/assets/audio-licenses/interface.json",
+      "sourceKind": "authored-sfx",
+      "sourceMember": "Audio/pluck_002.ogg",
+      "sourceSha256": "c977fe249ff42d1c93a552b33abc13a8399df3879fa510475426e5c4bbac1da9",
+      "sourceStartMs": 0,
+      "modifications": "excerpt, mono 44.1kHz PCM16, peak normalization, 3ms/15ms edge fades; no synthesized content",
+      "sha256": "337ae23f5f34fd9100218ab568253625d7886d1a25f269904265d04d76a89591",
+      "provenance": {
+        "sourcePage": "https://opengameart.org/content/interface-sounds",
+        "author": "Kenney Vleugels",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "pageSha256": "9642406fcecdf130da7db9628d7e021952cc610853968eae2ee7860b07161cf0",
+        "verifiedAt": "2026-11-22T16:54:32.894724+00:00",
+        "sourceDownloadUrl": "https://opengameart.org/sites/default/files/kenney_interfaceSounds.zip",
+        "archiveSha256": "f2193d072726d6758a5f7871b2dcc54dcce0d5c35c6f0a62f92549b327c81232",
+        "bundledLicenseFiles": [
+          {
+            "archiveMember": "License.txt",
+            "path": "web/assets/audio-licenses/interface-upstream-0.txt",
+            "sha256": "f7966c773bbed0eca6a9c75081c44a178b38eae112724dbb5fdfbd4192d118a9"
+          }
+        ]
+      }
+    },
+    {
+      "id": "candle-blow",
+      "version": 2,
+      "name": {
+        "vi": "Thổi tắt nến",
+        "en": "Blowing out a candle"
+      },
+      "group": "birthday",
+      "groupName": {
+        "vi": "Sinh nhật",
+        "en": "Birthday"
+      },
+      "keywords": "Thổi tắt nến Blowing out a candle Sinh nhật Birthday",
+      "durationMs": 2033.3333333333333,
+      "sampleCount": 89670,
+      "sampleRate": 44100,
+      "channels": 1,
+      "mime": "audio/wav",
+      "bytes": 179384,
+      "sourceFile": "web/assets/sfx/v2/candle-blow.wav",
+      "author": "tlcolbe",
+      "license": "CC0-1.0",
+      "evidence": "web/assets/audio-licenses/candle.json",
+      "sourceKind": "recording",
+      "sourceMember": "candle.mp3",
+      "sourceSha256": "e7e30880a56f5d30866a8c26b52837f9c072a0cf32c011014ce7d0ed30cde36f",
+      "sourceStartMs": 0,
+      "modifications": "excerpt, mono 44.1kHz PCM16, peak normalization, 3ms/15ms edge fades; no synthesized content",
+      "sha256": "103f4b31be0e1fba240e3332563d481c66bb86c97276dd56a6390e05a7f81713",
+      "provenance": {
+        "sourcePage": "https://freesound.org/people/tlcolbe/sounds/406646/",
+        "author": "tlcolbe",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "pageSha256": "7d1d4c7dfeef2bd32e0eee02e441fcc68137028b190bace3bf2973a1e4ab7c5f",
+        "verifiedAt": "2026-11-22T16:54:33.017941+00:00",
+        "sourceDownloadUrl": "https://cdn.freesound.org/previews/406/406646_6660506-hq.mp3",
+        "sourceRepresentation": "author-hosted public high-quality MP3 preview",
+        "sourceFileSha256": "e7e30880a56f5d30866a8c26b52837f9c072a0cf32c011014ce7d0ed30cde36f",
+        "bundledLicenseFiles": [],
+        "licenseEvidenceNote": "No separate license text in this download; the original author submission explicitly links CC0. See recorded author-page evidence."
+      }
+    },
+    {
+      "id": "confetti-pop",
+      "version": 2,
+      "name": {
+        "vi": "Bật pháo giấy",
+        "en": "Party popper"
+      },
+      "group": "birthday",
+      "groupName": {
+        "vi": "Sinh nhật",
+        "en": "Birthday"
+      },
+      "keywords": "Bật pháo giấy Party popper Sinh nhật Birthday",
+      "durationMs": 609.5238095238095,
+      "sampleCount": 26880,
+      "sampleRate": 44100,
+      "channels": 1,
+      "mime": "audio/wav",
+      "bytes": 53804,
+      "sourceFile": "web/assets/sfx/v2/confetti-pop.wav",
+      "author": "Streety",
+      "license": "CC0-1.0",
+      "evidence": "web/assets/audio-licenses/confetti.json",
+      "sourceKind": "recording",
+      "sourceMember": "confetti.mp3",
+      "sourceSha256": "c04d06c36a9863662acd4edc70b3a52995f0635c0a435453aa373b142d4c9e56",
+      "sourceStartMs": 0,
+      "modifications": "excerpt, mono 44.1kHz PCM16, peak normalization, 3ms/15ms edge fades; no synthesized content",
+      "sha256": "6d0e8b30acf419b21bea9c0ea840b9a6fd6faa5d5832507a88acc47e9beefc58",
+      "provenance": {
+        "sourcePage": "https://freesound.org/people/Streety/sounds/26349/",
+        "author": "Streety",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "pageSha256": "b3b743e53ef0f6dff73eb97246242de36466bfc1fa30f996755e0b5be6dec1b4",
+        "verifiedAt": "2026-11-22T16:54:33.065991+00:00",
+        "sourceDownloadUrl": "https://cdn.freesound.org/previews/26/26349_56897-hq.mp3",
+        "sourceRepresentation": "author-hosted public high-quality MP3 preview",
+        "sourceFileSha256": "c04d06c36a9863662acd4edc70b3a52995f0635c0a435453aa373b142d4c9e56",
+        "bundledLicenseFiles": [],
+        "licenseEvidenceNote": "No separate license text in this download; the original author submission explicitly links CC0. See recorded author-page evidence."
+      }
+    },
+    {
+      "id": "balloon-pop",
+      "version": 2,
+      "name": {
+        "vi": "Bóng bay nổ trong phòng",
+        "en": "Balloon pop in a room"
+      },
+      "group": "birthday",
+      "groupName": {
+        "vi": "Sinh nhật",
+        "en": "Birthday"
+      },
+      "keywords": "Bóng bay nổ trong phòng Balloon pop in a room Sinh nhật Birthday",
+      "durationMs": 1460.453514739229,
+      "sampleCount": 64406,
+      "sampleRate": 44100,
+      "channels": 1,
+      "mime": "audio/wav",
+      "bytes": 128856,
+      "sourceFile": "web/assets/sfx/v2/balloon-pop.wav",
+      "author": "Sadiquecat",
+      "license": "CC0-1.0",
+      "evidence": "web/assets/audio-licenses/balloon.json",
+      "sourceKind": "recording",
+      "sourceMember": "balloon.mp3",
+      "sourceSha256": "ed1d1f5caba24d90f9713da7c88247a31e1980bf648c426a4025bf85da76bf20",
+      "sourceStartMs": 0,
+      "modifications": "excerpt, mono 44.1kHz PCM16, peak normalization, 3ms/15ms edge fades; no synthesized content",
+      "sha256": "affe5f0fd5d76945bfb28c15cabaf4f2f099d5d0899ae793dec05bc0af4cbdc2",
+      "provenance": {
+        "sourcePage": "https://freesound.org/people/Sadiquecat/sounds/817800/",
+        "author": "Sadiquecat",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "pageSha256": "90021e52762cb66a38c6e8022d0023e6f9ac438339e647b604337d3b2952111f",
+        "verifiedAt": "2026-11-22T16:54:33.065991+00:00",
+        "sourceDownloadUrl": "https://cdn.freesound.org/previews/817/817800_5287430-hq.mp3",
+        "sourceRepresentation": "author-hosted public high-quality MP3 preview",
+        "sourceFileSha256": "ed1d1f5caba24d90f9713da7c88247a31e1980bf648c426a4025bf85da76bf20",
+        "bundledLicenseFiles": [],
+        "licenseEvidenceNote": "No separate license text in this download; the original author submission explicitly links CC0. See recorded author-page evidence."
+      }
+    },
+    {
+      "id": "birthday-chime",
+      "version": 2,
+      "name": {
+        "vi": "Vỗ tay chúc mừng",
+        "en": "Celebration applause"
+      },
+      "group": "birthday",
+      "groupName": {
+        "vi": "Sinh nhật",
+        "en": "Birthday"
+      },
+      "keywords": "Vỗ tay chúc mừng Celebration applause Sinh nhật Birthday",
+      "durationMs": 3848.662131519274,
+      "sampleCount": 169726,
+      "sampleRate": 44100,
+      "channels": 1,
+      "mime": "audio/wav",
+      "bytes": 339496,
+      "sourceFile": "web/assets/sfx/v2/birthday-chime.wav",
+      "author": "freesound / La audiencia disponible recording team",
+      "license": "CC0-1.0",
+      "evidence": "web/assets/audio-licenses/applause.json",
+      "sourceKind": "recording",
+      "sourceMember": "applause.mp3",
+      "sourceSha256": "52e4f884ee9ac553222e5c77ee310bc6039a272dee22f24127e5c897dc9c4315",
+      "sourceStartMs": 0,
+      "modifications": "excerpt, mono 44.1kHz PCM16, peak normalization, 3ms/15ms edge fades; no synthesized content",
+      "sha256": "20fb778ca265310d1b59f1fa75b2cd9a9eb232a7515d8477e154aad1cfa1fa44",
+      "provenance": {
+        "sourcePage": "https://freesound.org/people/freesound/sounds/25295/",
+        "author": "freesound / La audiencia disponible recording team",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "pageSha256": "8a8ccb6c8c1311ffa28d603c3a02e3a7a838d2ffc0107276d911e5d221802ed1",
+        "verifiedAt": "2026-11-22T16:54:33.114970+00:00",
+        "sourceDownloadUrl": "https://cdn.freesound.org/previews/25/25295_173513-hq.mp3",
+        "sourceRepresentation": "author-hosted public high-quality MP3 preview",
+        "sourceFileSha256": "52e4f884ee9ac553222e5c77ee310bc6039a272dee22f24127e5c897dc9c4315",
+        "bundledLicenseFiles": [],
+        "licenseEvidenceNote": "No separate license text in this download; the original author submission explicitly links CC0. See recorded author-page evidence."
+      }
+    },
+    {
+      "id": "party-horn",
+      "version": 2,
+      "name": {
+        "vi": "Nhạc hiệu tiệc nhỏ",
+        "en": "Little party stinger"
+      },
+      "group": "birthday",
+      "groupName": {
+        "vi": "Sinh nhật",
+        "en": "Birthday"
+      },
+      "keywords": "Nhạc hiệu tiệc nhỏ Little party stinger Sinh nhật Birthday",
+      "durationMs": 390.6349206349206,
+      "sampleCount": 17227,
+      "sampleRate": 44100,
+      "channels": 1,
+      "mime": "audio/wav",
+      "bytes": 34498,
+      "sourceFile": "web/assets/sfx/v2/party-horn.wav",
+      "author": "Kenney Vleugels",
+      "license": "CC0-1.0",
+      "evidence": "web/assets/audio-licenses/jingles.json",
+      "sourceKind": "authored-sfx",
+      "sourceMember": "OGG/jingles_SAX/jingles_SAX00.ogg",
+      "sourceSha256": "f87605d2a3c717e6a26e584f57d24eac44e47f5a01470dad18809e5d6c9eb618",
+      "sourceStartMs": 0,
+      "modifications": "excerpt, mono 44.1kHz PCM16, peak normalization, 3ms/15ms edge fades; no synthesized content",
+      "sha256": "b91c42c28b993a1a47581f3bf447c8173744e706fc50d40ffd00922314f59308",
+      "provenance": {
+        "sourcePage": "https://opengameart.org/content/85-short-music-jingles",
+        "author": "Kenney Vleugels",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "pageSha256": "4bbe2162a0b3dd06810c28acde363aee2b5b4707e255c621b78cd33b72914dc3",
+        "verifiedAt": "2026-11-22T16:54:32.915760+00:00",
+        "sourceDownloadUrl": "https://opengameart.org/sites/default/files/jingleSounds_Kenney.zip",
+        "archiveSha256": "be324b6cf26e35c95c2a344569a2470512819d0246cc81328bef3499de3682e5",
+        "bundledLicenseFiles": [
+          {
+            "archiveMember": "license.txt",
+            "path": "web/assets/audio-licenses/jingles-upstream-0.txt",
+            "sha256": "a42f5a692f121ee3353e0d70a33713c4395faa42f4a365905f63eadac109db7b"
+          }
+        ]
+      }
+    },
+    {
+      "id": "camera-shutter",
+      "version": 2,
+      "name": {
+        "vi": "Máy ảnh bấm chụp 1",
+        "en": "Camera shutter 1"
+      },
+      "group": "memory",
+      "groupName": {
+        "vi": "Kỷ niệm",
+        "en": "Memories"
+      },
+      "keywords": "Máy ảnh bấm chụp 1 Camera shutter 1 Kỷ niệm Memories",
+      "durationMs": 477.70975056689343,
+      "sampleCount": 21067,
+      "sampleRate": 44100,
+      "channels": 1,
+      "mime": "audio/wav",
+      "bytes": 42178,
+      "sourceFile": "web/assets/sfx/v2/camera-shutter.wav",
+      "author": "OwlishMedia / Ashe Kirk",
+      "license": "CC0-1.0",
+      "evidence": "web/assets/audio-licenses/camera.json",
+      "sourceKind": "recording",
+      "sourceMember": "Camera/Camera_01.wav",
+      "sourceSha256": "eaef1eb4e6bb310ef9cacec1afcc60214c1f6622c1f3a18633c260ad2db8ca0b",
+      "sourceStartMs": 0,
+      "modifications": "excerpt, mono 44.1kHz PCM16, peak normalization, 3ms/15ms edge fades; no synthesized content",
+      "sha256": "bc70306fd5e106ec375fcb9be455883f4392912c794740209ef84701cd32ab0b",
+      "provenance": {
+        "sourcePage": "https://opengameart.org/content/202-more-sound-effects",
+        "author": "OwlishMedia / Ashe Kirk",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "pageSha256": "b63ee9e3cb5034a49b102f365352de33ea778458fbf456d2a80ed7a1707670f3",
+        "verifiedAt": "2026-11-22T16:54:32.955132+00:00",
+        "sourceDownloadUrl": "https://opengameart.org/sites/default/files/MoreSounds.zip",
+        "archiveSha256": "9428c1437137d9ea06ba94e13da12488d4c57990a1c32d83db9e7707e69fb3af",
+        "bundledLicenseFiles": [],
+        "licenseEvidenceNote": "No separate license text in this download; the original author submission explicitly links CC0. See recorded author-page evidence."
+      }
+    },
+    {
+      "id": "projector-click",
+      "version": 2,
+      "name": {
+        "vi": "Máy ảnh bấm chụp 2",
+        "en": "Camera shutter 2"
+      },
+      "group": "memory",
+      "groupName": {
+        "vi": "Kỷ niệm",
+        "en": "Memories"
+      },
+      "keywords": "Máy ảnh bấm chụp 2 Camera shutter 2 Kỷ niệm Memories",
+      "durationMs": 374.1269841269841,
+      "sampleCount": 16499,
+      "sampleRate": 44100,
+      "channels": 1,
+      "mime": "audio/wav",
+      "bytes": 33042,
+      "sourceFile": "web/assets/sfx/v2/projector-click.wav",
+      "author": "OwlishMedia / Ashe Kirk",
+      "license": "CC0-1.0",
+      "evidence": "web/assets/audio-licenses/camera.json",
+      "sourceKind": "recording",
+      "sourceMember": "Camera/Camera_02.wav",
+      "sourceSha256": "dd8167846ee3d99e633291e51c84cb0d94639b5372bbb9486fdc14b42977e5dd",
+      "sourceStartMs": 0,
+      "modifications": "excerpt, mono 44.1kHz PCM16, peak normalization, 3ms/15ms edge fades; no synthesized content",
+      "sha256": "016b7b5e77525b6651e081c92d111168be90c8690061fdaa7aa2fbaeaf04c552",
+      "provenance": {
+        "sourcePage": "https://opengameart.org/content/202-more-sound-effects",
+        "author": "OwlishMedia / Ashe Kirk",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "pageSha256": "b63ee9e3cb5034a49b102f365352de33ea778458fbf456d2a80ed7a1707670f3",
+        "verifiedAt": "2026-11-22T16:54:32.955132+00:00",
+        "sourceDownloadUrl": "https://opengameart.org/sites/default/files/MoreSounds.zip",
+        "archiveSha256": "9428c1437137d9ea06ba94e13da12488d4c57990a1c32d83db9e7707e69fb3af",
+        "bundledLicenseFiles": [],
+        "licenseEvidenceNote": "No separate license text in this download; the original author submission explicitly links CC0. See recorded author-page evidence."
+      }
+    },
+    {
+      "id": "heartbeat",
+      "version": 2,
+      "name": {
+        "vi": "Nhịp tim thu bằng ống nghe",
+        "en": "Heartbeat recorded with a stethoscope"
+      },
+      "group": "memory",
+      "groupName": {
+        "vi": "Kỷ niệm",
+        "en": "Memories"
+      },
+      "keywords": "Nhịp tim thu bằng ống nghe Heartbeat recorded with a stethoscope Kỷ niệm Memories",
+      "durationMs": 3000,
+      "sampleCount": 132300,
+      "sampleRate": 44100,
+      "channels": 1,
+      "mime": "audio/wav",
+      "bytes": 264644,
+      "sourceFile": "web/assets/sfx/v2/heartbeat.wav",
+      "author": "thenudo",
+      "license": "CC0-1.0",
+      "evidence": "web/assets/audio-licenses/heart-recorded.json",
+      "sourceKind": "recording",
+      "sourceMember": "heart-recorded.mp3",
+      "sourceSha256": "68618bb29cde3e0cb6ecd019dd2fd287610ecd6047abf40b85cd827ab7e22bc9",
+      "sourceStartMs": 0,
+      "modifications": "excerpt, mono 44.1kHz PCM16, peak normalization, 3ms/15ms edge fades; no synthesized content",
+      "sha256": "f936f7ec55ba7216d9b3086844167debe5efc715d24ba463ebd552ffdf1179ca",
+      "provenance": {
+        "sourcePage": "https://freesound.org/people/thenudo/sounds/146765/",
+        "author": "thenudo",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "pageSha256": "622e2ee02bd69eeecf3a4834509da71fe3b88958eff00382c44d92ca75c32440",
+        "verifiedAt": "2026-11-22T16:54:34.181028+00:00",
+        "sourceDownloadUrl": "https://cdn.freesound.org/previews/146/146765_1417288-hq.mp3",
+        "sourceRepresentation": "author-hosted public high-quality MP3 preview",
+        "sourceFileSha256": "68618bb29cde3e0cb6ecd019dd2fd287610ecd6047abf40b85cd827ab7e22bc9",
+        "bundledLicenseFiles": [],
+        "licenseEvidenceNote": "No separate license text in this download; the original author submission explicitly links CC0. See recorded author-page evidence."
+      }
+    },
+    {
+      "id": "music-box",
+      "version": 2,
+      "name": {
+        "vi": "Đặt cuốn album xuống",
+        "en": "Placing an album down"
+      },
+      "group": "memory",
+      "groupName": {
+        "vi": "Kỷ niệm",
+        "en": "Memories"
+      },
+      "keywords": "Đặt cuốn album xuống Placing an album down Kỷ niệm Memories",
+      "durationMs": 276.7120181405896,
+      "sampleCount": 12203,
+      "sampleRate": 44100,
+      "channels": 1,
+      "mime": "audio/wav",
+      "bytes": 24450,
+      "sourceFile": "web/assets/sfx/v2/music-box.wav",
+      "author": "Kenney Vleugels",
+      "license": "CC0-1.0",
+      "evidence": "web/assets/audio-licenses/rpg.json",
+      "sourceKind": "recording",
+      "sourceMember": "OGG/bookPlace1.ogg",
+      "sourceSha256": "26f3ce60fbde85b678b0ad7f6624d80535fe540d88232ad1e38e47a96662d977",
+      "sourceStartMs": 0,
+      "modifications": "excerpt, mono 44.1kHz PCM16, peak normalization, 3ms/15ms edge fades; no synthesized content",
+      "sha256": "33210dcbc08f5b5f0879f12c5627d0b084c0e6baa349a1e471abea6103f62f1b",
+      "provenance": {
+        "sourcePage": "https://opengameart.org/content/50-rpg-sound-effects",
+        "author": "Kenney Vleugels",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "pageSha256": "a23185df63b8ec0461dcf834cf855151c8a6dba7e9431da2622ff9df0c0beb6f",
+        "verifiedAt": "2026-11-22T16:54:32.822074+00:00",
+        "sourceDownloadUrl": "https://opengameart.org/sites/default/files/RPGsounds_Kenney.zip",
+        "archiveSha256": "3ae398ad63e293f9c450bda22d5d81c3af69c74df66fc1400f33c012c0bbc231",
+        "bundledLicenseFiles": [
+          {
+            "archiveMember": "license.txt",
+            "path": "web/assets/audio-licenses/rpg-upstream-0.txt",
+            "sha256": "6f12f89bf8d1cc417b25afd1f8e6d9560b2b1d1ac2b175cf4ee9c377e180783d"
+          }
+        ]
+      }
+    },
+    {
+      "id": "clock-tick",
+      "version": 2,
+      "name": {
+        "vi": "Đồng hồ tích tắc",
+        "en": "Clock ticking"
+      },
+      "group": "memory",
+      "groupName": {
+        "vi": "Kỷ niệm",
+        "en": "Memories"
+      },
+      "keywords": "Đồng hồ tích tắc Clock ticking Kỷ niệm Memories",
+      "durationMs": 3000,
+      "sampleCount": 132300,
+      "sampleRate": 44100,
+      "channels": 1,
+      "mime": "audio/wav",
+      "bytes": 264644,
+      "sourceFile": "web/assets/sfx/v2/clock-tick.wav",
+      "author": "bart",
+      "license": "CC0-1.0",
+      "evidence": "web/assets/audio-licenses/clock.json",
+      "sourceKind": "recording",
+      "sourceMember": "clock.wav",
+      "sourceSha256": "dc4dc1bf2c4bbeee5fd0841a87610ed19d851a92abc973ce0f5ff3caec40d537",
+      "sourceStartMs": 0,
+      "modifications": "excerpt, mono 44.1kHz PCM16, peak normalization, 3ms/15ms edge fades; no synthesized content",
+      "sha256": "7cb3a1621b3ae865d28382d1dec2e12c205baa697aeb025744d06f9506065ee1",
+      "provenance": {
+        "sourcePage": "https://opengameart.org/content/ticking-clock",
+        "author": "bart",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "pageSha256": "94bd6e8b7f4fb55c2121806eacd17fae6f33a3d33392327c474dad71d0d4bcd0",
+        "verifiedAt": "2026-11-22T16:54:48.893985+00:00",
+        "sourceDownloadUrl": "https://opengameart.org/sites/default/files/ticking_clock.wav",
+        "sourceFileSha256": "dc4dc1bf2c4bbeee5fd0841a87610ed19d851a92abc973ce0f5ff3caec40d537",
+        "bundledLicenseFiles": [],
+        "licenseEvidenceNote": "No separate license text in this download; the original author submission explicitly links CC0. See recorded author-page evidence."
+      }
+    },
+    {
+      "id": "soft-tap",
+      "version": 2,
+      "name": {
+        "vi": "Bấm nút nhẹ",
+        "en": "Soft button click"
+      },
+      "group": "interaction",
+      "groupName": {
+        "vi": "Tương tác",
+        "en": "Interaction"
+      },
+      "keywords": "Bấm nút nhẹ Soft button click Tương tác Interaction",
+      "durationMs": 100,
+      "sampleCount": 4410,
+      "sampleRate": 44100,
+      "channels": 1,
+      "mime": "audio/wav",
+      "bytes": 8864,
+      "sourceFile": "web/assets/sfx/v2/soft-tap.wav",
+      "author": "Kenney Vleugels",
+      "license": "CC0-1.0",
+      "evidence": "web/assets/audio-licenses/ui.json",
+      "sourceKind": "authored-sfx",
+      "sourceMember": "click1.wav",
+      "sourceSha256": "359c8c98ecd48368f45b84d3a9b9d7e68cf3ac2fefcdbf32367b8482da76c9c7",
+      "sourceStartMs": 0,
+      "modifications": "excerpt, mono 44.1kHz PCM16, peak normalization, 3ms/15ms edge fades; no synthesized content",
+      "sha256": "0f9f8b3365201ecffd1a176ccaf9887f580ba39254b719cd8c122e36c3f4a744",
+      "provenance": {
+        "sourcePage": "https://opengameart.org/content/51-ui-sound-effects-buttons-switches-and-clicks",
+        "author": "Kenney Vleugels",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "pageSha256": "e9449aa084814102b0095caf7d14678913eb63103574c315beba6c9d7ecb6886",
+        "verifiedAt": "2026-11-22T16:54:32.854948+00:00",
+        "sourceDownloadUrl": "https://opengameart.org/sites/default/files/UI_SFX_Set.zip",
+        "archiveSha256": "66026b9e39859b85964dbb3ee7a2d1fc46a6a406bb3e97c8b0defee0e25fb369",
+        "bundledLicenseFiles": [
+          {
+            "archiveMember": "readme.txt",
+            "path": "web/assets/audio-licenses/ui-upstream-0.txt",
+            "sha256": "29edb9a807074c1c92782ec34c921881489a003e3c8137cf805b0fc525504369"
+          }
+        ]
+      }
+    },
+    {
+      "id": "gentle-click",
+      "version": 2,
+      "name": {
+        "vi": "Bấm chuột",
+        "en": "Mouse click"
+      },
+      "group": "interaction",
+      "groupName": {
+        "vi": "Tương tác",
+        "en": "Interaction"
+      },
+      "keywords": "Bấm chuột Mouse click Tương tác Interaction",
+      "durationMs": 100,
+      "sampleCount": 4410,
+      "sampleRate": 44100,
+      "channels": 1,
+      "mime": "audio/wav",
+      "bytes": 8864,
+      "sourceFile": "web/assets/sfx/v2/gentle-click.wav",
+      "author": "Kenney Vleugels",
+      "license": "CC0-1.0",
+      "evidence": "web/assets/audio-licenses/ui.json",
+      "sourceKind": "authored-sfx",
+      "sourceMember": "mouseclick1.wav",
+      "sourceSha256": "d6841333ded83887f69d0cf1ef67e9f7204be6b3489490df5264a652fd00666b",
+      "sourceStartMs": 0,
+      "modifications": "excerpt, mono 44.1kHz PCM16, peak normalization, 3ms/15ms edge fades; no synthesized content",
+      "sha256": "e83be624d2d19aca038ce098b110da7e7ae3de53921b88343f31a885a6782812",
+      "provenance": {
+        "sourcePage": "https://opengameart.org/content/51-ui-sound-effects-buttons-switches-and-clicks",
+        "author": "Kenney Vleugels",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "pageSha256": "e9449aa084814102b0095caf7d14678913eb63103574c315beba6c9d7ecb6886",
+        "verifiedAt": "2026-11-22T16:54:32.854948+00:00",
+        "sourceDownloadUrl": "https://opengameart.org/sites/default/files/UI_SFX_Set.zip",
+        "archiveSha256": "66026b9e39859b85964dbb3ee7a2d1fc46a6a406bb3e97c8b0defee0e25fb369",
+        "bundledLicenseFiles": [
+          {
+            "archiveMember": "readme.txt",
+            "path": "web/assets/audio-licenses/ui-upstream-0.txt",
+            "sha256": "29edb9a807074c1c92782ec34c921881489a003e3c8137cf805b0fc525504369"
+          }
+        ]
+      }
+    },
+    {
+      "id": "swipe-whoosh",
+      "version": 2,
+      "name": {
+        "vi": "Trượt giao diện",
+        "en": "Interface scroll"
+      },
+      "group": "interaction",
+      "groupName": {
+        "vi": "Tương tác",
+        "en": "Interaction"
+      },
+      "keywords": "Trượt giao diện Interface scroll Tương tác Interaction",
+      "durationMs": 1000.0226757369614,
+      "sampleCount": 44101,
+      "sampleRate": 44100,
+      "channels": 1,
+      "mime": "audio/wav",
+      "bytes": 88246,
+      "sourceFile": "web/assets/sfx/v2/swipe-whoosh.wav",
+      "author": "Kenney Vleugels",
+      "license": "CC0-1.0",
+      "evidence": "web/assets/audio-licenses/interface.json",
+      "sourceKind": "authored-sfx",
+      "sourceMember": "Audio/scroll_001.ogg",
+      "sourceSha256": "320c6aafb2c7a503eae508dc443b72d7f7c0a317bfd16813157ed400cd04cf16",
+      "sourceStartMs": 0,
+      "modifications": "excerpt, mono 44.1kHz PCM16, peak normalization, 3ms/15ms edge fades; no synthesized content",
+      "sha256": "b147460dd8b96d3acb6c74b7b00df6b1ca6657b7bceb5a8af623fe7fdea24b06",
+      "provenance": {
+        "sourcePage": "https://opengameart.org/content/interface-sounds",
+        "author": "Kenney Vleugels",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "pageSha256": "9642406fcecdf130da7db9628d7e021952cc610853968eae2ee7860b07161cf0",
+        "verifiedAt": "2026-11-22T16:54:32.894724+00:00",
+        "sourceDownloadUrl": "https://opengameart.org/sites/default/files/kenney_interfaceSounds.zip",
+        "archiveSha256": "f2193d072726d6758a5f7871b2dcc54dcce0d5c35c6f0a62f92549b327c81232",
+        "bundledLicenseFiles": [
+          {
+            "archiveMember": "License.txt",
+            "path": "web/assets/audio-licenses/interface-upstream-0.txt",
+            "sha256": "f7966c773bbed0eca6a9c75081c44a178b38eae112724dbb5fdfbd4192d118a9"
+          }
+        ]
+      }
+    },
+    {
+      "id": "choice-ding",
+      "version": 2,
+      "name": {
+        "vi": "Bật công tắc",
+        "en": "Switch selection"
+      },
+      "group": "interaction",
+      "groupName": {
+        "vi": "Tương tác",
+        "en": "Interaction"
+      },
+      "keywords": "Bật công tắc Switch selection Tương tác Interaction",
+      "durationMs": 314.6938775510204,
+      "sampleCount": 13878,
+      "sampleRate": 44100,
+      "channels": 1,
+      "mime": "audio/wav",
+      "bytes": 27800,
+      "sourceFile": "web/assets/sfx/v2/choice-ding.wav",
+      "author": "Kenney Vleugels",
+      "license": "CC0-1.0",
+      "evidence": "web/assets/audio-licenses/ui.json",
+      "sourceKind": "authored-sfx",
+      "sourceMember": "switch1.wav",
+      "sourceSha256": "8524ee5cb3f9d636edad7d82c9fedc0399ec0d4a2b4bead49827d3e06dac01b6",
+      "sourceStartMs": 0,
+      "modifications": "excerpt, mono 44.1kHz PCM16, peak normalization, 3ms/15ms edge fades; no synthesized content",
+      "sha256": "bc6886e32697e7e0e4c69521655587e266ea6f52fe966bbd1afef2aa043813d9",
+      "provenance": {
+        "sourcePage": "https://opengameart.org/content/51-ui-sound-effects-buttons-switches-and-clicks",
+        "author": "Kenney Vleugels",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "pageSha256": "e9449aa084814102b0095caf7d14678913eb63103574c315beba6c9d7ecb6886",
+        "verifiedAt": "2026-11-22T16:54:32.854948+00:00",
+        "sourceDownloadUrl": "https://opengameart.org/sites/default/files/UI_SFX_Set.zip",
+        "archiveSha256": "66026b9e39859b85964dbb3ee7a2d1fc46a6a406bb3e97c8b0defee0e25fb369",
+        "bundledLicenseFiles": [
+          {
+            "archiveMember": "readme.txt",
+            "path": "web/assets/audio-licenses/ui-upstream-0.txt",
+            "sha256": "29edb9a807074c1c92782ec34c921881489a003e3c8137cf805b0fc525504369"
+          }
+        ]
+      }
+    },
+    {
+      "id": "success-pair",
+      "version": 2,
+      "name": {
+        "vi": "Xác nhận hoàn tất",
+        "en": "Confirmation"
+      },
+      "group": "interaction",
+      "groupName": {
+        "vi": "Tương tác",
+        "en": "Interaction"
+      },
+      "keywords": "Xác nhận hoàn tất Confirmation Tương tác Interaction",
+      "durationMs": 289.8412698412698,
+      "sampleCount": 12782,
+      "sampleRate": 44100,
+      "channels": 1,
+      "mime": "audio/wav",
+      "bytes": 25608,
+      "sourceFile": "web/assets/sfx/v2/success-pair.wav",
+      "author": "Kenney Vleugels",
+      "license": "CC0-1.0",
+      "evidence": "web/assets/audio-licenses/interface.json",
+      "sourceKind": "authored-sfx",
+      "sourceMember": "Audio/confirmation_001.ogg",
+      "sourceSha256": "063564703b6094d70718a3e787a55cc9141611e4ecd6b6637f8828f79b4a8c3a",
+      "sourceStartMs": 0,
+      "modifications": "excerpt, mono 44.1kHz PCM16, peak normalization, 3ms/15ms edge fades; no synthesized content",
+      "sha256": "b855181cda5c5ed1b9a455e8000c39311ed975b6c7d9e15af3ef34acfe2f16e7",
+      "provenance": {
+        "sourcePage": "https://opengameart.org/content/interface-sounds",
+        "author": "Kenney Vleugels",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "pageSha256": "9642406fcecdf130da7db9628d7e021952cc610853968eae2ee7860b07161cf0",
+        "verifiedAt": "2026-11-22T16:54:32.894724+00:00",
+        "sourceDownloadUrl": "https://opengameart.org/sites/default/files/kenney_interfaceSounds.zip",
+        "archiveSha256": "f2193d072726d6758a5f7871b2dcc54dcce0d5c35c6f0a62f92549b327c81232",
+        "bundledLicenseFiles": [
+          {
+            "archiveMember": "License.txt",
+            "path": "web/assets/audio-licenses/interface-upstream-0.txt",
+            "sha256": "f7966c773bbed0eca6a9c75081c44a178b38eae112724dbb5fdfbd4192d118a9"
+          }
+        ]
+      }
+    },
+    {
+      "id": "water-drop",
+      "version": 2,
+      "name": {
+        "vi": "Nước nhỏ từ vòi",
+        "en": "Water dripping from a tap"
+      },
+      "group": "nature",
+      "groupName": {
+        "vi": "Thiên nhiên",
+        "en": "Nature"
+      },
+      "keywords": "Nước nhỏ từ vòi Water dripping from a tap Thiên nhiên Nature",
+      "durationMs": 3000,
+      "sampleCount": 132300,
+      "sampleRate": 44100,
+      "channels": 1,
+      "mime": "audio/wav",
+      "bytes": 264644,
+      "sourceFile": "web/assets/sfx/v2/water-drop.wav",
+      "author": "willstepp",
+      "license": "CC0-1.0",
+      "evidence": "web/assets/audio-licenses/drop.json",
+      "sourceKind": "recording",
+      "sourceMember": "drop.mp3",
+      "sourceSha256": "8cca8be2fc5ad351b87b9992b6a1d64acf4bfcccad3cd55ce48101e89ff5cc58",
+      "sourceStartMs": 0,
+      "modifications": "excerpt, mono 44.1kHz PCM16, peak normalization, 3ms/15ms edge fades; no synthesized content",
+      "sha256": "36319b85b5df32cfcb25552b18a57ac41f328b413e0ff936534b2044812adf0e",
+      "provenance": {
+        "sourcePage": "https://freesound.org/people/willstepp/sounds/188293/",
+        "author": "willstepp",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "pageSha256": "ab390cbd509a58fcd1f4f768c7da48210501220e26d029a6e3e5bd410fca9a4b",
+        "verifiedAt": "2026-11-22T16:54:33.139905+00:00",
+        "sourceDownloadUrl": "https://cdn.freesound.org/previews/188/188293_2831691-hq.mp3",
+        "sourceRepresentation": "author-hosted public high-quality MP3 preview",
+        "sourceFileSha256": "8cca8be2fc5ad351b87b9992b6a1d64acf4bfcccad3cd55ce48101e89ff5cc58",
+        "bundledLicenseFiles": [],
+        "licenseEvidenceNote": "No separate license text in this download; the original author submission explicitly links CC0. See recorded author-page evidence."
+      }
+    },
+    {
+      "id": "rain-window",
+      "version": 2,
+      "name": {
+        "vi": "Mưa rơi",
+        "en": "Rain falling"
+      },
+      "group": "nature",
+      "groupName": {
+        "vi": "Thiên nhiên",
+        "en": "Nature"
+      },
+      "keywords": "Mưa rơi Rain falling Thiên nhiên Nature",
+      "durationMs": 5000,
+      "sampleCount": 220500,
+      "sampleRate": 44100,
+      "channels": 1,
+      "mime": "audio/wav",
+      "bytes": 441044,
+      "sourceFile": "web/assets/sfx/v2/rain-window.wav",
+      "author": "Ove Melaa",
+      "license": "CC0-1.0",
+      "evidence": "web/assets/audio-licenses/rain.json",
+      "sourceKind": "recording",
+      "sourceMember": "rain.ogg",
+      "sourceSha256": "5083851776c2b3ff56b81550672d7f697efcdb88f605f83402d7dfc91c56b476",
+      "sourceStartMs": 2000,
+      "modifications": "excerpt, mono 44.1kHz PCM16, peak normalization, 3ms/15ms edge fades; no synthesized content",
+      "sha256": "07455f78d14456d5e486c983de520b1a14a8d9931a5615dc8c2e1d55766d4acf",
+      "provenance": {
+        "sourcePage": "https://opengameart.org/content/rain-ambient-not-loopable-2-versions-available",
+        "author": "Ove Melaa",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "pageSha256": "44918d5fada9de135d40afc9d125fea5235ded16a11afef78095bdc5e8d7bb2a",
+        "verifiedAt": "2026-11-22T16:54:48.915028+00:00",
+        "sourceDownloadUrl": "https://opengameart.org/sites/default/files/Ove%20Melaa%20-%20Rainy%20%28NOT%20loopable%29.ogg",
+        "sourceFileSha256": "5083851776c2b3ff56b81550672d7f697efcdb88f605f83402d7dfc91c56b476",
+        "bundledLicenseFiles": [],
+        "licenseEvidenceNote": "No separate license text in this download; the original author submission explicitly links CC0. See recorded author-page evidence."
+      }
+    },
+    {
+      "id": "bird-call",
+      "version": 2,
+      "name": {
+        "vi": "Chim trong công viên",
+        "en": "Birds in a park"
+      },
+      "group": "nature",
+      "groupName": {
+        "vi": "Thiên nhiên",
+        "en": "Nature"
+      },
+      "keywords": "Chim trong công viên Birds in a park Thiên nhiên Nature",
+      "durationMs": 5000,
+      "sampleCount": 220500,
+      "sampleRate": 44100,
+      "channels": 1,
+      "mime": "audio/wav",
+      "bytes": 441044,
+      "sourceFile": "web/assets/sfx/v2/bird-call.wav",
+      "author": "Thimras",
+      "license": "CC0-1.0",
+      "evidence": "web/assets/audio-licenses/birds.json",
+      "sourceKind": "recording",
+      "sourceMember": "birds.wav",
+      "sourceSha256": "dc1a5ac34b89cab7f8f261b53a23da7c1c5e3cc895aae4cb6fb4a1a04001b2af",
+      "sourceStartMs": 2000,
+      "modifications": "excerpt, mono 44.1kHz PCM16, peak normalization, 3ms/15ms edge fades; no synthesized content",
+      "sha256": "99293555d0ed3a60f068825b5fdeec6a0133491db8aa85669e3b0576f44248c8",
+      "provenance": {
+        "sourcePage": "https://opengameart.org/content/park-ambiences",
+        "author": "Thimras",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "pageSha256": "a6a85b6b8c8b9794ee0cc85eeea2ebd6097b4a3d80d31293fc54bca7ccf6935e",
+        "verifiedAt": "2026-11-22T16:54:48.939008+00:00",
+        "sourceDownloadUrl": "https://opengameart.org/sites/default/files/park_ambience_birds.wav",
+        "sourceFileSha256": "dc1a5ac34b89cab7f8f261b53a23da7c1c5e3cc895aae4cb6fb4a1a04001b2af",
+        "bundledLicenseFiles": [],
+        "licenseEvidenceNote": "No separate license text in this download; the original author submission explicitly links CC0. See recorded author-page evidence."
+      }
+    },
+    {
+      "id": "gentle-wind",
+      "version": 2,
+      "name": {
+        "vi": "Gió ngoài đồng",
+        "en": "Wind in an open field"
+      },
+      "group": "nature",
+      "groupName": {
+        "vi": "Thiên nhiên",
+        "en": "Nature"
+      },
+      "keywords": "Gió ngoài đồng Wind in an open field Thiên nhiên Nature",
+      "durationMs": 5000,
+      "sampleCount": 220500,
+      "sampleRate": 44100,
+      "channels": 1,
+      "mime": "audio/wav",
+      "bytes": 441044,
+      "sourceFile": "web/assets/sfx/v2/gentle-wind.wav",
+      "author": "Thimras",
+      "license": "CC0-1.0",
+      "evidence": "web/assets/audio-licenses/wind.json",
+      "sourceKind": "recording",
+      "sourceMember": "wind.wav",
+      "sourceSha256": "5c381856745b4706e7eba55eb9271a61a530e90c05df8126adb2db89ecfa6c5a",
+      "sourceStartMs": 2000,
+      "modifications": "excerpt, mono 44.1kHz PCM16, peak normalization, 3ms/15ms edge fades; no synthesized content",
+      "sha256": "fff1491d34eb082dad8a46bbc2d00d7c52478760c2d314c2886255159ca292c6",
+      "provenance": {
+        "sourcePage": "https://opengameart.org/content/park-ambiences",
+        "author": "Thimras",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "pageSha256": "9ce4520e9570e3dbb54459b539475a67601b5b03c4f9692719d36963d372db21",
+        "verifiedAt": "2026-11-22T16:54:49.040173+00:00",
+        "sourceDownloadUrl": "https://opengameart.org/sites/default/files/park_ambience_wind.wav",
+        "sourceFileSha256": "5c381856745b4706e7eba55eb9271a61a530e90c05df8126adb2db89ecfa6c5a",
+        "bundledLicenseFiles": [],
+        "licenseEvidenceNote": "No separate license text in this download; the original author submission explicitly links CC0. See recorded author-page evidence."
+      }
+    },
+    {
+      "id": "shore-wave",
+      "version": 2,
+      "name": {
+        "vi": "Nước chảy ven bờ",
+        "en": "Small river flowing"
+      },
+      "group": "nature",
+      "groupName": {
+        "vi": "Thiên nhiên",
+        "en": "Nature"
+      },
+      "keywords": "Nước chảy ven bờ Small river flowing Thiên nhiên Nature",
+      "durationMs": 5000,
+      "sampleCount": 220500,
+      "sampleRate": 44100,
+      "channels": 1,
+      "mime": "audio/wav",
+      "bytes": 441044,
+      "sourceFile": "web/assets/sfx/v2/shore-wave.wav",
+      "author": "Thimras",
+      "license": "CC0-1.0",
+      "evidence": "web/assets/audio-licenses/river.json",
+      "sourceKind": "recording",
+      "sourceMember": "river.wav",
+      "sourceSha256": "da0c0c9b1249a83a1611cc116d5737b0864a8db9f45f1ae8dcc079d0f7c0bbbf",
+      "sourceStartMs": 2000,
+      "modifications": "excerpt, mono 44.1kHz PCM16, peak normalization, 3ms/15ms edge fades; no synthesized content",
+      "sha256": "d3586cb4cc4a84674a66c0293ac7849a001886e74f407945cff4b08b654f1077",
+      "provenance": {
+        "sourcePage": "https://opengameart.org/content/park-ambiences",
+        "author": "Thimras",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "pageSha256": "f8f5372bc51717332a7babf31a4a99243a82fb81e75e24e4f67e0d8da3e8ed0b",
+        "verifiedAt": "2026-11-22T16:54:49.129350+00:00",
+        "sourceDownloadUrl": "https://opengameart.org/sites/default/files/park_ambience_river.wav",
+        "sourceFileSha256": "da0c0c9b1249a83a1611cc116d5737b0864a8db9f45f1ae8dcc079d0f7c0bbbf",
+        "bundledLicenseFiles": [],
+        "licenseEvidenceNote": "No separate license text in this download; the original author submission explicitly links CC0. See recorded author-page evidence."
+      }
+    },
+    {
+      "id": "warm-ending",
+      "version": 2,
+      "name": {
+        "vi": "Kết ấm áp — đàn dây",
+        "en": "Warm string ending"
+      },
+      "group": "melody",
+      "groupName": {
+        "vi": "Giai điệu ngắn",
+        "en": "Short melodies"
+      },
+      "keywords": "Kết ấm áp — đàn dây Warm string ending Giai điệu ngắn Short melodies",
+      "durationMs": 494.172335600907,
+      "sampleCount": 21793,
+      "sampleRate": 44100,
+      "channels": 1,
+      "mime": "audio/wav",
+      "bytes": 43630,
+      "sourceFile": "web/assets/sfx/v2/warm-ending.wav",
+      "author": "Kenney Vleugels",
+      "license": "CC0-1.0",
+      "evidence": "web/assets/audio-licenses/jingles.json",
+      "sourceKind": "authored-sfx",
+      "sourceMember": "OGG/jingles_PIZZA/jingles_PIZZA00.ogg",
+      "sourceSha256": "b442ade3308a2bbda4b8c572c86f9f1071c7bdbcfb1e6f915d35c605b61bd475",
+      "sourceStartMs": 0,
+      "modifications": "excerpt, mono 44.1kHz PCM16, peak normalization, 3ms/15ms edge fades; no synthesized content",
+      "sha256": "d539f02a55825aaecf664950e4885e1e70f29e6b56bcb29fe22be1dd7323b87b",
+      "provenance": {
+        "sourcePage": "https://opengameart.org/content/85-short-music-jingles",
+        "author": "Kenney Vleugels",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "pageSha256": "4bbe2162a0b3dd06810c28acde363aee2b5b4707e255c621b78cd33b72914dc3",
+        "verifiedAt": "2026-11-22T16:54:32.915760+00:00",
+        "sourceDownloadUrl": "https://opengameart.org/sites/default/files/jingleSounds_Kenney.zip",
+        "archiveSha256": "be324b6cf26e35c95c2a344569a2470512819d0246cc81328bef3499de3682e5",
+        "bundledLicenseFiles": [
+          {
+            "archiveMember": "license.txt",
+            "path": "web/assets/audio-licenses/jingles-upstream-0.txt",
+            "sha256": "a42f5a692f121ee3353e0d70a33713c4395faa42f4a365905f63eadac109db7b"
+          }
+        ]
+      }
+    },
+    {
+      "id": "playful-ending",
+      "version": 2,
+      "name": {
+        "vi": "Kết vui — saxophone",
+        "en": "Playful saxophone ending"
+      },
+      "group": "melody",
+      "groupName": {
+        "vi": "Giai điệu ngắn",
+        "en": "Short melodies"
+      },
+      "keywords": "Kết vui — saxophone Playful saxophone ending Giai điệu ngắn Short melodies",
+      "durationMs": 887.8004535147392,
+      "sampleCount": 39152,
+      "sampleRate": 44100,
+      "channels": 1,
+      "mime": "audio/wav",
+      "bytes": 78348,
+      "sourceFile": "web/assets/sfx/v2/playful-ending.wav",
+      "author": "Kenney Vleugels",
+      "license": "CC0-1.0",
+      "evidence": "web/assets/audio-licenses/jingles.json",
+      "sourceKind": "authored-sfx",
+      "sourceMember": "OGG/jingles_SAX/jingles_SAX01.ogg",
+      "sourceSha256": "272b8160616d0f924f447df3f8543ab83440c5e41168107bd5abe1140894122b",
+      "sourceStartMs": 0,
+      "modifications": "excerpt, mono 44.1kHz PCM16, peak normalization, 3ms/15ms edge fades; no synthesized content",
+      "sha256": "eaacff7c8e2271e17a91f51c6bf0d3a5b62b051b2acbd7fc51dd27f7c2f3ba6e",
+      "provenance": {
+        "sourcePage": "https://opengameart.org/content/85-short-music-jingles",
+        "author": "Kenney Vleugels",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "pageSha256": "4bbe2162a0b3dd06810c28acde363aee2b5b4707e255c621b78cd33b72914dc3",
+        "verifiedAt": "2026-11-22T16:54:32.915760+00:00",
+        "sourceDownloadUrl": "https://opengameart.org/sites/default/files/jingleSounds_Kenney.zip",
+        "archiveSha256": "be324b6cf26e35c95c2a344569a2470512819d0246cc81328bef3499de3682e5",
+        "bundledLicenseFiles": [
+          {
+            "archiveMember": "license.txt",
+            "path": "web/assets/audio-licenses/jingles-upstream-0.txt",
+            "sha256": "a42f5a692f121ee3353e0d70a33713c4395faa42f4a365905f63eadac109db7b"
+          }
+        ]
+      }
+    },
+    {
+      "id": "tender-ending",
+      "version": 2,
+      "name": {
+        "vi": "Kết dịu — ngân thép",
+        "en": "Tender steel ending"
+      },
+      "group": "melody",
+      "groupName": {
+        "vi": "Giai điệu ngắn",
+        "en": "Short melodies"
+      },
+      "keywords": "Kết dịu — ngân thép Tender steel ending Giai điệu ngắn Short melodies",
+      "durationMs": 932.8117913832199,
+      "sampleCount": 41137,
+      "sampleRate": 44100,
+      "channels": 1,
+      "mime": "audio/wav",
+      "bytes": 82318,
+      "sourceFile": "web/assets/sfx/v2/tender-ending.wav",
+      "author": "Kenney Vleugels",
+      "license": "CC0-1.0",
+      "evidence": "web/assets/audio-licenses/jingles.json",
+      "sourceKind": "authored-sfx",
+      "sourceMember": "OGG/jingles_STEEL/jingles_STEEL00.ogg",
+      "sourceSha256": "8799eb726d784ae0aa1a9df80648a873ac60015bc00aea12c8e2dd1431a2bd7d",
+      "sourceStartMs": 0,
+      "modifications": "excerpt, mono 44.1kHz PCM16, peak normalization, 3ms/15ms edge fades; no synthesized content",
+      "sha256": "d70de45fb7db0da3e8e6689461747df5a2e73d029999af6765332bc296534035",
+      "provenance": {
+        "sourcePage": "https://opengameart.org/content/85-short-music-jingles",
+        "author": "Kenney Vleugels",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "pageSha256": "4bbe2162a0b3dd06810c28acde363aee2b5b4707e255c621b78cd33b72914dc3",
+        "verifiedAt": "2026-11-22T16:54:32.915760+00:00",
+        "sourceDownloadUrl": "https://opengameart.org/sites/default/files/jingleSounds_Kenney.zip",
+        "archiveSha256": "be324b6cf26e35c95c2a344569a2470512819d0246cc81328bef3499de3682e5",
+        "bundledLicenseFiles": [
+          {
+            "archiveMember": "license.txt",
+            "path": "web/assets/audio-licenses/jingles-upstream-0.txt",
+            "sha256": "a42f5a692f121ee3353e0d70a33713c4395faa42f4a365905f63eadac109db7b"
+          }
+        ]
+      }
+    },
+    {
+      "id": "bright-ending",
+      "version": 2,
+      "name": {
+        "vi": "Kết rạng rỡ — đàn dây",
+        "en": "Bright string ending"
+      },
+      "group": "melody",
+      "groupName": {
+        "vi": "Giai điệu ngắn",
+        "en": "Short melodies"
+      },
+      "keywords": "Kết rạng rỡ — đàn dây Bright string ending Giai điệu ngắn Short melodies",
+      "durationMs": 955.7369614512471,
+      "sampleCount": 42148,
+      "sampleRate": 44100,
+      "channels": 1,
+      "mime": "audio/wav",
+      "bytes": 84340,
+      "sourceFile": "web/assets/sfx/v2/bright-ending.wav",
+      "author": "Kenney Vleugels",
+      "license": "CC0-1.0",
+      "evidence": "web/assets/audio-licenses/jingles.json",
+      "sourceKind": "authored-sfx",
+      "sourceMember": "OGG/jingles_PIZZA/jingles_PIZZA02.ogg",
+      "sourceSha256": "4967dc3cd31257716f455ef50f8980378726ce086954c7a5563c0c57ee129e3e",
+      "sourceStartMs": 0,
+      "modifications": "excerpt, mono 44.1kHz PCM16, peak normalization, 3ms/15ms edge fades; no synthesized content",
+      "sha256": "25edf1fb16b381739aed1cac5a0f038d10895c516dc5e16c62a1610af7d79504",
+      "provenance": {
+        "sourcePage": "https://opengameart.org/content/85-short-music-jingles",
+        "author": "Kenney Vleugels",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "pageSha256": "4bbe2162a0b3dd06810c28acde363aee2b5b4707e255c621b78cd33b72914dc3",
+        "verifiedAt": "2026-11-22T16:54:32.915760+00:00",
+        "sourceDownloadUrl": "https://opengameart.org/sites/default/files/jingleSounds_Kenney.zip",
+        "archiveSha256": "be324b6cf26e35c95c2a344569a2470512819d0246cc81328bef3499de3682e5",
+        "bundledLicenseFiles": [
+          {
+            "archiveMember": "license.txt",
+            "path": "web/assets/audio-licenses/jingles-upstream-0.txt",
+            "sha256": "a42f5a692f121ee3353e0d70a33713c4395faa42f4a365905f63eadac109db7b"
+          }
+        ]
+      }
+    },
+    {
+      "id": "goodnight-ending",
+      "version": 2,
+      "name": {
+        "vi": "Kết yên — ngân thép",
+        "en": "Quiet steel ending"
+      },
+      "group": "melody",
+      "groupName": {
+        "vi": "Giai điệu ngắn",
+        "en": "Short melodies"
+      },
+      "keywords": "Kết yên — ngân thép Quiet steel ending Giai điệu ngắn Short melodies",
+      "durationMs": 1387.2562358276643,
+      "sampleCount": 61178,
+      "sampleRate": 44100,
+      "channels": 1,
+      "mime": "audio/wav",
+      "bytes": 122400,
+      "sourceFile": "web/assets/sfx/v2/goodnight-ending.wav",
+      "author": "Kenney Vleugels",
+      "license": "CC0-1.0",
+      "evidence": "web/assets/audio-licenses/jingles.json",
+      "sourceKind": "authored-sfx",
+      "sourceMember": "OGG/jingles_STEEL/jingles_STEEL03.ogg",
+      "sourceSha256": "21233e95b5e2c167293484c9906264c632a5f1fe45744d1d5b52ba1dfb0a18fb",
+      "sourceStartMs": 0,
+      "modifications": "excerpt, mono 44.1kHz PCM16, peak normalization, 3ms/15ms edge fades; no synthesized content",
+      "sha256": "86421f69ace71a046c7b7ed284926f9784e935acc436c3e79a2c5c16ca2d4d03",
+      "provenance": {
+        "sourcePage": "https://opengameart.org/content/85-short-music-jingles",
+        "author": "Kenney Vleugels",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "pageSha256": "4bbe2162a0b3dd06810c28acde363aee2b5b4707e255c621b78cd33b72914dc3",
+        "verifiedAt": "2026-11-22T16:54:32.915760+00:00",
+        "sourceDownloadUrl": "https://opengameart.org/sites/default/files/jingleSounds_Kenney.zip",
+        "archiveSha256": "be324b6cf26e35c95c2a344569a2470512819d0246cc81328bef3499de3682e5",
+        "bundledLicenseFiles": [
+          {
+            "archiveMember": "license.txt",
+            "path": "web/assets/audio-licenses/jingles-upstream-0.txt",
+            "sha256": "a42f5a692f121ee3353e0d70a33713c4395faa42f4a365905f63eadac109db7b"
+          }
+        ]
+      }
+    },
+    {
+      "version": 2,
+      "sampleRate": 44100,
+      "channels": 1,
+      "mime": "audio/wav",
+      "author": "Luckius",
+      "license": "CC0-1.0",
+      "evidence": "web/assets/audio-licenses/paper.json",
+      "sourceKind": "recording",
+      "modifications": "excerpt, mono 44.1kHz PCM16, peak normalization, 3ms/15ms edge fades; no synthesized content",
+      "provenance": {
+        "sourcePage": "https://opengameart.org/content/various-paper-sound-effects",
+        "author": "Luckius",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "pageSha256": "2710d4029d4aa174b2668d74b388d558589e5f2d700194c1db27c9f744c1c10b",
+        "verifiedAt": "2026-11-22T16:54:32.822074+00:00",
+        "sourceDownloadUrl": "https://opengameart.org/sites/default/files/sounds_6.zip",
+        "archiveSha256": "aa1889414310c7cfdd8dc291c19d4e4fc21ec987e9238b0d961fb72449c263a4",
+        "bundledLicenseFiles": [],
+        "licenseEvidenceNote": "No separate license text in this download; the original author submission explicitly links CC0. See recorded author-page evidence."
+      },
+      "id": "paper-open-wide",
+      "name": {
+        "vi": "Mở tờ giấy lớn",
+        "en": "Opening a paper sheet"
+      },
+      "group": "paper",
+      "groupName": {
+        "vi": "Thư và giấy",
+        "en": "Letters & paper"
+      },
+      "keywords": "Mở tờ giấy lớn Opening a paper sheet",
+      "durationMs": 545.6689342403628,
+      "sampleCount": 24064,
+      "bytes": 48172,
+      "sourceFile": "web/assets/sfx/v2/paper-open-wide.wav",
+      "sourceMember": "WAV/Paper Sound - 2.wav",
+      "sourceSha256": "7b670c269c463c308c8808a7d3bad5116fbd7a55c7e26d0b9064627f4c576b03",
+      "sourceStartMs": 0,
+      "sha256": "bdcc9ab84fb19dca4c33e7466b82c824339ab33a76e2552416cbd6f683701bb1"
+    },
+    {
+      "version": 2,
+      "sampleRate": 44100,
+      "channels": 1,
+      "mime": "audio/wav",
+      "author": "Luckius",
+      "license": "CC0-1.0",
+      "evidence": "web/assets/audio-licenses/paper.json",
+      "sourceKind": "recording",
+      "modifications": "excerpt, mono 44.1kHz PCM16, peak normalization, 3ms/15ms edge fades; no synthesized content",
+      "provenance": {
+        "sourcePage": "https://opengameart.org/content/various-paper-sound-effects",
+        "author": "Luckius",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "pageSha256": "2710d4029d4aa174b2668d74b388d558589e5f2d700194c1db27c9f744c1c10b",
+        "verifiedAt": "2026-11-22T16:54:32.822074+00:00",
+        "sourceDownloadUrl": "https://opengameart.org/sites/default/files/sounds_6.zip",
+        "archiveSha256": "aa1889414310c7cfdd8dc291c19d4e4fc21ec987e9238b0d961fb72449c263a4",
+        "bundledLicenseFiles": [],
+        "licenseEvidenceNote": "No separate license text in this download; the original author submission explicitly links CC0. See recorded author-page evidence."
+      },
+      "id": "paper-fold",
+      "name": {
+        "vi": "Gấp giấy",
+        "en": "Folding paper"
+      },
+      "group": "paper",
+      "groupName": {
+        "vi": "Thư và giấy",
+        "en": "Letters & paper"
+      },
+      "keywords": "Gấp giấy Folding paper",
+      "durationMs": 696.5986394557823,
+      "sampleCount": 30720,
+      "bytes": 61484,
+      "sourceFile": "web/assets/sfx/v2/paper-fold.wav",
+      "sourceMember": "WAV/Paper Sound - 3.wav",
+      "sourceSha256": "31c6a512b42ac3420b701ea7b4b4644f0f901794f944584d9e99372df6958623",
+      "sourceStartMs": 0,
+      "sha256": "d5c63aaa707eb2017e2e4ffe17dbaefa1800bce3b8c0604e81c13eca669d99b7"
+    },
+    {
+      "version": 2,
+      "sampleRate": 44100,
+      "channels": 1,
+      "mime": "audio/wav",
+      "author": "Luckius",
+      "license": "CC0-1.0",
+      "evidence": "web/assets/audio-licenses/paper.json",
+      "sourceKind": "recording",
+      "modifications": "excerpt, mono 44.1kHz PCM16, peak normalization, 3ms/15ms edge fades; no synthesized content",
+      "provenance": {
+        "sourcePage": "https://opengameart.org/content/various-paper-sound-effects",
+        "author": "Luckius",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "pageSha256": "2710d4029d4aa174b2668d74b388d558589e5f2d700194c1db27c9f744c1c10b",
+        "verifiedAt": "2026-11-22T16:54:32.822074+00:00",
+        "sourceDownloadUrl": "https://opengameart.org/sites/default/files/sounds_6.zip",
+        "archiveSha256": "aa1889414310c7cfdd8dc291c19d4e4fc21ec987e9238b0d961fb72449c263a4",
+        "bundledLicenseFiles": [],
+        "licenseEvidenceNote": "No separate license text in this download; the original author submission explicitly links CC0. See recorded author-page evidence."
+      },
+      "id": "paper-crumple",
+      "name": {
+        "vi": "Vò tờ giấy thứ hai",
+        "en": "Crumpling another sheet"
+      },
+      "group": "paper",
+      "groupName": {
+        "vi": "Thư và giấy",
+        "en": "Letters & paper"
+      },
+      "keywords": "Vò tờ giấy thứ hai Crumpling another sheet",
+      "durationMs": 696.5986394557823,
+      "sampleCount": 30720,
+      "bytes": 61484,
+      "sourceFile": "web/assets/sfx/v2/paper-crumple.wav",
+      "sourceMember": "WAV/Paper Crushed - 2.wav",
+      "sourceSha256": "2e9c9fd45abffbad091dca44ea5219a9d0dd9c55db5535ff1c65c0a1b03afb6e",
+      "sourceStartMs": 0,
+      "sha256": "d56c10159e819f4d43fddd311cec6adc62676d0fbc0ea9012a0a1a39e0e1457f"
+    },
+    {
+      "version": 2,
+      "sampleRate": 44100,
+      "channels": 1,
+      "mime": "audio/wav",
+      "author": "Kenney Vleugels",
+      "license": "CC0-1.0",
+      "evidence": "web/assets/audio-licenses/rpg.json",
+      "sourceKind": "recording",
+      "modifications": "excerpt, mono 44.1kHz PCM16, peak normalization, 3ms/15ms edge fades; no synthesized content",
+      "provenance": {
+        "sourcePage": "https://opengameart.org/content/50-rpg-sound-effects",
+        "author": "Kenney Vleugels",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "pageSha256": "a23185df63b8ec0461dcf834cf855151c8a6dba7e9431da2622ff9df0c0beb6f",
+        "verifiedAt": "2026-11-22T16:54:32.822074+00:00",
+        "sourceDownloadUrl": "https://opengameart.org/sites/default/files/RPGsounds_Kenney.zip",
+        "archiveSha256": "3ae398ad63e293f9c450bda22d5d81c3af69c74df66fc1400f33c012c0bbc231",
+        "bundledLicenseFiles": [
+          {
+            "archiveMember": "license.txt",
+            "path": "web/assets/audio-licenses/rpg-upstream-0.txt",
+            "sha256": "6f12f89bf8d1cc417b25afd1f8e6d9560b2b1d1ac2b175cf4ee9c377e180783d"
+          }
+        ]
+      },
+      "id": "book-open",
+      "name": {
+        "vi": "Mở cuốn sách",
+        "en": "Opening a book"
+      },
+      "group": "memory",
+      "groupName": {
+        "vi": "Kỷ niệm",
+        "en": "Memories"
+      },
+      "keywords": "Mở cuốn sách Opening a book",
+      "durationMs": 151.0657596371882,
+      "sampleCount": 6662,
+      "bytes": 13368,
+      "sourceFile": "web/assets/sfx/v2/book-open.wav",
+      "sourceMember": "OGG/bookOpen.ogg",
+      "sourceSha256": "953390534377222bee89ac8cd9e60a58fdc037c71a4d7c18c43cd647c7f34ba8",
+      "sourceStartMs": 0,
+      "sha256": "bacc80ea6c010a5db17c9a22569b9fdc1962596b454f478dcc905f9d158ea883"
+    },
+    {
+      "version": 2,
+      "sampleRate": 44100,
+      "channels": 1,
+      "mime": "audio/wav",
+      "author": "Kenney Vleugels",
+      "license": "CC0-1.0",
+      "evidence": "web/assets/audio-licenses/rpg.json",
+      "sourceKind": "recording",
+      "modifications": "excerpt, mono 44.1kHz PCM16, peak normalization, 3ms/15ms edge fades; no synthesized content",
+      "provenance": {
+        "sourcePage": "https://opengameart.org/content/50-rpg-sound-effects",
+        "author": "Kenney Vleugels",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "pageSha256": "a23185df63b8ec0461dcf834cf855151c8a6dba7e9431da2622ff9df0c0beb6f",
+        "verifiedAt": "2026-11-22T16:54:32.822074+00:00",
+        "sourceDownloadUrl": "https://opengameart.org/sites/default/files/RPGsounds_Kenney.zip",
+        "archiveSha256": "3ae398ad63e293f9c450bda22d5d81c3af69c74df66fc1400f33c012c0bbc231",
+        "bundledLicenseFiles": [
+          {
+            "archiveMember": "license.txt",
+            "path": "web/assets/audio-licenses/rpg-upstream-0.txt",
+            "sha256": "6f12f89bf8d1cc417b25afd1f8e6d9560b2b1d1ac2b175cf4ee9c377e180783d"
+          }
+        ]
+      },
+      "id": "book-close",
+      "name": {
+        "vi": "Đóng cuốn sách",
+        "en": "Closing a book"
+      },
+      "group": "memory",
+      "groupName": {
+        "vi": "Kỷ niệm",
+        "en": "Memories"
+      },
+      "keywords": "Đóng cuốn sách Closing a book",
+      "durationMs": 230.6122448979592,
+      "sampleCount": 10170,
+      "bytes": 20384,
+      "sourceFile": "web/assets/sfx/v2/book-close.wav",
+      "sourceMember": "OGG/bookClose.ogg",
+      "sourceSha256": "81e976532565f4372abd14e83d2684195fa548d0a28d345de221e56052454f32",
+      "sourceStartMs": 0,
+      "sha256": "69003296809aa185cd64e93d5a64584ff6fb738b377bfed9ae0c5fa41d0ca550"
+    },
+    {
+      "version": 2,
+      "sampleRate": 44100,
+      "channels": 1,
+      "mime": "audio/wav",
+      "author": "Kenney Vleugels",
+      "license": "CC0-1.0",
+      "evidence": "web/assets/audio-licenses/rpg.json",
+      "sourceKind": "recording",
+      "modifications": "excerpt, mono 44.1kHz PCM16, peak normalization, 3ms/15ms edge fades; no synthesized content",
+      "provenance": {
+        "sourcePage": "https://opengameart.org/content/50-rpg-sound-effects",
+        "author": "Kenney Vleugels",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "pageSha256": "a23185df63b8ec0461dcf834cf855151c8a6dba7e9431da2622ff9df0c0beb6f",
+        "verifiedAt": "2026-11-22T16:54:32.822074+00:00",
+        "sourceDownloadUrl": "https://opengameart.org/sites/default/files/RPGsounds_Kenney.zip",
+        "archiveSha256": "3ae398ad63e293f9c450bda22d5d81c3af69c74df66fc1400f33c012c0bbc231",
+        "bundledLicenseFiles": [
+          {
+            "archiveMember": "license.txt",
+            "path": "web/assets/audio-licenses/rpg-upstream-0.txt",
+            "sha256": "6f12f89bf8d1cc417b25afd1f8e6d9560b2b1d1ac2b175cf4ee9c377e180783d"
+          }
+        ]
+      },
+      "id": "gift-coins",
+      "name": {
+        "vi": "Xu trong túi quà",
+        "en": "Coins in a gift pouch"
+      },
+      "group": "gift",
+      "groupName": {
+        "vi": "Hộp và quà",
+        "en": "Boxes & gifts"
+      },
+      "keywords": "Xu trong túi quà Coins in a gift pouch",
+      "durationMs": 845.5328798185941,
+      "sampleCount": 37288,
+      "bytes": 74620,
+      "sourceFile": "web/assets/sfx/v2/gift-coins.wav",
+      "sourceMember": "OGG/handleCoins.ogg",
+      "sourceSha256": "8a91f969e932df709df80ee124d86a51389eed9b67f22e5e716bc2bbf60d8dab",
+      "sourceStartMs": 0,
+      "sha256": "0847c42efe0165400aa246982c7933651dbb3521ad52ee6b537ed2e0c4c5b630"
+    },
+    {
+      "version": 2,
+      "sampleRate": 44100,
+      "channels": 1,
+      "mime": "audio/wav",
+      "author": "Kenney Vleugels",
+      "license": "CC0-1.0",
+      "evidence": "web/assets/audio-licenses/rpg.json",
+      "sourceKind": "recording",
+      "modifications": "excerpt, mono 44.1kHz PCM16, peak normalization, 3ms/15ms edge fades; no synthesized content",
+      "provenance": {
+        "sourcePage": "https://opengameart.org/content/50-rpg-sound-effects",
+        "author": "Kenney Vleugels",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "pageSha256": "a23185df63b8ec0461dcf834cf855151c8a6dba7e9431da2622ff9df0c0beb6f",
+        "verifiedAt": "2026-11-22T16:54:32.822074+00:00",
+        "sourceDownloadUrl": "https://opengameart.org/sites/default/files/RPGsounds_Kenney.zip",
+        "archiveSha256": "3ae398ad63e293f9c450bda22d5d81c3af69c74df66fc1400f33c012c0bbc231",
+        "bundledLicenseFiles": [
+          {
+            "archiveMember": "license.txt",
+            "path": "web/assets/audio-licenses/rpg-upstream-0.txt",
+            "sha256": "6f12f89bf8d1cc417b25afd1f8e6d9560b2b1d1ac2b175cf4ee9c377e180783d"
+          }
+        ]
+      },
+      "id": "gift-creak",
+      "name": {
+        "vi": "Nắp gỗ kẽo kẹt",
+        "en": "Creaking wooden lid"
+      },
+      "group": "gift",
+      "groupName": {
+        "vi": "Hộp và quà",
+        "en": "Boxes & gifts"
+      },
+      "keywords": "Nắp gỗ kẽo kẹt Creaking wooden lid",
+      "durationMs": 661.0430839002267,
+      "sampleCount": 29152,
+      "bytes": 58348,
+      "sourceFile": "web/assets/sfx/v2/gift-creak.wav",
+      "sourceMember": "OGG/creak1.ogg",
+      "sourceSha256": "8a346186fd297254248cab8e8117060a52a5cf2a84f603153a762108550ea95e",
+      "sourceStartMs": 0,
+      "sha256": "83d00eb48f2eef334fcf06651c1dd2d74c28ea2912464587509dfe17a3234844"
+    },
+    {
+      "version": 2,
+      "sampleRate": 44100,
+      "channels": 1,
+      "mime": "audio/wav",
+      "author": "OwlishMedia / Ashe Kirk",
+      "license": "CC0-1.0",
+      "evidence": "web/assets/audio-licenses/camera.json",
+      "sourceKind": "recording",
+      "modifications": "excerpt, mono 44.1kHz PCM16, peak normalization, 3ms/15ms edge fades; no synthesized content",
+      "provenance": {
+        "sourcePage": "https://opengameart.org/content/202-more-sound-effects",
+        "author": "OwlishMedia / Ashe Kirk",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "pageSha256": "b63ee9e3cb5034a49b102f365352de33ea778458fbf456d2a80ed7a1707670f3",
+        "verifiedAt": "2026-11-22T16:54:32.955132+00:00",
+        "sourceDownloadUrl": "https://opengameart.org/sites/default/files/MoreSounds.zip",
+        "archiveSha256": "9428c1437137d9ea06ba94e13da12488d4c57990a1c32d83db9e7707e69fb3af",
+        "bundledLicenseFiles": [],
+        "licenseEvidenceNote": "No separate license text in this download; the original author submission explicitly links CC0. See recorded author-page evidence."
+      },
+      "id": "gift-cloth",
+      "name": {
+        "vi": "Tháo lớp vải bọc",
+        "en": "Unwrapping cloth"
+      },
+      "group": "gift",
+      "groupName": {
+        "vi": "Hộp và quà",
+        "en": "Boxes & gifts"
+      },
+      "keywords": "Tháo lớp vải bọc Unwrapping cloth",
+      "durationMs": 573.5827664399093,
+      "sampleCount": 25295,
+      "bytes": 50634,
+      "sourceFile": "web/assets/sfx/v2/gift-cloth.wav",
+      "sourceMember": "Cloth/Cloth_04.wav",
+      "sourceSha256": "23de90ec4e0ce509f03b8a24a7e855b99af1262827d601f8d11b601d9f343cf2",
+      "sourceStartMs": 0,
+      "sha256": "66825c22e7dfe06444395ec80b4c868847eda59bf92ed754ba53c99df3ca6761"
+    },
+    {
+      "version": 2,
+      "sampleRate": 44100,
+      "channels": 1,
+      "mime": "audio/wav",
+      "author": "OwlishMedia / Ashe Kirk",
+      "license": "CC0-1.0",
+      "evidence": "web/assets/audio-licenses/camera.json",
+      "sourceKind": "recording",
+      "modifications": "excerpt, mono 44.1kHz PCM16, peak normalization, 3ms/15ms edge fades; no synthesized content",
+      "provenance": {
+        "sourcePage": "https://opengameart.org/content/202-more-sound-effects",
+        "author": "OwlishMedia / Ashe Kirk",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "pageSha256": "b63ee9e3cb5034a49b102f365352de33ea778458fbf456d2a80ed7a1707670f3",
+        "verifiedAt": "2026-11-22T16:54:32.955132+00:00",
+        "sourceDownloadUrl": "https://opengameart.org/sites/default/files/MoreSounds.zip",
+        "archiveSha256": "9428c1437137d9ea06ba94e13da12488d4c57990a1c32d83db9e7707e69fb3af",
+        "bundledLicenseFiles": [],
+        "licenseEvidenceNote": "No separate license text in this download; the original author submission explicitly links CC0. See recorded author-page evidence."
+      },
+      "id": "camera-third",
+      "name": {
+        "vi": "Máy ảnh bấm chụp 3",
+        "en": "Camera shutter 3"
+      },
+      "group": "memory",
+      "groupName": {
+        "vi": "Kỷ niệm",
+        "en": "Memories"
+      },
+      "keywords": "Máy ảnh bấm chụp 3 Camera shutter 3",
+      "durationMs": 1908.7755102040817,
+      "sampleCount": 84177,
+      "bytes": 168398,
+      "sourceFile": "web/assets/sfx/v2/camera-third.wav",
+      "sourceMember": "Camera/Camera_03.wav",
+      "sourceSha256": "ee6e8553eeabee88288c778e5882b0de425614364deb36a46b5ef50c1ef69730",
+      "sourceStartMs": 0,
+      "sha256": "fd36b21423f37c0c3f7fde440aabd92a3476b08cac8b3cdc64982bec5bf78b27"
+    },
+    {
+      "version": 2,
+      "sampleRate": 44100,
+      "channels": 1,
+      "mime": "audio/wav",
+      "author": "OwlishMedia / Ashe Kirk",
+      "license": "CC0-1.0",
+      "evidence": "web/assets/audio-licenses/camera.json",
+      "sourceKind": "recording",
+      "modifications": "excerpt, mono 44.1kHz PCM16, peak normalization, 3ms/15ms edge fades; no synthesized content",
+      "provenance": {
+        "sourcePage": "https://opengameart.org/content/202-more-sound-effects",
+        "author": "OwlishMedia / Ashe Kirk",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "pageSha256": "b63ee9e3cb5034a49b102f365352de33ea778458fbf456d2a80ed7a1707670f3",
+        "verifiedAt": "2026-11-22T16:54:32.955132+00:00",
+        "sourceDownloadUrl": "https://opengameart.org/sites/default/files/MoreSounds.zip",
+        "archiveSha256": "9428c1437137d9ea06ba94e13da12488d4c57990a1c32d83db9e7707e69fb3af",
+        "bundledLicenseFiles": [],
+        "licenseEvidenceNote": "No separate license text in this download; the original author submission explicitly links CC0. See recorded author-page evidence."
+      },
+      "id": "toast-drink",
+      "name": {
+        "vi": "Chúc mừng cùng ly nước",
+        "en": "Celebratory drink"
+      },
+      "group": "birthday",
+      "groupName": {
+        "vi": "Sinh nhật",
+        "en": "Birthday"
+      },
+      "keywords": "Chúc mừng cùng ly nước Celebratory drink",
+      "durationMs": 499.0249433106576,
+      "sampleCount": 22007,
+      "bytes": 44058,
+      "sourceFile": "web/assets/sfx/v2/toast-drink.wav",
+      "sourceMember": "Drink/Drink_01.wav",
+      "sourceSha256": "11f6f90b8be847968e868a6a643fbb017c7116959ae3907216357949d8c1fe91",
+      "sourceStartMs": 0,
+      "sha256": "fbd544d101a561900cc74067fb63a8fa60fb29a61caca9aa422374e12b891147"
+    }
+  ]
+}

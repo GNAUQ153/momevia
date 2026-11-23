@@ -230,6 +230,12 @@ export class DesignsService {
     const document = validateDocument(input.document, { mode: 'draft' }); const name = title(input.title);
     // Validate before adapter; adapter revalidates immutable policy under the same CAS lock.
     const design = await this.get(user, id);
+    if(this.musicLibrary){
+      const disabled=new Set((await this.musicLibrary.list()).items.filter(row=>row.status==='disabled').map(row=>row.key));
+      const references=doc=>[...(doc.soundtrack?[`music:${doc.soundtrack.id}`]:[]),...doc.elements.filter(e=>e.sound?.kind==='library').map(e=>`sfx:${e.sound.version}:${e.sound.id}`)];
+      const previous=new Set(references(design.document));
+      if(references(document).some(key=>disabled.has(key)&&!previous.has(key)))throw canvasError(422,'AUDIO_SELECTION_DISABLED','Âm này đã ngừng cho chọn mới. Hãy chọn âm khác. Quà đã gửi vẫn giữ nguyên.');
+    }
     if(this.flags.sfxCreate===false)for(const element of document.elements)if(element.sound&&canonicalStringify(element.sound)!==canonicalStringify(design.document.elements.find(e=>e.id===element.id)?.sound||null))this.requireSoundCreate();
     await this.assetsFor(user.sub, document, design.provenance?.purpose === 'creator');
     return this.repository.save(user.sub, id, { ...input, title: name, document, documentHash: hash(document), requestHash: hash(input), assetIds: assetIds(document) }, current => this.enforcePolicy(current, document));

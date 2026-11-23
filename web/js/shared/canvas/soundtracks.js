@@ -1,7 +1,7 @@
-// Danh mục nhạc nội bộ: ID cố định, không dùng URL từ dữ liệu người dùng.
-// Bản bổ sung dịp lễ được tổng hợp tại scripts/assets/generate-occasion-music.py.
-// Metadata chỉ phục vụ chọn nhạc; Canvas JSON tiếp tục lưu { id, volume }.
-export const SOUNDTRACKS = Object.freeze([
+// New selections use imported author compositions. Historical synthesized IDs
+// and their original files remain available only for pinned/legacy gifts.
+import { RECORDED_SOUNDTRACKS } from './recorded-soundtracks.js';
+export const LEGACY_SOUNDTRACKS = Object.freeze([
   Object.freeze({ id: "calm-dawn", occasion: "general", titleKey: "editor.music.calmDawn", descriptionKey: "editor.music.calmDawnDesc", mood: "gentle", durationSeconds: 24, src: "/assets/music/calm-dawn.mp3" }),
   Object.freeze({ id: "dreamy-night", occasion: "general", titleKey: "editor.music.dreamyNight", descriptionKey: "editor.music.dreamyNightDesc", mood: "gentle", durationSeconds: 24, src: "/assets/music/dreamy-night.mp3" }),
   Object.freeze({ id: "bright-day", occasion: "general", titleKey: "editor.music.brightDay", descriptionKey: "editor.music.brightDayDesc", mood: "joyful", durationSeconds: 24, src: "/assets/music/bright-day.mp3" }),
@@ -15,7 +15,8 @@ export const SOUNDTRACKS = Object.freeze([
 ]);
 
 // ID duy nhất, không nhận URL do người dùng nhập và không đọc file từ đường dẫn tuỳ ý.
-export const soundtrackById = id => SOUNDTRACKS.find(track => track.id === id) ?? null;
+export const SOUNDTRACKS = RECORDED_SOUNDTRACKS;
+export const soundtrackById = id => SOUNDTRACKS.find(track => track.id === id) ?? LEGACY_SOUNDTRACKS.find(track => track.id === id) ?? null;
 export const SOUNDTRACK_OCCASIONS = Object.freeze([
   "general", "birthday", "wedding", "christmas", "newyear", "tet", "valentine",
 ]);

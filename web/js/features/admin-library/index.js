@@ -5,6 +5,8 @@ import { eventMediaUrl } from '../../shared/canvas/event-media.js';
 import { installLibrary } from '../../shared/canvas/library-state.js';
 import { eventTimeFromLocal } from '../../shared/canvas/interactions.js';
 import { libraryFields } from './fields.js';
+import { preserveScroll, captureFieldFocus, restoreFieldFocus } from '../../ui/scroll-state.js';
+import { mountMusicLibrary } from '../music-library/index.js';
 import { categories, categoryFor, itemKey, itemTitle, fingerprint, makeItem, duplicateItem, animationDefaults,
   compatibleAnimation, getDocument, layers, setPath, metadata, editFrame, makeLayer, makeInteraction, removeScene, normalizeSelection, sameItemContent } from './model.js';
 
@@ -12,11 +14,12 @@ const button = (key, action, attrs = {}) => node('button', { type: 'button', cla
 const localized = key => message(`adminLibrary.${key}`);
 const copy = structuredClone;
 
-export function mountAdminLibrary(host, { api }) {
+export function mountAdminLibrary(host, { api, initialCategory = 'element' }) {
   const lifetime = new AbortController(), { signal } = lifetime;
   let rows = [], draft, base, original = '', category = 'element', contentLocale = currentLocale(), sceneIndex = 0, layerIndex = 0,
     query = '', stateFilter = 'all', saving = false, disposed = false, previewSequence = 0, previewTimer, previewAbort, player,
-    latestPreview = null, latestSignature = '', inViewport = true, addType = 'text', loaded = false;
+    latestPreview = null, latestSignature = '', inViewport = true, addType = 'text', loaded = false,
+    listSignature = '', audioActive = false, audioController, canvasScroll = [];
   const title = node('h1', {}, localized('title'));
   const count = node('p', { class: 'library-admin__count', role: 'status' });
   const feedback = node('p', { class: 'library-admin__feedback', role: 'status', 'aria-live': 'polite', hidden: true });
@@ -46,14 +49,16 @@ export function mountAdminLibrary(host, { api }) {
     previewFamily, previewScenes, previewStatus, previewHost,
     button('backToForm', 'back-form', { class: 'btn btn--outline library-admin__mobile-return' }));
   const tabs = node('div', { class: 'library-admin__tabs', role: 'tablist', 'aria-label': localized('categories') },
-    ...categories.map(kind => button(`kind.${kind}`, 'category', { role: 'tab', id: `admin-library-tab-${kind}`, 'aria-controls': 'admin-library-workspace', 'data-kind': kind, 'aria-selected': kind === category, class: 'library-admin__tab' })));
+    ...[...categories, 'audio'].map(kind => button(`kind.${kind}`, 'category', { role: 'tab', id: `admin-library-tab-${kind}`, 'aria-controls': kind === 'audio' ? 'admin-library-audio' : 'admin-library-workspace', 'data-kind': kind, 'aria-selected': kind === category, class: 'library-admin__tab' })));
+  const canvasPanel = node('div', { id: 'admin-library-workspace', role: 'tabpanel', 'aria-labelledby': 'admin-library-tab-element' },
+    feedback, conflict, node('div', { class: 'library-admin__grid' }, node('aside', { class: 'library-admin__browser' }, search, filter, count, list), form, previewPanel));
+  const audioPanel = node('div', { id: 'admin-library-audio', role: 'tabpanel', 'aria-labelledby': 'admin-library-tab-audio', hidden: true });
   const root = node('section', { class: 'section library-admin', 'data-admin-library': '' },
     node('div', { class: 'library-admin__container' },
       node('a', { href: '/admin', 'data-link': '', class: 'library-admin__back' }, localized('back')),
       node('header', { class: 'library-admin__header' }, node('div', {}, title, node('p', {}, localized('intro'))),
         node('div', { class: 'library-admin__header-actions' }, button('newItem', 'new', { class: 'btn btn--dark', 'data-write': '' }), button('duplicate', 'duplicate', { 'data-write': '' }), button('reload', 'reload'))),
-      feedback, conflict, tabs,
-      node('div', { class: 'library-admin__grid', id: 'admin-library-workspace', role: 'tabpanel', 'aria-labelledby': 'admin-library-tab-element' }, node('aside', { class: 'library-admin__browser' }, search, filter, count, list), form, previewPanel)));
+      tabs, canvasPanel, audioPanel));
   host.replaceChildren(root);
   function dirty() { return Boolean(draft && (base?.revision === 0 || fingerprint(draft) !== original)); }
   function notify(key, type = 'info', params) { setText(feedback, localizedMessage(key, params)); feedback.hidden = false; feedback.dataset.tone = type; }
@@ -82,32 +87,72 @@ export function mountAdminLibrary(host, { api }) {
     return rows.filter(row => categoryFor(row.kind) === category && (stateFilter === 'all' || row.status === stateFilter) &&
       words.every(word => normalized(`${itemTitle(row, rows, currentLocale())} ${row.id}`).includes(word)));
   }
+  function updateTabs() {
+    const active = audioActive ? 'audio' : category;
+    canvasPanel.hidden = audioActive; audioPanel.hidden = !audioActive;
+    canvasPanel.setAttribute('aria-labelledby', `admin-library-tab-${category}`);
+    for (const tab of tabs.querySelectorAll('button')) {
+      tab.setAttribute('aria-selected', String(tab.dataset.kind === active)); tab.tabIndex = tab.dataset.kind === active ? 0 : -1;
+    }
+    for (const control of root.querySelectorAll('.library-admin__header-actions [data-write]')) control.hidden = audioActive;
+  }
+  function setAudioActive(active) {
+    const changed = audioActive !== active;
+    if (changed && active) canvasScroll = [list, fields, previewHost].map(region => ({ region, top: region.scrollTop, left: region.scrollLeft }));
+    if (changed && !active) audioController?.setActive(false);
+    audioActive = active; updateTabs();
+    if (active) {
+      clearTimeout(previewTimer); previewAbort?.abort(); previewSequence++; previewHost.removeAttribute('aria-busy');
+      if (!audioController) audioController = mountMusicLibrary(audioPanel, { api, embedded: true });
+    }
+    if (active) audioController?.setActive(true);
+    else if (changed) {
+      inViewport = true;
+      if (latestPreview) showPreview(latestPreview); else schedulePreview(true);
+      for (const { region, top, left } of canvasScroll) { region.scrollTop = top; region.scrollLeft = left; }
+    }
+  }
   function renderList() {
     const visible = filtered();
-    root.querySelector('#admin-library-workspace').setAttribute('aria-labelledby', `admin-library-tab-${category}`);
-    for (const tab of tabs.querySelectorAll('button')) { tab.setAttribute('aria-selected', String(tab.dataset.kind === category)); tab.tabIndex = tab.dataset.kind === category ? 0 : -1; }
+    updateTabs();
     setText(count, localizedMessage('count', { count: visible.length }));
-    list.replaceChildren(...visible.map((row, index) => node('li', {}, node('button', { type: 'button', 'data-library-action': 'select', 'data-key': itemKey(row),
-      class: draft && itemKey(row) === itemKey(draft) ? 'is-selected' : '', 'aria-pressed': Boolean(draft && itemKey(row) === itemKey(draft)),
-      tabindex: draft && itemKey(row) === itemKey(draft) || !draft && index === 0 ? 0 : -1 },
-    node('span', { class: 'library-admin__item-title' }, itemTitle(row, rows, currentLocale())),
-    node('span', { class: `library-admin__badge ${row.status === 'disabled' ? 'is-off' : ''}` }, localized(`status.${row.status}`)),
-    node('small', {}, message('adminLibrary.version', { revision: row.revision }))))));
-    if (!visible.length) list.append(node('li', { class: 'library-admin__empty' }, localized('empty')));
+    const signature = fingerprint([currentLocale(), visible.map(row => [itemKey(row), itemTitle(row, rows, currentLocale()), row.status, row.revision])]);
+    if (signature !== listSignature) {
+      const focused = list.contains(document.activeElement) ? document.activeElement.closest('[data-key]')?.dataset.key : null;
+      preserveScroll(list, () => {
+        list.replaceChildren(...visible.map(row => node('li', {}, node('button', { type: 'button', 'data-library-action': 'select', 'data-key': itemKey(row) },
+          node('span', { class: 'library-admin__item-title' }, itemTitle(row, rows, currentLocale())),
+          node('span', { class: `library-admin__badge ${row.status === 'disabled' ? 'is-off' : ''}` }, localized(`status.${row.status}`)),
+          node('small', {}, message('adminLibrary.version', { revision: row.revision }))))));
+        if (!visible.length) list.append(node('li', { class: 'library-admin__empty' }, localized('empty')));
+        if (focused) list.querySelector(`[data-key="${CSS.escape(focused)}"]`)?.focus({ preventScroll: true });
+      });
+      listSignature = signature;
+    }
+    for (const [index, control] of [...list.querySelectorAll('button')].entries()) {
+      const selected = Boolean(draft && control.dataset.key === itemKey(draft));
+      control.classList.toggle('is-selected', selected); control.setAttribute('aria-pressed', String(selected)); control.tabIndex = selected || !draft && index === 0 ? 0 : -1;
+    }
   }
-  function renderFields() {
+  function renderFields(reset = false) {
     if (!draft) { fields.replaceChildren(node('p', {}, localized('empty'))); mark(); return; }
     ({ sceneIndex, layerIndex } = normalizeSelection(draft, contentLocale, sceneIndex, layerIndex));
     const focus = fields.contains(document.activeElement) ? document.activeElement.dataset.field : null;
-    fields.replaceChildren(...libraryFields(draft, rows, { locale: contentLocale, sceneIndex, layerIndex, addType }));
-    if (focus) fields.querySelector(`[data-field="${CSS.escape(focus)}"]`)?.focus({ preventScroll: true });
+    const expanded = new Map([...fields.querySelectorAll('details[data-library-section]')].map(item => [item.dataset.librarySection, item.open]));
+    preserveScroll(fields, () => {
+      fields.replaceChildren(...libraryFields(draft, rows, { locale: contentLocale, sceneIndex, layerIndex, addType }));
+      if (!reset) for (const item of fields.querySelectorAll('details[data-library-section]')) if (expanded.has(item.dataset.librarySection)) item.open = expanded.get(item.dataset.librarySection);
+      if (focus && !reset) fields.querySelector(`[data-field="${CSS.escape(focus)}"]`)?.focus({ preventScroll: true });
+    });
+    if (reset) fields.scrollTop = 0;
     mark();
   }
   function selectItem(row, force = false) {
     if (!force && !canDiscard()) return;
+    const changed = !draft || itemKey(draft) !== itemKey(row);
     base = copy(row); draft = copy(row); original = fingerprint(draft); sceneIndex = layerIndex = 0;
     conflict.hidden = true; feedback.hidden = true; latestPreview = null; latestSignature = '';
-    renderList(); renderFields(); schedulePreview(true);
+    renderList(); renderFields(changed); if (!audioActive) schedulePreview(true);
   }
   function mutate(fn, structural = false) {
     if (!draft || saving) return;
@@ -116,10 +161,11 @@ export function mountAdminLibrary(host, { api }) {
     if (structural) renderFields(); schedulePreview();
   }
   function showPreview(result) {
-    if (disposed || !inViewport) return;
-    player?.dispose();
+    if (disposed || !inViewport || audioActive) return;
     const effectPreview = result.preferredSceneId ? { ...result.effectPreview, sceneId: result.preferredSceneId } : result.effectPreview;
-    player = mountPlayer(previewHost, { document: result.document, mode: 'preview', assetUrl: eventMediaUrl, effectPreview });
+    preserveScroll(previewHost, () => {
+      player?.dispose(); player = mountPlayer(previewHost, { document: result.document, mode: 'preview', assetUrl: eventMediaUrl, effectPreview });
+    });
     if (result.playSceneId) requestAnimationFrame(() => { if (!disposed) player?.goToScene(result.playSceneId); });
     previewScenes.replaceChildren(...result.document.scenes.map(scene => node('option', { value: scene.id }, scene.name)));
     previewScenes.hidden = result.document.scenes.length < 2; previewScenes.value = result.preferredSceneId || result.document.entrySceneId;
@@ -173,7 +219,7 @@ export function mountAdminLibrary(host, { api }) {
   async function save() {
     if (saving || !draft || !form.reportValidity()) return;
     if (base?.revision === 0 && rows.some(r => itemKey(r) === itemKey(draft))) { notify('duplicateId', 'error'); fields.querySelector('[data-path="id"]')?.focus(); return; }
-    const desired = copy(draft); saving = true; mark(); feedback.hidden = true; conflict.hidden = true;
+    const desired = copy(draft), focus = captureFieldFocus(fields); saving = true; mark(); feedback.hidden = true; conflict.hidden = true;
     try {
       const payload = await api.post(`/designs/admin/library/${desired.kind}/${encodeURIComponent(desired.id)}`,
         { expectedRevision: base.revision, definition: desired.definition, status: desired.status, sortOrder: desired.sortOrder }, { signal });
@@ -200,7 +246,10 @@ export function mountAdminLibrary(host, { api }) {
         }
         else { setText(feedback, errorMessage(error)); feedback.hidden = false; feedback.dataset.tone = 'error'; }
       }
-    } finally { saving = false; if (!disposed) mark(); }
+    } finally {
+      saving = false;
+      if (!disposed) { mark(); if (document.activeElement === document.body) restoreFieldFocus(fields, focus); }
+    }
   }
   function selectedLayer() { const list = layers(draft, contentLocale, sceneIndex); return list[layerIndex] || list[0]; }
   function changeField(target, structural) {
@@ -271,7 +320,10 @@ export function mountAdminLibrary(host, { api }) {
     if (action === 'save') return;
     if (action === 'select') { const row = rows.find(r => itemKey(r) === control.dataset.key); if (row) selectItem(row); return; }
     if (action === 'category') {
+      if (control.dataset.kind === 'audio') { setAudioActive(true); return; }
+      if (audioActive && control.dataset.kind === category) { setAudioActive(false); return; }
       if (!canDiscard()) return;
+      setAudioActive(false);
       category = control.dataset.kind; query = ''; search.value = ''; draft = null;
       const first = filtered()[0]; if (first) selectItem(first, true); else { renderList(); renderFields(); } return;
     }
@@ -280,7 +332,7 @@ export function mountAdminLibrary(host, { api }) {
       const next = action !== 'new' && draft ? duplicateItem(draft, rows, t) : makeItem(category, rows, t);
       category = categoryFor(next.kind); selectItem(next, true); original = ''; mark(); return;
     }
-    if (action === 'reload' || action === 'reload-latest') { await load(true); return; }
+    if (action === 'reload' || action === 'reload-latest') { if (audioActive) await audioController?.reload(); else await load(true); return; }
     if (action === 'discard') {
       if (canDiscard()) {
         const target = base.revision > 0 ? base : rows.find(row => categoryFor(row.kind) === category);
@@ -321,13 +373,14 @@ export function mountAdminLibrary(host, { api }) {
     const next = event.key === 'Home' ? 0 : event.key === 'End' ? buttons.length - 1 : (index + (event.key === 'ArrowRight' ? 1 : -1) + buttons.length) % buttons.length;
     event.preventDefault(); buttons[next].focus(); buttons[next].click();
   }, { signal });
-  root.addEventListener('keydown', event => { if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's') { event.preventDefault(); void save(); } }, { signal });
+  root.addEventListener('keydown', event => { if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's') { event.preventDefault(); if (audioActive) audioController?.save(); else void save(); } }, { signal });
   window.addEventListener('beforeunload', event => { if (dirty()) { event.preventDefault(); event.returnValue = ''; } }, { signal });
   const removeLocale = onLocaleChange(() => { if (!disposed) { renderList(); renderFields(); schedulePreview(true); } });
   const observer = new IntersectionObserver(entries => { inViewport = entries[0].isIntersecting; if (!inViewport) { player?.dispose(); player = null; }
     else if (latestPreview && !player) showPreview(latestPreview); }, { threshold: .02 });
   observer.observe(previewHost);
   mark();
-  const ready = load();
-  return { ready, beforeLeave: canDiscard, dispose() { disposed = true; lifetime.abort(); previewAbort?.abort(); clearTimeout(previewTimer); observer.disconnect(); removeLocale(); player?.dispose(); } };
+  if (initialCategory === 'audio') setAudioActive(true);
+  const ready = Promise.all([load(), audioController?.ready]);
+  return { ready, beforeLeave: () => canDiscard() && (!audioController || audioController.beforeLeave()), dispose() { disposed = true; lifetime.abort(); previewAbort?.abort(); clearTimeout(previewTimer); observer.disconnect(); removeLocale(); player?.dispose(); audioController?.dispose(); } };
 }

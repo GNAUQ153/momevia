@@ -90,6 +90,7 @@ export function mountPlayer(
   toolbar.append(motionControl, skip);
   let soundtrackPlayback = null;
   if (document.soundtrack) {
+    toolbar.classList.add('gift-motion-toolbar--music');
     const musicGroup = globalThis.document.createElement('div');
     musicGroup.className = 'gift-soundtrack-control';
     const musicButton = globalThis.document.createElement('button');
@@ -131,6 +132,14 @@ export function mountPlayer(
       if (globalThis.document.hidden) soundtrackPlayback.pause();
     }, { signal: lifetime.signal });
     musicGroup.append(musicButton, musicVolumeLabel, musicStatus);
+    const track=soundtrackPlayback.track;
+    if(track.artist){
+      const credit=globalThis.document.createElement('small');credit.className='gift-music-credit';
+      credit.append(`${track.originalTitle} — ${track.artist} · `);
+      const license=globalThis.document.createElement('a');license.href=track.licenseUrl||'https://creativecommons.org/publicdomain/zero/1.0/';license.target='_blank';license.rel='noopener noreferrer';license.textContent=track.license;credit.append(license,` · `);
+      const source=globalThis.document.createElement('a');source.href=track.sourceUrl;source.target='_blank';source.rel='noopener noreferrer';setText(source,message('editor.music.source'));credit.append(source);musicGroup.append(credit);
+      const changes=globalThis.document.createElement('span');setText(changes,message('musicLibrary.mediaChanges'));credit.append(' · ',changes);
+    }
     toolbar.append(musicGroup);
   }
   const updateMotionControl = () => {

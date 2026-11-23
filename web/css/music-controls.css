@@ -1,4 +1,132 @@
-/* Music UI: không autoplay, dùng lại typography và token Momevia. */
+/* Audio management reuses the Canvas library panels; Studio controls follow. */
+.library-admin.music-admin--embedded {
+  padding: 0;
+}
+.music-admin--embedded > .library-admin__container {
+  width: 100%;
+}
+.music-admin__toolbar,
+.music-admin__extra-filters {
+  display: grid;
+  gap: 8px;
+}
+.music-admin__extra-filters {
+  padding-top: 10px;
+}
+.music-admin__filter-pair {
+  display: grid;
+  grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr);
+  gap: 8px;
+}
+.music-admin__filter-pair > select {
+  min-width: 0;
+}
+.music-admin__filter-more > summary {
+  cursor: pointer;
+  font-size: .85rem;
+  padding-block: 8px;
+}
+.music-admin__artist {
+  grid-column: 1 / -1;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.music-admin__form {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+.music-admin__form[hidden] {
+  display: none;
+}
+.music-admin .music-admin__edit,
+.music-admin .music-admin__preview {
+  overflow: visible;
+}
+.music-admin__preview-body {
+  padding: 16px;
+}
+.music-admin__preview-body > * {
+  margin-block: 0 14px;
+}
+.music-admin__preview-body h3 {
+  font-size: 1.1rem;
+  line-height: 1.5;
+}
+.music-admin__preview-body p,
+.music-admin__credit {
+  font-size: .85rem;
+  line-height: 1.6;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+.music-admin__preview-body progress {
+  display: block;
+  width: 100%;
+  height: 8px;
+  accent-color: var(--purple);
+}
+.music-admin__preview-body input[type="range"] {
+  padding: 0;
+  border: 0;
+  min-height: 44px;
+  accent-color: var(--purple);
+  background: transparent;
+}
+.music-admin__preview-body output {
+  display: block;
+  text-align: right;
+  color: var(--muted);
+  font-size: .8rem;
+}
+.music-admin__credit {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.music-admin [role="status"]:empty {
+  display: none;
+}
+.music-admin [data-music-admin-count] {
+  color: var(--muted);
+  font-size: .8rem;
+  margin: 12px 4px 8px;
+}
+@media (max-width: 690px) {
+  .music-admin__edit {
+    overflow: visible;
+  }
+}
+.editor-music-source,
+.gift-music-credit {
+  color: var(--muted);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.gift-music-credit {
+  flex-basis: 100%;
+  width: 100%;
+}
+
+.gift-motion-toolbar--music {
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.gift-motion-toolbar--music .gift-soundtrack-control {
+  flex: 1 1 100%;
+  width: 100%;
+  min-width: 0;
+}
+
+.gift-soundtrack-control > * {
+  min-width: 0;
+  max-width: 100%;
+}
+
 .editor-music-card {
   display: grid;
   gap: 12px;
@@ -174,16 +302,24 @@
 }
 .editor-music-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr);
+  grid-auto-rows: max-content;
+  align-content: start;
   gap: 10px;
+  max-height: 360px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  padding: 3px;
 }
-.editor-music-track {
+.editor-workspace .editor-music-track {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: 5px;
   min-width: 0;
-  min-height: 64px;
+  min-height: 110px;
+  height: auto;
   padding: 12px;
   border: 1px solid var(--ui-panel-border);
   border-radius: 13px;
@@ -193,8 +329,26 @@
   font-size: 0.875rem;
   line-height: 1.4;
   text-align: left;
+  white-space: normal;
+  overflow: hidden;
   cursor: pointer;
   transition: border-color var(--ui-transition), box-shadow var(--ui-transition);
+}
+.editor-music-track > span,
+.editor-music-track > strong {
+  flex-shrink: 0;
+  width: 100%;
+  min-width: 0;
+}
+.editor-workspace .editor-music-track[data-track-id=""] {
+  min-height: 44px;
+  justify-content: center;
+}
+.editor-workspace .editor-music-preview {
+  min-height: 44px;
+}
+.editor-workspace .editor-music-preview:hover:not(:disabled) {
+  transform: none;
 }
 .editor-music-track[hidden] {
   display: none;
@@ -217,6 +371,8 @@
   color: var(--muted);
   font-size: 0.8125rem;
   overflow-wrap: anywhere;
+  max-height: 2.8em;
+  overflow: hidden;
 }
 .editor-music-track-meta {
   color: var(--purple-deep);

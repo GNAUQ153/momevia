@@ -15,9 +15,8 @@ const html = createHomeViews({
   templateCard: () => '',
 }).home();
 
-test('Hero có nút tạm dừng, nhãn rõ và không thay đổi ba nút chọn mẫu', () => {
-  assert.match(html, /data-hero-playback/);
-  assert.match(html, /data-hero-playback-label/);
+test('Hero bỏ nút tạm dừng và giữ nguyên ba nút chọn mẫu', () => {
+  assert.doesNotMatch(html, /data-hero-playback/);
   assert.equal((html.match(/data-hero-select=/g) || []).length, 3);
   assert.match(html, /data-hero-image=/);
   assert.match(html, /data-i18n-aria-label/);

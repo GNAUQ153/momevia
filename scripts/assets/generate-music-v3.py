@@ -15,6 +15,9 @@ DURATION = 24
 N = RATE * DURATION
 OUT = Path(__file__).resolve().parents[2] / 'web' / 'assets' / 'music'
 
+if (OUT / 'v2' / 'catalog.json').exists():
+    raise SystemExit('Legacy music generator is archived; import licensed author music with import-recorded-audio.py.')
+
 
 def synthesize(chords, tempo, salt):
     """Âm sắc bell/pad nhẹ và chuỗi nốt tự biên soạn, có fade chống tiếng nổ."""

@@ -20,8 +20,24 @@ export function registerDesignRoutes(router, { service, assets, resolveUser, con
   const user = req => resolveUser(req, config.jwtSecret);
   const writeUser = async req => { const actor = await user(req); if (!writeLimit.consume(actor.sub)) throw canvasError(429, 'CANVAS_RATE_LIMIT', 'Bạn thao tác quá nhanh. Thử lại sau.'); return actor; };
   router.on('GET', '/health', ({ res }) => sendJson(res, 200, { name: 'designs', ok: true, profile: service.profile, capabilities: service.flags }));
-  router.on('GET', '/library', async ({ res }) => sendJson(res, 200, { library: await service.library.refresh() }));
-  router.on('GET', '/sfx', async ({res})=>sendJson(res,200,{...sfxCatalog(),createEnabled:service.flags.sfxCreate!==false}));
+  router.on('GET', '/library', async ({ res }) => sendJson(res, 200, { library: await service.library.refresh(), audioLibrary: await service.musicLibrary.list() }));
+  router.on('GET', '/sfx', async ({res})=>{
+    const curated=new Map((await service.musicLibrary.list()).items.map(row=>[row.key,row]));
+    const catalog=sfxCatalog();
+    sendJson(res,200,{...catalog,assets:catalog.assets.filter(a=>curated.get(`sfx:${a.version}:${a.id}`)?.status!=='disabled').map(a=>{
+      const row=curated.get(`sfx:${a.version}:${a.id}`),group=row?.theme??a.group;
+      return {...a,name:row?.title??a.name,keywords:row?.keywords??a.keywords,group,groupName:catalog.assets.find(item=>item.group===group)?.groupName??a.groupName};
+    }),createEnabled:service.flags.sfxCreate!==false});
+  });
+  router.on('GET', '/admin/music-library', async ({req,res})=>{
+    if((await user(req)).role!=='admin')throw canvasError(403,'ADMIN_REQUIRED','Admin required.');
+    sendJson(res,200,{audioLibrary:await service.musicLibrary.list()});
+  });
+  router.on('POST', '/admin/music-library/:key', async ({req,res,params})=>{
+    const actor=await writeUser(req);
+    if(actor.role!=='admin')throw canvasError(403,'ADMIN_REQUIRED','Admin required.');
+    sendJson(res,200,{audioLibrary:await service.musicLibrary.put(actor,params.key,await parseJson(req,8192))});
+  });
   router.on('GET', '/sfx/:version/:id', async ({res,params})=>streamAsset(res,librarySound(params.version,params.id)));
   router.on('POST','/designs/:id/audio',async ({req,res,params})=>{
     const actor=await writeUser(req);await service.get(actor,params.id);

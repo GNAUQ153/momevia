@@ -5,6 +5,7 @@ import { templateMetaKey } from "../shared/template-copy.js";
 import { personalizationText, templateCover, templateField, templateSearchFields, templateValue } from "../features/catalog/template-copy.js";
 import { featuredSeasons, isInSeason } from "../features/catalog/seasonal.js";
 import { templatePreviewDialog } from "../features/catalog/template-preview.js";
+import { templateCreateUrl } from "../features/catalog/template-create-url.js";
 import { prioritizeTemplates } from '../shared/template-order.js';
 import { preserveLoadedCovers } from '../core/cover-loading.js';
 import {
@@ -134,7 +135,7 @@ export function createCatalogViews({
         <div class="detail-price-row"><strong>${priceText(template.price)}</strong></div>
         <p>${personalizationText(template.personalization)}</p>
         <div class="detail-start-actions">
-          ${buttonLink(`/create/${encodeURIComponent(template.id)}?mode=quick${version}`, text("catalog.detail.use"), "btn--dark", false)}
+          ${buttonLink(templateCreateUrl(template), text("catalog.detail.use"), "btn--dark", false)}
           <button class="btn btn--outline" type="button" data-template-preview aria-haspopup="dialog">${text("catalog.detail.preview")} ${icon('eye', 17)}</button>
         </div>
         <p class="detail-palette">${template.palette ? text(`templates.meta.palette.${template.palette}`) : ""}</p><p class="detail-subtitle">${templateField(template, 'subtitle')}</p>

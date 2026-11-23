@@ -105,8 +105,13 @@
   font: 600 20px var(--font-display);
   margin: 0;
 }
-.template-preview-toolbar button {
+.template-preview-toolbar .btn {
   min-height: 44px;
+}
+.template-preview-toolbar .template-preview-use {
+  flex: 0 0 auto;
+  white-space: nowrap;
+  text-align: center;
 }
 .template-preview-note {
   font-size: 13px;
@@ -136,10 +141,13 @@
     flex-basis: 100%;
     font-size: 18px;
   }
-  .template-preview-toolbar button {
-    flex: 1;
+  .template-preview-toolbar .btn {
+    flex: 1 1 104px;
     font-size: 0.875rem;
     padding: 8px;
+  }
+  .template-preview-toolbar .template-preview-use {
+    flex: 1 1 120px;
   }
   .template-preview-player {
     width: 100%;

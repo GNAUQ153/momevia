@@ -515,3 +515,66 @@
     padding-top: clamp(16px, 1.5vw, 20px);
   }
 }
+
+/* Khám phá mẫu theo dịp: đường dẫn thật tới bộ lọc /explore. */
+.mkt-occasion {
+  margin-bottom: 22px;
+}
+
+.mkt-occasion__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.mkt-occasion__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 46px;
+  max-width: 100%;
+  padding: 9px 13px;
+  border: 1px solid #dfd3ee;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 5px 14px rgb(55 30 92 / 6%);
+  color: #41256d;
+  font: 650 14px/1.35 var(--mkt-font);
+  text-decoration: none;
+  transition: border-color 150ms ease, background-color 150ms ease;
+}
+
+.mkt-occasion__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mkt-occasion__count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 25px;
+  height: 25px;
+  padding-inline: 6px;
+  border-radius: 999px;
+  background: #eee6fb;
+  color: #482a81;
+  font: 700 12px/1 var(--mkt-font);
+}
+
+.mkt-occasion__link > .icon {
+  flex: none;
+  color: #7042a9;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .mkt-occasion__link:hover {
+    border-color: #a88acb;
+    background: #faf7ff;
+  }
+}
+
+.mkt-occasion__link:focus-visible {
+  outline: 3px solid #5638b5;
+  outline-offset: 3px;
+}

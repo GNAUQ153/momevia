@@ -78,6 +78,14 @@ export async function runHomeBrowser(base) {
           assert.equal(await cover.evaluate(node => globalThis.getComputedStyle(node).animationName), 'none');
           const cards = page.locator('#home-featured-gifts .template-card');
           await cards.first().waitFor();
+          // Chỉ hiển thị dịp có mẫu thật, nhãn có thể đọc bằng bàn phím/trình đọc màn hình.
+          const occasions = page.locator('#home-featured-gifts .mkt-occasion__link');
+          assert(await occasions.count() > 0, `${width}: occasion shortcuts are available`);
+          assert(await occasions.count() <= 6, `${width}: bounded occasion list`);
+          const occasionBox = await occasions.first().boundingBox();
+          assert(occasionBox.height >= 44, `${width}: occasion link is a touch target`);
+          assert.match(await occasions.first().getAttribute('aria-label'),
+            language === 'en' ? /Browse \d+ templates? for / : /Xem \d+ mẫu cho dịp /);
           const [featuredTitle, journeyTitle, howTitle, cardsTail, journeySection] = await Promise.all([
             page.locator('.mkt-featured__heading h2').boundingBox(),
             page.locator('#mkt-journey-title').boundingBox(),
@@ -151,6 +159,11 @@ export async function runHomeBrowser(base) {
           const dialog = page.getByRole('dialog');
           await preview.focus();
           await page.keyboard.press('Enter');
+          await dialog.waitFor({ state: 'visible' });
+          // Chỉ đọc CTA sau khi modal đã mở; trước đó role dialog bị ẩn khỏi accessibility tree.
+          const useTemplate = dialog.locator('[data-template-use]');
+          await useTemplate.waitFor({ state: 'visible' });
+          assert.equal(await useTemplate.getAttribute('href'), '/create/hai-phong-bi?mode=quick');
           const entry = dialog.locator('[data-runtime-element="open-memory"]');
           await entry.waitFor();
           assert.match(await dialog.getAttribute('aria-label'), language === 'en' ? /Two Envelopes/i : /Hai phong bì/i);
@@ -190,6 +203,16 @@ export async function runHomeBrowser(base) {
           assert.equal(await question.evaluate(node => node.parentElement.open), true);
           await question.press('Enter');
           assert.equal(await question.evaluate(node => node.parentElement.open), false);
+          // Người xem đi từ chip dịp trên trang chủ tới đúng bộ lọc Explore.
+          const firstOccasion = page.locator('#home-featured-gifts .mkt-occasion__link').first();
+          const occasionHref = await firstOccasion.getAttribute('href');
+          const occasionValue = new URL(occasionHref, base).searchParams.get('occasion');
+          await firstOccasion.click();
+          await page.waitForURL(new URL(occasionHref, base).href);
+          await page.locator('#occasion-filter').waitFor();
+          assert.equal(await page.locator('#occasion-filter').inputValue(), occasionValue);
+          await page.goBack();
+          await page.locator('#home-featured-gifts .mkt-occasion__link').first().waitFor();
         }
         await page.goto(base + '/#how-it-works');
         await waitForHowHeading(page);

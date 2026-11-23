@@ -350,14 +350,44 @@ export async function runCanvasBrowser(base, expiredSlug) {
       const overflow = await page.evaluate(() => ({ width: globalThis.document.documentElement.scrollWidth, viewport: globalThis.innerWidth, elements: [...globalThis.document.querySelectorAll('body *')].filter(e => e.getBoundingClientRect().right > globalThis.innerWidth + 1 && globalThis.getComputedStyle(e).position !== 'absolute').slice(0, 6).map(e => [e.tagName, e.className, e.getBoundingClientRect().right]) }));
       assert(overflow.width <= overflow.viewport + 1, `editor overflow ${width}: ${JSON.stringify(overflow)}`);
       if ([320, 390, 768].includes(width)) {
+        const historyControls = page.locator('.editor-mobile-history');
+        await historyControls.waitFor({ state: 'visible' });
+        const mobileUndo = historyControls.locator('[data-editor-action="mobile-undo"]');
+        const mobileRedo = historyControls.locator('[data-editor-action="mobile-redo"]');
+        assert.equal(await mobileUndo.isVisible(), true);
+        assert.equal(await mobileRedo.isVisible(), true);
+        const desktopUndo = page.locator('.editor-top-actions [data-editor-action="undo"]');
+        const desktopRedo = page.locator('.editor-top-actions [data-editor-action="redo"]');
+        assert.equal(await desktopUndo.isVisible(), false);
+        assert.equal(await desktopRedo.isVisible(), false);
+        assert.equal(await mobileUndo.isDisabled(), await desktopUndo.isDisabled());
+        assert.equal(await mobileRedo.isDisabled(), await desktopRedo.isDisabled());
+        const bounds = await historyControls.locator('button').evaluateAll(buttons => buttons.map(node => {
+          const box = node.getBoundingClientRect();
+          return { left: box.left, right: box.right, height: box.height };
+        }));
+        assert(bounds.every(box => box.height >= 44 && box.left >= -1 && box.right <= width + 1),
+          `mobile Undo/Redo overflow or small touch target at ${width}: ${JSON.stringify(bounds)}`);
         for (const kind of ['library', 'layers', 'inspector', 'scenes']) {
           const trigger = control(`sheet-${kind}`);
           await trigger.click();
-          assert.equal(await page.locator('.editor-sheet-open[aria-modal="true"]').count(), 1);
+          const opened = page.locator('.editor-sheet-open[aria-modal="true"]');
+          const backdrop = page.locator('.editor-sheet-backdrop');
+          assert.equal(await opened.count(), 1);
           assert.equal(await trigger.getAttribute('aria-expanded'), 'true');
-          if (kind === 'scenes') await page.locator('.editor-sheet-open [data-editor-action="close-sheet"]').click();
+          assert.equal(await backdrop.isVisible(), true);
+          assert.equal(await opened.evaluate(node => node.contains(node.ownerDocument.activeElement)), true);
+          if (kind === 'library' && width === 390) {
+            // Sheet mở tại nút đóng, Shift+Tab chuyển về cuối và Tab quay về đầu.
+            await page.keyboard.press('Shift+Tab');
+            assert.equal(await opened.evaluate(node => node.contains(node.ownerDocument.activeElement)), true);
+            await page.keyboard.press('Tab');
+            assert.equal(await opened.locator('[data-editor-action="close-sheet"]').evaluate(node => node === node.ownerDocument.activeElement), true);
+          }
+          if (kind === 'scenes') await backdrop.click({ position: { x: 15, y: 15 } });
           else await page.keyboard.press('Escape');
-          assert.equal(await page.locator('.editor-sheet-open').count(), 0);
+          assert.equal(await opened.count(), 0);
+          assert.equal(await backdrop.isHidden(), true);
           assert(await trigger.evaluate(node => node === node.ownerDocument.activeElement));
         }
       }

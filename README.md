@@ -91,18 +91,19 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Marketing Hero tạm dừng slideshow/teaser và chuyển nhãn điều khiển sang “Tiếp tục trình chiếu” khi trình duyệt bật `saveData` hoặc `prefers-reduced-data`; vẫn cho phép người dùng chủ động phát, nhưng không bỏ qua `prefers-reduced-motion`.
-- Ngừng tilt/ánh sáng 3D và hủy animation frame khi bật tiết kiệm dữ liệu. Reveal chuyển sang hiển thị ngay, tránh nội dung bị ẩn sau khi tắt motion.
-- Gom kiểm tra ưu tiên chuyển động vào `marketing/motion-preferences.js`, bổ sung test bật/tắt trong phiên và bảo toàn listener lifecycle. Không thay đổi Canvas, API, tài chính, OAuth, giao diện VI/EN hoặc nguồn ảnh/nhạc.
+- Đặt hai nút Hoàn tác/Làm lại bên cạnh vùng Canvas khi chỉnh bố cục trên mobile (320–800px), vùng chạm 48px; không làm chật header. Desktop và chế độ điền nhanh giữ nguyên bố cục.
+- Đồng bộ trạng thái disabled của toàn bộ nút Undo/Redo từ cùng Canvas store, tránh tình trạng nút mobile không phản ánh lịch sử thực.
+- Bổ sung nhãn VI/EN ngắn gọn, focus-visible rõ ràng và regression test cho responsive, touch target và trạng thái history.
+- Không thay đổi cấu trúc tài liệu, API lưu nháp, phân quyền, thanh toán, nhạc hoặc hệ thống undo/redo hiện tại.
 
 **Các commit gần nhất trên `main`:**
 
+- `126e147` — feat(canvas): add accessible mobile undo redo toolbar (2026-11-23)
+- `6e97809` — feat(canvas): improve accessible mobile editor sheets (2026-11-23)
+- `2e421bb` — test: open template preview before checking create CTA (2026-11-23)
+- `932b911` — feat: let users create cards directly from template previews (2026-11-23)
+- `3559344` — feat: add occasion discovery shortcuts to marketing home (2026-11-23)
 - `78bf643` — perf: respect data saver in marketing motion and slideshow (2026-11-23)
-- `d36c664` — fix(auth): use Zalo brand icon and sync web assets (2026-11-23)
-- `4e6173a` — fix: include interactive cards rollout bundle in release package (2026-11-23)
-- `ac1e5a5` — fix: refine auth UX and update password minimum to 8 characters (2026-11-22)
-- `9556034` — Merge pull request #22 from GNAUQ153:perf/interactive-cards-lcp (2026-11-22)
-- `678dedc` — feat: redesign Momevia authentication with dark split layout (2026-11-22)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

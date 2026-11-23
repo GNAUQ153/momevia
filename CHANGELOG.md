@@ -29,6 +29,37 @@
 - Hiện nguồn nhạc trong Studio và player; hiển thị đúng phút/giây cho bản dài, bảo toàn lựa chọn cũ khi mở nháp, sửa tràn ngang thanh nhạc/credit trên mobile.
 - Kiểm chứng và danh mục được gom tại `docs/SYSTEM_CONTENT_INVENTORY_20261122.md`; raw downloads và công cụ QA nằm trong `local/`, không đóng gói. Chưa nghe duyệt bởi người hoặc kiểm trên thiết bị di động thật.
 
+## Unreleased — Canvas Mobile History V16 (2026-11-23)
+
+- Đặt hai nút Hoàn tác/Làm lại bên cạnh vùng Canvas khi chỉnh bố cục trên mobile (320–800px), vùng chạm 48px; không làm chật header. Desktop và chế độ điền nhanh giữ nguyên bố cục.
+- Đồng bộ trạng thái disabled của toàn bộ nút Undo/Redo từ cùng Canvas store, tránh tình trạng nút mobile không phản ánh lịch sử thực.
+- Bổ sung nhãn VI/EN ngắn gọn, focus-visible rõ ràng và regression test cho responsive, touch target và trạng thái history.
+- Không thay đổi cấu trúc tài liệu, API lưu nháp, phân quyền, thanh toán, nhạc hoặc hệ thống undo/redo hiện tại.
+
+## Unreleased — V15: Canvas mobile bottom sheet và keyboard accessibility (2026-11-23)
+
+- Nâng cấp các bảng Thêm, Lớp, Thuộc tính và Cảnh trên mobile thành bottom sheet có nền che, chạm nền để đóng, tránh chạm nhầm vùng Canvas phía sau.
+- Chuẩn hóa vòng focus bằng Tab/Shift+Tab; khi mở ưu tiên nút Đóng, khi đóng trả focus về nút đã mở, đóng khi đổi breakpoint và hoàn nguyên `inert` nếu rời Designer.
+- Trong lúc sheet mở, chặn shortcut Undo/Redo/chỉnh lớp đi xuyên xuống Canvas; Escape đóng sheet trước thay vì huỷ thao tác nền.
+- Tách logic điều hướng focus sang `mobile-sheet.js`, thêm 10 unit regression test và mở rộng browser regression ở 320/390/768px. Không thay đổi API, dữ liệu thiệp, thanh toán hoặc OAuth.
+
+## Unreleased — V14.1: Khắc phục browser regression Preview (2026-11-23)
+
+- Sửa thứ tự thao tác trong `tests/browser/home.mjs`: mở hộp thoại Preview trước, đợi hiển thị rồi mới đọc CTA “Dùng mẫu”; tránh Playwright chờ 30 giây vì dialog chưa mở.
+- Thêm unit guard kiểm tra thứ tự `Enter → dialog visible → CTA href` để hạn chế tái diễn lỗi trong CI. Giữ nguyên code ứng dụng, API, Canvas và dữ liệu người dùng.
+
+## Unreleased — V14: Xem trước và tạo thiệp liền mạch (2026-11-23)
+
+- Bổ sung CTA “Dùng mẫu” ngay trong hộp thoại xem trước thiệp ở trang chủ và trang chi tiết, giảm thao tác đóng modal rồi tìm lại nút tạo.
+- Đồng bộ URL tạo nhanh trong `template-create-url.js`, giữ `versionId` của mẫu Creator, mã hóa ID và đồng bộ lại CTA mỗi khi hero đổi slide.
+- Cải thiện kích thước thao tác và responsive của toolbar xem trước; bổ sung unit test và browser regression cho ba slide. Không đổi API, dữ liệu Canvas, Auth/Zalo hay hệ thống thanh toán.
+
+## Unreleased — Marketing Occasion Discovery V13 (2026-11-23)
+
+- Bổ sung bộ liên kết **Khám phá theo dịp** trên trang chủ, lấy số mẫu từ Catalog thật, ưu tiên dịp đang diễn ra và mở đúng bộ lọc `/explore?occasion=...` mà không thêm API hoặc migration.
+- Tối đa 6 chip có tên và nhãn trợ năng VI/EN, vùng bấm từ 46px và cuộn ngang nội bộ trên mobile; không hiển thị số liệu giả lúc tải/lỗi và không dùng emoji.
+- Tách logic chọn dịp ra module thuần, bổ sung 7 unit test và browser regression cho đường dẫn qua Explore trên nhiều kích thước màn hình. Giữ nguyên Auth, Canvas, SFX, Payment, Creator/Admin và các hiệu ứng 3D hiện hữu.
+
 ## Unreleased — Marketing Performance V12: Data Saver & Motion (2026-11-23)
 
 - Marketing Hero tạm dừng slideshow/teaser và chuyển nhãn điều khiển sang “Tiếp tục trình chiếu” khi trình duyệt bật `saveData` hoặc `prefers-reduced-data`; vẫn cho phép người dùng chủ động phát, nhưng không bỏ qua `prefers-reduced-motion`.

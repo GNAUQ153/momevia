@@ -5,6 +5,7 @@ import { templateCover } from "../features/catalog/template-copy.js";
 import { canonicalText } from "../shared/locale.js";
 import { icon } from "../ui/icons.js";
 import { prioritizeTemplates } from '../shared/template-order.js';
+import { occasionExploreUrl, occasionShortcuts } from '../features/marketing/occasion-shortcuts.js';
 
 // The covers and player use the same public, built-in templates.
 export const homeDemo = {
@@ -68,6 +69,18 @@ export function createHomeViews({ state, buttonLink, templateCard }) {
     </div></section>`;
   }
 
+  function occasionBrowse() {
+    const options = occasionShortcuts(state.templates);
+    if (!options.length) return '';
+    return `<nav class="mkt-occasion" ${attr('aria-label', 'home.featured.occasionBrowse')}>
+      <div class="mkt-occasion__links">${options.map(({ value, labelKey, count }) => `<a class="mkt-occasion__link" href="${occasionExploreUrl(value)}" data-link ${attr('aria-label', 'home.featured.occasionAction', { category: { format: 'message', key: labelKey }, count })}>
+        <span class="mkt-occasion__name">${text(labelKey)}</span>
+        <span class="mkt-occasion__count" aria-hidden="true">${count}</span>
+        ${icon('arrow', 16)}
+      </a>`).join('')}</div>
+    </nav>`;
+  }
+
   function featuredGifts(status) {
     if (status === "loading") return `<p role="status">${text("home.featured.loading")}</p>`;
     if (status === "error") return `<p role="alert">${text("home.featured.error")}</p>
@@ -81,7 +94,7 @@ export function createHomeViews({ state, buttonLink, templateCard }) {
       if (selections.size === 3) break;
     }
     return selections.size
-      ? `<div class="mkt-gift-grid" data-visual>${[...selections.values()].map(template => templateCard(template, { compact: true })).join("")}</div>`
+      ? `${occasionBrowse()}<div class="mkt-gift-grid" data-visual>${[...selections.values()].map(template => templateCard(template, { compact: true })).join("")}</div>`
       : `<p role="status">${text("home.featured.empty")}</p>`;
   }
 

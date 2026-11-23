@@ -1,3 +1,7 @@
+## Unreleased — Mẫu quà tự nhiên · 6/8 (2026-11-23)
+
+- Thêm gói cập nhật theo revision, backup toàn DB, đối chiếu nội dung Admin và bảo toàn thứ tự thật.
+
 ## Unreleased — Mẫu quà tự nhiên · 5/8 (2026-11-23)
 
 - Giữ ảnh người gửi, nguồn/quyền qua initializer/restyle; chỉ tải dữ liệu preview khi mở.

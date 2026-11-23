@@ -40,15 +40,16 @@ async function fixture(t, extended = false) {
   await service.save(user, saved.id, { expectedRevision: 2, mutationId: randomUUID(), title: saved.title, document: newer });
   const metadata = await repository.getAsset(user.sub, asset.id), assetFile = path.join(mediaRoot, metadata.storageKey);
   const orphanFile = `${randomUUID()}.png`; fs.writeFileSync(path.join(mediaRoot, orphanFile), image);
-  return { root, source, repository, user, assetFile, orphanFile, gift: published.gift, backup: path.join(root, 'backup'), restored: path.join(root, 'restored') };
+  return { root, source, repository, user, assetFile,userAssetId:asset.id, orphanFile, gift: published.gift, backup: path.join(root, 'backup'), restored: path.join(root, 'restored') };
 }
 
 test('versioned canvas JSON backup restores exact authoritative bytes, IDs, snapshots, refs and media', async t => {
   const f = await fixture(t), before = fs.readFileSync(path.join(f.source, 'canvas.json'));
   fs.writeFileSync(path.join(f.source, '.env'), 'SECRET=must-not-copy'); fs.writeFileSync(path.join(f.source, 'sessions.json'), '[{"token":"not-a-canvas-file"}]');
   const manifest = exportCanvas({ source: f.source, target: f.backup, offline: true });
-  assert.equal(manifest.formatVersion, 1); assert.deepEqual(manifest.counts, { designs: 2, creates: 2, mutations: 2, assets: 1, contexts: 1, publications: 1, versions: 1, replies: 1 });
-  assert.equal(manifest.files.length, 3); assert.equal(fs.existsSync(path.join(f.backup, '.env')), false); assert.equal(fs.existsSync(path.join(f.backup, 'sessions.json')), false);
+  const assetCount=Object.keys(f.repository.read().assets).length;
+  assert.equal(manifest.formatVersion, 1); assert.deepEqual(manifest.counts, { designs: 2, creates: 2, mutations: 2, assets: assetCount, contexts: 1, publications: 1, versions: 1, replies: 1 });
+  assert.equal(manifest.files.length, assetCount+2); assert.equal(fs.existsSync(path.join(f.backup, '.env')), false); assert.equal(fs.existsSync(path.join(f.backup, 'sessions.json')), false);
   assert.deepEqual(fs.readFileSync(path.join(f.source, 'canvas.json')), before, 'export never modifies source');
   assert.deepEqual(verifyCanvas({ source: f.backup }).manifest.counts, manifest.counts);
   const restored = restoreCanvas({ source: f.backup, target: f.restored }); assert.deepEqual(restored.counts, manifest.counts);
@@ -71,18 +72,19 @@ test('backup restores a V2 snapshot and the private bytes pinned by a nested alb
   assert.deepEqual(fs.readFileSync(path.join(f.restored,'assets',path.basename(f.assetFile))),fs.readFileSync(f.assetFile));
 });
 
-test('backup preserves Creator asset aliases sharing validated immutable bytes', async t => {
+test('backup preserves two asset aliases sharing validated immutable bytes without corrupting stock art', async t => {
   const f = await fixture(t);
   const key = `${randomUUID()}.png`;
   const sharedFile = path.join(path.dirname(f.assetFile), key);
   fs.copyFileSync(f.assetFile, sharedFile);
+  const aliasId=randomUUID();
   await f.repository.change(state => {
-    for (const asset of Object.values(state.assets)) asset.storageKey = key;
+    const asset=state.assets[f.userAssetId];asset.storageKey=key;state.assets[aliasId]={...asset,id:aliasId};
   });
   exportCanvas({ source: f.source, target: f.backup, offline: true });
   restoreCanvas({ source: f.backup, target: f.restored });
   const state = new JsonDesignRepository(path.join(f.restored, 'canvas.json')).read();
-  assert.equal(Object.values(state.assets)[0].storageKey, key);
+  assert.equal(state.assets[f.userAssetId].storageKey,key);assert.equal(state.assets[aliasId].storageKey,key);
   assert.deepEqual(fs.readFileSync(path.join(f.restored, 'assets', key)), fs.readFileSync(sharedFile));
 });
 

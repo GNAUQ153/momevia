@@ -3,11 +3,14 @@ import fs from 'node:fs';
 import path from 'node:path';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
+import { setTimeout as delay } from 'node:timers/promises';
 import sharp from 'sharp';
 import { createDocument, createElement, publicDocument, assetIds } from '../../web/js/shared/canvas/index.js';
 import { previewSvg } from '../../web/js/shared/canvas/cover-svg.js';
 import { requiresCanvasV2 } from '../../web/js/shared/canvas/schema.js';
 import { interactionKinds } from '../../web/js/shared/canvas/interactions.js';
+import {photoSlots} from '../../web/js/shared/canvas/interactions.js';
+import {builtinMedia} from '../../src/modules/designs/builtin-media.mjs';
 import { catalog } from '../../web/js/features/canvas-editor/library.js';
 
 const art = [['#EFCDB3','#9D6D8A','#F6E4A7'],['#B7D4DE','#46778E','#F3D497'],['#CEDEC6','#567A64','#EAC1D3']];
@@ -102,12 +105,14 @@ function compose(index, images) {
 
 export async function runExpandedApi(base, cookie, otherCookie, { artifacts, allCards = false, browser = false } = {}) {
   async function api(route, options={}) {
-    const { body, bytes, guest, other, status = 200 } = options;
+    const { body, bytes, guest, other, status = 200,mime='image/png',mutationId=randomUUID() } = options;
+    // Exercise the public write budget at human pace, including stock-media uploads.
+    if(body||bytes)await delay(300);
     const response = await fetch(`${base}/api${route}`,{
       method: body || bytes ? 'POST' : 'GET',
       headers:{...(guest ? {} : {cookie: other ? otherCookie : cookie}),
         ...(body ? {'content-type':'application/json'} : {}),
-        ...(bytes ? {'content-type':'image/png','x-mutation-id':randomUUID()} : {})},
+        ...(bytes ? {'content-type':mime,'x-mutation-id':mutationId} : {})},
       body: body ? JSON.stringify(body) : bytes,
     });
     const data = response.headers.get('content-type')?.includes('json') ? await response.json() : await response.arrayBuffer();
@@ -118,9 +123,15 @@ export async function runExpandedApi(base, cookie, otherCookie, { artifacts, all
   const save = (draft, document) => api(`/designs/designs/${draft.id}/save`,{body:{title:draft.title,document,expectedRevision:draft.revision,mutationId:randomUUID()}});
   if (allCards) {
     const draft = await create('Round-trip 172 thẻ QA');
+    const stockAliases=new Map();
     for (const [id, card] of blocks) {
       const document = createDocument();
       document.elements = card.create();
+      for(const model of document.elements)for(const slot of photoSlots(model))if(slot.assetId){
+        const original=slot.assetId;
+        if(!stockAliases.has(original)){const media=builtinMedia(original);assert(media&&!media.previewOnly,'factory media must be distributable');const {asset}=await api(`/designs/designs/${draft.id}/assets`,{bytes:media.bytes,mime:'image/webp',status:201});stockAliases.set(original,asset.id);}
+        slot.assetId=stockAliases.get(original);if(!document.assets.some(a=>a.assetId===slot.assetId))document.assets.push({assetId:slot.assetId,kind:'image'});
+      }
       document.scenes[0].elementIds = document.elements.map(item=>item.id);
       if (requiresCanvasV2(document)) document.schemaVersion=document.registryVersion=2;
       if(usesSound(document))document.schemaVersion=document.registryVersion=3;

@@ -1,3 +1,7 @@
+## Unreleased — Mẫu quà tự nhiên · 7/8 (2026-11-23)
+
+- Bổ sung kiểm hồi quy cho 21 mẫu, 243 element, ảnh tùy chọn, quyền, DB và tải trang.
+
 ## Unreleased — Mẫu quà tự nhiên · 6/8 (2026-11-23)
 
 - Thêm gói cập nhật theo revision, backup toàn DB, đối chiếu nội dung Admin và bảo toàn thứ tự thật.

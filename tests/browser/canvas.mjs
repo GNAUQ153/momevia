@@ -7,6 +7,8 @@ import jsQR from 'jsqr';
 import sharp from 'sharp';
 import { confirmGiftAccess } from './gift-access.mjs';
 import { checkContextualCanvas } from './canvas-contextual.mjs';
+import {catalog} from '../../web/js/features/canvas-editor/library.js';
+import {filteredIds} from '../../web/js/features/canvas-editor/library-discovery.js';
 
 async function checkShareInBrowser(browser, context, base, gifts) {
   const alias = base.replace('127.0.0.1', 'localhost');
@@ -420,16 +422,19 @@ export async function runCanvasBrowser(base, expiredSlug) {
     const quickDraft = new URL(page.url());
     assert.equal(quickDraft.searchParams.get('mode'), 'quick');
     const quickId = quickDraft.pathname.split('/').at(-1);
+    const quickInitial=(await api(`/designs/designs/${quickId}`)).data.design;
     const beforeToggle = (await api('/designs/designs')).data.designs.length;
     await field('binding.recipientName').fill('Mai');
     await field('binding.senderName').fill('An');
     const quickGreeting = 'Một nháp trả phí, có ảnh kỷ niệm.';
     await field('binding.message').fill(quickGreeting);
+    const uploadedPhoto=page.waitForResponse(r=>r.url().endsWith('/assets')&&r.request().method()==='POST'&&r.status()===201);
     await field('quick-photo').setInputFiles({ name: 'synthetic.png', mimeType: 'image/png', buffer: bytes });
-    await page.locator('.editor-artboard img').waitFor();
+    const uploadedAsset=(await (await uploadedPhoto).json()).asset;
+    await page.locator(`.editor-artboard [data-element-id="photo-window-image"] img[src$="/${uploadedAsset.id}"]`).waitFor();
     await field('quick-photo').setInputFiles({ name: 'invalid.png', mimeType: 'image/png', buffer: Buffer.from('invalid PNG fixture') });
     await page.locator('.editor-error').waitFor();
-    await page.locator('.editor-artboard img').waitFor();
+    await page.locator(`.editor-artboard [data-element-id="photo-window-image"] img[src$="/${uploadedAsset.id}"]`).waitFor();
     await control('toggle-mode').click();
     assert.equal(new URL(page.url()).pathname, quickDraft.pathname);
     assert.equal(new URL(page.url()).searchParams.has('mode'), false);
@@ -441,7 +446,7 @@ export async function runCanvasBrowser(base, expiredSlug) {
     await save();
     await page.reload();
     assert.equal(await field('binding.message').inputValue(), quickGreeting);
-    await page.locator('.editor-artboard img').waitFor();
+    await page.locator('.editor-artboard img').first().waitFor();
     await control('preview').click();
     const quickPreview = page.locator('dialog[open]');
     await quickPreview.getByRole('button', { name: /Lời chúc/ }).click();
@@ -450,7 +455,7 @@ export async function runCanvasBrowser(base, expiredSlug) {
     const quickPersisted = (await api(`/designs/designs/${quickId}`)).data.design;
     assert.equal((await api('/designs/designs')).data.designs.length, beforeToggle);
     assert.equal(quickPersisted.source.templateId, 'polaroid');
-    assert.equal(quickPersisted.document.assets.length, 1);
+    assert.deepEqual(quickPersisted.document.assets.map(a=>a.assetId).sort(),[...quickInitial.document.assets.map(a=>a.assetId),uploadedAsset.id].sort());
     assert(await page.evaluate(() => globalThis.document.documentElement.scrollWidth <= globalThis.innerWidth + 1));
     await page.route('**/api/checkout/payments/methods', route => route.fulfill({ status: 503, contentType: 'application/json', body: JSON.stringify({ error: 'Lỗi methods giả lập' }) }));
     await control('preview').click(); await control('preview-send').click();
@@ -487,7 +492,7 @@ export async function runCanvasBrowser(base, expiredSlug) {
     await field('binding.message').fill('Mong bạn tìm được nhiều niềm vui mới.');
     await tab('add').click();
     await search.fill('ngoi sao');
-    assert.equal(await library.locator('[data-block]:visible').count(), 1);
+    assert.deepEqual((await library.locator('[data-block]:visible').evaluateAll(nodes=>nodes.map(n=>n.dataset.block))).sort(),[...filteredIds(catalog,{query:'ngoi sao'})].sort());
     await block('star').click();
     const star = page.locator('.editor-artboard .gift-runtime-sticker');
     assert.equal(await star.textContent(), '★');
@@ -498,11 +503,12 @@ export async function runCanvasBrowser(base, expiredSlug) {
     await search.fill('cum hoa');
     const layerCount = await page.locator('.editor-artboard .editor-stage-element').count();
     await block('flowers').click();
-    assert.equal(await page.locator('.editor-artboard .editor-stage-element').count(), layerCount + 7);
+    const flowerLayers=2; // Outer petals and the independent illuminated edges.
+    assert.equal(await page.locator('.editor-artboard .editor-stage-element').count(), layerCount + flowerLayers);
     await control('undo').click();
     assert.equal(await page.locator('.editor-artboard .editor-stage-element').count(), layerCount);
     await control('redo').click();
-    assert.equal(await page.locator('.editor-artboard .editor-stage-element').count(), layerCount + 7);
+    assert.equal(await page.locator('.editor-artboard .editor-stage-element').count(), layerCount + flowerLayers);
     await search.fill('doc tiep');
     await block('continue').click();
     await page.locator('.editor-artboard .editor-unlinked-action').waitFor();

@@ -8,16 +8,19 @@ import { eventMetadata } from '../../src/modules/catalog/event-metadata.mjs';
 import { createDocument, templatePreviewDocument, canonicalStringify, validateDocument, duplicateDocument } from '../../web/js/shared/canvas/index.js';
 import { requiresCanvasV2 } from '../../web/js/shared/canvas/schema.js';
 import { serverText } from '../../src/shared/locale.mjs';
+import { REFRESH_21 } from '../../web/js/shared/canvas/refresh-21-config.js';
 const before = JSON.parse(fs.readFileSync(new URL('../fixtures/event-cards-before.json', import.meta.url)));
 const ids = Object.keys(before.documents);
 
-test('21 other presets and metadata stay unchanged from approved baseline', () => {
+test('catalog metadata remains unchanged; presets outside the 21-item refresh retain approved hashes', () => {
   for (const old of before.templates.filter(t => !ids.includes(t.id))) {
     const { documentHash, ...metadata } = old;
     const template = templates.find(t => t.id === old.id);
     assert.deepEqual(template, metadata);
-    const hash = createHash('sha256').update(canonicalStringify(createDocument({ template }))).digest('hex');
-    assert.equal(hash, documentHash, old.id);
+    if(!REFRESH_21[old.id]){
+      const hash = createHash('sha256').update(canonicalStringify(createDocument({ template }))).digest('hex');
+      assert.equal(hash, documentHash, old.id);
+    }
   }
 });
 

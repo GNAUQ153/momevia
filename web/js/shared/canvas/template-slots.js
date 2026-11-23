@@ -1,6 +1,8 @@
 // Semantic role IDs are independent of locale, scene order, position and name.
+import {EVENT_ARTWORK_LABEL,ORIGINAL_ARTWORK_LABEL,REALISTIC_ARTWORK_LABEL,NATURAL_ARTWORK_LABEL} from './event-media.js';
+import {canonicalStringify} from './schema.js';
 // This pilot opens only the two birthday paper compositions with the same graph.
-export const RESTYLE_PAIRS = Object.freeze({ 'sunny-wishes': ['confetti'], confetti: ['sunny-wishes'] });
+export {RESTYLE_PAIRS} from './restyle-pairs.js';
 export const SEMANTIC_TEMPLATE_IDS=['sunny-wishes','confetti','hai-phong-bi','birthday-radiance','proud-of-you','loi-moi-ben-hien','cuon-phim-ngay-ay','ban-do-ngay-ra-truong'];
 export function captureSemanticRoles(doc, previous = {}, remap = new Map()) {
  const inverse=new Map(Object.entries(previous).map(([role,id])=>[id,role]));
@@ -23,11 +25,16 @@ export function semanticSlots(doc, elementRoles = {}) {
  return slots;
 }
 const find=(doc,s)=>s.kind==='binding'?doc.bindings[s.key]:doc.elements.find(e=>e.id===s.elementId);
-export function mapTemplateSlots(source, sourceDefault, target, { sourceRoles = {} } = {}) {
+export function mapTemplateSlots(source, sourceDefault, target, { sourceRoles = {},builtinAssetAliases={} } = {}) {
  const result=structuredClone(target), from=semanticSlots(source,sourceRoles), available=new Map(semanticSlots(result).map(s=>[s.role,s])), defaults=new Map(semanticSlots(sourceDefault).map(s=>[s.role,s]));
  const carried=[],missing=[];
  for(const slot of from){
   const s=find(source,slot),d=defaults.get(slot.role),original=d&&find(sourceDefault,d),to=available.get(slot.role);
+  if(slot.kind==='image'&&original?.type==='image'&&original.accessibility.decorative&&[EVENT_ARTWORK_LABEL,ORIGINAL_ARTWORK_LABEL,REALISTIC_ARTWORK_LABEL,NATURAL_ARTWORK_LABEL].includes(original.accessibility.label)){
+   const alias=builtinAssetAliases[s.props.assetId],assetId=Array.isArray(alias)?alias.includes(original.props.assetId)?original.props.assetId:s.props.assetId:alias||s.props.assetId;
+   const normalized={...s.props,assetId};
+   if(canonicalStringify(normalized)===canonicalStringify(original.props)&&s.accessibility.decorative&&s.accessibility.label===original.accessibility.label)continue;
+  }
   const value=slot.kind==='binding'?s.value:slot.kind==='text'?s.props.text:slot.kind==='label'?s.props.label:slot.kind==='image'?s.props:slot.kind==='photo'?s.props.photos[slot.index]:slot.kind==='entry'?s.props.entries[slot.index]:{eventAt:s.props.eventAt,timeZone:s.props.timeZone,clockMode:s.props.clockMode};
   const baseline=slot.kind==='binding'?'':slot.kind==='text'?original?.props.text:slot.kind==='label'?original?.props.label:slot.kind==='image'?original?.props:slot.kind==='photo'?original?.props.photos[slot.index]:slot.kind==='entry'?original?.props.entries[slot.index]:original&&{eventAt:original.props.eventAt,timeZone:original.props.timeZone,clockMode:original.props.clockMode};
   if(!to){if(JSON.stringify(value)!==JSON.stringify(baseline))missing.push(slot.role);continue;}

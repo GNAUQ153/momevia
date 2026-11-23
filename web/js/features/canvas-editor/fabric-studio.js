@@ -5,9 +5,13 @@ import { arrangeFabricBoxes } from './fabric-align.js';
 import { mountFabricInspector } from './fabric-inspector.js';
 import { mountFabricQuickbar } from './fabric-quickbar.js';
 import { mountFabricProperties } from './fabric-properties.js';
+import {mountFabricShortcuts} from './fabric-shortcuts.js';
+import { vectorParts } from '../../shared/canvas/artwork.js';
+import { PAPER_GRAIN_URL } from '../../shared/canvas/paper-grain.js';
+import { previewSvg } from '../../shared/canvas/cover-svg.js';
 import {
   canManageFabricLayer, moveFabricLayer, applyFabricWorkspacePatch,
-  fabricWorkspaceChanged, snapFabricCenter
+  fabricWorkspaceChanged, snapFabricCenter, applyFabricCommands
 } from './fabric-workspace.js';
 
 // Fabric.js chỉ chạy trong dialog thiết kế. Runtime nhận quà vẫn dùng DOM để
@@ -59,7 +63,19 @@ async function makeFabricObject(fabric, model, assetUrl, signal) {
   const options = shapeOptions(model);
   const props = model.props;
   let object;
-  if (model.type === 'shape' && props.kind !== 'line') {
+  const vector=vectorParts(model);
+  if(vector) {
+    const parts=[new fabric.Rect({left:0,top:0,width:100,height:100,originX:'left',originY:'top',fill:'transparent',strokeWidth:0}),
+      ...vector.map((part,i)=>{
+        const path=new fabric.Path(part.d,{originX:'left',originY:'top',fill:part.fill==='none'?null:part.fill,stroke:part.stroke,strokeWidth:part['stroke-width']||0,
+          strokeDashArray:part['stroke-dasharray']?.split(' ').map(Number),strokeUniform:['shape','line'].includes(model.type),strokeLineCap:'round',strokeLineJoin:'round'});
+        path.momeviaFillBinding=model.artwork?.paths[i]?.fill==='color';return path;
+      })];
+    object=new fabric.Group(parts,{...options,width:100,height:100,scaleX:options.width/100,scaleY:options.height/100});
+    // SVG uses a fixed 100×100 viewBox, including paths extending into their
+    // stroke. Fabric's automatic stroke bounds must not alter stored geometry.
+    object.set({left:options.left,top:options.top,width:100,height:100,scaleX:options.width/100,scaleY:options.height/100});
+  } else if (model.type === 'shape' && props.kind !== 'line') {
     const Shape = props.kind === 'ellipse' ? fabric.Ellipse : fabric.Rect;
     object = new Shape({
       ...options,
@@ -69,10 +85,12 @@ async function makeFabricObject(fabric, model, assetUrl, signal) {
       strokeWidth: props.strokeWidth || 0,
     });
   } else if (model.type === 'text') {
-    const fontFamily = props.fontToken === 'serif' ? 'Georgia' : props.fontToken === 'heading' ? 'Arial' : 'Arial';
+    const token=props.fontToken==='serif'?'--font-serif':props.fontToken==='heading'?'--font-display':'--font-body';
+    const fontFamily=getComputedStyle(document.documentElement).getPropertyValue(token).trim()||'Arial';
     object = new fabric.Textbox(model.text ?? '', {
       ...options,
       fontFamily,
+      fontWeight:model.accessibility?.role==='heading'?'700':'400',
       fontSize: props.fontSize || 24,
       lineHeight: props.lineHeight || 1.4,
       textAlign: props.align || 'left',
@@ -87,15 +105,28 @@ async function makeFabricObject(fabric, model, assetUrl, signal) {
       try {
         object = await fabric.FabricImage.fromURL(url, { crossOrigin: 'anonymous', signal });
         if (signal.aborted) { object.dispose(); return; }
+        const sourceWidth=object.width,sourceHeight=object.height;
+        if(props.fit==='contain'){
+          const pixelScale=Math.max(1,Math.min(2,Math.max(sourceWidth/options.width,sourceHeight/options.height))),canvas=document.createElement('canvas');
+          canvas.width=Math.max(1,Math.round(options.width*pixelScale));canvas.height=Math.max(1,Math.round(options.height*pixelScale));
+          const context=canvas.getContext('2d'),scale=Math.min(canvas.width/sourceWidth,canvas.height/sourceHeight),w=sourceWidth*scale,h=sourceHeight*scale;
+          context.drawImage(object.getElement(),(canvas.width-w)*(props.focalPoint?.x??.5),(canvas.height-h)*(props.focalPoint?.y??.5),w,h);
+          object.dispose();object=new fabric.FabricImage(canvas,{...options,width:canvas.width,height:canvas.height,scaleX:options.width/canvas.width,scaleY:options.height/canvas.height});
+        }else{
+        const scale=(props.fit==='contain'?Math.min:Math.max)(options.width/sourceWidth,options.height/sourceHeight);
+        const cropWidth=Math.min(sourceWidth,options.width/scale),cropHeight=Math.min(sourceHeight,options.height/scale);
         object.set({
           ...options,
           // Giữ kích thước ảnh gốc; scale mới đại diện đúng bố cục Momevia.
-          width: object.width,
-          height: object.height,
-          scaleX: options.width / Math.max(1, object.width),
-          scaleY: options.height / Math.max(1, object.height),
+          width: cropWidth,
+          height: cropHeight,
+          cropX:(sourceWidth-cropWidth)*(props.focalPoint?.x??.5),
+          cropY:(sourceHeight-cropHeight)*(props.focalPoint?.y??.5),
+          scaleX: options.width / Math.max(1, cropWidth),
+          scaleY: options.height / Math.max(1, cropHeight),
           objectCaching: true,
         });
+        }
       } catch {
         if (signal.aborted) return;
         // Ảnh lỗi không bao giờ được thay thế trong document gốc.
@@ -104,13 +135,42 @@ async function makeFabricObject(fabric, model, assetUrl, signal) {
       }
     }
   }
+  if(!object&&(['button','envelope','gift-box','reply','line'].includes(model.type)||model.type==='interaction'&&['foldout-letter','flip-card'].includes(props.kind))){
+    object=await snapshotFabricElement(fabric,model,signal);object.set({selectable:false,evented:false});
+  }
   object ||= staticPreview(fabric, model);
   if (model.type === 'image' && !(object instanceof fabric.FabricImage)) object.momeviaMissingImage = true;
   object.momeviaId = model.id;
   object.momeviaType = model.type;
+  const surface=model.effects?.surface,styles=surface?.definition?.animation?.styles;
+  if(styles?.blur&&model.type==='shape'){
+    object.dispose();object=await snapshotFabricElement(fabric,model,signal,true);
+    object.momeviaId=model.id;object.momeviaType=model.type;
+  }
+  if(styles?.shadowBlur!==undefined||surface?.id==='S01')object.set('shadow',new fabric.Shadow({color:(surface.color||styles?.shadowColor||'#352B30')+Math.round((styles?.shadowOpacity??.25)*255).toString(16).padStart(2,'0'),blur:styles?.shadowBlur??10,offsetX:styles?.shadowX??4,offsetY:styles?.shadowY??7,nonScaling:true}));
+  if(styles?.blur&&model.type==='image'&&object instanceof fabric.FabricImage){object.filters.push(new fabric.filters.Blur({blur:styles.blur/32}));object.applyFilters();}
+  if(styles?.texture==='paper-grain-v1'&&model.type==='shape'&&!vector){object.set('fill',await paperPattern(fabric,props.color,signal));}
   object.set('opacity', model.opacity);
   object.set('visible', !model.hidden);
   return object;
+}
+
+async function snapshotFabricElement(fabric,model,signal,includeSurface=false){
+  const options=shapeOptions(model),copy=structuredClone(model);
+  delete copy.actions;if(!includeSurface)delete copy.effects;
+  for(const key of ['editable','hidden','text','textEditable'])delete copy[key];
+  copy.elementVersion=1;copy.opacity=1;copy.layout={x:0,y:0,width:options.width,height:options.height,rotation:0};copy.accessibility={};
+  if(['button','envelope','gift-box'].includes(copy.type))copy.actions=[{on:'activate',type:'replay'}];
+  const doc={schemaVersion:2,registryVersion:2,artboard:{baseSize:{width:Math.max(240,options.width),height:Math.max(240,options.height)},layoutMode:'responsive-scene',safeInsets:{top:0,right:0,bottom:0,left:0}},entrySceneId:'fabric-preview',bindings:{recipientName:{type:'text',value:''},senderName:{type:'text',value:''},message:{type:'text',value:''}},assets:[],elements:[copy],scenes:[{id:'fabric-preview',name:'Preview',background:{kind:'solid',color:'#FFFFFF'},elementIds:[copy.id]}],responsive:{textOverflow:'expand-flow',sceneOverflow:'scroll',desktop:{maxContentWidth:600,align:'center'}}};
+  const svg=previewSvg(doc,undefined,undefined,{validationMode:'draft'}).replace('<rect width="100%" height="100%" fill="#FFFFFF"/>','').replace(/^<svg[^>]+>/,`<svg xmlns="http://www.w3.org/2000/svg" width="${options.width}" height="${options.height}" viewBox="0 0 ${options.width} ${options.height}">`);
+  const image=await fabric.FabricImage.fromURL(`data:image/svg+xml,${encodeURIComponent(svg)}`,{signal});image.set(options);return image;
+}
+
+async function paperPattern(fabric,color,signal) {
+  const image=await fabric.util.loadImage(PAPER_GRAIN_URL,{signal});
+  const tile=document.createElement('canvas');tile.width=tile.height=128;
+  const context=tile.getContext('2d');context.fillStyle=color;context.fillRect(0,0,128,128);context.drawImage(image,0,0);
+  return new fabric.Pattern({source:tile,repeat:'repeat'});
 }
 
 export async function openFabricStudio({ snapshot, sceneId, policy, assetUrl, onApply, onClose = () => { }, inlineHost = null, signal }) {
@@ -122,6 +182,7 @@ export async function openFabricStudio({ snapshot, sceneId, policy, assetUrl, on
     throw new Error(t("editor.fabric.errors.bundle"));
   }
   if (signal?.aborted) return;
+  await document.fonts.ready;
   if (!fabric.Canvas || !fabric.Rect || !fabric.Textbox) throw new Error(t("editor.fabric.errors.version"));
   if (policy?.kind === 'creator-template') throw new Error(t("editor.fabric.errors.locked"));
   // Chỉ cho nhúng Fabric vào vùng artboard của Canvas Designer, không nhúng vào trang công khai.
@@ -137,6 +198,7 @@ export async function openFabricStudio({ snapshot, sceneId, policy, assetUrl, on
   const temporaryLocks = new Set();
   // Chọn nhiều lớp chỉ điều khiển thao tác căn chỉnh, không tạo Fabric ActiveSelection.
   const batchSelection = new Set();
+  const compositionCommands=[];
   let snapEnabled = true;
   const canManage = id => canManageFabricLayer(layerModels.get(id), policy);
   const dialog = node('dialog', { class: 'editor-fabric-dialog', 'aria-label': message("editor.fabric.title") });
@@ -232,6 +294,9 @@ export async function openFabricStudio({ snapshot, sceneId, policy, assetUrl, on
   });
   signal?.addEventListener('abort', close, { once: true });
   if (embedded) dialog.addEventListener('keydown', event => {
+    if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==='s'){
+      event.preventDefault();event.stopPropagation();dialog.querySelector('[data-editor-action="fabric-apply"]:enabled')?.click();return;
+    }
     if (event.key === 'Escape') {
       event.preventDefault();
       event.stopPropagation();
@@ -265,6 +330,10 @@ export async function openFabricStudio({ snapshot, sceneId, policy, assetUrl, on
       // Tránh tạo nhóm Fabric không thể lưu trong schema Canvas v1.
       selection: false,
     });
+    canvas.upperCanvasEl.tabIndex=0;
+    setAttr(canvas.upperCanvasEl,'aria-label',message('editor.fabric.title'));
+    canvas.on('mouse:down',()=>{if(!canvas.getActiveObject()?.isEditing)canvas.upperCanvasEl.focus({preventScroll:true});});
+    if(view.effects?.surface?.definition?.animation?.styles?.texture==='paper-grain-v1')canvas.backgroundColor=await paperPattern(fabric,view.background,work.signal);
     for (const element of view.elements) {
       const object = await makeFabricObject(fabric, element, assetUrl, work.signal);
       if (closed || signal?.aborted) {
@@ -302,6 +371,20 @@ export async function openFabricStudio({ snapshot, sceneId, policy, assetUrl, on
       layerModels,
       canEdit: id => isMovable(id) && visibility.get(id) !== false,
     });
+    const refreshModels=()=>{const doc=applyFabricCommands(snapshot,sceneId,compositionCommands,policy);layerModels.clear();for(const id of doc.scenes.find(s=>s.id===sceneId).elementIds)layerModels.set(id,doc.elements.find(e=>e.id===id));};
+    const shortcuts=mountFabricShortcuts({dialog,canvas,fabric,signal:work.signal,canEdit:id=>isMovable(id)&&visibility.get(id)!==false,
+      onCommand:command=>{
+        const next=[...compositionCommands,command];applyFabricCommands(snapshot,sceneId,next,policy);compositionCommands.push(command);refreshModels();
+        if(command.type==='remove'){const i=layerOrder.indexOf(command.id);if(i>=0)layerOrder.splice(i,1);visibility.delete(command.id);byId.delete(command.id);properties.setDraft(command.id,[]);}
+        else {layerOrder.push(command.id);visibility.set(command.id,true);}
+      },
+      getState:()=>({commands:structuredClone(compositionCommands),order:[...layerOrder],visibility:[...visibility],locks:[...temporaryLocks],styles:properties.draft()}),
+      restoreState:state=>{compositionCommands.splice(0,compositionCommands.length,...state.commands);layerOrder.splice(0,layerOrder.length,...state.order);visibility.clear();for(const entry of state.visibility)visibility.set(...entry);temporaryLocks.clear();for(const id of state.locks)temporaryLocks.add(id);refreshModels();byId.clear();for(const object of canvas.getObjects())byId.set(object.momeviaId,object);properties.restoreDraft(state.styles);},
+      onCloneStyle:(id,fields)=>properties.setDraft(id,fields),
+      refresh:()=>{byId.clear();for(const object of canvas.getObjects())byId.set(object.momeviaId,object);renderLayers();properties.refresh();inspector?.refresh?.();},
+      onSave:()=>dialog.querySelector('[data-editor-action="fabric-apply"]:enabled')?.click(),
+    });
+    dialog.addEventListener('fabric-shortcut-error',event=>setText(help,event.detail),{signal:work.signal});
     surface.before(quickbar.panel);
     function updateBatchTools() {
       for (const id of [...batchSelection]) {
@@ -434,6 +517,7 @@ export async function openFabricStudio({ snapshot, sceneId, policy, assetUrl, on
           if (layer.visible && layer.selectable) {
             canvas.setActiveObject(layer);
             canvas.requestRenderAll();
+            canvas.upperCanvasEl.focus({preventScroll:true});
           }
         } else if (action === 'fabric-layer-visible' && canManage(layerId)) {
           const show = visibility.get(layerId) === false;
@@ -519,9 +603,11 @@ export async function openFabricStudio({ snapshot, sceneId, policy, assetUrl, on
         } catch { setText(help, message("editor.fabric.failedExport")); }
       }
       if (action === 'fabric-apply') {
+        if(shortcuts.busy)return;
         try {
+          canvas.discardActiveObject();
           // Tài liệu gốc được cập nhật metadata trước để có thể chỉnh lớp vừa hiện lại.
-          const state = { order: [...layerOrder], visibility: Object.fromEntries(visibility), layouts: [] };
+          const state = { order: [...layerOrder], visibility: Object.fromEntries(visibility), layouts: [],commands:structuredClone(compositionCommands) };
           const metadataDocument = applyFabricWorkspacePatch(snapshot, sceneId, state, policy);
           const layouts = fabricDiff(metadataDocument, sceneId, canvas.getObjects(), policy);
           const patch = { ...state, layouts, styles: properties.changes() };

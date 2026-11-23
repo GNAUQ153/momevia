@@ -1,10 +1,13 @@
 import { REALISTIC_MEDIA } from './realistic-media.js';
 import { INTERACTIVE_MEDIA } from './interactive-media.js';
+import { NATURAL_MEDIA } from './natural-media.js';
 // Immutable, generated Originals. No arbitrary paths or remote image URLs.
 export const REALISTIC_ARTWORK_LABEL = 'Momevia Original photography-style artwork v3';
 export const ORIGINAL_ARTWORK_LABEL = 'Momevia Original artwork v2';
 export const EVENT_ARTWORK_LABEL = 'Momevia Original artwork v1';
+export const NATURAL_ARTWORK_LABEL = 'Momevia Original natural artwork v4';
 export const EVENT_MEDIA = Object.freeze({
+  ...NATURAL_MEDIA,
   ...REALISTIC_MEDIA,
   ...INTERACTIVE_MEDIA,
   'event-birthday-album-5190e92b69f2': { file: 'birthday-album-5190e92b69f2.webp', sha256: '5190e92b69f2e536995315a8de6a6c4a1bdf1fa15888b3b49d1f83972d93ea1b', width: 900, height: 1107, previewOnly: true },
@@ -16,4 +19,4 @@ export const EVENT_MEDIA = Object.freeze({
   'event-graduation-512d1917294b': { file: 'graduation-512d1917294b.webp', sha256: '512d1917294b43016d3502e82133a2b1fcf463eea8884bfceb439aaad28148f9', width: 1024, height: 683 },
 });
 export const eventMediaId = key => Object.keys(EVENT_MEDIA).find(id => key.endsWith('-album') ? id.startsWith(`event-${key}-`) : id.startsWith(`event-${key}-`) && !EVENT_MEDIA[id].previewOnly);
-export const eventMediaUrl = id => EVENT_MEDIA[id] ? `/assets/event-cards/${EVENT_MEDIA[id].file}` : undefined;
+export const eventMediaUrl = (id,{variant}={}) => Object.hasOwn(EVENT_MEDIA,id) ? `/assets/event-cards/${EVENT_MEDIA[id][variant]?.file||EVENT_MEDIA[id].file}` : undefined;

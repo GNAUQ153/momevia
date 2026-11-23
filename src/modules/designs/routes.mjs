@@ -51,7 +51,7 @@ export function registerDesignRoutes(router, { service, assets, resolveUser, con
     sendJson(res,200,{documents});
   });
   router.on('GET', '/library/templates/:id/cover', async ({ res, params, url }) => {
-    const svg = await service.library.cover(params.id, url.searchParams.get('locale') === 'en' ? 'en' : 'vi');
+    const svg = await service.library.cover(params.id, url.searchParams.get('locale') === 'en' ? 'en' : 'vi', url.searchParams.get('variant'));
     res.writeHead(200, { 'content-type': 'image/svg+xml; charset=utf-8', 'cache-control': 'no-store', 'x-content-type-options': 'nosniff' });
     res.end(svg);
   });

@@ -65,7 +65,7 @@ export async function runNewTemplates(base) {
       await capture(`memory-${width}x${height}.png`);
     }
     await page.getByRole('button', { name: 'Bỏ ảnh cá nhân' }).click();
-    await page.locator('.editor-artboard img').waitFor({ state: 'detached' });
+    await page.locator('.editor-artboard [data-element-id="photo-window-image"] img').waitFor({ state: 'detached' });
     const long = 'Mừng sinh nhật bạn. '.repeat(44).trim();
     await field('binding.message').fill(long);
     await action('preview').click();
@@ -76,14 +76,14 @@ export async function runNewTemplates(base) {
     await page.getByRole('link', { name: 'Xem món quà' }).click();
     const stage = page.locator('.gift-runtime-stage');
     await stage.getByText('Ảnh mừng sinh nhật', { exact: true }).waitFor();
-    await stage.getByRole('button', { name: 'Mở lời chúc' }).click();
+    await stage.getByRole('button', { name: 'Lật góc khung ảnh' }).click();
     await stage.getByText(long, { exact: true }).waitFor();
     await capture('memory-long-greeting.png');
     const playerLocale = page.locator('.recipient-preferences [data-locale-select]');
     await playerLocale.selectOption('en');
     await page.getByRole('navigation', { name: 'Gift scenes' }).waitFor();
     await stage.getByText(long, { exact: true }).waitFor();
-    await stage.getByRole('button', { name: 'Gửi lời đáp' }).click();
+    await stage.getByRole('button', { name: 'Gửi một lời hồi đáp' }).click();
     await stage.getByLabel('Reply', { exact: true }).fill('Lời đáp đang nhập ở trang quà.');
     const replyInput = await stage.locator('textarea').elementHandle();
     await capture('locale-recipient-en-390.png');

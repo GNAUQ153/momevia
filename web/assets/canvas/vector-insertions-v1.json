@@ -1,0 +1,268 @@
+{
+  "flowers": [
+    {
+      "id": "flowers-part-1",
+      "type": "shape",
+      "elementVersion": 1,
+      "layout": {
+        "x": 23,
+        "y": 195,
+        "width": 352,
+        "height": 375,
+        "rotation": 0
+      },
+      "props": {
+        "kind": "refresh-v1-night-flower-outer-petals",
+        "color": "#A59BA9",
+        "strokeColor": "#6136DF",
+        "strokeWidth": 0,
+        "radius": 0
+      },
+      "accessibility": {
+        "decorative": true
+      },
+      "artwork": {
+        "paths": [
+          {
+            "d": "M68 69C42 47 49 20 66 7 80 17 91 48 68 69Z",
+            "fill": "color"
+          },
+          {
+            "d": "M68 65C56 45 56 20 66 9 74 31 80 50 68 65Z",
+            "fill": "#DDD5CB"
+          },
+          {
+            "d": "M67 65Q63 34 66 9",
+            "fill": "none",
+            "stroke": "#FFF0D2",
+            "strokeWidth": 0.6
+          }
+        ]
+      }
+    },
+    {
+      "id": "flowers-part-2",
+      "type": "shape",
+      "elementVersion": 1,
+      "layout": {
+        "x": 23,
+        "y": 195,
+        "width": 352,
+        "height": 375,
+        "rotation": 0
+      },
+      "props": {
+        "kind": "refresh-v1-fine-illuminated-petal-edges",
+        "color": "#A987C9",
+        "strokeColor": "#6136DF",
+        "strokeWidth": 0,
+        "radius": 0
+      },
+      "accessibility": {
+        "decorative": true
+      },
+      "artwork": {
+        "paths": [
+          {
+            "d": "M66 7Q87 34 68 69",
+            "fill": "none",
+            "stroke": "#FFF1D3",
+            "strokeWidth": 0.65
+          }
+        ]
+      }
+    }
+  ],
+  "leaves": [
+    {
+      "id": "leaves-part-1",
+      "type": "shape",
+      "elementVersion": 1,
+      "layout": {
+        "x": 56.6,
+        "y": 353.4,
+        "width": 60.9,
+        "height": 146.7,
+        "rotation": 0
+      },
+      "props": {
+        "kind": "refresh-v1-leaf-sprig-0",
+        "color": "#547360",
+        "strokeColor": "#6136DF",
+        "strokeWidth": 0,
+        "radius": 0
+      },
+      "accessibility": {
+        "decorative": true
+      },
+      "artwork": {
+        "paths": [
+          {
+            "d": "M50 98Q49 55 57 6",
+            "fill": "none",
+            "stroke": "#547360",
+            "strokeWidth": 1.1
+          },
+          {
+            "d": "M52 76C19 75 12 56 17 52 39 49 50 58 52 76ZM52 58C79 58 91 39 85 33 67 32 55 45 52 58ZM54 39C29 38 21 20 27 17 44 14 54 23 54 39ZM56 24C76 21 82 8 75 3 60 5 56 12 56 24Z",
+            "fill": "color"
+          },
+          {
+            "d": "M50 75 23 57M53 57 80 39M53 37 32 22",
+            "fill": "none",
+            "stroke": "#8DA78B",
+            "strokeWidth": 0.55
+          }
+        ]
+      }
+    },
+    {
+      "id": "leaves-part-2",
+      "type": "shape",
+      "elementVersion": 1,
+      "layout": {
+        "x": 222.68,
+        "y": 336.1,
+        "width": 68.51,
+        "height": 165.04,
+        "rotation": 0
+      },
+      "props": {
+        "kind": "refresh-v1-leaf-sprig-1",
+        "color": "#547360",
+        "strokeColor": "#6136DF",
+        "strokeWidth": 0,
+        "radius": 0
+      },
+      "accessibility": {
+        "decorative": true
+      },
+      "artwork": {
+        "paths": [
+          {
+            "d": "M50 98Q49 55 57 6",
+            "fill": "none",
+            "stroke": "#547360",
+            "strokeWidth": 1.1
+          },
+          {
+            "d": "M52 76C19 75 12 56 17 52 39 49 50 58 52 76ZM52 58C79 58 91 39 85 33 67 32 55 45 52 58ZM54 39C29 38 21 20 27 17 44 14 54 23 54 39ZM56 24C76 21 82 8 75 3 60 5 56 12 56 24Z",
+            "fill": "color"
+          },
+          {
+            "d": "M50 75 23 57M53 57 80 39M53 37 32 22",
+            "fill": "none",
+            "stroke": "#8DA78B",
+            "strokeWidth": 0.55
+          }
+        ]
+      }
+    }
+  ],
+  "stars": [
+    {
+      "id": "stars-part-1",
+      "type": "shape",
+      "elementVersion": 1,
+      "layout": {
+        "x": 118,
+        "y": 325,
+        "width": 7,
+        "height": 7,
+        "rotation": 0
+      },
+      "props": {
+        "kind": "ellipse",
+        "color": "#F3DE9D",
+        "strokeColor": "#6136DF",
+        "strokeWidth": 0,
+        "radius": 0
+      },
+      "accessibility": {
+        "decorative": true
+      }
+    },
+    {
+      "id": "stars-part-2",
+      "type": "shape",
+      "elementVersion": 1,
+      "layout": {
+        "x": 178,
+        "y": 370,
+        "width": 7,
+        "height": 7,
+        "rotation": 0
+      },
+      "props": {
+        "kind": "ellipse",
+        "color": "#F3DE9D",
+        "strokeColor": "#6136DF",
+        "strokeWidth": 0,
+        "radius": 0
+      },
+      "accessibility": {
+        "decorative": true
+      }
+    },
+    {
+      "id": "stars-part-3",
+      "type": "shape",
+      "elementVersion": 1,
+      "layout": {
+        "x": 238,
+        "y": 415,
+        "width": 7,
+        "height": 7,
+        "rotation": 0
+      },
+      "props": {
+        "kind": "ellipse",
+        "color": "#F3DE9D",
+        "strokeColor": "#6136DF",
+        "strokeWidth": 0,
+        "radius": 0
+      },
+      "accessibility": {
+        "decorative": true
+      }
+    },
+    {
+      "id": "stars-part-4",
+      "type": "line",
+      "elementVersion": 1,
+      "layout": {
+        "x": 120,
+        "y": 338,
+        "width": 133,
+        "height": 1,
+        "rotation": 34
+      },
+      "props": {
+        "color": "#D9CEA0",
+        "strokeWidth": 1
+      },
+      "accessibility": {
+        "decorative": true
+      }
+    },
+    {
+      "id": "stars-part-5",
+      "type": "sticker",
+      "elementVersion": 1,
+      "layout": {
+        "x": 130,
+        "y": 337,
+        "width": 34,
+        "height": 34,
+        "rotation": 0
+      },
+      "props": {
+        "stickerId": "star",
+        "color": "#A97413"
+      },
+      "accessibility": {
+        "decorative": true
+      }
+    }
+  ]
+}

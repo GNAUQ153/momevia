@@ -3,7 +3,7 @@ import { message as label, setAttr, setText, t } from "../../core/i18n.js";
 import { masks, vectorParts } from "../../shared/canvas/artwork.js";
 import { renderInteraction } from "./interactions.js";
 import { applySurface, finishTypewriter, playReaction } from "./effects.js";
-import { EVENT_MEDIA, eventMediaUrl, EVENT_ARTWORK_LABEL, ORIGINAL_ARTWORK_LABEL, REALISTIC_ARTWORK_LABEL } from '../../shared/canvas/event-media.js';
+import { EVENT_MEDIA, eventMediaUrl, EVENT_ARTWORK_LABEL, ORIGINAL_ARTWORK_LABEL, REALISTIC_ARTWORK_LABEL, NATURAL_ARTWORK_LABEL } from '../../shared/canvas/event-media.js';
 import { mountRuntimeImage } from './image-state.js';
 
 const svgNamespace = "http://www.w3.org/2000/svg";
@@ -64,7 +64,7 @@ function element(tag, className, text) {
 function imageUrl(value, mode) {
   if (typeof value !== "string" || value.includes("\\")) return null;
   if (/^\/api\/(?:designs|gifts)\//.test(value)) return value;
-  if (['preview', 'thumbnail'].includes(mode) && Object.keys(EVENT_MEDIA).some(id => eventMediaUrl(id) === value)) return value;
+  if (['preview', 'thumbnail'].includes(mode) && Object.keys(EVENT_MEDIA).some(id => eventMediaUrl(id) === value || eventMediaUrl(id,{variant:'thumbnail'})===value)) return value;
   if (mode === "preview" && (/^\/api\/catalog\/(?:admin\/)?templates\/[\w-]+\/versions\/[\w-]+\/assets\/[\w-]+$/.test(value)
     || /^data:image\/(?:png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/.test(value))) return value;
   return null;
@@ -84,6 +84,7 @@ export function updateElementCopy(node, model, document) {
   } else if (["button", "envelope", "gift-box", "sound-button"].includes(type)) {
     setText(node.querySelector(".gift-runtime-control-label"), p.label || a.label || label("gift.runtime.continue"));
     setAttr(node, "aria-label", a.label || p.label || label("gift.runtime.continue"));
+    if(model.id==='open-gift'&&document.elements.some(e=>e.id.startsWith('refresh-')))node.classList.add('gift-runtime-object-control');
   } else if (type === "reply") {
     setText(node.querySelector("h2"), p.title || label("gift.reply.send"));
     setText(node.querySelector(".gift-runtime-submit"), p.submitLabel || label("gift.reply.send"));
@@ -138,6 +139,7 @@ export function applyLayout(
   node.style.width = responsive
     ? `${(layout.width / baseSize.width) * 100}%`
     : `${layout.width}px`;
+  if(responsive&&node.classList.contains('gift-runtime-object-control'))node.style.left=`${Math.max(0,Math.min(layout.x*scale,baseSize.width*scale-Math.max(44,layout.width*scale)))}px`;
   node.style.minHeight = `${layout.height * (responsive ? scale : 1)}px`;
   node.style.height = `${layout.height * (responsive ? scale : 1)}px`;
   if (model.type === "image" && model.props.caption)
@@ -213,7 +215,8 @@ export function renderElement(
     node.style.color = p.color || "#32243B";
   } else if (type === "image") {
     node = element("div", "gift-runtime-image");
-    if (a.decorative && [EVENT_ARTWORK_LABEL,ORIGINAL_ARTWORK_LABEL,REALISTIC_ARTWORK_LABEL].includes(a.label)) node.style.backgroundColor = "transparent";
+    if (a.decorative) node.setAttribute("aria-hidden", "true");
+    if (a.decorative && [EVENT_ARTWORK_LABEL,ORIGINAL_ARTWORK_LABEL,REALISTIC_ARTWORK_LABEL,NATURAL_ARTWORK_LABEL].includes(a.label)) node.style.backgroundColor = "transparent";
     const url = p.assetId ? imageUrl(assetUrl(p.assetId), mode) : null;
     const framed = p.optional || p.mask || p.caption !== undefined;
     const frame = framed ? element("div", "gift-runtime-photo-frame") : node;
@@ -262,6 +265,7 @@ export function renderElement(
     node.setAttribute("aria-hidden", "true");
   } else if (["button", "envelope", "gift-box", "sound-button"].includes(type)) {
     node = element(mode === "thumbnail" ? "span" : "button", `gift-runtime-control gift-runtime-${type}`);
+    if(model.id==='open-gift'&&document.elements.some(e=>e.id.startsWith('refresh-')))node.classList.add('gift-runtime-object-control');
     if (mode !== "thumbnail") node.type = "button";
     node.style.backgroundColor = p.color;
     if(type==='envelope' && p.preset==='compact-v2')node.classList.add('gift-runtime-compact-envelope');

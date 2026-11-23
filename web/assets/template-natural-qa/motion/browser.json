@@ -1,0 +1,62 @@
+{
+  "cases": [
+    {
+      "id": "natural-motion-heart",
+      "realDragAndDrop": true,
+      "movingInStudioWithoutPreview": true,
+      "infinite": true,
+      "currentTimeAdvanced": true
+    },
+    {
+      "id": "natural-motion-star",
+      "realDragAndDrop": true,
+      "movingInStudioWithoutPreview": true,
+      "infinite": true,
+      "currentTimeAdvanced": true
+    },
+    {
+      "id": "natural-motion-gift",
+      "realDragAndDrop": true,
+      "movingInStudioWithoutPreview": true,
+      "infinite": true,
+      "currentTimeAdvanced": true
+    },
+    {
+      "id": "natural-motion-leaf",
+      "realDragAndDrop": true,
+      "movingInStudioWithoutPreview": true,
+      "infinite": true,
+      "currentTimeAdvanced": true
+    },
+    {
+      "id": "natural-motion-ribbon",
+      "realDragAndDrop": true,
+      "movingInStudioWithoutPreview": true,
+      "infinite": true,
+      "currentTimeAdvanced": true
+    },
+    {
+      "id": "natural-motion-paper",
+      "realDragAndDrop": true,
+      "movingInStudioWithoutPreview": true,
+      "infinite": true,
+      "currentTimeAdvanced": true
+    }
+  ],
+  "errors": [],
+  "publicAnimations": [
+    {
+      "infinite": true,
+      "state": "running",
+      "time": 16.69999999999994,
+      "target": "<div class=\"gift-runtime-image\" aria-hidden=\"true\" data-image-state=\"ready\" data-runtime-element=\"450e8bbd-42fa-457a-8355-2d87be1dc1ee\" data-gift-effect=\"natural-motion-paper-loop-v1\" style=\"backgroun"
+    }
+  ],
+  "saveReload": true,
+  "dragPausesAndResumes": true,
+  "layoutAndEffectsPreserved": true,
+  "motionDoesNotMutateDocument": true,
+  "reducedMotionStopsAndResumes": true,
+  "publishedLoop": true,
+  "passed": true
+}

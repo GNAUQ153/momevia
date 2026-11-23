@@ -47,7 +47,7 @@ try {
   const modules = path.join(root, 'node_modules');
   const fixtureModules = path.join(fixture, 'node_modules');
   // A Windows fixture must own its dependencies when its temp tree is removed.
-  if (process.platform === 'win32') fs.cpSync(modules, fixtureModules, {recursive:true});
+  if (process.platform === 'win32') fs.cpSync(fs.realpathSync(modules), fixtureModules, {recursive:true});
   else fs.symlinkSync(modules, fixtureModules, 'dir');
   fs.copyFileSync(path.join(root, 'tests/integration/recovery-journey.mjs'), path.join(fixture, 'recovery-journey.mjs'));
   fs.writeFileSync(path.join(fixture, 'fixture.mjs'), `

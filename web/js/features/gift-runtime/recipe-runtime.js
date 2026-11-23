@@ -8,7 +8,7 @@ export function playRecipe(node, preset, motion, signal) {
   if (animation?.engine !== 'keyframes') return null;
   node.dataset.giftEffect = preset.id;
   return motion.run(node, animation.keyframes, { duration: recipeDuration(preset), delay: preset.delay || 0,
-    easing: animation.easing || 'ease-out', iterations: animation.iterations || 1, ...(animation.composite?{composite:animation.composite}:{}), fill: 'backwards' }, signal,
+    easing: animation.easing || 'ease-out', iterations: animation.iterations === 'infinite' ? Infinity : animation.iterations || 1, ...(animation.composite?{composite:animation.composite}:{}), fill: 'backwards' }, signal,
   () => delete node.dataset.giftEffect);
 }
 const surfaces = new WeakMap();

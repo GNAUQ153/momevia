@@ -18,6 +18,16 @@ function source() {
   return validateDocument(document);
 }
 
+test('Fabric leaves subpixel geometry intact when another layer is changed',()=>{
+ const doc=source(),element=doc.elements.find(e=>e.id==='shape-personal');
+ Object.assign(element.layout,{x:120.3125,y:293.0390625,width:139.9140625,height:162.890625});
+ const {x,y,width,height,rotation}=element.layout;
+ const shape={momeviaId:element.id,left:x+width/2,top:y+height/2,width,height,scaleX:1,scaleY:1,angle:rotation};
+ assert.deepEqual(fabricDiff(doc,doc.entrySceneId,[shape]),[]);
+ shape.left+=3;const [change]=fabricDiff(doc,doc.entrySceneId,[shape]);
+ assert.equal(change.layout.x,Math.round((x+3)*100)/100);assert.equal(change.layout.y,y);assert.equal(change.layout.width,width);assert.equal(change.layout.height,height);
+});
+
 test('Fabric view preserves scene order, bindings, and original document', () => {
   const document = source();
   const before = structuredClone(document);

@@ -14,7 +14,6 @@ import { effectsFor } from '../../web/js/shared/canvas/effects.js';
 import { eventRecipe } from '../../web/js/shared/canvas/event-recipes.js';
 import { semanticSlots,mapTemplateSlots,RESTYLE_PAIRS,captureSemanticRoles } from '../../web/js/shared/canvas/template-slots.js';
 import { serverText } from '../../src/shared/locale.mjs';
-import { builtinLibraryItems } from '../../src/modules/designs/library.seed.mjs';
 import { previewRollout,applyRollout } from '../../src/modules/designs/library-rollout.mjs';
 import { JsonDesignRepository } from '../../src/modules/designs/json.repository.mjs';
 import { materializeBuiltinMedia } from '../../src/modules/designs/builtin-media.mjs';
@@ -57,7 +56,11 @@ test('semantic maps preserve empty text and bindings, report unmapped personal c
 });
 test('library rollout detects customization, supports interruption, idempotent rerun and revision rollback',async()=>{
  const bundle=JSON.parse(fs.readFileSync(new URL('../../database/updates/interactive-cards-20261122-v1.json',import.meta.url)));
- const old=builtinLibraryItems().filter(r=>!bundle.changes.some(c=>c.next.kind===r.kind&&c.next.id===r.id));old.push(...bundle.changes.flatMap(c=>c.before?[c.before]:[]));
+ const pinned=JSON.parse(fs.readFileSync(new URL('../fixtures/refresh-21-before.json',import.meta.url)));
+ // Exercise this historical rollout against its original compositions. New
+ // compositions correctly depend on effects this old package would disable.
+ const baseline=structuredClone(pinned);
+ const old=baseline.filter(r=>!bundle.changes.some(c=>c.next.kind===r.kind&&c.next.id===r.id));old.push(...bundle.changes.flatMap(c=>c.before?[c.before]:[]));
  const rows=structuredClone(old),history=[];
  const service={rows:async()=>structuredClone(rows),put:async(user,kind,id,input)=>{const i=rows.findIndex(r=>r.kind===kind&&r.id===id),current=rows[i];assert.equal(current?.revision||0,input.expectedRevision);if(current)history.push(current);const next={kind,id,revision:input.expectedRevision+1,status:input.status,sortOrder:input.sortOrder,definition:input.definition};if(i<0)rows.push(next);else rows[i]=next;}};
  assert(previewRollout(rows,bundle).canApply);

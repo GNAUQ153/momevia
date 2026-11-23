@@ -1,6 +1,6 @@
 import { message, setAttr, t } from "../../core/i18n.js";
 import { renderElement, applyLayout, resolveText, applyFocalPoint, textFont } from "../gift-runtime/renderer.js";
-import { applySurface } from "../gift-runtime/effects.js";
+import { applySurface, createMotion, playElement } from "../gift-runtime/effects.js";
 import { logicalPoint, gestureLayout, snapLayout } from "./store.js";
 import { node } from "./dom.js";
 
@@ -10,6 +10,7 @@ export function createStage(
     store,
     getSceneId,
     getSelection,
+    getSelections = () => [getSelection()],
     select,
     assetUrl,
     onGesture,
@@ -28,6 +29,7 @@ export function createStage(
     class: "editor-artboard",
     tabindex: 0,
     "aria-label": message("editor.stage.edit"),
+    'aria-keyshortcuts':'Delete Backspace Control+x Control+c Control+v Control+d Control+a Control+z Control+y Control+s',
   });
   surround.append(artboard);
   host.replaceChildren(surround);
@@ -35,7 +37,13 @@ export function createStage(
     gesture = null,
     disposed = false;
   let selectionOutline, inlineEditor, renderLifecycle;
-  signal.addEventListener('abort',()=>renderLifecycle?.abort(),{once:true});
+  const preference=globalThis.matchMedia('(prefers-reduced-motion: reduce)');
+  const motion=createMotion(()=>!preference.matches&&!disposed);
+  const loopPhases=new Map(),effectSignatures=new WeakMap();
+  signal.addEventListener('abort',()=>{renderLifecycle?.abort();motion.cancel();},{once:true});
+  preference.addEventListener('change',()=>{motion.cancel();loopPhases.clear();render();},{signal});
+  const visibility=()=>globalThis.document.hidden?motion.pause():motion.resume();
+  globalThis.document.addEventListener('visibilitychange',visibility,{signal});visibility();
   function setZoom(value) {
     if (gesture && value !== zoom) gesture.rect = null;
     zoom = value;
@@ -48,6 +56,13 @@ export function createStage(
   }
   function render() {
     if (disposed || signal.aborted || gesture || inlineEditor) return;
+    const currentModels=new Map(store.get().document.elements.map(e=>[e.id,e]));
+    for(const item of artboard.querySelectorAll('.editor-stage-element')){
+      const model=currentModels.get(item.dataset.elementId),signature=JSON.stringify(model?.effects||{}),animation=model?.effects?.emphasis?.definition?.animation.iterations==='infinite'?item.getAnimations().find(a=>!a.animationName&&a.effect?.getTiming().iterations===Infinity):null;
+      if(!model||signature!==effectSignatures.get(item))loopPhases.delete(item.dataset.elementId);
+      else if(animation?.currentTime!=null)loopPhases.set(item.dataset.elementId,{time:animation.currentTime,at:performance.now(),running:animation.playState==='running',signature});
+    }
+    for(const id of loopPhases.keys())if(!currentModels.has(id))loopPhases.delete(id);
     renderLifecycle?.abort();renderLifecycle=new AbortController();
     const doc = store.get().document,
       scene =
@@ -61,7 +76,7 @@ export function createStage(
     for (const element of doc.elements.filter((item) => scene.elementIds.includes(item.id))) {
       if (readOnly && element.visible === false) continue;
       const id = element.id;
-      const selected = !readOnly && id === getSelection();
+      const selected = !readOnly && (getSelections().includes(id)||id===getSelection());
       const item = renderElement(element, {
         document: doc,
         assetUrl,
@@ -71,6 +86,7 @@ export function createStage(
       applyLayout(item, element, doc.artboard.baseSize, { responsive: false });
       item.style.zIndex = String(scene.elementIds.indexOf(id));
       item.dataset.elementId = id;
+      effectSignatures.set(item,JSON.stringify(element.effects||{}));
       item.classList.add("editor-stage-element");
       item.setAttribute("tabindex", "-1");
       if (!readOnly && element.actions?.some(action => action.type === "goToScene" && !action.targetSceneId))
@@ -90,8 +106,19 @@ export function createStage(
           }));
       }
       artboard.append(item);
+      if(selected&&selectionOutline)artboard.append(selectionOutline);
+      if(element.visible!==false&&(element.opacity??1)>0&&element.effects){
+        const currentSignal=renderLifecycle.signal;
+        void Promise.all([...item.querySelectorAll('img')].map(img=>img.decode().catch(()=>{}))).then(()=>{
+          if(!currentSignal.aborted&&item.isConnected&&!gesture&&!inlineEditor){
+            const phase=loopPhases.get(id),resume=phase?.signature===effectSignatures.get(item),playing=playElement(item,element,motion,currentSignal,resume?'emphasis':undefined);
+            const animation=item.getAnimations().find(a=>!a.animationName&&a.effect?.getTiming().iterations===Infinity);
+            if(animation&&resume)animation.currentTime=phase.time+(phase.running?performance.now()-phase.at:0);
+            return playing;
+          }
+        });
+      }
     }
-    if (selectionOutline) artboard.append(selectionOutline);
     setZoom(zoom);
   }
   function point(event, rect) {
@@ -105,6 +132,7 @@ export function createStage(
     if (!gesture) return;
     const { pointerId, frame } = gesture;
     gesture = null;
+    motion.resume();
     cancelAnimationFrame(frame);
     if (artboard.hasPointerCapture(pointerId)) artboard.releasePointerCapture(pointerId);
     onGesture?.(false);
@@ -114,6 +142,7 @@ export function createStage(
     if (!inlineEditor) return;
     const { field, id, original } = inlineEditor;
     inlineEditor = null;
+    motion.resume();
     field.remove();
     if (save && field.value !== original) onTextChange(id, field.value);
     render();
@@ -144,6 +173,7 @@ export function createStage(
       zIndex: doc.elements.length + 2,
     });
     inlineEditor = { field, id, original };
+    motion.pause();
     field.addEventListener("blur", () => finishText(true), { once: true });
     field.addEventListener("keydown", event => {
       if (event.isComposing || event.keyCode === 229) return;
@@ -176,7 +206,8 @@ export function createStage(
         return;
       }
       const id = target.dataset.elementId;
-      select(id);
+      const additive=event.shiftKey||event.ctrlKey||event.metaKey;
+      select(id,{additive});if(additive){event.preventDefault();return;}
       const element = store
         .get()
         .document.elements.find((item) => item.id === id);
@@ -197,6 +228,9 @@ export function createStage(
         type: element.type,
         model: element,
       };
+      motion.pause();
+      loopPhases.clear();
+      for(const animation of gesture.node.getAnimations({subtree:true}))animation.pause();
       artboard.setPointerCapture(event.pointerId);
       onGesture?.(true);
     },
@@ -259,6 +293,7 @@ export function createStage(
       cancelAnimationFrame(current.frame);
       if (current.sample || event.clientX !== current.clientX || event.clientY !== current.clientY) paintGesture(event);
       gesture = null;
+      motion.resume();
       onGesture?.(false);
       const changed = current.latest && store.update(
           (value) => {
@@ -289,6 +324,7 @@ export function createStage(
     setZoom,
     cancel,
     editText,
+    flushText(){if(inlineEditor&&inlineEditor.field.value!==inlineEditor.original){inlineEditor.original=inlineEditor.field.value;onTextChange(inlineEditor.id,inlineEditor.field.value);}},
     previewFocal(id, focalPoint) {
       const img = artboard.querySelector(`.editor-stage-element[data-element-id="${CSS.escape(id)}"] img`);
       if (img) applyFocalPoint(img, focalPoint);

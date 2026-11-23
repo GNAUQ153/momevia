@@ -1,0 +1,104 @@
+{
+  "applied": {
+    "at": "2026-11-23T09:34:57.881Z",
+    "target": {
+      "host": "127.0.0.1",
+      "port": 3306,
+      "database": "momevia_dev"
+    },
+    "applied": true,
+    "rollback": false,
+    "results": [
+      {
+        "name": "natural.json",
+        "canApply": true,
+        "applied": 75,
+        "unchanged": 0
+      },
+      {
+        "name": "external.json",
+        "canApply": true,
+        "applied": 12,
+        "unchanged": 0
+      }
+    ],
+    "libraryRows": 480,
+    "businessTablesUnchanged": 34,
+    "existingMediaUnchanged": 4,
+    "libraryHash": "3c07ec854e2eb06acdb53aef43aa75b81302efe0093b7f68de9495827db8e5da",
+    "passed": true
+  },
+  "rerun": {
+    "at": "2026-11-23T09:36:14.926Z",
+    "target": {
+      "host": "127.0.0.1",
+      "port": 3306,
+      "database": "momevia_dev"
+    },
+    "applied": true,
+    "rollback": false,
+    "results": [
+      {
+        "name": "natural.json",
+        "canApply": true,
+        "applied": 0,
+        "unchanged": 75
+      },
+      {
+        "name": "external.json",
+        "canApply": true,
+        "applied": 0,
+        "unchanged": 12
+      }
+    ],
+    "libraryRows": 480,
+    "businessTablesUnchanged": 34,
+    "existingMediaUnchanged": 4,
+    "libraryHash": "3c07ec854e2eb06acdb53aef43aa75b81302efe0093b7f68de9495827db8e5da",
+    "passed": true
+  },
+  "backup": "database/private/natural-refresh-live-20261123 (ignored; contains private database snapshot and original media)",
+  "review": "Only sortOrder and generated element UUIDs differ from the tested baseline. All live ordering preserved; content/revision/status differences are rejected.",
+  "app4100": {
+    "url": "http://localhost:4100/explore",
+    "verifiedTemplates": 21,
+    "languages": [
+      "vi",
+      "en"
+    ],
+    "threeScenesByKeyboard": true,
+    "libraryRows": 480,
+    "elements": 243,
+    "noUserWrites": true,
+    "passed": true
+  },
+  "afterRestart": {
+    "at": "2026-11-23T09:39:44.618Z",
+    "target": {
+      "host": "127.0.0.1",
+      "port": 3306,
+      "database": "momevia_dev"
+    },
+    "applied": true,
+    "rollback": false,
+    "results": [
+      {
+        "name": "natural.json",
+        "canApply": true,
+        "applied": 0,
+        "unchanged": 75
+      },
+      {
+        "name": "external.json",
+        "canApply": true,
+        "applied": 0,
+        "unchanged": 12
+      }
+    ],
+    "libraryRows": 480,
+    "businessTablesUnchanged": 34,
+    "existingMediaUnchanged": 4,
+    "libraryHash": "3c07ec854e2eb06acdb53aef43aa75b81302efe0093b7f68de9495827db8e5da",
+    "passed": true
+  }
+}

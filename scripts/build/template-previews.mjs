@@ -6,6 +6,7 @@ import { BASIC_TEMPLATES, templatePreviewDocument } from '../../web/js/shared/ca
 import { previewSvg } from '../../web/js/shared/canvas/cover-svg.js';
 import { serverText } from '../../src/shared/locale.mjs';
 import { builtinCoverResources } from '../../src/modules/designs/builtin-media.mjs';
+import { coverVariant } from '../../web/js/shared/canvas/refresh-21-config.js';
 export { previewSvg };
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
@@ -20,6 +21,10 @@ export function buildTemplatePreviews() {
     fs.writeFileSync(path.join(directory, `${id}.svg`), cover(templatePreviewDocument({ id })), 'utf8');
     fs.writeFileSync(path.join(english, `${id}.svg`),
       cover(templatePreviewDocument({ id }, (key, params) => serverText('en', key, params))), 'utf8');
+    for (const variant of ['catalog','seasonal']) {
+      fs.writeFileSync(path.join(directory, `${id}-${variant}.svg`), cover(coverVariant(templatePreviewDocument({id}),variant)), 'utf8');
+      fs.writeFileSync(path.join(english, `${id}-${variant}.svg`), cover(coverVariant(templatePreviewDocument({id},(key,params)=>serverText('en',key,params)),variant)), 'utf8');
+    }
   }
   console.log(`Built ${Object.keys(BASIC_TEMPLATES).length} editable-template cover previews.`);
 }

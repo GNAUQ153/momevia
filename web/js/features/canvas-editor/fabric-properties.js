@@ -42,7 +42,10 @@ export function propertyToFabric(shape, model, field, value) {
   let prop = {};
   switch (field) {
     case 'opacity': prop = { opacity: accepted }; break;
-    case 'color': prop = { fill: accepted }; break;
+    case 'color':
+      prop = { fill: accepted };
+      for(const child of shape.getObjects?.()||[])if(child.momeviaFillBinding)child.set('fill',accepted);
+      break;
     case 'strokeColor': prop = { stroke: accepted }; break;
     case 'strokeWidth': prop = { strokeWidth: accepted }; break;
     case 'radius': prop = { rx: accepted, ry: accepted }; break;
@@ -176,6 +179,9 @@ export function mountFabricProperties({ canvas, layerModels, canEdit }) {
     panel,
     refresh,
     changes: () => styleDiffFromDraft(layerModels, changes),
+    draft:()=>[...changes].map(([id,fields])=>[id,[...fields]]),
+    restoreDraft:entries=>{changes.clear();for(const [id,fields]of entries)changes.set(id,new Map(fields));refresh();},
+    setDraft:(id,fields)=>{if(fields?.length)changes.set(id,new Map(fields));else changes.delete(id);},
     dispose() {
       fields.removeEventListener('change', onChange);
       toggle.removeEventListener('click', onToggle);

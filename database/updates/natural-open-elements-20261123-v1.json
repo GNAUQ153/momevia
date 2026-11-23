@@ -1,0 +1,739 @@
+{
+  "formatVersion": 1,
+  "id": "natural-open-elements-20261123-v1",
+  "sourceReview": "docs/template-refresh-natural-20261123/source-review-9.json",
+  "changes": [
+    {
+      "before": null,
+      "expectedRevision": 0,
+      "expectedFingerprint": null,
+      "next": {
+        "kind": "element",
+        "id": "natural-open-kit-alocasia",
+        "revision": 1,
+        "status": "active",
+        "sortOrder": 409,
+        "definition": {
+          "title": {
+            "vi": "Trầu bà vẽ tay",
+            "en": "Hand-drawn alocasia"
+          },
+          "group": {
+            "vi": "Đồ họa tự nhiên",
+            "en": "Natural graphics"
+          },
+          "keywords": "cây lá Kitbitz CC0 alocasia",
+          "elements": [
+            {
+              "id": "natural-open-kit-alocasia-part-1",
+              "type": "image",
+              "elementVersion": 1,
+              "layout": {
+                "x": 0,
+                "y": 0,
+                "width": 300,
+                "height": 292,
+                "rotation": 0
+              },
+              "props": {
+                "assetId": "event-natural-element-open-kit-alocasia-c53672a89aab",
+                "fit": "contain",
+                "focalPoint": {
+                  "x": 0.5,
+                  "y": 0.5
+                },
+                "radius": 0
+              },
+              "accessibility": {
+                "alt": "Ảnh kỷ niệm",
+                "decorative": true,
+                "label": "Momevia Original natural artwork v4"
+              },
+              "name": "Trầu bà vẽ tay"
+            }
+          ],
+          "assets": [
+            {
+              "assetId": "event-natural-element-open-kit-alocasia-c53672a89aab",
+              "kind": "image"
+            }
+          ],
+          "visualKind": "graphics"
+        }
+      }
+    },
+    {
+      "before": null,
+      "expectedRevision": 0,
+      "expectedFingerprint": null,
+      "next": {
+        "kind": "element",
+        "id": "natural-open-kit-bush",
+        "revision": 1,
+        "status": "active",
+        "sortOrder": 410,
+        "definition": {
+          "title": {
+            "vi": "Bụi lá mềm",
+            "en": "A soft leafy bush"
+          },
+          "group": {
+            "vi": "Đồ họa tự nhiên",
+            "en": "Natural graphics"
+          },
+          "keywords": "cây lá Kitbitz CC0 bush",
+          "elements": [
+            {
+              "id": "natural-open-kit-bush-part-1",
+              "type": "image",
+              "elementVersion": 1,
+              "layout": {
+                "x": 0,
+                "y": 0,
+                "width": 300,
+                "height": 280,
+                "rotation": 0
+              },
+              "props": {
+                "assetId": "event-natural-element-open-kit-bush-1ff45af34866",
+                "fit": "contain",
+                "focalPoint": {
+                  "x": 0.5,
+                  "y": 0.5
+                },
+                "radius": 0
+              },
+              "accessibility": {
+                "alt": "Ảnh kỷ niệm",
+                "decorative": true,
+                "label": "Momevia Original natural artwork v4"
+              },
+              "name": "Bụi lá mềm"
+            }
+          ],
+          "assets": [
+            {
+              "assetId": "event-natural-element-open-kit-bush-1ff45af34866",
+              "kind": "image"
+            }
+          ],
+          "visualKind": "graphics"
+        }
+      }
+    },
+    {
+      "before": null,
+      "expectedRevision": 0,
+      "expectedFingerprint": null,
+      "next": {
+        "kind": "element",
+        "id": "natural-open-kit-pine",
+        "revision": 1,
+        "status": "active",
+        "sortOrder": 411,
+        "definition": {
+          "title": {
+            "vi": "Thông rừng vẽ tay",
+            "en": "Hand-drawn forest pine"
+          },
+          "group": {
+            "vi": "Đồ họa tự nhiên",
+            "en": "Natural graphics"
+          },
+          "keywords": "cây thông Kitbitz CC0 pine",
+          "elements": [
+            {
+              "id": "natural-open-kit-pine-part-1",
+              "type": "image",
+              "elementVersion": 1,
+              "layout": {
+                "x": 0,
+                "y": 0,
+                "width": 130,
+                "height": 300,
+                "rotation": 0
+              },
+              "props": {
+                "assetId": "event-natural-element-open-kit-pine-b79e3dfa0939",
+                "fit": "contain",
+                "focalPoint": {
+                  "x": 0.5,
+                  "y": 0.5
+                },
+                "radius": 0
+              },
+              "accessibility": {
+                "alt": "Ảnh kỷ niệm",
+                "decorative": true,
+                "label": "Momevia Original natural artwork v4"
+              },
+              "name": "Thông rừng vẽ tay"
+            }
+          ],
+          "assets": [
+            {
+              "assetId": "event-natural-element-open-kit-pine-b79e3dfa0939",
+              "kind": "image"
+            }
+          ],
+          "visualKind": "graphics"
+        }
+      }
+    },
+    {
+      "before": null,
+      "expectedRevision": 0,
+      "expectedFingerprint": null,
+      "next": {
+        "kind": "element",
+        "id": "natural-open-kit-mushrooms",
+        "revision": 1,
+        "status": "active",
+        "sortOrder": 412,
+        "definition": {
+          "title": {
+            "vi": "Nấm rừng nhỏ",
+            "en": "Little forest mushrooms"
+          },
+          "group": {
+            "vi": "Đồ họa tự nhiên",
+            "en": "Natural graphics"
+          },
+          "keywords": "nấm rừng Kitbitz CC0 mushroom",
+          "elements": [
+            {
+              "id": "natural-open-kit-mushrooms-part-1",
+              "type": "image",
+              "elementVersion": 1,
+              "layout": {
+                "x": 0,
+                "y": 0,
+                "width": 213,
+                "height": 300,
+                "rotation": 0
+              },
+              "props": {
+                "assetId": "event-natural-element-open-kit-mushrooms-878fb8547a3b",
+                "fit": "contain",
+                "focalPoint": {
+                  "x": 0.5,
+                  "y": 0.5
+                },
+                "radius": 0
+              },
+              "accessibility": {
+                "alt": "Ảnh kỷ niệm",
+                "decorative": true,
+                "label": "Momevia Original natural artwork v4"
+              },
+              "name": "Nấm rừng nhỏ"
+            }
+          ],
+          "assets": [
+            {
+              "assetId": "event-natural-element-open-kit-mushrooms-878fb8547a3b",
+              "kind": "image"
+            }
+          ],
+          "visualKind": "graphics"
+        }
+      }
+    },
+    {
+      "before": null,
+      "expectedRevision": 0,
+      "expectedFingerprint": null,
+      "next": {
+        "kind": "element",
+        "id": "natural-open-kit-cloud",
+        "revision": 1,
+        "status": "active",
+        "sortOrder": 413,
+        "definition": {
+          "title": {
+            "vi": "Mây bồng vẽ tay",
+            "en": "Hand-drawn billowing cloud"
+          },
+          "group": {
+            "vi": "Đồ họa tự nhiên",
+            "en": "Natural graphics"
+          },
+          "keywords": "mây Kitbitz CC0 cloud",
+          "elements": [
+            {
+              "id": "natural-open-kit-cloud-part-1",
+              "type": "image",
+              "elementVersion": 1,
+              "layout": {
+                "x": 0,
+                "y": 0,
+                "width": 300,
+                "height": 259,
+                "rotation": 0
+              },
+              "props": {
+                "assetId": "event-natural-element-open-kit-cloud-2f1bbabd6c09",
+                "fit": "contain",
+                "focalPoint": {
+                  "x": 0.5,
+                  "y": 0.5
+                },
+                "radius": 0
+              },
+              "accessibility": {
+                "alt": "Ảnh kỷ niệm",
+                "decorative": true,
+                "label": "Momevia Original natural artwork v4"
+              },
+              "name": "Mây bồng vẽ tay"
+            }
+          ],
+          "assets": [
+            {
+              "assetId": "event-natural-element-open-kit-cloud-2f1bbabd6c09",
+              "kind": "image"
+            }
+          ],
+          "visualKind": "graphics"
+        }
+      }
+    },
+    {
+      "before": null,
+      "expectedRevision": 0,
+      "expectedFingerprint": null,
+      "next": {
+        "kind": "element",
+        "id": "natural-open-kit-stones",
+        "revision": 1,
+        "status": "active",
+        "sortOrder": 414,
+        "definition": {
+          "title": {
+            "vi": "Đá xếp cân bằng",
+            "en": "Balanced stones"
+          },
+          "group": {
+            "vi": "Đồ họa tự nhiên",
+            "en": "Natural graphics"
+          },
+          "keywords": "đá Kitbitz CC0 stone",
+          "elements": [
+            {
+              "id": "natural-open-kit-stones-part-1",
+              "type": "image",
+              "elementVersion": 1,
+              "layout": {
+                "x": 0,
+                "y": 0,
+                "width": 255,
+                "height": 300,
+                "rotation": 0
+              },
+              "props": {
+                "assetId": "event-natural-element-open-kit-stones-9939f71a7d02",
+                "fit": "contain",
+                "focalPoint": {
+                  "x": 0.5,
+                  "y": 0.5
+                },
+                "radius": 0
+              },
+              "accessibility": {
+                "alt": "Ảnh kỷ niệm",
+                "decorative": true,
+                "label": "Momevia Original natural artwork v4"
+              },
+              "name": "Đá xếp cân bằng"
+            }
+          ],
+          "assets": [
+            {
+              "assetId": "event-natural-element-open-kit-stones-9939f71a7d02",
+              "kind": "image"
+            }
+          ],
+          "visualKind": "graphics"
+        }
+      }
+    },
+    {
+      "before": null,
+      "expectedRevision": 0,
+      "expectedFingerprint": null,
+      "next": {
+        "kind": "element",
+        "id": "natural-open-branch-flowers",
+        "revision": 1,
+        "status": "active",
+        "sortOrder": 415,
+        "definition": {
+          "title": {
+            "vi": "Cành hoa mềm",
+            "en": "Flowering branch"
+          },
+          "group": {
+            "vi": "Đồ họa tự nhiên",
+            "en": "Natural graphics"
+          },
+          "keywords": "cành hoa Openclipart Almeidah CC0",
+          "elements": [
+            {
+              "id": "natural-open-branch-flowers-part-1",
+              "type": "image",
+              "elementVersion": 1,
+              "layout": {
+                "x": 0,
+                "y": 0,
+                "width": 212,
+                "height": 300,
+                "rotation": 0
+              },
+              "props": {
+                "assetId": "event-natural-element-open-branch-flowers-0b368243358d",
+                "fit": "contain",
+                "focalPoint": {
+                  "x": 0.5,
+                  "y": 0.5
+                },
+                "radius": 0
+              },
+              "accessibility": {
+                "alt": "Ảnh kỷ niệm",
+                "decorative": true,
+                "label": "Momevia Original natural artwork v4"
+              },
+              "name": "Cành hoa mềm"
+            }
+          ],
+          "assets": [
+            {
+              "assetId": "event-natural-element-open-branch-flowers-0b368243358d",
+              "kind": "image"
+            }
+          ],
+          "visualKind": "graphics"
+        }
+      }
+    },
+    {
+      "before": null,
+      "expectedRevision": 0,
+      "expectedFingerprint": null,
+      "next": {
+        "kind": "element",
+        "id": "natural-open-vintage-flower",
+        "revision": 1,
+        "status": "active",
+        "sortOrder": 416,
+        "definition": {
+          "title": {
+            "vi": "Hoa nét mực cổ điển",
+            "en": "Vintage ink blossom"
+          },
+          "group": {
+            "vi": "Đồ họa tự nhiên",
+            "en": "Natural graphics"
+          },
+          "keywords": "hoa cổ điển Openclipart CC0 ink",
+          "elements": [
+            {
+              "id": "natural-open-vintage-flower-part-1",
+              "type": "image",
+              "elementVersion": 1,
+              "layout": {
+                "x": 0,
+                "y": 0,
+                "width": 300,
+                "height": 121,
+                "rotation": 0
+              },
+              "props": {
+                "assetId": "event-natural-element-open-vintage-flower-f64025de5762",
+                "fit": "contain",
+                "focalPoint": {
+                  "x": 0.5,
+                  "y": 0.5
+                },
+                "radius": 0
+              },
+              "accessibility": {
+                "alt": "Ảnh kỷ niệm",
+                "decorative": true,
+                "label": "Momevia Original natural artwork v4"
+              },
+              "name": "Hoa nét mực cổ điển"
+            }
+          ],
+          "assets": [
+            {
+              "assetId": "event-natural-element-open-vintage-flower-f64025de5762",
+              "kind": "image"
+            }
+          ],
+          "visualKind": "graphics"
+        }
+      }
+    },
+    {
+      "before": null,
+      "expectedRevision": 0,
+      "expectedFingerprint": null,
+      "next": {
+        "kind": "element",
+        "id": "natural-open-repo-flower",
+        "revision": 1,
+        "status": "active",
+        "sortOrder": 417,
+        "definition": {
+          "title": {
+            "vi": "Hoa nét cong",
+            "en": "Curving flower"
+          },
+          "group": {
+            "vi": "Đồ họa tự nhiên",
+            "en": "Natural graphics"
+          },
+          "keywords": "hoa SVG Repo CC0 flower",
+          "elements": [
+            {
+              "id": "natural-open-repo-flower-part-1",
+              "type": "image",
+              "elementVersion": 1,
+              "layout": {
+                "x": 0,
+                "y": 0,
+                "width": 300,
+                "height": 300,
+                "rotation": 0
+              },
+              "props": {
+                "assetId": "event-natural-element-open-repo-flower-ba63c6e18d53",
+                "fit": "contain",
+                "focalPoint": {
+                  "x": 0.5,
+                  "y": 0.5
+                },
+                "radius": 0
+              },
+              "accessibility": {
+                "alt": "Ảnh kỷ niệm",
+                "decorative": true,
+                "label": "Momevia Original natural artwork v4"
+              },
+              "name": "Hoa nét cong"
+            }
+          ],
+          "assets": [
+            {
+              "assetId": "event-natural-element-open-repo-flower-ba63c6e18d53",
+              "kind": "image"
+            }
+          ],
+          "visualKind": "graphics"
+        }
+      }
+    },
+    {
+      "before": null,
+      "expectedRevision": 0,
+      "expectedFingerprint": null,
+      "next": {
+        "kind": "element",
+        "id": "natural-open-repo-leaf",
+        "revision": 1,
+        "status": "active",
+        "sortOrder": 418,
+        "definition": {
+          "title": {
+            "vi": "Lá gân mảnh",
+            "en": "Delicate leaf veins"
+          },
+          "group": {
+            "vi": "Đồ họa tự nhiên",
+            "en": "Natural graphics"
+          },
+          "keywords": "lá SVG Repo CC0 leaf",
+          "elements": [
+            {
+              "id": "natural-open-repo-leaf-part-1",
+              "type": "image",
+              "elementVersion": 1,
+              "layout": {
+                "x": 0,
+                "y": 0,
+                "width": 300,
+                "height": 300,
+                "rotation": 0
+              },
+              "props": {
+                "assetId": "event-natural-element-open-repo-leaf-8aa494fe1603",
+                "fit": "contain",
+                "focalPoint": {
+                  "x": 0.5,
+                  "y": 0.5
+                },
+                "radius": 0
+              },
+              "accessibility": {
+                "alt": "Ảnh kỷ niệm",
+                "decorative": true,
+                "label": "Momevia Original natural artwork v4"
+              },
+              "name": "Lá gân mảnh"
+            }
+          ],
+          "assets": [
+            {
+              "assetId": "event-natural-element-open-repo-leaf-8aa494fe1603",
+              "kind": "image"
+            }
+          ],
+          "visualKind": "graphics"
+        }
+      }
+    },
+    {
+      "before": null,
+      "expectedRevision": 0,
+      "expectedFingerprint": null,
+      "next": {
+        "kind": "element",
+        "id": "natural-open-canvix-tulip",
+        "revision": 1,
+        "status": "active",
+        "sortOrder": 445,
+        "definition": {
+          "title": {
+            "vi": "Tulip nét vẽ tay",
+            "en": "Hand-drawn tulip"
+          },
+          "group": {
+            "vi": "Cụm thiệp tự nhiên",
+            "en": "Natural card compositions"
+          },
+          "keywords": "tulip hoa spring Canvix MIT",
+          "elements": [
+            {
+              "id": "natural-open-canvix-tulip-part-1",
+              "type": "shape",
+              "elementVersion": 1,
+              "layout": {
+                "x": 0,
+                "y": 0,
+                "width": 210,
+                "height": 210,
+                "rotation": 0
+              },
+              "props": {
+                "kind": "open-canvix-tulip",
+                "color": "#FF6B6B",
+                "strokeColor": "#6136DF",
+                "strokeWidth": 0,
+                "radius": 12
+              },
+              "accessibility": {
+                "decorative": true
+              },
+              "name": "Tulip nét vẽ tay",
+              "artwork": {
+                "paths": [
+                  {
+                    "d": "M31.667 36.667Q31.667 16.667 43.333 16.667Q48.333 16.667 50 23.333Q51.667 16.667 56.667 16.667Q68.333 16.667 68.333 36.667Q68.333 50 50 51.667Q31.667 50 31.667 36.667Z",
+                    "fill": "color",
+                    "stroke": "#2D2A32",
+                    "strokeWidth": 2.917
+                  },
+                  {
+                    "d": "M50 51.667L50 86.667",
+                    "fill": "none",
+                    "stroke": "#6BCB77",
+                    "strokeWidth": 4.167
+                  },
+                  {
+                    "d": "M50 66.667Q35 65 31.667 51.667Q45 51.667 50 61.667Z",
+                    "fill": "#6BCB77",
+                    "stroke": "#2D2A32",
+                    "strokeWidth": 2.5
+                  },
+                  {
+                    "d": "M50 73.333Q65 71.667 68.333 58.333Q55 58.333 50 68.333Z",
+                    "fill": "#6BCB77",
+                    "stroke": "#2D2A32",
+                    "strokeWidth": 2.5
+                  }
+                ]
+              }
+            }
+          ],
+          "visualKind": "graphics"
+        }
+      }
+    },
+    {
+      "before": null,
+      "expectedRevision": 0,
+      "expectedFingerprint": null,
+      "next": {
+        "kind": "element",
+        "id": "natural-open-canvix-leaf",
+        "revision": 1,
+        "status": "active",
+        "sortOrder": 446,
+        "definition": {
+          "title": {
+            "vi": "Lá nét vẽ tay",
+            "en": "Hand-drawn leaf"
+          },
+          "group": {
+            "vi": "Cụm thiệp tự nhiên",
+            "en": "Natural card compositions"
+          },
+          "keywords": "lá leaf nature Canvix MIT",
+          "elements": [
+            {
+              "id": "natural-open-canvix-leaf-part-1",
+              "type": "shape",
+              "elementVersion": 1,
+              "layout": {
+                "x": 0,
+                "y": 0,
+                "width": 210,
+                "height": 210,
+                "rotation": 0
+              },
+              "props": {
+                "kind": "open-canvix-leaf",
+                "color": "#6BCB77",
+                "strokeColor": "#6136DF",
+                "strokeWidth": 0,
+                "radius": 12
+              },
+              "accessibility": {
+                "decorative": true
+              },
+              "name": "Lá nét vẽ tay",
+              "artwork": {
+                "paths": [
+                  {
+                    "d": "M18.333 81.667Q15 40 50 18.333Q85 40 81.667 81.667Q50 93.333 18.333 81.667Z",
+                    "fill": "color",
+                    "stroke": "#2D2A32",
+                    "strokeWidth": 2.917
+                  },
+                  {
+                    "d": "M50 25L50 85M50 43.333Q38.333 40 33.333 31.667M50 43.333Q61.667 40 66.667 31.667M50 60Q38.333 56.667 33.333 48.333M50 60Q61.667 56.667 66.667 48.333M50 75Q40 71.667 35 65M50 75Q60 71.667 65 65",
+                    "fill": "none",
+                    "stroke": "#2D2A32",
+                    "strokeWidth": 2.083
+                  }
+                ]
+              }
+            }
+          ],
+          "visualKind": "graphics"
+        }
+      }
+    }
+  ]
+}

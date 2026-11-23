@@ -2,6 +2,7 @@ import { validateDocument, runtimeVersionFor } from "../../shared/canvas/schema.
 import { message, setAttr, setText, t } from "../../core/i18n.js";
 import { focusVisibleTarget } from "../../core/motion.js";
 import { renderElement, applyLayout, updateElementCopy } from "./renderer.js";
+import {NATURAL_ARTWORK_LABEL} from '../../shared/canvas/event-media.js';
 import { applySurface, createMotion, playAmbience, playElement, playReaction, sceneTransition } from "./effects.js";
 import { playCelebrations } from './celebrations.js';
 import { createSceneNavigation } from './scene-navigation.js';
@@ -36,6 +37,11 @@ export function mountPlayer(
     navigationIntent = null;
   const shell = globalThis.document.createElement("div");
   shell.className = `gift-runtime gift-runtime-mode-${mode}`;
+  if(document.elements.some(e=>(e.id==='reply-object-paper'||e.id.startsWith('reply-object-paper-'))&&e.type==='image'&&e.accessibility?.label===NATURAL_ARTWORK_LABEL)){
+    shell.classList.add('is-natural-stationery');
+    const accent=document.elements.find(e=>e.type==='button'&&e.props.color)?.props.color;
+    if(accent)shell.style.setProperty('--stationery-accent',accent);
+  }
   if(effectPreview?.family)shell.dataset.effectPreview=effectPreview.family;
   shell.style.maxWidth = `${document.responsive.desktop.maxContentWidth}px`;
   const marker = globalThis.document.createElement("p");
@@ -72,7 +78,7 @@ export function mountPlayer(
     signal: lifetime.signal,
   });
   const preference = globalThis.matchMedia("(prefers-reduced-motion: reduce)");
-  let motionOff = false, resumeCelebrations = () => {};
+  let motionOff = false, resumeCelebrations = () => {}, resumeElements = () => {};
   const motion = createMotion(() => !preference.matches && !motionOff);
   const motionControl = globalThis.document.createElement("button");
   motionControl.type = "button";
@@ -147,7 +153,7 @@ export function mountPlayer(
     motionControl.setAttribute("aria-pressed", String(!motion.enabled()));
     motionControl.disabled = preference.matches;
     if (!motion.enabled()) motion.cancel();
-    else resumeCelebrations();
+    else {resumeCelebrations();resumeElements();}
   };
   motionControl.addEventListener("click", () => {
     motionOff = !motionOff;
@@ -231,7 +237,7 @@ export function mountPlayer(
         actualEnd = 0;
       const content = nodes
         .filter(
-          ({ model }) => !["shape", "line", "sticker"].includes(model.type),
+          ({ model }) => !["shape", "line", "sticker"].includes(model.type)&&!(model.type==='image'&&model.accessibility.decorative&&model.accessibility.label===NATURAL_ARTWORK_LABEL),
         )
         .sort((a, b) => a.model.layout.y - b.model.layout.y);
       for (const { model, node } of nodes) {
@@ -281,11 +287,15 @@ export function mountPlayer(
       };
       resumeCelebrations();
     }
+    const loopRuns=new Map();
+    const loopSignal=node=>{loopRuns.get(node)?.abort();const controller=new AbortController();loopRuns.set(node,controller);return AbortSignal.any([signal,controller.signal]);};
+    resumeElements=()=>{for(const {node,model}of nodes)if(model.effects?.emphasis?.definition?.animation.iterations==='infinite'&&!signal.aborted)void playElement(node,model,motion,loopSignal(node),'emphasis');};
     for (const {node,model} of nodes) {
       if (!family || (effectPreview.elementId === model.id && ["emphasis","entrance"].includes(family))) {
         const animate = () => {
           if (signal.aborted) return;
-          return playElement(node, model, motion, signal, family, (finish, text) => {
+          const elementSignal=model.effects?.emphasis?.definition?.animation.iterations==='infinite'?loopSignal(node):signal;
+          return playElement(node, model, motion, elementSignal, family, (finish, text) => {
             typewriters.add(finish);
             skip.hidden = false;
             return () => {

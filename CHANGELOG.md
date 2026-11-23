@@ -1,3 +1,68 @@
+## Unreleased — Sửa browser regression của CI PR #25 (2026-11-23)
+
+- Cập nhật kiểm tra bìa Hero VI/EN theo biến thể `-catalog.svg` đang dùng, giữ kiểm tra chính xác template và thư mục ngôn ngữ.
+- Ca bìa lỗi chặn đúng URL catalog và xác minh yêu cầu đã bị chặn trước khi kiểm tra giữ bìa/player hiện tại.
+
+## Unreleased — Chốt xác minh chuyển động và bàn phím trên bản chạy (2026-11-23)
+
+- Xác minh 6 mục vòng lặp vô hạn revision 2 trên DB đang dùng; bảo toàn 34 bảng nghiệp vụ và 11 ảnh hiện có. Bổ sung ảnh bìa DB VI/EN đúng biến thể.
+- Kiểm phím nhanh liên tiếp trong Fabric; giữ vai trò giấy hồi đáp khi sao chép, nguồn/quyền, media và lớp khóa. Build/check và 754 unit đạt; bộ kiểm kéo-thả, vòng lặp, bàn phím, lưu/tải lại và hồi quy Canvas đạt.
+- Ghi nhận tổng 12 commit, backup riêng ngoài Git và bản chạy tại 4100.
+
+## Unreleased — Chuyển động trực tiếp và phím tắt Canvas (2026-11-23)
+
+- Sáu element Chuyển động mặc định lặp vô hạn bằng dữ liệu keyframe; kéo-thả hoặc chèn là chạy ngay trong Studio. Tạm dừng lúc kéo, nhập chữ hoặc ẩn trang; tôn trọng giảm chuyển động, không ghi lại document theo từng khung hình.
+- Có điều khiển lặp và nâng cấp rõ ràng cho element cũ; giữ nguyên snapshot quà đã phát. Gói riêng cập nhật sáu mục theo revision, giữ nguyên gói Natural v2 đã áp dụng.
+- Bổ sung Delete/Backspace, Ctrl/Cmd X/C/V/D/A, di chuyển bằng mũi tên/Shift, undo/redo và lưu; có nút sao chép/cắt/dán. Không chiếm phím khi đang nhập chữ, không sửa lớp khóa hoặc vượt quyền Creator.
+- Fabric nhận bàn phím trên vùng vẽ, hỗ trợ nhân bản/cắt/sao chép/dán/xóa/chọn nhiều và undo/redo tạm; chỉ chuyển thành document khi Áp dụng. Giữ ảnh riêng, artwork, binding, nguồn và policy.
+
+## Unreleased — Giữ đúng biến thể bìa từ DB khi đổi ngôn ngữ (2026-11-23)
+
+- Gắn variant vào URL ảnh trước khi tạo thuộc tính dịch, giữ metadata i18n hợp lệ. Danh mục lấy đúng khung ngang và kệ mùa lấy đúng khung mùa từ cùng phiên bản DB.
+- Kiểm hồi quy cả nguồn revision công khai và snapshot thư viện; thêm lượt kiểm chỉ đọc URL ảnh VI/EN và ảnh 4100 sau tải đầy đủ.
+
+## Unreleased — Bằng chứng bản chạy 4100 đầy đủ (2026-11-23)
+
+- Lưu kiểm tra chỉ đọc 21 mẫu từ DB thật, VI/EN, bìa và ba cảnh; ảnh danh mục được chụp sau khi các thẻ và ảnh tải đầy đủ. Không tạo hay sửa bản ghi người dùng.
+
+## Unreleased — Áp dụng mẫu vào DB đang dùng và kiểm 4100 (2026-11-23)
+
+- Cập nhật 87 mục thư viện trong momevia_dev theo snapshot/revision đã rà; backup đủ 36 bảng và 4 ảnh trước ghi. Giữ thứ tự thật, 34 bảng nghiệp vụ và byte ảnh cũ; chạy lại ghi thêm 0 mục.
+- Kiểm 21 mẫu từ DB thật, VI/EN và ba cảnh bằng bàn phím trên 4100. Lưu ảnh và báo cáo; unit bổ sung đạt 746/746.
+- Quy định LF cả SVG EN để build không tạo thay đổi giả trên Windows; giữ bí mật và backup riêng ngoài Git.
+
+## Unreleased — Mẫu quà tự nhiên · 8/8 (2026-11-23)
+
+- Lưu bằng chứng trực quan, sổ nguồn và kết quả áp dụng trên DB đang dùng; không đưa backup riêng hoặc bí mật vào Git.
+
+## Unreleased — Mẫu quà tự nhiên · 7/8 (2026-11-23)
+
+- Bổ sung kiểm hồi quy cho 21 mẫu, 243 element, ảnh tùy chọn, quyền, DB và tải trang.
+
+## Unreleased — Mẫu quà tự nhiên · 6/8 (2026-11-23)
+
+- Thêm gói cập nhật theo revision, backup toàn DB, đối chiếu nội dung Admin và bảo toàn thứ tự thật.
+
+## Unreleased — Mẫu quà tự nhiên · 5/8 (2026-11-23)
+
+- Giữ ảnh người gửi, nguồn/quyền qua initializer/restyle; chỉ tải dữ liệu preview khi mở.
+
+## Unreleased — Mẫu quà tự nhiên · 4/8 (2026-11-23)
+
+- Giữ artwork/effect, ảnh contain, tọa độ lẻ và kiểu hồi đáp trong Studio/Fabric/trình nhận.
+
+## Unreleased — Mẫu quà tự nhiên · 3/8 (2026-11-23)
+
+- Thêm bộ lọc element và đưa ảnh thư viện qua upload riêng của chủ nháp, kiểm hash và chống lặp.
+
+## Unreleased — Mẫu quà tự nhiên · 2/8 (2026-11-23)
+
+- Dựng lại 21 mẫu ba cảnh và bìa danh mục/theo mùa từ cùng document.
+
+## Unreleased — Mẫu quà tự nhiên · 1/8 (2026-11-23)
+
+- Bổ sung ảnh, hoa lá, chất liệu và đồ họa có nguồn/giấy phép; giữ tệp hash cũ.
+
 ## Unreleased — Bỏ nút tạm dừng chuyển mẫu ở trang chủ (2026-11-23)
 
 - Chỉ bỏ nút Tạm dừng/Tiếp tục dưới hình mẫu; giữ nguyên hiệu ứng, tự chuyển mẫu và ba nút chọn mẫu. Cập nhật kiểm thử theo giao diện này.

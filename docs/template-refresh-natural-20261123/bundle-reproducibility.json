@@ -1,0 +1,18 @@
+{
+  "passed": true,
+  "bundles": [
+    {
+      "file": "template-refresh-natural-20261123-v2.json",
+      "sha256": "f4aae536594d8a24b07cc18263667252c478b91f3de3185f3c94328024d4b759"
+    },
+    {
+      "file": "template-refresh-natural-20261123-v2-from-vector-v1.json",
+      "sha256": "42a6c4d4164beca0a74f8e8851cc6c747a9f26c9bbf0b6d270733bc132d385ea"
+    },
+    {
+      "file": "natural-open-elements-20261123-v1.json",
+      "sha256": "e41143cd9203f510748e775516032576c7d4eb5b3e712beb35fcc1e8a781d4f9"
+    }
+  ],
+  "historicalVectorV1": "f368d75b7e38c578c3b11018c05b619495299d9c35590e40c305e6a53f4721dc"
+}

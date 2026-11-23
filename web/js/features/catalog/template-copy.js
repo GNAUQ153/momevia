@@ -19,14 +19,18 @@ export function templateSearchFields(template) {
     .map(field => templateFieldKey(template, field)).filter(Boolean).map(key => t(key));
 }
 
-const coverRevision = 7;
-export function templateCover(template,{defer=false}={}) {
+const coverRevision = 9;
+export function templateCover(template,{defer=false,variant='catalog'}={}) {
   const id=typeof template==='string'?template:template.id;
   const target=defer?'data-src':'src',marker=defer?' data-cover-lazy':'';
   const revision=template.coverRevision||catalogCoverRevision(id);
-  if(revision)return attr(target,'templates.assets.databaseCover',{id:encodeURIComponent(id),revision})+marker;
-  if (libraryEntry('template', id)) return attr(target, 'templates.assets.databaseCover', { id: encodeURIComponent(id), revision: librarySnapshot().revision })+marker;
-  return attr(target, 'templates.assets.cover', { id: encodeURIComponent(id), revision: coverRevision })+marker;
+  const suffix=['catalog','seasonal'].includes(variant)?variant:null;
+  const databaseAttrs=value=>attr(target,suffix?'templates.assets.databaseCoverVariant':'templates.assets.databaseCover',{
+    id:encodeURIComponent(id),revision:value,...(suffix?{variant:suffix}:{}),
+  })+marker;
+  if(revision)return databaseAttrs(revision);
+  if (libraryEntry('template', id)) return databaseAttrs(librarySnapshot().revision);
+  return attr(target, 'templates.assets.cover', { id: encodeURIComponent(id)+(suffix?'-'+suffix:''), revision: coverRevision })+marker;
 }
 
 export function personalizationText(personalization) {

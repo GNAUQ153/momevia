@@ -1,0 +1,198 @@
+[
+  {
+    "id": "cuon-phim-ngay-ay",
+    "url": "/assets/basic-templates/cuon-phim-ngay-ay-catalog.svg?v=8",
+    "bytes": 169790,
+    "status": 200,
+    "storage": "fallback"
+  },
+  {
+    "id": "loi-moi-ben-hien",
+    "url": "/assets/basic-templates/loi-moi-ben-hien-catalog.svg?v=8",
+    "bytes": 155502,
+    "status": 200,
+    "storage": "fallback"
+  },
+  {
+    "id": "hai-phong-bi",
+    "url": "/assets/basic-templates/hai-phong-bi-catalog.svg?v=8",
+    "bytes": 150888,
+    "status": 200,
+    "storage": "fallback"
+  },
+  {
+    "id": "proud-of-you",
+    "url": "/assets/basic-templates/proud-of-you-catalog.svg?v=8",
+    "bytes": 110498,
+    "status": 200,
+    "storage": "fallback"
+  },
+  {
+    "id": "ban-do-ngay-ra-truong",
+    "url": "/assets/basic-templates/ban-do-ngay-ra-truong-catalog.svg?v=8",
+    "bytes": 106565,
+    "status": 200,
+    "storage": "fallback"
+  },
+  {
+    "id": "birthday-radiance",
+    "url": "/assets/basic-templates/birthday-radiance-catalog.svg?v=8",
+    "bytes": 67873,
+    "status": 200,
+    "storage": "fallback"
+  },
+  {
+    "id": "to-doan-cau-se-chon",
+    "url": "/assets/basic-templates/to-doan-cau-se-chon-catalog.svg?v=8",
+    "bytes": 30948,
+    "status": 200,
+    "storage": "fallback"
+  },
+  {
+    "id": "thank-you-bloom",
+    "url": "/assets/basic-templates/thank-you-bloom-catalog.svg?v=8",
+    "bytes": 7141,
+    "status": 200,
+    "storage": "fallback"
+  },
+  {
+    "id": "spring-blessing-2027",
+    "url": "/assets/basic-templates/spring-blessing-2027-catalog.svg?v=8",
+    "bytes": 5366,
+    "status": 200,
+    "storage": "fallback"
+  },
+  {
+    "id": "sunny-wishes",
+    "url": "/assets/basic-templates/sunny-wishes-catalog.svg?v=8",
+    "bytes": 5107,
+    "status": 200,
+    "storage": "fallback"
+  },
+  {
+    "id": "new-year-spark-2027",
+    "url": "/assets/basic-templates/new-year-spark-2027-catalog.svg?v=8",
+    "bytes": 5029,
+    "status": 200,
+    "storage": "fallback"
+  },
+  {
+    "id": "afterglow",
+    "url": "/assets/basic-templates/afterglow-catalog.svg?v=8",
+    "bytes": 4950,
+    "status": 200,
+    "storage": "fallback"
+  },
+  {
+    "id": "confetti",
+    "url": "/assets/basic-templates/confetti-catalog.svg?v=8",
+    "bytes": 4853,
+    "status": 200,
+    "storage": "fallback"
+  },
+  {
+    "id": "polaroid",
+    "url": "/assets/basic-templates/polaroid-catalog.svg?v=8",
+    "bytes": 4742,
+    "status": 200,
+    "storage": "fallback"
+  },
+  {
+    "id": "starlight",
+    "url": "/assets/basic-templates/starlight-catalog.svg?v=8",
+    "bytes": 4737,
+    "status": 200,
+    "storage": "fallback"
+  },
+  {
+    "id": "winter-wishes-2026",
+    "url": "/assets/basic-templates/winter-wishes-2026-catalog.svg?v=8",
+    "bytes": 4607,
+    "status": 200,
+    "storage": "fallback"
+  },
+  {
+    "id": "lavender",
+    "url": "/assets/basic-templates/lavender-catalog.svg?v=8",
+    "bytes": 4567,
+    "status": 200,
+    "storage": "fallback"
+  },
+  {
+    "id": "greenhouse",
+    "url": "/assets/basic-templates/greenhouse-catalog.svg?v=8",
+    "bytes": 4547,
+    "status": 200,
+    "storage": "fallback"
+  },
+  {
+    "id": "cloud-nine",
+    "url": "/assets/basic-templates/cloud-nine-catalog.svg?v=8",
+    "bytes": 3930,
+    "status": 200,
+    "storage": "fallback"
+  },
+  {
+    "id": "love-letter",
+    "url": "/assets/basic-templates/love-letter-catalog.svg?v=8",
+    "bytes": 3924,
+    "status": 200,
+    "storage": "fallback"
+  },
+  {
+    "id": "tiny-celebration",
+    "url": "/assets/basic-templates/tiny-celebration-catalog.svg?v=8",
+    "bytes": 3867,
+    "status": 200,
+    "storage": "fallback"
+  },
+  {
+    "id": "peachy-day",
+    "url": "/assets/basic-templates/peachy-day-catalog.svg?v=8",
+    "bytes": 3694,
+    "status": 200,
+    "storage": "fallback"
+  },
+  {
+    "id": "velvet-valentine-2027",
+    "url": "/assets/basic-templates/velvet-valentine-2027-catalog.svg?v=8",
+    "bytes": 3665,
+    "status": 200,
+    "storage": "fallback"
+  },
+  {
+    "id": "mot-ky-niem",
+    "url": "/assets/basic-templates/mot-ky-niem-catalog.svg?v=8",
+    "bytes": 3346,
+    "status": 200,
+    "storage": "fallback"
+  },
+  {
+    "id": "gentle-apology",
+    "url": "/assets/basic-templates/gentle-apology-catalog.svg?v=8",
+    "bytes": 3162,
+    "status": 200,
+    "storage": "fallback"
+  },
+  {
+    "id": "faraway-hug",
+    "url": "/assets/basic-templates/faraway-hug-catalog.svg?v=8",
+    "bytes": 2892,
+    "status": 200,
+    "storage": "fallback"
+  },
+  {
+    "id": "calm-light",
+    "url": "/assets/basic-templates/calm-light-catalog.svg?v=8",
+    "bytes": 2817,
+    "status": 200,
+    "storage": "fallback"
+  },
+  {
+    "id": "midnight-bloom",
+    "url": "/assets/basic-templates/midnight-bloom-catalog.svg?v=8",
+    "bytes": 2324,
+    "status": 200,
+    "storage": "fallback"
+  }
+]

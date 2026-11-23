@@ -4,7 +4,8 @@ import os from 'node:os';
 import path from 'node:path';
 import { pathToFileURL, fileURLToPath } from 'node:url';
 import { once } from 'node:events';
-import { randomBytes, randomUUID } from 'node:crypto';
+import { randomBytes, randomUUID,createHash } from 'node:crypto';
+import {EVENT_MEDIA} from '../../web/js/shared/canvas/event-media.js';
 import sharp from 'sharp';
 import { createDocument, publicDocument, canonicalStringify, BASIC_TEMPLATES, insertPhotoFrame } from '../../web/js/shared/canvas/index.js';
 import { materializeTemplateStart } from '../../web/js/features/canvas-editor/template-start.js';
@@ -48,8 +49,8 @@ async function fixture(name, legacy = false, existingTemplates) {
     const result = await fetch(base + '/api' + route, { method: body === undefined ? 'GET' : 'POST', headers: { ...(authenticated ? { cookie } : {}), ...(body ? { 'content-type': 'application/json' } : {}), ...(locale ? { 'x-momevia-locale': locale } : {}) }, body: body ? JSON.stringify(body) : undefined });
     const data = await result.json(); assert.equal(result.status, status, JSON.stringify(data)); return data;
   }
-  const upload = async (designId, bytes) => {
-    const response = await fetch(`${base}/api/designs/designs/${designId}/assets`, { method: 'POST', headers: { cookie, 'content-type': 'image/png', 'x-mutation-id': randomUUID() }, body: bytes });
+  const upload = async (designId, bytes,mime='image/png',mutationId=randomUUID()) => {
+    const response = await fetch(`${base}/api/designs/designs/${designId}/assets`, { method: 'POST', headers: { cookie, 'content-type': mime, 'x-mutation-id': mutationId }, body: bytes });
     const result = await response.json(); assert.equal(response.status, 201, JSON.stringify(result)); return result.asset;
   };
   return { base, request, upload, cookie };
@@ -140,17 +141,17 @@ try {
   const legacy = await fixture('legacy-cached', true); const key = randomUUID(), template = catalog.find(t => t.id === 'sunny-wishes');
   const original = (await legacy.request('/designs/designs', { source: { kind: 'template', templateId: template.id }, presetId: 'envelope-basic', mutationId: key }, 201)).design;
   assert.notEqual(canonicalStringify(original.document), canonicalStringify(createDocument({ template })));
-  let dropAck = true; const writes = [];
+  let dropAck = true; const writes = [];const aliases=new Map(),initializerMedia={fetchMedia:url=>fetch(legacy.base+url),uploadMedia:async(blob,mutationId)=>{const bytes=Buffer.from(await blob.arrayBuffer()),sha=createHash('sha256').update(bytes).digest('hex'),source=Object.keys(EVENT_MEDIA).find(id=>EVENT_MEDIA[id].sha256===sha),asset=await legacy.upload(original.id,bytes,blob.type,mutationId);assert(source);aliases.set(asset.id,source);return asset;}};
   const request = async (route, body) => {
     if (body) writes.push(structuredClone(body)); const result = await legacy.request(route, body);
     if (body && dropAck) { dropAck = false; throw new Error('Injected lost initialization ACK after commit'); } return result;
   };
-  await assert.rejects(materializeTemplateStart(original, { template, createMutationId: key, request }), /lost initialization ACK/);
-  const recovered = await materializeTemplateStart(original, { template, createMutationId: key, request });
-  assert.equal(recovered.revision, 2); assert.deepEqual(writes[0], writes[1]); assert.deepEqual(recovered.source, original.source); assert.deepEqual(recovered.policy, original.policy); assert.deepEqual(recovered.document, createDocument({ template }));
+  await assert.rejects(materializeTemplateStart(original, { template, createMutationId: key, request,...initializerMedia }), /lost initialization ACK/);
+  const recovered = await materializeTemplateStart(original, { template, createMutationId: key, request,...initializerMedia });
+  assert.equal(recovered.revision, 2); assert.deepEqual(writes[0], writes[1]); assert.deepEqual(recovered.source, original.source); assert.deepEqual(recovered.policy, original.policy); const normalized=structuredClone(recovered.document);for(const ref of normalized.assets)ref.assetId=aliases.get(ref.assetId)||ref.assetId;for(const e of normalized.elements)if(e.type==='image')e.props.assetId=aliases.get(e.props.assetId)||e.props.assetId;assert.deepEqual(normalized,createDocument({template}));
   recovered.document.bindings.message.value = 'Nội dung ở một tab khác';
   await legacy.request(`/designs/designs/${recovered.id}/save`, { expectedRevision: 2, mutationId: randomUUID(), title: recovered.title, document: recovered.document });
-  const latest = await materializeTemplateStart(original, { template, createMutationId: key, request }); assert.equal(latest.revision, 3); assert.equal(latest.document.bindings.message.value, 'Nội dung ở một tab khác');
+  const latest = await materializeTemplateStart(original, { template, createMutationId: key, request,...initializerMedia }); assert.equal(latest.revision, 3); assert.equal(latest.document.bindings.message.value, 'Nội dung ở một tab khác');
   assert.equal(Object.keys(BASIC_TEMPLATES).length, 28);
   console.log('PASS Cached-v1 fixture: updated client materializes template through real CAS; lost ACK retries identical key/body; latest draft edits/source/policy survive.');
 } finally {

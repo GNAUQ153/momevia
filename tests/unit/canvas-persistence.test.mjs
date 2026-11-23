@@ -213,8 +213,8 @@ test('canvas JSON save refuses owner/source/policy injection and preserves serve
   const duplicate = await f.service.duplicate(user, d.id, { mutationId: randomUUID() });
   assert.deepEqual(duplicate.design.source, d.source); assert.notEqual(duplicate.design.document.elements[0].id, lockedId);
   assert.deepEqual(duplicate.design.policy.lockedElements[duplicate.design.document.elements[0].id], { editableProps: ['color'] });
-  const opening = duplicate.design.document.elements.find(element => element.type === 'envelope');
-  assert(opening, 'copied composition retains its opening envelope');
+  const opening = duplicate.design.document.elements.find(element => element.actions?.[0]?.type==='goToScene');
+  assert(opening, 'copied composition retains its semantic opening control');
   assert.equal(opening.actions[0].targetSceneId, duplicate.design.document.scenes[1].id);
   assert.deepEqual((await f.service.get(user, duplicate.design.id)).provenance, (await f.service.get(user, d.id)).provenance);
 });

@@ -1,0 +1,8 @@
+{
+  "passed": true,
+  "interrupted": 2,
+  "resumed": 4,
+  "rerun": 0,
+  "rollback": 6,
+  "unchangedOtherRows": 474
+}

@@ -12,7 +12,7 @@ import { previewSvg } from '../../web/js/shared/canvas/cover-svg.js';
 import { cleanGiftLayout } from '../../web/js/shared/canvas/clean-layout.js';
 
 const cards = catalog.flatMap(({items}) => items);
-const originalCards = cards.filter(card => card.id!=='sound-button' && !EVENT_CLUSTER_IDS.includes(card.id) && !card.id.startsWith("m54-") && !card.id.startsWith("m55-"));
+const originalCards = cards.filter(card => card.id!=='sound-button' && !card.id.startsWith('object-') && !card.id.startsWith('natural-') && !EVENT_CLUSTER_IDS.includes(card.id) && !card.id.startsWith("m54-") && !card.id.startsWith("m55-"));
 
 test('the pre-expansion V1 fixture round-trips without a document upgrade', () => {
   const document = JSON.parse(fs.readFileSync(new URL('../fixtures/canvas-v1.json',import.meta.url),'utf8'));
@@ -27,6 +27,7 @@ function forCard(id) {
   const document = sampleBindings(createDocument({ presetId: 'envelope-basic' }));
   const elements = cards.find(card => card.id === id).create();
   document.elements.push(...elements);
+  for(const e of elements)for(const photo of photoSlots(e))if(photo.assetId&&!document.assets.some(a=>a.assetId===photo.assetId))document.assets.push({assetId:photo.assetId,kind:'image'});
   document.scenes[0].elementIds.push(...elements.map(item => item.id));
   if (requiresCanvasV2(document)) document.schemaVersion = document.registryVersion = 2;
   if(usesSound(document))document.schemaVersion=document.registryVersion=3;
@@ -40,8 +41,8 @@ test('100 original library IDs match the approved 72 additions and the 28 origin
   const baseline = ['heading','paragraph','greeting','recipient','signature','photo','rounded-photo','polaroid',
     'rectangle','rounded','ellipse','circle','divider','heart','star','flower','sparkles','balloon','cake','gift',
     'flowers','leaves','stars','envelope','gift-box','continue','replay','reply'];
-  assert.deepEqual(originalCards.map(card=>card.id).sort(), [...baseline,...planned.map(([,id])=>id)].sort());
-  assert.deepEqual(catalog.filter(group => !group.label.startsWith("Kho trang trí · ")).map(group=>group.items.length),[15,14,15,21,12,17,16]);
+  assert.deepEqual(originalCards.filter(card=>!card.id.startsWith('object-')).map(card=>card.id).sort(), [...baseline,...planned.map(([,id])=>id)].sort());
+  assert.deepEqual(catalog.filter(group => !group.label.startsWith("Kho trang trí · ") && !group.items.every(card=>card.id.startsWith("natural-"))).map(group=>group.items.length),[15,14,15,21,33,17,16]);
   for (const [,id,label] of planned) assert.equal(cards.find(card=>card.id===id).title,label);
   for (const card of cards) assert(matchesBlock(card, card.title),card.id);
   assert(matchesBlock(cards.find(card=>card.id==='wax-seal'),'con dau'));

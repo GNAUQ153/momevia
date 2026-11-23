@@ -30,7 +30,8 @@ test('Bộ 10 mẫu có ID duy nhất, giá và danh mục rõ, 3 cảnh Canvas 
     assert(doc.elements.some(item => item.type === 'reply'));
     const opener = doc.elements.find(item => doc.scenes[0].elementIds.includes(item.id) && item.actions?.some(action => action.targetSceneId === (['birthday-radiance', 'proud-of-you'].includes(id) ? 'scene-time' : 'scene-surprise')));
     assert(opener, 'Cover has a real control opening the wish scene');
-    assert.equal(opener.type, ['birthday-radiance', 'proud-of-you'].includes(id) ? 'button' : 'envelope');
+    assert.equal(opener.type, 'button');
+    assert(opener.accessibility.label.trim(),'The object has a named keyboard control');
     assert.deepEqual(validateDocument(doc), doc);
     const bound = new Set(doc.elements.filter(item => item.props.textBinding).map(item => item.props.textBinding));
     assert.deepEqual(bound, new Set(['recipientName', 'senderName', 'message']));

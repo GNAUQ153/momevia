@@ -45,9 +45,10 @@ export function builtinLibraryItems() {
       add('effect', id, {...definition, animationId:id});
     }
     // Capture the complete compositions, not names pointing back to JS factories.
-    for (const [index, group] of catalog.entries()) for (const card of group.items) add('element', card.id, {
-      title: words(`editor.library.item.${card.id}`), group: words(`editor.library.group.${index}`), keywords: card.keywords || '', elements: card.create(),
-    });
+    for (const [index, group] of catalog.entries()) for (const card of group.items){
+      const elements=card.create(),assets=[...new Set(elements.filter(e=>e.type==='image'&&e.props.assetId).map(e=>e.props.assetId))].map(assetId=>({assetId,kind:'image'}));
+      add('element',card.id,{title:words(`editor.library.item.${card.id}`),group:words(`editor.library.group.${index}`),keywords:card.keywords||'',elements,...(assets.length?{assets}:{}),...(card.visualKind?{visualKind:card.visualKind}:{})});
+    }
     // Pin path data into the DB documents; old source definitions remain solely
     // as migration/bootstrap input and backwards-compatible renderer contracts.
     installLibrary({ items });

@@ -1,0 +1,17 @@
+{
+  "sourcePage": "https://commons.wikimedia.org/wiki/File:2021_%EC%95%84%EB%A6%AC%EB%9E%91_%EC%9D%91%EC%9B%90%EA%B0%80_%EC%9C%A4%EB%8F%84%ED%98%84_%EA%B0%80%EC%B0%BD_%EC%9D%8C%EC%9B%90.flac",
+  "author": "윤도현, 성윤용, 김민기, 강규용, 김승남, 박상우, 안도형, 윤정훈",
+  "license": "CC-BY-4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+  "pageSha256": "fab6688947997d4dcd8c1074d73253107e96d109ae2acb8a58915c1408670fe0",
+  "primarySource": "https://gongu.copyright.or.kr/gongu/wrt/wrt/view.do?wrtSn=13287221&menuNo=200020",
+  "primaryPageSha256": "6e71e13773028ffc7ec9719fa64e8c642cd87688d74b802a14353c4098ce4b4e",
+  "verifiedAt": "2026-11-22T17:51:06.619535+00:00",
+  "licenseFieldVerified": true,
+  "bundledLicenseFiles": [],
+  "donationTerms": {
+    "url": "https://gongu.copyright.or.kr/gongu/main/contents.do?menuNo=200092",
+    "pageSha256": "0dd1898b23a4fad04ef5a7bdc316c938e699df0e329c72196155b337d66b9290",
+    "primaryLicense": "KCC donated work, unrestricted use with work/author/source/terms attribution; Commons cross-check CC BY 4.0"
+  }
+}

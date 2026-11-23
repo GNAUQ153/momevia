@@ -21,8 +21,8 @@ import { auditAudioMedia,quarantineAudioOrphans } from '../../scripts/dev/audio-
 const sound={kind:'library',id:'seal-peel',version:1,startMs:0,endMs:850,volume:.6};
 test('new sound buttons use the active locale for their editable label and accessible name',()=>{const element=createElement('sound-button',{},key=>key==='sfx.listen'?'Listen':key);assert.equal(element.props.label,'Listen');assert.equal(element.accessibility.label,'Listen');});
 function documentWithSound(){const d=createDocument();d.schemaVersion=d.registryVersion=3;const e=createElement('sound-button',{sound:structuredClone(sound)});d.elements.push(e);d.scenes[0].elementIds.push(e.id);return d;}
-test('exactly forty original recordings: five per category, measured duration, provenance and distinct SHA-256',()=>{
- const catalog=sfxCatalog();assert.equal(catalog.assets.length,40);const groups=new Map(),hashes=new Set();
+test('legacy synthesized v1 stays byte-compatible for already-pinned gifts',()=>{
+ const catalog=sfxCatalog(1);assert.equal(catalog.assets.length,40);const groups=new Map(),hashes=new Set();
  for(const a of catalog.assets){const bytes=fs.readFileSync(new URL('../../'+a.sourceFile,import.meta.url)),pcm=validatePcmWav(bytes);assert.equal(pcm.sampleCount,a.sampleCount);assert.equal(pcm.durationMs,a.durationMs);assert.equal(bytes.length,a.bytes);assert.equal(createHash('sha256').update(bytes).digest('hex'),a.sha256);assert(a.name.vi&&a.name.en&&a.author&&a.evidence&&a.sourceFile);assert.equal(a.license,'CC0-1.0');groups.set(a.group,(groups.get(a.group)||0)+1);hashes.add(a.sha256);let peak=0;for(let i=44;i<bytes.length;i+=2)peak=Math.max(peak,Math.abs(bytes.readInt16LE(i)));assert(peak>1000&&peak<30000);}
  assert.equal(hashes.size,40);assert.equal(groups.size,8);assert.deepEqual([...groups.values()],Array(8).fill(5));assert.equal(normalizeSoundSearch('BÓC NIÊM PHONG Đẹp'),'boc niem phong dep');
 });

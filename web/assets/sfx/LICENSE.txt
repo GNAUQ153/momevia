@@ -1,8 +1,4 @@
-Momevia original procedural sound effects v1
-Author: Momevia procedural audio project
-Source: scripts/build/sfx.mjs (deterministic synthesis and original short scores).
-No external recordings, samples, melodies or downloaded packages were used.
-To the extent possible under law, the author dedicates the generator and generated audio to the public domain under CC0 1.0 Universal.
-SPDX-License-Identifier: CC0-1.0
-License: https://creativecommons.org/publicdomain/zero/1.0/legalcode
-Automated validation does not constitute human listening approval.
+Current SFX catalog: v2 (40 externally sourced author recordings and authored sound effects).
+Licenses: CC0-1.0 as declared on each original author page.
+See ../audio-licenses/CREDITS.md, ../audio-licenses/*.json, bundled upstream license texts, and v2/catalog.json for authors, source URLs, modifications and hashes.
+Historical synthesized v1 is retained unchanged for already-pinned gifts. Its original declaration is in v1/LICENSE.txt.

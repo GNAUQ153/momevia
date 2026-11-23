@@ -1,3 +1,12 @@
+## Unreleased — SFX và nhạc nguồn tác giả (2026-11-23)
+
+- Bộ chọn SFX dùng 50 tệp v2 nhập từ tác giả bên ngoài, có bản thu vật thật/thiên nhiên, hiệu ứng giao diện và nhạc hiệu; giữ nguyên âm v1 đã ghim trong quà cũ.
+- Thêm 50 bản nhạc theo chủ đề: 44 CC0 từ Alex McCulloch / Pro Sensory và Emma_MA, 6 bản Hàn từ Korea Copyright Commission với ghi công, có cả nhạc có lời; bộ chọn mới không dùng các vòng nhạc tự tổng hợp. Mười ID nhạc cũ vẫn đọc/phát được để không đổi quà đã gửi.
+- Giữ nguồn, giấy phép, hash nguồn/đích, thời lượng đo, chỉnh sửa và credit tác giả trong repo; trình nhập chỉ tải/giải mã/cắt/chuẩn hóa, không sinh âm thay thế. Kho lưu generator tổng hợp cũ để bảo vệ các tệp đã ghim.
+- Sửa danh sách nhạc 50 mục trong cột Studio hẹp: mỗi mục một hàng, chiều cao theo nội dung và vùng cuộn riêng, tránh chữ chồng nhau.
+- Hiện nguồn nhạc trong Studio và player; hiển thị đúng phút/giây cho bản dài, bảo toàn lựa chọn cũ khi mở nháp, sửa tràn ngang thanh nhạc/credit trên mobile.
+- Kiểm chứng và danh mục được gom tại `docs/SYSTEM_CONTENT_INVENTORY_20261122.md`; raw downloads và công cụ QA nằm trong `local/`, không đóng gói. Chưa nghe duyệt bởi người hoặc kiểm trên thiết bị di động thật.
+
 ## Unreleased — Marketing Performance V12: Data Saver & Motion (2026-11-23)
 
 - Marketing Hero tạm dừng slideshow/teaser và chuyển nhãn điều khiển sang “Tiếp tục trình chiếu” khi trình duyệt bật `saveData` hoặc `prefers-reduced-data`; vẫn cho phép người dùng chủ động phát, nhưng không bỏ qua `prefers-reduced-motion`.

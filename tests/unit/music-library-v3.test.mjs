@@ -10,19 +10,19 @@ import { SOUNDTRACKS, soundtrackById, tracksForMood } from '../../web/js/shared/
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const translations = lang => JSON.parse(readFileSync(resolve(root, `web/assets/locales/${lang}.json`), 'utf8'));
 
-test('Thư viện có bốn bản nội bộ, ID/đường dẫn cố định và metadata rõ ràng', () => {
-  assert.equal(SOUNDTRACKS.length, 10);
-  assert.equal(new Set(SOUNDTRACKS.map(track => track.id)).size, 10);
+test('Thư viện có 50 bản nhạc nguồn ngoài, ID/đường dẫn cố định và metadata rõ ràng', () => {
+  assert.equal(SOUNDTRACKS.length, 50);
+  assert.equal(new Set(SOUNDTRACKS.map(track => track.id)).size, 50);
   for (const track of SOUNDTRACKS) {
     assert.match(track.id, /^[a-z][a-z0-9-]*$/);
-    assert.equal(track.src, `/assets/music/${track.id}.mp3`);
+    assert.equal(track.src, `/assets/music/v2/${track.id}.mp3`);
     assert.ok(['gentle', 'joyful'].includes(track.mood));
-    assert.equal(track.durationSeconds, 24);
+    assert.ok(track.durationSeconds >= 10 && track.durationSeconds <= 900);
     assert.equal(soundtrackById(track.id), track);
     const file = resolve(root, 'web', track.src.slice(1));
     const bytes = readFileSync(file);
     assert.equal(bytes.subarray(0, 3).toString('ascii'), 'ID3');
-    assert.ok(statSync(file).size > 50_000 && statSync(file).size < 600_000);
+    assert.ok(statSync(file).size > 50_000 && statSync(file).size < 12 * 1024 * 1024);
   }
   assert.equal(soundtrackById('https://example.com/song.mp3'), null);
   assert.equal(soundtrackById('../private'), null);
@@ -31,8 +31,8 @@ test('Thư viện có bốn bản nội bộ, ID/đường dẫn cố định v�
 test('Bộ lọc tâm trạng không sửa dữ liệu và từ chối giá trị không xác định', () => {
   const gentle = tracksForMood('gentle');
   const joyful = tracksForMood('joyful');
-  assert.equal(gentle.length, 4);
-  assert.equal(joyful.length, 6);
+  assert.equal(gentle.length, 28);
+  assert.equal(joyful.length, 22);
   assert.deepEqual([...gentle, ...joyful].map(track => track.id).sort(), SOUNDTRACKS.map(track => track.id).sort());
   assert.equal(tracksForMood('all'), SOUNDTRACKS);
   assert.deepEqual(tracksForMood('https://evil.example'), []);

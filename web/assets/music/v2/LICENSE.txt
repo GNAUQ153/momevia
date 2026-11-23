@@ -1,0 +1,5 @@
+This version contains 50 externally authored music files: 44 CC0-1.0 compositions from Alex McCulloch / Pro Sensory and Emma_MA, and six Korean recordings supplied by the Korea Copyright Commission under attribution terms.
+The six Korean files are cross-checked against their rightsholder pages and Wikimedia Commons CC BY 4.0 declarations. The 2021 Arirang vocal recording uses the KCC unrestricted-donation terms with work, author, source and terms attribution; that distinction is recorded in its evidence JSON.
+Full artist credits, license links, sources and processing changes must accompany playback. The product displays these in Studio and the recipient player.
+See catalog.json and ../../audio-licenses/CREDITS.md for original titles, author URLs, source hashes and processing notes.
+Momevia did not synthesize these compositions.

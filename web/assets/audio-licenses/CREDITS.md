@@ -1,0 +1,109 @@
+# External audio credits
+
+Media below is externally authored. Original payloads are retained for pinned gifts. No human audition is claimed.
+
+## SFX v2
+
+- seal-peel: Jarebear1223 · CC0-1.0 · https://freesound.org/people/Jarebear1223/sounds/618541/
+- letter-unfold: Luckius · CC0-1.0 · https://opengameart.org/content/various-paper-sound-effects
+- page-turn: Kenney Vleugels · CC0-1.0 · https://opengameart.org/content/50-rpg-sound-effects
+- paper-rustle: Luckius · CC0-1.0 · https://opengameart.org/content/various-paper-sound-effects
+- pen-sign: Luckius · CC0-1.0 · https://opengameart.org/content/various-paper-sound-effects
+- ribbon-untie: Kenney Vleugels · CC0-1.0 · https://opengameart.org/content/50-rpg-sound-effects
+- box-pop: SpliceSound · CC0-1.0 · https://freesound.org/people/SpliceSound/sounds/188189/
+- gift-shake: Kenney Vleugels · CC0-1.0 · https://opengameart.org/content/50-rpg-sound-effects
+- wood-lid: Kenney Vleugels · CC0-1.0 · https://opengameart.org/content/50-rpg-sound-effects
+- wrap-tear: Luckius · CC0-1.0 · https://opengameart.org/content/various-paper-sound-effects
+- tiny-spark: Kenney Vleugels · CC0-1.0 · https://opengameart.org/content/interface-sounds
+- fairy-dust: Kenney Vleugels · CC0-1.0 · https://opengameart.org/content/interface-sounds
+- star-trail: Kenney Vleugels · CC0-1.0 · https://opengameart.org/content/interface-sounds
+- glass-twinkle: Kenney Vleugels · CC0-1.0 · https://opengameart.org/content/interface-sounds
+- magic-reveal: Kenney Vleugels · CC0-1.0 · https://opengameart.org/content/interface-sounds
+- candle-blow: tlcolbe · CC0-1.0 · https://freesound.org/people/tlcolbe/sounds/406646/
+- confetti-pop: Streety · CC0-1.0 · https://freesound.org/people/Streety/sounds/26349/
+- balloon-pop: Sadiquecat · CC0-1.0 · https://freesound.org/people/Sadiquecat/sounds/817800/
+- birthday-chime: freesound / La audiencia disponible recording team · CC0-1.0 · https://freesound.org/people/freesound/sounds/25295/
+- party-horn: Kenney Vleugels · CC0-1.0 · https://opengameart.org/content/85-short-music-jingles
+- camera-shutter: OwlishMedia / Ashe Kirk · CC0-1.0 · https://opengameart.org/content/202-more-sound-effects
+- projector-click: OwlishMedia / Ashe Kirk · CC0-1.0 · https://opengameart.org/content/202-more-sound-effects
+- heartbeat: thenudo · CC0-1.0 · https://freesound.org/people/thenudo/sounds/146765/
+- music-box: Kenney Vleugels · CC0-1.0 · https://opengameart.org/content/50-rpg-sound-effects
+- clock-tick: bart · CC0-1.0 · https://opengameart.org/content/ticking-clock
+- soft-tap: Kenney Vleugels · CC0-1.0 · https://opengameart.org/content/51-ui-sound-effects-buttons-switches-and-clicks
+- gentle-click: Kenney Vleugels · CC0-1.0 · https://opengameart.org/content/51-ui-sound-effects-buttons-switches-and-clicks
+- swipe-whoosh: Kenney Vleugels · CC0-1.0 · https://opengameart.org/content/interface-sounds
+- choice-ding: Kenney Vleugels · CC0-1.0 · https://opengameart.org/content/51-ui-sound-effects-buttons-switches-and-clicks
+- success-pair: Kenney Vleugels · CC0-1.0 · https://opengameart.org/content/interface-sounds
+- water-drop: willstepp · CC0-1.0 · https://freesound.org/people/willstepp/sounds/188293/
+- rain-window: Ove Melaa · CC0-1.0 · https://opengameart.org/content/rain-ambient-not-loopable-2-versions-available
+- bird-call: Thimras · CC0-1.0 · https://opengameart.org/content/park-ambiences
+- gentle-wind: Thimras · CC0-1.0 · https://opengameart.org/content/park-ambiences
+- shore-wave: Thimras · CC0-1.0 · https://opengameart.org/content/park-ambiences
+- warm-ending: Kenney Vleugels · CC0-1.0 · https://opengameart.org/content/85-short-music-jingles
+- playful-ending: Kenney Vleugels · CC0-1.0 · https://opengameart.org/content/85-short-music-jingles
+- tender-ending: Kenney Vleugels · CC0-1.0 · https://opengameart.org/content/85-short-music-jingles
+- bright-ending: Kenney Vleugels · CC0-1.0 · https://opengameart.org/content/85-short-music-jingles
+- goodnight-ending: Kenney Vleugels · CC0-1.0 · https://opengameart.org/content/85-short-music-jingles
+- paper-open-wide: Luckius · CC0-1.0 · https://opengameart.org/content/various-paper-sound-effects
+- paper-fold: Luckius · CC0-1.0 · https://opengameart.org/content/various-paper-sound-effects
+- paper-crumple: Luckius · CC0-1.0 · https://opengameart.org/content/various-paper-sound-effects
+- book-open: Kenney Vleugels · CC0-1.0 · https://opengameart.org/content/50-rpg-sound-effects
+- book-close: Kenney Vleugels · CC0-1.0 · https://opengameart.org/content/50-rpg-sound-effects
+- gift-coins: Kenney Vleugels · CC0-1.0 · https://opengameart.org/content/50-rpg-sound-effects
+- gift-creak: Kenney Vleugels · CC0-1.0 · https://opengameart.org/content/50-rpg-sound-effects
+- gift-cloth: OwlishMedia / Ashe Kirk · CC0-1.0 · https://opengameart.org/content/202-more-sound-effects
+- camera-third: OwlishMedia / Ashe Kirk · CC0-1.0 · https://opengameart.org/content/202-more-sound-effects
+- toast-drink: OwlishMedia / Ashe Kirk · CC0-1.0 · https://opengameart.org/content/202-more-sound-effects
+
+## Music v2
+
+- Happy — Alex McCulloch / Pro Sensory · CC0-1.0 (https://creativecommons.org/publicdomain/zero/1.0/) · https://opengameart.org/content/happy · Changes: full original composition; loudness normalization; stereo 44.1kHz MP3 160kbps; no synthesized replacement
+- Serenade (Guitar) — Alex McCulloch / Pro Sensory · CC0-1.0 (https://creativecommons.org/publicdomain/zero/1.0/) · https://opengameart.org/content/serenade-guitar · Changes: full original composition; loudness normalization; stereo 44.1kHz MP3 160kbps; no synthesized replacement
+- In Love — Alex McCulloch / Pro Sensory · CC0-1.0 (https://creativecommons.org/publicdomain/zero/1.0/) · https://opengameart.org/content/in-love · Changes: full original composition; loudness normalization; stereo 44.1kHz MP3 160kbps; no synthesized replacement
+- Wintery loop — Emma_MA · CC0-1.0 (https://creativecommons.org/publicdomain/zero/1.0/) · https://opengameart.org/content/wintery-loop · Changes: full original composition; loudness normalization; stereo 44.1kHz MP3 160kbps; no synthesized replacement
+- Congratulations — Alex McCulloch / Pro Sensory · CC0-1.0 (https://creativecommons.org/publicdomain/zero/1.0/) · https://opengameart.org/content/congratulations · Changes: full original composition; loudness normalization; stereo 44.1kHz MP3 160kbps; no synthesized replacement
+- Sunny Side Up — Alex McCulloch / Pro Sensory · CC0-1.0 (https://creativecommons.org/publicdomain/zero/1.0/) · https://opengameart.org/content/sunny-side-up · Changes: full original composition; loudness normalization; stereo 44.1kHz MP3 160kbps; no synthesized replacement
+- I Dreamed of You Last Night — Alex McCulloch / Pro Sensory · CC0-1.0 (https://creativecommons.org/publicdomain/zero/1.0/) · https://opengameart.org/content/i-dreamed-of-you-last-night · Changes: full original composition; loudness normalization; stereo 44.1kHz MP3 160kbps; no synthesized replacement
+- You and Me — Alex McCulloch / Pro Sensory · CC0-1.0 (https://creativecommons.org/publicdomain/zero/1.0/) · https://opengameart.org/content/you-and-me · Changes: full original composition; loudness normalization; stereo 44.1kHz MP3 160kbps; no synthesized replacement
+- Taken Lightly — Alex McCulloch / Pro Sensory · CC0-1.0 (https://creativecommons.org/publicdomain/zero/1.0/) · https://opengameart.org/content/taken-lightly · Changes: full original composition; loudness normalization; stereo 44.1kHz MP3 160kbps; no synthesized replacement
+- One Step at a Time — Alex McCulloch / Pro Sensory · CC0-1.0 (https://creativecommons.org/publicdomain/zero/1.0/) · https://opengameart.org/content/one-step-at-a-time · Changes: full original composition; loudness normalization; stereo 44.1kHz MP3 160kbps; no synthesized replacement
+- Main Menu Music (Loop) — Alex McCulloch / Pro Sensory · CC0-1.0 (https://creativecommons.org/publicdomain/zero/1.0/) · https://opengameart.org/content/main-menu-music-loop · Changes: Full source; loudness normalized; transcoded stereo 44.1 kHz MP3 160 kbps.
+- A Chill Fever (Loopable) — Alex McCulloch / Pro Sensory · CC0-1.0 (https://creativecommons.org/publicdomain/zero/1.0/) · https://opengameart.org/content/a-chill-fever-loopable · Changes: Full source; loudness normalized; transcoded stereo 44.1 kHz MP3 160 kbps.
+- Chill (Loopable) — Alex McCulloch / Pro Sensory · CC0-1.0 (https://creativecommons.org/publicdomain/zero/1.0/) · https://opengameart.org/content/chill-loopable · Changes: Full source; loudness normalized; transcoded stereo 44.1 kHz MP3 160 kbps.
+- Merry Early Christmas — Alex McCulloch / Pro Sensory · CC0-1.0 (https://creativecommons.org/publicdomain/zero/1.0/) · https://opengameart.org/content/merry-early-christmas · Changes: Full source; loudness normalized; transcoded stereo 44.1 kHz MP3 160 kbps.
+- All into Harmony — Alex McCulloch / Pro Sensory · CC0-1.0 (https://creativecommons.org/publicdomain/zero/1.0/) · https://opengameart.org/content/all-into-harmony · Changes: Full source; loudness normalized; transcoded stereo 44.1 kHz MP3 160 kbps.
+- short jazz — Alex McCulloch / Pro Sensory · CC0-1.0 (https://creativecommons.org/publicdomain/zero/1.0/) · https://opengameart.org/content/short-jazz · Changes: Full source; loudness normalized; transcoded stereo 44.1 kHz MP3 160 kbps.
+- Adventure Time Revised — Alex McCulloch / Pro Sensory · CC0-1.0 (https://creativecommons.org/publicdomain/zero/1.0/) · https://opengameart.org/content/adventure-time-revised · Changes: Full source; loudness normalized; transcoded stereo 44.1 kHz MP3 160 kbps.
+- Mocha Frapp — Alex McCulloch / Pro Sensory · CC0-1.0 (https://creativecommons.org/publicdomain/zero/1.0/) · https://opengameart.org/content/mocha-frapp · Changes: Full source; loudness normalized; transcoded stereo 44.1 kHz MP3 160 kbps.
+- Heavy Rain — Alex McCulloch / Pro Sensory · CC0-1.0 (https://creativecommons.org/publicdomain/zero/1.0/) · https://opengameart.org/content/heavy-rain · Changes: Full source; loudness normalized; transcoded stereo 44.1 kHz MP3 160 kbps.
+- River — Alex McCulloch / Pro Sensory · CC0-1.0 (https://creativecommons.org/publicdomain/zero/1.0/) · https://opengameart.org/content/river · Changes: Full source; loudness normalized; transcoded stereo 44.1 kHz MP3 160 kbps.
+- chill — Alex McCulloch / Pro Sensory · CC0-1.0 (https://creativecommons.org/publicdomain/zero/1.0/) · https://opengameart.org/content/chill-1 · Changes: Full source; loudness normalized; transcoded stereo 44.1 kHz MP3 160 kbps.
+- this is heaven — Alex McCulloch / Pro Sensory · CC0-1.0 (https://creativecommons.org/publicdomain/zero/1.0/) · https://opengameart.org/content/this-is-heaven · Changes: Full source; loudness normalized; transcoded stereo 44.1 kHz MP3 160 kbps.
+- Inspiration — Alex McCulloch / Pro Sensory · CC0-1.0 (https://creativecommons.org/publicdomain/zero/1.0/) · https://opengameart.org/content/inspiration-1 · Changes: Full source; loudness normalized; transcoded stereo 44.1 kHz MP3 160 kbps.
+- chill jungle 2 — Alex McCulloch / Pro Sensory · CC0-1.0 (https://creativecommons.org/publicdomain/zero/1.0/) · https://opengameart.org/content/chill-jungle-2 · Changes: Full source; loudness normalized; transcoded stereo 44.1 kHz MP3 160 kbps.
+- Chill Jungle — Alex McCulloch / Pro Sensory · CC0-1.0 (https://creativecommons.org/publicdomain/zero/1.0/) · https://opengameart.org/content/chill-jungle · Changes: Full source; loudness normalized; transcoded stereo 44.1 kHz MP3 160 kbps.
+- Synth Wave 4-10-2021 — Alex McCulloch / Pro Sensory · CC0-1.0 (https://creativecommons.org/publicdomain/zero/1.0/) · https://opengameart.org/content/synth-wave-4-10-2021 · Changes: Full source; loudness normalized; transcoded stereo 44.1 kHz MP3 160 kbps.
+- Ambience — Alex McCulloch / Pro Sensory · CC0-1.0 (https://creativecommons.org/publicdomain/zero/1.0/) · https://opengameart.org/content/ambience-1 · Changes: Full source; loudness normalized; transcoded stereo 44.1 kHz MP3 160 kbps.
+- Taking you to the Circus — Alex McCulloch / Pro Sensory · CC0-1.0 (https://creativecommons.org/publicdomain/zero/1.0/) · https://opengameart.org/content/taking-you-to-the-circus · Changes: Full source; loudness normalized; transcoded stereo 44.1 kHz MP3 160 kbps.
+- chill chiptune — Alex McCulloch / Pro Sensory · CC0-1.0 (https://creativecommons.org/publicdomain/zero/1.0/) · https://opengameart.org/content/chill-chiptune · Changes: Full source; loudness normalized; transcoded stereo 44.1 kHz MP3 160 kbps.
+- Wild Jazz — Alex McCulloch / Pro Sensory · CC0-1.0 (https://creativecommons.org/publicdomain/zero/1.0/) · https://opengameart.org/content/wild-jazz · Changes: Full source; loudness normalized; transcoded stereo 44.1 kHz MP3 160 kbps.
+- emotional soundtrack 1 — Alex McCulloch / Pro Sensory · CC0-1.0 (https://creativecommons.org/publicdomain/zero/1.0/) · https://opengameart.org/content/emotional-soundtrack-1 · Changes: Full source; loudness normalized; transcoded stereo 44.1 kHz MP3 160 kbps.
+- Low FI — Alex McCulloch / Pro Sensory · CC0-1.0 (https://creativecommons.org/publicdomain/zero/1.0/) · https://opengameart.org/content/low-fi-0 · Changes: Full source; loudness normalized; transcoded stereo 44.1 kHz MP3 160 kbps.
+- Cute Bass — Alex McCulloch / Pro Sensory · CC0-1.0 (https://creativecommons.org/publicdomain/zero/1.0/) · https://opengameart.org/content/cute-bass · Changes: Full source; loudness normalized; transcoded stereo 44.1 kHz MP3 160 kbps.
+- Jazz Slower — Alex McCulloch / Pro Sensory · CC0-1.0 (https://creativecommons.org/publicdomain/zero/1.0/) · https://opengameart.org/content/jazz-slower · Changes: Full source; loudness normalized; transcoded stereo 44.1 kHz MP3 160 kbps.
+- Christmas Special 4 — Alex McCulloch / Pro Sensory · CC0-1.0 (https://creativecommons.org/publicdomain/zero/1.0/) · https://opengameart.org/content/christmas-special-4 · Changes: Full source; loudness normalized; transcoded stereo 44.1 kHz MP3 160 kbps.
+- Christmas Special 3 — Alex McCulloch / Pro Sensory · CC0-1.0 (https://creativecommons.org/publicdomain/zero/1.0/) · https://opengameart.org/content/christmas-special-3 · Changes: Full source; loudness normalized; transcoded stereo 44.1 kHz MP3 160 kbps.
+- Classical Pop (Instrumental) — Alex McCulloch / Pro Sensory · CC0-1.0 (https://creativecommons.org/publicdomain/zero/1.0/) · https://opengameart.org/content/classical-pop-instrumental · Changes: Full source; loudness normalized; transcoded stereo 44.1 kHz MP3 160 kbps.
+- Jazz (flute) — Alex McCulloch / Pro Sensory · CC0-1.0 (https://creativecommons.org/publicdomain/zero/1.0/) · https://opengameart.org/content/jazz-flute · Changes: Full source; loudness normalized; transcoded stereo 44.1 kHz MP3 160 kbps.
+- Hello There — Alex McCulloch / Pro Sensory · CC0-1.0 (https://creativecommons.org/publicdomain/zero/1.0/) · https://opengameart.org/content/hello-there · Changes: Full source; loudness normalized; transcoded stereo 44.1 kHz MP3 160 kbps.
+- Lust (Cello & Vibraphone) — Alex McCulloch / Pro Sensory · CC0-1.0 (https://creativecommons.org/publicdomain/zero/1.0/) · https://opengameart.org/content/lust-cello-vibraphone · Changes: Full source; loudness normalized; transcoded stereo 44.1 kHz MP3 160 kbps.
+- The love cycle (Guitar) — Alex McCulloch / Pro Sensory · CC0-1.0 (https://creativecommons.org/publicdomain/zero/1.0/) · https://opengameart.org/content/the-love-cycle-guitar · Changes: Full source; loudness normalized; transcoded stereo 44.1 kHz MP3 160 kbps.
+- Once In a While — Alex McCulloch / Pro Sensory · CC0-1.0 (https://creativecommons.org/publicdomain/zero/1.0/) · https://opengameart.org/content/once-in-a-while · Changes: Full source; loudness normalized; transcoded stereo 44.1 kHz MP3 160 kbps.
+- Passenger — Alex McCulloch / Pro Sensory · CC0-1.0 (https://creativecommons.org/publicdomain/zero/1.0/) · https://opengameart.org/content/passenger · Changes: Full source; loudness normalized; transcoded stereo 44.1 kHz MP3 160 kbps.
+- Relax Girl — Alex McCulloch / Pro Sensory · CC0-1.0 (https://creativecommons.org/publicdomain/zero/1.0/) · https://opengameart.org/content/relax-girl · Changes: Full source; loudness normalized; transcoded stereo 44.1 kHz MP3 160 kbps.
+- 강원도 아리랑 — 한국저작권위원회 (Korea Copyright Commission) · CC-BY-4.0 (https://creativecommons.org/licenses/by/4.0/) · https://commons.wikimedia.org/wiki/File:Gangwondo_Arirang.wav · Changes: Full source; loudness normalized; transcoded stereo 44.1 kHz MP3 160 kbps.
+- 경기 아리랑 — 한국저작권위원회 (Korea Copyright Commission) · CC-BY-4.0 (https://creativecommons.org/licenses/by/4.0/) · https://commons.wikimedia.org/wiki/File:Gyeonggi_Arirang.wav · Changes: Full source; loudness normalized; transcoded stereo 44.1 kHz MP3 160 kbps.
+- 진도 아리랑 — 한국저작권위원회 (Korea Copyright Commission) · CC-BY-4.0 (https://creativecommons.org/licenses/by/4.0/) · https://commons.wikimedia.org/wiki/File:Jindo_Arirang.wav · Changes: Full source; loudness normalized; transcoded stereo 44.1 kHz MP3 160 kbps.
+- 밀양 아리랑 — 한국저작권위원회 (Korea Copyright Commission) · CC-BY-4.0 (https://creativecommons.org/licenses/by/4.0/) · https://commons.wikimedia.org/wiki/File:Miryang_Arirang.wav · Changes: Full source; loudness normalized; transcoded stereo 44.1 kHz MP3 160 kbps.
+- 구 아리랑 — 한국저작권위원회 (Korea Copyright Commission) · CC-BY-4.0 (https://creativecommons.org/licenses/by/4.0/) · https://commons.wikimedia.org/wiki/File:Old_Arirang.wav · Changes: Full source; loudness normalized; transcoded stereo 44.1 kHz MP3 160 kbps.
+- 2021 아리랑 응원가 — 윤도현, 성윤용, 김민기, 강규용, 김승남, 박상우, 안도형, 윤정훈 · CC-BY-4.0 (https://creativecommons.org/licenses/by/4.0/) · https://commons.wikimedia.org/wiki/File:2021_%EC%95%84%EB%A6%AC%EB%9E%91_%EC%9D%91%EC%9B%90%EA%B0%80_%EC%9C%A4%EB%8F%84%ED%98%84_%EA%B0%80%EC%B0%BD_%EC%9D%8C%EC%9B%90.flac · Changes: Full source; loudness normalized; transcoded stereo 44.1 kHz MP3 160 kbps.

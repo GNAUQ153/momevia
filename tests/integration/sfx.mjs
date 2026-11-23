@@ -8,8 +8,12 @@ import { encodeWav,trimPcm } from '../../web/js/shared/canvas/audio-pcm.js';
 import { validatePcmWav } from '../../src/modules/designs/audio.service.mjs';
 import { exportCanvas,restoreCanvas,verifyCanvas } from '../../scripts/dev/canvas-backup.mjs';
 import { AUDIO_LIMITS } from '../../web/js/shared/canvas/audio-pcm.js';
+import { SOUNDTRACKS } from '../../web/js/shared/canvas/soundtracks.js';
+import { loadEnvironment } from '../../src/shared/config.mjs';
 
-const fixture=await startSfxFixture({sql:process.argv.includes('--mysql'),label:process.argv.includes('--mysql')?'mysql':'json'}),{base,request,directory}=fixture,checks=[];
+const externalSql=process.argv.includes('--mysql-local');if(externalSql)loadEnvironment();
+const sql=externalSql||process.argv.includes('--mysql');
+const fixture=await startSfxFixture({sql,externalSql,label:sql?'mysql':'json'}),{base,request,directory}=fixture,checks=[];
 const check=async(name,work)=>{await work();checks.push({name,result:'PASS'});console.log('PASS '+name);};
 async function post(owner,route,body,status=200){const r=await request(route,{cookie:owner.cookie,body});assert.equal(r.status,status,JSON.stringify(r.data));return r.data;}
 const src=Float32Array.from({length:132300},(_,i)=>Math.sin(2*Math.PI*(i<44100?220:i<88200?880:1760)*i/44100)*.4),buffer={sampleRate:44100,length:src.length,numberOfChannels:1,getChannelData:()=>src},middle=Buffer.from(trimPcm(buffer,1000,2000).bytes);
@@ -100,6 +104,11 @@ try{
   const remapped=draft.document.elements.find(e=>e.type==='envelope').sound.assetId;assert.notEqual(remapped,creatorAsset);assert(draft.document.assets.some(a=>a.assetId===remapped&&a.kind==='audio'));
   const changed=structuredClone(draft.document);changed.elements.find(e=>e.type==='envelope').sound.volume=.1;
   assert.equal((await request(`/designs/designs/${draft.id}/save`,{cookie:owner.cookie,body:{title:draft.title,document:changed,expectedRevision:draft.revision,mutationId:randomUUID()}})).status,403);
+ });
+ await check('all fifty externally sourced music IDs save/reload; published music remains fixed after later draft changes',async()=>{
+  for(const track of SOUNDTRACKS){design.document.soundtrack={id:track.id,volume:.3};await save();assert.equal(design.document.soundtrack.id,track.id);}
+  const body={designId:design.id,expectedRevision:design.revision,expectedDocumentHash:design.documentHash,idempotencyKey:randomUUID()},publishedMusic=(await post(owner,'/gifts/gifts/from-design',body,201)).gift;
+  const original=(await request(`/gifts/gifts/${publishedMusic.slug}`)).data.gift.documentSnapshot.soundtrack;assert.equal(original.id,SOUNDTRACKS.at(-1).id);design.document.soundtrack={id:SOUNDTRACKS[0].id,volume:.6};await save();assert.deepEqual((await request(`/gifts/gifts/${publishedMusic.slug}`)).data.gift.documentSnapshot.soundtrack,original);
  });
  if(!fixture.connection)await check('offline JSON backup, checksum verification and restore retain WAV and immutable gift snapshots',async()=>{
   const source=path.join(directory,'services/designs/data'),target=path.join(directory,'backup'),restore=path.join(directory,'restored');exportCanvas({source,target,offline:true});assert(verifyCanvas({source:target}).manifest);restoreCanvas({source:target,target:restore});assert.deepEqual(fs.readFileSync(path.join(restore,'assets',asset.id+'.wav')),middle);

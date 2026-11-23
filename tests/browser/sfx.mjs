@@ -4,6 +4,7 @@ import path from 'node:path';
 import { chromium,webkit } from 'playwright';
 import { confirmGiftAccess } from './gift-access.mjs';
 import { execFileSync } from 'node:child_process';
+import { verifyRecordedMusic } from './recorded-music.mjs';
 
 export async function runSfxBrowser({fixture,owner,gift,check}){
  const {base,directory,request}=fixture,browser=await chromium.launch({channel:process.env.BROWSER_CHANNEL||'chrome',headless:true}),context=await browser.newContext({viewport:{width:1440,height:1000},locale:'vi-VN'}),errors=[],requests=[],uploads=[];
@@ -20,12 +21,14 @@ export async function runSfxBrowser({fixture,owner,gift,check}){
  const page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));page.on('request',r=>{requests.push(new URL(r.url()).pathname);if(r.url().endsWith('/audio'))uploads.push(r.postDataBuffer());});
  const control=name=>page.locator(`[data-editor-action="${name}"]`),dialog=()=>page.locator('.sfx-dialog'),read=async()=>{const id=new URL(page.url()).pathname.split('/').at(-1),r=await request(`/designs/designs/${id}`,{cookie:owner.cookie});assert.equal(r.status,200);return r.data.design;},save=async()=>{await control('save').click();await page.locator('.editor-save-status').filter({hasText:'Đã lưu'}).waitFor();return read();};
  let created,published,personalId;
+ const currentCatalog=(await fixture.request('/designs/sfx')).data;
+ const warmCutEnd=Math.min(1800,Math.floor(currentCatalog.assets.find(a=>a.id==='warm-ending').durationMs));
  try{
-  await check('Studio: create from starter, discover Sound, audition all 40 without editing or loading the trimmer',async()=>{
+  await check('Studio: create from starter, discover Sound, audition all 50 without editing or loading the trimmer',async()=>{
    await page.goto(base+'/design/new');await control('create-starter').click();await page.locator('.editor-artboard').waitFor();await page.waitForURL(/\/design\/[0-9a-f-]{36}$/);created=await read();
-   await control('library-tab').filter({hasText:'Âm thanh'}).click();const before=await save();await control('sound-add').click();await dialog().locator('.sfx-row').last().waitFor();assert.equal(await dialog().locator('.sfx-row').count(),40);
-   assert.equal(requests.filter(p=>p.includes('/sfx/1/')).length,0);assert(!requests.some(p=>p.includes('audio-trimmer')));
-   await dialog().getByRole('searchbox').fill('boc niem phong');assert.equal(await dialog().locator('.sfx-row').count(),1);await dialog().getByRole('searchbox').fill('Bóc niêm phong');assert.equal(await dialog().locator('.sfx-row').count(),1);await dialog().getByRole('searchbox').fill('');
+   await control('library-tab').filter({hasText:'Âm thanh'}).click();const before=await save();await control('sound-add').click();await dialog().locator('.sfx-row').last().waitFor();assert.equal(await dialog().locator('.sfx-row').count(),50);
+   assert.equal(requests.filter(p=>p.includes('/sfx/2/')).length,0);assert(!requests.some(p=>p.includes('audio-trimmer')));
+   await dialog().getByRole('searchbox').fill('boc bang dinh');assert.equal(await dialog().locator('.sfx-row').count(),1);await dialog().getByRole('searchbox').fill('Bóc băng dính');assert.equal(await dialog().locator('.sfx-row').count(),1);await dialog().getByRole('searchbox').fill('');
    await dialog().getByLabel('Nhóm âm',{exact:true}).selectOption('nature');assert.equal(await dialog().locator('.sfx-row').count(),5);await dialog().getByLabel('Nhóm âm',{exact:true}).selectOption('');
    for(const row of await dialog().locator('.sfx-row').all()){
     const count=await page.evaluate(()=>globalThis.__soundQa.starts.length);await row.getByRole('button',{name:/^Nghe thử /}).click();await page.waitForFunction(n=>globalThis.__soundQa.starts.length>n,count);await row.getByRole('button',{name:'Dừng',exact:true}).click();
@@ -38,15 +41,15 @@ export async function runSfxBrowser({fixture,owner,gift,check}){
    await control('library-tab').filter({hasText:'Thêm',exact:true}).click();await page.locator('[data-block="gift-box"]').click();await page.locator('.editor-inspector [data-editor-action="sound-picker"]').click();await chooseLibrary('box-pop');
    // The newly inserted gift box needs an ordinary navigation destination.
    await page.locator('.editor-target-picker summary').click();await page.locator('.editor-target-scenes [data-editor-action="action-target"]').nth(1).click();
-   await control('library-tab').filter({hasText:'Âm thanh'}).click();await control('sound-add').click();await dialog().locator('[data-sfx-id="warm-ending"]').getByRole('button',{name:/^Chọn /}).click();await dialog().getByRole('button',{name:'Tỉa âm thanh',exact:true}).click();await dialog().locator('canvas').waitFor();await dialog().getByLabel('Bắt đầu (giây)',{exact:true}).fill('0.1');await dialog().getByLabel('Kết thúc (giây)',{exact:true}).fill('1.8');await dialog().locator('.sfx-trim').getByLabel('Âm lượng',{exact:true}).fill('0.35');await dialog().locator('.sfx-trim').getByRole('button',{name:'Áp dụng',exact:true}).click();await dialog().waitFor({state:'detached'});
-   const after=await save(),count=after.document.elements.length;assert.equal(after.document.elements.filter(e=>e.sound?.kind==='library').length,3);assert.equal(after.document.schemaVersion,3);assert.deepEqual(after.document.elements.find(e=>e.type==='sound-button').sound,{kind:'library',id:'warm-ending',version:1,startMs:100,endMs:1800,volume:.35});
+   await control('library-tab').filter({hasText:'Âm thanh'}).click();await control('sound-add').click();await dialog().locator('[data-sfx-id="warm-ending"]').getByRole('button',{name:/^Chọn /}).click();await dialog().getByRole('button',{name:'Tỉa âm thanh',exact:true}).click();await dialog().locator('canvas').waitFor();await dialog().getByLabel('Bắt đầu (giây)',{exact:true}).fill('0.1');await dialog().getByLabel('Kết thúc (giây)',{exact:true}).fill(String(warmCutEnd/1000));await dialog().locator('.sfx-trim').getByLabel('Âm lượng',{exact:true}).fill('0.35');await dialog().locator('.sfx-trim').getByRole('button',{name:'Áp dụng',exact:true}).click();await dialog().waitFor({state:'detached'});
+   const after=await save(),count=after.document.elements.length;assert.equal(after.document.elements.filter(e=>e.sound?.kind==='library').length,3);assert.equal(after.document.schemaVersion,3);assert.deepEqual(after.document.elements.find(e=>e.type==='sound-button').sound,{kind:'library',id:'warm-ending',version:2,startMs:100,endMs:warmCutEnd,volume:.35});
    await control('undo').click();assert.equal((await save()).document.elements.length,count-1);await control('redo').click();assert.equal((await save()).document.elements.length,count);await page.reload();await page.locator('.editor-artboard').waitFor();assert.equal((await read()).document.elements.filter(e=>e.sound).length,3);
   });
   await check('Studio device-only source: waveform, numeric/keyboard bounds, Cancel, minimum/edge clips and exact middle upload',async()=>{
    await control('library-tab').filter({hasText:'Âm thanh'}).click();await control('sound-add').click();const before=await read();
-   await dialog().locator('input[type=file]').setInputFiles(path.join(directory,'three-signals.wav'));await dialog().locator('canvas').waitFor();
+   await dialog().locator('input[type=file]:enabled').setInputFiles(path.join(directory,'three-signals.wav'));await dialog().locator('canvas').waitFor();
    await dialog().getByLabel('Bắt đầu (giây)',{exact:true}).fill('1');await dialog().getByLabel('Kết thúc (giây)',{exact:true}).fill('2');await dialog().getByRole('button',{name:'Hủy',exact:true}).click();assert.deepEqual((await read()).document,before.document);assert.equal(uploads.length,0);
-   await dialog().locator('input[type=file]').setInputFiles(path.join(directory,'three-signals.wav'));await dialog().locator('canvas').waitFor();
+   await dialog().locator('input[type=file]:enabled').setInputFiles(path.join(directory,'three-signals.wav'));await dialog().locator('canvas').waitFor();
    const start=dialog().getByLabel('Bắt đầu (giây)',{exact:true}),end=dialog().getByLabel('Kết thúc (giây)',{exact:true});
    await start.fill('0');await end.fill('0.1');assert.equal(await dialog().locator('.sfx-trim').getByRole('button',{name:'Áp dụng',exact:true}).isEnabled(),true);await start.fill('2.9');await end.fill('3');assert.equal(await dialog().locator('.sfx-trim').getByRole('button',{name:'Áp dụng',exact:true}).isEnabled(),true);
    await start.fill('1');await end.fill('2');await dialog().getByLabel('Mốc đầu đoạn',{exact:true}).focus();await page.keyboard.press('ArrowRight');await start.fill('1');
@@ -65,12 +68,12 @@ export async function runSfxBrowser({fixture,owner,gift,check}){
    const receiver=await request(`/gifts/gifts/${published.slug}/assets/${personalId}`);assert.equal(receiver.status,200);assert.equal(receiver.bytes.length,88244);
    // Browser decode verifies the served clip has the middle tone, with no first or last tone.
    const proof=await page.evaluate(async({base,slug,id})=>{const c=new globalThis.AudioContext({sampleRate:44100}),b=await c.decodeAudioData(await (await fetch(`${base}/api/gifts/gifts/${slug}/assets/${id}`)).arrayBuffer()),d=b.getChannelData(0),values=[220,880,1760].map(f=>{let n=0;for(let i=0;i<d.length;i++)n+=d[i]*Math.sin(2*Math.PI*f*i/b.sampleRate);return Math.abs(n/d.length);});await c.close();return {duration:b.duration,values};},{base,slug:published.slug,id:personalId});assert(proof.values[1]>.18&&proof.values[0]<.001&&proof.values[2]<.001);fs.writeFileSync(path.join(directory,'browser-trim-proof.json'),JSON.stringify(proof,null,2));
-   const guest=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,reducedMotion:'reduce'});const receiverPage=await guest.newPage(),network=[];receiverPage.on('request',r=>network.push(r.url()));await receiverPage.goto(base+'/g/'+published.slug);await receiverPage.locator('[data-sound-control]').waitFor();assert.equal(network.filter(u=>u.includes('/sfx/1/')||u.endsWith('/assets/'+personalId)).length,0);
+   const guest=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,reducedMotion:'reduce'});const receiverPage=await guest.newPage(),network=[];receiverPage.on('request',r=>network.push(r.url()));await receiverPage.goto(base+'/g/'+published.slug);await receiverPage.locator('[data-sound-control]').waitFor();assert.equal(network.filter(u=>u.includes('/sfx/2/')||u.endsWith('/assets/'+personalId)).length,0);
    await receiverPage.getByRole('button',{name:'Bật âm thanh',exact:true}).tap();await receiverPage.getByRole('button',{name:'Tắt âm thanh',exact:true}).tap();await receiverPage.getByRole('button',{name:'Bật âm thanh',exact:true}).waitFor();await receiverPage.screenshot({path:path.join(directory,'recipient-mobile.png'),fullPage:true});await guest.close();
   });
   await check('mobile Chromium touch, accessible labels and keyboard controls; unsupported files preserve the draft',async()=>{
-   await page.goto(base+'/design/'+created.id);await page.locator('.editor-artboard').waitFor();await page.setViewportSize({width:390,height:844});await control('sheet-library').click();await control('library-tab').filter({hasText:'Âm thanh'}).click();await control('sound-add').click();await dialog().locator('.sfx-row').last().waitFor();await dialog().locator('input[type=file]').setInputFiles(path.join(directory,'three-signals.wav'));await dialog().locator('canvas').waitFor();await dialog().getByLabel('Mốc cuối đoạn',{exact:true}).focus();await page.keyboard.press('ArrowLeft');await dialog().screenshot({path:path.join(directory,'trimmer-mobile.png')});assert((await dialog().ariaSnapshot()).includes('Mốc đầu đoạn'));
-   await dialog().getByRole('button',{name:'Hủy',exact:true}).click();await dialog().locator('input[type=file]').setInputFiles({name:'bad.mp3',mimeType:'audio/mpeg',buffer:Buffer.from('broken-audio')});await dialog().getByRole('status').filter({hasText:'không giải mã'}).waitFor();await page.keyboard.press('Escape');
+   await page.goto(base+'/design/'+created.id);await page.locator('.editor-artboard').waitFor();await page.setViewportSize({width:390,height:844});await control('sheet-library').click();await control('library-tab').filter({hasText:'Âm thanh'}).click();await control('sound-add').click();await dialog().locator('.sfx-row').last().waitFor();await dialog().locator('input[type=file]:enabled').setInputFiles(path.join(directory,'three-signals.wav'));await dialog().locator('canvas').waitFor();await dialog().getByLabel('Mốc cuối đoạn',{exact:true}).focus();await page.keyboard.press('ArrowLeft');await dialog().screenshot({path:path.join(directory,'trimmer-mobile.png')});assert((await dialog().ariaSnapshot()).includes('Mốc đầu đoạn'));
+   await dialog().getByRole('button',{name:'Hủy',exact:true}).click();await dialog().locator('input[type=file]:enabled').setInputFiles({name:'bad.mp3',mimeType:'audio/mpeg',buffer:Buffer.from('broken-audio')});await dialog().getByRole('status').filter({hasText:'không giải mã'}).waitFor();await page.keyboard.press('Escape');
   });
   if(process.env.SFX_QA_FFMPEG)await check('desktop Chrome decodes generated PCM WAV, MP3 and M4A/AAC sources locally',async()=>{
    await page.setViewportSize({width:1440,height:1000});await page.reload();await page.locator('.editor-artboard').waitFor();await control('library-tab').filter({hasText:'Âm thanh'}).click();await control('sound-add').click();await dialog().locator('.sfx-row').last().waitFor();
@@ -78,7 +81,7 @@ export async function runSfxBrowser({fixture,owner,gift,check}){
    for(const [ext,args]of formats){
     const filename=ext==='wav'?path.join(directory,'three-signals.wav'):path.join(directory,'codec-source.'+ext);
     if(ext!=='wav')execFileSync(process.env.SFX_QA_FFMPEG,['-hide_banner','-loglevel','error','-y','-i',path.join(directory,'three-signals.wav'),...args,filename],{windowsHide:true});
-    await dialog().locator('input[type=file]').setInputFiles(filename);await dialog().locator('canvas').waitFor();results.push({format:ext,decoded:true,uploaded:false});await dialog().getByRole('button',{name:'Hủy',exact:true}).click();
+    await dialog().locator('input[type=file]:enabled').setInputFiles(filename);await dialog().locator('canvas').waitFor();results.push({format:ext,decoded:true,uploaded:false});await dialog().getByRole('button',{name:'Hủy',exact:true}).click();
    }
    fs.writeFileSync(path.join(directory,'codec-results.json'),JSON.stringify({browser:browser.version(),os:'Windows',physicalDevice:false,results},null,2));await dialog().getByRole('button',{name:'Đóng',exact:true}).click();
   });
@@ -87,10 +90,10 @@ export async function runSfxBrowser({fixture,owner,gift,check}){
    await page.evaluate(()=>{Object.defineProperty(globalThis.document,'hidden',{configurable:true,get:()=>true});globalThis.document.dispatchEvent(new globalThis.Event('visibilitychange'));});await page.evaluate(()=>{Object.defineProperty(globalThis.document,'hidden',{configurable:true,get:()=>false});});
    await page.reload();await page.locator('[data-sound-control]').waitFor();
    let release,seen;const gate=new Promise(r=>{release=r;}),requested=new Promise(r=>{seen=r;});
-   await page.route('**/api/designs/sfx/1/warm-ending',async route=>{seen();await gate;await route.fulfill({status:200,contentType:'audio/wav',body:fs.readFileSync(path.join(directory,'web/assets/sfx/v1/warm-ending.wav'))}).catch(()=>{});});
+   await page.route('**/api/designs/sfx/2/warm-ending',async route=>{seen();await gate;await route.fulfill({status:200,contentType:'audio/wav',body:fs.readFileSync(path.join(directory,'web/assets/sfx/v2/warm-ending.wav'))}).catch(()=>{});});
    await hear.click();await requested;const startsBeforeNavigation=await page.evaluate(()=>globalThis.__soundQa.starts.length),envelopeId=created.document.elements.find(e=>e.type==='envelope').id;
-   await page.locator(`[data-runtime-element="${envelopeId}"]`).click();await page.waitForFunction(id=>!globalThis.document.querySelector(`[data-runtime-element="${id}"]`),envelopeId);release();await page.waitForTimeout(150);assert.equal(await page.evaluate(()=>globalThis.__soundQa.starts.length),startsBeforeNavigation);await page.unroute('**/api/designs/sfx/1/warm-ending');
-   await page.route('**/api/designs/sfx/1/**',route=>route.fulfill({status:500,body:'broken'}));await page.reload();await page.locator('[data-sound-control]').waitFor();await hear.click();await page.getByText('Chưa phát được âm.',{exact:false}).waitFor();assert(await page.locator('.gift-runtime-navigation button').count()>0);await page.unroute('**/api/designs/sfx/1/**');
+   await page.locator(`[data-runtime-element="${envelopeId}"]`).click();await page.waitForFunction(id=>!globalThis.document.querySelector(`[data-runtime-element="${id}"]`),envelopeId);release();await page.waitForTimeout(150);assert.equal(await page.evaluate(()=>globalThis.__soundQa.starts.length),startsBeforeNavigation);await page.unroute('**/api/designs/sfx/2/warm-ending');
+   await page.route('**/api/designs/sfx/2/**',route=>route.fulfill({status:500,body:'broken'}));await page.reload();await page.locator('[data-sound-control]').waitFor();await hear.click();await page.getByText('Chưa phát được âm.',{exact:false}).waitFor();assert(await page.locator('.gift-runtime-navigation button').count()>0);await page.unroute('**/api/designs/sfx/2/**');
   });
   await check('Canvas v3 recipient keeps background music and interaction sound independently controllable',async()=>{
    const mixed=await context.newPage();mixed.on('pageerror',error=>errors.push(error.message));
@@ -114,6 +117,7 @@ export async function runSfxBrowser({fixture,owner,gift,check}){
     await music.click();assert.equal(await music.getAttribute('aria-pressed'),'false');
    }finally{await mixed.close();}
   });
+  await verifyRecordedMusic({fixture,context,browser,design:created,check});
   assert.deepEqual(errors,[]);fs.writeFileSync(path.join(directory,'browser-results.json'),JSON.stringify({browser:browser.version(),screens:['1440×1000','390×844'],humanListening:false,physicalDevices:false,errors,requests,uploads:uploads.map(b=>b.length),published},null,2));
   // Available WebKit is reported separately from real Safari/iPhone hardware.
   let wk;

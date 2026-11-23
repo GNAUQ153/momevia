@@ -15,6 +15,8 @@ RATE = 22_050
 DURATION = 24
 SAMPLES = RATE * DURATION
 DEST = Path(__file__).resolve().parents[2] / 'web' / 'assets' / 'music'
+if (DEST / 'v2' / 'catalog.json').exists():
+    raise SystemExit('Legacy music generator is archived; import licensed author music with import-recorded-audio.py.')
 
 # Các chủ đề 4 hợp âm và chuỗi nốt tự biên soạn, không tái hiện giai điệu ca khúc có sẵn.
 # Nốt theo chuẩn MIDI để mọi thay đổi đều truy nguyên và tái tạo được.

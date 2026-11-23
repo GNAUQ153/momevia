@@ -2135,7 +2135,7 @@ export function mountDesigner(
     }
   }
   async function change(event) {
-    if (event.target.matches('[data-editor-music-filter], [data-editor-music-occasion]')) {
+    if (event.target.matches('[data-editor-music-filter], [data-editor-music-occasion], [data-editor-music-market], [data-editor-music-vocals]')) {
       filterMusicPanel(main);
       return;
     }

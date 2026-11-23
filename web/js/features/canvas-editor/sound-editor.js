@@ -9,7 +9,7 @@ export async function openSoundEditor({current,assetUrl,upload,onApply,onRemove,
  let selected=current?structuredClone(current):null,trimmer,disposed=false,busy=false,close,sourcePcm=null;
  const audio=createSoundPlayer({assetUrl,onError:()=>{status.textContent=t('sfx.playError');}});
  const search=node('input',{type:'search',placeholder:t('sfx.search'),'aria-label':t('sfx.search')}),group=node('select',{'aria-label':t('sfx.group')},node('option',{value:''},t('sfx.allGroups')));
- const file=node('input',{type:'file',accept:'.wav,.mp3,.m4a,.aac,audio/wav,audio/mpeg,audio/mp4,audio/aac'});
+ const file=node('input',{type:'file',disabled:true,accept:'.wav,.mp3,.m4a,.aac,audio/wav,audio/mpeg,audio/mp4,audio/aac'});
  const header=node('div',{class:'sfx-heading'},node('h2',{},t('sfx.title'))),exit=node('button',{type:'button'},t('sfx.close'));
  header.append(exit);dialog.append(header,node('p',{class:'editor-help'},t('sfx.hint')),field(t('sfx.search'),search),field(t('sfx.group'),group),list,field(t('sfx.upload'),file),status,details,trimHost);document.body.append(dialog);registerDialog(dialog);
  function dispose(){if(disposed)return;disposed=true;audio.dispose();trimmer?.dispose();onClose();}
@@ -25,7 +25,7 @@ export async function openSoundEditor({current,assetUrl,upload,onApply,onRemove,
   const q=normalizeSoundSearch(search.value);
   list.replaceChildren(...catalog.assets.filter(a=>(!group.value||group.value===a.group)&&normalizeSoundSearch(`${a.name.vi} ${a.name.en} ${a.keywords}`).includes(q)).map(a=>{
    const sound={kind:'library',id:a.id,version:a.version,startMs:0,endMs:a.durationMs,volume:1},row=node('div',{class:'sfx-row','data-sfx-id':a.id}),play=node('button',{type:'button','aria-label':t('sfx.previewNamed',{name:name(a)})},t('sfx.preview')),stop=node('button',{type:'button'},t('sfx.stop')),choose=node('button',{type:'button',disabled:!catalog.createEnabled,'aria-label':t('sfx.chooseNamed',{name:name(a)})},t('sfx.choose'));
-   row.append(node('div',{},node('strong',{},name(a)),node('small',{},`${a.name[locale==='vi'?'en':'vi']} · ${(a.durationMs/1000).toFixed(2)} s`)),play,stop,choose);
+   row.append(node('div',{},node('strong',{},name(a)),node('small',{},`${a.name[locale==='vi'?'en':'vi']} · ${(a.durationMs/1000).toFixed(2)} s`),a.version>=2?node('small',{},`${a.author} · ${a.license}`):null),play,stop,choose);
    play.onclick=()=>{void audio.play(sound,{explicit:true});};stop.onclick=()=>audio.stop();choose.onclick=()=>{audio.stop();trimmer?.dispose();sourcePcm=null;selected=sound;renderDetails();};return row;
   }));
  }
@@ -46,7 +46,7 @@ export async function openSoundEditor({current,assetUrl,upload,onApply,onRemove,
   if(!selected){details.replaceChildren();return;}
   const info=selected.kind==='library'?catalog.assets.find(a=>a.id===selected.id&&a.version===selected.version):null;
   const level=node('input',{type:'range',min:0,max:1,step:.01,value:selected.volume}),trim=node('button',{type:'button'},t('sfx.trim')),apply=node('button',{type:'button',class:'editor-primary',disabled:!catalog.createEnabled},t('sfx.apply')),remove=node('button',{type:'button',disabled:!current},t('sfx.remove')),preview=node('button',{type:'button'},t('sfx.previewSegment')),stop=node('button',{type:'button'},t('sfx.stop'));
-  details.replaceChildren(node('h3',{},info?name(info):t('sfx.personal')),field(t('sfx.volume'),level),node('p',{class:'editor-help'},t('sfx.textHint')),node('div',{class:'sfx-actions'},preview,stop,trim,apply,remove));
+  details.replaceChildren(node('h3',{},info?name(info):t(selected.kind==='library'?'sfx.legacyLibrary':'sfx.personal')),field(t('sfx.volume'),level),node('p',{class:'editor-help'},t('sfx.textHint')),node('div',{class:'sfx-actions'},preview,stop,trim,apply,remove));
   level.oninput=()=>{selected.volume=Number(level.value);audio.stop();};stop.onclick=()=>audio.stop();
   preview.onclick=async()=>{
    if(sourcePcm){void audio.play(selected,{explicit:true,bytes:sourcePcm.bytes});return;}

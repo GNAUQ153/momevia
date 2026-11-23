@@ -3,6 +3,7 @@
 import fs from 'node:fs';
 import { createHash } from 'node:crypto';
 import { encodeWav } from '../../web/js/shared/canvas/audio-pcm.js';
+if(fs.existsSync(new URL('../../web/assets/sfx/v2/catalog.json',import.meta.url)))throw new Error('The synthesized v1 generator is archived. Import external recordings with scripts/assets/import-recorded-audio.py; never regenerate pinned legacy files.');
 
 const groups = [
  ['paper','Thư và giấy','Letters & paper',[

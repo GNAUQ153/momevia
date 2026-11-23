@@ -25,9 +25,11 @@ export function templateCover(template,{defer=false,variant='catalog'}={}) {
   const target=defer?'data-src':'src',marker=defer?' data-cover-lazy':'';
   const revision=template.coverRevision||catalogCoverRevision(id);
   const suffix=['catalog','seasonal'].includes(variant)?variant:null;
-  const variantAttr=value=>suffix?value.replace(/"$/,`&amp;variant=${suffix}"`):value;
-  if(revision)return variantAttr(attr(target,'templates.assets.databaseCover',{id:encodeURIComponent(id),revision}))+marker;
-  if (libraryEntry('template', id)) return variantAttr(attr(target, 'templates.assets.databaseCover', { id: encodeURIComponent(id), revision: librarySnapshot().revision }))+marker;
+  const databaseAttrs=value=>attr(target,suffix?'templates.assets.databaseCoverVariant':'templates.assets.databaseCover',{
+    id:encodeURIComponent(id),revision:value,...(suffix?{variant:suffix}:{}),
+  })+marker;
+  if(revision)return databaseAttrs(revision);
+  if (libraryEntry('template', id)) return databaseAttrs(librarySnapshot().revision);
   return attr(target, 'templates.assets.cover', { id: encodeURIComponent(id)+(suffix?'-'+suffix:''), revision: coverRevision })+marker;
 }
 

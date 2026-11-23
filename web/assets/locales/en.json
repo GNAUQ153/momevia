@@ -3051,5 +3051,6 @@
   "editor.library.item.natural-open-repo-flower": "Curving flower",
   "editor.library.item.natural-open-repo-leaf": "Delicate leaf veins",
   "editor.library.item.natural-open-canvix-tulip": "Hand-drawn tulip",
-  "editor.library.item.natural-open-canvix-leaf": "Hand-drawn leaf"
+  "editor.library.item.natural-open-canvix-leaf": "Hand-drawn leaf",
+  "templates.assets.databaseCoverVariant": "/api/designs/library/templates/{id}/cover?locale=en&v={revision}&variant={variant}"
 }

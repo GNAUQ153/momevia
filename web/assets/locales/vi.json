@@ -3039,5 +3039,6 @@
   "editor.library.item.natural-open-repo-flower": "Hoa nét cong",
   "editor.library.item.natural-open-repo-leaf": "Lá gân mảnh",
   "editor.library.item.natural-open-canvix-tulip": "Tulip nét vẽ tay",
-  "editor.library.item.natural-open-canvix-leaf": "Lá nét vẽ tay"
+  "editor.library.item.natural-open-canvix-leaf": "Lá nét vẽ tay",
+  "templates.assets.databaseCoverVariant": "/api/designs/library/templates/{id}/cover?locale=vi&v={revision}&variant={variant}"
 }

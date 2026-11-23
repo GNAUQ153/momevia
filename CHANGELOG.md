@@ -1,3 +1,12 @@
+## Unreleased — Giữ đúng biến thể bìa từ DB khi đổi ngôn ngữ (2026-11-23)
+
+- Gắn variant vào URL ảnh trước khi tạo thuộc tính dịch, giữ metadata i18n hợp lệ. Danh mục lấy đúng khung ngang và kệ mùa lấy đúng khung mùa từ cùng phiên bản DB.
+- Kiểm hồi quy cả nguồn revision công khai và snapshot thư viện; thêm lượt kiểm chỉ đọc URL ảnh VI/EN và ảnh 4100 sau tải đầy đủ.
+
+## Unreleased — Bằng chứng bản chạy 4100 đầy đủ (2026-11-23)
+
+- Lưu kiểm tra chỉ đọc 21 mẫu từ DB thật, VI/EN, bìa và ba cảnh; ảnh danh mục được chụp sau khi các thẻ và ảnh tải đầy đủ. Không tạo hay sửa bản ghi người dùng.
+
 ## Unreleased — Áp dụng mẫu vào DB đang dùng và kiểm 4100 (2026-11-23)
 
 - Cập nhật 87 mục thư viện trong momevia_dev theo snapshot/revision đã rà; backup đủ 36 bảng và 4 ảnh trước ghi. Giữ thứ tự thật, 34 bảng nghiệp vụ và byte ảnh cũ; chạy lại ghi thêm 0 mục.

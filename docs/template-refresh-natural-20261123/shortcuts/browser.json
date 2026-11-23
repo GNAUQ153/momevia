@@ -1,0 +1,258 @@
+{
+  "cases": [
+    "D, X, V, Delete, Backspace, Z, Y and Shift+Z",
+    "locked layer protected",
+    "input native editing and Ctrl+S",
+    "private image copy/paste reuses owned asset without duplicate uploads",
+    "multi-select, copy/delete/paste and reload",
+    "Fabric duplicate/copy/cut/paste/undo/redo/Ctrl+S apply with source, policy and media preserved: dea754bd-68b2-431f-bdd7-93184cfeb289"
+  ],
+  "errors": [],
+  "trace": [
+    {
+      "chord": "Control+d",
+      "count": 3,
+      "selected": [
+        "c7e5e821-3cb4-45bc-a600-8d021d5429f9"
+      ],
+      "error": "",
+      "paste": [
+        true
+      ]
+    },
+    {
+      "chord": "Control+z",
+      "count": 2,
+      "selected": [],
+      "error": "",
+      "paste": [
+        true
+      ]
+    },
+    {
+      "chord": "Control+y",
+      "count": 3,
+      "selected": [
+        "c7e5e821-3cb4-45bc-a600-8d021d5429f9"
+      ],
+      "error": "",
+      "paste": [
+        true
+      ]
+    },
+    {
+      "chord": "Control+x",
+      "count": 2,
+      "selected": [],
+      "error": "",
+      "paste": [
+        false
+      ]
+    },
+    {
+      "chord": "Control+v",
+      "count": 3,
+      "selected": [
+        "9a890060-fe26-4c63-88d1-2930ad1137d1"
+      ],
+      "error": "",
+      "paste": [
+        false
+      ]
+    },
+    {
+      "chord": "Delete",
+      "count": 2,
+      "selected": [],
+      "error": "",
+      "paste": [
+        false
+      ]
+    },
+    {
+      "chord": "Control+z",
+      "count": 3,
+      "selected": [
+        "9a890060-fe26-4c63-88d1-2930ad1137d1"
+      ],
+      "error": "",
+      "paste": [
+        false
+      ]
+    },
+    {
+      "chord": "Backspace",
+      "count": 2,
+      "selected": [],
+      "error": "",
+      "paste": [
+        false
+      ]
+    },
+    {
+      "chord": "Control+Shift+z",
+      "count": 2,
+      "selected": [],
+      "error": "",
+      "paste": [
+        false
+      ]
+    },
+    {
+      "chord": "Control+z",
+      "count": 3,
+      "selected": [
+        "9a890060-fe26-4c63-88d1-2930ad1137d1"
+      ],
+      "error": "",
+      "paste": [
+        false
+      ]
+    },
+    {
+      "chord": "Delete",
+      "count": 3,
+      "selected": [],
+      "error": "",
+      "paste": [
+        false
+      ]
+    },
+    {
+      "chord": "Control+c",
+      "count": 4,
+      "selected": [
+        "a8aa5dad-f48a-429d-ab25-b80263462b1c"
+      ],
+      "error": "",
+      "paste": [
+        false
+      ]
+    },
+    {
+      "chord": "Control+v",
+      "count": 5,
+      "selected": [
+        "4724cfc8-c814-40ee-9f5c-d1d7a402831c"
+      ],
+      "error": "",
+      "paste": [
+        false
+      ]
+    },
+    {
+      "chord": "Control+s",
+      "count": 5,
+      "selected": [
+        "4724cfc8-c814-40ee-9f5c-d1d7a402831c"
+      ],
+      "error": "",
+      "paste": [
+        false
+      ]
+    },
+    {
+      "chord": "Control+a",
+      "count": 5,
+      "selected": [
+        "editable-text",
+        "9a890060-fe26-4c63-88d1-2930ad1137d1",
+        "a8aa5dad-f48a-429d-ab25-b80263462b1c",
+        "4724cfc8-c814-40ee-9f5c-d1d7a402831c"
+      ],
+      "error": "",
+      "paste": [
+        false
+      ]
+    },
+    {
+      "chord": "Control+c",
+      "count": 5,
+      "selected": [
+        "editable-text",
+        "9a890060-fe26-4c63-88d1-2930ad1137d1",
+        "a8aa5dad-f48a-429d-ab25-b80263462b1c",
+        "4724cfc8-c814-40ee-9f5c-d1d7a402831c"
+      ],
+      "error": "",
+      "paste": [
+        false
+      ]
+    },
+    {
+      "chord": "Shift+ArrowRight",
+      "count": 5,
+      "selected": [
+        "editable-text",
+        "9a890060-fe26-4c63-88d1-2930ad1137d1",
+        "a8aa5dad-f48a-429d-ab25-b80263462b1c",
+        "4724cfc8-c814-40ee-9f5c-d1d7a402831c"
+      ],
+      "error": "",
+      "paste": [
+        false
+      ]
+    },
+    {
+      "chord": "Control+s",
+      "count": 5,
+      "selected": [
+        "editable-text",
+        "9a890060-fe26-4c63-88d1-2930ad1137d1",
+        "a8aa5dad-f48a-429d-ab25-b80263462b1c",
+        "4724cfc8-c814-40ee-9f5c-d1d7a402831c"
+      ],
+      "error": "",
+      "paste": [
+        false
+      ]
+    },
+    {
+      "chord": "Delete",
+      "count": 1,
+      "selected": [],
+      "error": "",
+      "paste": [
+        false
+      ]
+    },
+    {
+      "chord": "Control+v",
+      "count": 5,
+      "selected": [
+        "258c8bfd-3097-4709-b168-192813fd9021",
+        "cca92328-de68-4ae9-8183-f8ae7c77b7ff",
+        "947f3061-b6bd-44c6-b441-3de28cd22ad9",
+        "dea754bd-68b2-431f-bdd7-93184cfeb289"
+      ],
+      "error": "",
+      "paste": [
+        false
+      ]
+    },
+    {
+      "chord": "Control+s",
+      "count": 5,
+      "selected": [
+        "258c8bfd-3097-4709-b168-192813fd9021",
+        "cca92328-de68-4ae9-8183-f8ae7c77b7ff",
+        "947f3061-b6bd-44c6-b441-3de28cd22ad9",
+        "dea754bd-68b2-431f-bdd7-93184cfeb289"
+      ],
+      "error": "",
+      "paste": [
+        false
+      ]
+    },
+    {
+      "chord": "Control+s",
+      "count": 6,
+      "selected": [],
+      "error": "",
+      "paste": [
+        true
+      ]
+    }
+  ],
+  "passed": true
+}

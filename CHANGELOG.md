@@ -1,3 +1,9 @@
+## Unreleased — Chốt xác minh chuyển động và bàn phím trên bản chạy (2026-11-23)
+
+- Xác minh 6 mục vòng lặp vô hạn revision 2 trên DB đang dùng; bảo toàn 34 bảng nghiệp vụ và 11 ảnh hiện có. Bổ sung ảnh bìa DB VI/EN đúng biến thể.
+- Kiểm phím nhanh liên tiếp trong Fabric; giữ vai trò giấy hồi đáp khi sao chép, nguồn/quyền, media và lớp khóa. Build/check và 754 unit đạt; bộ kiểm kéo-thả, vòng lặp, bàn phím, lưu/tải lại và hồi quy Canvas đạt.
+- Ghi nhận tổng 12 commit, backup riêng ngoài Git và bản chạy tại 4100.
+
 ## Unreleased — Chuyển động trực tiếp và phím tắt Canvas (2026-11-23)
 
 - Sáu element Chuyển động mặc định lặp vô hạn bằng dữ liệu keyframe; kéo-thả hoặc chèn là chạy ngay trong Studio. Tạm dừng lúc kéo, nhập chữ hoặc ẩn trang; tôn trọng giảm chuyển động, không ghi lại document theo từng khung hình.

@@ -1,5 +1,6 @@
 import {assetIds,validateDocument} from '../../shared/canvas/schema.js';
 export const editableElement=(e,policy)=>Boolean(e&&!e.locked&&!policy?.lockedElements?.[e.id]&&policy?.kind!=='creator-template');
+export const copiedElementId=(sourceId,newId)=>sourceId==='reply-object-paper'||sourceId.startsWith('reply-object-paper-')?'reply-object-paper-'+newId():newId();
 export function copyElements(document,ids,scope,policy){
  const selected=new Set(ids.filter(id=>editableElement(document.elements.find(e=>e.id===id),policy)));
  for(const id of [...selected])if(document.elements.some(e=>e.id===id+'-image'&&editableElement(e,policy)))selected.add(id+'-image');
@@ -9,7 +10,7 @@ export function copyElements(document,ids,scope,policy){
 export function pasteElements(document,sceneId,clipboard,scope,newId,offset=16){
  if(!clipboard||clipboard.scope!==scope||!clipboard.models.length)return {document,ids:[]};
  const next=structuredClone(document),scene=next.scenes.find(s=>s.id===sceneId);if(!scene)throw new Error('Missing paste scene');
- const ids=new Map(clipboard.models.map(e=>[e.id,newId()]));for(const e of clipboard.models)if(e.id.endsWith('-image')&&ids.has(e.id.slice(0,-6)))ids.set(e.id,ids.get(e.id.slice(0,-6))+'-image');
+ const ids=new Map(clipboard.models.map(e=>[e.id,copiedElementId(e.id,newId)]));for(const e of clipboard.models)if(e.id.endsWith('-image')&&ids.has(e.id.slice(0,-6)))ids.set(e.id,ids.get(e.id.slice(0,-6))+'-image');
  const models=structuredClone(clipboard.models);for(const e of models){e.id=ids.get(e.id);e.layout.x+=offset;e.layout.y+=offset;}
  next.elements.push(...models);scene.elementIds.push(...models.map(e=>e.id));for(const a of clipboard.assets)if(!next.assets.some(r=>r.assetId===a.assetId))next.assets.push(a);
  return {document:validateDocument(next),ids:models.map(e=>e.id)};

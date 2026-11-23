@@ -37,7 +37,7 @@ export function mountPlayer(
     navigationIntent = null;
   const shell = globalThis.document.createElement("div");
   shell.className = `gift-runtime gift-runtime-mode-${mode}`;
-  if(document.elements.some(e=>e.id==='reply-object-paper'&&e.type==='image'&&e.accessibility?.label===NATURAL_ARTWORK_LABEL)){
+  if(document.elements.some(e=>(e.id==='reply-object-paper'||e.id.startsWith('reply-object-paper-'))&&e.type==='image'&&e.accessibility?.label===NATURAL_ARTWORK_LABEL)){
     shell.classList.add('is-natural-stationery');
     const accent=document.elements.find(e=>e.type==='button'&&e.props.color)?.props.color;
     if(accent)shell.style.setProperty('--stationery-accent',accent);

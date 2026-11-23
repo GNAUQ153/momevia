@@ -2090,7 +2090,7 @@ export function mountDesigner(
       if(!editableElement(selected(),design.policy))return;
       const card=catalog.flatMap(g=>g.items).find(b=>b.id===target.dataset.motionCard),effect=card?.create()[0]?.effects?.emphasis;
       if(effect?.definition?.animation.iterations!=='infinite')return;
-      commit(value=>{const e=value.document.elements.find(e=>e.id===selection);e.effects??={};delete e.effects.entrance;e.effects.emphasis=structuredClone(effect);},t('editor.celebrations.loop'));renderInspector();return;
+      commit(value=>{const e=value.document.elements.find(e=>e.id===selection),speed=e.effects?.emphasis?.speed||e.effects?.entrance?.speed||effect.speed;e.effects??={};delete e.effects.entrance;e.effects.emphasis={...structuredClone(effect),speed};},t('editor.celebrations.loop'));renderInspector();return;
     }
     if (name === "inline-text") {
       closeSheet();

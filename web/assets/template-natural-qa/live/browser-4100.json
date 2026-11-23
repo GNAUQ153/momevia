@@ -234,8 +234,11 @@
     }
   ],
   "errors": [],
+  "localizedCatalogVariants": true,
+  "localizedSeasonalVariants": true,
   "passed": true,
   "libraryRows": 480,
   "elements": 243,
-  "noUserWrites": true
+  "noUserWrites": true,
+  "catalogLoaded": true
 }

@@ -2,7 +2,7 @@
   "scope": "Natural Originals V4 plus 12 reviewed open-source additions",
   "unit": {
     "command": "npm test",
-    "passed": 746,
+    "passed": 754,
     "failed": 0,
     "skipped": 0
   },
@@ -133,5 +133,25 @@
     "passed": true,
     "businessTablesUnchanged": 34,
     "existingMediaUnchanged": 4
+  },
+  "motion": {
+    "passed": true,
+    "cards": 6,
+    "infinite": true,
+    "liveEditor": true,
+    "dragAndDrop": true,
+    "publicGift": true,
+    "defaultLoopRowsRevision": 2,
+    "liveReport": "motion/live.json",
+    "qaReport": "motion/browser.json",
+    "mysqlReport": "motion/mysql.json"
+  },
+  "shortcuts": {
+    "passed": true,
+    "canvasAndFabric": true,
+    "typingGuard": true,
+    "lockedLayers": true,
+    "ownedMediaPreserved": true,
+    "report": "shortcuts/browser.json"
   }
 }

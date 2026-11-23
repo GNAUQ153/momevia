@@ -4,13 +4,13 @@
 
 Đã cập nhật momevia_dev tại 127.0.0.1:3306: 75 hàng nội dung/mẫu và 12 element nguồn ngoài; tổng thư viện 480 hàng. 34 bảng nghiệp vụ và 4 tệp ảnh cũ giữ nguyên theo hash so với backup đủ 36 bảng. Chạy lại hai gói ghi thêm 0 hàng. Backup riêng ở database/private/natural-refresh-live-20261123, không commit. Chỉ khác thứ tự và UUID nội bộ so với baseline QA; đã giữ thứ tự thực tế và tạo expectedRevision/fingerprint đúng snapshot đang dùng. Cổng 4100 đã chạy mã mới: kiểm đủ 21 mẫu VI/EN, ba cảnh bằng bàn phím, bìa DB và 243 element; không tạo bản ghi người dùng để kiểm. Sau khởi động, 34 bảng nghiệp vụ và 4 ảnh cũ tiếp tục khớp hash backup. [Ảnh danh mục thật](template-refresh-natural-20261123/live/catalog-4100.png) · [Báo cáo trình duyệt 4100](template-refresh-natural-20261123/live/browser-4100.json). [Bằng chứng áp dụng](template-refresh-natural-20261123/live/database-rollout.json).
 
-Các phần QA bên dưới ghi lại kết quả trước lần áp dụng này. Kiểm bổ sung cho guard live đạt; unit hiện tại 746/746.
+Các phần QA bên dưới ghi lại kết quả trước lần áp dụng này. Kiểm bổ sung cho guard live đạt; unit hiện tại 754/754.
 
 Bản hiện tại là **Natural Originals V4**, thay hướng minh họa vector trước đó bằng vật thể có chất liệu, ảnh, đồ họa tự nhiên và các lớp chỉnh sửa độc lập.
 
 - Chạy: [Danh mục QA 4121](http://localhost:4121/explore).
 - Xem toàn bộ bằng chứng: [21 mẫu, ba cảnh, 40 element, kệ mùa và báo cáo](http://localhost:4121/assets/template-natural-qa/index.html).
-- [4100](http://localhost:4100/explore) hiện dùng thư viện mới trong momevia_dev. Repo chạy chính ở nhánh feat/template-refresh-live-20261123; nhánh triển khai nội dung là feat/template-refresh-21, xuất phát 38c465d007687f54190adcb521dadfea04ad9d40. Tổng 9 commit, không commit trên main và chưa push. [Chuỗi commit](TEMPLATE_REFRESH_COMMITS.md).
+- [4100](http://localhost:4100/explore) hiện dùng thư viện mới trong momevia_dev. Repo chạy chính ở nhánh feat/template-refresh-live-20261123; nhánh triển khai nội dung là feat/template-refresh-21, xuất phát 38c465d007687f54190adcb521dadfea04ad9d40. Tổng 12 commit, không commit trên main và chưa push. [Chuỗi commit](TEMPLATE_REFRESH_COMMITS.md).
 
 ## Trạng thái 21/21
 
@@ -83,7 +83,7 @@ CLI database/scripts/natural-library-rollout.mjs mặc định xem trước; ch�
 
 ## Kiểm thử
 
-[Chi tiết](template-refresh-natural-20261123/test-results.json). Build và check đạt; **746/746 unit**, test:templates, test:canvas:browser và test:prediction:browser đạt. Bộ Canvas tổng hợp đi qua 243 element (một số nhãn console lịch sử còn ghi 172 nhưng assertion thực tế là 243/243). Không hạ giới hạn ghi hay bỏ kiểm quyền để đạt.
+[Chi tiết](template-refresh-natural-20261123/test-results.json). Build và check đạt; **754/754 unit**, test:templates, test:canvas:browser và test:prediction:browser đạt. Bộ Canvas tổng hợp đi qua 243 element (một số nhãn console lịch sử còn ghi 172 nhưng assertion thực tế là 243/243). Không hạ giới hạn ghi hay bỏ kiểm quyền để đạt.
 
 - 252 tổ hợp VI/EN × 320/390/1440 × chuyển động thường/giảm × 21 mẫu; đi đủ ba cảnh, điều khiển bằng bàn phím, gửi thử và phục hồi focus.
 - 126 tổ hợp tên 60 ký tự và lời chúc 1.000 ký tự; mobile, desktop và mô phỏng zoom 200%.
@@ -109,6 +109,32 @@ Lượt chẩn đoán đầu có 4/40 mẫu vượt ngưỡng (cao nhất 2.612 
 | /template/proud-of-you | 1.716 → 1.692 s | 1.716 s | 289 → 285 |
 
 Median trang khám phá tăng từ 1.720 lên 2.308 giây trong lượt đo này. Các mẫu chuyển từ vector sang ảnh có chi phí tải cao hơn. Ghi nhận cả mức tăng và dao động, không chỉ lượt nhanh nhất.
+
+
+## Chuyển động và thao tác bàn phím bổ sung
+
+Đã cập nhật sáu mục Chuyển động trong DB thật lên revision 2, giữ tổng 480 hàng/243 element. Mặc định keyframe lặp vô hạn; chèn hoặc kéo-thả vào Studio là chạy ngay. Canvas giữ pha khi làm mới để lưu, tạm dừng lúc kéo/chỉnh chữ hoặc ẩn trang, dừng khi bật giảm chuyển động và chạy lại khi cho phép. Quà đã phát giữ snapshot cũ. Với phần tử cũ, chọn nó rồi bật **Lặp liên tục**; không tự ghi lại nháp người dùng.
+
+- [Kiểm kéo-thả và vòng lặp](template-refresh-natural-20261123/motion/browser.json): 6/6 chèn thật, chuyển động trước khi mở preview, qua nhiều chu kỳ, không sửa document theo khung hình, undo dọn animation, kéo tạm dừng, lưu/tải lại, publish QA và giảm chuyển động dừng/chạy lại.
+- [Kiểm phím tắt Canvas và Fabric](template-refresh-natural-20261123/shortcuts/browser.json): thao tác ảnh dùng lại asset riêng, khóa lớp, nhập chữ native, chọn nhiều, lưu/tải lại, source/policy không đổi. Fabric chỉ áp dụng vào document khi Áp dụng/Ctrl+S.
+- [MySQL QA sáu mục](template-refresh-natural-20261123/motion/mysql.json): 2+4 tiếp tục, chạy lại 0, rollback 6, 474 mục khác giữ nguyên.
+- [DB đang dùng](template-refresh-natural-20261123/motion/live.json): áp dụng đúng 6 mục; 34 bảng nghiệp vụ và 11 tệp ảnh tại thời điểm nâng cấp được giữ nguyên. Backup mới ở database/private/natural-motion-live-20261123, không commit. Gói mới database/updates/natural-motion-loop-20261123-v1.json; gói Natural v2 trước đó được đóng băng.
+
+| Phím | Thao tác |
+| --- | --- |
+| Delete / Backspace | Xóa phần tử được chọn, giữ lớp khóa |
+| Ctrl/Cmd + X / C / V | Cắt / sao chép / dán phần tử trong cùng nháp |
+| Ctrl/Cmd + D | Nhân bản, giữ ảnh và hiệu ứng |
+| Ctrl/Cmd + A | Chọn các lớp có thể sửa; trong ô nhập vẫn chọn chữ |
+| Ctrl/Cmd + Z, Y, Shift+Z | Hoàn tác / làm lại |
+| Mũi tên, Shift + mũi tên | Di chuyển 1 hoặc 10 đơn vị |
+| Ctrl/Cmd + S | Lưu nháp; trong Fabric là Áp dụng rồi lưu theo Studio |
+| Ctrl/Cmd + [ / ] | Đổi thứ tự lớp trên Canvas chính |
+| Ctrl/Cmd + Shift + V | Dán tại vị trí gốc trên Canvas chính |
+| Shift/Ctrl + nhấp | Chọn thêm/bỏ chọn lớp trên Canvas chính |
+| Esc | Bỏ chọn/hủy kéo; đóng vùng chỉnh nâng cao mà không áp dụng |
+
+Có nút Sao chép/Cắt/Dán trong bảng thuộc tính. Khi nhập chữ, IME hoặc ở hộp thoại, phím được giữ đúng ngữ cảnh; không xóa phần tử phía sau. Unit hiện tại **754/754**, build/check, bộ Canvas tổng hợp và smoke chuyên biệt đều đạt. Kiểm bàn phím/hình ảnh ở QA; kiểm DB thật chỉ đọc và chỉ ghi đúng thư viện được yêu cầu.
 
 ## Phạm vi còn chưa xác minh
 

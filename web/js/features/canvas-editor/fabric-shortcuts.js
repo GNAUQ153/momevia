@@ -1,6 +1,7 @@
 import {isQuickbarTypingTarget} from './fabric-quickbar.js';
+import {copiedElementId} from './clipboard.js';
 export function mountFabricShortcuts({dialog,canvas,fabric,canEdit,onCommand,getState,restoreState,refresh,onSave,onCloneStyle,signal}){
- let clipboard=[],busy=false,restoring=false;const history=[],future=[];
+ let clipboard=[],busy=false,restoring=false,pending=0,applying=false,queue=Promise.resolve();const history=[],future=[];
  const props=()=>[...new Set(['momeviaFillBinding',...canvas.getObjects().flatMap(o=>Object.keys(o).filter(k=>k.startsWith('momevia')))])];
  const selection=()=>canvas.getActiveObjects().filter(o=>canEdit(o.momeviaId));
  function state(){const objects=selection(),multiple=objects.length>1;if(multiple)canvas.discardActiveObject();const result={json:canvas.toObject(props()),meta:getState(),selected:objects.map(o=>o.momeviaId)};if(multiple)select(objects);return result;}
@@ -16,7 +17,7 @@ export function mountFabricShortcuts({dialog,canvas,fabric,canEdit,onCommand,get
   if(!remove&&!groupMove&&!(chord&&!event.altKey&&['c','x','v','d','a','z','y','s'].includes(key)))return;
   event.preventDefault();event.stopPropagation();busy=true;
   try{
-   if(chord&&key==='s'){busy=false;onSave();return;}
+   if(chord&&key==='s'){busy=false;applying=true;try{onSave();}finally{applying=false;}return;}
    if(chord&&key==='z'){
     if(event.shiftKey){const next=future.pop();if(next){history.push(next);await restore(next);}}
     else if(history.length>1){future.push(history.pop());await restore(history.at(-1));}return;
@@ -26,19 +27,25 @@ export function mountFabricShortcuts({dialog,canvas,fabric,canEdit,onCommand,get
    const selected=selection();canvas.discardActiveObject();
    if(groupMove){const step=event.shiftKey?10:1;for(const object of selected){object.set({left:object.left+(event.key==='ArrowLeft'?-step:event.key==='ArrowRight'?step:0),top:object.top+(event.key==='ArrowUp'?-step:event.key==='ArrowDown'?step:0)});object.setCoords();}select(selected);refresh();return;}
    if(chord&&['c','x'].includes(key)){
-    for(const entry of clipboard)entry.object.dispose?.();clipboard=[];for(const object of selected){const copy=await object.clone(props());Object.assign(copy,Object.fromEntries(Object.entries(object).filter(([k])=>k.startsWith('momevia'))));clipboard.push({sourceId:object.momeviaId,object:copy,style:getState().styles.find(([id])=>id===object.momeviaId)?.[1]||[]});}
+    for(const entry of clipboard)entry.object.dispose?.();clipboard=[];for(const object of selected){const copy=await object.clone(props());if(signal.aborted){copy.dispose?.();return;}Object.assign(copy,Object.fromEntries(Object.entries(object).filter(([k])=>k.startsWith('momevia'))));clipboard.push({sourceId:object.momeviaId,object:copy,style:getState().styles.find(([id])=>id===object.momeviaId)?.[1]||[]});}
    }
    if(remove||(chord&&key==='x'))for(const object of selected){onCommand({type:'remove',id:object.momeviaId});canvas.remove(object);object.dispose?.();}
    if(chord&&['v','d'].includes(key)){
     const sources=key==='d'?selected.map(object=>({sourceId:object.momeviaId,object,style:getState().styles.find(([id])=>id===object.momeviaId)?.[1]||[]})):clipboard,added=[];
-    for(const entry of sources){const copy=await entry.object.clone(props());if(signal.aborted){copy.dispose?.();return;}const id=globalThis.crypto.randomUUID();Object.assign(copy,Object.fromEntries(Object.entries(entry.object).filter(([k])=>k.startsWith('momevia'))));copy.momeviaId=id;copy.set({left:entry.object.left+16,top:entry.object.top+16});copy.setCoords();onCommand({type:'clone',sourceId:entry.sourceId,id});onCloneStyle(id,entry.style);canvas.add(copy);added.push(copy);}select(added);
+    for(const entry of sources){const copy=await entry.object.clone(props());if(signal.aborted){copy.dispose?.();return;}const id=copiedElementId(entry.sourceId,()=>globalThis.crypto.randomUUID());Object.assign(copy,Object.fromEntries(Object.entries(entry.object).filter(([k])=>k.startsWith('momevia'))));copy.momeviaId=id;copy.set({left:entry.object.left+16,top:entry.object.top+16});copy.setCoords();onCommand({type:'clone',sourceId:entry.sourceId,id});onCloneStyle(id,entry.style);canvas.add(copy);added.push(copy);}select(added);
    }else if(!remove&&key!=='x')select(selected);
    refresh();
   }finally{busy=false;capture();}
  }
- const handler=event=>{void run(event).catch(error=>{if(!signal.aborted)dialog.dispatchEvent(new CustomEvent('fabric-shortcut-error',{detail:error.message}));});};
+ const handler=event=>{
+  if(event.defaultPrevented||event.isComposing||isQuickbarTypingTarget(event.target)||canvas.getActiveObject()?.isEditing)return;
+  const chord=event.ctrlKey||event.metaKey,key=event.key.toLowerCase(),supported=['Delete','Backspace'].includes(event.key)||(chord&&!event.altKey&&['c','x','v','d','a','z','y','s'].includes(key))||(!chord&&!event.altKey&&key.startsWith('arrow')&&selection().length>1);
+  if(!supported)return;event.preventDefault();event.stopPropagation();
+  const input={key:event.key,ctrlKey:event.ctrlKey,metaKey:event.metaKey,shiftKey:event.shiftKey,altKey:event.altKey,target:event.target,preventDefault(){},stopPropagation(){}};
+  pending++;queue=queue.then(()=>run(input)).catch(error=>{if(!signal.aborted)dialog.dispatchEvent(new CustomEvent('fabric-shortcut-error',{detail:error.message}));}).finally(()=>{pending--;});
+ };
  const changed=()=>capture(),clicked=event=>{if(event.target.closest('[data-editor-action^="fabric-layer-"],[data-editor-action^="fabric-batch-"]'))queueMicrotask(capture);};
  dialog.addEventListener('keydown',handler,{signal});dialog.addEventListener('click',clicked,{signal});canvas.on('object:modified',changed);capture();
  signal.addEventListener('abort',()=>{canvas.off('object:modified',changed);for(const e of clipboard)e.object.dispose?.();clipboard=[];},{once:true});
- return {capture,get busy(){return busy||restoring;}};
+ return {capture,get busy(){return !applying&&(busy||restoring||pending>0);}};
 }

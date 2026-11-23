@@ -108,7 +108,8 @@ export async function runHeroTemplatesBrowser(browser, base) {
         assert.equal(await selector.getAttribute('aria-pressed'), 'true');
         assert.equal(await selector.locator('[data-hero-progress]').evaluate(node => node.getAnimations().length), 0, 'Reduced motion uses a static selected indicator');
         const image = cover.locator('[data-active="true"]');
-        assert.match(await image.getAttribute('src'), new RegExp(`${language === 'en' ? '/en' : ''}/${id}\\.svg`));
+        assert.equal(new URL(await image.getAttribute('src'),base).pathname,
+          `/assets/basic-templates/${language==='en'?'en/':''}${id}-catalog.svg`);
         assert(await image.evaluate(node => parseFloat(globalThis.getComputedStyle(node).transitionDuration) <= 0.001), 'Reduced motion makes manual changes immediate');
         assert.equal(await image.evaluate(node => globalThis.getComputedStyle(node).filter), 'none', 'Reduced motion keeps the card sharp');
         const nextBox = await cover.boundingBox();
@@ -244,9 +245,11 @@ export async function runHeroTemplatesBrowser(browser, base) {
     assert.deepEqual(errors, [], 'No callbacks update a disposed hero');
 
     // A missing alternate cover never replaces the working cover or its player.
-    await page.route('**/birthday-radiance.svg?*', route => route.abort());
+    let blockedCoverRequests=0;
+    await page.route('**/birthday-radiance-catalog.svg?*', route => {blockedCoverRequests++;return route.abort();});
     await page.goto(base);
     await waitForTemplate(page, ids[0]);
+    assert(blockedCoverRequests>0,'The alternate catalog cover request was actually blocked');
     await page.locator('[data-hero-select="1"]').click();
     assert.equal(await active(page), ids[0]);
     await page.locator('.mkt-hero__cover').click();

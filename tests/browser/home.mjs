@@ -154,7 +154,8 @@ export async function runHomeBrowser(base) {
           assert.equal(await journey.locator('[data-mkt-step="share"]').getAttribute('aria-pressed'), 'true');
           assert.equal(await journey.locator('[data-mkt-panel="share"]').isVisible(), true);
           assert.equal(await page.evaluate(() => globalThis.document.documentElement.scrollWidth), width);
-          assert.match(await image.getAttribute('src'), language === 'en' ? /\/en\/hai-phong-bi.svg/ : /templates\/hai-phong-bi.svg/);
+          assert.equal(new URL(await image.getAttribute('src'),base).pathname,
+            `/assets/basic-templates/${language==='en'?'en/':''}hai-phong-bi-catalog.svg`);
           assert(!requests.some(request => request.url().includes('/gift-runtime/index.js')), 'Guest landing leaves the player unloaded');
           const dialog = page.getByRole('dialog');
           await preview.focus();

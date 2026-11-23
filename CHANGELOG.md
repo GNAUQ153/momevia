@@ -1,3 +1,8 @@
+## Unreleased — Sửa browser regression của CI PR #25 (2026-11-23)
+
+- Cập nhật kiểm tra bìa Hero VI/EN theo biến thể `-catalog.svg` đang dùng, giữ kiểm tra chính xác template và thư mục ngôn ngữ.
+- Ca bìa lỗi chặn đúng URL catalog và xác minh yêu cầu đã bị chặn trước khi kiểm tra giữ bìa/player hiện tại.
+
 ## Unreleased — Chốt xác minh chuyển động và bàn phím trên bản chạy (2026-11-23)
 
 - Xác minh 6 mục vòng lặp vô hạn revision 2 trên DB đang dùng; bảo toàn 34 bảng nghiệp vụ và 11 ảnh hiện có. Bổ sung ảnh bìa DB VI/EN đúng biến thể.

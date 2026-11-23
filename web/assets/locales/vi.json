@@ -3040,5 +3040,10 @@
   "editor.library.item.natural-open-repo-leaf": "Lá gân mảnh",
   "editor.library.item.natural-open-canvix-tulip": "Tulip nét vẽ tay",
   "editor.library.item.natural-open-canvix-leaf": "Lá nét vẽ tay",
-  "templates.assets.databaseCoverVariant": "/api/designs/library/templates/{id}/cover?locale=vi&v={revision}&variant={variant}"
+  "templates.assets.databaseCoverVariant": "/api/designs/library/templates/{id}/cover?locale=vi&v={revision}&variant={variant}",
+  "editor.interface.copyElements": "Sao chép",
+  "editor.interface.cutElements": "Cắt",
+  "editor.interface.pasteElements": "Dán",
+  "editor.history.cutElements": "Cắt phần tử",
+  "editor.history.pasteElements": "Dán phần tử"
 }

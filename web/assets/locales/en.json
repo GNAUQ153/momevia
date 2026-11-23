@@ -3052,5 +3052,10 @@
   "editor.library.item.natural-open-repo-leaf": "Delicate leaf veins",
   "editor.library.item.natural-open-canvix-tulip": "Hand-drawn tulip",
   "editor.library.item.natural-open-canvix-leaf": "Hand-drawn leaf",
-  "templates.assets.databaseCoverVariant": "/api/designs/library/templates/{id}/cover?locale=en&v={revision}&variant={variant}"
+  "templates.assets.databaseCoverVariant": "/api/designs/library/templates/{id}/cover?locale=en&v={revision}&variant={variant}",
+  "editor.interface.copyElements": "Copy",
+  "editor.interface.cutElements": "Cut",
+  "editor.interface.pasteElements": "Paste",
+  "editor.history.cutElements": "Cut elements",
+  "editor.history.pasteElements": "Paste elements"
 }

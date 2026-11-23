@@ -12,8 +12,13 @@ export function validateRollout(bundle){
  const refresh=bundle?.id==='template-refresh-21-20261123-v1';
  const natural=['template-refresh-natural-20261123-v2','template-refresh-natural-20261123-v2-from-vector-v1'].includes(bundle?.id);
  const external=bundle?.id==='natural-open-elements-20261123-v1';
- if(bundle?.formatVersion!==1 || (!refresh&&!natural&&!external&&bundle.id!=='interactive-cards-20261122-v1') || !Array.isArray(bundle.changes) || bundle.changes.length>(external?12:natural?75:refresh?45:32))throw new Error('Unsupported library update');
+ const motion=bundle?.id==='natural-motion-loop-20261123-v1';
+ if(bundle?.formatVersion!==1 || (!refresh&&!natural&&!external&&!motion&&bundle.id!=='interactive-cards-20261122-v1') || !Array.isArray(bundle.changes) || bundle.changes.length>(motion?6:external?12:natural?75:refresh?45:32))throw new Error('Unsupported library update');
  const naturalIds=new Set([...NATURAL_ELEMENT_SPECS.map(s=>'natural-'+s[0]),...NATURAL_COMPOSITION_IDS]);
+ if(motion)for(const change of bundle.changes){
+  if(change.next.kind!=='element'||!NATURAL_ELEMENT_SPECS.some(s=>s[1]==='animation'&&change.next.id==='natural-'+s[0]))throw new Error('Unreviewed motion element');
+  if(!change.before||change.expectedRevision!==change.before.revision||change.expectedFingerprint!==fingerprint(change.before))throw new Error('Motion baseline fingerprint required');
+ }
  if(external)for(const change of bundle.changes){
   if(change.next.kind!=='element'||!change.next.id.startsWith('natural-open-')||!naturalIds.has(change.next.id))throw new Error('Unreviewed external element');
   if(change.expectedRevision!==(change.before?.revision||0)||change.expectedFingerprint!==(change.before?fingerprint(change.before):null))throw new Error('External element baseline fingerprint required');

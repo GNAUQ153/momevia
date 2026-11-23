@@ -91,7 +91,8 @@ test('Mở sheet tập trung nút đóng và trả focus về trigger sau Escape
 test('Sheet chặn shortcut thao tác với Canvas phía sau, đồng thời khóa Tab', () => {
   const designer = source('web/js/pages/designer.js');
   assert.match(designer, /nextSheetFocus\(sheet\.target, document\.activeElement, event\.shiftKey\)/);
-  assert.match(designer, /if \(sheet\) return;\s*if \(stopKeys\(event\.target\)/);
+  const gate=designer.indexOf('if (sheet) return;'),typing=designer.indexOf('if (stopKeys(event.target)',gate),commands=designer.indexOf('const chord=event.ctrlKey',gate);
+  assert(gate>=0&&typing>gate&&commands>typing,'object shortcuts must remain behind both sheet and typing guards');
   assert.match(designer, /closeSheet\(false\);/);
   assert.match(designer, /if \(!mobile\.matches\) closeSheet\(\);/);
 });

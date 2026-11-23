@@ -38,7 +38,8 @@ export function validateAnimation(v, family) {
     }
   }
   if (v.duration !== undefined) check(number(v.duration, 100, 10000), 'duration must be 100–10000ms');
-  if (v.iterations !== undefined) check(Number.isInteger(v.iterations) && number(v.iterations, 1, 5), 'iterations must be 1–5');
+  if (v.iterations !== undefined) check((v.iterations === 'infinite' && v.engine === 'keyframes' && family === 'emphasis') ||
+    (Number.isInteger(v.iterations) && number(v.iterations, 1, 5)), 'iterations must be 1–5, or infinite for keyframe emphasis');
   if (v.composite !== undefined) check(v.engine === 'keyframes' && ['replace','add'].includes(v.composite), 'invalid keyframe composition');
   if (v.easing !== undefined) check(['linear','ease','ease-in','ease-out','ease-in-out'].includes(v.easing), 'invalid easing');
   if (v.engine === 'surface') {

@@ -32,6 +32,7 @@ import { createPredictionFields, updatePredictionFields } from '../features/canv
 import { celebrationFields } from '../features/canvas-editor/celebration-fields.js';
 import { CELEBRATION_IDS, celebrationSettings } from '../shared/canvas/effects.js';
 import { createEditorStore } from "../features/canvas-editor/store.js";
+import {copyElements,pasteElements,removeElements,editableElement} from '../features/canvas-editor/clipboard.js';
 import {
   zoomLevels,
   libraryTabs,
@@ -243,11 +244,15 @@ export function mountDesigner(
     const doc = store.get().document;
     return doc.scenes.find((item) => item.id === sceneId) || doc.scenes[0];
   }
+  let selectedSet=new Set(),elementClipboard=null,pasteCount=0;
+  const selectedIds=()=>{const doc=store?.get().document,scene=doc?.scenes.find(s=>s.id===sceneId)||doc?.scenes[0];return [...new Set([...selectedSet,...(selection?[selection]:[])])].filter(id=>scene?.elementIds.includes(id)&&doc.elements.some(e=>e.id===id));};
   function selected() {
     return store.get().document.elements.find((item) => item.id === selection);
   }
-  function choose(idValue) {
-    selection = idValue;
+  function choose(idValue,{additive=false}={}) {
+    if(additive&&idValue){if(selectedSet.has(idValue))selectedSet.delete(idValue);else selectedSet.add(idValue);selection=[...selectedSet].at(-1)||null;}
+    else {selection=idValue;selectedSet=new Set(idValue?[idValue]:[]);}
+    store?.endMerge();
     stage?.render();
     renderInspector();
     renderLayers();
@@ -667,6 +672,7 @@ export function mountDesigner(
       store,
       getSceneId: () => sceneId,
       getSelection: () => selection,
+      getSelections: selectedIds,
       select: choose,
       assetUrl,
       textOptions,
@@ -753,6 +759,9 @@ export function mountDesigner(
         preset?.definition?.animation.engine === 'particles' ? field(message('editor.celebrations.loop'), node('input', {
           type: 'checkbox', checked: preset.loop === true, 'data-editor-field': prefix + 'loop',
         })) : null,
+        family==='emphasis'&&preset?.definition?.animation.engine==='keyframes'?field(message('editor.celebrations.loop'),node('input',{
+          type:'checkbox',checked:preset.definition.animation.iterations==='infinite','data-editor-field':prefix+'repeat',
+        })):null,
         preset && (["S02", "S04"].includes(preset.id) || preset.definition?.animation.styles?.shadowBlur !== undefined) ? input(message(preset.definition?.animation.styles?.shadowBlur !== undefined ? "adminLibrary.style.shadowColor" : "editor.interface.stroke"), prefix + "color",
           preset.color || preset.definition?.animation.styles?.shadowColor || (preset.id === "S02" ? "#6D488A" : "#F3DA97"), { type: "color" }) : null,
         preset ? node("div", { class: "editor-control-row" },
@@ -990,8 +999,16 @@ export function mountDesigner(
         }
       }
       children.push(...effectFields(element, element));
+      if(element.type==='image'&&element.effects?.emphasis?.definition?.animation.iterations!=='infinite'){
+        const loopCard=catalog.flatMap(g=>g.items).find(b=>b.id.startsWith('natural-motion-')&&b.create()[0]?.name===element.name);
+        if(loopCard)children.push(button(message('editor.celebrations.loop'),'motion-loop-enable',{'data-motion-card':loopCard.id,disabled:!editableElement(element,design.policy)}));
+      }
       children.push(...buildInspectorGeometryFields(element, store.get().document.artboard.baseSize));
     }
+    if(!quickMode&&design.policy?.kind!=='creator-template')children.push(node('div',{class:'editor-control-row'},
+      button(message('editor.interface.copyElements'),'element-copy',{disabled:!selectedIds().some(id=>editableElement(store.get().document.elements.find(e=>e.id===id),design.policy)),'aria-keyshortcuts':'Control+c Meta+c'}),
+      button(message('editor.interface.cutElements'),'element-cut',{disabled:!selectedIds().some(id=>editableElement(store.get().document.elements.find(e=>e.id===id),design.policy)),'aria-keyshortcuts':'Control+x Meta+x'}),
+      button(message('editor.interface.pasteElements'),'element-paste',{disabled:!elementClipboard?.models.length,'aria-keyshortcuts':'Control+v Meta+v'})));
     host.replaceChildren(...children);
     if (keepGeometry) host.querySelector(".editor-geometry").open = true;
     if (!element && design.policy?.kind === "creator-template")
@@ -1945,7 +1962,12 @@ export function mountDesigner(
       }
       if (insertingGreeting) models[0].props.color = readableInk(scene.background.color);
       models.at(-1).name ||= block.title;
-      placeBlock(models, stage.visibleArea(), store.get().document.elements.filter(item => scene.elementIds.includes(item.id)));
+      const dropX=Number(target.dataset.dropX),dropY=Number(target.dataset.dropY);
+      if(Number.isFinite(dropX)&&Number.isFinite(dropY)){
+        const box=bounds(models),size=store.get().document.artboard.baseSize,w=box.right-box.left,h=box.bottom-box.top;
+        const dx=Math.max(0,Math.min(size.width-w,dropX-w/2))-box.left,dy=Math.max(0,Math.min(size.height-h,dropY-h/2))-box.top;
+        for(const model of models){model.layout.x=Math.round((model.layout.x+dx)*100)/100;model.layout.y=Math.round((model.layout.y+dy)*100)/100;}
+      }else placeBlock(models, stage.visibleArea(), store.get().document.elements.filter(item => scene.elementIds.includes(item.id)));
       commit((value) => {
         for(const ref of addedAssets)if(!value.document.assets.some(a=>a.assetId===ref.assetId))value.document.assets.push(ref);
         value.document.elements.push(...models);
@@ -2063,7 +2085,13 @@ export function mountDesigner(
       renderAll();
       return;
     }
-    if (!selected()) throw new Error(t("editor.error.noSelection"));
+    if (!selected()&&name!=='element-paste') throw new Error(t("editor.error.noSelection"));
+    if(name==='motion-loop-enable'){
+      if(!editableElement(selected(),design.policy))return;
+      const card=catalog.flatMap(g=>g.items).find(b=>b.id===target.dataset.motionCard),effect=card?.create()[0]?.effects?.emphasis;
+      if(effect?.definition?.animation.iterations!=='infinite')return;
+      commit(value=>{const e=value.document.elements.find(e=>e.id===selection);e.effects??={};delete e.effects.entrance;e.effects.emphasis=structuredClone(effect);},t('editor.celebrations.loop'));renderInspector();return;
+    }
     if (name === "inline-text") {
       closeSheet();
       stage.editText(selection);
@@ -2127,35 +2155,27 @@ export function mountDesigner(
       renderInspector();
       return;
     }
+    if(['element-copy','element-cut','element-paste'].includes(name)){
+      if(quickMode||design.policy?.kind==='creator-template')return;
+      if(name==='element-paste'){
+        const pasted=pasteElements(store.get().document,sceneId,elementClipboard,design.id,newId,target.dataset?.pasteInPlace==='true'?0:16*(++pasteCount));
+        if(pasted.ids.length){commit(value=>{value.document=pasted.document;},t('editor.history.pasteElements'));choose(pasted.ids.at(-1));selectedSet=new Set(pasted.ids);stage.render();}
+      }else{
+        elementClipboard=copyElements(store.get().document,selectedIds(),design.id,design.policy);pasteCount=0;
+        if(name==='element-cut'&&elementClipboard.models.length){commit(value=>{value.document=removeElements(value.document,elementClipboard.models.map(e=>e.id),design.policy);},t('editor.history.cutElements'));choose(null);}
+      }
+      renderInspector();return;
+    }
     if (name === "element-delete") {
-      commit((value) => {
-        value.document.elements = value.document.elements.filter(
-          (item) => item.id !== selection,
-        );
-        for (const scene of value.document.scenes)
-          scene.elementIds = scene.elementIds.filter(
-            (idValue) => idValue !== selection,
-          );
-      }, t("editor.history.deleteElement"));
-      selection = null;
+      if(quickMode)return;
+      commit(value=>{value.document=removeElements(value.document,selectedIds(),design.policy);},t("editor.history.deleteElement"));
+      selection = null;selectedSet.clear();stage.render();
       renderInspector();
       return;
     }
     if (name === "element-duplicate") {
-      const nextId = newId();
-      commit((value) => {
-        const item = structuredClone(
-          value.document.elements.find((item) => item.id === selection),
-        );
-        item.id = nextId;
-        item.layout.x += 16;
-        item.layout.y += 16;
-        value.document.elements.push(item);
-        value.document.scenes
-          .find((item) => item.id === sceneId)
-          .elementIds.push(nextId);
-      }, t("editor.history.duplicateElement"));
-      choose(nextId);
+      if(quickMode)return;const clip=copyElements(store.get().document,selectedIds(),design.id,design.policy),pasted=pasteElements(store.get().document,sceneId,clip,design.id,newId);
+      if(!pasted.ids.length)return;commit(value=>{value.document=pasted.document;},t("editor.history.duplicateElement"));choose(pasted.ids.at(-1));selectedSet=new Set(pasted.ids);stage.render();
       return;
     }
     if (name === "layer-up" || name === "layer-down") {
@@ -2314,7 +2334,8 @@ export function mountDesigner(
               delete model.effects?.[family];
               if (model.effects && !Object.keys(model.effects).length) delete model.effects;
             }
-          } else model.effects[family][field] = field === "delay" ? Number(value) : value;
+          } else if(field==='repeat'&&family==='emphasis'&&model.effects[family].definition?.animation.engine==='keyframes')model.effects[family].definition.animation.iterations=value?'infinite':1;
+          else model.effects[family][field] = field === "delay" ? Number(value) : value;
           return;
         }
         const item = next.document.elements.find(
@@ -2393,6 +2414,23 @@ export function mountDesigner(
       key.endsWith(".assetId") || (key.startsWith("effect.") && key.endsWith(".id")) ||
       key.startsWith("crop.") || key.startsWith('celebration.')) renderInspector();
   }
+  let draggedBlock=null;
+  main.addEventListener('dragstart',event=>{
+    const control=event.target.closest('[data-block]');
+    if(!control||control.disabled||quickMode||design?.policy?.kind==='creator-template')return;
+    draggedBlock=control.dataset.block;event.dataTransfer.setData('application/x-momevia-block',draggedBlock);event.dataTransfer.effectAllowed='copy';
+  },{signal});
+  main.addEventListener('dragend',()=>{draggedBlock=null;},{signal});
+  main.addEventListener('dragover',event=>{
+    if(draggedBlock&&event.target.closest('.editor-artboard')&&!quickMode){event.preventDefault();event.dataTransfer.dropEffect='copy';}
+  },{signal});
+  main.addEventListener('drop',safe(async event=>{
+    const board=event.target.closest('.editor-artboard'),id=draggedBlock;draggedBlock=null;
+    if(!board||!id||quickMode||design?.policy?.kind==='creator-template'||event.dataTransfer.getData('application/x-momevia-block')!==id)return;
+    event.preventDefault();const rect=board.getBoundingClientRect(),size=store.get().document.artboard.baseSize,target=globalThis.document.createElement('button');
+    target.dataset.block=id;target.dataset.dropX=String((event.clientX-rect.left)/rect.width*size.width);target.dataset.dropY=String((event.clientY-rect.top)/rect.height*size.height);
+    await action('add',target);
+  }),{signal});
   main.addEventListener(
     "click",
     safe(async (event) => {
@@ -2498,6 +2536,7 @@ export function mountDesigner(
           event.target.blur();
           return;
         }
+        choose(null);
         return;
       }
       if (sheet && event.key === "Tab") {
@@ -2510,13 +2549,32 @@ export function mountDesigner(
       }
       // Không cho shortcut Undo/Redo hoặc dịch lớp hoạt động phía sau modal sheet.
       if (sheet) return;
+      if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==='s'&&!document.querySelector('dialog[open]')){
+        event.preventDefault();stage.flushText();
+        if(stopKeys(event.target)&&!event.target.closest('.editor-inline-text'))event.target.dispatchEvent(new Event('change',{bubbles:true}));
+        return flushSave({force:Boolean(design?.reviewTemplateDefaults)});
+      }
       if (stopKeys(event.target) || document.querySelector("dialog[open]"))
         return;
+      const chord=event.ctrlKey||event.metaKey,key=event.key.toLowerCase();
+      if(!quickMode&&!event.altKey&&((chord&&(!event.shiftKey||key==='v')&&['x','c','v','d','a','[',']'].includes(key))||['Delete','Backspace'].includes(event.key))){
+        event.preventDefault();
+        if(chord&&key==='a'){selectedSet=new Set(currentScene().elementIds.filter(id=>{const e=store.get().document.elements.find(e=>e.id===id);return e.visible!==false&&editableElement(e,design.policy);}));selection=[...selectedSet].at(-1)||null;stage.render();renderInspector();return;}
+        if(chord&&['c','x'].includes(key))return action(key==='c'?'element-copy':'element-cut',event.target);
+        if(chord&&key==='v')return action('element-paste',{dataset:{pasteInPlace:String(event.shiftKey)}});
+        if(chord&&key==='d')return action('element-duplicate',event.target);
+        if(chord&&['[',']'].includes(key)&&editableElement(selected(),design.policy))return action(key===']'?'layer-up':'layer-down',event.target);
+        return action('element-delete',event.target);
+      }
       const historyAction = historyShortcut(event);
       if (historyAction) {
         event.preventDefault();
+        const beforeIds=new Set(store.get().document.elements.map(e=>e.id));
         if (historyAction === "redo") store.redo();
         else store.undo();
+        const restored=store.get().document.elements.filter(e=>!beforeIds.has(e.id)&&currentScene().elementIds.includes(e.id));
+        if(restored.length){choose(restored.at(-1).id);selectedSet=new Set(restored.map(e=>e.id));stage.render();}
+        else if(selection&&!store.get().document.elements.some(e=>e.id===selection))choose(null);
         return;
       }
       if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "s") {
@@ -2529,19 +2587,17 @@ export function mountDesigner(
         ) &&
         selected() &&
         !quickMode &&
-        !selected().locked &&
-        !design.policy?.lockedElements?.[selection]
+        selectedIds().some(id=>editableElement(store.get().document.elements.find(e=>e.id===id),design.policy))
       ) {
         event.preventDefault();
         const step = event.shiftKey ? 10 : 1;
         commit((value) => {
-          const layout = value.document.elements.find(
-            (item) => item.id === selection,
-          ).layout;
+          for(const item of value.document.elements.filter(e=>selectedIds().includes(e.id)&&editableElement(e,design.policy))){const layout=item.layout;
           if (event.key === "ArrowLeft") layout.x -= step;
           if (event.key === "ArrowRight") layout.x += step;
           if (event.key === "ArrowUp") layout.y -= step;
           if (event.key === "ArrowDown") layout.y += step;
+          }
         }, t("editor.history.keyboardMove"));
         renderInspector();
       }

@@ -1,3 +1,10 @@
+## Unreleased — Chuyển động trực tiếp và phím tắt Canvas (2026-11-23)
+
+- Sáu element Chuyển động mặc định lặp vô hạn bằng dữ liệu keyframe; kéo-thả hoặc chèn là chạy ngay trong Studio. Tạm dừng lúc kéo, nhập chữ hoặc ẩn trang; tôn trọng giảm chuyển động, không ghi lại document theo từng khung hình.
+- Có điều khiển lặp và nâng cấp rõ ràng cho element cũ; giữ nguyên snapshot quà đã phát. Gói riêng cập nhật sáu mục theo revision, giữ nguyên gói Natural v2 đã áp dụng.
+- Bổ sung Delete/Backspace, Ctrl/Cmd X/C/V/D/A, di chuyển bằng mũi tên/Shift, undo/redo và lưu; có nút sao chép/cắt/dán. Không chiếm phím khi đang nhập chữ, không sửa lớp khóa hoặc vượt quyền Creator.
+- Fabric nhận bàn phím trên vùng vẽ, hỗ trợ nhân bản/cắt/sao chép/dán/xóa/chọn nhiều và undo/redo tạm; chỉ chuyển thành document khi Áp dụng. Giữ ảnh riêng, artwork, binding, nguồn và policy.
+
 ## Unreleased — Giữ đúng biến thể bìa từ DB khi đổi ngôn ngữ (2026-11-23)
 
 - Gắn variant vào URL ảnh trước khi tạo thuộc tính dịch, giữ metadata i18n hợp lệ. Danh mục lấy đúng khung ngang và kệ mùa lấy đúng khung mùa từ cùng phiên bản DB.

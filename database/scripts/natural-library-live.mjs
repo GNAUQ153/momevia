@@ -21,20 +21,21 @@ async function tableSnapshot(tx){
 try{
  if(args.includes('--prepare')){
   const rows=await service.rows();if(libraryFingerprint(rows)!==required('--expected-library-hash'))throw new Error('Library changed since read-only review');
-  const natural=reviewLiveBaseline(rows,JSON.parse(fs.readFileSync(new URL('../updates/template-refresh-natural-20261123-v2.json',import.meta.url))));
+  const motionOnly=args.includes('--motion');
+  const natural=reviewLiveBaseline(rows,JSON.parse(fs.readFileSync(new URL('../updates/'+(motionOnly?'natural-motion-loop-20261123-v1':'template-refresh-natural-20261123-v2')+'.json',import.meta.url))));
   const proposed=rows.slice();for(const {next}of natural.changes){const i=proposed.findIndex(r=>r.kind===next.kind&&r.id===next.id);if(i<0)proposed.push(next);else proposed[i]=next;}
-  const external=reviewLiveBaseline(proposed,JSON.parse(fs.readFileSync(new URL('../updates/natural-open-elements-20261123-v1.json',import.meta.url))));
+  const external=motionOnly?null:reviewLiveBaseline(proposed,JSON.parse(fs.readFileSync(new URL('../updates/natural-open-elements-20261123-v1.json',import.meta.url))));
   const tables=await client.withTransaction(tableSnapshot);
-  write('database-before.json',{target:{host:cfg.host,port:cfg.port,database:cfg.database},tables});write('library-before.json',rows);write('natural.json',natural);write('external.json',external);
+  write('database-before.json',{target:{host:cfg.host,port:cfg.port,database:cfg.database},tables});write('library-before.json',rows);write('natural.json',natural);if(external)write('external.json',external);
   const mediaRoot=path.resolve(process.cwd(),'services/designs/data/assets'),media=[];
   function copyMedia(dir){if(!fs.existsSync(dir))return;for(const item of fs.readdirSync(dir,{withFileTypes:true})){const file=path.join(dir,item.name);if(item.isDirectory())copyMedia(file);else if(item.isFile()){const relative=path.relative(mediaRoot,file),target=path.join(directory,'media',relative);fs.mkdirSync(path.dirname(target),{recursive:true});const bytes=fs.readFileSync(file);fs.writeFileSync(target,bytes,{flag:'wx',mode:0o600});media.push({relative,sha256:libraryFingerprint([...bytes]),bytes:bytes.length});}}}
   copyMedia(mediaRoot);
-  const state={target:{host:cfg.host,port:cfg.port,database:cfg.database},preparedAt:new Date().toISOString(),beforeLibraryHash:libraryFingerprint(rows),bundles:{'natural.json':libraryFingerprint(natural),'external.json':libraryFingerprint(external)},businessTables:Object.fromEntries(Object.entries(tables).filter(([n])=>!n.startsWith('canvas_library_')).map(([n,t])=>[n,{hash:t.hash,count:t.rows.length}])),mediaRoot,media};write('state.json',state);
-  console.log(JSON.stringify({prepared:true,target:state.target,libraryRows:rows.length,naturalChanges:natural.changes.length,externalChanges:external.changes.length,backupTables:Object.keys(tables).length,mediaFiles:media.length,stateHash:libraryFingerprint(state)}));
+  const state={target:{host:cfg.host,port:cfg.port,database:cfg.database},preparedAt:new Date().toISOString(),beforeLibraryHash:libraryFingerprint(rows),bundles:{'natural.json':libraryFingerprint(natural),...(external?{'external.json':libraryFingerprint(external)}:{})},businessTables:Object.fromEntries(Object.entries(tables).filter(([n])=>!n.startsWith('canvas_library_')).map(([n,t])=>[n,{hash:t.hash,count:t.rows.length}])),mediaRoot,media};write('state.json',state);
+  console.log(JSON.stringify({prepared:true,target:state.target,libraryRows:rows.length,naturalChanges:natural.changes.length,externalChanges:external?.changes.length||0,backupTables:Object.keys(tables).length,mediaFiles:media.length,stateHash:libraryFingerprint(state)}));
  }else{
   const state=json('state.json');if(libraryFingerprint(state)!==required('--expected-state-hash'))throw new Error('Reviewed state changed');
   if(JSON.stringify(state.target)!==JSON.stringify({host:cfg.host,port:cfg.port,database:cfg.database}))throw new Error('Backup belongs to another target');
-  const names=args.includes('--rollback')?['external.json','natural.json']:['natural.json','external.json'];
+  const names=Object.keys(state.bundles);if(args.includes('--rollback'))names.reverse();
   const results=[];for(const name of names){const bundle=json(name);if(libraryFingerprint(bundle)!==state.bundles[name])throw new Error('Reviewed bundle changed');const rollback=args.includes('--rollback'),before=previewRollout(await service.rows(),bundle,{rollback});if(!before.canApply)throw new Error('Live conflict: '+name);const result=args.includes('--apply')?await applyRollout(service,{role:'admin'},bundle,{rollback}):before;if(result.conflict)throw new Error(JSON.stringify(result.conflict));results.push({name,canApply:result.canApply,applied:result.applied?.length||0,unchanged:result.actions.filter(a=>a.status==='unchanged').length});}
   const tables=await client.withTransaction(tableSnapshot);for(const [name,before]of Object.entries(state.businessTables))if(tables[name]?.hash!==before.hash)throw new Error('Non-library data changed: '+name);
   for(const item of state.media){const bytes=fs.readFileSync(path.join(state.mediaRoot,item.relative));if(libraryFingerprint([...bytes])!==item.sha256)throw new Error('Existing media changed');}

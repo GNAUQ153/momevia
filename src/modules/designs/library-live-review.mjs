@@ -6,8 +6,7 @@ const key=row=>row.kind+':'+row.id;
 function seedMeaning(row){
  const copy=structuredClone(row);delete copy.sortOrder;
  if(copy.kind==='element')for(const element of copy.definition.elements){
-  if(!/^[a-f\d]{8}(?:-[a-f\d]{4}){3}-[a-f\d]{12}$/i.test(element.id))throw new Error('Only generated UUID drift may be reviewed automatically');
-  delete element.id;
+  if(/^[a-f\d]{8}(?:-[a-f\d]{4}){3}-[a-f\d]{12}$/i.test(element.id))delete element.id;
  }
  return canonicalStringify(copy);
 }

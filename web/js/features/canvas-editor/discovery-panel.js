@@ -41,6 +41,7 @@ export function createDiscoveryPanel({ policy, discoveryMode, signal }) {
         disabled: policy?.kind === "creator-template",
       });
       cards.set(control, block);
+      control.draggable=policy?.kind!=='creator-template';
       control.dataset.visualKind=blockVisualKind(block);
       control.append(node("span", {}, block.database ? block.title : message(`editor.library.item.${block.id}`)));
       lazy.observe(control);

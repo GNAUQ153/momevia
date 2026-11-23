@@ -78,7 +78,7 @@ export function mountPlayer(
     signal: lifetime.signal,
   });
   const preference = globalThis.matchMedia("(prefers-reduced-motion: reduce)");
-  let motionOff = false, resumeCelebrations = () => {};
+  let motionOff = false, resumeCelebrations = () => {}, resumeElements = () => {};
   const motion = createMotion(() => !preference.matches && !motionOff);
   const motionControl = globalThis.document.createElement("button");
   motionControl.type = "button";
@@ -153,7 +153,7 @@ export function mountPlayer(
     motionControl.setAttribute("aria-pressed", String(!motion.enabled()));
     motionControl.disabled = preference.matches;
     if (!motion.enabled()) motion.cancel();
-    else resumeCelebrations();
+    else {resumeCelebrations();resumeElements();}
   };
   motionControl.addEventListener("click", () => {
     motionOff = !motionOff;
@@ -287,11 +287,15 @@ export function mountPlayer(
       };
       resumeCelebrations();
     }
+    const loopRuns=new Map();
+    const loopSignal=node=>{loopRuns.get(node)?.abort();const controller=new AbortController();loopRuns.set(node,controller);return AbortSignal.any([signal,controller.signal]);};
+    resumeElements=()=>{for(const {node,model}of nodes)if(model.effects?.emphasis?.definition?.animation.iterations==='infinite'&&!signal.aborted)void playElement(node,model,motion,loopSignal(node),'emphasis');};
     for (const {node,model} of nodes) {
       if (!family || (effectPreview.elementId === model.id && ["emphasis","entrance"].includes(family))) {
         const animate = () => {
           if (signal.aborted) return;
-          return playElement(node, model, motion, signal, family, (finish, text) => {
+          const elementSignal=model.effects?.emphasis?.definition?.animation.iterations==='infinite'?loopSignal(node):signal;
+          return playElement(node, model, motion, elementSignal, family, (finish, text) => {
             typewriters.add(finish);
             skip.hidden = false;
             return () => {

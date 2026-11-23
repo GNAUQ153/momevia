@@ -5,12 +5,13 @@ import { arrangeFabricBoxes } from './fabric-align.js';
 import { mountFabricInspector } from './fabric-inspector.js';
 import { mountFabricQuickbar } from './fabric-quickbar.js';
 import { mountFabricProperties } from './fabric-properties.js';
+import {mountFabricShortcuts} from './fabric-shortcuts.js';
 import { vectorParts } from '../../shared/canvas/artwork.js';
 import { PAPER_GRAIN_URL } from '../../shared/canvas/paper-grain.js';
 import { previewSvg } from '../../shared/canvas/cover-svg.js';
 import {
   canManageFabricLayer, moveFabricLayer, applyFabricWorkspacePatch,
-  fabricWorkspaceChanged, snapFabricCenter
+  fabricWorkspaceChanged, snapFabricCenter, applyFabricCommands
 } from './fabric-workspace.js';
 
 // Fabric.js chỉ chạy trong dialog thiết kế. Runtime nhận quà vẫn dùng DOM để
@@ -197,6 +198,7 @@ export async function openFabricStudio({ snapshot, sceneId, policy, assetUrl, on
   const temporaryLocks = new Set();
   // Chọn nhiều lớp chỉ điều khiển thao tác căn chỉnh, không tạo Fabric ActiveSelection.
   const batchSelection = new Set();
+  const compositionCommands=[];
   let snapEnabled = true;
   const canManage = id => canManageFabricLayer(layerModels.get(id), policy);
   const dialog = node('dialog', { class: 'editor-fabric-dialog', 'aria-label': message("editor.fabric.title") });
@@ -292,6 +294,9 @@ export async function openFabricStudio({ snapshot, sceneId, policy, assetUrl, on
   });
   signal?.addEventListener('abort', close, { once: true });
   if (embedded) dialog.addEventListener('keydown', event => {
+    if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==='s'){
+      event.preventDefault();event.stopPropagation();dialog.querySelector('[data-editor-action="fabric-apply"]:enabled')?.click();return;
+    }
     if (event.key === 'Escape') {
       event.preventDefault();
       event.stopPropagation();
@@ -325,6 +330,9 @@ export async function openFabricStudio({ snapshot, sceneId, policy, assetUrl, on
       // Tránh tạo nhóm Fabric không thể lưu trong schema Canvas v1.
       selection: false,
     });
+    canvas.upperCanvasEl.tabIndex=0;
+    setAttr(canvas.upperCanvasEl,'aria-label',message('editor.fabric.title'));
+    canvas.on('mouse:down',()=>{if(!canvas.getActiveObject()?.isEditing)canvas.upperCanvasEl.focus({preventScroll:true});});
     if(view.effects?.surface?.definition?.animation?.styles?.texture==='paper-grain-v1')canvas.backgroundColor=await paperPattern(fabric,view.background,work.signal);
     for (const element of view.elements) {
       const object = await makeFabricObject(fabric, element, assetUrl, work.signal);
@@ -363,6 +371,20 @@ export async function openFabricStudio({ snapshot, sceneId, policy, assetUrl, on
       layerModels,
       canEdit: id => isMovable(id) && visibility.get(id) !== false,
     });
+    const refreshModels=()=>{const doc=applyFabricCommands(snapshot,sceneId,compositionCommands,policy);layerModels.clear();for(const id of doc.scenes.find(s=>s.id===sceneId).elementIds)layerModels.set(id,doc.elements.find(e=>e.id===id));};
+    const shortcuts=mountFabricShortcuts({dialog,canvas,fabric,signal:work.signal,canEdit:id=>isMovable(id)&&visibility.get(id)!==false,
+      onCommand:command=>{
+        const next=[...compositionCommands,command];applyFabricCommands(snapshot,sceneId,next,policy);compositionCommands.push(command);refreshModels();
+        if(command.type==='remove'){const i=layerOrder.indexOf(command.id);if(i>=0)layerOrder.splice(i,1);visibility.delete(command.id);byId.delete(command.id);properties.setDraft(command.id,[]);}
+        else {layerOrder.push(command.id);visibility.set(command.id,true);}
+      },
+      getState:()=>({commands:structuredClone(compositionCommands),order:[...layerOrder],visibility:[...visibility],locks:[...temporaryLocks],styles:properties.draft()}),
+      restoreState:state=>{compositionCommands.splice(0,compositionCommands.length,...state.commands);layerOrder.splice(0,layerOrder.length,...state.order);visibility.clear();for(const entry of state.visibility)visibility.set(...entry);temporaryLocks.clear();for(const id of state.locks)temporaryLocks.add(id);refreshModels();byId.clear();for(const object of canvas.getObjects())byId.set(object.momeviaId,object);properties.restoreDraft(state.styles);},
+      onCloneStyle:(id,fields)=>properties.setDraft(id,fields),
+      refresh:()=>{byId.clear();for(const object of canvas.getObjects())byId.set(object.momeviaId,object);renderLayers();properties.refresh();inspector?.refresh?.();},
+      onSave:()=>dialog.querySelector('[data-editor-action="fabric-apply"]:enabled')?.click(),
+    });
+    dialog.addEventListener('fabric-shortcut-error',event=>setText(help,event.detail),{signal:work.signal});
     surface.before(quickbar.panel);
     function updateBatchTools() {
       for (const id of [...batchSelection]) {
@@ -495,6 +517,7 @@ export async function openFabricStudio({ snapshot, sceneId, policy, assetUrl, on
           if (layer.visible && layer.selectable) {
             canvas.setActiveObject(layer);
             canvas.requestRenderAll();
+            canvas.upperCanvasEl.focus({preventScroll:true});
           }
         } else if (action === 'fabric-layer-visible' && canManage(layerId)) {
           const show = visibility.get(layerId) === false;
@@ -580,9 +603,11 @@ export async function openFabricStudio({ snapshot, sceneId, policy, assetUrl, on
         } catch { setText(help, message("editor.fabric.failedExport")); }
       }
       if (action === 'fabric-apply') {
+        if(shortcuts.busy)return;
         try {
+          canvas.discardActiveObject();
           // Tài liệu gốc được cập nhật metadata trước để có thể chỉnh lớp vừa hiện lại.
-          const state = { order: [...layerOrder], visibility: Object.fromEntries(visibility), layouts: [] };
+          const state = { order: [...layerOrder], visibility: Object.fromEntries(visibility), layouts: [],commands:structuredClone(compositionCommands) };
           const metadataDocument = applyFabricWorkspacePatch(snapshot, sceneId, state, policy);
           const layouts = fabricDiff(metadataDocument, sceneId, canvas.getObjects(), policy);
           const patch = { ...state, layouts, styles: properties.changes() };

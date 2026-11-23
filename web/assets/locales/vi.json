@@ -2846,7 +2846,6 @@
   "musicLibrary.source": "Nguồn và bằng chứng",
   "musicLibrary.openSource": "Mở trang nguồn",
   "musicLibrary.disableNote": "Ngừng cho chọn mới giữ nguyên tệp và âm thanh trong quà đã gửi.",
-  "musicLibrary.immutable": "Nguồn, giấy phép và tệp đã ghim được bảo toàn. Thêm tệp mới cần nhập nguồn được phép vào catalog có phiên bản và kiểm tra trước khi phát hành.",
   "musicLibrary.save": "Lưu thay đổi",
   "musicLibrary.cancel": "Hủy chỉnh sửa",
   "musicLibrary.saved": "Đã lưu vào thư viện. Studio sẽ nhận thay đổi khi mở lại.",
@@ -2955,5 +2954,8 @@
   "editor.music.external.music-korea-oldDesc": "구 아리랑 — 한국저작권위원회 (Korea Copyright Commission) · CC-BY-4.0",
   "editor.music.external.music-korea-arirang-2021": "Arirang — Yoon Do-hyun (2021)",
   "editor.music.external.music-korea-arirang-2021Desc": "2021 아리랑 응원가 — 윤도현, 성윤용, 김민기, 강규용, 김승남, 박상우, 안도형, 윤정훈 · CC-BY-4.0",
-  "musicLibrary.disabledPinned": "Bản nhạc này đã ngừng cho chọn mới. Nháp hiện tại và quà đã gửi vẫn giữ nguyên bản đã ghim."
+  "musicLibrary.disabledPinned": "Bản nhạc này đã ngừng cho chọn mới. Nháp hiện tại và quà đã gửi vẫn giữ nguyên bản đã ghim.",
+  "musicLibrary.moreFilters": "Bộ lọc khác",
+  "musicLibrary.previewVolume": "Âm lượng nghe thử",
+  "musicLibrary.previewHint": "Bấm Nghe thử để nghe âm thanh đang chọn."
 }

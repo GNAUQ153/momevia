@@ -2857,7 +2857,6 @@
   "musicLibrary.source": "Source and evidence",
   "musicLibrary.openSource": "Open source page",
   "musicLibrary.disableNote": "Disabling new selections preserves the media and previously sent gifts.",
-  "musicLibrary.immutable": "Pinned sources, licenses and files are preserved. New files must enter the versioned catalog with verified rights before release.",
   "musicLibrary.save": "Save changes",
   "musicLibrary.cancel": "Discard edits",
   "musicLibrary.saved": "Library saved. Studio receives changes when reopened.",
@@ -2966,5 +2965,8 @@
   "editor.music.external.music-korea-oldDesc": "구 아리랑 — 한국저작권위원회 (Korea Copyright Commission) · CC-BY-4.0",
   "editor.music.external.music-korea-arirang-2021": "Arirang — Yoon Do-hyun (2021)",
   "editor.music.external.music-korea-arirang-2021Desc": "2021 아리랑 응원가 — 윤도현, 성윤용, 김민기, 강규용, 김승남, 박상우, 안도형, 윤정훈 · CC-BY-4.0",
-  "musicLibrary.disabledPinned": "This track is disabled for new selections. This draft and previously sent gifts keep their pinned audio."
+  "musicLibrary.disabledPinned": "This track is disabled for new selections. This draft and previously sent gifts keep their pinned audio.",
+  "musicLibrary.moreFilters": "More filters",
+  "musicLibrary.previewVolume": "Preview volume",
+  "musicLibrary.previewHint": "Press Listen to preview the selected audio."
 }

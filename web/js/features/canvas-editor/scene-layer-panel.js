@@ -3,6 +3,7 @@ import { sceneActions } from "./designer-helpers.js";
 import { sceneThumbnail } from "./thumbnail.js";
 import { node, button } from "./dom.js";
 import { icon } from "../../ui/icons.js";
+import { preserveScroll } from '../../ui/scroll-state.js';
 
 // Khoá cấu trúc chỉ thay đổi khi thứ tự/tên cảnh hoặc loại policy thay đổi.
 // Những thay đổi nội dung không thay DOM điều hướng; thumbnail được cập nhật riêng.
@@ -38,15 +39,28 @@ export function createSceneLayerPanel({
   main, getDocument, getSceneId, getSelection, getPolicy, isQuickMode, assetUrl, message,
 }) {
   const sceneThumbs = new Map();
+  let layerHost = null, layerSignature = '';
 
   function renderLayers() {
     const host = main.querySelector(".editor-layers");
     if (!host) return;
     if (isQuickMode()) {
       host.replaceChildren();
+      layerHost = null; layerSignature = '';
       return;
     }
     const layers = sceneLayerEntries(getDocument(), getSceneId(), getSelection(), getPolicy()?.lockedElements);
+    const signature = JSON.stringify(layers.map(({ id, label, locked, hidden }) => [id, label, locked, hidden]));
+    if (layerHost === host && layerSignature === signature) {
+      for (const control of host.querySelectorAll('[data-id]')) {
+        const selected = control.dataset.id === getSelection();
+        control.classList.toggle('is-selected', selected); control.setAttribute('aria-pressed', String(selected));
+      }
+      return;
+    }
+    const active = globalThis.document.activeElement;
+    const focusedId = host.contains(active) ? active.dataset.id : null;
+    preserveScroll(host.closest('.editor-library') || host, () => {
     host.replaceChildren(...layers.map(({ id, label, locked, hidden, selected }) => {
       const choice = button(label, "select", {
         "data-id": id,
@@ -65,6 +79,9 @@ export function createSceneLayerPanel({
       }
       return choice;
     }));
+      if (focusedId) host.querySelector(`[data-id="${globalThis.CSS.escape(focusedId)}"]`)?.focus({ preventScroll: true });
+    });
+    layerHost = host; layerSignature = signature;
   }
 
   function renderScenes() {
@@ -143,6 +160,6 @@ export function createSceneLayerPanel({
   return {
     renderLayers,
     renderScenes,
-    clear: () => sceneThumbs.clear(),
+    clear() { sceneThumbs.clear(); layerHost = null; layerSignature = ''; },
   };
 }

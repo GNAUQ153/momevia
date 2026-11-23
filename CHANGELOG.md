@@ -1,3 +1,24 @@
+## Unreleased — Chuyển tiếp cuộn ở biên các cột thư viện (2026-11-23)
+
+- Cả danh sách, biểu mẫu và xem trước của Thư viện canvas/Âm thanh cho phép cuộn tiếp toàn trang khi cột đã đến đầu hoặc cuối. Khi cột còn khoảng cuộn, trang và các cột khác đứng yên.
+- Kiểm bằng wheel hai hướng trên cả sáu vùng cuộn trong MySQL QA; xác minh thêm ba vùng Âm thanh trên ứng dụng local 4100, không sửa metadata Admin.
+
+## Unreleased — Đồng bộ riêng giao diện Âm thanh (2026-11-23)
+
+- Dùng cùng bố cục và thành phần ba cột như các tab Canvas khác: danh sách, thông tin mục và nghe thử; thanh Lưu/Tắt hoặc Bật/Bỏ thay đổi/Nghe thử theo cùng phương pháp thao tác.
+- Bỏ mã nội bộ, phiên bản và mã băm khỏi phần hiển thị âm thanh. API, bằng chứng nguồn, quyền Admin, revision và media giữ nguyên.
+- Vùng thông tin và nghe thử chuyển tiếp cuộn xuống trang tại biên; danh sách vẫn giữ vùng cuộn riêng. Các quy tắc thay đổi chỉ nằm trong phạm vi tab Âm thanh.
+- Nghe thử dùng bộ phát hiện có, bổ sung âm lượng và tiến độ xem thử; mở tab vẫn im lặng và chọn sẵn thông tin bài đầu tiên.
+- Bỏ danh sách dịch vụ tham khảo khỏi giao diện nghe thử; chỉ giữ nguồn và giấy phép của mục đang chọn. Hai bộ lọc Loại âm thanh/Trạng thái nằm cùng hàng, giữ kích thước chạm trên mobile.
+
+## Unreleased — Cuộn và bố cục thư viện Admin (2026-11-23)
+
+- Giữ các nút danh sách Canvas/Âm thanh khi chỉ đổi lựa chọn; các cột desktop cuộn độc lập và giữ bản nháp, bộ lọc, vị trí cuộn khi đổi tab.
+- Giữ nhóm thông tin mở, tiêu điểm và vị trí con trỏ qua cập nhật/lưu Ctrl+S; khóa ô âm thanh trong lúc chờ phản hồi lưu để không mất chỉnh sửa mới.
+- Thu gọn tab Âm thanh: chọn sẵn bài đầu tiên để hiển thị thông tin, hàng chọn gọn, biểu mẫu hai cột, bộ lọc phụ và nguồn bản quyền có thể mở rộng. Mở tab không phát/tải tệp âm và không ghi metadata.
+- Sửa cùng nguyên nhân dựng lại nút trong danh sách lớp Studio; ca browser kiểm trực tiếp DOM và cuộn với hơn 30 lớp.
+- Ca kiểm tra panel dùng schema MySQL QA riêng có thư viện hợp lệ, kiểm API trước UI; giữ nguyên các assertion. Kiểm JSON cũ tiếp tục chạy riêng. Không chạy migration trên DB vận hành để phục vụ ca này.
+
 ## Unreleased — SFX và nhạc nguồn tác giả (2026-11-23)
 
 - Bộ chọn SFX dùng 50 tệp v2 nhập từ tác giả bên ngoài, có bản thu vật thật/thiên nhiên, hiệu ứng giao diện và nhạc hiệu; giữ nguyên âm v1 đã ghim trong quà cũ.

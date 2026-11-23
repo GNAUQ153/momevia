@@ -5,6 +5,7 @@ import { eventMediaUrl } from '../../shared/canvas/event-media.js';
 import { installLibrary } from '../../shared/canvas/library-state.js';
 import { eventTimeFromLocal } from '../../shared/canvas/interactions.js';
 import { libraryFields } from './fields.js';
+import { preserveScroll, captureFieldFocus, restoreFieldFocus } from '../../ui/scroll-state.js';
 import { mountMusicLibrary } from '../music-library/index.js';
 import { categories, categoryFor, itemKey, itemTitle, fingerprint, makeItem, duplicateItem, animationDefaults,
   compatibleAnimation, getDocument, layers, setPath, metadata, editFrame, makeLayer, makeInteraction, removeScene, normalizeSelection, sameItemContent } from './model.js';
@@ -18,7 +19,7 @@ export function mountAdminLibrary(host, { api, initialCategory = 'element' }) {
   let rows = [], draft, base, original = '', category = 'element', contentLocale = currentLocale(), sceneIndex = 0, layerIndex = 0,
     query = '', stateFilter = 'all', saving = false, disposed = false, previewSequence = 0, previewTimer, previewAbort, player,
     latestPreview = null, latestSignature = '', inViewport = true, addType = 'text', loaded = false,
-    audioActive = false, audioController, canvasScroll = [];
+    listSignature = '', audioActive = false, audioController, canvasScroll = [];
   const title = node('h1', {}, localized('title'));
   const count = node('p', { class: 'library-admin__count', role: 'status' });
   const feedback = node('p', { class: 'library-admin__feedback', role: 'status', 'aria-live': 'polite', hidden: true });
@@ -115,27 +116,43 @@ export function mountAdminLibrary(host, { api, initialCategory = 'element' }) {
     const visible = filtered();
     updateTabs();
     setText(count, localizedMessage('count', { count: visible.length }));
-    list.replaceChildren(...visible.map((row, index) => node('li', {}, node('button', { type: 'button', 'data-library-action': 'select', 'data-key': itemKey(row),
-      class: draft && itemKey(row) === itemKey(draft) ? 'is-selected' : '', 'aria-pressed': Boolean(draft && itemKey(row) === itemKey(draft)),
-      tabindex: draft && itemKey(row) === itemKey(draft) || !draft && index === 0 ? 0 : -1 },
-    node('span', { class: 'library-admin__item-title' }, itemTitle(row, rows, currentLocale())),
-    node('span', { class: `library-admin__badge ${row.status === 'disabled' ? 'is-off' : ''}` }, localized(`status.${row.status}`)),
-    node('small', {}, message('adminLibrary.version', { revision: row.revision }))))));
-    if (!visible.length) list.append(node('li', { class: 'library-admin__empty' }, localized('empty')));
+    const signature = fingerprint([currentLocale(), visible.map(row => [itemKey(row), itemTitle(row, rows, currentLocale()), row.status, row.revision])]);
+    if (signature !== listSignature) {
+      const focused = list.contains(document.activeElement) ? document.activeElement.closest('[data-key]')?.dataset.key : null;
+      preserveScroll(list, () => {
+        list.replaceChildren(...visible.map(row => node('li', {}, node('button', { type: 'button', 'data-library-action': 'select', 'data-key': itemKey(row) },
+          node('span', { class: 'library-admin__item-title' }, itemTitle(row, rows, currentLocale())),
+          node('span', { class: `library-admin__badge ${row.status === 'disabled' ? 'is-off' : ''}` }, localized(`status.${row.status}`)),
+          node('small', {}, message('adminLibrary.version', { revision: row.revision }))))));
+        if (!visible.length) list.append(node('li', { class: 'library-admin__empty' }, localized('empty')));
+        if (focused) list.querySelector(`[data-key="${CSS.escape(focused)}"]`)?.focus({ preventScroll: true });
+      });
+      listSignature = signature;
+    }
+    for (const [index, control] of [...list.querySelectorAll('button')].entries()) {
+      const selected = Boolean(draft && control.dataset.key === itemKey(draft));
+      control.classList.toggle('is-selected', selected); control.setAttribute('aria-pressed', String(selected)); control.tabIndex = selected || !draft && index === 0 ? 0 : -1;
+    }
   }
-  function renderFields() {
+  function renderFields(reset = false) {
     if (!draft) { fields.replaceChildren(node('p', {}, localized('empty'))); mark(); return; }
     ({ sceneIndex, layerIndex } = normalizeSelection(draft, contentLocale, sceneIndex, layerIndex));
     const focus = fields.contains(document.activeElement) ? document.activeElement.dataset.field : null;
-    fields.replaceChildren(...libraryFields(draft, rows, { locale: contentLocale, sceneIndex, layerIndex, addType }));
-    if (focus) fields.querySelector(`[data-field="${CSS.escape(focus)}"]`)?.focus({ preventScroll: true });
+    const expanded = new Map([...fields.querySelectorAll('details[data-library-section]')].map(item => [item.dataset.librarySection, item.open]));
+    preserveScroll(fields, () => {
+      fields.replaceChildren(...libraryFields(draft, rows, { locale: contentLocale, sceneIndex, layerIndex, addType }));
+      if (!reset) for (const item of fields.querySelectorAll('details[data-library-section]')) if (expanded.has(item.dataset.librarySection)) item.open = expanded.get(item.dataset.librarySection);
+      if (focus && !reset) fields.querySelector(`[data-field="${CSS.escape(focus)}"]`)?.focus({ preventScroll: true });
+    });
+    if (reset) fields.scrollTop = 0;
     mark();
   }
   function selectItem(row, force = false) {
     if (!force && !canDiscard()) return;
+    const changed = !draft || itemKey(draft) !== itemKey(row);
     base = copy(row); draft = copy(row); original = fingerprint(draft); sceneIndex = layerIndex = 0;
     conflict.hidden = true; feedback.hidden = true; latestPreview = null; latestSignature = '';
-    renderList(); renderFields(); if (!audioActive) schedulePreview(true);
+    renderList(); renderFields(changed); if (!audioActive) schedulePreview(true);
   }
   function mutate(fn, structural = false) {
     if (!draft || saving) return;
@@ -145,9 +162,10 @@ export function mountAdminLibrary(host, { api, initialCategory = 'element' }) {
   }
   function showPreview(result) {
     if (disposed || !inViewport || audioActive) return;
-    player?.dispose();
     const effectPreview = result.preferredSceneId ? { ...result.effectPreview, sceneId: result.preferredSceneId } : result.effectPreview;
-    player = mountPlayer(previewHost, { document: result.document, mode: 'preview', assetUrl: eventMediaUrl, effectPreview });
+    preserveScroll(previewHost, () => {
+      player?.dispose(); player = mountPlayer(previewHost, { document: result.document, mode: 'preview', assetUrl: eventMediaUrl, effectPreview });
+    });
     if (result.playSceneId) requestAnimationFrame(() => { if (!disposed) player?.goToScene(result.playSceneId); });
     previewScenes.replaceChildren(...result.document.scenes.map(scene => node('option', { value: scene.id }, scene.name)));
     previewScenes.hidden = result.document.scenes.length < 2; previewScenes.value = result.preferredSceneId || result.document.entrySceneId;
@@ -201,7 +219,7 @@ export function mountAdminLibrary(host, { api, initialCategory = 'element' }) {
   async function save() {
     if (saving || !draft || !form.reportValidity()) return;
     if (base?.revision === 0 && rows.some(r => itemKey(r) === itemKey(draft))) { notify('duplicateId', 'error'); fields.querySelector('[data-path="id"]')?.focus(); return; }
-    const desired = copy(draft); saving = true; mark(); feedback.hidden = true; conflict.hidden = true;
+    const desired = copy(draft), focus = captureFieldFocus(fields); saving = true; mark(); feedback.hidden = true; conflict.hidden = true;
     try {
       const payload = await api.post(`/designs/admin/library/${desired.kind}/${encodeURIComponent(desired.id)}`,
         { expectedRevision: base.revision, definition: desired.definition, status: desired.status, sortOrder: desired.sortOrder }, { signal });
@@ -228,7 +246,10 @@ export function mountAdminLibrary(host, { api, initialCategory = 'element' }) {
         }
         else { setText(feedback, errorMessage(error)); feedback.hidden = false; feedback.dataset.tone = 'error'; }
       }
-    } finally { saving = false; if (!disposed) mark(); }
+    } finally {
+      saving = false;
+      if (!disposed) { mark(); if (document.activeElement === document.body) restoreFieldFocus(fields, focus); }
+    }
   }
   function selectedLayer() { const list = layers(draft, contentLocale, sceneIndex); return list[layerIndex] || list[0]; }
   function changeField(target, structural) {

@@ -55,7 +55,8 @@
     "perf:marketing:compare": "node scripts/quality/compare-marketing.mjs",
     "demo:music": "npm run build && node scripts/dev/music-library-local.mjs",
     "test:music:library": "node tests/integration/music-library.mjs --browser",
-    "test:music:library:mysql": "node tests/integration/music-library.mjs --mysql-local"
+    "test:music:library:mysql": "node tests/integration/music-library.mjs --mysql-local",
+    "test:admin:panels": "node tests/integration/music-library.mjs --mysql-local --browser"
   },
   "dependencies": {
     "@payos/node": "2.0.6",

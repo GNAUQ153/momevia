@@ -33,16 +33,16 @@ export function libraryFields(item, rows, { locale = 'vi', sceneIndex = 0, layer
   const common = section('section.details',
     grid(metaInput('nameVi', local(item, 'title', 'vi') || itemTitle(item, rows, 'vi'), 'title', 'vi', { required: true }), metaInput('nameEn', local(item, 'title', 'en'), 'title', 'en')),
     choose('status.label', item.status, 'status', [['active', t('adminLibrary.status.active')], ['disabled', t('adminLibrary.status.disabled')]]),
-    node('details', { class: 'library-admin__advanced' }, node('summary', {}, message('adminLibrary.advanced')),
+    node('details', { class: 'library-admin__advanced', 'data-library-section': 'advanced' }, node('summary', {}, message('adminLibrary.advanced')),
       grid(input('itemId', item.id, 'id', { readonly: item.revision > 0, required: true, pattern: '[A-Za-z0-9_-]{1,128}', maxlength: 128 }),
         number('sortOrder', item.sortOrder, 'sortOrder', -2147483648, 2147483647, { step: 1, required: true }))));
   const used = dependencies(item, rows);
-  const dependency = used.length ? node('details', { class: 'library-admin__dependencies' }, node('summary', {}, message('adminLibrary.dependencies', { count: used.length })),
+  const dependency = used.length ? node('details', { class: 'library-admin__dependencies', 'data-library-section': 'dependencies' }, node('summary', {}, message('adminLibrary.dependencies', { count: used.length })),
     node('ul', {}, ...used.map(row => node('li', {}, itemTitle(row, rows))))) : null;
   const output = [common, dependency];
   if (item.kind === 'animation') output.push(animationFields(item));
   if (item.kind === 'effect') output.push(effectFields(item, rows));
-  if (item.kind === 'element') output.push(node('details', { class: 'library-admin__advanced' }, node('summary', {}, message('adminLibrary.section.group')),
+  if (item.kind === 'element') output.push(node('details', { class: 'library-admin__advanced', 'data-library-section': 'group' }, node('summary', {}, message('adminLibrary.section.group')),
     grid(metaInput('groupVi', local(item, 'group', 'vi'), 'group', 'vi', { required: true }), metaInput('groupEn', local(item, 'group', 'en'), 'group', 'en')),
     input('keywords', libraryText(d.keywords), 'definition.keywords', { maxlength: 4000 })));
   if (['element','preset','template'].includes(item.kind)) output.push(...compositionFields(item, rows, { locale, sceneIndex, layerIndex, addType }));
@@ -87,7 +87,7 @@ function effectFields(item, rows) {
     ...(['surface','transition','ambience'].includes(family) ? [check('effect.scenes', d.targets.scenes, { 'data-path': 'definition.targets.scenes', 'data-field': 'effect.scenes' })] : []),
     ...(!['transition','ambience'].includes(family) ? primitiveTypes.map(type => check(`editor.element.${type}`, d.targets.types?.includes(type), {
       'data-toggle': 'definition.targets.types', value: type, 'data-field': `target.${type}` })) : []))];
-  if (d.targets.types?.includes('interaction')) fields.push(node('details', {}, node('summary', {}, message('adminLibrary.effect.interactions')),
+  if (d.targets.types?.includes('interaction')) fields.push(node('details', { 'data-library-section': 'interactions' }, node('summary', {}, message('adminLibrary.effect.interactions')),
     node('p', { class: 'library-admin__help' }, message('adminLibrary.effect.allKinds')),
     ...['kinds','excludeKinds'].map(key => section(`effect.${key}`, node('div', { class: 'library-admin__checks' }, ...Object.keys(interactionKinds).map(kind => check(`interactionKind.${kind}`, d.targets[key]?.includes(kind), {
       'data-toggle': `definition.targets.${key}`, value: kind, 'data-field': `target.${key}.${kind}` })))))));
@@ -122,7 +122,7 @@ function compositionFields(item, rows, { locale, sceneIndex, layerIndex, addType
   const path = `${root}.elements.${index}`, e = selected;
   out.push(section('section.layer', input('layer.name', e.name || '', path + '.name', { maxlength: 100 }),
     ...layerProperties(e, path, rows, doc),
-    node('details', { class: 'library-admin__advanced' }, node('summary', {}, message('adminLibrary.layoutMore')),
+    node('details', { class: 'library-admin__advanced', 'data-library-section': 'layout' }, node('summary', {}, message('adminLibrary.layoutMore')),
     grid(...['x','y','width','height','rotation'].map(key => number(`layout.${key}`, e.layout[key], `${path}.layout.${key}`, ['width','height'].includes(key) ? 1 : key === 'rotation' ? -360 : -10000, key === 'rotation' ? 360 : 10000, { required: true }))),
     node('div', { class: 'library-admin__checks' }, check('layer.visible', e.visible !== false, { 'data-path': path + '.visible' }), check('layer.locked', e.locked === true, { 'data-path': path + '.locked' })),
     number('layer.opacity', (e.opacity ?? 1) * 100, '', 0, 100, { 'data-operation': 'opacity', 'data-field': 'layer-opacity' }))));

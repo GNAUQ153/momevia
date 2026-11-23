@@ -7,6 +7,8 @@ import { startSfxFixture } from './sfx-fixture.mjs';
 import { loadEnvironment } from '../../src/shared/config.mjs';
 import { MusicLibraryService } from '../../src/modules/designs/music-library.service.mjs';
 import { exportCanvas, restoreCanvas, verifyCanvas } from '../../scripts/dev/canvas-backup.mjs';
+import { runLibraryPanelChecks } from '../browser/library-panels.mjs';
+import { createElement } from '../../web/js/shared/canvas/registry.js';
 
 if(process.argv.includes('--mysql-local'))loadEnvironment();
 const sql=process.argv.includes('--mysql-local');
@@ -14,6 +16,17 @@ const fixture=await startSfxFixture({sql,externalSql:sql,label:sql?'music-mysql'
 const {request,base,directory}=fixture,checks=[];
 let browser;
 async function check(name,work){await work();checks.push({name,result:'PASS'});console.log('PASS '+name);}
+async function assertAudioPresentation(page,track){
+ const preview=page.locator('.music-admin__preview');
+ assert.equal(await preview.locator('a').count(),2,'Preview only links the selected asset license and source');
+ assert.deepEqual(await preview.locator('a').evaluateAll(links=>links.map(link=>link.getAttribute('href'))),[track.licenseUrl,track.sourceUrl]);
+ assert.equal(await page.locator('.music-admin__sources, .music-admin__providers').count(),0);
+ assert(!/Feed Clips|Soundstripe API|Tuned Global|VCPMC|VCRRM/.test(await preview.innerText()));
+ const kind=await page.locator('[data-music-admin-filter="kind"]').boundingBox(),status=await page.locator('[data-music-admin-filter="status"]').boundingBox();
+ assert(Math.abs(kind.y-status.y)<1,'The kind and status filters share one row');
+ assert(kind.x+kind.width<=status.x,'The filters do not overlap');
+ assert(kind.height>=44&&status.height>=44,'Compact filters retain touch target height');
+}
 try {
  const admin=await fixture.register('Music Admin'),sender=await fixture.register('Music Sender');
  await fixture.app.modules.identity.service.users.update(admin.user.id,{role:'admin'});
@@ -65,6 +78,10 @@ try {
   const context=await browser.newContext({viewport:{width:1365,height:900}});const [name,...value]=admin.cookie.split('=');await context.addCookies([{name,value:value.join('='),url:base}]);
   const page=await context.newPage(),errors=[],audioRequests=[];page.on('pageerror',e=>errors.push(e.message));page.on('request',r=>{if(/\.(mp3|wav)(\?|$)|\/sfx\/\d+\//.test(r.url()))audioRequests.push(r.url());});
   await page.goto(base+'/admin/music-library');await page.locator('[data-audio-key]').last().waitFor();assert.equal(await page.locator('[data-audio-key]').count(),50);assert.equal(audioRequests.length,0);
+  const defaultTrack=(await get()).data.audioLibrary.items.find(row=>row.kind==='music');
+  assert.equal(await page.locator('[data-audio-field="vi"]').inputValue(),defaultTrack.title.vi,'The first music entry opens without a click or a write');
+  assert.equal(await page.locator(`[data-key="${defaultTrack.key}"]`).getAttribute('aria-pressed'),'true');
+  await assertAudioPresentation(page,defaultTrack);
   await page.locator('[data-music-admin-filter="query"]').fill('quan tri am nhac');assert.equal(await page.locator('[data-audio-key]').count(),1);await page.locator('[data-music-admin="edit"]').click();
   await page.locator('[data-audio-field="vi"]').fill('Thư viện đã sửa từ UI');await page.locator('[data-audio-field="status"]').selectOption('active');await page.locator('[data-music-admin-form]').evaluate(form=>form.requestSubmit());await page.getByRole('status').filter({hasText:'Đã lưu vào thư viện'}).waitFor();
   await page.reload();await page.locator('[data-audio-key]').last().waitFor();await page.locator('[data-music-admin-filter="query"]').fill('thu vien da sua');assert.equal(await page.locator('[data-audio-key]').count(),1);
@@ -74,11 +91,24 @@ try {
   await page.evaluate(()=>{document.activeElement?.blur();globalThis.scrollTo(0,0);});await page.waitForTimeout(150);
   await page.screenshot({path:path.join(directory,'music-library-desktop.png'),fullPage:true});
   await page.setViewportSize({width:390,height:844});await page.evaluate(()=>globalThis.scrollTo(0,0));assert(await page.evaluate(()=>document.documentElement.scrollWidth<=document.documentElement.clientWidth+1));await page.screenshot({path:path.join(directory,'music-library-mobile.png'),fullPage:true});
+  await assertAudioPresentation(page,(await get()).data.audioLibrary.items.find(row=>row.key===defaultTrack.key));
   await page.locator('[data-music-admin-filter="query"]').fill('');await page.locator('[data-music-admin-filter="kind"]').selectOption('sfx');assert.equal(await page.locator('[data-audio-key]').count(),50);
+  await assertAudioPresentation(page,(await get()).data.audioLibrary.items.find(row=>row.kind==='sfx'));
   assert.deepEqual(errors,[]);await context.close();
   const senderContext=await browser.newContext({viewport:{width:1590,height:924}}),senderCookie=sender.cookie.indexOf('=');
   await senderContext.addCookies([{name:sender.cookie.slice(0,senderCookie),value:sender.cookie.slice(senderCookie+1),url:base}]);
+  const freshDraft=(await request('/designs/designs/'+saved.id,{cookie:sender.cookie})).data.design;
+  for(let index=0;index<30;index++){const element=createElement('text',{name:'Panel QA '+index,props:{text:'Panel QA '+index}});freshDraft.document.elements.push(element);freshDraft.document.scenes[0].elementIds.push(element.id);}
+  assert.equal((await request('/designs/designs/'+saved.id+'/save',{cookie:sender.cookie,body:{title:freshDraft.title,document:freshDraft.document,expectedRevision:freshDraft.revision,mutationId:randomUUID()}})).status,200);
   const studio=await senderContext.newPage();await studio.goto(base+'/design/'+saved.id);await studio.locator('.editor-artboard').waitFor();
+  await studio.locator('[data-editor-action="library-tab"][data-tab="layers"]').click();
+  const layerList=studio.locator('.editor-layers'),libraryPanel=studio.locator('.editor-library');
+  await libraryPanel.evaluate(node=>{node.scrollTop=500;});
+  const layerId=await layerList.evaluate(node=>{const bounds=node.closest('.editor-library').getBoundingClientRect();const button=[...node.querySelectorAll('button')].find(control=>{const r=control.getBoundingClientRect();return r.top>=bounds.top+5&&r.bottom<bounds.bottom-5;});globalThis.__selectedLayerButton=button;return button.dataset.id;});
+  const layerTop=await libraryPanel.evaluate(node=>node.scrollTop);assert(layerTop>0);
+  await layerList.locator(`[data-id="${layerId}"]`).click();
+  assert(await layerList.locator(`[data-id="${layerId}"]`).evaluate(node=>node===globalThis.__selectedLayerButton),'Designer layer selection must retain its existing button');
+  assert(Math.abs((await libraryPanel.evaluate(node=>node.scrollTop))-layerTop)<=1);
   await studio.locator('[data-editor-action="library-tab"][data-tab="content"]').click();
   async function checkCards(){
     const cards=await studio.locator('.editor-music-grid').evaluate(grid=>[...grid.querySelectorAll('button[data-track-id]')].filter(button=>button.dataset.trackId).map(button=>{
@@ -91,6 +121,7 @@ try {
   await studio.locator('.editor-music-grid').evaluate(grid=>grid.scrollIntoView({block:'center'}));assert(await studio.evaluate(()=>document.documentElement.scrollWidth<=document.documentElement.clientWidth+1));
   await studio.locator('.editor-library').screenshot({path:path.join(directory,'studio-music-fixed-mobile.png')});await senderContext.close();
  });
+ if(browser&&sql)await check('independent canvas/audio panels preserve scroll, DOM, drafts and safe audio lifecycle',()=>runLibraryPanelChecks({browser,base,cookie:admin.cookie,directory}));
  fs.writeFileSync(path.join(directory,'music-library-results.json'),JSON.stringify({checks,database:sql?'isolated-existing-local-server':'isolated-json',dockerStarted:false,humanListening:false,physicalDevices:false,browser:browser?.version()},null,2));
  console.log('Evidence '+directory);
 }finally{await browser?.close();await fixture.close();}

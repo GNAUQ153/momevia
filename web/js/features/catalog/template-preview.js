@@ -1,9 +1,8 @@
-import { RESTYLE_PAIRS } from '../../shared/canvas/template-slots.js';
+import { RESTYLE_PAIRS } from '../../shared/canvas/restyle-pairs.js';
 import {ensureFullStyles} from '../../core/client-styles.js';
 import { attr, createLocaleControl, message, onLocaleChange, setAttr, text, t } from '../../core/i18n.js';
 import { isSystemTemplate } from '../../shared/template-copy.js';
 import { templateField, templateValue } from './template-copy.js';
-import { eventMediaUrl } from '../../shared/canvas/event-media.js';
 import { templateCreateUrl } from './template-create-url.js';
 
 export function templatePreviewDialog(template) {
@@ -59,11 +58,12 @@ export function mountTemplatePreview(host, template, { api, onOpen, autoOpen = f
     reset.hidden = true;
     playerHost.setAttribute('aria-busy', 'true');
     try {
-      const [{ mountPlayer }, source] = await Promise.all([
+      const [{ mountPlayer }, source, {eventMediaUrl}] = await Promise.all([
         import('../gift-runtime/index.js'),
         endpoint
           ? api.get(endpoint, { signal }).then(({ version }) => version.document)
           : api.get(`/designs/library/templates/${encodeURIComponent(template.id)}/preview`,{signal}),
+        import('../../shared/canvas/event-media.js'),
         ensureFullStyles(),
       ]);
       if (signal.aborted || !dialog.open) return;

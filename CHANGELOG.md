@@ -1,3 +1,7 @@
+## Unreleased — Mẫu quà tự nhiên · 5/8 (2026-11-23)
+
+- Giữ ảnh người gửi, nguồn/quyền qua initializer/restyle; chỉ tải dữ liệu preview khi mở.
+
 ## Unreleased — Mẫu quà tự nhiên · 4/8 (2026-11-23)
 
 - Giữ artwork/effect, ảnh contain, tọa độ lẻ và kiểu hồi đáp trong Studio/Fabric/trình nhận.

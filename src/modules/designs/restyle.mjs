@@ -7,6 +7,7 @@ import { serverText } from '../../shared/locale.mjs';
 import { hash, designView } from './designs.service.mjs';
 import { canvasError } from './errors.mjs';
 import { materializeBuiltinMedia } from './builtin-media.mjs';
+import {EVENT_MEDIA} from '../../../web/js/shared/canvas/event-media.js';
 const requireValue=(ok,status,code,message)=>{if(!ok)throw canvasError(status,code,message);};
 export async function previewRestyle(service,user,id,input,locale='vi'){
  service.requireEdit();
@@ -21,8 +22,12 @@ export async function previewRestyle(service,user,id,input,locale='vi'){
  }
  const t=(key,params)=>serverText(locale,key,params);
  const sourceDefault=createDocument({template:source.template,localize:t}),targetDefault=createDocument({template:target.template,localize:t});
- const mapped=mapTemplateSlots(current.document,sourceDefault,targetDefault,{sourceRoles:current.provenance?.slotMap?.elements});
- validateDocument(mapped.document);await service.assetsFor(user.sub,current.document);
+ await service.assetsFor(user.sub,current.document);
+ const sourceAssets=await Promise.all(current.document.assets.map(ref=>service.repository.getAsset(user.sub,ref.assetId))),byHash=new Map();
+ for(const [id,spec]of Object.entries(EVENT_MEDIA)){const key='sha256:'+spec.sha256;if(!byHash.has(key))byHash.set(key,[]);byHash.get(key).push(id);}
+ const builtinAssetAliases=Object.fromEntries(sourceAssets.filter(a=>byHash.has(a.contentHash)).map(a=>[a.id,byHash.get(a.contentHash)]));
+ const mapped=mapTemplateSlots(current.document,sourceDefault,targetDefault,{sourceRoles:current.provenance?.slotMap?.elements,builtinAssetAliases});
+ validateDocument(mapped.document);
  const plan={sourceDesignId:id,sourceRevision:current.revision,sourceHash:current.documentHash,sourceVersion:source.source.templateVersionId,targetVersion:target.source.templateVersionId,sourcePrice:source.template.price,targetPrice:target.template.price,libraryRevisions:[current.source.templateId,input.targetTemplateId].map(id=>librarySnapshot()?.items.find(r=>r.kind==='template'&&r.id===id)).filter(Boolean).map(r=>({id:r.id,revision:r.revision})),carried:mapped.carried,missing:mapped.missing,documentHash:hash(mapped.document)};
  return { ...mapped,plan,planHash:hash(plan),slots:{source:semanticSlots(sourceDefault),target:semanticSlots(targetDefault)},targetSource:target.source, targetPrice:target.template.price };
 }

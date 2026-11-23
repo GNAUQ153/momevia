@@ -1,0 +1,3904 @@
+[
+  {
+    "id": "heading",
+    "title": {
+      "vi": "Tiêu đề",
+      "en": "Heading"
+    },
+    "group": {
+      "vi": "Chữ",
+      "en": "Text"
+    },
+    "layers": 1,
+    "types": [
+      "text"
+    ],
+    "material": "functional",
+    "decision": "reuse",
+    "uses": [],
+    "reason": "Keep definition; functional primitives remain editable",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "paragraph",
+    "title": {
+      "vi": "Đoạn văn",
+      "en": "Paragraph"
+    },
+    "group": {
+      "vi": "Chữ",
+      "en": "Text"
+    },
+    "layers": 1,
+    "types": [
+      "text"
+    ],
+    "material": "functional",
+    "decision": "reuse",
+    "uses": [],
+    "reason": "Keep definition; functional primitives remain editable",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "greeting",
+    "title": {
+      "vi": "Lời chúc",
+      "en": "Greeting"
+    },
+    "group": {
+      "vi": "Chữ",
+      "en": "Text"
+    },
+    "layers": 1,
+    "types": [
+      "text"
+    ],
+    "material": "functional",
+    "decision": "reuse",
+    "uses": [],
+    "reason": "Keep definition; functional primitives remain editable",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "recipient",
+    "title": {
+      "vi": "Tên người nhận",
+      "en": "Recipient name"
+    },
+    "group": {
+      "vi": "Chữ",
+      "en": "Text"
+    },
+    "layers": 1,
+    "types": [
+      "text"
+    ],
+    "material": "functional",
+    "decision": "reuse",
+    "uses": [],
+    "reason": "Keep definition; functional primitives remain editable",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "signature",
+    "title": {
+      "vi": "Chữ ký người gửi",
+      "en": "Sender signature"
+    },
+    "group": {
+      "vi": "Chữ",
+      "en": "Text"
+    },
+    "layers": 1,
+    "types": [
+      "text"
+    ],
+    "material": "functional",
+    "decision": "reuse",
+    "uses": [],
+    "reason": "Keep definition; functional primitives remain editable",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "quote-block",
+    "title": {
+      "vi": "Trích dẫn có ngoặc",
+      "en": "Quotation"
+    },
+    "group": {
+      "vi": "Chữ",
+      "en": "Text"
+    },
+    "layers": 5,
+    "types": [
+      "shape",
+      "text"
+    ],
+    "material": "functional",
+    "decision": "reuse",
+    "uses": [],
+    "reason": "Keep definition; functional primitives remain editable",
+    "nextLayers": 5,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "drop-cap",
+    "title": {
+      "vi": "Chữ cái mở đoạn",
+      "en": "Drop cap"
+    },
+    "group": {
+      "vi": "Chữ",
+      "en": "Text"
+    },
+    "layers": 2,
+    "types": [
+      "shape",
+      "text"
+    ],
+    "material": "paper / photo",
+    "decision": "reuse",
+    "uses": [],
+    "reason": "Keep definition; functional primitives remain editable",
+    "nextLayers": 2,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "postscript",
+    "title": {
+      "vi": "Lời tái bút",
+      "en": "Postscript"
+    },
+    "group": {
+      "vi": "Chữ",
+      "en": "Text"
+    },
+    "layers": 2,
+    "types": [
+      "text"
+    ],
+    "material": "paper / photo",
+    "decision": "reuse",
+    "uses": [],
+    "reason": "Keep definition; functional primitives remain editable",
+    "nextLayers": 2,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "name-ribbon",
+    "title": {
+      "vi": "Ruy băng ghi tên",
+      "en": "Name ribbon"
+    },
+    "group": {
+      "vi": "Chữ",
+      "en": "Text"
+    },
+    "layers": 3,
+    "types": [
+      "shape",
+      "text"
+    ],
+    "material": "functional",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 3,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "date-label",
+    "title": {
+      "vi": "Nhãn ngày kỷ niệm",
+      "en": "Anniversary date"
+    },
+    "group": {
+      "vi": "Chữ",
+      "en": "Text"
+    },
+    "layers": 4,
+    "types": [
+      "shape",
+      "text"
+    ],
+    "material": "functional",
+    "decision": "reuse",
+    "uses": [],
+    "reason": "Keep definition; functional primitives remain editable",
+    "nextLayers": 4,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "spine-title",
+    "title": {
+      "vi": "Chữ gáy thiệp",
+      "en": "Spine title"
+    },
+    "group": {
+      "vi": "Chữ",
+      "en": "Text"
+    },
+    "layers": 2,
+    "types": [
+      "shape",
+      "text"
+    ],
+    "material": "functional",
+    "decision": "reuse",
+    "uses": [],
+    "reason": "Keep definition; functional primitives remain editable",
+    "nextLayers": 2,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "sticky-note",
+    "title": {
+      "vi": "Giấy nhắn dán",
+      "en": "Sticky note"
+    },
+    "group": {
+      "vi": "Chữ",
+      "en": "Text"
+    },
+    "layers": 3,
+    "types": [
+      "shape",
+      "text"
+    ],
+    "material": "paper / photo",
+    "decision": "reuse",
+    "uses": [],
+    "reason": "Keep definition; functional primitives remain editable",
+    "nextLayers": 3,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "speech-bubble",
+    "title": {
+      "vi": "Bong bóng lời thoại",
+      "en": "Speech bubble"
+    },
+    "group": {
+      "vi": "Chữ",
+      "en": "Text"
+    },
+    "layers": 2,
+    "types": [
+      "shape",
+      "text"
+    ],
+    "material": "functional",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 2,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "poem-card",
+    "title": {
+      "vi": "Thẻ thơ hai khổ",
+      "en": "Two-stanza poem"
+    },
+    "group": {
+      "vi": "Chữ",
+      "en": "Text"
+    },
+    "layers": 4,
+    "types": [
+      "shape",
+      "text"
+    ],
+    "material": "functional",
+    "decision": "reuse",
+    "uses": [],
+    "reason": "Keep definition; functional primitives remain editable",
+    "nextLayers": 4,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "bilingual-note",
+    "title": {
+      "vi": "Lời nhắn song ngữ",
+      "en": "Bilingual note"
+    },
+    "group": {
+      "vi": "Chữ",
+      "en": "Text"
+    },
+    "layers": 4,
+    "types": [
+      "shape",
+      "text"
+    ],
+    "material": "paper / photo",
+    "decision": "reuse",
+    "uses": [],
+    "reason": "Keep definition; functional primitives remain editable",
+    "nextLayers": 4,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "photo",
+    "title": {
+      "vi": "Ảnh thường",
+      "en": "Photo"
+    },
+    "group": {
+      "vi": "Ảnh",
+      "en": "Photos"
+    },
+    "layers": 1,
+    "types": [
+      "image"
+    ],
+    "material": "paper / photo",
+    "decision": "reuse",
+    "uses": [],
+    "reason": "Keep definition; functional primitives remain editable",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "rounded-photo",
+    "title": {
+      "vi": "Ảnh bo góc",
+      "en": "Rounded photo"
+    },
+    "group": {
+      "vi": "Ảnh",
+      "en": "Photos"
+    },
+    "layers": 1,
+    "types": [
+      "image"
+    ],
+    "material": "paper / photo",
+    "decision": "reuse",
+    "uses": [],
+    "reason": "Keep definition; functional primitives remain editable",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "polaroid",
+    "title": {
+      "vi": "Polaroid",
+      "en": "Polaroid"
+    },
+    "group": {
+      "vi": "Ảnh",
+      "en": "Photos"
+    },
+    "layers": 3,
+    "types": [
+      "shape",
+      "text"
+    ],
+    "material": "paper / photo",
+    "decision": "reuse",
+    "uses": [
+      "polaroid"
+    ],
+    "reason": "Keep definition; functional primitives remain editable",
+    "nextLayers": 3,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "round-portrait",
+    "title": {
+      "vi": "Chân dung tròn",
+      "en": "Circular portrait"
+    },
+    "group": {
+      "vi": "Ảnh",
+      "en": "Photos"
+    },
+    "layers": 1,
+    "types": [
+      "image"
+    ],
+    "material": "paper / photo",
+    "decision": "reuse",
+    "uses": [],
+    "reason": "Keep definition; functional primitives remain editable",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "arch-photo",
+    "title": {
+      "vi": "Ảnh vòm cửa",
+      "en": "Arched photo"
+    },
+    "group": {
+      "vi": "Ảnh",
+      "en": "Photos"
+    },
+    "layers": 2,
+    "types": [
+      "shape",
+      "image"
+    ],
+    "material": "paper / photo",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 2,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "heart-photo",
+    "title": {
+      "vi": "Ảnh trái tim",
+      "en": "Heart-shaped photo"
+    },
+    "group": {
+      "vi": "Ảnh",
+      "en": "Photos"
+    },
+    "layers": 1,
+    "types": [
+      "image"
+    ],
+    "material": "paper / photo",
+    "decision": "reuse",
+    "uses": [],
+    "reason": "Keep definition; functional primitives remain editable",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "film-strip",
+    "title": {
+      "vi": "Dải phim ba ảnh",
+      "en": "Three-photo filmstrip"
+    },
+    "group": {
+      "vi": "Ảnh",
+      "en": "Photos"
+    },
+    "layers": 30,
+    "types": [
+      "shape",
+      "image"
+    ],
+    "material": "paper / photo",
+    "decision": "reuse",
+    "uses": [],
+    "reason": "Keep definition; functional primitives remain editable",
+    "nextLayers": 30,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "photo-diptych",
+    "title": {
+      "vi": "Ảnh đôi trước và sau",
+      "en": "Before and after"
+    },
+    "group": {
+      "vi": "Ảnh",
+      "en": "Photos"
+    },
+    "layers": 3,
+    "types": [
+      "shape",
+      "image"
+    ],
+    "material": "paper / photo",
+    "decision": "reuse",
+    "uses": [],
+    "reason": "Keep definition; functional primitives remain editable",
+    "nextLayers": 3,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "photo-postcard",
+    "title": {
+      "vi": "Bưu thiếp ảnh",
+      "en": "Photo postcard"
+    },
+    "group": {
+      "vi": "Ảnh",
+      "en": "Photos"
+    },
+    "layers": 7,
+    "types": [
+      "shape",
+      "image",
+      "sticker",
+      "text"
+    ],
+    "material": "paper / photo",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 7,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "magazine-cover",
+    "title": {
+      "vi": "Bìa tạp chí cá nhân",
+      "en": "Personal magazine cover"
+    },
+    "group": {
+      "vi": "Ảnh",
+      "en": "Photos"
+    },
+    "layers": 8,
+    "types": [
+      "shape",
+      "image",
+      "text"
+    ],
+    "material": "paper / photo",
+    "decision": "reuse",
+    "uses": [],
+    "reason": "Keep definition; functional primitives remain editable",
+    "nextLayers": 8,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "panorama-caption",
+    "title": {
+      "vi": "Ảnh toàn cảnh có chú thích",
+      "en": "Captioned panorama"
+    },
+    "group": {
+      "vi": "Ảnh",
+      "en": "Photos"
+    },
+    "layers": 1,
+    "types": [
+      "image"
+    ],
+    "material": "paper / photo",
+    "decision": "reuse",
+    "uses": [],
+    "reason": "Keep definition; functional primitives remain editable",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "quad-album",
+    "title": {
+      "vi": "Album bốn ô",
+      "en": "Four-photo album"
+    },
+    "group": {
+      "vi": "Ảnh",
+      "en": "Photos"
+    },
+    "layers": 5,
+    "types": [
+      "shape",
+      "image"
+    ],
+    "material": "paper / photo",
+    "decision": "reuse",
+    "uses": [],
+    "reason": "Keep definition; functional primitives remain editable",
+    "nextLayers": 5,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "torn-photo",
+    "title": {
+      "vi": "Ảnh mép giấy xé",
+      "en": "Torn-edge photo"
+    },
+    "group": {
+      "vi": "Ảnh",
+      "en": "Photos"
+    },
+    "layers": 2,
+    "types": [
+      "shape",
+      "image"
+    ],
+    "material": "paper / photo",
+    "decision": "reuse",
+    "uses": [],
+    "reason": "Keep definition; functional primitives remain editable",
+    "nextLayers": 2,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "hero-collage",
+    "title": {
+      "vi": "Ảnh ghép một lớn hai nhỏ",
+      "en": "One large, two small collage"
+    },
+    "group": {
+      "vi": "Ảnh",
+      "en": "Photos"
+    },
+    "layers": 4,
+    "types": [
+      "shape",
+      "image"
+    ],
+    "material": "paper / photo",
+    "decision": "reuse",
+    "uses": [],
+    "reason": "Keep definition; functional primitives remain editable",
+    "nextLayers": 4,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "rectangle",
+    "title": {
+      "vi": "Chữ nhật",
+      "en": "Rectangle"
+    },
+    "group": {
+      "vi": "Hình và nét",
+      "en": "Shapes and lines"
+    },
+    "layers": 1,
+    "types": [
+      "shape"
+    ],
+    "material": "vector decoration",
+    "decision": "reuse",
+    "uses": [],
+    "reason": "Keep definition; functional primitives remain editable",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "rounded",
+    "title": {
+      "vi": "Ô bo góc",
+      "en": "Rounded rectangle"
+    },
+    "group": {
+      "vi": "Hình và nét",
+      "en": "Shapes and lines"
+    },
+    "layers": 1,
+    "types": [
+      "shape"
+    ],
+    "material": "vector decoration",
+    "decision": "reuse",
+    "uses": [],
+    "reason": "Keep definition; functional primitives remain editable",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "ellipse",
+    "title": {
+      "vi": "Bầu dục",
+      "en": "Ellipse"
+    },
+    "group": {
+      "vi": "Hình và nét",
+      "en": "Shapes and lines"
+    },
+    "layers": 1,
+    "types": [
+      "shape"
+    ],
+    "material": "vector decoration",
+    "decision": "reuse",
+    "uses": [],
+    "reason": "Keep definition; functional primitives remain editable",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "circle",
+    "title": {
+      "vi": "Hình tròn",
+      "en": "Circle"
+    },
+    "group": {
+      "vi": "Hình và nét",
+      "en": "Shapes and lines"
+    },
+    "layers": 1,
+    "types": [
+      "shape"
+    ],
+    "material": "vector decoration",
+    "decision": "reuse",
+    "uses": [],
+    "reason": "Keep definition; functional primitives remain editable",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "divider",
+    "title": {
+      "vi": "Nét phân cách",
+      "en": "Divider"
+    },
+    "group": {
+      "vi": "Hình và nét",
+      "en": "Shapes and lines"
+    },
+    "layers": 1,
+    "types": [
+      "line"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "triangle",
+    "title": {
+      "vi": "Tam giác",
+      "en": "Triangle"
+    },
+    "group": {
+      "vi": "Hình và nét",
+      "en": "Shapes and lines"
+    },
+    "layers": 1,
+    "types": [
+      "shape"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "diamond",
+    "title": {
+      "vi": "Hình thoi",
+      "en": "Diamond"
+    },
+    "group": {
+      "vi": "Hình và nét",
+      "en": "Shapes and lines"
+    },
+    "layers": 1,
+    "types": [
+      "shape"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "hexagon",
+    "title": {
+      "vi": "Lục giác",
+      "en": "Hexagon"
+    },
+    "group": {
+      "vi": "Hình và nét",
+      "en": "Shapes and lines"
+    },
+    "layers": 1,
+    "types": [
+      "shape"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "arch-shape",
+    "title": {
+      "vi": "Hình vòm",
+      "en": "Arch"
+    },
+    "group": {
+      "vi": "Hình và nét",
+      "en": "Shapes and lines"
+    },
+    "layers": 1,
+    "types": [
+      "shape"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "arc-line",
+    "title": {
+      "vi": "Nét vòng cung",
+      "en": "Arc"
+    },
+    "group": {
+      "vi": "Hình và nét",
+      "en": "Shapes and lines"
+    },
+    "layers": 1,
+    "types": [
+      "line"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "stitched-line",
+    "title": {
+      "vi": "Đường chỉ may",
+      "en": "Stitched line"
+    },
+    "group": {
+      "vi": "Hình và nét",
+      "en": "Shapes and lines"
+    },
+    "layers": 1,
+    "types": [
+      "line"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "curved-arrow",
+    "title": {
+      "vi": "Mũi tên cong",
+      "en": "Curved arrow"
+    },
+    "group": {
+      "vi": "Hình và nét",
+      "en": "Shapes and lines"
+    },
+    "layers": 1,
+    "types": [
+      "line"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "wave-line",
+    "title": {
+      "vi": "Nét lượn sóng",
+      "en": "Wavy line"
+    },
+    "group": {
+      "vi": "Hình và nét",
+      "en": "Shapes and lines"
+    },
+    "layers": 1,
+    "types": [
+      "line"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "brace",
+    "title": {
+      "vi": "Ngoặc ôm đoạn",
+      "en": "Brace"
+    },
+    "group": {
+      "vi": "Hình và nét",
+      "en": "Shapes and lines"
+    },
+    "layers": 1,
+    "types": [
+      "line"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "corner-frame",
+    "title": {
+      "vi": "Khung bốn góc hở",
+      "en": "Open-corner frame"
+    },
+    "group": {
+      "vi": "Hình và nét",
+      "en": "Shapes and lines"
+    },
+    "layers": 1,
+    "types": [
+      "line"
+    ],
+    "material": "paper / photo",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "heart",
+    "title": {
+      "vi": "Trái tim",
+      "en": "Heart"
+    },
+    "group": {
+      "vi": "Sticker",
+      "en": "Stickers"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "star",
+    "title": {
+      "vi": "Ngôi sao",
+      "en": "Star"
+    },
+    "group": {
+      "vi": "Sticker",
+      "en": "Stickers"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "flower",
+    "title": {
+      "vi": "Hoa",
+      "en": "Flower"
+    },
+    "group": {
+      "vi": "Sticker",
+      "en": "Stickers"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "botanical",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "sparkles",
+    "title": {
+      "vi": "Lấp lánh",
+      "en": "Sparkles"
+    },
+    "group": {
+      "vi": "Sticker",
+      "en": "Stickers"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "balloon",
+    "title": {
+      "vi": "Bóng bay",
+      "en": "Balloon"
+    },
+    "group": {
+      "vi": "Sticker",
+      "en": "Stickers"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "cake",
+    "title": {
+      "vi": "Bánh sinh nhật",
+      "en": "Birthday cake"
+    },
+    "group": {
+      "vi": "Sticker",
+      "en": "Stickers"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "gift",
+    "title": {
+      "vi": "Quà",
+      "en": "Gift"
+    },
+    "group": {
+      "vi": "Sticker",
+      "en": "Stickers"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "ribbon-bow",
+    "title": {
+      "vi": "Nơ ruy băng",
+      "en": "Ribbon bow"
+    },
+    "group": {
+      "vi": "Sticker",
+      "en": "Stickers"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "wax-seal",
+    "title": {
+      "vi": "Con dấu sáp",
+      "en": "Wax seal"
+    },
+    "group": {
+      "vi": "Sticker",
+      "en": "Stickers"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "paper / photo",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "paper-crane",
+    "title": {
+      "vi": "Hạc giấy",
+      "en": "Paper crane"
+    },
+    "group": {
+      "vi": "Sticker",
+      "en": "Stickers"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "paper / photo",
+    "decision": "fix-renderer",
+    "uses": [
+      "confetti"
+    ],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "butterfly",
+    "title": {
+      "vi": "Bươm bướm",
+      "en": "Butterfly"
+    },
+    "group": {
+      "vi": "Sticker",
+      "en": "Stickers"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "sun",
+    "title": {
+      "vi": "Mặt trời",
+      "en": "Sun"
+    },
+    "group": {
+      "vi": "Sticker",
+      "en": "Stickers"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "crescent",
+    "title": {
+      "vi": "Trăng khuyết",
+      "en": "Crescent moon"
+    },
+    "group": {
+      "vi": "Sticker",
+      "en": "Stickers"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "rainbow",
+    "title": {
+      "vi": "Cầu vồng",
+      "en": "Rainbow"
+    },
+    "group": {
+      "vi": "Sticker",
+      "en": "Stickers"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "rain-cloud",
+    "title": {
+      "vi": "Mây mưa",
+      "en": "Rain cloud"
+    },
+    "group": {
+      "vi": "Sticker",
+      "en": "Stickers"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "tea-cup",
+    "title": {
+      "vi": "Tách trà",
+      "en": "Tea cup"
+    },
+    "group": {
+      "vi": "Sticker",
+      "en": "Stickers"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "film-camera",
+    "title": {
+      "vi": "Máy ảnh phim",
+      "en": "Film camera"
+    },
+    "group": {
+      "vi": "Sticker",
+      "en": "Stickers"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [
+      "polaroid"
+    ],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "flower-bicycle",
+    "title": {
+      "vi": "Xe đạp giỏ hoa",
+      "en": "Flower bicycle"
+    },
+    "group": {
+      "vi": "Sticker",
+      "en": "Stickers"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "botanical",
+    "decision": "fix-renderer",
+    "uses": [
+      "sunny-wishes"
+    ],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "birthday-candle",
+    "title": {
+      "vi": "Nến sinh nhật",
+      "en": "Birthday candle"
+    },
+    "group": {
+      "vi": "Sticker",
+      "en": "Stickers"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "lantern",
+    "title": {
+      "vi": "Đèn lồng Hội An",
+      "en": "Hoi An lantern"
+    },
+    "group": {
+      "vi": "Sticker",
+      "en": "Stickers"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "sea-shell",
+    "title": {
+      "vi": "Vỏ sò",
+      "en": "Seashell"
+    },
+    "group": {
+      "vi": "Sticker",
+      "en": "Stickers"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "flowers",
+    "title": {
+      "vi": "Cụm hoa",
+      "en": "Flower cluster"
+    },
+    "group": {
+      "vi": "Cụm trang trí",
+      "en": "Decorative clusters"
+    },
+    "layers": 7,
+    "types": [
+      "shape"
+    ],
+    "material": "botanical",
+    "decision": "variant",
+    "uses": [],
+    "reason": "New layered drawing; preserve original saved artwork and IDs",
+    "nextLayers": 2,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "leaves",
+    "title": {
+      "vi": "Cành lá",
+      "en": "Leaf branch"
+    },
+    "group": {
+      "vi": "Cụm trang trí",
+      "en": "Decorative clusters"
+    },
+    "layers": 5,
+    "types": [
+      "line",
+      "shape"
+    ],
+    "material": "botanical",
+    "decision": "variant",
+    "uses": [],
+    "reason": "New layered drawing; preserve original saved artwork and IDs",
+    "nextLayers": 2,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "stars",
+    "title": {
+      "vi": "Cụm sao",
+      "en": "Star cluster"
+    },
+    "group": {
+      "vi": "Cụm trang trí",
+      "en": "Decorative clusters"
+    },
+    "layers": 5,
+    "types": [
+      "shape",
+      "line",
+      "sticker"
+    ],
+    "material": "botanical",
+    "decision": "variant",
+    "uses": [],
+    "reason": "New layered drawing; preserve original saved artwork and IDs",
+    "nextLayers": 5,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "string-lights",
+    "title": {
+      "vi": "Dây đèn treo",
+      "en": "String lights"
+    },
+    "group": {
+      "vi": "Cụm trang trí",
+      "en": "Decorative clusters"
+    },
+    "layers": 8,
+    "types": [
+      "line",
+      "shape"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 8,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "laurel-wreath",
+    "title": {
+      "vi": "Vòng nguyệt quế",
+      "en": "Laurel wreath"
+    },
+    "group": {
+      "vi": "Cụm trang trí",
+      "en": "Decorative clusters"
+    },
+    "layers": 12,
+    "types": [
+      "sticker"
+    ],
+    "material": "botanical",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 12,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "balloon-arch",
+    "title": {
+      "vi": "Vòm bóng bay",
+      "en": "Balloon arch"
+    },
+    "group": {
+      "vi": "Cụm trang trí",
+      "en": "Decorative clusters"
+    },
+    "layers": 7,
+    "types": [
+      "shape"
+    ],
+    "material": "vector decoration",
+    "decision": "reuse",
+    "uses": [],
+    "reason": "Keep definition; functional primitives remain editable",
+    "nextLayers": 7,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "washi-corners",
+    "title": {
+      "vi": "Góc dán washi",
+      "en": "Washi tape corners"
+    },
+    "group": {
+      "vi": "Cụm trang trí",
+      "en": "Decorative clusters"
+    },
+    "layers": 4,
+    "types": [
+      "sticker"
+    ],
+    "material": "paper / photo",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 4,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "layered-waves",
+    "title": {
+      "vi": "Sóng biển nhiều lớp",
+      "en": "Layered ocean waves"
+    },
+    "group": {
+      "vi": "Cụm trang trí",
+      "en": "Decorative clusters"
+    },
+    "layers": 3,
+    "types": [
+      "sticker"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 3,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "lantern-street",
+    "title": {
+      "vi": "Phố đèn lồng",
+      "en": "Lantern street"
+    },
+    "group": {
+      "vi": "Cụm trang trí",
+      "en": "Decorative clusters"
+    },
+    "layers": 8,
+    "types": [
+      "line",
+      "sticker"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 8,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "wrapped-bouquet",
+    "title": {
+      "vi": "Bó hoa gói giấy",
+      "en": "Wrapped bouquet"
+    },
+    "group": {
+      "vi": "Cụm trang trí",
+      "en": "Decorative clusters"
+    },
+    "layers": 11,
+    "types": [
+      "shape",
+      "sticker"
+    ],
+    "material": "paper / photo",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 11,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "lace-border",
+    "title": {
+      "vi": "Viền ren quanh thiệp",
+      "en": "Lace border"
+    },
+    "group": {
+      "vi": "Cụm trang trí",
+      "en": "Decorative clusters"
+    },
+    "layers": 4,
+    "types": [
+      "sticker"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 4,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "birthday-table",
+    "title": {
+      "vi": "Bàn tiệc sinh nhật",
+      "en": "Birthday party table"
+    },
+    "group": {
+      "vi": "Cụm trang trí",
+      "en": "Decorative clusters"
+    },
+    "layers": 7,
+    "types": [
+      "sticker",
+      "shape"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 7,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "three-milestones",
+    "title": {
+      "vi": "Dòng thời gian ba mốc",
+      "en": "Three-milestone timeline"
+    },
+    "group": {
+      "vi": "Kể chuyện và kỷ niệm",
+      "en": "Stories and memories"
+    },
+    "layers": 15,
+    "types": [
+      "shape",
+      "text"
+    ],
+    "material": "functional",
+    "decision": "reuse",
+    "uses": [],
+    "reason": "Keep definition; functional primitives remain editable",
+    "nextLayers": 15,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "diary-page",
+    "title": {
+      "vi": "Trang nhật ký",
+      "en": "Diary page"
+    },
+    "group": {
+      "vi": "Kể chuyện và kỷ niệm",
+      "en": "Stories and memories"
+    },
+    "layers": 5,
+    "types": [
+      "shape",
+      "text",
+      "line"
+    ],
+    "material": "functional",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 5,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "date-ticket",
+    "title": {
+      "vi": "Vé hẹn gặp",
+      "en": "Date ticket"
+    },
+    "group": {
+      "vi": "Kể chuyện và kỷ niệm",
+      "en": "Stories and memories"
+    },
+    "layers": 5,
+    "types": [
+      "shape",
+      "text",
+      "line"
+    ],
+    "material": "functional",
+    "decision": "fix-renderer",
+    "uses": [
+      "afterglow"
+    ],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 5,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "friendship-recipe",
+    "title": {
+      "vi": "Công thức tình bạn",
+      "en": "Friendship recipe"
+    },
+    "group": {
+      "vi": "Kể chuyện và kỷ niệm",
+      "en": "Stories and memories"
+    },
+    "layers": 5,
+    "types": [
+      "shape",
+      "text"
+    ],
+    "material": "functional",
+    "decision": "reuse",
+    "uses": [],
+    "reason": "Keep definition; functional primitives remain editable",
+    "nextLayers": 5,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "three-appreciations",
+    "title": {
+      "vi": "Ba điều mình quý ở bạn",
+      "en": "Three things I appreciate about you"
+    },
+    "group": {
+      "vi": "Kể chuyện và kỷ niệm",
+      "en": "Stories and memories"
+    },
+    "layers": 14,
+    "types": [
+      "shape",
+      "text"
+    ],
+    "material": "functional",
+    "decision": "reuse",
+    "uses": [],
+    "reason": "Keep definition; functional primitives remain editable",
+    "nextLayers": 14,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "date-menu",
+    "title": {
+      "vi": "Thực đơn bữa hẹn",
+      "en": "Date night menu"
+    },
+    "group": {
+      "vi": "Kể chuyện và kỷ niệm",
+      "en": "Stories and memories"
+    },
+    "layers": 6,
+    "types": [
+      "shape",
+      "text"
+    ],
+    "material": "functional",
+    "decision": "reuse",
+    "uses": [],
+    "reason": "Keep definition; functional primitives remain editable",
+    "nextLayers": 6,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "journey-map",
+    "title": {
+      "vi": "Bản đồ hành trình",
+      "en": "Journey map"
+    },
+    "group": {
+      "vi": "Kể chuyện và kỷ niệm",
+      "en": "Stories and memories"
+    },
+    "layers": 9,
+    "types": [
+      "shape",
+      "text",
+      "line"
+    ],
+    "material": "functional",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 9,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "milestone-badge",
+    "title": {
+      "vi": "Huy hiệu cột mốc",
+      "en": "Milestone badge"
+    },
+    "group": {
+      "vi": "Kể chuyện và kỷ niệm",
+      "en": "Stories and memories"
+    },
+    "layers": 5,
+    "types": [
+      "sticker",
+      "shape",
+      "text"
+    ],
+    "material": "botanical",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 5,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "photo-caption",
+    "title": {
+      "vi": "Ảnh và chú thích",
+      "en": "Photo with a caption"
+    },
+    "group": {
+      "vi": "Kể chuyện và kỷ niệm",
+      "en": "Stories and memories"
+    },
+    "layers": 3,
+    "types": [
+      "shape",
+      "image",
+      "text"
+    ],
+    "material": "paper / photo",
+    "decision": "reuse",
+    "uses": [],
+    "reason": "Keep definition; functional primitives remain editable",
+    "nextLayers": 3,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "time-place-card",
+    "title": {
+      "vi": "Thẻ giờ và địa điểm",
+      "en": "Time and place card"
+    },
+    "group": {
+      "vi": "Kể chuyện và kỷ niệm",
+      "en": "Stories and memories"
+    },
+    "layers": 2,
+    "types": [
+      "text"
+    ],
+    "material": "functional",
+    "decision": "reuse",
+    "uses": [],
+    "reason": "Keep definition; functional primitives remain editable",
+    "nextLayers": 2,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "program-row",
+    "title": {
+      "vi": "Một dòng chương trình",
+      "en": "Schedule row"
+    },
+    "group": {
+      "vi": "Kể chuyện và kỷ niệm",
+      "en": "Stories and memories"
+    },
+    "layers": 4,
+    "types": [
+      "text",
+      "line"
+    ],
+    "material": "functional",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 4,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "equal-envelopes",
+    "title": {
+      "vi": "Cặp phong bì ngang quyền",
+      "en": "Two equal envelopes"
+    },
+    "group": {
+      "vi": "Kể chuyện và kỷ niệm",
+      "en": "Stories and memories"
+    },
+    "layers": 2,
+    "types": [
+      "envelope"
+    ],
+    "material": "vector decoration",
+    "decision": "reuse",
+    "uses": [],
+    "reason": "Keep definition; functional primitives remain editable",
+    "nextLayers": 2,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "folded-letter",
+    "title": {
+      "vi": "Thư có ba nếp",
+      "en": "Three-fold letter"
+    },
+    "group": {
+      "vi": "Kể chuyện và kỷ niệm",
+      "en": "Stories and memories"
+    },
+    "layers": 1,
+    "types": [
+      "interaction"
+    ],
+    "material": "paper / photo",
+    "decision": "reuse",
+    "uses": [],
+    "reason": "Keep definition; functional primitives remain editable",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "journey-board",
+    "title": {
+      "vi": "Bảng ba mốc hành trình",
+      "en": "Three milestones"
+    },
+    "group": {
+      "vi": "Kể chuyện và kỷ niệm",
+      "en": "Stories and memories"
+    },
+    "layers": 7,
+    "types": [
+      "line",
+      "text"
+    ],
+    "material": "functional",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 7,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "shadow-contact",
+    "title": {
+      "vi": "Bóng tiếp xúc",
+      "en": "Contact shadow"
+    },
+    "group": {
+      "vi": "Kể chuyện và kỷ niệm",
+      "en": "Stories and memories"
+    },
+    "layers": 1,
+    "types": [
+      "shape"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "layered-paper",
+    "title": {
+      "vi": "Giấy xếp lớp",
+      "en": "Layered paper"
+    },
+    "group": {
+      "vi": "Kể chuyện và kỷ niệm",
+      "en": "Stories and memories"
+    },
+    "layers": 3,
+    "types": [
+      "shape"
+    ],
+    "material": "paper / photo",
+    "decision": "fix-renderer",
+    "uses": [
+      "confetti"
+    ],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 3,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "raised-photo",
+    "title": {
+      "vi": "Ảnh nổi trên giấy",
+      "en": "Photo raised on paper"
+    },
+    "group": {
+      "vi": "Kể chuyện và kỷ niệm",
+      "en": "Stories and memories"
+    },
+    "layers": 3,
+    "types": [
+      "shape",
+      "image",
+      "text"
+    ],
+    "material": "paper / photo",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 3,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "m54-christmas-tree",
+    "title": {
+      "vi": "Cây thông lễ hội",
+      "en": "Festive Christmas tree"
+    },
+    "group": {
+      "vi": "Kho trang trí · Giáng sinh",
+      "en": "Decoration library · Christmas"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "m54-snowflake",
+    "title": {
+      "vi": "Bông tuyết",
+      "en": "Snowflake"
+    },
+    "group": {
+      "vi": "Kho trang trí · Giáng sinh",
+      "en": "Decoration library · Christmas"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [
+      "winter-wishes-2026"
+    ],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "m54-snow-globe",
+    "title": {
+      "vi": "Quả cầu tuyết",
+      "en": "Snow globe"
+    },
+    "group": {
+      "vi": "Kho trang trí · Giáng sinh",
+      "en": "Decoration library · Christmas"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [
+      "winter-wishes-2026"
+    ],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "m54-holiday-ornament",
+    "title": {
+      "vi": "Quả châu",
+      "en": "Holiday ornament"
+    },
+    "group": {
+      "vi": "Kho trang trí · Giáng sinh",
+      "en": "Decoration library · Christmas"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "m54-winter-stocking",
+    "title": {
+      "vi": "Tất Giáng sinh",
+      "en": "Christmas stocking"
+    },
+    "group": {
+      "vi": "Kho trang trí · Giáng sinh",
+      "en": "Decoration library · Christmas"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "m54-bells",
+    "title": {
+      "vi": "Chuông đôi",
+      "en": "Twin bells"
+    },
+    "group": {
+      "vi": "Kho trang trí · Giáng sinh",
+      "en": "Decoration library · Christmas"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "m54-apricot-blossom",
+    "title": {
+      "vi": "Hoa mai",
+      "en": "Apricot blossom"
+    },
+    "group": {
+      "vi": "Kho trang trí · Tết Nguyên đán",
+      "en": "Decoration library · Lunar New Year"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "botanical",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "m54-lucky-envelope",
+    "title": {
+      "vi": "Lì xì",
+      "en": "Lucky red envelope"
+    },
+    "group": {
+      "vi": "Kho trang trí · Tết Nguyên đán",
+      "en": "Decoration library · Lunar New Year"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "m54-tet-lantern",
+    "title": {
+      "vi": "Đèn lồng",
+      "en": "Festive lantern"
+    },
+    "group": {
+      "vi": "Kho trang trí · Tết Nguyên đán",
+      "en": "Decoration library · Lunar New Year"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "m54-peach-sprig",
+    "title": {
+      "vi": "Hoa đào",
+      "en": "Peach blossom"
+    },
+    "group": {
+      "vi": "Kho trang trí · Tết Nguyên đán",
+      "en": "Decoration library · Lunar New Year"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "m54-firecrackers",
+    "title": {
+      "vi": "Pháo giấy",
+      "en": "Paper firecrackers"
+    },
+    "group": {
+      "vi": "Kho trang trí · Tết Nguyên đán",
+      "en": "Decoration library · Lunar New Year"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "m54-festival-fan",
+    "title": {
+      "vi": "Quạt xuân",
+      "en": "Spring fan"
+    },
+    "group": {
+      "vi": "Kho trang trí · Tết Nguyên đán",
+      "en": "Decoration library · Lunar New Year"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "paper / photo",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "m54-double-hearts",
+    "title": {
+      "vi": "Hai trái tim",
+      "en": "Two hearts"
+    },
+    "group": {
+      "vi": "Kho trang trí · Valentine",
+      "en": "Decoration library · Valentine"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "paper / photo",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "m54-love-letter",
+    "title": {
+      "vi": "Thư tình",
+      "en": "Love letter"
+    },
+    "group": {
+      "vi": "Kho trang trí · Valentine",
+      "en": "Decoration library · Valentine"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "paper / photo",
+    "decision": "fix-renderer",
+    "uses": [
+      "love-letter"
+    ],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "m54-rose",
+    "title": {
+      "vi": "Hoa hồng",
+      "en": "Rose"
+    },
+    "group": {
+      "vi": "Kho trang trí · Valentine",
+      "en": "Decoration library · Valentine"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "botanical",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "m54-heart-arrow",
+    "title": {
+      "vi": "Mũi tên yêu",
+      "en": "Love arrow"
+    },
+    "group": {
+      "vi": "Kho trang trí · Valentine",
+      "en": "Decoration library · Valentine"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "m54-cupid-wings",
+    "title": {
+      "vi": "Đôi cánh",
+      "en": "Cupid wings"
+    },
+    "group": {
+      "vi": "Kho trang trí · Valentine",
+      "en": "Decoration library · Valentine"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "m54-love-bow",
+    "title": {
+      "vi": "Nơ tình yêu",
+      "en": "Love bow"
+    },
+    "group": {
+      "vi": "Kho trang trí · Valentine",
+      "en": "Decoration library · Valentine"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "m54-polaroid-stack",
+    "title": {
+      "vi": "Chồng ảnh Polaroid",
+      "en": "Polaroid stack"
+    },
+    "group": {
+      "vi": "Kho trang trí · Kỷ niệm",
+      "en": "Decoration library · Memories"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "paper / photo",
+    "decision": "fix-renderer",
+    "uses": [
+      "polaroid"
+    ],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "m54-confetti",
+    "title": {
+      "vi": "Pháo hoa giấy",
+      "en": "Confetti"
+    },
+    "group": {
+      "vi": "Kho trang trí · Kỷ niệm",
+      "en": "Decoration library · Memories"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [
+      "confetti"
+    ],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "m54-music-notes",
+    "title": {
+      "vi": "Nốt nhạc",
+      "en": "Music notes"
+    },
+    "group": {
+      "vi": "Kho trang trí · Kỷ niệm",
+      "en": "Decoration library · Memories"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "paper / photo",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "m54-birthday-slice",
+    "title": {
+      "vi": "Bánh sinh nhật",
+      "en": "Birthday cake slice"
+    },
+    "group": {
+      "vi": "Kho trang trí · Kỷ niệm",
+      "en": "Decoration library · Memories"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "m54-star-trail",
+    "title": {
+      "vi": "Dải sao",
+      "en": "Star trail"
+    },
+    "group": {
+      "vi": "Kho trang trí · Kỷ niệm",
+      "en": "Decoration library · Memories"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "botanical",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "m54-floral-wreath",
+    "title": {
+      "vi": "Vòng hoa",
+      "en": "Floral wreath"
+    },
+    "group": {
+      "vi": "Kho trang trí · Kỷ niệm",
+      "en": "Decoration library · Memories"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "botanical",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "m55-tulip",
+    "title": {
+      "vi": "Hoa tulip",
+      "en": "Tulip"
+    },
+    "group": {
+      "vi": "Kho trang trí · Hoa & thiên nhiên",
+      "en": "Decoration library · Flowers and nature"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "botanical",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "m55-sunflower",
+    "title": {
+      "vi": "Hướng dương",
+      "en": "Sunflower"
+    },
+    "group": {
+      "vi": "Kho trang trí · Hoa & thiên nhiên",
+      "en": "Decoration library · Flowers and nature"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "botanical",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "m55-daisy",
+    "title": {
+      "vi": "Cúc họa mi",
+      "en": "Daisy"
+    },
+    "group": {
+      "vi": "Kho trang trí · Hoa & thiên nhiên",
+      "en": "Decoration library · Flowers and nature"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "botanical",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "m55-lavender",
+    "title": {
+      "vi": "Cành oải hương",
+      "en": "Lavender sprig"
+    },
+    "group": {
+      "vi": "Kho trang trí · Hoa & thiên nhiên",
+      "en": "Decoration library · Flowers and nature"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [
+      "lavender"
+    ],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "m55-four-leaf",
+    "title": {
+      "vi": "Cỏ bốn lá",
+      "en": "Four-leaf clover"
+    },
+    "group": {
+      "vi": "Kho trang trí · Hoa & thiên nhiên",
+      "en": "Decoration library · Flowers and nature"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "botanical",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "m55-leaf-branch",
+    "title": {
+      "vi": "Cành lá xanh",
+      "en": "Green leaf branch"
+    },
+    "group": {
+      "vi": "Kho trang trí · Hoa & thiên nhiên",
+      "en": "Decoration library · Flowers and nature"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "botanical",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "m55-meadow-butterfly",
+    "title": {
+      "vi": "Bướm đồng nội",
+      "en": "Meadow butterfly"
+    },
+    "group": {
+      "vi": "Kho trang trí · Hoa & thiên nhiên",
+      "en": "Decoration library · Flowers and nature"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "botanical",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "m55-floral-crown",
+    "title": {
+      "vi": "Vương miện hoa",
+      "en": "Floral crown"
+    },
+    "group": {
+      "vi": "Kho trang trí · Hoa & thiên nhiên",
+      "en": "Decoration library · Flowers and nature"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "botanical",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "m55-lantern-pair",
+    "title": {
+      "vi": "Đôi đèn lồng",
+      "en": "Lantern pair"
+    },
+    "group": {
+      "vi": "Kho trang trí · Tết & may mắn",
+      "en": "Decoration library · Luck and Lunar New Year"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "m55-gold-ingot",
+    "title": {
+      "vi": "Thỏi vàng",
+      "en": "Gold ingot"
+    },
+    "group": {
+      "vi": "Kho trang trí · Tết & may mắn",
+      "en": "Decoration library · Luck and Lunar New Year"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [
+      "gentle-apology"
+    ],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "m55-lucky-coins",
+    "title": {
+      "vi": "Đồng xu may mắn",
+      "en": "Lucky coins"
+    },
+    "group": {
+      "vi": "Kho trang trí · Tết & may mắn",
+      "en": "Decoration library · Luck and Lunar New Year"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "m55-spring-scroll",
+    "title": {
+      "vi": "Cuộn thư xuân",
+      "en": "Spring scroll"
+    },
+    "group": {
+      "vi": "Kho trang trí · Tết & may mắn",
+      "en": "Decoration library · Luck and Lunar New Year"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "paper / photo",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "m55-plum-bloom",
+    "title": {
+      "vi": "Hoa mận",
+      "en": "Plum blossom"
+    },
+    "group": {
+      "vi": "Kho trang trí · Tết & may mắn",
+      "en": "Decoration library · Luck and Lunar New Year"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "botanical",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "m55-lion-mask",
+    "title": {
+      "vi": "Đầu lân",
+      "en": "Lion dance mask"
+    },
+    "group": {
+      "vi": "Kho trang trí · Tết & may mắn",
+      "en": "Decoration library · Luck and Lunar New Year"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "m55-firework-sky",
+    "title": {
+      "vi": "Pháo hoa đêm",
+      "en": "Night fireworks"
+    },
+    "group": {
+      "vi": "Kho trang trí · Tết & may mắn",
+      "en": "Decoration library · Luck and Lunar New Year"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "botanical",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "m55-fortune-cloud",
+    "title": {
+      "vi": "Mây cát tường",
+      "en": "Lucky cloud"
+    },
+    "group": {
+      "vi": "Kho trang trí · Tết & may mắn",
+      "en": "Decoration library · Luck and Lunar New Year"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "m55-party-hat",
+    "title": {
+      "vi": "Mũ sinh nhật",
+      "en": "Party hat"
+    },
+    "group": {
+      "vi": "Kho trang trí · Sinh nhật & lễ hội",
+      "en": "Decoration library · Birthdays and parties"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "m55-cupcake",
+    "title": {
+      "vi": "Bánh cupcake",
+      "en": "Cupcake"
+    },
+    "group": {
+      "vi": "Kho trang trí · Sinh nhật & lễ hội",
+      "en": "Decoration library · Birthdays and parties"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "m55-balloon-bunch",
+    "title": {
+      "vi": "Chùm bóng bay",
+      "en": "Balloon bunch"
+    },
+    "group": {
+      "vi": "Kho trang trí · Sinh nhật & lễ hội",
+      "en": "Decoration library · Birthdays and parties"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "m55-gifts-stack",
+    "title": {
+      "vi": "Chồng hộp quà",
+      "en": "Stack of gift boxes"
+    },
+    "group": {
+      "vi": "Kho trang trí · Sinh nhật & lễ hội",
+      "en": "Decoration library · Birthdays and parties"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "m55-rainbow",
+    "title": {
+      "vi": "Cầu vồng",
+      "en": "Rainbow"
+    },
+    "group": {
+      "vi": "Kho trang trí · Sinh nhật & lễ hội",
+      "en": "Decoration library · Birthdays and parties"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "m55-sparkle-wand",
+    "title": {
+      "vi": "Đũa sao",
+      "en": "Star wand"
+    },
+    "group": {
+      "vi": "Kho trang trí · Sinh nhật & lễ hội",
+      "en": "Decoration library · Birthdays and parties"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "m55-cake-tower",
+    "title": {
+      "vi": "Bánh nhiều tầng",
+      "en": "Tiered cake"
+    },
+    "group": {
+      "vi": "Kho trang trí · Sinh nhật & lễ hội",
+      "en": "Decoration library · Birthdays and parties"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "m55-celebration-rosette",
+    "title": {
+      "vi": "Huy hiệu lễ hội",
+      "en": "Celebration rosette"
+    },
+    "group": {
+      "vi": "Kho trang trí · Sinh nhật & lễ hội",
+      "en": "Decoration library · Birthdays and parties"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "m55-wedding-rings",
+    "title": {
+      "vi": "Nhẫn cưới",
+      "en": "Wedding rings"
+    },
+    "group": {
+      "vi": "Kho trang trí · Tình yêu & ngày cưới",
+      "en": "Decoration library · Love and weddings"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "m55-flower-bouquet",
+    "title": {
+      "vi": "Bó hoa",
+      "en": "Flower bouquet"
+    },
+    "group": {
+      "vi": "Kho trang trí · Tình yêu & ngày cưới",
+      "en": "Decoration library · Love and weddings"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "botanical",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "m55-dove-pair",
+    "title": {
+      "vi": "Đôi chim câu",
+      "en": "Dove pair"
+    },
+    "group": {
+      "vi": "Kho trang trí · Tình yêu & ngày cưới",
+      "en": "Decoration library · Love and weddings"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "m55-wedding-cake",
+    "title": {
+      "vi": "Bánh cưới",
+      "en": "Wedding cake"
+    },
+    "group": {
+      "vi": "Kho trang trí · Tình yêu & ngày cưới",
+      "en": "Decoration library · Love and weddings"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "m55-love-lock",
+    "title": {
+      "vi": "Ổ khóa trái tim",
+      "en": "Heart lock"
+    },
+    "group": {
+      "vi": "Kho trang trí · Tình yêu & ngày cưới",
+      "en": "Decoration library · Love and weddings"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "paper / photo",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "m55-infinity-heart",
+    "title": {
+      "vi": "Vô cực tình yêu",
+      "en": "Infinity heart"
+    },
+    "group": {
+      "vi": "Kho trang trí · Tình yêu & ngày cưới",
+      "en": "Decoration library · Love and weddings"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "m55-wedding-bells",
+    "title": {
+      "vi": "Chuông cưới",
+      "en": "Wedding bells"
+    },
+    "group": {
+      "vi": "Kho trang trí · Tình yêu & ngày cưới",
+      "en": "Decoration library · Love and weddings"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "m55-vow-book",
+    "title": {
+      "vi": "Sổ lời hẹn",
+      "en": "Vow book"
+    },
+    "group": {
+      "vi": "Kho trang trí · Tình yêu & ngày cưới",
+      "en": "Decoration library · Love and weddings"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "m55-grad-cap",
+    "title": {
+      "vi": "Mũ tốt nghiệp",
+      "en": "Graduation cap"
+    },
+    "group": {
+      "vi": "Kho trang trí · Thành tựu & học tập",
+      "en": "Decoration library · Achievements and learning"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "m55-diploma",
+    "title": {
+      "vi": "Bằng khen",
+      "en": "Diploma"
+    },
+    "group": {
+      "vi": "Kho trang trí · Thành tựu & học tập",
+      "en": "Decoration library · Achievements and learning"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "m55-trophy",
+    "title": {
+      "vi": "Cúp chiến thắng",
+      "en": "Trophy"
+    },
+    "group": {
+      "vi": "Kho trang trí · Thành tựu & học tập",
+      "en": "Decoration library · Achievements and learning"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "paper / photo",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "m55-gold-medal",
+    "title": {
+      "vi": "Huy chương",
+      "en": "Gold medal"
+    },
+    "group": {
+      "vi": "Kho trang trí · Thành tựu & học tập",
+      "en": "Decoration library · Achievements and learning"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [
+      "gentle-apology"
+    ],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "m55-open-book",
+    "title": {
+      "vi": "Sách mở",
+      "en": "Open book"
+    },
+    "group": {
+      "vi": "Kho trang trí · Thành tựu & học tập",
+      "en": "Decoration library · Achievements and learning"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "m55-pencil",
+    "title": {
+      "vi": "Bút chì",
+      "en": "Pencil"
+    },
+    "group": {
+      "vi": "Kho trang trí · Thành tựu & học tập",
+      "en": "Decoration library · Achievements and learning"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "m55-idea-bulb",
+    "title": {
+      "vi": "Bóng đèn ý tưởng",
+      "en": "Idea light bulb"
+    },
+    "group": {
+      "vi": "Kho trang trí · Thành tựu & học tập",
+      "en": "Decoration library · Achievements and learning"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "m55-dream-rocket",
+    "title": {
+      "vi": "Tên lửa ước mơ",
+      "en": "Dream rocket"
+    },
+    "group": {
+      "vi": "Kho trang trí · Thành tựu & học tập",
+      "en": "Decoration library · Achievements and learning"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "m55-travel-case",
+    "title": {
+      "vi": "Vali du lịch",
+      "en": "Suitcase"
+    },
+    "group": {
+      "vi": "Kho trang trí · Du lịch & ký ức",
+      "en": "Decoration library · Travel and memories"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "m55-paper-plane",
+    "title": {
+      "vi": "Máy bay giấy",
+      "en": "Paper plane"
+    },
+    "group": {
+      "vi": "Kho trang trí · Du lịch & ký ức",
+      "en": "Decoration library · Travel and memories"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "paper / photo",
+    "decision": "fix-renderer",
+    "uses": [
+      "confetti"
+    ],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "m55-map-pin",
+    "title": {
+      "vi": "Ghim bản đồ",
+      "en": "Map pin"
+    },
+    "group": {
+      "vi": "Kho trang trí · Du lịch & ký ức",
+      "en": "Decoration library · Travel and memories"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "m55-camera",
+    "title": {
+      "vi": "Máy ảnh",
+      "en": "Camera"
+    },
+    "group": {
+      "vi": "Kho trang trí · Du lịch & ký ức",
+      "en": "Decoration library · Travel and memories"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "paper / photo",
+    "decision": "fix-renderer",
+    "uses": [
+      "polaroid"
+    ],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "m55-compass",
+    "title": {
+      "vi": "La bàn",
+      "en": "Compass"
+    },
+    "group": {
+      "vi": "Kho trang trí · Du lịch & ký ức",
+      "en": "Decoration library · Travel and memories"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "m55-passport",
+    "title": {
+      "vi": "Hộ chiếu",
+      "en": "Passport"
+    },
+    "group": {
+      "vi": "Kho trang trí · Du lịch & ký ức",
+      "en": "Decoration library · Travel and memories"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "m55-mountains",
+    "title": {
+      "vi": "Núi đồi",
+      "en": "Mountains"
+    },
+    "group": {
+      "vi": "Kho trang trí · Du lịch & ký ức",
+      "en": "Decoration library · Travel and memories"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "paper / photo",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "m55-sailboat",
+    "title": {
+      "vi": "Thuyền buồm",
+      "en": "Sailboat"
+    },
+    "group": {
+      "vi": "Kho trang trí · Du lịch & ký ức",
+      "en": "Decoration library · Travel and memories"
+    },
+    "layers": 1,
+    "types": [
+      "sticker"
+    ],
+    "material": "vector decoration",
+    "decision": "fix-renderer",
+    "uses": [],
+    "reason": "Fabric now receives pinned paths and surfaces instead of a placeholder; document definitions retained",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "sound-button",
+    "title": {
+      "vi": "Nút âm thanh",
+      "en": "Sound button"
+    },
+    "group": {
+      "vi": "Tương tác",
+      "en": "Interactions"
+    },
+    "layers": 1,
+    "types": [
+      "sound-button"
+    ],
+    "material": "vector decoration",
+    "decision": "reuse",
+    "uses": [],
+    "reason": "Keep definition; functional primitives remain editable",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "envelope",
+    "title": {
+      "vi": "Phong bì",
+      "en": "Envelope"
+    },
+    "group": {
+      "vi": "Tương tác",
+      "en": "Interactions"
+    },
+    "layers": 1,
+    "types": [
+      "envelope"
+    ],
+    "material": "paper / photo",
+    "decision": "reuse",
+    "uses": [],
+    "reason": "Keep definition; functional primitives remain editable",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "gift-box",
+    "title": {
+      "vi": "Hộp quà",
+      "en": "Gift box"
+    },
+    "group": {
+      "vi": "Tương tác",
+      "en": "Interactions"
+    },
+    "layers": 1,
+    "types": [
+      "gift-box"
+    ],
+    "material": "vector decoration",
+    "decision": "reuse",
+    "uses": [],
+    "reason": "Keep definition; functional primitives remain editable",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "continue",
+    "title": {
+      "vi": "Đọc tiếp",
+      "en": "Continue"
+    },
+    "group": {
+      "vi": "Tương tác",
+      "en": "Interactions"
+    },
+    "layers": 1,
+    "types": [
+      "button"
+    ],
+    "material": "paper / photo",
+    "decision": "reuse",
+    "uses": [],
+    "reason": "Keep definition; functional primitives remain editable",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "replay",
+    "title": {
+      "vi": "Xem lại",
+      "en": "Replay"
+    },
+    "group": {
+      "vi": "Tương tác",
+      "en": "Interactions"
+    },
+    "layers": 1,
+    "types": [
+      "button"
+    ],
+    "material": "functional",
+    "decision": "reuse",
+    "uses": [],
+    "reason": "Keep definition; functional primitives remain editable",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "reply",
+    "title": {
+      "vi": "Lời hồi đáp",
+      "en": "Reply"
+    },
+    "group": {
+      "vi": "Tương tác",
+      "en": "Interactions"
+    },
+    "layers": 1,
+    "types": [
+      "reply"
+    ],
+    "material": "vector decoration",
+    "decision": "reuse",
+    "uses": [],
+    "reason": "Keep definition; functional primitives remain editable",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "flip-card",
+    "title": {
+      "vi": "Thẻ lật hai mặt",
+      "en": "Flip card"
+    },
+    "group": {
+      "vi": "Tương tác",
+      "en": "Interactions"
+    },
+    "layers": 1,
+    "types": [
+      "interaction"
+    ],
+    "material": "vector decoration",
+    "decision": "reuse",
+    "uses": [],
+    "reason": "Keep definition; functional primitives remain editable",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "scratch-ticket",
+    "title": {
+      "vi": "Vé cào bật mí",
+      "en": "Scratch-to-reveal ticket"
+    },
+    "group": {
+      "vi": "Tương tác",
+      "en": "Interactions"
+    },
+    "layers": 1,
+    "types": [
+      "interaction"
+    ],
+    "material": "vector decoration",
+    "decision": "reuse",
+    "uses": [
+      "afterglow"
+    ],
+    "reason": "Keep definition; functional primitives remain editable",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "foldout-letter",
+    "title": {
+      "vi": "Thư gấp ba nếp",
+      "en": "Tri-fold letter"
+    },
+    "group": {
+      "vi": "Tương tác",
+      "en": "Interactions"
+    },
+    "layers": 1,
+    "types": [
+      "interaction"
+    ],
+    "material": "paper / photo",
+    "decision": "reuse",
+    "uses": [],
+    "reason": "Keep definition; functional primitives remain editable",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "swipe-album",
+    "title": {
+      "vi": "Album vuốt ngang",
+      "en": "Swipeable album"
+    },
+    "group": {
+      "vi": "Tương tác",
+      "en": "Interactions"
+    },
+    "layers": 1,
+    "types": [
+      "interaction"
+    ],
+    "material": "paper / photo",
+    "decision": "reuse",
+    "uses": [],
+    "reason": "Keep definition; functional primitives remain editable",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "photo-comparison",
+    "title": {
+      "vi": "Thanh kéo so sánh ảnh",
+      "en": "Photo comparison slider"
+    },
+    "group": {
+      "vi": "Tương tác",
+      "en": "Interactions"
+    },
+    "layers": 1,
+    "types": [
+      "interaction"
+    ],
+    "material": "paper / photo",
+    "decision": "reuse",
+    "uses": [],
+    "reason": "Keep definition; functional primitives remain editable",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "scene-choices",
+    "title": {
+      "vi": "Hai cửa chọn câu chuyện",
+      "en": "Choose between two story paths"
+    },
+    "group": {
+      "vi": "Tương tác",
+      "en": "Interactions"
+    },
+    "layers": 1,
+    "types": [
+      "interaction"
+    ],
+    "material": "paper / photo",
+    "decision": "reuse",
+    "uses": [],
+    "reason": "Keep definition; functional primitives remain editable",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "wish-pick",
+    "title": {
+      "vi": "Chọn một điều ước",
+      "en": "Choose a wish"
+    },
+    "group": {
+      "vi": "Tương tác",
+      "en": "Interactions"
+    },
+    "layers": 1,
+    "types": [
+      "interaction"
+    ],
+    "material": "vector decoration",
+    "decision": "reuse",
+    "uses": [],
+    "reason": "Keep definition; functional primitives remain editable",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "light-a-candle",
+    "title": {
+      "vi": "Chạm thắp nến",
+      "en": "Light a candle"
+    },
+    "group": {
+      "vi": "Tương tác",
+      "en": "Interactions"
+    },
+    "layers": 1,
+    "types": [
+      "interaction"
+    ],
+    "material": "vector decoration",
+    "decision": "reuse",
+    "uses": [],
+    "reason": "Keep definition; functional primitives remain editable",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "heart-puzzle",
+    "title": {
+      "vi": "Ghép ba mảnh tim",
+      "en": "Three-piece heart puzzle"
+    },
+    "group": {
+      "vi": "Tương tác",
+      "en": "Interactions"
+    },
+    "layers": 1,
+    "types": [
+      "interaction"
+    ],
+    "material": "paper / photo",
+    "decision": "reuse",
+    "uses": [],
+    "reason": "Keep definition; functional primitives remain editable",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  },
+  {
+    "id": "event-countdown",
+    "title": {
+      "vi": "Đồng hồ đếm ngược tới hẹn",
+      "en": "Countdown to a special date"
+    },
+    "group": {
+      "vi": "Tương tác",
+      "en": "Interactions"
+    },
+    "layers": 1,
+    "types": [
+      "interaction"
+    ],
+    "material": "vector decoration",
+    "decision": "reuse",
+    "uses": [],
+    "reason": "Keep definition; functional primitives remain editable",
+    "nextLayers": 1,
+    "verification": "Inventory + actual Chrome thumbnail/insertion/one-step undo in the complete 243-card suite; does not imply a separate Fabric screenshot of every legacy card."
+  }
+]

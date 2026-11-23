@@ -1,3 +1,7 @@
+## Unreleased — Mẫu quà tự nhiên · 8/8 (2026-11-23)
+
+- Lưu bằng chứng trực quan, sổ nguồn và kết quả áp dụng trên DB đang dùng; không đưa backup riêng hoặc bí mật vào Git.
+
 ## Unreleased — Mẫu quà tự nhiên · 7/8 (2026-11-23)
 
 - Bổ sung kiểm hồi quy cho 21 mẫu, 243 element, ảnh tùy chọn, quyền, DB và tải trang.

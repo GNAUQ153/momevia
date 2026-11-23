@@ -1,0 +1,794 @@
+{
+  "cases": [
+    {
+      "emptyDatabaseSeed": 438,
+      "passed": true
+    },
+    {
+      "adminConflictDetected": true,
+      "noPartialWriteOnConflict": true,
+      "seedPreservesAdmin": true,
+      "staleRevisionRejected": true,
+      "passed": true
+    },
+    {
+      "databaseCoverVariants": [
+        {
+          "id": "midnight-bloom",
+          "locale": "vi",
+          "variant": "portrait",
+          "bytes": 32329
+        },
+        {
+          "id": "midnight-bloom",
+          "locale": "vi",
+          "variant": "catalog",
+          "bytes": 2324
+        },
+        {
+          "id": "midnight-bloom",
+          "locale": "vi",
+          "variant": "seasonal",
+          "bytes": 2219
+        },
+        {
+          "id": "midnight-bloom",
+          "locale": "en",
+          "variant": "portrait",
+          "bytes": 32275
+        },
+        {
+          "id": "midnight-bloom",
+          "locale": "en",
+          "variant": "catalog",
+          "bytes": 2324
+        },
+        {
+          "id": "midnight-bloom",
+          "locale": "en",
+          "variant": "seasonal",
+          "bytes": 2219
+        },
+        {
+          "id": "sunny-wishes",
+          "locale": "vi",
+          "variant": "portrait",
+          "bytes": 35005
+        },
+        {
+          "id": "sunny-wishes",
+          "locale": "vi",
+          "variant": "catalog",
+          "bytes": 5107
+        },
+        {
+          "id": "sunny-wishes",
+          "locale": "vi",
+          "variant": "seasonal",
+          "bytes": 4922
+        },
+        {
+          "id": "sunny-wishes",
+          "locale": "en",
+          "variant": "portrait",
+          "bytes": 34981
+        },
+        {
+          "id": "sunny-wishes",
+          "locale": "en",
+          "variant": "catalog",
+          "bytes": 5107
+        },
+        {
+          "id": "sunny-wishes",
+          "locale": "en",
+          "variant": "seasonal",
+          "bytes": 4922
+        },
+        {
+          "id": "love-letter",
+          "locale": "vi",
+          "variant": "portrait",
+          "bytes": 33902
+        },
+        {
+          "id": "love-letter",
+          "locale": "vi",
+          "variant": "catalog",
+          "bytes": 3924
+        },
+        {
+          "id": "love-letter",
+          "locale": "vi",
+          "variant": "seasonal",
+          "bytes": 3832
+        },
+        {
+          "id": "love-letter",
+          "locale": "en",
+          "variant": "portrait",
+          "bytes": 33921
+        },
+        {
+          "id": "love-letter",
+          "locale": "en",
+          "variant": "catalog",
+          "bytes": 3924
+        },
+        {
+          "id": "love-letter",
+          "locale": "en",
+          "variant": "seasonal",
+          "bytes": 3832
+        },
+        {
+          "id": "starlight",
+          "locale": "vi",
+          "variant": "portrait",
+          "bytes": 34472
+        },
+        {
+          "id": "starlight",
+          "locale": "vi",
+          "variant": "catalog",
+          "bytes": 4737
+        },
+        {
+          "id": "starlight",
+          "locale": "vi",
+          "variant": "seasonal",
+          "bytes": 4429
+        },
+        {
+          "id": "starlight",
+          "locale": "en",
+          "variant": "portrait",
+          "bytes": 34457
+        },
+        {
+          "id": "starlight",
+          "locale": "en",
+          "variant": "catalog",
+          "bytes": 4737
+        },
+        {
+          "id": "starlight",
+          "locale": "en",
+          "variant": "seasonal",
+          "bytes": 4429
+        },
+        {
+          "id": "peachy-day",
+          "locale": "vi",
+          "variant": "portrait",
+          "bytes": 33693
+        },
+        {
+          "id": "peachy-day",
+          "locale": "vi",
+          "variant": "catalog",
+          "bytes": 3694
+        },
+        {
+          "id": "peachy-day",
+          "locale": "vi",
+          "variant": "seasonal",
+          "bytes": 3637
+        },
+        {
+          "id": "peachy-day",
+          "locale": "en",
+          "variant": "portrait",
+          "bytes": 33670
+        },
+        {
+          "id": "peachy-day",
+          "locale": "en",
+          "variant": "catalog",
+          "bytes": 3694
+        },
+        {
+          "id": "peachy-day",
+          "locale": "en",
+          "variant": "seasonal",
+          "bytes": 3637
+        },
+        {
+          "id": "greenhouse",
+          "locale": "vi",
+          "variant": "portrait",
+          "bytes": 34476
+        },
+        {
+          "id": "greenhouse",
+          "locale": "vi",
+          "variant": "catalog",
+          "bytes": 4547
+        },
+        {
+          "id": "greenhouse",
+          "locale": "vi",
+          "variant": "seasonal",
+          "bytes": 4437
+        },
+        {
+          "id": "greenhouse",
+          "locale": "en",
+          "variant": "portrait",
+          "bytes": 34459
+        },
+        {
+          "id": "greenhouse",
+          "locale": "en",
+          "variant": "catalog",
+          "bytes": 4547
+        },
+        {
+          "id": "greenhouse",
+          "locale": "en",
+          "variant": "seasonal",
+          "bytes": 4437
+        },
+        {
+          "id": "confetti",
+          "locale": "vi",
+          "variant": "portrait",
+          "bytes": 34673
+        },
+        {
+          "id": "confetti",
+          "locale": "vi",
+          "variant": "catalog",
+          "bytes": 4853
+        },
+        {
+          "id": "confetti",
+          "locale": "vi",
+          "variant": "seasonal",
+          "bytes": 4634
+        },
+        {
+          "id": "confetti",
+          "locale": "en",
+          "variant": "portrait",
+          "bytes": 34619
+        },
+        {
+          "id": "confetti",
+          "locale": "en",
+          "variant": "catalog",
+          "bytes": 4853
+        },
+        {
+          "id": "confetti",
+          "locale": "en",
+          "variant": "seasonal",
+          "bytes": 4634
+        },
+        {
+          "id": "cloud-nine",
+          "locale": "vi",
+          "variant": "portrait",
+          "bytes": 33838
+        },
+        {
+          "id": "cloud-nine",
+          "locale": "vi",
+          "variant": "catalog",
+          "bytes": 3930
+        },
+        {
+          "id": "cloud-nine",
+          "locale": "vi",
+          "variant": "seasonal",
+          "bytes": 3813
+        },
+        {
+          "id": "cloud-nine",
+          "locale": "en",
+          "variant": "portrait",
+          "bytes": 33819
+        },
+        {
+          "id": "cloud-nine",
+          "locale": "en",
+          "variant": "catalog",
+          "bytes": 3930
+        },
+        {
+          "id": "cloud-nine",
+          "locale": "en",
+          "variant": "seasonal",
+          "bytes": 3813
+        },
+        {
+          "id": "lavender",
+          "locale": "vi",
+          "variant": "portrait",
+          "bytes": 34559
+        },
+        {
+          "id": "lavender",
+          "locale": "vi",
+          "variant": "catalog",
+          "bytes": 4567
+        },
+        {
+          "id": "lavender",
+          "locale": "vi",
+          "variant": "seasonal",
+          "bytes": 4454
+        },
+        {
+          "id": "lavender",
+          "locale": "en",
+          "variant": "portrait",
+          "bytes": 34541
+        },
+        {
+          "id": "lavender",
+          "locale": "en",
+          "variant": "catalog",
+          "bytes": 4567
+        },
+        {
+          "id": "lavender",
+          "locale": "en",
+          "variant": "seasonal",
+          "bytes": 4454
+        },
+        {
+          "id": "polaroid",
+          "locale": "vi",
+          "variant": "portrait",
+          "bytes": 34640
+        },
+        {
+          "id": "polaroid",
+          "locale": "vi",
+          "variant": "catalog",
+          "bytes": 4742
+        },
+        {
+          "id": "polaroid",
+          "locale": "vi",
+          "variant": "seasonal",
+          "bytes": 4579
+        },
+        {
+          "id": "polaroid",
+          "locale": "en",
+          "variant": "portrait",
+          "bytes": 34653
+        },
+        {
+          "id": "polaroid",
+          "locale": "en",
+          "variant": "catalog",
+          "bytes": 4742
+        },
+        {
+          "id": "polaroid",
+          "locale": "en",
+          "variant": "seasonal",
+          "bytes": 4579
+        },
+        {
+          "id": "afterglow",
+          "locale": "vi",
+          "variant": "portrait",
+          "bytes": 34869
+        },
+        {
+          "id": "afterglow",
+          "locale": "vi",
+          "variant": "catalog",
+          "bytes": 4950
+        },
+        {
+          "id": "afterglow",
+          "locale": "vi",
+          "variant": "seasonal",
+          "bytes": 4777
+        },
+        {
+          "id": "afterglow",
+          "locale": "en",
+          "variant": "portrait",
+          "bytes": 34811
+        },
+        {
+          "id": "afterglow",
+          "locale": "en",
+          "variant": "catalog",
+          "bytes": 4950
+        },
+        {
+          "id": "afterglow",
+          "locale": "en",
+          "variant": "seasonal",
+          "bytes": 4777
+        },
+        {
+          "id": "tiny-celebration",
+          "locale": "vi",
+          "variant": "portrait",
+          "bytes": 33856
+        },
+        {
+          "id": "tiny-celebration",
+          "locale": "vi",
+          "variant": "catalog",
+          "bytes": 3867
+        },
+        {
+          "id": "tiny-celebration",
+          "locale": "vi",
+          "variant": "seasonal",
+          "bytes": 3763
+        },
+        {
+          "id": "tiny-celebration",
+          "locale": "en",
+          "variant": "portrait",
+          "bytes": 33807
+        },
+        {
+          "id": "tiny-celebration",
+          "locale": "en",
+          "variant": "catalog",
+          "bytes": 3867
+        },
+        {
+          "id": "tiny-celebration",
+          "locale": "en",
+          "variant": "seasonal",
+          "bytes": 3763
+        },
+        {
+          "id": "mot-ky-niem",
+          "locale": "vi",
+          "variant": "portrait",
+          "bytes": 33562
+        },
+        {
+          "id": "mot-ky-niem",
+          "locale": "vi",
+          "variant": "catalog",
+          "bytes": 3346
+        },
+        {
+          "id": "mot-ky-niem",
+          "locale": "vi",
+          "variant": "seasonal",
+          "bytes": 3272
+        },
+        {
+          "id": "mot-ky-niem",
+          "locale": "en",
+          "variant": "portrait",
+          "bytes": 33510
+        },
+        {
+          "id": "mot-ky-niem",
+          "locale": "en",
+          "variant": "catalog",
+          "bytes": 3346
+        },
+        {
+          "id": "mot-ky-niem",
+          "locale": "en",
+          "variant": "seasonal",
+          "bytes": 3272
+        },
+        {
+          "id": "winter-wishes-2026",
+          "locale": "vi",
+          "variant": "portrait",
+          "bytes": 34566
+        },
+        {
+          "id": "winter-wishes-2026",
+          "locale": "vi",
+          "variant": "catalog",
+          "bytes": 4607
+        },
+        {
+          "id": "winter-wishes-2026",
+          "locale": "vi",
+          "variant": "seasonal",
+          "bytes": 4508
+        },
+        {
+          "id": "winter-wishes-2026",
+          "locale": "en",
+          "variant": "portrait",
+          "bytes": 34543
+        },
+        {
+          "id": "winter-wishes-2026",
+          "locale": "en",
+          "variant": "catalog",
+          "bytes": 4607
+        },
+        {
+          "id": "winter-wishes-2026",
+          "locale": "en",
+          "variant": "seasonal",
+          "bytes": 4508
+        },
+        {
+          "id": "new-year-spark-2027",
+          "locale": "vi",
+          "variant": "portrait",
+          "bytes": 34782
+        },
+        {
+          "id": "new-year-spark-2027",
+          "locale": "vi",
+          "variant": "catalog",
+          "bytes": 5029
+        },
+        {
+          "id": "new-year-spark-2027",
+          "locale": "vi",
+          "variant": "seasonal",
+          "bytes": 4719
+        },
+        {
+          "id": "new-year-spark-2027",
+          "locale": "en",
+          "variant": "portrait",
+          "bytes": 34767
+        },
+        {
+          "id": "new-year-spark-2027",
+          "locale": "en",
+          "variant": "catalog",
+          "bytes": 5029
+        },
+        {
+          "id": "new-year-spark-2027",
+          "locale": "en",
+          "variant": "seasonal",
+          "bytes": 4719
+        },
+        {
+          "id": "spring-blessing-2027",
+          "locale": "vi",
+          "variant": "portrait",
+          "bytes": 35322
+        },
+        {
+          "id": "spring-blessing-2027",
+          "locale": "vi",
+          "variant": "catalog",
+          "bytes": 5366
+        },
+        {
+          "id": "spring-blessing-2027",
+          "locale": "vi",
+          "variant": "seasonal",
+          "bytes": 5259
+        },
+        {
+          "id": "spring-blessing-2027",
+          "locale": "en",
+          "variant": "portrait",
+          "bytes": 35340
+        },
+        {
+          "id": "spring-blessing-2027",
+          "locale": "en",
+          "variant": "catalog",
+          "bytes": 5366
+        },
+        {
+          "id": "spring-blessing-2027",
+          "locale": "en",
+          "variant": "seasonal",
+          "bytes": 5259
+        },
+        {
+          "id": "velvet-valentine-2027",
+          "locale": "vi",
+          "variant": "portrait",
+          "bytes": 33669
+        },
+        {
+          "id": "velvet-valentine-2027",
+          "locale": "vi",
+          "variant": "catalog",
+          "bytes": 3665
+        },
+        {
+          "id": "velvet-valentine-2027",
+          "locale": "vi",
+          "variant": "seasonal",
+          "bytes": 3547
+        },
+        {
+          "id": "velvet-valentine-2027",
+          "locale": "en",
+          "variant": "portrait",
+          "bytes": 33611
+        },
+        {
+          "id": "velvet-valentine-2027",
+          "locale": "en",
+          "variant": "catalog",
+          "bytes": 3665
+        },
+        {
+          "id": "velvet-valentine-2027",
+          "locale": "en",
+          "variant": "seasonal",
+          "bytes": 3547
+        },
+        {
+          "id": "thank-you-bloom",
+          "locale": "vi",
+          "variant": "portrait",
+          "bytes": 37082
+        },
+        {
+          "id": "thank-you-bloom",
+          "locale": "vi",
+          "variant": "catalog",
+          "bytes": 7141
+        },
+        {
+          "id": "thank-you-bloom",
+          "locale": "vi",
+          "variant": "seasonal",
+          "bytes": 7019
+        },
+        {
+          "id": "thank-you-bloom",
+          "locale": "en",
+          "variant": "portrait",
+          "bytes": 37088
+        },
+        {
+          "id": "thank-you-bloom",
+          "locale": "en",
+          "variant": "catalog",
+          "bytes": 7141
+        },
+        {
+          "id": "thank-you-bloom",
+          "locale": "en",
+          "variant": "seasonal",
+          "bytes": 7019
+        },
+        {
+          "id": "faraway-hug",
+          "locale": "vi",
+          "variant": "portrait",
+          "bytes": 32987
+        },
+        {
+          "id": "faraway-hug",
+          "locale": "vi",
+          "variant": "catalog",
+          "bytes": 2892
+        },
+        {
+          "id": "faraway-hug",
+          "locale": "vi",
+          "variant": "seasonal",
+          "bytes": 2829
+        },
+        {
+          "id": "faraway-hug",
+          "locale": "en",
+          "variant": "portrait",
+          "bytes": 32962
+        },
+        {
+          "id": "faraway-hug",
+          "locale": "en",
+          "variant": "catalog",
+          "bytes": 2892
+        },
+        {
+          "id": "faraway-hug",
+          "locale": "en",
+          "variant": "seasonal",
+          "bytes": 2829
+        },
+        {
+          "id": "gentle-apology",
+          "locale": "vi",
+          "variant": "portrait",
+          "bytes": 33163
+        },
+        {
+          "id": "gentle-apology",
+          "locale": "vi",
+          "variant": "catalog",
+          "bytes": 3162
+        },
+        {
+          "id": "gentle-apology",
+          "locale": "vi",
+          "variant": "seasonal",
+          "bytes": 3091
+        },
+        {
+          "id": "gentle-apology",
+          "locale": "en",
+          "variant": "portrait",
+          "bytes": 33139
+        },
+        {
+          "id": "gentle-apology",
+          "locale": "en",
+          "variant": "catalog",
+          "bytes": 3162
+        },
+        {
+          "id": "gentle-apology",
+          "locale": "en",
+          "variant": "seasonal",
+          "bytes": 3091
+        },
+        {
+          "id": "calm-light",
+          "locale": "vi",
+          "variant": "portrait",
+          "bytes": 32826
+        },
+        {
+          "id": "calm-light",
+          "locale": "vi",
+          "variant": "catalog",
+          "bytes": 2817
+        },
+        {
+          "id": "calm-light",
+          "locale": "vi",
+          "variant": "seasonal",
+          "bytes": 2725
+        },
+        {
+          "id": "calm-light",
+          "locale": "en",
+          "variant": "portrait",
+          "bytes": 32810
+        },
+        {
+          "id": "calm-light",
+          "locale": "en",
+          "variant": "catalog",
+          "bytes": 2817
+        },
+        {
+          "id": "calm-light",
+          "locale": "en",
+          "variant": "seasonal",
+          "bytes": 2725
+        }
+      ],
+      "passed": true
+    },
+    {
+      "populatedDatabase": 417,
+      "interruptedAfter": 7,
+      "resumed": 38,
+      "rerunApplied": 0,
+      "rollbackRestored": 417,
+      "newObjectsDisabled": 21,
+      "historyRows": 71,
+      "controlsPreserved": 7,
+      "passed": true
+    },
+    {
+      "script": "tests/integration/canvas-mysql-api.mjs",
+      "passed": true
+    }
+  ],
+  "version": "8.4.13",
+  "database": "momevia_canvas_qa_refresh_c63a5bf4",
+  "passed": true
+}

@@ -1,0 +1,115 @@
+{
+  "passed": true,
+  "browser": "157.0.8103.79",
+  "configuration": {
+    "profile": "chrome-lab-profile",
+    "viewport": "390×844",
+    "uiLocale": "vi",
+    "dpr": 1,
+    "cpuSlowdown": 4,
+    "network": {
+      "latencyMs": 100,
+      "downloadBytesPerSecond": 200000,
+      "uploadBytesPerSecond": 93750
+    },
+    "cache": "disabled",
+    "runs": 5,
+    "targetLcpMs": 2600,
+    "observationMsAfterLoad": 4500,
+    "byteMethod": "CDP encoded bytes, includes main document, cross-origin HTTP and partial responses; excludes data URIs"
+  },
+  "baselineCommit": "38c465d007687f54190adcb521dadfea04ad9d40",
+  "baselinePort": 4122,
+  "afterPort": 4121,
+  "storage": "isolated JSON QA; MySQL page-load performance not measured",
+  "finalComparisonSamples": 80,
+  "allRetainedSamplesIncludingDiagnostic": 120,
+  "afterPassed": 40,
+  "afterSamples": 40,
+  "maxLCP": 2388,
+  "maxCLS": 0.03840142408487438,
+  "exploreBefore": 1720,
+  "exploreAfter": 2308,
+  "routes": [
+    {
+      "route": "/explore",
+      "beforeMedian": 1720,
+      "afterMedian": 2308,
+      "afterMax": 2388,
+      "beforeBytes": 389974,
+      "afterBytes": 385444,
+      "afterSamples": 5
+    },
+    {
+      "route": "/template/sunny-wishes",
+      "beforeMedian": 1072,
+      "afterMedian": 2324,
+      "afterMax": 2340,
+      "beforeBytes": 215834,
+      "afterBytes": 381256,
+      "afterSamples": 5
+    },
+    {
+      "route": "/template/cuon-phim-ngay-ay",
+      "beforeMedian": 2184,
+      "afterMedian": 2140,
+      "afterMax": 2172,
+      "beforeBytes": 351366,
+      "afterBytes": 346836,
+      "afterSamples": 5
+    },
+    {
+      "route": "/template/loi-moi-ben-hien",
+      "beforeMedian": 2112,
+      "afterMedian": 2076,
+      "afterMax": 2076,
+      "beforeBytes": 340891,
+      "afterBytes": 336360,
+      "afterSamples": 5
+    },
+    {
+      "route": "/template/hai-phong-bi",
+      "beforeMedian": 2056,
+      "afterMedian": 2024,
+      "afterMax": 2076,
+      "beforeBytes": 327889,
+      "afterBytes": 323359,
+      "afterSamples": 5
+    },
+    {
+      "route": "/template/mot-ky-niem",
+      "beforeMedian": 1176,
+      "afterMedian": 2056,
+      "afterMax": 2076,
+      "beforeBytes": 247000,
+      "afterBytes": 331839,
+      "afterSamples": 5
+    },
+    {
+      "route": "/template/greenhouse",
+      "beforeMedian": 1200,
+      "afterMedian": 2000,
+      "afterMax": 2056,
+      "beforeBytes": 238089,
+      "afterBytes": 316456,
+      "afterSamples": 5
+    },
+    {
+      "route": "/template/proud-of-you",
+      "beforeMedian": 1716,
+      "afterMedian": 1692,
+      "afterMax": 1716,
+      "beforeBytes": 295924,
+      "afterBytes": 291393,
+      "afterSamples": 5
+    }
+  ],
+  "diagnostic": {
+    "file": "after-before-deferred-preview.json",
+    "samples": 40,
+    "failed": 4,
+    "maxLCP": 2612,
+    "fix": "Move restyle-pair metadata out of the schema dependency graph; load event artwork registry only when opening a preview. No image quality reduction or changed target."
+  },
+  "finalBuildMetafileSHA256": "c991e4924c48c3107055f9b9e4f93c6c54353bce127c5258eece2df389b8854f"
+}

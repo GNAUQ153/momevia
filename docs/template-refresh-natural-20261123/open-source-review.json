@@ -1,0 +1,22 @@
+{
+  "sources": [
+    {
+      "name": "Uiverse Galaxy card-turn reference",
+      "url": "https://github.com/uiverse-io/galaxy/blob/adbd2adde0a299a3956ea288fb444ec01891ca41/Cards/Javierrocadev_funny-cobra-5.html",
+      "author": "Javierrocadev",
+      "license": "MIT",
+      "licenseFile": "web/assets/event-cards/natural-v4/licenses/Uiverse-MIT.txt",
+      "review": "Read as plain text. No script, command, dependency or downloaded CSS executed. Reimplemented only perspective and Y-rotation as bounded declarative entrance frames; card branding and face design not copied.",
+      "sourceBytes": 3036,
+      "recipe": "paper-unfold-natural-v1"
+    },
+    {
+      "name": "3Dicons V1",
+      "url": "https://github.com/realvjy/3dicons/tree/8884d59e68a7bae0e0e2163af5b6c2ad992c01c8",
+      "author": "Vijay Verma",
+      "license": "CC0-1.0",
+      "licenseFile": "web/assets/event-cards/natural-v4/licenses/3dicons-CC0.txt",
+      "review": "Only PNG image files and license text read. No package or site code installed or executed."
+    }
+  ]
+}

@@ -1,0 +1,194 @@
+{
+  "passed": true,
+  "templates": 21,
+  "images": [
+    {
+      "src": "http://127.0.0.1:4121/assets/template-natural-qa/covers.png",
+      "complete": true,
+      "width": 2660
+    },
+    {
+      "src": "http://127.0.0.1:4121/assets/template-natural-qa/covers-blind.png",
+      "complete": true,
+      "width": 2660
+    },
+    {
+      "src": "http://127.0.0.1:4121/assets/template-natural-qa/covers-grayscale.png",
+      "complete": true,
+      "width": 2660
+    },
+    {
+      "src": "http://127.0.0.1:4121/assets/template-natural-qa/wishes.png",
+      "complete": true,
+      "width": 1365
+    },
+    {
+      "src": "http://127.0.0.1:4121/assets/template-natural-qa/replies.png",
+      "complete": true,
+      "width": 1365
+    },
+    {
+      "src": "http://127.0.0.1:4121/assets/template-natural-qa/seasonal-live-vi.png",
+      "complete": true,
+      "width": 1190
+    },
+    {
+      "src": "http://127.0.0.1:4121/assets/template-natural-qa/seasonal-live-en.png",
+      "complete": true,
+      "width": 1190
+    },
+    {
+      "src": "http://127.0.0.1:4121/assets/template-natural-qa/seasonal-vi.png",
+      "complete": true,
+      "width": 1072
+    },
+    {
+      "src": "http://127.0.0.1:4121/assets/template-natural-qa/seasonal-en.png",
+      "complete": true,
+      "width": 1072
+    },
+    {
+      "src": "http://127.0.0.1:4121/assets/template-natural-qa/natural-elements.png",
+      "complete": true,
+      "width": 1600
+    },
+    {
+      "src": "http://127.0.0.1:4121/assets/template-natural-qa/studio-fabric.png",
+      "complete": true,
+      "width": 2100
+    },
+    {
+      "src": "http://127.0.0.1:4121/assets/template-natural-qa/controls-before-after.png",
+      "complete": true,
+      "width": 2730
+    }
+  ],
+  "legacyPublished": [
+    {
+      "id": "afterglow",
+      "slug": "48UsyRXTluQmTFC-GwNkqiUHkqXZ2445",
+      "publishedBeforeNaturalUpgrade": true,
+      "oldPinnedVectorDocumentRetained": true
+    },
+    {
+      "id": "tiny-celebration",
+      "slug": "fzjSg7g6_EoM2vJ8uJ5QLPfq9uZhwBhy",
+      "publishedBeforeNaturalUpgrade": true,
+      "oldPinnedVectorDocumentRetained": true
+    },
+    {
+      "id": "winter-wishes-2026",
+      "slug": "9P-xsYImObvpeTfCNy4RHiC7t9I9zboZ",
+      "publishedBeforeNaturalUpgrade": true,
+      "oldPinnedVectorDocumentRetained": true
+    },
+    {
+      "id": "polaroid",
+      "slug": "PPc62zTBF0lc5p3S-EN6OX5weDENewcX",
+      "publishedBeforeNaturalUpgrade": true,
+      "oldPinnedVectorDocumentRetained": true
+    },
+    {
+      "id": "calm-light",
+      "slug": "XVruSkkfVoXkZRN9QlhopJFQshSxdXQW",
+      "publishedBeforeNaturalUpgrade": true,
+      "oldPinnedVectorDocumentRetained": true
+    },
+    {
+      "id": "cloud-nine",
+      "slug": "gUjvweEiNb865cOfM3evgBxC-vW7Id6O",
+      "publishedBeforeNaturalUpgrade": true,
+      "oldPinnedVectorDocumentRetained": true
+    },
+    {
+      "id": "confetti",
+      "slug": "RxCfXitvqw2hT4ViYrFZIJAvZWHzv6gU",
+      "publishedBeforeNaturalUpgrade": true,
+      "oldPinnedVectorDocumentRetained": true
+    },
+    {
+      "id": "new-year-spark-2027",
+      "slug": "eVUDwNXMasqyPp8JblLAqTA36QHZJsGU",
+      "publishedBeforeNaturalUpgrade": true,
+      "oldPinnedVectorDocumentRetained": true
+    },
+    {
+      "id": "spring-blessing-2027",
+      "slug": "Y7dt7Y49u66N1a3APYX9q4e6MfncMzjK",
+      "publishedBeforeNaturalUpgrade": true,
+      "oldPinnedVectorDocumentRetained": true
+    },
+    {
+      "id": "velvet-valentine-2027",
+      "slug": "uTrTo6jh0tdi7stH5EMhJmxlrI6AXoq-",
+      "publishedBeforeNaturalUpgrade": true,
+      "oldPinnedVectorDocumentRetained": true
+    },
+    {
+      "id": "greenhouse",
+      "slug": "b9eDAPnPqOa0O708v_HQunVZcsi3qrsp",
+      "publishedBeforeNaturalUpgrade": true,
+      "oldPinnedVectorDocumentRetained": true
+    },
+    {
+      "id": "gentle-apology",
+      "slug": "gJZ-HNoImoWItBjjs0CJ42N7EDfTxNKK",
+      "publishedBeforeNaturalUpgrade": true,
+      "oldPinnedVectorDocumentRetained": true
+    },
+    {
+      "id": "love-letter",
+      "slug": "Efl1iI0d6HVi8_0Pg9Dot92oworUH0Q-",
+      "publishedBeforeNaturalUpgrade": true,
+      "oldPinnedVectorDocumentRetained": true
+    },
+    {
+      "id": "faraway-hug",
+      "slug": "V4nZchkz-AwjOZP_Ez4uwdGaxczLab8L",
+      "publishedBeforeNaturalUpgrade": true,
+      "oldPinnedVectorDocumentRetained": true
+    },
+    {
+      "id": "lavender",
+      "slug": "gQ8gJTHGucAxTORxE8G9W63jiAM0RyTj",
+      "publishedBeforeNaturalUpgrade": true,
+      "oldPinnedVectorDocumentRetained": true
+    },
+    {
+      "id": "mot-ky-niem",
+      "slug": "9QSpX88WKikFehhzHN3QU9icTMdz1LQl",
+      "publishedBeforeNaturalUpgrade": true,
+      "oldPinnedVectorDocumentRetained": true
+    },
+    {
+      "id": "midnight-bloom",
+      "slug": "-Kx35ce7XWJ0pzCVDyBGt2Ub00Nx9zuS",
+      "publishedBeforeNaturalUpgrade": true,
+      "oldPinnedVectorDocumentRetained": true
+    },
+    {
+      "id": "sunny-wishes",
+      "slug": "-X8TX3VqJjgCtptco6hagC-S7Jjtja0Y",
+      "publishedBeforeNaturalUpgrade": true,
+      "oldPinnedVectorDocumentRetained": true
+    },
+    {
+      "id": "starlight",
+      "slug": "hi8bGBFYdE15c21o8q9lc5ZEK5oZ0fcW",
+      "publishedBeforeNaturalUpgrade": true,
+      "oldPinnedVectorDocumentRetained": true
+    },
+    {
+      "id": "peachy-day",
+      "slug": "SJjfVwgQ3XkaCrONNZqtk7UChCuVq-YY",
+      "publishedBeforeNaturalUpgrade": true,
+      "oldPinnedVectorDocumentRetained": true
+    },
+    {
+      "id": "thank-you-bloom",
+      "slug": "U3bWA0nVOMN_w_lB-7FcLVaIM9lY9GFE",
+      "publishedBeforeNaturalUpgrade": true,
+      "oldPinnedVectorDocumentRetained": true
+    }
+  ]
+}

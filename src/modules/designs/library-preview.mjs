@@ -85,7 +85,7 @@ export function buildLibraryPreview(item, items, locale = 'vi', requestedFamily)
       document.elements.push(text); document.scenes.push(next); next.effects = { transition: selected }; playSceneId = next.id;
     } else if (type) { subject.effects = { [family]: selected }; effectPreview = { family, sceneId: document.entrySceneId, elementId: subject.id }; }
     else document.scenes[0].effects = { [family]: selected };
-  } else if (item.kind === 'element') { document = base(copy(item.definition.elements), localize); fit(document.elements); }
+  } else if (item.kind === 'element') { document = base(copy(item.definition.elements), localize);document.assets=copy(item.definition.assets||[]);fit(document.elements); }
   else if (['preset','template'].includes(item.kind)) document = copy(item.definition.documents?.[locale] || item.definition.documents?.vi || item.definition.document);
   else throw Object.assign(new Error('Unsupported preview kind.'), { status: 422 });
   for (const [i, key] of ['recipientName','senderName','message'].entries())

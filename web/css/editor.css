@@ -207,6 +207,43 @@ body.is-designing #main {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 6px;
 }
+.editor-library-kinds {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+  margin: 12px 0;
+}
+.editor-library-kinds button {
+  min-width: 0;
+  min-height: 44px;
+  padding: 8px 4px;
+  border: 1px solid #e7dff2;
+  border-radius: 10px;
+  background: #fff;
+  color: #504363;
+  font-size: 12px;
+  line-height: 1.25;
+}
+.editor-library-kinds button[aria-pressed="true"] {
+  border-color: #7652d7;
+  background: #f0e9ff;
+  color: #4d24aa;
+}
+.editor-library-kinds button:focus-visible {
+  outline: 3px solid #d39935;
+  outline-offset: 2px;
+}
+#editor-panel-add .editor-discovery-filters {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: thin;
+}
+#editor-panel-add .editor-discovery-filters .editor-discovery-chip {
+  flex: 0 0 auto;
+}
 .editor-workspace button[data-block] {
   display: grid;
   justify-items: center;

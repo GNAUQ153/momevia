@@ -6,6 +6,8 @@ import { node, button, field } from "./dom.js";
 import { bounds, catalog, matchesBlock, sampleBindings } from "./library.js";
 import { discoveryModes, filteredIds } from "./library-discovery.js";
 import { thumbnail } from "./thumbnail.js";
+import { eventMediaUrl } from '../../shared/canvas/event-media.js';
+import {visualKinds,blockVisualKind} from './library-kinds.js';
 
 export function createDiscoveryPanel({ policy, discoveryMode, signal }) {
   const sample = sampleBindings(createDocument());
@@ -14,7 +16,7 @@ export function createDiscoveryPanel({ policy, discoveryMode, signal }) {
     const block = cards.get(control);
     if (!block || control.querySelector(".editor-thumbnail")) return;
     const models = block.create();
-    control.prepend(thumbnail(sample, models, bounds(models), { width: 62, height: 48 }));
+    control.prepend(thumbnail(sample, models, bounds(models), { width: 82, height: 64,assetUrl:id=>eventMediaUrl(id,{variant:'thumbnail'}) }));
   };
   const lazy = new IntersectionObserver(entries => {
     for (const { target, isIntersecting } of entries) {
@@ -23,6 +25,13 @@ export function createDiscoveryPanel({ policy, discoveryMode, signal }) {
       lazy.unobserve(target);
     }
   }, { rootMargin: "120px" });
+  const kinds=node('div',{class:'editor-library-kinds',role:'group','aria-label':message('editor.interface.libraryFilters'),'data-active-kind':'all'},
+    ...visualKinds.map(kind=>node('button',{type:'button','data-library-kind':kind,'aria-pressed':String(kind==='all')},message(`editor.library.kind.${kind}`))));
+  kinds.addEventListener('click',event=>{
+    const control=event.target.closest('[data-library-kind]');if(!control)return;event.stopPropagation();kinds.dataset.activeKind=control.dataset.libraryKind;
+    for(const choice of kinds.querySelectorAll('button'))choice.setAttribute('aria-pressed',String(choice===control));
+    const panel=kinds.closest('#editor-panel-add');if(panel){panel.dataset.visualKind=control.dataset.libraryKind;filterDiscoveryPanel(panel,{query:panel.querySelector('[data-block-search]').value,discoveryMode:panel.dataset.discoveryMode||discoveryMode,recentBlocks:JSON.parse(panel.dataset.recentBlocks||'[]')});}
+  },{signal});
   signal.addEventListener("abort", () => lazy.disconnect(), { once: true });
   const groups = catalog.map(({ label, items, database }, index) => node("section", { class: "editor-block-group", "data-block-group": index },
     node("h3", {}, database ? label : message(`editor.library.group.${index}`)),
@@ -32,20 +41,18 @@ export function createDiscoveryPanel({ policy, discoveryMode, signal }) {
         disabled: policy?.kind === "creator-template",
       });
       cards.set(control, block);
+      control.dataset.visualKind=blockVisualKind(block);
       control.append(node("span", {}, block.database ? block.title : message(`editor.library.item.${block.id}`)));
       lazy.observe(control);
       return control;
     })),
   ));
   return [
-    node("div", { class: "editor-discovery-heading" },
-      node("span", { class: "editor-discovery-eyebrow" }, message("editor.interface.libraryBadge")),
-      node("strong", {}, message("editor.interface.libraryTitle")),
-      node("p", {}, message("editor.interface.libraryDescription"))),
     field(message("editor.interface.searchDecorations"), node("input", {
       type: "search", "data-block-search": "", placeholder: message("editor.interface.searchPlaceholder"),
       "aria-describedby": "editor-block-count",
     })),
+    kinds,
     node("div", { class: "editor-discovery-filters", role: "group", "aria-label": message("editor.interface.libraryFilters") },
       ...discoveryModes.map(mode => button(message(`editor.interface.discovery.${mode.id}`), "filter-blocks", {
         class: "editor-discovery-chip", "data-filter-mode": mode.id,
@@ -76,10 +83,13 @@ export function matchesLocalizedBlock(block, search, translateLabel = t) {
 export function filterDiscoveryPanel(panel, { query, discoveryMode, recentBlocks }) {
   if (!panel?.querySelector("[data-block-group-select]")) return;
   const selectedGroup = panel.querySelector("[data-block-group-select]").value;
-  const allowed = filteredIds(catalog, {
+  panel.dataset.discoveryMode=discoveryMode;panel.dataset.recentBlocks=JSON.stringify(recentBlocks||[]);
+  let allowed = filteredIds(catalog, {
     query, group: selectedGroup, mode: discoveryMode, recent: recentBlocks,
     matches: matchesLocalizedBlock,
   });
+  const kind=panel.dataset.visualKind||panel.querySelector('.editor-library-kinds')?.dataset.activeKind||'all';
+  if(kind!=='all')allowed=new Set(catalog.flatMap(g=>g.items).filter(block=>allowed.has(block.id)&&blockVisualKind(block)===kind).map(block=>block.id));
   for (const [index, { items }] of catalog.entries()) {
     const section = panel.querySelector(`[data-block-group="${index}"]`);
     let count = 0;
@@ -96,4 +106,5 @@ export function filterDiscoveryPanel(panel, { query, discoveryMode, recentBlocks
     ? "editor.interface.noRecent" : "editor.interface.noMatches"));
   for (const chip of panel.querySelectorAll("[data-filter-mode]"))
     chip.setAttribute("aria-pressed", String(chip.dataset.filterMode === discoveryMode));
+  for(const choice of panel.querySelectorAll('[data-library-kind]'))choice.setAttribute('aria-pressed',String(choice.dataset.libraryKind===kind));
 }

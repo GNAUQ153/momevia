@@ -1,4 +1,7 @@
 import { EVENT_CLUSTER_IDS, eventCluster } from '../../shared/canvas/event-clusters.js';
+import { REFRESH_21 } from '../../shared/canvas/refresh-21-config.js';
+import vectorInsertions from '../../../assets/canvas/vector-insertions-v1.json' with {type:'json'};
+import {naturalElementCards,naturalCompositionCards} from '../../shared/canvas/natural-elements.js';
 import { canonicalText } from '../../shared/locale.js';
 import { decorativeGroups, decorativeNames } from "./decorations.js";
 import { createElement } from "../../shared/canvas/registry.js";
@@ -29,7 +32,7 @@ const motif = (templateId, matches) => () => {
     return copy;
   });
 };
-const constellation = motif("starlight", /^(star-[012]|constellation-1)$/);
+const vectorInsertion=id=>()=>structuredClone(vectorInsertions[id]).map(e=>({...e,id:crypto.randomUUID()}));
 const replay = [{ on: "activate", type: "replay" }];
 const polaroidLabel = "Ảnh trong khung Polaroid";
 
@@ -91,16 +94,10 @@ export const catalog = [
   ["Sticker", [...originalStickerIds.map(id =>
     [id, stickerNames[id], sticker(id, 80, id === "star" || id === "sparkles" ? "#A97413" : "#AA5275"), "hình dán sticker"]), ...illustratedStickers]],
   ["Cụm trang trí", [
-    ["flowers", "Cụm hoa", motif("midnight-bloom", /^bloom-small-/), "cánh hoa"],
-    ["leaves", "Cành lá", motif("greenhouse", /^garden-right-/), "cây cụm lá"],
-    ["stars", "Cụm sao", () => {
-      const models = constellation();
-      const accent = models[0];
-      const [star] = sticker("star", 34, "#A97413")();
-      star.layout.x = accent.layout.x + 12;
-      star.layout.y = accent.layout.y + 12;
-      return [...models, star];
-    }, "chòm sao lấp lánh"],
+    ["flowers", "Cụm hoa", vectorInsertion('flowers'), "cánh hoa"],
+    ["leaves", "Cành lá", vectorInsertion('leaves'), "cây cụm lá"],
+    ...Object.entries(REFRESH_21).map(([id,spec])=>[`object-${id}`,canonicalText(`editor.library.item.object-${id}`),motif(id,/^cover-object-/),`${id} ${spec.object} ${spec.material}`]),
+    ["stars", "Cụm sao", vectorInsertion('stars'), "chòm sao lấp lánh"],
     ...decorations,
   ]],
   ["Kể chuyện và kỷ niệm", [...stories, ...EVENT_CLUSTER_IDS.map(id=>[id, canonicalText(`interactive.${id}`), ()=>eventCluster(id,canonicalText), canonicalText(`interactive.${id}`)])]],
@@ -118,6 +115,11 @@ export const catalog = [
   label,
   items: items.map(([id, title, create, keywords]) => ({ id, title, create, keywords, group: label })),
 }));
+for(const [kind,label]of [['graphics','Đồ họa tự nhiên'],['materials','Chất liệu giấy và vải'],['three-d','Vật thể 3D'],['animation','Chuyển động nhẹ']]){
+ const items=naturalElementCards(kind,canonicalText);if(items.length)catalog.push({label,items:items.map(card=>({...card,group:label}))});
+}
+const naturalStories=naturalCompositionCards(canonicalText);
+if(naturalStories.length)catalog.push({label:'Cụm thiệp tự nhiên',items:naturalStories.map(card=>({...card,group:'Cụm thiệp tự nhiên'}))});
 
 const normalized = value => value.toLowerCase().normalize("NFD").replace(/\p{Diacritic}/gu, "").replaceAll("đ", "d");
 const searchIndex = new Map(catalog.flatMap(({ items }) => items.map(block => [

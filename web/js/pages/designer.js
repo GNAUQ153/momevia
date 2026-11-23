@@ -1,4 +1,5 @@
 import { RESTYLE_PAIRS } from '../shared/canvas/template-slots.js';
+import {materializeInsertionMedia} from '../features/canvas-editor/natural-insert.js';
 import { openTemplateTrial } from '../features/catalog/template-trial.js';
 import { captureTranslator, createLocaleControl, currentLocale, message, onLocaleChange, setAttr, setText, t } from "../core/i18n.js";
 import { errorCopy } from "../core/api.js";
@@ -95,6 +96,7 @@ export function mountDesigner(
 ) {
   const lifecycle = new AbortController(),
     { signal } = lifecycle;
+  const libraryMediaCache=new Map();
   let disposed = false,
     design = null,
     store = null,
@@ -1061,6 +1063,10 @@ export function mountDesigner(
     sceneId = design.document.entrySceneId;
     selection = null;
     store = createEditorStore(design);
+    if(quickMode){
+      const frame=quickPhotoFrame();
+      if(framePhoto(design.document,frame)?.props.assetId)sceneId=design.document.scenes.find(scene=>scene.elementIds.includes(frame.id))?.id||sceneId;
+    }
     session = createSaveSession({
       design,
       store,
@@ -1125,7 +1131,7 @@ export function mountDesigner(
       let loaded = result.design;
       if (source.kind === 'template' && loaded.policy?.kind === 'sender-basic') {
         const { template } = await request(`/catalog/templates/${encodeURIComponent(source.templateId)}`);
-        loaded = await materializeTemplateStart(loaded, { template, createMutationId: mutationId, request, localize });
+        loaded = await materializeTemplateStart(loaded, { template, createMutationId: mutationId, request, localize,signal });
       }
       id = loaded.id;
       syncDraftUrl();
@@ -1928,11 +1934,20 @@ export function mountDesigner(
       const insertingGreeting = name === "insert-greeting";
       const block = catalog.flatMap(group => group.items).find(item => item.id === (insertingGreeting ? "greeting" : target.dataset.block));
       if (!block) return;
-      const models = block.create();
+      let models = block.create(),addedAssets=[];
+      if(models.some(e=>photoSlots(e).some(slot=>slot.assetId))){
+        const designId=design.id;target.disabled=true;
+        try{
+          const prepared=await materializeInsertionMedia(models,{signal,namespace:designId,cache:libraryMediaCache,upload:async(bytes,mutationId)=>(await request(`/designs/designs/${encodeURIComponent(designId)}/assets`,undefined,{method:'POST',headers:{'content-type':'image/webp','x-mutation-id':mutationId},body:bytes})).asset});
+          if(disposed||signal.aborted||design.id!==designId||!store.get().document.scenes.some(s=>s.id===scene.id))return;models=prepared.models;addedAssets=prepared.assets;
+        }catch(error){if(disposed||signal.aborted)return;throw new Error(t('editor.library.mediaUnavailable'),{cause:error});
+        }finally{if(!disposed)target.disabled=false;}
+      }
       if (insertingGreeting) models[0].props.color = readableInk(scene.background.color);
       models.at(-1).name ||= block.title;
       placeBlock(models, stage.visibleArea(), store.get().document.elements.filter(item => scene.elementIds.includes(item.id)));
       commit((value) => {
+        for(const ref of addedAssets)if(!value.document.assets.some(a=>a.assetId===ref.assetId))value.document.assets.push(ref);
         value.document.elements.push(...models);
         value.document.scenes
           .find((item) => item.id === scene.id)
@@ -2205,6 +2220,10 @@ export function mountDesigner(
       const target = key === 'event-photo' ? control.dataset.target : key === "quick-photo" ? quickPhotoFrame()?.id : selection;
       try {
         if (target) await upload(control.files?.[0], target, control.dataset.slot);
+        if(key==='quick-photo'&&target){
+          const photoScene=store.get().document.scenes.find(scene=>scene.elementIds.includes(target));
+          if(photoScene&&photoScene.id!==sceneId){sceneId=photoScene.id;renderAll();}
+        }
         if (key === 'event-photo') commit(next => {
           const album = storyAlbum(next.document), photo = album?.props.photos.find(p => p.id === control.dataset.slot);
           if (photo?.assetId && !photo.alt) photo.alt = t('templates.story.photo', { index: album.props.photos.indexOf(photo) + 1 });

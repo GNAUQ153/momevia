@@ -1,3 +1,7 @@
+## Unreleased — Mẫu quà tự nhiên · 3/8 (2026-11-23)
+
+- Thêm bộ lọc element và đưa ảnh thư viện qua upload riêng của chủ nháp, kiểm hash và chống lặp.
+
 ## Unreleased — Mẫu quà tự nhiên · 2/8 (2026-11-23)
 
 - Dựng lại 21 mẫu ba cảnh và bìa danh mục/theo mùa từ cùng document.

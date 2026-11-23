@@ -11,7 +11,9 @@ import { validateDocument, canonicalStringify } from '../../../web/js/shared/can
 import { canvasError } from './errors.mjs';
 import { buildLibraryPreview, activatePreviewDependencies } from './library-preview.mjs';
 import { builtinCoverResources } from './builtin-media.mjs';
+import { builtinMedia } from './builtin-media.mjs';
 import { usesSound } from '../../../web/js/shared/canvas/sound.js';
+import { coverVariant } from '../../../web/js/shared/canvas/refresh-21-config.js';
 
 const check = (ok, message) => { if (!ok) throw canvasError(422, 'INVALID_LIBRARY_DEFINITION', message); };
 const parse = v => typeof v === 'string' ? JSON.parse(v) : v;
@@ -35,7 +37,14 @@ export function validateLibrary(items) {
       if (item.kind === 'artwork') { check(['shape','line','sticker','mask'].includes(d.target) && libraryId(d.key) && item.id === `${d.target}-${d.key}`, 'Invalid artwork target or ID.'); validateVector(d.vector); }
       if (item.kind === 'element') {
         check(d.title && d.group && Array.isArray(d.elements) && d.elements.length > 0 && d.elements.length <= 100, 'An element requires a title, group and 1–100 layers.');
-        validateDocument(pinDocumentArtwork(documentFor(structuredClone(d.elements))));
+        const doc=documentFor(structuredClone(d.elements));
+        if(d.assets!==undefined){
+          check(Array.isArray(d.assets)&&d.assets.length<=64,'Invalid library element assets');
+          for(const ref of d.assets){const media=builtinMedia(ref.assetId);check(ref.kind==='image'&&media&&!media.previewOnly,'Library element requires immutable distributable media');}
+          doc.assets=structuredClone(d.assets);
+        }
+        if(d.visualKind!==undefined)check(['shapes','graphics','photos','three-d','animation','interactive','text'].includes(d.visualKind),'Invalid visual category');
+        validateDocument(pinDocumentArtwork(doc));
       }
       if (['preset','template'].includes(item.kind)) {
         const documents = d.documents || { vi: d.document }; check(documents.vi, 'A VI document is required.');
@@ -120,7 +129,7 @@ export class CanvasLibraryService {
     installLibrary({ ...snapshot, items: rows });
     return snapshot;
   }
-  async cover(id, locale) {
+  async cover(id, locale, variant = 'portrait') {
     await this.refresh();
     if (!libraryEntry('template', id)) throw canvasError(404, 'LIBRARY_ITEM_NOT_FOUND', 'Library template unavailable.');
     const localize = (key, params) => serverText(locale, key, params);
@@ -132,7 +141,7 @@ export class CanvasLibraryService {
         document.bindings[key].value = localize(`templates.preview.${name}`);
     }
     this.coverResources ??= builtinCoverResources();
-    return previewSvg(document, undefined, this.coverResources.images, { serifWoff2: this.coverResources.serifWoff2 });
+    return previewSvg(coverVariant(document,variant), undefined, this.coverResources.images, { serifWoff2: this.coverResources.serifWoff2 });
   }
   async put(user, kind, id, input) {
     check(user?.role === 'admin', 'Admin required.');

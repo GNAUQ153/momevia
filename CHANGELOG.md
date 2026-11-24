@@ -1,3 +1,21 @@
+## Unreleased — Sửa hồi quy CI PR #26 (2026-11-24)
+
+- Cập nhật dữ liệu kỳ vọng của test vòng đời 28 mẫu theo cấu hình người nhận mặc định của nháp Sender mới; giữ so sánh đầy đủ document, ảnh riêng, lưu/tải lại và snapshot xuất bản.
+- Giữ các ca tương thích template cũ và kiểm tra retry mất ACK độc lập với phần đánh dấu cá nhân hóa mới.
+
+## Unreleased — Đổi dấu phân cách giao diện sang gạch ngang (2026-11-24)
+
+- Thay dấu chấm nổi phân cách bằng `-` trong giao diện VI/EN, Studio, quyền/trạng thái, thư viện, âm thanh và các lựa chọn tương tác. Nhãn lấy từ phiên bản thư viện cũ cũng hiển thị theo quy tắc mới.
+- Định dạng mẫu câu trước khi ghép tham số; giữ nguyên tên, lời nhắn, nội dung thiệp đã lưu, dữ liệu thư viện gốc, gói cập nhật có hash và các hạt chấm trang trí. Không thay ký tự `*` trong mã/công thức.
+- Build/check, 757 unit tests và trình duyệt cho thiệp tương tác/lượt nhận đạt; đối chiếu 245 mẫu câu VI/EN, tên chứa dấu chấm vẫn được bảo toàn.
+
+## Unreleased — Ba cách ghi tên người nhận (2026-11-24)
+
+- Lưu chế độ thủ công/danh sách/tự điền theo nháp; nhập XLSX/CSV có xem trước và lỗi dòng gốc; xuất bản một nội dung cho các link cá nhân hoặc một link chung.
+- Thêm biến `{người nhận}`, ô xác nhận tên, khôi phục lượt khi thử lại, quyền theo lượt và kết quả trong Studio. Bảo toàn snapshot cũ, quyền Creator và số chưa đọc.
+- Xuất bảng XLSX an toàn với tên giống công thức, link/QR và danh sách chỉ dành cho chủ. Migration 016 tương thích dữ liệu cũ; cờ bật theo chủ và dừng writer riêng với reader.
+- Build/check, 757 unit, JSON/MySQL + browser và bộ Canvas regression đạt. Có ảnh, số đo trước/sau, backup/migration cục bộ và hướng quay lui tại `docs/RECIPIENT_NAMING.md`.
+
 ## Unreleased — Sửa browser regression của CI PR #25 (2026-11-23)
 
 - Cập nhật kiểm tra bìa Hero VI/EN theo biến thể `-catalog.svg` đang dùng, giữ kiểm tra chính xác template và thư mục ngôn ngữ.

@@ -4,6 +4,7 @@ import { currentUser } from '../../shared/security.mjs';
 import { clientIp } from '../../shared/proxy.mjs';
 import { giftOwnerLinks, giftShareUrl } from './links.mjs';
 import { readRequestIds, replyView } from './replies.mjs';
+import { recipientWorkbook } from './recipient-workbook.mjs';
 
 export function registerRoutes(router, { config, creationLimit, globalReplies, service, resolveUser = currentUser }) {
   const withShareUrl = gift => ({ ...gift, url: giftShareUrl(config.baseUrl, gift.slug) });
@@ -19,6 +20,26 @@ export function registerRoutes(router, { config, creationLimit, globalReplies, s
   router.on('GET', '/gifts/mine/:slug', async ({req,res,params}) => {
     const user = await resolveUser(req, config.jwtSecret);
     sendJson(res, 200, { gift: ownerShare(service.ownerView(await service.ownGift(user, params.slug))) });
+  });
+  router.on('GET', '/gifts/mine/:slug/recipients', async ({req,res,params}) => {
+    const user = await resolveUser(req, config.jwtSecret);
+    sendJson(res, 200, { recipients: await service.recipientRows(user, params.slug) });
+  });
+  router.on('GET', '/gifts/mine/:slug/recipients.csv', async ({req,res,params}) => {
+    const user = await resolveUser(req, config.jwtSecret);
+    const csv = await service.recipientExport(user, params.slug);
+    res.writeHead(200, { 'content-type': 'text/csv; charset=utf-8', 'content-disposition': 'attachment; filename=recipients.csv', 'cache-control': 'private, no-store', 'x-content-type-options': 'nosniff' });
+    res.end(csv);
+  });
+  router.on('GET', '/gifts/mine/:slug/recipients.xlsx', async ({req,res,params}) => {
+    const user = await resolveUser(req, config.jwtSecret);
+    const workbook = recipientWorkbook(await service.recipientRows(user, params.slug));
+    res.writeHead(200, { 'content-type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'content-disposition': 'attachment; filename=recipients.xlsx', 'cache-control': 'private, no-store', 'x-content-type-options': 'nosniff' });
+    res.end(workbook);
+  });
+  router.on('POST', '/gifts/:slug/recipient', async ({req,res,params,url}) => {
+    if (!globalReplies.consume('all')) throw localizedError(429, 'errors.gift.replyBusy');
+    sendJson(res, 200, { recipient: await service.confirmName(params.slug, url.searchParams.get('invite'), await parseJson(req, 2048)) });
   });
   router.on('GET', '/gifts/mine/:slug/replies', async ({req,res,params}) => {
     const user = await resolveUser(req, config.jwtSecret);
@@ -46,13 +67,13 @@ export function registerRoutes(router, { config, creationLimit, globalReplies, s
     const gift = await service.create(user, await parseJson(req));
     sendJson(res, 201, { gift: ownerShare({ ...gift, imageFile: undefined, userId: undefined }) });
   });
-  router.on('GET', '/gifts/:slug', async ({res,params,url}) => sendJson(res, 200, {gift: withShareUrl(await service.publicGift(params.slug, url.searchParams.get('invite')))}));
+  router.on('GET', '/gifts/:slug', async ({res,params,url}) => sendJson(res, 200, {gift: withShareUrl(await service.publicGift(params.slug, url.searchParams.get('invite'), url.searchParams.get('r')))}));
   router.on('GET', '/gifts/:slug/status', async ({res,params,url}) => {
-    await service.publicStatus(params.slug, url.searchParams.get('invite'));
+    await service.publicStatus(params.slug, url.searchParams.get('invite'), url.searchParams.get('r'));
     sendJson(res, 200, { status: 'active' });
   });
   router.on('GET', '/gifts/:slug/photo', async ({res,params,url}) => {
-    const { filePath, contentType } = await service.photo(params.slug, url.searchParams.get('invite'));
+    const { filePath, contentType } = await service.photo(params.slug, url.searchParams.get('invite'), url.searchParams.get('r'));
     res.writeHead(200, {
       'content-type': contentType,
       'cache-control': 'private, no-store',
@@ -61,12 +82,12 @@ export function registerRoutes(router, { config, creationLimit, globalReplies, s
     fs.createReadStream(filePath).pipe(res);
   });
   router.on('GET', '/gifts/:slug/replies', async ({res,params,url}) => {
-    sendJson(res, 200, { replies: await service.replies(params.slug, url.searchParams.get('invite')) });
+    sendJson(res, 200, { replies: await service.replies(params.slug, url.searchParams.get('invite'), url.searchParams.get('r')) });
   });
   router.on('POST', '/gifts/:slug/replies', async ({req,res,params,url}) => {
     if (!globalReplies.consume('all')) throw localizedError(429, 'errors.gift.replyBusy');
     const body = await parseJson(req, 8192);
-    const reply = await service.reply(params.slug, body, clientIp(req), url.searchParams.get('invite'));
+    const reply = await service.reply(params.slug, body, clientIp(req), url.searchParams.get('invite'), url.searchParams.get('r'));
     sendJson(res, 201, { reply: replyView(reply) });
   });
 }

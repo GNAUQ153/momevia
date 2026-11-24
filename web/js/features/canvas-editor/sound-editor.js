@@ -25,7 +25,7 @@ export async function openSoundEditor({current,assetUrl,upload,onApply,onRemove,
   const q=normalizeSoundSearch(search.value);
   list.replaceChildren(...catalog.assets.filter(a=>(!group.value||group.value===a.group)&&normalizeSoundSearch(`${a.name.vi} ${a.name.en} ${a.keywords}`).includes(q)).map(a=>{
    const sound={kind:'library',id:a.id,version:a.version,startMs:0,endMs:a.durationMs,volume:1},row=node('div',{class:'sfx-row','data-sfx-id':a.id}),play=node('button',{type:'button','aria-label':t('sfx.previewNamed',{name:name(a)})},t('sfx.preview')),stop=node('button',{type:'button'},t('sfx.stop')),choose=node('button',{type:'button',disabled:!catalog.createEnabled,'aria-label':t('sfx.chooseNamed',{name:name(a)})},t('sfx.choose'));
-   row.append(node('div',{},node('strong',{},name(a)),node('small',{},`${a.name[locale==='vi'?'en':'vi']} · ${(a.durationMs/1000).toFixed(2)} s`),a.version>=2?node('small',{},`${a.author} · ${a.license}`):null),play,stop,choose);
+   row.append(node('div',{},node('strong',{},name(a)),node('small',{},`${a.name[locale==='vi'?'en':'vi']} - ${(a.durationMs/1000).toFixed(2)} s`),a.version>=2?node('small',{},`${a.author} - ${a.license}`):null),play,stop,choose);
    play.onclick=()=>{void audio.play(sound,{explicit:true});};stop.onclick=()=>audio.stop();choose.onclick=()=>{audio.stop();trimmer?.dispose();sourcePcm=null;selected=sound;renderDetails();};return row;
   }));
  }

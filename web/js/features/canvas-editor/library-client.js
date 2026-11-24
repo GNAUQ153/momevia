@@ -1,4 +1,4 @@
-import { installLibrary, libraryText } from '../../shared/canvas/library-state.js';
+import { installLibrary, libraryLabel as libraryText } from '../../shared/canvas/library-state.js';
 import { materializeModels } from '../../shared/canvas/library-materialize.js';
 import { replaceCatalog } from './library.js';
 import { installAudioCuration } from '../../shared/canvas/music-curation.js';

@@ -454,8 +454,8 @@ async function render() {
       const lifetime = new AbortController();
       const giftEndpoint = `/gifts/gifts/${encodeURIComponent(id)}`;
       const invite = new URLSearchParams(location.search).get("invite");
-      const query = invite ? `?invite=${encodeURIComponent(invite)}` : "";
-      const repliesEndpoint = `${giftEndpoint}/replies${query}`;
+      let query = invite ? `?invite=${encodeURIComponent(invite)}` : "";
+      let repliesEndpoint;
       routeController = { dispose: () => lifetime.abort() };
       const closed = error => {
         if (error.status !== 410 || lifetime.signal.aborted) return;
@@ -464,7 +464,24 @@ async function render() {
         closeModal();
         main.innerHTML = errorPage(errorCopy(error));
       };
-      const { gift } = await api.get(giftEndpoint + query, { signal: lifetime.signal });
+      const initialReceipt = new URLSearchParams(location.search).get('r');
+      if (initialReceipt) query += `${query ? '&' : '?'}r=${encodeURIComponent(initialReceipt)}`;
+      let { gift } = await api.get(giftEndpoint + query, { signal: lifetime.signal });
+      let gateTools;
+      if (gift.recipientMode === 'self') {
+        gateTools = await import('../features/gifts/recipient-gate.js');
+        let receipt = initialReceipt || gateTools.recipientSession(id);
+        if (gift.nameRequired && receipt) {
+          try { ({ gift } = await api.get(giftEndpoint + query + `${query ? '&' : '?'}r=${encodeURIComponent(receipt)}`, { signal: lifetime.signal })); }
+          catch (error) { if (error.status !== 403) throw error; receipt = ''; }
+        }
+        if (gift.nameRequired) {
+          receipt = await gateTools.openRecipientGate(main, { slug: id, endpoint: `${giftEndpoint}/recipient${query}`, api, signal: lifetime.signal });
+          query += `${query ? '&' : '?'}r=${encodeURIComponent(receipt)}`;
+          ({ gift } = await api.get(giftEndpoint + query, { signal: lifetime.signal }));
+        } else if (receipt && !initialReceipt) query += `${query ? '&' : '?'}r=${encodeURIComponent(receipt)}`;
+      }
+      repliesEndpoint = `${giftEndpoint}/replies${query}`;
       if (generation !== renderGeneration) return;
       const recheck = () => {
         if (document.visibilityState === "visible")
@@ -488,9 +505,9 @@ async function render() {
             assetUrl: (assetId) =>
               `/api/gifts/gifts/${encodeURIComponent(id)}/assets/${encodeURIComponent(assetId)}${query}`,
             replyAdapter: {
-              ...gift.replyPermissions,
+              ...gift.replyPermissions, cardName: gift.recipientName,
               send: gift.replyPermissions.canSend ? async (reply) =>
-                submitReplyIntent(id, reply, async body => (
+                submitReplyIntent(`${id}:${gift.receiptId || 'manual'}`, reply, async body => (
                   await api.post(repliesEndpoint, body, {
                     signal: lifetime.signal,
                   }).catch(error => { closed(error); throw error; })
@@ -515,7 +532,7 @@ async function render() {
         main.innerHTML = giftPage(gift);
         const replyForm = main.querySelector("#reply-form");
         const replyList = main.querySelector("#reply-list");
-        if (replyForm) replyForm.dataset.endpoint = repliesEndpoint;
+        if (replyForm) { replyForm.dataset.endpoint = repliesEndpoint; replyForm.dataset.replyScope = `${id}:${gift.receiptId || 'manual'}`; }
         if (replyList) api.get(repliesEndpoint, { signal: lifetime.signal })
           .then(({ replies }) => {
             if (!replyList.dataset.loaded) updateLegacyReplies(replyList, replies);
@@ -526,6 +543,7 @@ async function render() {
               setText(replyList, message('gift.legacy.loadRepliesError'));
           });
       }
+      if (gift.recipientMode === 'self') gateTools.addChangeRecipient(main, id, () => void render());
     } else if (route === "payment-result" && id) {
       if (!state.user) {
         main.innerHTML = errorPage(message("payment.checkout.login"));
@@ -596,6 +614,11 @@ async function render() {
       const result = await api.get(`/gifts/gifts/mine/${encodeURIComponent(id)}`);
       if (generation !== renderGeneration) return;
       main.innerHTML = successPage(result.gift);
+      if (result.gift.recipientMode === 'list' && result.gift.status === 'active') {
+        const { mountRecipientResults } = await import('../features/gifts/recipient-results.js');
+        if (generation !== renderGeneration) return;
+        await mountRecipientResults(main.querySelector('[data-recipient-results-host]'), result.gift.slug);
+      }
     } else if (route === "studio") {
       if (!state.user) {
         requireLogin("/studio");
@@ -1135,6 +1158,12 @@ async function handleAction(action, element) {
     await render();
     return;
   }
+  if (action === "recipient-results") {
+    openModal(`<div data-recipient-results-host></div>`);
+    const { mountRecipientResults } = await import("../features/gifts/recipient-results.js");
+    await mountRecipientResults(modal.querySelector("[data-recipient-results-host]"), element.dataset.id);
+    return;
+  }
   if (action === "gift-inbox") {
     const endpoint = `/gifts/gifts/mine/${encodeURIComponent(element.dataset.id)}/replies`;
     const { replies } = await api.get(endpoint);
@@ -1551,7 +1580,7 @@ document.addEventListener("submit", async (event) => {
       </div>`, { showLocaleControl: false });
     } else if (form.id === "reply-form") {
       try {
-        await submitReplyIntent(form.dataset.slug, data, body => api.post(form.dataset.endpoint, body));
+        await submitReplyIntent(form.dataset.replyScope || form.dataset.slug, data, body => api.post(form.dataset.endpoint, body));
         const list = form.isConnected ? main.querySelector("#reply-list") : null;
         if (list) updateLegacyReplies(list, (await api.get(form.dataset.endpoint)).replies);
       } catch (error) {

@@ -1,3 +1,4 @@
+import { validateRecipientSettings } from '../recipient-naming.js';
 import { registry, STICKERS, FONT_TOKENS, BINDINGS, LIMITS } from './registry.js';
 import { soundtrackById } from './soundtracks.js';
 import { lines, masks, originalStickerIds, shapes } from './artwork.js';
@@ -161,7 +162,10 @@ export function validateDocument(document, { mode = 'draft', requiredBindings = 
   preflightTree(document);
   const serialized = JSON.stringify(document);
   if (new TextEncoder().encode(serialized).length > LIMITS.documentBytes) fail('document', 'Thiết kế vượt giới hạn 256 KiB.', 'DOCUMENT_BUDGET');
-  object(document, 'document', ['schemaVersion', 'registryVersion', 'artboard', 'entrySceneId', 'bindings', 'assets', 'scenes', 'elements', 'responsive', 'soundtrack'], ['schemaVersion', 'registryVersion', 'artboard', 'entrySceneId', 'bindings', 'assets', 'scenes', 'elements', 'responsive']);
+  object(document, 'document', ['schemaVersion', 'registryVersion', 'artboard', 'entrySceneId', 'bindings', 'assets', 'scenes', 'elements', 'responsive', 'soundtrack', 'personalization'], ['schemaVersion', 'registryVersion', 'artboard', 'entrySceneId', 'bindings', 'assets', 'scenes', 'elements', 'responsive']);
+  if (own(document, 'personalization')) {
+    try { validateRecipientSettings(document.personalization); } catch { fail('personalization', 'recipient.error.settings'); }
+  }
   if (own(document, 'soundtrack')) {
     object(document.soundtrack, 'soundtrack', ['id', 'volume'], ['id', 'volume']);
     if (!soundtrackById(document.soundtrack.id)) fail('soundtrack.id', 'Bài nhạc không thuộc thư viện đã duyệt.', 'SOUNDTRACK_NOT_ALLOWED');
@@ -287,6 +291,7 @@ export function publicDocument(document) {
   return {
     schemaVersion: d.schemaVersion, registryVersion: d.registryVersion, artboard: d.artboard, entrySceneId: d.entrySceneId,
     bindings: d.bindings, assets: d.assets.filter(a => used.has(a.assetId)), scenes: d.scenes,
+    ...(d.personalization ? { personalization: { version: 1, mode: d.personalization.mode, ...(d.personalization.resolved ? { resolved: true } : {}) } } : {}),
     ...(d.soundtrack ? { soundtrack: d.soundtrack } : {}),
     elements: d.elements.map(e => ({ id: e.id, type: e.type, elementVersion: e.elementVersion, layout: e.layout, props: e.props, accessibility: e.accessibility, ...(e.sound ? {sound:e.sound} : {}), ...(e.actions ? { actions: e.actions } : {}), ...(e.effects ? { effects: e.effects } : {}), ...(e.artwork ? { artwork: e.artwork } : {}), ...(own(e, 'visible') ? { visible: e.visible } : {}), ...(own(e, 'opacity') ? { opacity: e.opacity } : {}) })),
     responsive: d.responsive,

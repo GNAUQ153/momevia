@@ -114,7 +114,7 @@ export function mountMusicLibrary(host, { api, embedded = false }) {
           node('button', { type: 'button', class: 'music-admin__pick', 'data-music-admin': 'edit', 'data-key': row.key },
             node('span', { class: 'library-admin__item-title' }, title(row)),
             node('span', { class: `library-admin__badge${row.status === 'disabled' ? ' is-off' : ''}` }, message(`adminLibrary.status.${row.status}`)),
-            node('small', { class: 'music-admin__artist' }, `${row.artist} · ${duration(row.durationMs)}`)))));
+            node('small', { class: 'music-admin__artist' }, `${row.artist} - ${duration(row.durationMs)}`)))));
         if (!rows.length) list.append(node('p', {}, label('empty')));
         if (focusKey) list.querySelector(`[${focusAction}="${CSS.escape(focusKey)}"]`)?.focus({ preventScroll: true });
       });

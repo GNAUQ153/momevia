@@ -15,6 +15,8 @@ console.log('Built local QR module (qrcode-generator 2.0.4, MIT).');
 buildTemplatePreviews();
 buildLocalizedHtml();
 
+await import('./recipient-vendor.mjs');
+
 // Đóng gói Fabric.js ESM kèm thông báo bản quyền nếu đã cài.
 await import('./fabric-vendor.mjs');
 await (await import('./client-bundles.mjs')).buildClientBundles();

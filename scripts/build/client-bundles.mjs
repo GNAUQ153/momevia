@@ -11,7 +11,7 @@ export async function buildClientBundles(){
  const outdir=path.join(root,'web/assets/app'),source=fs.readFileSync(path.join(root,'web/index.html'),'utf8');
  fs.mkdirSync(outdir,{recursive:true});
  const common={absWorkingDir:root,outdir,bundle:true,minify:true,target:'es2022',metafile:true,legalComments:'eof',logLevel:'warning'};
- const js=await build({...common,entryPoints:{app:'web/js/app.js'},format:'esm',splitting:true,external:['/assets/*'],entryNames:'[name]-[hash]',chunkNames:'chunks/[name]-[hash]',plugins:[{name:'fabric-on-demand',setup(api){api.onResolve({filter:/vendor\/fabric\.mjs$/},()=>({path:'/js/vendor/fabric.mjs',external:true}));}}]});
+ const js=await build({...common,entryPoints:{app:'web/js/app.js'},format:'esm',splitting:true,external:['/assets/*'],entryNames:'[name]-[hash]',chunkNames:'chunks/[name]-[hash]',plugins:[{name:'fabric-on-demand',setup(api){api.onResolve({filter:/vendor\/(?:fabric|recipient-xlsx)\.mjs$/},args=>({path:args.path.includes('recipient-xlsx')?'/js/vendor/recipient-xlsx.mjs':'/js/vendor/fabric.mjs',external:true}));}}]});
  const boot=await build({...common,entryPoints:{'catalog-preload':'web/js/catalog-bootstrap.js'},format:'iife',entryNames:'[name]-[hash]'});
  const sheets=[...source.matchAll(/<link\b[^>]*rel="stylesheet"[^>]*href="(\/css\/[^"?]+)[^"]*"[^>]*>/g)].map(m=>m[1]);
  const css=await build({...common,stdin:{contents:sheets.map(file=>`@import ${JSON.stringify('.'+file)};`).join('\n'),resolveDir:path.join(root,'web'),loader:'css'},entryNames:'styles-[hash]',assetNames:'[name]-[hash]',external:['/assets/*','https://*','data:*']});

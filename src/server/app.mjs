@@ -1,3 +1,4 @@
+import { receiptFor } from '../modules/gifts/recipients.mjs';
 import http from 'node:http';
 import https from 'node:https';
 import { loadTlsOptions } from '../shared/tls.mjs';
@@ -87,6 +88,7 @@ export async function createHttpApp(config = environment(), { paymentProviders, 
   gifts.router.on('GET', '/gifts/:slug/assets/:assetId', async ({ res, params, url }) => {
     const gift = await gifts.service.validateSlug(params.slug);
     requireGiftPermission(gift, url.searchParams.get('invite'));
+    receiptFor(gift, url.searchParams.get('r'));
     if (!designs.flags.read || !gift.documentSnapshot || !gift.assetIds?.includes(params.assetId)) throw canvasError(404, 'ASSET_NOT_FOUND', 'Không tìm thấy ảnh.');
     const asset = designs.profile.mode === 'mysql' ? await designs.publication.pinnedAsset(params.slug, params.assetId) : await designs.repository.getAsset(gift.userId, params.assetId);
     if (!asset || asset.status !== 'ready' || !designs.service.assetExists(asset)) throw canvasError(404, 'ASSET_NOT_FOUND', 'Không tìm thấy ảnh.');

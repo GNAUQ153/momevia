@@ -1,5 +1,5 @@
 import fs from 'node:fs';
-import { canonicalText, escapeHtml, vi } from '../../web/js/shared/locale.js';
+import { canonicalUiText as canonicalText, escapeHtml, vi } from '../../web/js/shared/locale.js';
 
 const index = new URL('../../web/index.html', import.meta.url);
 const copy = key => {

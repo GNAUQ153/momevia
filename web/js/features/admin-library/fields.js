@@ -5,7 +5,7 @@ import { shapes, masks, lines } from '../../shared/canvas/artwork.js';
 import { CORE_EFFECT_IDS } from '../../shared/canvas/library-contract.js';
 import { interactionKinds, localEventTime } from '../../shared/canvas/interactions.js';
 import { predictionFields } from '../../shared/canvas/prediction.js';
-import { libraryText } from '../../shared/canvas/library-state.js';
+import { libraryText, libraryLabel } from '../../shared/canvas/library-state.js';
 import { getDocument, layers, frameValue, compatibleAnimation, itemTitle, primitiveTypes, dependencies } from './model.js';
 
 const label = key => message(key.startsWith('adminLibrary.') || key.startsWith('editor.') ? key : `adminLibrary.${key}`);
@@ -131,7 +131,7 @@ function compositionFields(item, rows, { locale, sceneIndex, layerIndex, addType
 
 function layerProperties(e, path, rows, doc) {
   const p = e.props, at = key => `${path}.props.${key}`, output = [];
-  const artOptions = target => rows.filter(row => row.kind === 'artwork' && row.status === 'active' && row.definition.target === target).map(row => [row.definition.key, libraryText(row.definition.title) || row.definition.key]);
+  const artOptions = target => rows.filter(row => row.kind === 'artwork' && row.status === 'active' && row.definition.target === target).map(row => [row.definition.key, libraryLabel(row.definition.title) || row.definition.key]);
   if (e.type === 'text') output.push(choose('text.binding', p.textBinding || '', '', [['',t('adminLibrary.text.literal')],...['recipientName','senderName','message'].map(id => [id,t(`catalog.personalization.${id}`)])], { 'data-operation': 'binding', 'data-field': 'text-binding' }),
     ...(!p.textBinding ? [input('text.content', p.text, at('text'), { multiline: true, rows: 4, maxlength: 4000 })] : []),
     grid(choose('text.font', p.fontToken || 'body', at('fontToken'), ['body','heading','serif'].map(id => [id,t(`adminLibrary.font.${id}`)])), number('text.size', p.fontSize || 24, at('fontSize'), 10, 160),

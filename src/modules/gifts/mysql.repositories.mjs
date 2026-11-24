@@ -18,11 +18,26 @@ function asGift(row) {
 }
 function asReply(row) {
   return { id: row.id, giftId: row.gift_id, name: row.name,
+    recipientId: row.recipient_id || undefined, cardName: row.card_name || undefined,
     message: row.message, createdAt: iso(row.created_at), readStatus: row.read_status };
 }
 
 export class MySqlGiftsRepository {
   constructor(client = new MySqlClient()) { this.client = client; }
+  async get(id) {
+    const [rows] = await this.client.execute('SELECT * FROM gifts WHERE id=? LIMIT 1', [id]);
+    return asGift(rows[0]);
+  }
+  async mutateGift(giftId, update) {
+    return this.client.withTransaction(async tx => {
+      const [rows] = await tx.execute('SELECT * FROM gifts WHERE id=? FOR UPDATE', [giftId]);
+      if (!rows.length) throw localizedError(404, 'errors.gift.notFound');
+      const gift = asGift(rows[0]);
+      const result = update(gift);
+      await tx.execute('UPDATE gifts SET payload=? WHERE id=?', [JSON.stringify(gift), giftId]);
+      return result;
+    });
+  }
   async getBySlug(slug) {
     const [rows] = await this.client.execute(`SELECT g.*, (SELECT COUNT(*) FROM gift_replies r WHERE r.gift_id=g.id AND r.read_status='unread') AS unread_count
       FROM gifts g WHERE g.slug=? LIMIT 1`, [slug]);
@@ -63,9 +78,9 @@ export class MySqlGiftsRepository {
       const [existing] = await tx.execute('SELECT * FROM gift_replies WHERE gift_id=? AND id=?', [giftId, reply.id]);
       if (existing.length) return checkReplyReplay(asReply(existing[0]), reply);
       acceptNew();
-      await tx.execute(`INSERT INTO gift_replies(id, gift_id, name, message, created_at, read_status)
-        VALUES (?, ?, ?, ?, ?, ?)`,
-      [reply.id, giftId, reply.name, reply.message, mysqlDate(reply.createdAt), reply.readStatus ?? null]);
+      await tx.execute(`INSERT INTO gift_replies(id, gift_id, name, message, created_at, read_status, recipient_id, card_name)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [reply.id, giftId, reply.name, reply.message, mysqlDate(reply.createdAt), reply.readStatus ?? null, reply.recipientId || null, reply.cardName || null]);
       await tx.execute('UPDATE gifts SET reply_count=reply_count+1 WHERE id=?', [giftId]);
       return reply;
     });

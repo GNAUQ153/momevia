@@ -106,7 +106,7 @@ export function openRecoveryCenter({ session, store, design, onRetry, onCompare,
   const closeButton = control(message('editor.recovery.close'), 'close');
   const dialog = dom('dialog', { class: 'recovery-center', 'aria-labelledby': headingId },
     dom('div', { class: 'recovery-center__head' },
-      dom('div', {}, dom('p', { class: 'recovery-center__eyebrow', text: 'MOMEVIA · CANVAS' }), title),
+      dom('div', {}, dom('p', { class: 'recovery-center__eyebrow', text: 'MOMEVIA - CANVAS' }), title),
       dom('div', { class: 'recovery-center__head-controls' }, createLocaleControl(), closeButton)),
     dom('div', { class: 'recovery-center__overview' }, badge, state),
     dom('div', { class: 'recovery-center__grid' },

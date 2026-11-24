@@ -1,3 +1,5 @@
+import { t } from '../../core/i18n.js';
+import { recipientText, displayRecipient } from '../../shared/recipient-naming.js';
 // Bản đồ chuyển đổi tối thiểu từ Canvas schema Momevia sang Fabric.js.
 // Document Momevia luôn là dữ liệu gốc: không lưu Fabric JSON lên máy chủ.
 export const FABRIC_EDITABLE_TYPES = Object.freeze(['text', 'shape', 'image']);
@@ -11,9 +13,10 @@ export function canFabricEdit(element, policy = null) {
 }
 
 export function displayText(element, document) {
-  return element.props.textBinding
-    ? document.bindings[element.props.textBinding]?.value || ''
-    : element.props.text || '';
+  const name = displayRecipient(document);
+  if (element.props.textBinding === 'recipientName' && document.personalization?.mode && document.personalization.mode !== 'manual') return t('recipient.address', { name });
+  return recipientText(element.props.textBinding === 'recipientName' ? name : element.props.textBinding
+    ? document.bindings[element.props.textBinding]?.value || '' : element.props.text || '', name, document.personalization?.version === 1);
 }
 
 export function fabricView(document, sceneId, policy = null, { includeHidden = false } = {}) {
@@ -39,7 +42,7 @@ export function fabricView(document, sceneId, policy = null, { includeHidden = f
         editable: canFabricEdit(item, policy),
         hidden: item.visible === false,
         opacity: item.opacity ?? 1,
-        textEditable: item.type === 'text' && !item.props.textBinding && canFabricEdit(item, policy),
+        textEditable: item.type === 'text' && !item.props.textBinding && !(document.personalization && item.props.text?.includes('{người nhận}')) && canFabricEdit(item, policy),
       })),
   };
 }
@@ -88,7 +91,7 @@ export function fabricDiff(document, sceneId, shapes, policy = null) {
     if (!element || !canFabricEdit(element, policy)) continue;
     const layout = layoutFromFabric(element, shape);
     const text = element.type === 'text' && !element.props.textBinding &&
-      typeof shape.text === 'string' ? shape.text.slice(0, 4000) : null;
+      typeof shape.text === 'string' && !(document.personalization && element.props.text?.includes('{người nhận}')) ? shape.text.slice(0, 4000) : null;
     const changed = JSON.stringify(layout) !== JSON.stringify(element.layout) ||
       (text !== null && text !== element.props.text);
     if (changed) updates.push({ id: element.id, layout, ...(text === null ? {} : { text }) });

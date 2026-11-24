@@ -35,8 +35,8 @@ export function createAdminViews() {
       ${queue === null ? `<p role="alert">${text("admin.moderation.versionsUnavailable")}</p>` : ''}
       ${!complete ? `<button class="btn btn--outline" data-action="retry-admin-queues">${text("admin.moderation.retry")}</button>` : ''}
       ${total ? `<div class="admin-list">${waiting.map(item => item.version
-      ? `<article class="admin-row"><div><h3>${e(item.title)}</h3><p>${text('admin.moderation.creatorRevision', { revision: Number(item.revision) })}${item.createdAt ? ` · ${date(item.createdAt)}` : ''}</p><small>${e(item.creator)}</small></div><a class="btn btn--dark" href="/admin/review/${e(item.templateId)}/${e(item.versionId)}" data-link>${text("admin.moderation.open")}</a></article>`
-      : `<article class="admin-row"><div class="mini-theme mini-theme--${e(item.theme)}">${icon("sparkles", 22)}</div><div><h3>${e(item.title)}</h3><p>${e(item.subtitle)}</p><small>${text('admin.moderation.legacy')} · ${e(item.creator)} · ${priceText(item.price)}${item.createdAt ? ` · ${date(item.createdAt)}` : ''}</small></div><div class="admin-actions"><button class="btn btn--dark" data-action="approve-template" data-id="${e(item.id)}">${icon("check", 17)} ${text("admin.moderation.approve")}</button><button class="btn btn--outline" data-action="reject-template" data-id="${e(item.id)}">${text("admin.moderation.reject")}</button></div></article>`).join("")}</div>`
+      ? `<article class="admin-row"><div><h3>${e(item.title)}</h3><p>${text('admin.moderation.creatorRevision', { revision: Number(item.revision) })}${item.createdAt ? ` - ${date(item.createdAt)}` : ''}</p><small>${e(item.creator)}</small></div><a class="btn btn--dark" href="/admin/review/${e(item.templateId)}/${e(item.versionId)}" data-link>${text("admin.moderation.open")}</a></article>`
+      : `<article class="admin-row"><div class="mini-theme mini-theme--${e(item.theme)}">${icon("sparkles", 22)}</div><div><h3>${e(item.title)}</h3><p>${e(item.subtitle)}</p><small>${text('admin.moderation.legacy')} - ${e(item.creator)} - ${priceText(item.price)}${item.createdAt ? ` - ${date(item.createdAt)}` : ''}</small></div><div class="admin-actions"><button class="btn btn--dark" data-action="approve-template" data-id="${e(item.id)}">${icon("check", 17)} ${text("admin.moderation.approve")}</button><button class="btn btn--outline" data-action="reject-template" data-id="${e(item.id)}">${text("admin.moderation.reject")}</button></div></article>`).join("")}</div>`
         : complete ? `<div class="empty-state empty-state--panel">${icon("check-circle", 42)}<h3>${text("admin.moderation.done")}</h3><p>${text("admin.moderation.empty")}</p></div>` : ''}
       </section>
       <section class="support-admin role-workspace__section" id="admin-support" aria-labelledby="admin-support-heading"><h2 class="admin-title" id="admin-support-heading">${text('admin.support.queue', { count: requests ? ` (${requests.length})` : '' })}</h2>
@@ -44,7 +44,7 @@ export function createAdminViews() {
         ? `<div class="support-admin__list">${requests
           .map(
             (t) => `<article class="support-admin__item">
-          <strong>${e(t.code)} · ${storedTopicText(t.topic) ?? e(t.topic)}</strong><span>${e(t.name)} · ${e(t.email)}</span>
+          <strong>${e(t.code)} - ${storedTopicText(t.topic) ?? e(t.topic)}</strong><span>${e(t.name)} - ${e(t.email)}</span>
           <p>${e(t.message)}</p><small>${date(t.createdAt)}</small>
           ${t.reportKind ? `<p>${text(t.reportKind === 'gift' ? 'admin.support.report.gift' : 'admin.support.report.template', { target: t.reportTarget })}</p>` : ''}
           <p>${text('admin.support.state', { status: ['new', 'in_progress', 'resolved'].includes(t.status) ? { format: 'message', key: `admin.support.state.${t.status}` } : t.status })}</p>

@@ -122,6 +122,13 @@ export class JsonDesignRepository {
     }));
   }
   async repliesForGift(giftId) { return clone(this.read().replies[giftId] || []); }
+  async mutateGift(giftId, update) {
+    return this.change(state => {
+      const p = Object.values(state.publications).find(p => p.result.gift.id === giftId);
+      if (!p) throw canvasError(404, 'GIFT_NOT_FOUND', 'Không tìm thấy quà.');
+      return update(p.result.gift);
+    });
+  }
   async revoke(ownerId, giftId, revokedAt) {
     return this.change(state => {
       const publication = Object.values(state.publications).find(p => p.ownerId === ownerId && p.result.gift.id === giftId);

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import en from '../../web/assets/locales/en.json' with { type: 'json' };
-import { translate, vi } from '../../web/js/shared/locale.js';
+import { translateUi as translate, vi } from '../../web/js/shared/locale.js';
 import { selectLocale } from '../../web/js/core/i18n.js';
 import {
   mountFabricQuickbar, quickbarUiError,
@@ -148,7 +148,7 @@ test('Fabric quickbar and appearance panels switch VI/EN in place without changi
     const controls = find(quickbar.panel, item => item.className === 'fabric-quickbar__controls');
     controls.listeners.get('click')({ target: control });
     assert.equal(shape.left, 89);
-    assert(find(quickbar.panel, item => item.textContent === 'Edited · not yet applied to design'));
+    assert(find(quickbar.panel, item => item.textContent === 'Edited - not yet applied to design'));
 
     const fields = find(properties.panel, item => item.className === 'fabric-properties__grid');
     const fontInput = find(fields, item => item.dataset.fabricStyle === 'fontSize');

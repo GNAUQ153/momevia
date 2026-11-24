@@ -5,7 +5,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import en from '../../web/assets/locales/en.json' with { type: 'json' };
 import vi from '../../web/assets/locales/vi.json' with { type: 'json' };
-import { translate } from '../../web/js/shared/locale.js';
+import { translateUi as translate } from '../../web/js/shared/locale.js';
 import { catalog } from '../../web/js/features/canvas-editor/library.js';
 import { filteredIds } from '../../web/js/features/canvas-editor/library-discovery.js';
 import { matchesLocalizedBlock } from '../../web/js/features/canvas-editor/discovery-panel.js';
@@ -19,7 +19,7 @@ const vietnameseLetters = /[ăâđêôơưĂÂĐÊÔƠƯáàảãạấầẩẫ
 test('all Canvas library IDs and group names have independent English display copy', () => {
   assert.equal(catalog.reduce((count, group) => count + group.items.length, 0), 243);
   for (const [index, group] of catalog.entries()) {
-    assert.equal(vi[`editor.library.group.${index}`], group.label);
+    assert.equal(translate(vi, 'vi', `editor.library.group.${index}`), group.label);
     assert(!vietnameseLetters.test(english(`editor.library.group.${index}`)));
     for (const block of group.items) {
       assert.equal(vi[`editor.library.item.${block.id}`], block.title);

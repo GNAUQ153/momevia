@@ -59,14 +59,14 @@ function interactionSvg(node, images) {
   const background = `<rect width="${w}" height="${h}" rx="14" fill="${p.color}"/>`;
   const panel = (x,y,width,height,fill='#FFF7EE') => `<rect x="${x}" y="${y}" width="${width}" height="${height}" rx="8" fill="${fill}"/>`;
   if (p.kind === 'light-a-candle' && ['cake-overlay-v1','cake-photo-v2'].includes(p.appearance)) return panel(0,h-54,w,54,'#FFF8F0') + labelSvg(p.entries[0].heading,16,h-20,w-32);
-  if (p.kind === 'prediction-choice') return background + labelSvg(p.question, 20, 42, w-40, 22) + ['A', 'B'].map((id, i) => panel(16, 170+i*112, w-32, 94, i ? '#FBE8EB' : '#F4EBFA') + labelSvg(`${id} · ${p['option'+id]}`, 28, 206+i*112, w-56, 18)).join('');
+  if (p.kind === 'prediction-choice') return background + labelSvg(p.question, 20, 42, w-40, 22) + ['A', 'B'].map((id, i) => panel(16, 170+i*112, w-32, 94, i ? '#FBE8EB' : '#F4EBFA') + labelSvg(`${id} - ${p['option'+id]}`, 28, 206+i*112, w-56, 18)).join('');
   if (p.photos) {
     const compare = p.kind === 'photo-comparison';
     const a = (compare ? p.photos[0] : p.photos.find(photo => photo.assetId)) || p.photos[0], b = p.photos[1];
     const width = w - 24, height = Math.max(1,h - 86);
     const image = (photo, key) => photoSvg({...photo,optional:true},images.get(photo.assetId),width,height,`${node.id}-${key}`);
     const photo = compare ? image(b,'after') + `<clipPath id="split-${node.id}"><rect width="${width/2}" height="${height}"/></clipPath><g clip-path="url(#split-${node.id})">${image(a,'before')}</g><path d="M${width/2} 0v${height}" stroke="#FFF7EE" stroke-width="4"/>` : image(a,'page');
-    return background + `<g transform="translate(12 12)">${photo}</g>` + labelSvg(a.caption || (compare ? 'Ảnh trước · Ảnh sau' : 'Trước · Ảnh 1 · Sau'),12,height+36,width);
+    return background + `<g transform="translate(12 12)">${photo}</g>` + labelSvg(a.caption || (compare ? 'Ảnh trước - Ảnh sau' : 'Trước - Ảnh 1 - Sau'),12,height+36,width);
   }
   if (p.kind === 'scene-choices') return background + p.entries.map((entry,i) => {
     const width = w/2-20, x = 12+i*w/2;

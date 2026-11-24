@@ -49,7 +49,7 @@ export const decorativeNames = Object.fromEntries(
 );
 
 export const decorativeGroups = collections.map(([group, entries]) => [
-  `Kho trang trí · ${group}`,
+  `Kho trang trí - ${group}`,
   entries.map(([id, title, keywords, color]) => [
     id,
     title,

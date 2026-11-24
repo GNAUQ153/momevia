@@ -1,4 +1,4 @@
-import { canonicalText } from '../../shared/locale.js';
+import { canonicalUiText as canonicalText } from '../../shared/locale.js';
 
 // Thành phần hiển thị UX Canvas; không tạo/thay đổi dữ liệu thiết kế.
 export function canOpenAdvancedEditor(policy) {

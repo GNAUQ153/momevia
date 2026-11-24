@@ -1,3 +1,5 @@
+import { mountRecipientOptions } from '../features/canvas-editor/recipient-options.js';
+import { RECIPIENT_TOKEN } from '../shared/recipient-naming.js';
 import { RESTYLE_PAIRS } from '../shared/canvas/template-slots.js';
 import {materializeInsertionMedia} from '../features/canvas-editor/natural-insert.js';
 import { openTemplateTrial } from '../features/catalog/template-trial.js';
@@ -19,7 +21,7 @@ import { eventTimeFromLocal, interactionKinds, localEventTime, photoSlots } from
 import { effectsFor, elementEffectFamilies, sceneEffectFamilies, effectPreset, effectLabel } from "../shared/canvas/effects.js";
 import { starterPresets } from '../shared/canvas/presets.js';
 import { loadCanvasLibrary, configureLibrary } from '../features/canvas-editor/library-client.js';
-import { librarySnapshot, libraryText } from '../shared/canvas/library-state.js';
+import { librarySnapshot, libraryLabel as libraryText } from '../shared/canvas/library-state.js';
 import { refreshElementArtwork } from '../shared/canvas/library-materialize.js';
 import { textFont } from "../features/gift-runtime/renderer.js";
 import { bindingLabels, clearTemplateBindingDefaults, lockedVisibleNames, visibleBindingKeys } from "../shared/canvas/personalization.js";
@@ -110,7 +112,7 @@ export function mountDesigner(
     assetPending = false,
     publishing = false,
     snap = true;
-  let musicPreview = null;
+  let musicPreview = null, recipientOptions = null;
   // Nghe thử chỉ hoạt động khi Sender đang xem tab thiết kế.
   globalThis.document.addEventListener("visibilitychange", () => {
     if (globalThis.document.hidden) musicPreview?.pause();
@@ -515,6 +517,7 @@ export function mountDesigner(
                 { maxlength: 60 },
               ),
           ),
+        design.purpose !== 'creator' ? button(message('recipient.insert'), 'insert-recipient', { disabled: design.policy?.kind === 'creator-template' && (!design.policy.editableBindings.includes('recipientName') || !design.policy.editableBindings.includes('message')), title: message('recipient.insertHint') }) : null,
         node("div", { class: "editor-quick-only" },
           design.policy?.kind === 'sender-basic' ? createStoryTextFields(store.get().document) : null,
           predictionCard(store.get().document) ? createPredictionFields(predictionCard(store.get().document)) : null,
@@ -667,6 +670,7 @@ export function mountDesigner(
       for (const control of main.querySelectorAll('[data-editor-action="add"], .editor-scene-actions button, [data-editor-action="center"], [data-editor-action="inside"]'))
         control.disabled = true;
     }
+    recipientOptions = design.purpose !== 'creator' ? mountRecipientOptions(main.querySelector('#editor-panel-content'), { store, commit, policy: design.policy, signal }) : null;
     showMode();
     stage = createStage(main.querySelector(".editor-stage-scroll"), {
       store,
@@ -900,6 +904,7 @@ export function mountDesigner(
               message("editor.interface.linkedField", { field: { format: "message", key: `editor.binding.${props.textBinding}` } }),
             ),
           );
+        if (!props.textBinding && design.policy?.kind !== 'creator-template') children.push(button(message('recipient.insert'), 'insert-recipient'));
         children.push(
           textOptions(element) ? button(message("editor.interface.editOnCard"), "inline-text") : null,
           node("div", { class: "editor-font-options", role: "group", "aria-label": message("editor.interface.fontStyle") },
@@ -1020,6 +1025,7 @@ export function mountDesigner(
   function renderAll(change) {
     if (!store || disposed) return;
     const doc = store.get().document;
+    recipientOptions?.sync();
     if (!doc.scenes.some((value) => value.id === sceneId))
       sceneId = doc.entrySceneId;
     if (!currentScene().elementIds.includes(selection)) selection = null;
@@ -1876,6 +1882,16 @@ export function mountDesigner(
       main.querySelector("[data-block-group-select]").value = "";
       filterBlocks("");
       search.focus();
+      return;
+    }
+    if (name === 'insert-recipient') {
+      const selected = store.get().document.elements.find(e => e.id === selection);
+      const literal = !quickMode && selected?.type === 'text' && !selected.props.textBinding && design.policy?.kind !== 'creator-template';
+      commit(next => {
+        next.document.personalization ||= { version: 1, mode: 'manual' };
+        if (literal) next.document.elements.find(e => e.id === selected.id).props.text += RECIPIENT_TOKEN;
+        else next.document.bindings.message.value += RECIPIENT_TOKEN;
+      }, t('recipient.insert'));
       return;
     }
     if (name === "greeting-starter") {

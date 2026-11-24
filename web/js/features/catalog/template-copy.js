@@ -42,5 +42,5 @@ export function personalizationText(personalization) {
     })] : []),
     ...(photoFrames ? [text('catalog.personalization.photos', { count: photoFrames })] : []),
     text(layout ? 'catalog.personalization.addPhotos' : 'catalog.personalization.fixed'),
-  ].join(' · ');
+  ].join(' - ');
 }

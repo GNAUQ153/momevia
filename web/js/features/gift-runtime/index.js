@@ -1,3 +1,4 @@
+import { coverHasRecipient, displayRecipient } from '../../shared/recipient-naming.js';
 import { validateDocument, runtimeVersionFor } from "../../shared/canvas/schema.js";
 import { message, setAttr, setText, t } from "../../core/i18n.js";
 import { focusVisibleTarget } from "../../core/motion.js";
@@ -37,6 +38,13 @@ export function mountPlayer(
     navigationIntent = null;
   const shell = globalThis.document.createElement("div");
   shell.className = `gift-runtime gift-runtime-mode-${mode}`;
+  if (document.personalization) shell.classList.add('gift-runtime-personalized');
+  if (document.personalization && document.personalization.mode !== 'manual' && !coverHasRecipient(document)) {
+    const dedication = globalThis.document.createElement('h1');
+    dedication.className = 'recipient-dedication';
+    setText(dedication, message('recipient.address', { name: displayRecipient(document) }));
+    shell.append(dedication);
+  }
   if(document.elements.some(e=>(e.id==='reply-object-paper'||e.id.startsWith('reply-object-paper-'))&&e.type==='image'&&e.accessibility?.label===NATURAL_ARTWORK_LABEL)){
     shell.classList.add('is-natural-stationery');
     const accent=document.elements.find(e=>e.type==='button'&&e.props.color)?.props.color;
@@ -141,10 +149,10 @@ export function mountPlayer(
     const track=soundtrackPlayback.track;
     if(track.artist){
       const credit=globalThis.document.createElement('small');credit.className='gift-music-credit';
-      credit.append(`${track.originalTitle} — ${track.artist} · `);
-      const license=globalThis.document.createElement('a');license.href=track.licenseUrl||'https://creativecommons.org/publicdomain/zero/1.0/';license.target='_blank';license.rel='noopener noreferrer';license.textContent=track.license;credit.append(license,` · `);
+      credit.append(`${track.originalTitle} — ${track.artist} - `);
+      const license=globalThis.document.createElement('a');license.href=track.licenseUrl||'https://creativecommons.org/publicdomain/zero/1.0/';license.target='_blank';license.rel='noopener noreferrer';license.textContent=track.license;credit.append(license,` - `);
       const source=globalThis.document.createElement('a');source.href=track.sourceUrl;source.target='_blank';source.rel='noopener noreferrer';setText(source,message('editor.music.source'));credit.append(source);musicGroup.append(credit);
-      const changes=globalThis.document.createElement('span');setText(changes,message('musicLibrary.mediaChanges'));credit.append(' · ',changes);
+      const changes=globalThis.document.createElement('span');setText(changes,message('musicLibrary.mediaChanges'));credit.append(' - ',changes);
     }
     toolbar.append(musicGroup);
   }

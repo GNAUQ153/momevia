@@ -56,13 +56,19 @@
     "demo:music": "npm run build && node scripts/dev/music-library-local.mjs",
     "test:music:library": "node tests/integration/music-library.mjs --browser",
     "test:music:library:mysql": "node tests/integration/music-library.mjs --mysql-local",
-    "test:admin:panels": "node tests/integration/music-library.mjs --mysql-local --browser"
+    "test:admin:panels": "node tests/integration/music-library.mjs --mysql-local --browser",
+    "test:recipients": "node tests/integration/recipient-naming.mjs",
+    "test:recipients:mysql": "node tests/integration/recipient-naming.mjs --mysql-local",
+    "perf:recipients:before": "node tests/integration/recipient-naming.mjs --baseline --perf-only",
+    "perf:recipients:after": "node tests/integration/recipient-naming.mjs --perf-only"
   },
   "dependencies": {
     "@payos/node": "2.0.6",
     "fabric": "7.4.0",
+    "fflate": "0.8.3",
     "mysql2": "3.24.6",
     "qrcode-generator": "2.0.4",
+    "read-excel-file": "6.0.3",
     "sharp": "0.35.5"
   },
   "devDependencies": {

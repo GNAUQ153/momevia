@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import en from '../../web/assets/locales/en.json' with { type: 'json' };
-import { translate, vi } from '../../web/js/shared/locale.js';
+import { translateUi as translate, vi } from '../../web/js/shared/locale.js';
 import { mountFabricInspector, inspectorErrorMessage } from '../../web/js/features/canvas-editor/fabric-inspector.js';
 import { assessChangelog, affectsProduct } from '../../scripts/quality/check-changelog.mjs';
 
@@ -55,8 +55,8 @@ test('Fabric Inspector labels are translated in both locales without modifying l
     assert(en[key].trim().length > 0);
   }
   assert.equal(label('en', 'editor.fabric.inspector.field.width'), 'Width');
-  assert.equal(label('en', 'editor.fabric.inspector.readOnly', { name: 'My layer' }), 'My layer · view only');
-  assert.equal(label('vi', 'editor.fabric.inspector.readOnly', { name: 'Lớp riêng' }), 'Lớp riêng · chỉ xem');
+  assert.equal(label('en', 'editor.fabric.inspector.readOnly', { name: 'My layer' }), 'My layer - view only');
+  assert.equal(label('vi', 'editor.fabric.inspector.readOnly', { name: 'Lớp riêng' }), 'Lớp riêng - chỉ xem');
   assert.equal(label('en', 'editor.fabric.inspector.error.field', {
     field: { format: 'message', key: 'editor.fabric.inspector.field.rotation' },
   }), 'Invalid Rotation.');

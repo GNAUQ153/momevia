@@ -34,7 +34,7 @@ test('Trạng thái cảnh phản ánh đúng thứ tự và tổng số cảnh'
 
 test('Nhãn lớp được chọn rõ ràng; không cho thấy tên lớp của cảnh khác', () => {
   assert.match(selectionDescription(fixture, 'one', null), /Chọn hình hoặc chữ/);
-  assert.equal(selectionDescription(fixture, 'one', 'text-1'), 'Đang chọn: Lời chúc · Chỉnh trong bảng thuộc tính');
+  assert.equal(selectionDescription(fixture, 'one', 'text-1'), 'Đang chọn: Lời chúc - Chỉnh trong bảng thuộc tính');
   assert.match(selectionDescription(fixture, 'one', 'image-1'), /Ảnh/);
   assert.match(selectionDescription(fixture, 'two', 'text-1'), /trong cảnh hiện tại/);
 });

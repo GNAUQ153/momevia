@@ -16,7 +16,7 @@ export function createPredictionFields(model, scope = 'content') {
       ...['A', 'B'].map(id => node('label', { class: 'editor-prediction-option' },
         node('input', { type: 'radio', name: `prediction-${scope}-${model.id}`, value: id,
           checked: p.prediction === id, 'data-editor-field': keyFor('prediction') }),
-        node('span', { 'data-prediction-option': id }, `${id} · ${p['option' + id]}`),
+        node('span', { 'data-prediction-option': id }, `${id} - ${p['option' + id]}`),
       )),
     ),
     ...['reason', 'endingA', 'endingB'].map(textField),
@@ -32,6 +32,6 @@ export function updatePredictionFields(root, doc) {
       else if (control !== document.activeElement) control.value = p[key] || '';
     }
     for (const label of host.querySelectorAll('[data-prediction-option]'))
-      label.textContent = `${label.dataset.predictionOption} · ${p['option' + label.dataset.predictionOption]}`;
+      label.textContent = `${label.dataset.predictionOption} - ${p['option' + label.dataset.predictionOption]}`;
   }
 }

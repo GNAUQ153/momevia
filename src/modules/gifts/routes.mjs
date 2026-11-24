@@ -88,6 +88,12 @@ export function registerRoutes(router, { config, creationLimit, globalReplies, s
   router.on('GET', '/gifts/:slug/replies', async ({res,params,url}) => {
     sendJson(res, 200, { replies: await service.replies(params.slug, url.searchParams.get('invite'), url.searchParams.get('r')) });
   });
+  router.on('POST', '/gifts/:slug/rsvp', async ({req,res,params,url}) => {
+    if (!globalReplies.consume('all')) throw localizedError(429, 'errors.gift.replyBusy');
+    const body = await parseJson(req, 1024);
+    const rsvp = await service.respondRsvp(params.slug, url.searchParams.get('invite'), url.searchParams.get('r'), body);
+    sendJson(res, 200, { rsvp });
+  });
   router.on('POST', '/gifts/:slug/replies', async ({req,res,params,url}) => {
     if (!globalReplies.consume('all')) throw localizedError(429, 'errors.gift.replyBusy');
     const body = await parseJson(req, 8192);

@@ -11,6 +11,7 @@ import { pathToFileURL, fileURLToPath } from 'node:url';
 import { confirmGiftAccess } from '../browser/gift-access.mjs';
 import { runRecovery, simulatedGoogle } from './recovery-journey.mjs';
 import { runReplyIntents } from './reply-intents.mjs';
+import { runRsvpApi } from './rsvp.mjs';
 import { runExpandedApi } from './canvas-expanded.mjs';
 
 const require = createRequire(import.meta.url), driver = require('mysql2/promise'), sharp = require('sharp');
@@ -107,6 +108,8 @@ try{
     assert.deepEqual(rejected.details, checked.blockers);
     assert.deepEqual((await json('/api/gifts/gifts/mine', { cookie })).gifts, []);
   });
+  await check('RSVP MySQL HTTP: private receipt, concurrent writes, owner ACL and revoke', () =>
+    runRsvpApi((route, options) => request('/api' + route, { ...options, method: options.body ? 'POST' : 'GET' }), cookie, otherCookie));
   await check('C01/C05/C06 blank create/save/reload/CAS/lost ACK through HTTP MySQL',async()=>{
     const mutationId=uuid(),body={source:{kind:'blank'},presetId:'envelope-basic',mutationId};
     blank=(await post('/api/designs/designs',cookie,body,201)).design;const replay=await post('/api/designs/designs',cookie,body,201);assert.equal(replay.design.id,blank.id);assert.equal(replay.replayed,true);

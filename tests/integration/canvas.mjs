@@ -9,6 +9,7 @@ import { once } from 'node:events';
 import { setTimeout as delay } from 'node:timers/promises';
 import sharp from 'sharp';
 import { runReplyIntents } from './reply-intents.mjs';
+import { runRsvpApi } from './rsvp.mjs';
 import { runExpandedApi } from './canvas-expanded.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
@@ -91,6 +92,7 @@ try {
     }
     assert.deepEqual((await request('/gifts/gifts/mine', { cookie: owner.cookie })).data.gifts, []);
   });
+  await check('RSVP JSON HTTP: private receipt, replay, update, owner ACL and revoke', () => runRsvpApi(request, owner.cookie, other.cookie));
   await check('Image only in a later scene can publish', async () => {
     const { createElement } = await import('../../web/js/shared/canvas/index.js');
     const { design: draft } = await post(owner, '/designs/designs', { source: { kind: 'blank' }, mutationId: randomUUID() }, 201);

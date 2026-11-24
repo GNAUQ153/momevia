@@ -1,3 +1,9 @@
+## Unreleased — Phase 2.2 RSVP (2026-11-24)
+
+- Thêm xác nhận tham dự cho thiệp mời có thông tin sự kiện và mã nhận riêng hoặc tự điền tên.
+- Lưu một trạng thái theo lượt nhận, kiểm tra quyền và hạn sự kiện phía server; chủ thiệp xem thống kê riêng.
+- Không đổi schema MySQL, không mở RSVP trên thiệp cũ hoặc link chung không định danh.
+
 ## Unreleased — Phase 2.1B Thông tin sự kiện (2026-11-24)
 
 - Bổ sung nhập ngày giờ, múi giờ và địa điểm có cấu trúc cho thiệp mời hỗ trợ; không ép chuyển đổi nháp/thiệp cũ.

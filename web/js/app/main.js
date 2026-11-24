@@ -498,7 +498,7 @@ async function render() {
         const { mountPlayer } =
           await import("../features/gift-runtime/index.js");
         if (generation !== renderGeneration) return;
-        main.innerHTML = `<section class="section"><div class="container"><div class="recipient-preferences">${localeControl()}</div><div id="canvas-public-player"></div><p class="recipient-disclaimer">${text("gift.player.forwarded")}</p><button class="btn btn--outline" data-action="report-content" data-kind="gift" data-id="${e(id)}">${text("gift.player.report")}</button> ${recipientViralCta()}</div></section>`;
+        main.innerHTML = `<section class="section"><div class="container"><div class="recipient-preferences">${localeControl()}</div><div id="canvas-public-player"></div>${gift.rsvp ? '<div data-rsvp-host></div>' : ''}<p class="recipient-disclaimer">${text("gift.player.forwarded")}</p><button class="btn btn--outline" data-action="report-content" data-kind="gift" data-id="${e(id)}">${text("gift.player.report")}</button> ${recipientViralCta()}</div></section>`;
         const player = mountPlayer(
           document.getElementById("canvas-public-player"),
           {
@@ -530,6 +530,14 @@ async function render() {
             player.dispose();
           },
         };
+        if (gift.rsvp) {
+          const { mountRsvp } = await import('../features/gifts/rsvp.js');
+          if (generation !== renderGeneration || lifetime.signal.aborted) return;
+          mountRsvp(main.querySelector('[data-rsvp-host]'), gift.rsvp, {
+            submit: async status => (await api.post(`${giftEndpoint}/rsvp${query}`, { status }, { signal: lifetime.signal })).rsvp,
+            signal: lifetime.signal, onClosed: closed,
+          });
+        }
       } else {
         await loadGiftViews();if(generation!==renderGeneration)return;
         main.innerHTML = giftPage(gift);

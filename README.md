@@ -91,18 +91,18 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Phân biệt loại thiệp và dịp sử dụng; API và danh mục VI/EN có bộ lọc loại thiệp, giữ tương thích với API cũ.
-- Mẫu Creator chưa xác định giữ trạng thái chưa phân loại; không đổi giá, quyền, dữ liệu thiệp hoặc snapshot đã phát hành.
-- Bổ sung kiểm thử phân loại và lọc; nhập thông tin sự kiện và RSVP triển khai ở các bản tiếp theo.
+- Bổ sung nhập ngày giờ, múi giờ và địa điểm có cấu trúc cho thiệp mời hỗ trợ; không ép chuyển đổi nháp/thiệp cũ.
+- Kiểm tra ngày giờ, vùng nội dung, thời hạn và chiếu dữ liệu công khai riêng, giữ tương thích trình xem cũ.
+- Bảo toàn dữ liệu khi nhân bản nháp và loại thông tin sự kiện riêng khi tặng lại; RSVP sẽ triển khai sau.
 
 **Các commit gần nhất trên `main`:**
 
+- `2f45587` — feat(invitation): add structured event details and publication validation (2026-11-24)
 - `7c191f1` — fix(ci): update catalog contract test for card type metadata (2026-11-24)
 - `57ef881` — feat(catalog): distinguish invitation and greeting card types (2026-11-24)
 - `0b1c2a6` — fix(ci): align recipient browser test with private reply policy and add migration utility (2026-11-24)
 - `9f1362c` — feat(security): complete phase 01 production hardening (2026-11-24)
 - `527e646` — Merge pull request #26 from GNAUQ153/feat/recipient-naming-20261124 (2026-11-24)
-- `2ddfdea` — test(ci): sync release fixture with natural library bundles (2026-11-24)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

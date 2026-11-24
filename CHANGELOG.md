@@ -1,3 +1,9 @@
+## Unreleased — Phase 2.4A Đối soát xuất bản (2026-11-24)
+
+- API chỉ đọc số thiệp đã lưu theo mẫu và chủ thiệp trên MySQL, tách legacy và Canvas; không suy ra số lượt còn lại.
+- Chặn trả lại checkout sandbox/live khác môi trường, giữ nguyên khóa giao dịch để đối soát.
+- Không tiêu hao entitlement, không thay đổi dữ liệu hoặc schema; bổ sung kiểm thử trước khi áp dụng hạn mức.
+
 ## Unreleased — Phase 2.3B Vòng đời quyền sử dụng (2026-11-24)
 
 - Thống kê quyền live, sandbox, demo và chưa xác định; phân biệt active, revoked và inactive, với API chỉ đọc theo chủ quyền hoặc Admin.

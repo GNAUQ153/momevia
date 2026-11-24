@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { HttpError, localizedError } from '../../shared/http.mjs';
 import { demoPurchaseAllowed } from './demo-policy.mjs';
+import { summarizePublications } from './publication-usage.mjs';
 import { legacyOrderActive, legacyOrderGroup, summarizeEntitlements } from './entitlement-policy.mjs';
 
 export class CheckoutService {
@@ -39,6 +40,11 @@ export class CheckoutService {
       throw localizedError(503, 'errors.unavailable');
     const free = template.price === 0;
     return { templateId: template.id, free, licensed: free || await this.hasLicense(user.sub, template.id) === true };
+  }
+  // Chỉ đọc dữ liệu của chủ thiệp, không suy ra hạn mức còn lại từ lịch sử.
+  async publicationUsage(user, templateId) {
+    if (!this.repository.publicationGroups) throw localizedError(503, 'errors.unavailable');
+    return { templateId, ...summarizePublications(await this.repository.publicationGroups(user.sub, templateId)) };
   }
   async entitlementSummary(userId, templateId) {
     if ((userId === undefined) !== (templateId === undefined)) throw new Error('Incomplete entitlement scope');

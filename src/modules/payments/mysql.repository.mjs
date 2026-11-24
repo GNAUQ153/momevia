@@ -18,6 +18,7 @@ export class MySqlPaymentRepository {
   async adminFinanceExceptions(limit) { return this.audit.exceptions(limit); }
 
   async createPending({ userId, templateId, title, amount, provider, isTest }) {
+    if (typeof isTest !== 'boolean') throw new Error('Invalid checkout environment');
     const now = new Date().toISOString();
     const orderId = randomUUID();
     const intentId = randomUUID();
@@ -46,10 +47,15 @@ export class MySqlPaymentRepository {
       return { id: intentId, orderId, code, amount, provider, status: 'pending', checkoutUrl: null, qrPayload: null };
     } catch (error) {
       if (error.code !== 'ER_DUP_ENTRY') throw error;
-      const [rows] = await this.client.execute(`SELECT p.* FROM payment_checkout_keys k
-        JOIN payment_intents p ON p.id=k.intent_id WHERE k.user_id=? AND k.template_id=? LIMIT 1`,
+      const [rows] = await this.client.execute(`SELECT p.*, o.is_test FROM payment_checkout_keys k
+        JOIN payment_intents p ON p.id=k.intent_id JOIN orders o ON o.id=p.order_id
+        WHERE k.user_id=? AND k.template_id=? AND o.user_id=k.user_id AND o.template_id=k.template_id LIMIT 1`,
         [userId, templateId]);
-      if (!rows.length) throw error; // A code collision or unrelated constraint must NOT be treated as success.
+      if (!rows.length) throw error; // Không coi xung đột khóa khác là giao dịch thành công.
+      // Không trả QR/URL sandbox cho thanh toán thật (hoặc ngược lại). Giữ khóa để đối soát.
+      const mode = rows[0].is_test;
+      if ((mode !== 0 && mode !== 1) || (mode === 1) !== isTest)
+        throw localizedError(409, 'errors.payment.previousClosed');
       return this.intentRow(rows[0]);
     }
   }

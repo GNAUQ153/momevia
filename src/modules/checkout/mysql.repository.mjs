@@ -34,6 +34,13 @@ export class MySqlCheckoutRepository {
     return rows.length > 0;
   }
 
+  // Đếm thiệp đã lưu, không đếm yêu cầu retry, lượt mở hay số khách nhận.
+  async publicationGroups(userId, templateId) {
+    const [rows] = await this.client.execute(`SELECT source_kind AS source, COUNT(*) AS total
+      FROM gifts WHERE user_id=? AND template_id=? GROUP BY source_kind`, [userId, templateId]);
+    return rows;
+  }
+
   // Tổng hợp chỉ đọc; không trả ID đơn, ID người dùng hoặc payload giao dịch.
   async entitlementGroups(userId, templateId) {
     const scoped = userId !== undefined && templateId !== undefined;

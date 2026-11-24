@@ -1,3 +1,9 @@
+## Unreleased — Phase 2.4B1 Ranh giới xác nhận thanh toán (2026-11-24)
+
+- Ghim scope sandbox/live do server xác định vào webhook và đối soát; kiểm tra đơn trong transaction trước ghi dữ liệu hoặc replay.
+- Chỉ trả đường dẫn thanh toán pending đúng scope; giữ lịch sử đơn, quyền cũ và khóa checkout.
+- Chưa đổi schema hoặc tiêu hao lượt Premium; ghi rõ điều kiện migration và chính sách quyền lịch sử trước khi triển khai quota.
+
 ## Unreleased — Phase 2.4A Đối soát xuất bản (2026-11-24)
 
 - API chỉ đọc số thiệp đã lưu theo mẫu và chủ thiệp trên MySQL, tách legacy và Canvas; không suy ra số lượt còn lại.

@@ -15,7 +15,7 @@ const build = (partial = {}) => {
   const calls = [];
   const repository = {
     async forUser(id, user) { calls.push(['lookup', id, user]); return user === owner.sub ? { ...sample } : null; },
-    async settleVerified(event) { calls.push(['settle', event]); return { settled: true }; },
+    async settleVerified(event, scope) { calls.push(['settle', event, scope]); return { settled: true }; },
     ...partial.repository,
   };
   const provider = { async queryStatus(){ return { state: 'pending' }; }, ...partial.provider };
@@ -60,6 +60,7 @@ test('paid provider result is validated and settled through transactional reposi
     state:'paid', provider:'momo', code:sample.code, amount:25000,
     currency:'VND', reference:'987654321', success:true,
   });
+  assert.equal(calls.find(x => x[0] === 'settle')[2], true);
 });
 
 test('mismatched amount/order/provider cannot grant any entitlement', async () => {

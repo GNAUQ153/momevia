@@ -115,8 +115,8 @@ test('Webhook ghi sale đúng một lần, cùng transaction cấp quyền và b
   } };
   const repo = new MySqlPaymentRepository(client);
   const event = { provider: 'momo', code: '123456', reference: 'provider-txn-a', amount: 59000, currency: 'VND', success: true };
-  assert.equal((await repo.settleVerified(event)).replay, false);
-  assert.equal((await repo.settleVerified(event)).replay, true);
+  assert.equal((await repo.settleVerified(event, false)).replay, false);
+  assert.equal((await repo.settleVerified(event, false)).replay, true);
   assert.equal(all.filter(([sql]) => sql.includes('INSERT INTO creator_ledger')).length, 1);
   assert.equal(all.filter(([sql]) => sql.includes('INSERT INTO template_entitlements')).length, 1);
   assert.equal(all.filter(([sql]) => sql.includes('INSERT INTO payment_receipts')).length, 1);
@@ -137,7 +137,7 @@ test('Webhook template hệ thống không sinh sale ledger', async () => {
     return [{ affectedRows: 1 }];
   } };
   const repo = new MySqlPaymentRepository({ withTransaction: work => work(tx) });
-  await repo.settleVerified({ provider: 'momo', code: 'test', reference: '123', amount: 25000, currency: 'VND', success: true });
+  await repo.settleVerified({ provider: 'momo', code: 'test', reference: '123', amount: 25000, currency: 'VND', success: true }, true);
   assert.equal(writes.filter(([sql]) => sql.includes('INSERT INTO creator_ledger')).length, 0);
 });
 

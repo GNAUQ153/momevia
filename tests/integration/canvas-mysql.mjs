@@ -296,6 +296,24 @@ try {
     assert.equal(Number(rows[0].total), 1);
     assert.equal((await payments.forUser(first.orderId, other)).isTest, true);
   });
+  await check('Phase 2.4B1: verified payment cannot settle or replay across environments', async () => {
+    const payments = new MySqlPaymentRepository(db);
+    const intent = await payments.createPending({ userId: other, templateId, title: 'Mẫu thử', amount: 10000, provider: 'momo', isTest: true });
+    const event = { provider: intent.provider, code: intent.code, amount: intent.amount, reference: uuid(), currency: 'VND', success: true };
+    const readCounts = async () => {
+      const [[counts]] = await admin.execute(`SELECT
+        (SELECT COUNT(*) FROM template_entitlements WHERE order_id=?) AS rights_count,
+        (SELECT COUNT(*) FROM payment_receipts WHERE order_id=?) AS receipt_count`, [intent.orderId, intent.orderId]);
+      return [Number(counts.rights_count), Number(counts.receipt_count)];
+    };
+    await assert.rejects(payments.settleVerified(event, false), { status: 409 });
+    assert.equal((await payments.forUser(intent.orderId, other)).status, 'pending');
+    assert.deepEqual(await readCounts(), [0, 0]);
+    assert.equal((await payments.settleVerified(event, true)).replay, false);
+    assert.equal((await payments.settleVerified(event, true)).replay, true);
+    await assert.rejects(payments.settleVerified(event, false), { status: 409 });
+    assert.deepEqual(await readCounts(), [1, 1]);
+  });
   console.log(`RESULT PASS ${count} isolated MySQL integration cases; mocks are not included.`);
 } finally {
   await Promise.allSettled(clients.map(c=>c.close()));

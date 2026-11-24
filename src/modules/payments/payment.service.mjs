@@ -3,6 +3,7 @@ import { RateLimiter } from '../../shared/rate-limit.mjs';
 import { createMomoProvider, createPayOsProvider } from './providers.mjs';
 import { canonicalText } from '../../../web/js/shared/locale.js';
 import { RefundReviewService } from './refund-review.mjs';
+import { configuredPaymentScope, samePaymentScope } from './payment-scope.mjs';
 
 export function paymentMethods(env = process.env) {
   if (env.PAYMENT_ENABLED !== 'true' || env.CHECKOUT_STORAGE !== 'mysql'
@@ -86,9 +87,12 @@ export class PaymentService {
     // already in flight. Still reject sandbox callbacks on a production deployment.
     if (this.env.NODE_ENV === 'production' && this.env.PAYMENT_ENV !== 'production')
       throw localizedError(503, 'errors.payment.productionWebhook');
+    const scope = configuredPaymentScope(this.env, providerName);
+    if (scope === null) throw localizedError(503, 'errors.payment.reviewEnvironment');
     const event = await this.provider(providerName).verifyWebhook(body);
     if (event.provider !== providerName) throw localizedError(400, 'errors.payment.providerMismatch');
-    return this.repository.settleVerified(event);
+    // Phạm vi do cấu hình máy chủ quyết định; không tin trường isTest trong sự kiện.
+    return this.repository.settleVerified(event, scope);
   }
   async status(user, orderId) {
     const record = await this.repository.forUser(orderId, user.sub);
@@ -98,9 +102,11 @@ export class PaymentService {
     const pendingSince = record.createdAt || null;
     const ageMs = pendingSince ? Date.now() - Date.parse(pendingSince) : 0;
     const needsReview = record.status === 'pending' && Number.isFinite(ageMs) && ageMs >= 30 * 60_000;
+    const scopeMatches = samePaymentScope(configuredPaymentScope(this.env, record.provider), record.isTest);
     return {
       orderId: record.orderId, status: record.status, method: record.provider,
-      amountVnd: record.amount, checkoutUrl: record.checkoutUrl,
+      // Lịch sử vẫn đọc được, nhưng không tiếp tục thanh toán qua link khác môi trường.
+      amountVnd: record.amount, checkoutUrl: record.status === 'pending' && scopeMatches ? record.checkoutUrl : null,
       pendingSince, needsReview,
       ...(needsReview ? { notice: canonicalText('payment.status.longPending') } : {})
     };
@@ -161,9 +167,8 @@ export class PaymentService {
     if (!['momo', 'payos'].includes(intent.provider)) throw localizedError(503, 'errors.payment.providerUnsupported');
     // Queries of existing checkouts are allowed while NEW payments are disabled,
     // but NEVER cross sandbox/live boundaries or ignore the original order mode.
-    if (intent.isTest == null || Boolean(intent.isTest) !== (this.env.PAYMENT_ENV === 'sandbox')
-      || !['sandbox', 'production'].includes(this.env.PAYMENT_ENV)
-      || (this.env.NODE_ENV === 'production' && intent.isTest))
+    const scope = configuredPaymentScope(this.env, intent.provider);
+    if (!samePaymentScope(scope, intent.isTest))
       throw localizedError(503, 'errors.payment.reviewEnvironment');
     if (!this.reconcileLimiter.consume(`${user.sub}:${orderId}`))
       throw localizedError(429, 'errors.payment.reviewCooldown');
@@ -197,7 +202,7 @@ export class PaymentService {
         throw localizedError(502, 'errors.payment.reviewMismatch');
       }
       try {
-        await this.repository.settleVerified({ ...result, success: true });
+        await this.repository.settleVerified({ ...result, success: true }, scope);
       } catch (error) {
         await audit('settlement_error');
         throw error;

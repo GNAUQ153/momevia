@@ -8,6 +8,7 @@ import { searchText } from '../../../web/js/features/catalog/filter.js';
 import { templateFieldKey } from '../../../web/js/shared/template-copy.js';
 import { serverText } from '../../shared/locale.mjs';
 import { eventMetadata } from './event-metadata.mjs';
+import { systemCardType, normalizeCardTypeFilter, templateCardType } from '../../../web/js/shared/card-type.js';
 import { prioritizeTemplates } from '../../../web/js/shared/template-order.js';
 
 const publicFields = ['id', 'title', 'subtitle', 'theme', 'style', 'price', 'scenes', 'effect', 'creator', 'featured', 'category', 'status', 'createdAt', 'isSeasonal', 'season', 'availableFrom', 'availableTo', 'palette', 'paletteLabel', 'paletteColors'];
@@ -23,6 +24,7 @@ export function publicTemplate(template) {
   const view = Object.fromEntries(publicFields.filter(key => Object.hasOwn(template, key)).map(key => [key, template[key]]));
   if (template.creatorId === 'system' && template.creator === 'Momevia Originals' && !template.versionId && !template.creatorDesignId)
     view.systemOwned = true;
+  view.cardType = view.systemOwned ? systemCardType(template.id) : 'unspecified';
   if (view.systemOwned && librarySnapshot()?.items.some(row=>row.kind==='template'&&row.id===template.id&&row.status==='active')) view.coverRevision=librarySnapshot().revision;
   if (template.versionId) {
     view.versionId = template.versionId;
@@ -53,7 +55,7 @@ export class CatalogService {
     const visible = await Promise.all(items.map(item => this.isPublic(item)));
     return prioritizeTemplates(items.filter((_, index) => visible[index]).map(publicTemplate));
   }
-  async search({ q = '', style = '', category = '', palette = '', locale = 'vi' }) {
+  async search({ q = '', style = '', category = '', palette = '', cardType = 'all', locale = 'vi' }) {
     let items = await this.publicList();
     q = searchText(q.trim());
     if (q) items = items.filter(item => {
@@ -66,6 +68,8 @@ export class CatalogService {
     });
     if (style && style !== 'all' && style !== 'Tất cả') items = items.filter(item => item.style === style);
     if(category && category!=='all')items=items.filter(t=>t.category===category);
+    cardType = normalizeCardTypeFilter(cardType);
+    if (cardType !== 'all') items = items.filter(item => templateCardType(item) === cardType);
     if(palette && palette!=='all')items=items.filter(t=>t.palette===palette);
     return items;
   }

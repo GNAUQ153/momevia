@@ -96,7 +96,7 @@ async function startFixture() {
     IDENTITY_STORAGE:'json', CATALOG_STORAGE:'json', CHECKOUT_STORAGE:'json', GIFTS_STORAGE:'json', SUPPORT_STORAGE:'json', DESIGNS_STORAGE:'json',
     PAYMENT_ENABLED:'false', PAYMENT_LIVE_ENABLED:'false', CANVAS_READ_ENABLED:'true', CANVAS_EDIT_ENABLED:'true', CANVAS_PUBLISH_ENABLED:'true',
     JWT_SECRET:randomBytes(32).toString('hex'),INTERNAL_SERVICE_KEY:randomBytes(32).toString('hex'),
-    DEMO_AUTH_ENABLED:'true',DEMO_ADMIN_CODE:randomBytes(24).toString('hex'),GIFT_TTL_DAYS:'365'};
+    DEMO_AUTH_ENABLED:'true',DEMO_TEMPLATE_CHECKOUT_ENABLED:'true',DEMO_ADMIN_CODE:randomBytes(24).toString('hex'),GIFT_TTL_DAYS:'365'};
   for (const key of Object.keys(env).filter(key => key.startsWith('TEST_ACCOUNT_'))) delete env[key];
   if (legacy) {
     Object.assign(env, { TEST_ACCOUNT_ENABLED: 'true', TEST_ACCOUNT_NAME: 'Legacy QA',
@@ -180,7 +180,7 @@ async function checkGiftTransport(base, env, cookie, email) {
   console.log('PASS  Public API không lộ endpoint /internal');
 
   const photo = await sharp({create:{width:2,height:2,channels:3,background:'red'}}).png().toBuffer();
-  const created = await request(base,'/api/gifts/gifts',{method:'POST',cookie,body:{templateId,recipientName:'Mai',senderName:'An',message:'Quà kiểm thử cô lập',photoDataUrl:`data:image/png;base64,${photo.toString('base64')}`}});
+  const created = await request(base,'/api/gifts/gifts',{method:'POST',cookie,body:{access:{open:'link',send:'link',read:'link'},templateId,recipientName:'Mai',senderName:'An',message:'Quà kiểm thử cô lập',photoDataUrl:`data:image/png;base64,${photo.toString('base64')}`}});
   assert.equal(created.status, 201);
   const slug = created.data.gift.slug;
   const gift = await request(base,`/api/gifts/gifts/${slug}`);
@@ -331,7 +331,7 @@ async function runMonolith({ base, env }) {
 
   await runHttpSmoke(base, { adminCode: env.DEMO_ADMIN_CODE });
 
-  const extraGift = await request(base,'/api/gifts/gifts',{method:'POST',cookie,body:{templateId,recipientName:'QA',senderName:'QA',message:'Concurrent reply regression'}});
+  const extraGift = await request(base,'/api/gifts/gifts',{method:'POST',cookie,body:{access:{open:'link',send:'link',read:'link'},templateId,recipientName:'QA',senderName:'QA',message:'Concurrent reply regression'}});
   assert.equal(extraGift.status,201);
   const extraRoute = `/api/gifts/gifts/${extraGift.data.gift.slug}`;
   const replyResults = await Promise.all(Array.from({length:3},(_,i)=>request(base,`${extraRoute}/replies`,{method:'POST',body:{message:`Concurrent reply ${i}`}})));

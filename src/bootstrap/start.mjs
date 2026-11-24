@@ -2,6 +2,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { randomBytes } from 'node:crypto';
 import { loadEnvironment, validateSecrets } from '../shared/config.mjs';
+import { checkProductionStartup } from '../shared/production.mjs';
 
 // Một tiến trình Node.js cho API và các module nghiệp vụ.
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
@@ -13,6 +14,7 @@ if (process.env.NODE_ENV !== 'production') {
   }
 }
 validateSecrets(process.env);
+checkProductionStartup(process.env);
 
 const { createHttpApp } = await import('../server/app.mjs');
 const app = await createHttpApp();

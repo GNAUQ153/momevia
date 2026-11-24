@@ -8,6 +8,7 @@ import { decodePhoto } from './photo.mjs';
 import { publicGiftView, giftSummary, hash } from '../designs/designs.service.mjs';
 import { createGiftAccess, requireGiftPermission } from './access.mjs';
 import { checkReplyReplay, replyId, replyView } from './replies.mjs';
+import { supportsRsvp, rsvpRecord, rsvpView, updateRsvp } from './rsvp.mjs';
 
 export class GiftService {
   constructor({ giftsRepo, repliesRepo, media, config, repliesLimit, catalog, checkout, canvas }) {
@@ -63,10 +64,11 @@ export class GiftService {
     const gift = await this.ownGift(user, slug);
     const replies = await this.giftReplies(gift);
     const { url: publicUrl, inviteUrl } = giftOwnerLinks(this.config.baseUrl, gift);
-    return (gift.recipients || []).map(({ token, ...receipt }) => {
+    const hasRsvp = supportsRsvp(gift);
+    return (gift.recipients || []).map(({ token, rsvp, ...receipt }) => {
       const link = new URL(inviteUrl || publicUrl);
       if (receipt.source === 'list') link.searchParams.set('r', token);
-      return { ...receipt, url: link.href, status: replies.some(r => r.recipientId === receipt.id) ? 'replied' : receipt.confirmedAt ? 'confirmed' : 'created' };
+      return { ...receipt, ...(hasRsvp ? { rsvp: rsvpRecord({ rsvp }) } : {}), url: link.href, status: replies.some(r => r.recipientId === receipt.id) ? 'replied' : receipt.confirmedAt ? 'confirmed' : 'created' };
     });
   }
   async recipientExport(user, slug) { return recipientCsv(await this.recipientRows(user, slug)); }
@@ -214,7 +216,15 @@ export class GiftService {
     const ownCount = receipt ? (await this.giftReplies(gift)).filter(r => r.recipientId === receipt.id).length : view.replyCount;
     if (view.photoUrl && token) view.photoUrl += `?r=${encodeURIComponent(token)}`;
     if (view.photoUrl && gift.access?.open === 'invite') view.photoUrl += `${view.photoUrl.includes('?') ? '&' : '?'}invite=${encodeURIComponent(invite)}`;
-    return { ...view, recipientCount: undefined, receiptId: receipt?.id, replyCount: canRead ? ownCount : undefined, replyPermissions: { canSend, canRead, replyAudience, repliesDisabled } };
+    const rsvp = rsvpView(gift, receipt, canSend);
+    return { ...view, ...(rsvp ? { rsvp } : {}), recipientCount: undefined, receiptId: receipt?.id, replyCount: canRead ? ownCount : undefined, replyPermissions: { canSend, canRead, replyAudience, repliesDisabled } };
+  }
+  async respondRsvp(slug, invite, token, body) {
+    const gift = await this.validateSlug(slug);
+    if (gift.documentSnapshot && this.canvas && !this.canvas.flags.read) throw localizedError(503, 'errors.gift.canvasReadDisabled');
+    return this.mutateGift(gift, current => updateRsvp(current, invite, token, body, recipientId => {
+      if (!this.repliesLimit.consume(`rsvp:${slug}:${recipientId}`)) throw localizedError(429, 'errors.gift.replyLimit');
+    }));
   }
   async reply(slug, body, ip, invite, token) {
     const gift = await this.validateSlug(slug);

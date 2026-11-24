@@ -98,7 +98,12 @@ export async function createHttpApp(config = environment(), { paymentProviders, 
 
   const server = (tlsOptions ? https : http).createServer({ ...serverTimeouts, ...tlsOptions }, async (req, res) => {
     try {
+      res.setHeader('x-content-type-options', 'nosniff');
+      res.setHeader('referrer-policy', 'no-referrer');
+      res.setHeader('x-frame-options', 'DENY');
       const url = new URL(req.url, config.baseUrl);
+      try { decodeURIComponent(url.pathname); }
+      catch { throw new HttpError(400, 'Đường dẫn không hợp lệ.'); }
       const matching = prefixes.find(([prefix]) => url.pathname === prefix || url.pathname.startsWith(`${prefix}/`));
       if (matching) {
         const [prefix, name] = matching;

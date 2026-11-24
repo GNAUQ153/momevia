@@ -9,6 +9,7 @@ import { once } from 'node:events';
 import { setTimeout as delay } from 'node:timers/promises';
 import sharp from 'sharp';
 import { runReplyIntents } from './reply-intents.mjs';
+import { runRsvpApi } from './rsvp.mjs';
 import { runExpandedApi } from './canvas-expanded.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
@@ -17,7 +18,7 @@ const fixture = fs.mkdtempSync(path.join(fs.realpathSync(os.tmpdir()), 'momevia-
 let child, base, logs = ''; const cases = [];
 async function launch(extra = {}) {
   const env = { ...process.env, NODE_ENV: 'test', PORT: '0', PUBLIC_BASE_URL: 'http://127.0.0.1',
-    JWT_SECRET: randomBytes(32).toString('hex'), INTERNAL_SERVICE_KEY: randomBytes(32).toString('hex'), DEMO_AUTH_ENABLED: 'true', DEMO_ADMIN_CODE: 'synthetic-admin',
+    JWT_SECRET: randomBytes(32).toString('hex'), INTERNAL_SERVICE_KEY: randomBytes(32).toString('hex'), DEMO_AUTH_ENABLED: 'true', DEMO_TEMPLATE_CHECKOUT_ENABLED: 'true', DEMO_ADMIN_CODE: 'synthetic-admin',
     IDENTITY_STORAGE: 'json', CATALOG_STORAGE: 'json', CHECKOUT_STORAGE: 'json', GIFTS_STORAGE: 'json', SUPPORT_STORAGE: 'json', DESIGNS_STORAGE: 'json',
     PAYMENT_ENABLED: 'false', PAYMENT_LIVE_ENABLED: 'false', CANVAS_READ_ENABLED: 'true', CANVAS_EDIT_ENABLED: 'true', CANVAS_PUBLISH_ENABLED: 'true',
     TEST_ACCOUNT_ENABLED: 'false', ...extra };
@@ -91,6 +92,7 @@ try {
     }
     assert.deepEqual((await request('/gifts/gifts/mine', { cookie: owner.cookie })).data.gifts, []);
   });
+  await check('RSVP JSON HTTP: private receipt, replay, update, owner ACL and revoke', () => runRsvpApi(request, owner.cookie, other.cookie));
   await check('Image only in a later scene can publish', async () => {
     const { createElement } = await import('../../web/js/shared/canvas/index.js');
     const { design: draft } = await post(owner, '/designs/designs', { source: { kind: 'blank' }, mutationId: randomUUID() }, 201);
@@ -145,7 +147,7 @@ try {
   });
   await check('C11/C17/C19 immutable publication/idempotency/allowlist', async () => {
     const preflight = await post(owner, `/designs/designs/${design.id}/preflight`, { expectedRevision: saved.savedRevision }); assert.equal(preflight.authorization.status, 'allowed'); assert.equal(preflight.canPublish, true, JSON.stringify(preflight));
-    publishBody = { designId: design.id, expectedRevision: saved.savedRevision, expectedDocumentHash: preflight.documentHash, idempotencyKey: randomUUID() };
+    publishBody = { designId: design.id, expectedRevision: saved.savedRevision, expectedDocumentHash: preflight.documentHash, idempotencyKey: randomUUID(), access: { open: 'link', send: 'link', read: 'link' } };
     const result = await Promise.all([request('/gifts/gifts/from-design', { cookie: owner.cookie, body: publishBody }), request('/gifts/gifts/from-design', { cookie: owner.cookie, body: publishBody })]);
     assert.deepEqual(result.map(r => r.status).sort(), [200, 201]); assert.equal(result[0].data.gift.slug, result[1].data.gift.slug); published = result[0].data.gift;
     await post(owner, '/gifts/gifts/from-design', { ...publishBody, expectedDocumentHash: 'sha256:' + '0'.repeat(64) }, 409);
@@ -211,9 +213,9 @@ try {
       expectedRevision: draft.revision, mutationId: randomUUID(), title: draft.title, document: draft.document,
     });
     const { gift } = await post(owner, '/gifts/gifts/from-design', {
-      designId: draft.id, expectedRevision: ack.savedRevision, expectedDocumentHash: ack.documentHash, idempotencyKey: randomUUID(),
+      designId: draft.id, expectedRevision: ack.savedRevision, expectedDocumentHash: ack.documentHash, idempotencyKey: randomUUID(), access: { open: 'link', send: 'link', read: 'link' },
     }, 201);
-    const { gift: legacy } = await post(owner, '/gifts/gifts', { templateId: 'sunny-wishes', recipientName: 'Mai', senderName: 'An', message: 'Lời chúc' }, 201);
+    const { gift: legacy } = await post(owner, '/gifts/gifts', { templateId: 'sunny-wishes', recipientName: 'Mai', senderName: 'An', message: 'Lời chúc', access: { open: 'link', send: 'link', read: 'link' } }, 201);
     for (const item of [gift, legacy]) await runReplyIntents(base, item.slug, owner.cookie, other.cookie);
   });
   await check('C18/C27 restart replay and writer-off reader preserved', async () => {

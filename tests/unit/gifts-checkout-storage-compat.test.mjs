@@ -24,7 +24,7 @@ test('JSON Gifts remains compatible after asynchronous MySQL adapter conversion'
     media:{store(){throw Error('unexpected photo write');}},
     repliesLimit:{consume(){return true;}},catalog,checkout:{async hasLicense(){return false;}},
     config:{giftTtlDays:365}});
-  const created=await service.create(user,{templateId:'free',recipientName:'Mai',senderName:'An',message:'A card'});
+  const created=await service.create(user,{templateId:'free',recipientName:'Mai',senderName:'An',message:'A card',access:{open:'link',send:'link',read:'link'}});
   assert.equal(created.userId,user.sub);
   assert.equal((await service.mine(user)).length,1);
   assert.equal((await service.publicGift(created.slug)).userId,undefined);
@@ -38,7 +38,7 @@ test('JSON Gifts remains compatible after asynchronous MySQL adapter conversion'
 test('JSON Checkout preserves free templates and duplicate demo purchase idempotency', async () => {
   const orders=[];
   const repo={all:()=>orders,insert(item){orders.push(item);return item;}};
-  const service=new CheckoutService({repository:repo,config:{demoEnabled:true},catalog});
+  const service=new CheckoutService({repository:repo,config:{demoEnabled:true,demoTemplateCheckout:true},env:{NODE_ENV:"test"},catalog});
   assert.equal((await service.purchase(user,'free')).status,'free');
   const first=await service.purchase(user,'paid');
   const second=await service.purchase(user,'paid');

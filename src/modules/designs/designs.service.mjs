@@ -7,6 +7,7 @@ import { validateDocument, canonicalStringify, createDocument, duplicateDocument
 import { runtimeVersionFor, requiresCanvasV2 } from '../../../web/js/shared/canvas/schema.js';
 import { PREDICTION_KIND } from '../../../web/js/shared/canvas/prediction.js';
 import { photoSlots } from '../../../web/js/shared/canvas/interactions.js';
+import { publicInvitation, invitationTimingIssue, invitationSlots } from '../../../web/js/shared/canvas/invitation.js';
 import { clearTemplateBindingDefaults, lockedVisibleNames, visibleBindingKeys } from '../../../web/js/shared/canvas/personalization.js';
 import { cleanGiftLayout } from '../../../web/js/shared/canvas/clean-layout.js';
 import { randomId } from '../../shared/security.mjs';
@@ -27,11 +28,19 @@ function title(value) {
   if (typeof value !== 'string' || !value.trim() || value.length > 120) throw canvasError(422, 'INVALID_TITLE', 'Tên thiết kế từ 1–120 ký tự.');
   return value.trim();
 }
+// Vai trò vùng nội dung của mẫu được giữ khi nhân bản và đổi ID Canvas.
+function invitationSlotIds(d) {
+  if (d.source?.templateId !== 'loi-moi-ben-hien' || d.policy?.kind !== 'sender-basic') return undefined;
+  const mapped = d.provenance?.slotMap?.elements;
+  const slots = invitationSlots(d.document, { dateElementId: mapped?.['event-date'], venueElementId: mapped?.['event-location'] });
+  return slots ? { dateElementId: slots.date.id, venueElementId: slots.venue.id } : undefined;
+}
 export function designView(d) {
   const document = copy(d.document);
   const reviewTemplateDefaults = d.source.kind === 'template' && d.source.templateVersionId && d.provenance?.adapter === 'creator-v1'
     && d.policy?.kind === 'creator-template' && clearTemplateBindingDefaults(document, d.policy.editableBindings);
-  return { ...(d.provenance?.restyledFrom ? {restyledFrom:copy(d.provenance.restyledFrom)} : {}), id: d.id, title: d.title, source: copy(d.source), policy: copy(d.policy), purpose: d.provenance?.purpose, revision: d.revision, schemaVersion: document.schemaVersion, document, documentHash: d.documentHash,
+  const slots = invitationSlotIds(d);
+  return { ...(slots ? { invitationSlotIds: slots } : {}), ...(d.provenance?.restyledFrom ? {restyledFrom:copy(d.provenance.restyledFrom)} : {}), id: d.id, title: d.title, source: copy(d.source), policy: copy(d.policy), purpose: d.provenance?.purpose, revision: d.revision, schemaVersion: document.schemaVersion, document, documentHash: d.documentHash,
     ...(reviewTemplateDefaults ? { reviewTemplateDefaults } : {}),
     ...(d.provenance?.startingLocale ? { startingLocale: d.provenance.startingLocale } : {}),
     createdAt: d.createdAt, updatedAt: d.updatedAt };
@@ -47,6 +56,10 @@ export function publicGiftView(gift) {
   if (gift.documentSnapshot) {
     base.runtimeVersion = gift.runtimeVersion; base.schemaVersion = gift.documentSnapshot.schemaVersion;
     base.documentSnapshot = publicDocument(gift.documentSnapshot);
+    // Reader cũ vẫn đọc được Canvas: dữ liệu sự kiện có contract riêng ở API.
+    const invitation = publicInvitation(base.documentSnapshot);
+    if (invitation) base.invitation = invitation;
+    delete base.documentSnapshot.invitation;
   }
   return base;
 }
@@ -181,6 +194,13 @@ export class DesignsService {
     });
   }
   enforcePolicy(current, document) {
+    if (document.invitation && current.provenance?.purpose === 'creator')
+      throw canvasError(403, 'INVITATION_CREATOR_DRAFT', 'invitation.error.creator');
+    if (document.invitation) {
+      const slots = invitationSlotIds(current);
+      if (!slots || slots.dateElementId !== document.invitation.dateElementId || slots.venueElementId !== document.invitation.venueElementId)
+        throw canvasError(403, 'INVITATION_SOURCE_UNSUPPORTED', 'invitation.error.source');
+    }
     if (current.policy?.kind === 'creator-template') {
       if (document.personalization?.mode !== 'manual' && document.personalization && !current.policy.editableBindings.includes('recipientName'))
         throw canvasError(403, 'RECIPIENT_LOCKED', 'Mẫu không cho phép đổi tên người nhận.');
@@ -282,8 +302,15 @@ export class DesignsService {
           blockers.push(preflightCopy(detail.path, detail.code, detail.code === 'PREDICTION_DUPLICATE_CHOICES' ? 'prediction.duplicate'
             : field === 'prediction' ? 'prediction.chooseRequired' : 'prediction.required',
           { field: { format: 'message', key: `prediction.${field}` } }));
+        } else if (detail.code === 'INVALID_INVITATION') {
+          blockers.push(preflightCopy(detail.path, detail.code, detail.message));
         } else blockers.push(detail);
       }
+    }
+    if (document.invitation) {
+      const now = Date.now();
+      const eventIssue = invitationTimingIssue(document, now, now + this.config.giftTtlDays * 86400000);
+      if (eventIssue) blockers.push(preflightCopy('invitation', 'INVITATION_TIME', `invitation.error.${eventIssue}`));
     }
     // Apply this rule to new publications. Existing gift snapshots use the reader's structural validation.
     const { bindings, elements } = document;

@@ -7,6 +7,8 @@ import { translate, vi } from '../../web/js/shared/locale.js';
 import { BASIC_TEMPLATES } from '../../web/js/shared/canvas/basic-templates.js';
 import { legalPages } from '../../web/js/pages/policies.js';
 import { reviewStates } from '../../web/js/pages/admin-payments.js';
+import { CARD_TYPES } from '../../web/js/shared/card-type.js';
+import { RSVP_STATUSES } from '../../web/js/shared/rsvp.js';
 import { supportTopics } from '../../web/js/features/support/topics.js';
 
 const placeholders = value => [...new Set(Array.from(value.matchAll(/\{([a-zA-Z][a-zA-Z0-9]*)\}/g), match => match[1]))].sort();
@@ -35,6 +37,10 @@ export function checkLocales() {
   for (const status of reviewStates) verify(`admin.payments.state.${status}`, 'payment review');
   for (const status of ['pending', 'approved', 'changes_requested']) verify(`creator.status.${status}`, 'Creator review');
   for (const topic of [...supportTopics, 'report']) verify(`support.topic.${topic}`, 'support form');
+  for (const status of [...RSVP_STATUSES, 'unanswered']) verify(`rsvp.status.${status}`, 'RSVP');
+  for (const type of CARD_TYPES) verify(`catalog.cardType.${type}`, 'card type');
+  for (const issue of ['structure', 'slots', 'zone', 'date', 'dateMismatch', 'venue', 'past', 'expiry', 'creator', 'source'])
+    verify(`invitation.error.${issue}`, 'invitation validation');
   for (const binding of ['recipientName', 'senderName', 'message']) verify(`catalog.personalization.${binding}`, 'personalization');
   for (const [id, definition] of Object.entries(BASIC_TEMPLATES))
     for (const field of ['name', 'title', 'subtitle', 'headline', ...(definition.note ? ['note'] : [])])

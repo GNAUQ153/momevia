@@ -27,23 +27,20 @@ export function createGiftViews({
       setTimeout(() => requireLogin(`/create/${template.id}`), 50);
       return `<section class="section"><div class="container"><div class="centered-loading">${icon("lock", 25)} ${text("gift.builder.login")}</div></div></section>`;
     }
-    const [orders, paymentOptions] = await Promise.all([
-      api.get("/checkout/orders").catch(() => ({ orders: [] })),
-      api.get("/checkout/payments/methods").catch(() => ({ methods: [] })),
+    const [access, paymentOptions] = await Promise.all([
+      template.price === 0 ? Promise.resolve({ licensed: true }) :
+        api.get(`/checkout/licenses/${encodeURIComponent(template.id)}`).catch(() => null),
+      api.get("/checkout/payments/methods").catch(() => null),
     ]);
-    const licensed =
-      template.price === 0 ||
-      orders.orders.some(
-        (o) =>
-          o.templateId === template.id &&
-          ["demo_paid", "paid"].includes(o.status),
-      );
-    state.purchased = new Set(
-      orders.orders
-        .filter((o) => ["demo_paid", "paid"].includes(o.status))
-        .map((o) => o.templateId),
-    );
-    const paymentAvailable = paymentOptions.methods.length > 0;
+    const licensed = access?.licensed === true;
+    const paymentAvailable = Boolean(paymentOptions?.methods?.length);
+    const demoAvailable = paymentOptions?.demoPurchaseAvailable === true && !paymentAvailable;
+    const checkoutNotice = licensed ? '' : `<div class="demo-notice">${icon("shield", 20)}<p>${
+      !access || !paymentOptions ? text("errors.unavailable") : paymentAvailable ? text("gift.builder.realCheckout") :
+        demoAvailable ? text("gift.builder.demoCheckout") : text("payment.checkout.noMethods")}</p></div>`;
+    const checkoutAction = licensed ? `<button type="submit" class="btn btn--dark btn--wide">${text("gift.builder.publish")} ${icon("arrow", 19)}</button>` :
+      !access || !paymentOptions ? '' : paymentAvailable ? `<button type="button" class="btn btn--dark btn--wide" data-action="payment-options" data-id="${e(template.id)}">${text("gift.builder.pay")} ${icon("arrow", 18)}</button>` :
+      demoAvailable ? `<button type="button" class="btn btn--dark btn--wide" data-action="demo-buy" data-id="${e(template.id)}">${text("gift.builder.tryDemo")} ${icon("arrow", 18)}</button><p class="helper-text">${text("gift.builder.demoNotice")}</p>` : '';
     return `<section class="builder-section"><div class="container"><div class="breadcrumb"><a href="/template/${encodeURIComponent(template.id)}" data-link>${icon("arrow-left", 17)} ${text("gift.builder.back")}</a><span>/</span><span>${text("home.about.personal.title")}</span></div>
       <div class="builder-header"><div><span class="eyebrow">${text("gift.builder.badge")}</span><h1>${text("gift.builder.headline")} <em>${text("gift.builder.emphasis")}</em></h1><p>${text("gift.builder.intro")}</p></div><span class="builder-template-pill">${icon("layers", 17)} ${e(template.title)}</span></div>
       <div class="builder-grid"><div class="builder-form-wrap"><form id="create-gift-form" data-template-id="${e(template.id)}">
@@ -53,8 +50,7 @@ export function createGiftViews({
         <label class="field"><span>${text("gift.builder.greeting")} <sup>*</sup></span><textarea id="gift-message" name="message" required maxlength="1000" rows="5" ${attr("placeholder", "gift.builder.greetingExample")}></textarea><small>${text("gift.builder.greetingLimit")}</small></label>
         <div class="form-step-head form-step-head--separated"><span>02</span><div><h2>${text("gift.builder.photo")}</h2><p>${text("gift.builder.photoHint")}</p></div></div>
         <label class="photo-drop" for="gift-photo"><span>${icon("upload-cloud", 25)}</span><strong>${text("gift.builder.choosePhoto")}</strong><small>${text("gift.builder.photoTypes")}</small><input type="file" id="gift-photo" class="visually-hidden" accept="image/png,image/jpeg,image/webp"/></label>
-        <div class="form-bottom"><div class="demo-notice">${icon("shield", 20)}<p>${paymentAvailable ? text("gift.builder.realCheckout") : text("gift.builder.demoCheckout")}</p></div>
-        ${licensed ? `<button type="submit" class="btn btn--dark btn--wide">${text("gift.builder.publish")} ${icon("arrow", 19)}</button>` : paymentAvailable ? `<button type="button" class="btn btn--dark btn--wide" data-action="payment-options" data-id="${e(template.id)}">${text("gift.builder.pay")} ${icon("arrow", 18)}</button>` : `<button type="button" class="btn btn--dark btn--wide" data-action="demo-buy" data-id="${e(template.id)}">${text("gift.builder.tryDemo")} ${icon("arrow", 18)}</button><p class="helper-text">${text("gift.builder.demoNotice")}</p>`}</div>
+        <div class="form-bottom">${checkoutNotice}${checkoutAction}</div>
       </form></div>${livePreview(template)}</div>
     </div></section>`;
   }

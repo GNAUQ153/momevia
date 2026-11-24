@@ -9,6 +9,8 @@ export function cleanGiftLayout(snapshot, { sharedImages = new Map() } = {}) {
   clearTemplateBindingDefaults(document);
   // Tặng lại chỉ giữ bố cục, không mang theo lựa chọn nhạc cá nhân của người gửi trước.
   delete document.soundtrack;
+  // Không mang thời gian và địa điểm sự kiện riêng sang lượt tặng mới.
+  delete document.invitation;
   document.assets = [];
   document.elements = document.elements.filter(element => element.type !== 'image' || sharedImages.has(element.props.assetId));
   for (const element of document.elements.filter(e => e.type === 'image')) {

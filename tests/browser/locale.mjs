@@ -109,12 +109,14 @@ export async function runLocaleBrowser(base) {
       if(entry)assert.equal(await policies.count(),2,route+' keeps both policy links inside the form');
       for (const link of await policies.all()) {
         await link.scrollIntoViewIfNeeded();
+        // The dock reveals focused controls; native scrolling alone does not
+        // account for fixed overlays when a link already intersects the viewport.
+        await link.focus();
         assert.equal(await link.evaluate(element => {
           const rect = element.getClientRects()[0];
           const hit = element.ownerDocument.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2);
           return Boolean(hit && element.contains(hit));
         }), true, route + ' policy link is not covered');
-        await link.focus();
         assert.equal(await link.evaluate(element => element.ownerDocument.activeElement === element), true);
       }
       await supportTrigger.press('Enter');

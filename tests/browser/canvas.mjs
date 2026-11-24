@@ -258,7 +258,11 @@ export async function runCanvasBrowser(base, expiredSlug) {
     } finally { await guest.close(); }
     completed.push('blank draft blocked; bound greeting insertion, undo/redo, preview and anonymous publication');
     const freeTemplate = (await api('/catalog/templates')).data.templates.find(template => template.price === 0);
-    const legacy = await api('/gifts/gifts', { templateId: freeTemplate.id, senderName: 'An', recipientName: 'Mai legacy', message: 'Mở lại quà cũ' });
+    // Ca kiểm thử danh sách phản hồi công khai cần chủ động cấp quyền đọc qua link.
+    const legacy = await api('/gifts/gifts', {
+      templateId: freeTemplate.id, senderName: 'An', recipientName: 'Mai legacy', message: 'Mở lại quà cũ',
+      access: { open: 'link', send: 'link', read: 'link' },
+    });
     assert.equal(legacy.status, 201);
     await checkShareInBrowser(browser, context, base, [blankGift, legacy.data.gift]);
     completed.push('canvas and legacy share across distinct hostnames; QR decoded; clipboard fallback and Studio actions fit at 320/390px');
@@ -460,7 +464,12 @@ export async function runCanvasBrowser(base, expiredSlug) {
     await page.route('**/api/checkout/payments/methods', route => route.fulfill({ status: 503, contentType: 'application/json', body: JSON.stringify({ error: 'Lỗi methods giả lập' }) }));
     await control('preview').click(); await control('preview-send').click();
     await page.getByRole('heading', { name: 'Không tải được phương thức' }).waitFor();
-    await page.unroute('**/api/checkout/payments/methods'); await page.locator('[data-action="retry-canvas-payment"]').click(); await page.getByRole('heading', { name: 'Chưa có phương thức thanh toán' }).waitFor();
+    await page.unroute('**/api/checkout/payments/methods');
+    // Exercise an empty production-style response independently of the fixture's
+    // explicit demo permission used for the license grant later in this journey.
+    await page.route('**/api/checkout/payments/methods',route=>route.fulfill({json:{methods:[],demoPurchaseAvailable:false}}),{times:1});
+    await page.locator('[data-action="retry-canvas-payment"]').click(); await page.getByRole('heading', { name: 'Chưa có phương thức thanh toán' }).waitFor();
+    assert.equal(await page.locator('[data-action="demo-buy"]').count(),0);
     await page.keyboard.press('Escape');
     assert.equal(await field('binding.message').inputValue(), quickGreeting);
     const grant = await api('/checkout/orders/demo-purchase', { templateId: 'polaroid' });

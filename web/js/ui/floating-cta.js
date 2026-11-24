@@ -14,8 +14,13 @@ export function mountFloatingCta(){
  </nav>`;document.body.append(panel);
  const measure=()=>{const height=panel.getBoundingClientRect().height;if(height>0)document.body.style.setProperty('--floating-cta-height',`${Math.ceil(height)}px`);};
  const resize=new ResizeObserver(measure);resize.observe(panel);
+ let pointerActivation=false;
+ document.addEventListener('pointerdown',()=>{pointerActivation=true;},true);
+ for(const name of ['click','pointercancel','keydown'])document.addEventListener(name,()=>{pointerActivation=false;},true);
  document.addEventListener('focusin',event=>{
-  const control=event.target;if(panel.hidden||panel.contains(control)||!control.matches?.('input,textarea,select,button,a[href]'))return;
+  // Scrolling during pointerdown moves the control before pointerup and can
+  // swallow its click. Keyboard/programmatic focus still reveals covered controls.
+  const control=event.target;if(pointerActivation||panel.hidden||panel.contains(control)||!control.matches?.('input,textarea,select,button,a[href]'))return;
   const box=control.getBoundingClientRect(),dock=panel.getBoundingClientRect();
   if(box.bottom>dock.top-12&&box.top<dock.bottom&&box.right>dock.left&&box.left<dock.right)control.scrollIntoView({block:'center',inline:'nearest',behavior:'instant'});
  });

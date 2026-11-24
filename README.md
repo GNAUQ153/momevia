@@ -91,17 +91,18 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Cập nhật kiểm tra bìa Hero VI/EN theo biến thể `-catalog.svg` đang dùng, giữ kiểm tra chính xác template và thư mục ngôn ngữ.
-- Ca bìa lỗi chặn đúng URL catalog và xác minh yêu cầu đã bị chặn trước khi kiểm tra giữ bìa/player hiện tại.
+- Thêm xác nhận tham dự cho thiệp mời có thông tin sự kiện và mã nhận riêng hoặc tự điền tên.
+- Lưu một trạng thái theo lượt nhận, kiểm tra quyền và hạn sự kiện phía server; chủ thiệp xem thống kê riêng.
+- Không đổi schema MySQL, không mở RSVP trên thiệp cũ hoặc link chung không định danh.
 
 **Các commit gần nhất trên `main`:**
 
-- `2ddfdea` — test(ci): sync release fixture with natural library bundles (2026-11-24)
-- `c6e0bbf` — fix(ci): include natural library bundles in release (2026-11-24)
-- `b93a13c` — fix(storage): support persistent Railway volume (2026-11-24)
-- `85ef36a` — Merge pull request #25 from GNAUQ153/feat/template-refresh-live-20261123 (2026-11-23)
-- `83aeb10` — Merge pull request #24 from GNAUQ153/feat/recorded-audio-library (2026-11-23)
-- `126e147` — feat(canvas): add accessible mobile undo redo toolbar (2026-11-23)
+- `2966e32` — feat(rsvp): add private invitation attendance responses and sender summary (2026-11-24)
+- `2f45587` — feat(invitation): add structured event details and publication validation (2026-11-24)
+- `7c191f1` — fix(ci): update catalog contract test for card type metadata (2026-11-24)
+- `57ef881` — feat(catalog): distinguish invitation and greeting card types (2026-11-24)
+- `0b1c2a6` — fix(ci): align recipient browser test with private reply policy and add migration utility (2026-11-24)
+- `9f1362c` — feat(security): complete phase 01 production hardening (2026-11-24)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->
@@ -114,3 +115,7 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 - [Vận hành, backup, MySQL và CI/CD](docs/OPERATIONS.md)
 - [Lịch sử chức năng và sửa lỗi](CHANGELOG.md)
 - [GitHub Actions](https://github.com/GNAUQ153/momevia/actions)
+
+## Phase 1 — Security & Production Stability
+
+Xem [hướng dẫn nâng cấp và kiểm tra production](docs/PHASE01_SECURITY.md). Chạy `npm run check:production` trước khi bật `PRODUCTION_STRICT=true`; không đổi kho dữ liệu chỉ để vượt kiểm tra.

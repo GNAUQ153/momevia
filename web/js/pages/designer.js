@@ -35,6 +35,8 @@ import { submissionChanges } from "../shared/canvas/submission.js";
 import { framePhoto, MEMORY_TEMPLATE_ID, memoryGreetingStarterKeys } from "../shared/canvas/basic-templates.js";
 import { materializeTemplateStart } from '../features/canvas-editor/template-start.js';
 import { createEventFields, updateEventFields, createStoryTextFields, updateStoryTextFields, storyAlbum, storyClock } from '../features/canvas-editor/event-fields.js';
+import { createInvitationFields, updateInvitationFields } from '../features/canvas-editor/invitation-fields.js';
+import { editInvitation } from '../shared/canvas/invitation.js';
 import { predictionCard, PREDICTION_KIND } from '../shared/canvas/prediction.js';
 import { createPredictionFields, updatePredictionFields } from '../features/canvas-editor/prediction-fields.js';
 import { celebrationFields } from '../features/canvas-editor/celebration-fields.js';
@@ -525,6 +527,8 @@ export function mountDesigner(
               ),
           ),
         design.purpose !== 'creator' ? button(message('recipient.insert'), 'insert-recipient', { disabled: design.policy?.kind === 'creator-template' && (!design.policy.editableBindings.includes('recipientName') || !design.policy.editableBindings.includes('message')), title: message('recipient.insertHint') }) : null,
+        design.policy?.kind === 'sender-basic' && design.purpose !== 'creator' && (design.source.templateId === 'loi-moi-ben-hien' || store.get().document.invitation)
+          ? createInvitationFields(store.get().document, design.invitationSlotIds) : null,
         node("div", { class: "editor-quick-only" },
           design.policy?.kind === 'sender-basic' ? createStoryTextFields(store.get().document) : null,
           predictionCard(store.get().document) ? createPredictionFields(predictionCard(store.get().document)) : null,
@@ -1045,6 +1049,7 @@ export function mountDesigner(
     main.querySelector(".editor-quick-photo").hidden = !quickPhotoFrame();
     updateEventFields(main, doc, assetUrl);
     updateStoryTextFields(main,doc);
+    updateInvitationFields(main, doc, design.invitationSlotIds);
     updatePredictionFields(main, doc);
     const removePhoto = main.querySelector('[data-editor-action="remove-frame-photo"]');
     if (removePhoto) removePhoto.hidden = !framePhoto(doc, quickPhotoFrame());
@@ -1502,7 +1507,7 @@ export function mountDesigner(
           "focus-blocker",
           {
             "data-id": element?.id,
-            "data-field": predictionField && quickMode ? `prediction.${element.id}.${predictionField}` : binding ? `binding.${binding}` : null,
+            "data-field": path === "invitation" ? "invitation.date" : predictionField && quickMode ? `prediction.${element.id}.${predictionField}` : binding ? `binding.${binding}` : null,
             "data-photo-slot": slot?.id,
             "data-element-field": predictionField && !quickMode ? `prediction.${element.id}.${predictionField}`
               : slot && missingPhoto[2] === "alt" ? `slot.${slot.id}.alt`
@@ -2242,6 +2247,18 @@ export function mountDesigner(
     const control = event.target.closest("[data-editor-field]");
     if (!control || !store || composing) return;
     const key = control.dataset.editorField;
+    if (key.startsWith('invitation.')) {
+      const field = key.slice('invitation.'.length);
+      try {
+        commit(next => editInvitation(next.document, field, field === 'enabled' ? control.checked : control.value, design.invitationSlotIds),
+          t('invitation.title'), { merge: field === 'venue' ? key : null });
+      } catch (error) {
+        control.blur();
+        updateInvitationFields(main, store.get().document, design.invitationSlotIds);
+        throw new Error(t(field === 'date' ? 'invitation.error.date' : 'invitation.error.structure'));
+      }
+      return;
+    }
     if (key === "zoom") {
       fitted = false;
       setZoom(Number(control.value));

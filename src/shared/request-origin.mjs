@@ -20,7 +20,12 @@ export function parseAllowedOrigins(value = '') {
 export function requireRequestOrigin(req, config) {
   const origin = req.headers.origin;
   // CLI và các callback server-to-server không gửi Origin.
-  if (origin === undefined) return;
+  if (origin === undefined) {
+    // Trình duyệt báo cross-site nhưng không có Origin: từ chối POST không rõ nguồn.
+    // Webhook và CLI không có Fetch Metadata vẫn được xử lý như trước.
+    if (req.headers['sec-fetch-site'] === 'cross-site') throw new HttpError(403, 'Địa chỉ truy cập chưa được cho phép.');
+    return;
+  }
   let requested;
   try { requested = originUrl(origin); } catch { /* Từ chối Origin null hoặc sai định dạng. */ }
   if (requested) {

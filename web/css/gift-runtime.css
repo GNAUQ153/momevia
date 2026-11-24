@@ -1268,3 +1268,27 @@ span.gift-comparison-range {
 .gift-runtime-personalized .gift-runtime-text {
   overflow-wrap: anywhere;
 }
+
+/* RSVP sử dụng cùng hệ thống trường nhập và nút hiện có. */
+.rsvp-panel {
+  display: grid;
+  gap: 12px;
+  width: 100%;
+  max-width: 720px;
+  margin: 24px auto;
+  padding: 20px;
+  border: 1px solid var(--line, #e8def2);
+  border-radius: 16px;
+  background: var(--white, #fff);
+  color: var(--ink, #221a39);
+  overflow-wrap: anywhere;
+}
+.rsvp-panel form {
+  display: grid;
+  gap: 12px;
+}
+.rsvp-panel select,
+.rsvp-panel button {
+  min-height: 44px;
+  font-size: 16px;
+}

@@ -1,5 +1,6 @@
 ## Unreleased — Hai CTA nổi tạo mới và khám phá mẫu (2026-11-24)
 
+- Giữ nút ổn định trong lúc bấm chuột/touch để form gửi ngay ở lần bấm đầu; focus bằng bàn phím hoặc sau thao tác bấm vẫn đưa control ra khỏi dock khi cần.
 - Thêm ô nổi góc dưới phải với “Tạo mẫu ngay” mở Studio và “Khám phá mẫu ngay” mở thư viện. Luôn hiện khi duyệt trang, ẩn ngay trong các route editor và hiện lại khi rời đi; không tự lấy focus hoặc chuyển thông tin riêng của quà vào đích.
 - Trên điện thoại dùng hai nút cạnh nhau, có safe-area, vùng chạm tối thiểu 44 px, khoảng cuối trang và tránh che control đang focus. Giữ màu/font Momevia; CSS có trong cả bundle đầy đủ và bundle catalog; đủ VI/EN và reduced motion.
 - Bấm thật hai đích, đăng nhập/quay lại tạo mới, canvas thật, năm kích cỡ 320–1440 px và nhận quà/mở hộp/hồi đáp ẩn danh trên MySQL chính đạt. Build/check và 769 unit tests đạt; ảnh và bằng chứng tại `docs/FLOATING_CREATION_CTA.md`.
@@ -17,6 +18,38 @@
 - Tim mới đập hai đỉnh trong 1,8 giây và tự xoay độc lập 360°/8 giây. Giữ reader 1/2/3, sáu fixture vòng lặp cũ, A05 một lượt và snapshot đã phát hành.
 - Gói riêng 51 mục có preview, revision/fingerprint, gián đoạn/chạy tiếp, chạy lại và rollback; chỉ cho phép CLI ghi MySQL QA loopback có opt-in. Seed DB mới và gói cập nhật dùng chung định nghĩa.
 - Đối chiếu SHA nguồn QA với toàn bộ thay đổi từ baseline, kể cả file đã stage/commit và các contract giữ nguyên. Kiểm 50/50 Studio/preview/player, API MySQL và Admin; đo ma trận tim, kết hợp góc/opacity, reduced motion, thao tác di động, frame pacing và chi phí mở lạnh. Build/check, 767 unit và Canvas browser regression đạt; phạm vi và giới hạn thiết bị/trình duyệt được ghi trong `docs/ANIMATED_ELEMENTS_50.md`. Chưa phát hành ra môi trường người dùng thật.
+
+## Unreleased — Phase 2.3A Quyền sử dụng mẫu (2026-11-24)
+
+- Tách fixture browser cho phản hồi methods rỗng/không cấp demo khỏi quyền demo được bật rõ ràng để kiểm tra cấp license về sau trong cùng luồng.
+- Chỉ cấp giao dịch demo mới khi cả hai cờ demo bật, production và thanh toán đều tắt.
+- API kiểm tra quyền mẫu theo người dùng đã xác thực; form legacy không suy quyền từ trạng thái đơn hàng và không quảng cáo mua thử khi chưa bật.
+- Không đổi quyền đã mua, giá, số lượt xuất bản, dữ liệu thiệp hay schema MySQL. Tách kiểm soát quyền demo lịch sử và lượt xuất bản sang bước riêng.
+
+## Unreleased — Phase 2.2 RSVP (2026-11-24)
+
+- Thêm xác nhận tham dự cho thiệp mời có thông tin sự kiện và mã nhận riêng hoặc tự điền tên.
+- Lưu một trạng thái theo lượt nhận, kiểm tra quyền và hạn sự kiện phía server; chủ thiệp xem thống kê riêng.
+- Không đổi schema MySQL, không mở RSVP trên thiệp cũ hoặc link chung không định danh.
+
+## Unreleased — Phase 2.1B Thông tin sự kiện (2026-11-24)
+
+- Bổ sung nhập ngày giờ, múi giờ và địa điểm có cấu trúc cho thiệp mời hỗ trợ; không ép chuyển đổi nháp/thiệp cũ.
+- Kiểm tra ngày giờ, vùng nội dung, thời hạn và chiếu dữ liệu công khai riêng, giữ tương thích trình xem cũ.
+- Bảo toàn dữ liệu khi nhân bản nháp và loại thông tin sự kiện riêng khi tặng lại; RSVP sẽ triển khai sau.
+
+## Unreleased — Phase 2.1A Phân loại thiệp (2026-11-24)
+
+- Phân biệt loại thiệp và dịp sử dụng; API và danh mục VI/EN có bộ lọc loại thiệp, giữ tương thích với API cũ.
+- Mẫu Creator chưa xác định giữ trạng thái chưa phân loại; không đổi giá, quyền, dữ liệu thiệp hoặc snapshot đã phát hành.
+- Bổ sung kiểm thử phân loại và lọc; nhập thông tin sự kiện và RSVP triển khai ở các bản tiếp theo.
+
+## Unreleased — Phase 1 Security & Production Stability (2026-11-24)
+
+- Bổ sung preflight production và startup strict opt-in; giữ nguyên dữ liệu, secret và storage hiện có.
+- Mặc định bảo vệ lời đáp thiệp mới, giữ quyền thiệp cũ; kiểm tra Origin, JSON MIME, URL và bảo vệ cache/index của trang thiệp Node.
+- Xử lý lỗi stream ảnh, cấu hình giới hạn pool MySQL; bổ sung test và hướng dẫn Hostinger/Railway tại `docs/PHASE01_SECURITY.md`.
+- 20 test mục tiêu đạt; bộ unit rộng chưa hoàn tất do dependency thiếu. Chưa nghiệm thu production.
 
 ## Unreleased — Sửa hồi quy CI PR #26 (2026-11-24)
 

@@ -7,6 +7,7 @@ import { attr, initializeLocale, localeControl, message, onLocaleChange, setAttr
 import { clearAuthReturn, rememberAuthReturn, takeAuthReturn } from "../core/auth-return.js";
 import { focusVisibleTarget, scrollBehavior } from "../core/motion.js";
 import { icon } from "../ui/icons.js";
+import { normalizeCardTypeFilter } from '../shared/card-type.js';
 import { paginateTemplates } from "../features/catalog/filter.js";
 import { legalPages, legalPage } from "../pages/policies.js";
 import { submitReplyIntent } from "../features/gifts/reply-intent.js";
@@ -182,6 +183,7 @@ function navigate(path, { replace = false } = {}) {
 function readCatalogUrl() {
   const query = new URLSearchParams(location.search);
   state.search = query.get('q') || '';
+  state.cardType = normalizeCardTypeFilter(query.get('cardType'));
   const style = query.get('style');
   state.filter = state.templates.some(template => template.style === style) ? style : 'all';
   state.freeOnly = query.get('free') === '1';
@@ -194,6 +196,7 @@ function commitCatalogFilters() {
   const url = new URL(location.href);
   const options = {
     occasion:state.occasion==='all'?'':state.occasion,palette:state.palette==='all'?'':state.palette,
+    cardType: state.cardType === 'all' ? '' : state.cardType,
     q: state.search, style: state.filter === 'all' ? '' : state.filter,
     free: state.freeOnly ? '1' : '', photo: state.photoOnly ? '1' : '',
     page: state.catalogPage > 1 ? state.catalogPage : '',
@@ -498,7 +501,7 @@ async function render() {
         const { mountPlayer } =
           await import("../features/gift-runtime/index.js");
         if (generation !== renderGeneration) return;
-        main.innerHTML = `<section class="section"><div class="container"><div class="recipient-preferences">${localeControl()}</div><div id="canvas-public-player"></div><p class="recipient-disclaimer">${text("gift.player.forwarded")}</p><button class="btn btn--outline" data-action="report-content" data-kind="gift" data-id="${e(id)}">${text("gift.player.report")}</button> ${recipientViralCta()}</div></section>`;
+        main.innerHTML = `<section class="section"><div class="container"><div class="recipient-preferences">${localeControl()}</div><div id="canvas-public-player"></div>${gift.rsvp ? '<div data-rsvp-host></div>' : ''}<p class="recipient-disclaimer">${text("gift.player.forwarded")}</p><button class="btn btn--outline" data-action="report-content" data-kind="gift" data-id="${e(id)}">${text("gift.player.report")}</button> ${recipientViralCta()}</div></section>`;
         const player = mountPlayer(
           document.getElementById("canvas-public-player"),
           {
@@ -530,6 +533,14 @@ async function render() {
             player.dispose();
           },
         };
+        if (gift.rsvp) {
+          const { mountRsvp } = await import('../features/gifts/rsvp.js');
+          if (generation !== renderGeneration || lifetime.signal.aborted) return;
+          mountRsvp(main.querySelector('[data-rsvp-host]'), gift.rsvp, {
+            submit: async status => (await api.post(`${giftEndpoint}/rsvp${query}`, { status }, { signal: lifetime.signal })).rsvp,
+            signal: lifetime.signal, onClosed: closed,
+          });
+        }
       } else {
         await loadGiftViews();if(generation!==renderGeneration)return;
         main.innerHTML = giftPage(gift);
@@ -1067,8 +1078,8 @@ async function handleAction(action, element) {
     state.catalogPage = 1;
     state.freeOnly = false;
     state.photoOnly = false;
-    state.occasion=state.palette="all";
-    for(const id of ["occasion-filter","palette-filter"]){const control=document.getElementById(id);if(control)control.value="all";}
+    state.occasion=state.palette=state.cardType="all";
+    for(const id of ["occasion-filter","palette-filter","card-type-filter"]){const control=document.getElementById(id);if(control)control.value="all";}
     const style = document.getElementById("style-filter");
     if (style) style.value = state.filter;
     const search = document.getElementById("template-search");
@@ -1087,8 +1098,8 @@ async function handleAction(action, element) {
     state.filter = "all";
     state.freeOnly = false;
     state.photoOnly = false;
-    state.occasion=state.palette="all";
-    for(const id of ["occasion-filter","palette-filter"]){const control=document.getElementById(id);if(control)control.value="all";}
+    state.occasion=state.palette=state.cardType="all";
+    for(const id of ["occasion-filter","palette-filter","card-type-filter"]){const control=document.getElementById(id);if(control)control.value="all";}
     const style = document.getElementById("style-filter");
     const free = document.getElementById("free-filter");
     const photo = document.getElementById("photo-filter");
@@ -1439,6 +1450,12 @@ document.addEventListener("change", async (event) => {
   }
   if (["admin-payment-provider", "admin-payment-outcome"].includes(event.target.id)) {
     updateAdminPaymentList();
+    return;
+  }
+  if (event.target.id === 'card-type-filter') {
+    state.cardType = normalizeCardTypeFilter(event.target.value);
+    state.catalogPage = 1;
+    commitCatalogFilters();
     return;
   }
   if (["occasion-filter","palette-filter"].includes(event.target.id)) {state[event.target.id==="occasion-filter"?"occasion":"palette"]=event.target.value;state.catalogPage=1;commitCatalogFilters();return;}

@@ -11,6 +11,7 @@ import { pathToFileURL, fileURLToPath } from 'node:url';
 import { confirmGiftAccess } from '../browser/gift-access.mjs';
 import { runRecovery, simulatedGoogle } from './recovery-journey.mjs';
 import { runReplyIntents } from './reply-intents.mjs';
+import { runRsvpApi } from './rsvp.mjs';
 import { runExpandedApi } from './canvas-expanded.mjs';
 
 const require = createRequire(import.meta.url), driver = require('mysql2/promise'), sharp = require('sharp');
@@ -71,7 +72,7 @@ async function getDesign(id,c=cookie){return (await json(`/api/designs/designs/$
 async function create(source={kind:'blank'},presetId='envelope-basic'){return (await post('/api/designs/designs',cookie,{source,presetId,mutationId:uuid()},201)).design;}
 async function save(d,document=d.document){const ack=await post(`/api/designs/designs/${d.id}/save`,cookie,{expectedRevision:d.revision,mutationId:uuid(),title:d.title,document});assert.equal(ack.savedRevision,d.revision+1);return getDesign(d.id);}
 async function preflight(d){return post(`/api/designs/designs/${d.id}/preflight`,cookie,{expectedRevision:d.revision});}
-function publishBody(d,key=uuid()){return {designId:d.id,expectedRevision:d.revision,expectedDocumentHash:d.documentHash,idempotencyKey:key};}
+function publishBody(d,key=uuid()){return {designId:d.id,expectedRevision:d.revision,expectedDocumentHash:d.documentHash,idempotencyKey:key,access:{open:'link',send:'link',read:'link'}};}
 function fill(d){d.document.bindings.recipientName.value='Mai';d.document.bindings.senderName.value='An';d.document.bindings.message.value='Chúc mừng sinh nhật! Tiếng Việt: ă â ê ô ơ ư đ.';return d.document;}
 try{
   Object.assign(process.env,{NODE_ENV:'test',MYSQL_HOST:'127.0.0.1',MYSQL_PORT:String(port),MYSQL_DATABASE:database,MYSQL_USER:dbOptions.user,MYSQL_PASSWORD:dbOptions.password,
@@ -107,6 +108,8 @@ try{
     assert.deepEqual(rejected.details, checked.blockers);
     assert.deepEqual((await json('/api/gifts/gifts/mine', { cookie })).gifts, []);
   });
+  await check('RSVP MySQL HTTP: private receipt, concurrent writes, owner ACL and revoke', () =>
+    runRsvpApi((route, options) => request('/api' + route, { ...options, method: options.body ? 'POST' : 'GET' }), cookie, otherCookie));
   await check('C01/C05/C06 blank create/save/reload/CAS/lost ACK through HTTP MySQL',async()=>{
     const mutationId=uuid(),body={source:{kind:'blank'},presetId:'envelope-basic',mutationId};
     blank=(await post('/api/designs/designs',cookie,body,201)).design;const replay=await post('/api/designs/designs',cookie,body,201);assert.equal(replay.design.id,blank.id);assert.equal(replay.replayed,true);
@@ -304,7 +307,7 @@ try{
   }));
   await check('Real MySQL reply replay keeps one row, distinct intents and exact owner read state', async () => {
     const { gift } = await post('/api/gifts/gifts', cookie, {
-      templateId: 'sunny-wishes', recipientName: 'Mai', senderName: 'An', message: 'Hộp thư SQL QA.',
+      templateId: 'sunny-wishes', recipientName: 'Mai', senderName: 'An', message: 'Hộp thư SQL QA.', access: { open: 'link', send: 'link', read: 'link' },
     }, 201);
     await runReplyIntents(base, gift.slug, cookie, otherCookie);
     const [rows] = await admin.execute('SELECT read_status FROM gift_replies WHERE gift_id=? ORDER BY created_at,id', [gift.id]);

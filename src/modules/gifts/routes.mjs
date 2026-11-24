@@ -79,10 +79,20 @@ export function registerRoutes(router, { config, creationLimit, globalReplies, s
       'cache-control': 'private, no-store',
       'x-content-type-options': 'nosniff',
     });
-    fs.createReadStream(filePath).pipe(res);
+    const stream = fs.createReadStream(filePath);
+    // Tệp có thể biến mất sau khi kiểm tra tồn tại; không để lỗi stream làm sập backend.
+    stream.on('error', () => res.destroy());
+    res.on('close', () => stream.destroy());
+    stream.pipe(res);
   });
   router.on('GET', '/gifts/:slug/replies', async ({res,params,url}) => {
     sendJson(res, 200, { replies: await service.replies(params.slug, url.searchParams.get('invite'), url.searchParams.get('r')) });
+  });
+  router.on('POST', '/gifts/:slug/rsvp', async ({req,res,params,url}) => {
+    if (!globalReplies.consume('all')) throw localizedError(429, 'errors.gift.replyBusy');
+    const body = await parseJson(req, 1024);
+    const rsvp = await service.respondRsvp(params.slug, url.searchParams.get('invite'), url.searchParams.get('r'), body);
+    sendJson(res, 200, { rsvp });
   });
   router.on('POST', '/gifts/:slug/replies', async ({req,res,params,url}) => {
     if (!globalReplies.consume('all')) throw localizedError(429, 'errors.gift.replyBusy');

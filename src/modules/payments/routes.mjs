@@ -1,9 +1,10 @@
 import { parseJson, sendJson, localizedError } from '../../shared/http.mjs';
 import { currentUser, sanitizeText } from '../../shared/security.mjs';
+import { demoPurchaseAllowed } from '../checkout/demo-policy.mjs';
 export function registerPaymentRoutes(router, { service, config, resolveUser = currentUser }) {
   router.on('GET', '/payments/methods', ({ res }) => {
     const methods = service.methods();
-    sendJson(res, 200, { methods, ...(!methods.length && config.demoTemplateCheckout ? { demoPurchaseAvailable: true } : {}) });
+    sendJson(res, 200, { methods, ...(!methods.length && demoPurchaseAllowed(config, service.env) ? { demoPurchaseAvailable: true } : {}) });
   });
   router.on('POST', '/payments/create', async ({ req, res }) => {
     const user = await resolveUser(req, config.jwtSecret);

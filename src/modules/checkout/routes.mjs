@@ -7,6 +7,10 @@ export function registerRoutes(router, { config, service, resolveUser = currentU
     const user = await resolveUser(req, config.jwtSecret);
     sendJson(res, 200, { orders: await service.orders(user) });
   });
+  router.on('GET', '/licenses/:templateId', async ({req,res,params}) => {
+    const user = await resolveUser(req, config.jwtSecret);
+    sendJson(res, 200, await service.accessFor(user, sanitizeText(params.templateId, 100)));
+  });
   router.on('POST', '/orders/demo-purchase', async ({req,res}) => {
     const user = await resolveUser(req, config.jwtSecret);
     const data = await parseJson(req, 4096);

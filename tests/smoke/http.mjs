@@ -111,8 +111,13 @@ async function legacy(base, adminCode) {
   assert(!('userId' in publicGift));
   await call(route + '/replies', { body: { name: 'Mai', message: 'Cảm ơn bạn!' }, status: 201 });
   assert.equal((await call(route + '/replies')).data.replies.length, 1);
+  const licenseRoute = `/checkout/licenses/${encodeURIComponent(paid.id)}`;
+  await call(licenseRoute, { status: 401 });
+  assert.deepEqual((await call(licenseRoute, { cookie })).data, { templateId: paid.id, free: false, licensed: false });
+  assert.deepEqual((await call(`/checkout/licenses/${encodeURIComponent(free.id)}`, { cookie })).data, { templateId: free.id, free: true, licensed: true });
   const purchase = await call('/checkout/orders/demo-purchase', { cookie, body: { templateId: paid.id }, status: 201 });
   assert.equal(purchase.data.order.status, 'demo_paid');
+  assert.equal((await call(licenseRoute, { cookie })).data.licensed, true);
   await call('/gifts/gifts', { cookie, body: { ...gift, templateId: paid.id }, status: 201 });
 
   await call('/auth/creator', { cookie, body: {}, status: 403 });

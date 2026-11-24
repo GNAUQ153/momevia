@@ -38,7 +38,7 @@ test('JSON Gifts remains compatible after asynchronous MySQL adapter conversion'
 test('JSON Checkout preserves free templates and duplicate demo purchase idempotency', async () => {
   const orders=[];
   const repo={all:()=>orders,insert(item){orders.push(item);return item;}};
-  const service=new CheckoutService({repository:repo,config:{demoEnabled:true},catalog});
+  const service=new CheckoutService({repository:repo,config:{demoEnabled:true,demoTemplateCheckout:true},env:{NODE_ENV:"test"},catalog});
   assert.equal((await service.purchase(user,'free')).status,'free');
   const first=await service.purchase(user,'paid');
   const second=await service.purchase(user,'paid');

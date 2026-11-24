@@ -18,7 +18,7 @@ const fixture = fs.mkdtempSync(path.join(fs.realpathSync(os.tmpdir()), 'momevia-
 let child, base, logs = ''; const cases = [];
 async function launch(extra = {}) {
   const env = { ...process.env, NODE_ENV: 'test', PORT: '0', PUBLIC_BASE_URL: 'http://127.0.0.1',
-    JWT_SECRET: randomBytes(32).toString('hex'), INTERNAL_SERVICE_KEY: randomBytes(32).toString('hex'), DEMO_AUTH_ENABLED: 'true', DEMO_ADMIN_CODE: 'synthetic-admin',
+    JWT_SECRET: randomBytes(32).toString('hex'), INTERNAL_SERVICE_KEY: randomBytes(32).toString('hex'), DEMO_AUTH_ENABLED: 'true', DEMO_TEMPLATE_CHECKOUT_ENABLED: 'true', DEMO_ADMIN_CODE: 'synthetic-admin',
     IDENTITY_STORAGE: 'json', CATALOG_STORAGE: 'json', CHECKOUT_STORAGE: 'json', GIFTS_STORAGE: 'json', SUPPORT_STORAGE: 'json', DESIGNS_STORAGE: 'json',
     PAYMENT_ENABLED: 'false', PAYMENT_LIVE_ENABLED: 'false', CANVAS_READ_ENABLED: 'true', CANVAS_EDIT_ENABLED: 'true', CANVAS_PUBLISH_ENABLED: 'true',
     TEST_ACCOUNT_ENABLED: 'false', ...extra };

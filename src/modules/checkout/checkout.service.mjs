@@ -1,15 +1,16 @@
 import { randomUUID } from 'node:crypto';
-import { HttpError } from '../../shared/http.mjs';
+import { HttpError, localizedError } from '../../shared/http.mjs';
+import { demoPurchaseAllowed } from './demo-policy.mjs';
 
 export class CheckoutService {
-  constructor({ repository, config, catalog }) { Object.assign(this, { repository, config, catalog }); }
+  constructor({ repository, config, catalog, env = process.env }) { Object.assign(this, { repository, config, catalog, env }); }
   async orders(user) {
     if (this.repository.allForUser) return this.repository.allForUser(user.sub);
     return this.repository.all().filter(order => order.userId === user.sub).reverse();
   }
   async purchase(user, templateId) {
-    if (!this.config.demoEnabled)
-      throw new HttpError(503, 'Thanh toán thực chưa được cấu hình. Chế độ đơn hàng demo đã tắt.');
+    if (!demoPurchaseAllowed(this.config, this.env))
+      throw localizedError(503, 'errors.payment.method');
     const template = await this.catalog.getTemplate(templateId);
     if (template.price === 0) return { free: true, templateId, status: 'free' };
     if (!Number.isSafeInteger(template.price) || template.price < 0 || template.price > 500000)
@@ -29,6 +30,14 @@ export class CheckoutService {
       createdAt: new Date().toISOString(),
     };
     return this.repository.insert(order);
+  }
+  // API chỉ trả quyền của người dùng hiện tại; không dùng lịch sử đơn hàng làm quyền trên MySQL.
+  async accessFor(user, templateId) {
+    const template = await this.catalog.getTemplate(templateId);
+    if (!Number.isSafeInteger(template.price) || template.price < 0)
+      throw localizedError(503, 'errors.unavailable');
+    const free = template.price === 0;
+    return { templateId: template.id, free, licensed: free || await this.hasLicense(user.sub, template.id) === true };
   }
   async hasLicense(userId, templateId) {
     if (this.repository.hasLicense) return this.repository.hasLicense(userId, templateId);

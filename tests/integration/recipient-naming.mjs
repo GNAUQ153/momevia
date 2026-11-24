@@ -159,6 +159,7 @@ try {
       const saved=await save(design), preflight=await api(`/designs/designs/${saved.id}/preflight`,{expectedRevision:saved.revision});
       assert.equal(preflight.authorization.status,'needs_template_license');assert(!preflight.blockers.some(b=>b.path==='bindings.recipientName'));
       app.modules.checkout.service.config.demoEnabled=true;
+      app.modules.checkout.service.config.demoTemplateCheckout=true;
       const {order}=await api('/checkout/orders/demo-purchase',{templateId:'midnight-bloom'},owner,201);
       const {context}=await api(`/checkout/payments/orders/${order.id}/design-contexts`,{designId:saved.id,expectedRevision:saved.revision,expectedDocumentHash:saved.documentHash,mutationId:randomUUID()},owner,201);
       const resumed=await api(`/checkout/payments/orders/${order.id}/design-contexts/${context.contextId}`);

@@ -1,3 +1,9 @@
+## Unreleased — Phase 2.3A Quyền sử dụng mẫu (2026-11-24)
+
+- Chỉ cấp giao dịch demo mới khi cả hai cờ demo bật, production và thanh toán đều tắt.
+- API kiểm tra quyền mẫu theo người dùng đã xác thực; form legacy không suy quyền từ trạng thái đơn hàng và không quảng cáo mua thử khi chưa bật.
+- Không đổi quyền đã mua, giá, số lượt xuất bản, dữ liệu thiệp hay schema MySQL. Tách kiểm soát quyền demo lịch sử và lượt xuất bản sang bước riêng.
+
 ## Unreleased — Phase 2.2 RSVP (2026-11-24)
 
 - Thêm xác nhận tham dự cho thiệp mời có thông tin sự kiện và mã nhận riêng hoặc tự điền tên.

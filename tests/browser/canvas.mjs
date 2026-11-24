@@ -258,7 +258,11 @@ export async function runCanvasBrowser(base, expiredSlug) {
     } finally { await guest.close(); }
     completed.push('blank draft blocked; bound greeting insertion, undo/redo, preview and anonymous publication');
     const freeTemplate = (await api('/catalog/templates')).data.templates.find(template => template.price === 0);
-    const legacy = await api('/gifts/gifts', { templateId: freeTemplate.id, senderName: 'An', recipientName: 'Mai legacy', message: 'Mở lại quà cũ' });
+    // Ca kiểm thử danh sách phản hồi công khai cần chủ động cấp quyền đọc qua link.
+    const legacy = await api('/gifts/gifts', {
+      templateId: freeTemplate.id, senderName: 'An', recipientName: 'Mai legacy', message: 'Mở lại quà cũ',
+      access: { open: 'link', send: 'link', read: 'link' },
+    });
     assert.equal(legacy.status, 201);
     await checkShareInBrowser(browser, context, base, [blankGift, legacy.data.gift]);
     completed.push('canvas and legacy share across distinct hostnames; QR decoded; clipboard fallback and Studio actions fit at 320/390px');

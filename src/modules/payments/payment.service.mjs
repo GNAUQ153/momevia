@@ -30,6 +30,7 @@ export class PaymentService {
     // One lookup per buyer/order/30 seconds; limits provider API abuse in a single-process deployment.
     this.reconcileLimiter = reconcileLimiter || new RateLimiter({ limit: 1, windowMs: 30_000, maxKeys: 5000 });
     this.ownsReconcileLimiter = !reconcileLimiter;
+    this.repurchaseLinks = new Map();
   }
   close() { if (this.ownsReconcileLimiter) this.reconcileLimiter.close(); }
   provider(name) {
@@ -48,7 +49,23 @@ export class PaymentService {
       throw localizedError(503, 'errors.payment.url');
     return base;
   }
-  async create(user, templateId, method) {
+  // Chỉ mở mua thêm trong cấu hình QA đã có cả quota và khóa scope.
+  repurchaseAvailable() {
+    return this.repository.quotaEnabled === true && this.repository.scopedCheckout === true
+      && ['test', 'development'].includes(this.env.NODE_ENV)
+      && this.env.PAYMENT_LIVE_ENABLED !== 'true' && !Object.keys(this.env).some(key => key.startsWith('RAILWAY_'))
+      && configuredPaymentScope(this.env, 'momo') === true && this.methods().some(method => method.id === 'momo');
+  }
+  async repurchaseCandidate(user, templateId) {
+    if (!this.repurchaseAvailable()) throw localizedError(503, 'errors.payment.method');
+    return { previousOrderId: await this.repository.repurchaseCandidate(user.sub, templateId) };
+  }
+  async create(user, templateId, method, previousOrderId) {
+    if (previousOrderId !== undefined) {
+      if (!this.repurchaseAvailable() || method !== 'momo') throw localizedError(503, 'errors.payment.method');
+      if (typeof previousOrderId !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(previousOrderId))
+        throw localizedError(400, 'errors.payment.invalidOrder');
+    }
     const base = this.requireReady(method);
     const template = await this.catalog.getTemplate(templateId);
     const amount = template.price;
@@ -56,18 +73,37 @@ export class PaymentService {
       throw localizedError(400, 'errors.payment.priceRange');
     if (this.env.CHECKOUT_STORAGE !== 'mysql' || this.env.IDENTITY_STORAGE !== 'mysql' || this.env.CATALOG_STORAGE !== 'mysql')
       throw localizedError(503, 'errors.payment.storage');
-    if (this.checkout && await this.checkout.hasLicense(user.sub, templateId))
+    if (previousOrderId === undefined && this.checkout && await this.checkout.hasLicense(user.sub, templateId))
       throw localizedError(409, 'errors.payment.alreadyLicensed');
-    // One pending or paid intent for each buyer/template; requests from the browser cannot set paid status.
+    // Mua lần đầu giữ khóa cũ; mua thêm dùng ID đơn đã tiêu hao làm khóa retry.
     const intent = await this.repository.createPending({
       userId: user.sub, templateId, title: template.title, amount, provider: method,
       isTest: this.env.PAYMENT_ENV !== 'production',
+      ...(previousOrderId === undefined ? {} : { previousOrderId }),
     });
     // A stale/settled intent is not a new checkout; never return it as a successful create.
     if (intent.status !== 'pending') throw localizedError(409, 'errors.payment.previousClosed');
     // Check the provider BEFORE returning any cached checkout link.
     if (intent.provider !== method) throw localizedError(409, 'errors.payment.otherMethod');
     if (intent.checkoutUrl) return intent;
+    if (previousOrderId !== undefined) return this.repurchaseLink(user, intent, base);
+    return this.createLink(intent, base, method);
+  }
+  async repurchaseLink(user, intent, base) {
+    // Gộp yêu cầu tạo link đồng thời trong cùng backend process; không tạo intent mới khi mất ACK.
+    if (!this.repurchaseLinks.has(intent.id)) {
+      const work = (async () => {
+        const latest = await this.repository.forUser(intent.orderId, user.sub);
+        if (!latest || latest.id !== intent.id || latest.status !== 'pending' || latest.provider !== 'momo' || latest.isTest !== true)
+          throw localizedError(409, 'errors.payment.previousClosed');
+        return latest.checkoutUrl ? latest : this.createLink(latest, base, 'momo');
+      })();
+      this.repurchaseLinks.set(intent.id, work);
+      try { return await work; } finally { this.repurchaseLinks.delete(intent.id); }
+    }
+    return this.repurchaseLinks.get(intent.id);
+  }
+  async createLink(intent, base, method) {
     const provider = this.provider(method);
     const urls = {
       returnUrl: new URL(`/payment-result/${encodeURIComponent(intent.orderId)}`, base).href,

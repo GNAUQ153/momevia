@@ -4,14 +4,18 @@ import { demoPurchaseAllowed } from '../checkout/demo-policy.mjs';
 export function registerPaymentRoutes(router, { service, config, resolveUser = currentUser }) {
   router.on('GET', '/payments/methods', ({ res }) => {
     const methods = service.methods();
-    sendJson(res, 200, { methods, ...(!methods.length && demoPurchaseAllowed(config, service.env) ? { demoPurchaseAvailable: true } : {}) });
+    sendJson(res, 200, { methods, ...(service.repurchaseAvailable?.() ? { repurchaseAvailable: true } : {}), ...(!methods.length && demoPurchaseAllowed(config, service.env) ? { demoPurchaseAvailable: true } : {}) });
+  });
+  router.on('GET', '/payments/repurchase/:templateId', async ({ req, res, params }) => {
+    const user = await resolveUser(req, config.jwtSecret);
+    sendJson(res, 200, await service.repurchaseCandidate(user, sanitizeText(params.templateId, 100)));
   });
   router.on('POST', '/payments/create', async ({ req, res }) => {
     const user = await resolveUser(req, config.jwtSecret);
     const data = await parseJson(req, 2048);
     const templateId = sanitizeText(data.templateId, 100);
     const method = sanitizeText(data.method, 30);
-    sendJson(res, 201, { payment: await service.create(user, templateId, method) });
+    sendJson(res, 201, { payment: await service.create(user, templateId, method, data.previousOrderId) });
   });
   router.on('GET', '/payments/orders/:orderId', async ({ req, res, params }) => {
     const user = await resolveUser(req, config.jwtSecret);

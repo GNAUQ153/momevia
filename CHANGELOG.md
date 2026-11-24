@@ -1,3 +1,9 @@
+## Unreleased — Phase 2.4B4 Mua thêm lượt xuất bản QA (2026-11-24)
+
+- Migration 019 lưu liên kết đơn đã tiêu hao với intent mua tiếp; khóa chủ tài khoản, giữ khóa cũ và chống tạo đơn mới khi retry.
+- Checkout Canvas/Legacy lấy đề xuất mua thêm từ backend, đồng bộ VI/EN, chỉ mở trên MySQL QA với quota, khóa scope và MoMo Sandbox.
+- Giữ quyền lịch sử, dữ liệu thiệp, Motion Stack và Floating CTA; chưa kích hoạt trên production, chưa hỗ trợ mua lại demo hay giải phóng đơn pending.
+
 ## Unreleased — Phase 2.4B3 Quota xuất bản QA (2026-11-24)
 
 - Migration 018 tạo credit theo entitlement, cấp và tiêu hao cùng transaction ở MySQL Canvas/Legacy.

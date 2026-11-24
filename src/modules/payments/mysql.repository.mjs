@@ -8,6 +8,7 @@ import { ReconciliationAudit } from './reconciliation-audit.mjs';
 import { RefundReviewRepository } from './refund-review.mjs';
 import { storedPaymentScope, samePaymentScope } from './payment-scope.mjs';
 import { findScopedCheckout, rememberScopedCheckout } from './checkout-scope-keys.mjs';
+import { findRepurchase, rememberRepurchase, repurchaseCandidate } from './publication-repurchase.mjs';
 import { grantPublicationCredit } from '../checkout/publication-credit.mjs';
 
 const fromJson = value => typeof value === 'string' ? JSON.parse(value) : (value || {});
@@ -20,9 +21,16 @@ export class MySqlPaymentRepository {
   async adminFinance() { return this.finance.adminOverview(); }
   async adminFinanceExceptions(limit) { return this.audit.exceptions(limit); }
 
-  async createPending({ userId, templateId, title, amount, provider, isTest }) {
+  async repurchaseCandidate(userId, templateId) {
+    if (!this.quotaEnabled || !this.scopedCheckout) throw localizedError(503, 'errors.payment.storage');
+    return repurchaseCandidate(this.client, userId, templateId);
+  }
+
+  async createPending({ userId, templateId, title, amount, provider, isTest, previousOrderId }) {
     if (typeof isTest !== 'boolean') throw new Error('Invalid checkout environment');
     if (this.quotaEnabled && !isTest) throw localizedError(503, 'errors.payment.reviewEnvironment');
+    if (previousOrderId !== undefined && (!this.quotaEnabled || !this.scopedCheckout || !isTest))
+      throw localizedError(503, 'errors.payment.reviewEnvironment');
     const now = new Date().toISOString();
     const orderId = randomUUID();
     const intentId = randomUUID();
@@ -46,6 +54,15 @@ export class MySqlPaymentRepository {
           VALUES (?,?,?,?,?,'pending')`, [intentId, orderId, provider, code, amount]);
     };
     const fresh = { id: intentId, orderId, code, amount, provider, status: 'pending', checkoutUrl: null, qrPayload: null, isTest };
+    if (previousOrderId !== undefined) {
+      return this.client.withTransaction(async tx => {
+        const existing = await findRepurchase(tx, { userId, templateId, previousOrderId, isTest, provider });
+        if (existing) return this.intentRow(existing);
+        await persist(tx);
+        await rememberRepurchase(tx, previousOrderId, intentId);
+        return fresh;
+      });
+    }
     if (this.scopedCheckout) {
       return this.client.withTransaction(async tx => {
         const { existing, legacy } = await findScopedCheckout(tx, userId, templateId, isTest);

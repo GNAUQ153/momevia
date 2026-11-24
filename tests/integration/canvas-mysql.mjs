@@ -342,7 +342,7 @@ try {
     const [[rights]] = await admin.execute('SELECT COUNT(*) AS total FROM template_entitlements WHERE order_id=?', [a.orderId]);
     assert.equal(Number(rights.total), 0);
   });
-  await check('Phase 2.4B3: credit grant, rollback, cross-flow competition and replay', async () => {
+  await check('Phase 2.4B3/B4: credit grant, rollback, cross-flow competition, repurchase and replay', async () => {
     await admin.query(await fs.readFile(new URL('../../database/migrations/018_publication_credits.sql', import.meta.url), 'utf8'));
     const quotaTemplate = 'canvas-quota-qa-template';
     await admin.execute(`INSERT INTO templates(id,title,style,theme,price_vnd,status,created_at,payload)
@@ -388,6 +388,36 @@ try {
     [owner, quotaTemplate, intent.orderId]);
     assert.deepEqual([Number(counts.gifts_count), Number(counts.credit_count)], [1, 1]);
     assert.equal((await checkout.publicationQuota(owner, templateId)).legacyUnlimited, true);
+    await admin.query(await fs.readFile(new URL('../../database/migrations/019_publication_repurchases.sql', import.meta.url), 'utf8'));
+    const repurchases = new MySqlPaymentRepository(db, { quotaEnabled: true, scopedCheckout: true });
+    const repurchases2 = new MySqlPaymentRepository(db2, { quotaEnabled: true, scopedCheckout: true });
+    assert.equal(await repurchases.repurchaseCandidate(owner, quotaTemplate), intent.orderId);
+    assert.equal(await repurchases.repurchaseCandidate(other, quotaTemplate), null);
+    const nextRequest = { userId: owner, templateId: quotaTemplate, title: 'Mẫu quota', amount: 10000,
+      provider: 'momo', isTest: true, previousOrderId: intent.orderId };
+    await assert.rejects(repurchases.createPending({ ...nextRequest, userId: other }), { status: 409 });
+    const [next, repeated] = await Promise.all([repurchases.createPending(nextRequest), repurchases2.createPending(nextRequest)]);
+    assert.equal(next.id, repeated.id);
+    assert.notEqual(next.orderId, intent.orderId);
+    assert.equal((await checkout.publicationQuota(owner, quotaTemplate)).remaining, 0);
+    const nextEvent = { ...event, code: next.code, reference: uuid() };
+    assert.equal((await repurchases.settleVerified(nextEvent, true)).replay, false);
+    assert.equal((await repurchases2.settleVerified(nextEvent, true)).replay, true);
+    assert.deepEqual(await checkout.publicationQuota(owner, quotaTemplate), { remaining: 1, consumed: 1, legacyUnlimited: false });
+    assert.equal(await repurchases.repurchaseCandidate(owner, quotaTemplate), null);
+    const secondGift = { ...legacyGift, id: uuid(), slug: uuid().replaceAll('-', '') };
+    await new MySqlGiftsRepository(db2, { quotaEnabled: true }).insert(secondGift);
+    assert.deepEqual(await checkout.publicationQuota(owner, quotaTemplate), { remaining: 0, consumed: 2, legacyUnlimited: false });
+    assert.equal((await repurchases.createPending(nextRequest)).id, next.id); // Retry cũ không tạo đơn thứ ba.
+    assert.equal(await repurchases.repurchaseCandidate(owner, quotaTemplate), next.orderId);
+    const third = await repurchases.createPending({ ...nextRequest, previousOrderId: next.orderId });
+    assert.notEqual(third.id, next.id);
+    const [[repurchaseCounts]] = await admin.execute(`SELECT
+      (SELECT COUNT(*) FROM orders WHERE user_id=? AND template_id=?) AS order_count,
+      (SELECT COUNT(*) FROM publication_credits c JOIN template_entitlements e ON e.id=c.entitlement_id WHERE e.user_id=? AND e.template_id=?) AS credit_count,
+      (SELECT COUNT(*) FROM publication_repurchases r JOIN orders o ON o.id=r.previous_order_id WHERE o.user_id=? AND o.template_id=?) AS repurchase_count`,
+    [owner, quotaTemplate, owner, quotaTemplate, owner, quotaTemplate]);
+    assert.deepEqual([Number(repurchaseCounts.order_count), Number(repurchaseCounts.credit_count), Number(repurchaseCounts.repurchase_count)], [3, 2, 2]);
   });
   console.log(`RESULT PASS ${count} isolated MySQL integration cases; mocks are not included.`);
 } finally {

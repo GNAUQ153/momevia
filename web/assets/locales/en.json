@@ -1963,6 +1963,8 @@
   "payment.checkout.orderAmount": "Order amount: {amount}",
   "payment.checkout.priceHint": "An open order may keep the price from when it was created. Momevia confirms the amount from the order on the server. Review your draft when you return and publish it when ready.",
   "payment.checkout.purchase": "Buy a template license",
+  "payment.checkout.repurchase": "Buy another publication credit",
+  "payment.checkout.repurchaseHint": "Your previous credit was used. A new test payment grants one more credit after verification.",
   "payment.checkout.qrAlt": "VietQR payment code",
   "payment.checkout.qrHint": "Use your banking app to scan the QR code. Keep the amount and transfer description as shown.",
   "payment.checkout.qrTitle": "Scan VietQR to pay",

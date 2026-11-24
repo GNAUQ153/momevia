@@ -235,7 +235,7 @@ async function openCanvasCheckout(context) {
     `<div class="support-modal"><h2>${text("payment.checkout.license")}</h2><p role="status">${text("payment.checkout.methodsLoading")}</p></div>`,
   );
   try {
-    const { methods, demoPurchaseAvailable } = await api.get("/checkout/payments/methods");
+    const { methods, demoPurchaseAvailable, repurchaseAvailable } = await api.get("/checkout/payments/methods");
     if (generation !== renderGeneration || canvasCheckout !== context) return;
     const templateId = context.design.source.templateId;
     if (!methods.length) {
@@ -246,12 +246,15 @@ async function openCanvasCheckout(context) {
       );
       return;
     }
+    const previousOrderId = repurchaseAvailable
+      ? (await api.get(`/checkout/payments/repurchase/${encodeURIComponent(templateId)}`)).previousOrderId : null;
+    if (generation !== renderGeneration || canvasCheckout !== context) return;
     const template = state.templates.find(item => item.id === templateId) || context.preflight.template;
     const title = template?.title ? templateValue(template, "title") : templateId;
     const amount = { format: "currency", value: Number(context.preflight.template?.price || 0) };
-    openModal(`<div class="support-modal"><h2>${text("payment.checkout.purchase")}</h2><p>${text("payment.checkout.templatePrice", { title, amount })}</p>
-      <p>${text("payment.checkout.priceHint")}</p>
-      ${methods.map((method) => `<button class="btn btn--outline btn--wide" data-action="start-payment" data-id="${e(templateId)}" data-method="${e(method.id)}">${paymentMethodText(method)}</button>`).join("")}</div>`);
+    openModal(`<div class="support-modal"><h2>${previousOrderId ? text("payment.checkout.repurchase") : text("payment.checkout.purchase")}</h2><p>${text("payment.checkout.templatePrice", { title, amount })}</p>
+      <p>${previousOrderId ? text("payment.checkout.repurchaseHint") : text("payment.checkout.priceHint")}</p>
+      ${methods.map((method) => `<button class="btn btn--outline btn--wide" data-action="start-payment" data-id="${e(templateId)}" data-method="${e(method.id)}"${previousOrderId ? ` data-previous-order-id="${e(previousOrderId)}"` : ""}>${paymentMethodText(method)}</button>`).join("")}</div>`);
   } catch (error) {
     if (generation !== renderGeneration || canvasCheckout !== context) return;
     openModal(
@@ -1229,12 +1232,16 @@ async function handleAction(action, element) {
   }
   if (action === "payment-options") {
     if (!requireLogin(location.pathname)) return;
-    const { methods } = await api.get("/checkout/payments/methods");
+    const generation = renderGeneration;
+    const { methods, repurchaseAvailable } = await api.get("/checkout/payments/methods");
     if (!methods.length)
       throw new Error(t("payment.checkout.unavailable"));
-    openModal(`<div class="support-modal"><h2>${text("payment.checkout.choose")}</h2>
-      <p>${text("payment.checkout.serverAmount")}</p>
-      ${methods.map((m) => `<button class="btn btn--outline btn--wide" type="button" data-action="start-payment" data-id="${e(element.dataset.id)}" data-method="${e(m.id)}">${paymentMethodText(m)}</button>`).join("")}
+    const previousOrderId = repurchaseAvailable
+      ? (await api.get(`/checkout/payments/repurchase/${encodeURIComponent(element.dataset.id)}`)).previousOrderId : null;
+    if (generation !== renderGeneration || !element.isConnected) return;
+    openModal(`<div class="support-modal"><h2>${previousOrderId ? text("payment.checkout.repurchase") : text("payment.checkout.choose")}</h2>
+      <p>${previousOrderId ? text("payment.checkout.repurchaseHint") : text("payment.checkout.serverAmount")}</p>
+      ${methods.map((m) => `<button class="btn btn--outline btn--wide" type="button" data-action="start-payment" data-id="${e(element.dataset.id)}" data-method="${e(m.id)}"${previousOrderId ? ` data-previous-order-id="${e(previousOrderId)}"` : ""}>${paymentMethodText(m)}</button>`).join("")}
     </div>`);
     return;
   }
@@ -1252,6 +1259,7 @@ async function handleAction(action, element) {
       const { payment } = await api.post("/checkout/payments/create", {
         templateId: element.dataset.id,
         method: element.dataset.method,
+        ...(element.dataset.previousOrderId ? { previousOrderId: element.dataset.previousOrderId } : {}),
       });
       if (!stillActive()) return;
       if (checkoutContext) {

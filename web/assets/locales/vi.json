@@ -1952,6 +1952,8 @@
   "payment.checkout.orderAmount": "Số tiền đơn: {amount}",
   "payment.checkout.priceHint": "Giao dịch đang mở có thể giữ giá tại lúc tạo. Số tiền xác nhận lấy từ intent của máy chủ. Bạn sẽ quay lại xem nháp trước khi tự xuất bản.",
   "payment.checkout.purchase": "Mua quyền sử dụng mẫu",
+  "payment.checkout.repurchase": "Mua thêm lượt xuất bản",
+  "payment.checkout.repurchaseHint": "Lượt trước đã được sử dụng. Giao dịch thử nghiệm mới cấp thêm một lượt khi được xác nhận.",
   "payment.checkout.qrAlt": "Mã VietQR thanh toán",
   "payment.checkout.qrHint": "Dùng ứng dụng ngân hàng quét mã QR, giữ đúng số tiền và nội dung chuyển khoản.",
   "payment.checkout.qrTitle": "Quét VietQR để thanh toán",

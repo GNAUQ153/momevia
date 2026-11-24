@@ -1,5 +1,7 @@
 # 50 element động và nhiều chuyển động trên một vật thể
 
+> Đợt tiếp theo đã đưa 50 mẫu vào MySQL cục bộ chính `momevia_dev`, cổng 4100, sau sao lưu và thử khôi phục. Xem [bàn giao cập nhật cục bộ](ANIMATED_ELEMENTS_LOCAL_MYSQL.md) và [hai CTA nổi](FLOATING_CREATION_CTA.md). Các kết quả 4191 bên dưới là bằng chứng của giai đoạn QA cô lập trước đó.
+
 Đã tích hợp trên nhánh `feat/animated-elements-50-20261124`, mã cục bộ và MySQL QA riêng. Không đẩy Git, không triển khai dịch vụ hay cập nhật dữ liệu người dùng thật.
 
 ## Xem và sử dụng

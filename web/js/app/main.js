@@ -1,3 +1,4 @@
+import {mountFloatingCta} from '../ui/floating-cta.js';
 import { api, errorCopy, escapeHtml as e } from "../core/api.js";
 import {takeCatalogBootstrap,rememberCatalogMetadata} from '../core/catalog-bootstrap.js';
 import {mountCoverLoading} from '../core/cover-loading.js';
@@ -28,6 +29,7 @@ import { createLatestRequest } from "../features/refund/latest-request.js";
 import { recipientViralCta } from "../ui/recipient-viral.js";
 import { createSystemViews } from "../pages/system.js";
 
+const floatingCta=mountFloatingCta();
 const main = document.getElementById("main");
 mountCoverLoading(main);
 const publicCatalogGet=endpoint=>(takeCatalogBootstrap(endpoint)?.catch(()=>api.get(endpoint))||api.get(endpoint)).then(rememberCatalogMetadata);
@@ -357,6 +359,7 @@ function mountHome() {
   } };
 }
 async function render() {
+  floatingCta.sync(location.pathname);
   const isHome = location.pathname === '/';
   const isAuth = /^\/(login|register|recover|verify-email)\/?$/.test(location.pathname);
   updatePageMetadata();

@@ -3153,5 +3153,8 @@
   "editor.library.group.23": "Sinh nhật và chúc mừng",
   "editor.library.group.24": "Hoa lá và khu vườn",
   "editor.library.group.25": "Bầu trời và ánh sáng",
-  "editor.library.group.26": "Giấy thư và kỷ vật"
+  "editor.library.group.26": "Giấy thư và kỷ vật",
+  "floatingCta.label": "Bắt đầu thiết kế",
+  "floatingCta.create": "Tạo mẫu ngay",
+  "floatingCta.explore": "Khám phá mẫu ngay"
 }

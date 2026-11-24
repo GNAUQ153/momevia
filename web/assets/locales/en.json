@@ -3165,5 +3165,8 @@
   "editor.library.group.23": "Birthday and celebration",
   "editor.library.group.24": "Flowers and garden",
   "editor.library.group.25": "Sky and light",
-  "editor.library.group.26": "Letters and keepsakes"
+  "editor.library.group.26": "Letters and keepsakes",
+  "floatingCta.label": "Start designing",
+  "floatingCta.create": "Create a design",
+  "floatingCta.explore": "Explore designs"
 }

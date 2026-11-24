@@ -1,3 +1,9 @@
+## Unreleased — Hai CTA nổi tạo mới và khám phá mẫu (2026-11-24)
+
+- Thêm ô nổi góc dưới phải với “Tạo mẫu ngay” mở Studio và “Khám phá mẫu ngay” mở thư viện. Luôn hiện khi duyệt trang, ẩn ngay trong các route editor và hiện lại khi rời đi; không tự lấy focus hoặc chuyển thông tin riêng của quà vào đích.
+- Trên điện thoại dùng hai nút cạnh nhau, có safe-area, vùng chạm tối thiểu 44 px, khoảng cuối trang và tránh che control đang focus. Giữ màu/font Momevia; CSS có trong cả bundle đầy đủ và bundle catalog; đủ VI/EN và reduced motion.
+- Bấm thật hai đích, đăng nhập/quay lại tạo mới, canvas thật, năm kích cỡ 320–1440 px và nhận quà/mở hộp/hồi đáp ẩn danh trên MySQL chính đạt. Build/check và 769 unit tests đạt; ảnh và bằng chứng tại `docs/FLOATING_CREATION_CTA.md`.
+
 ## Unreleased — Đưa 50 element động vào MySQL cục bộ (2026-11-24)
 
 - Cập nhật đúng thư viện `momevia_dev` đang phục vụ Studio 4100: 50 ID mới và tim; API có 293 element / 56 mục Chuyển động. Dùng gói baseline thật với revision/fingerprint, nối thứ tự mới và giữ các hàng thư viện khác.

@@ -1,6 +1,7 @@
 import { MySqlClient } from '../../infrastructure/mysql/client.mjs';
 import { mysqlDate } from '../identity/mysql.repositories.mjs';
 import { CheckoutService } from '../checkout/checkout.service.mjs';
+import { activeEntitlementSql } from '../checkout/entitlement-policy.mjs';
 import { canvasTransaction, canvasError, designFromRow, assetFromRow, ensureAssets,
   iso, jsonValue, lockOwner, lockedDesign, sameRequest, sameRevision } from './mysql.repository.mjs';
 
@@ -46,9 +47,7 @@ export class MySqlPublicationUnitOfWork {
           title: row.title, style: row.style, theme: row.theme, price: Number(row.price_vnd), status: row.status, createdAt: iso(row.created_at) };
         const [rights] = await tx.execute(`SELECT e.id FROM template_entitlements e
           INNER JOIN orders o ON o.id=e.order_id
-          WHERE e.user_id=? AND e.template_id=? AND e.revoked_at IS NULL
-          AND (o.status='paid' OR (o.status='demo_paid' AND o.is_test=1))
-          AND o.user_id=e.user_id AND o.template_id=e.template_id FOR UPDATE`, [ownerId, design.source.templateId]);
+          WHERE e.user_id=? AND e.template_id=? AND ${activeEntitlementSql} FOR UPDATE`, [ownerId, design.source.templateId]);
         licensed = rights.length > 0;
       }
       const lockedAssets = await ensureAssets(tx, ownerId, (design.document.assets || []).map(a => a.assetId));

@@ -91,18 +91,18 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Thêm xác nhận tham dự cho thiệp mời có thông tin sự kiện và mã nhận riêng hoặc tự điền tên.
-- Lưu một trạng thái theo lượt nhận, kiểm tra quyền và hạn sự kiện phía server; chủ thiệp xem thống kê riêng.
-- Không đổi schema MySQL, không mở RSVP trên thiệp cũ hoặc link chung không định danh.
+- Chỉ cấp giao dịch demo mới khi cả hai cờ demo bật, production và thanh toán đều tắt.
+- API kiểm tra quyền mẫu theo người dùng đã xác thực; form legacy không suy quyền từ trạng thái đơn hàng và không quảng cáo mua thử khi chưa bật.
+- Không đổi quyền đã mua, giá, số lượt xuất bản, dữ liệu thiệp hay schema MySQL. Tách kiểm soát quyền demo lịch sử và lượt xuất bản sang bước riêng.
 
 **Các commit gần nhất trên `main`:**
 
+- `6ad05ad` — fix(ci): cover disabled and enabled demo checkout browser scenarios (2026-11-24)
+- `b368b86` — feat(checkout): enforce demo purchase policy and authoritative template entitlement (2026-11-24)
 - `2966e32` — feat(rsvp): add private invitation attendance responses and sender summary (2026-11-24)
 - `2f45587` — feat(invitation): add structured event details and publication validation (2026-11-24)
 - `7c191f1` — fix(ci): update catalog contract test for card type metadata (2026-11-24)
 - `57ef881` — feat(catalog): distinguish invitation and greeting card types (2026-11-24)
-- `0b1c2a6` — fix(ci): align recipient browser test with private reply policy and add migration utility (2026-11-24)
-- `9f1362c` — feat(security): complete phase 01 production hardening (2026-11-24)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

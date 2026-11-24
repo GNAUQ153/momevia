@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { HttpError, localizedError } from '../../shared/http.mjs';
 import { demoPurchaseAllowed } from './demo-policy.mjs';
+import { legacyOrderActive, legacyOrderGroup, summarizeEntitlements } from './entitlement-policy.mjs';
 
 export class CheckoutService {
   constructor({ repository, config, catalog, env = process.env }) { Object.assign(this, { repository, config, catalog, env }); }
@@ -20,7 +21,7 @@ export class CheckoutService {
       userId: user.sub, templateId, templateTitle: template.title, grossAmount: template.price,
     });
     const previous = this.repository.all().find(order =>
-      order.userId === user.sub && order.templateId === templateId && ['demo_paid','paid'].includes(order.status));
+      order.userId === user.sub && order.templateId === templateId && legacyOrderActive(order));
     if (previous) return previous;
     const order = {
       id: randomUUID(), userId: user.sub, templateId, templateTitle: template.title,
@@ -39,9 +40,31 @@ export class CheckoutService {
     const free = template.price === 0;
     return { templateId: template.id, free, licensed: free || await this.hasLicense(user.sub, template.id) === true };
   }
+  async entitlementSummary(userId, templateId) {
+    if ((userId === undefined) !== (templateId === undefined)) throw new Error('Incomplete entitlement scope');
+    if (this.repository.entitlementGroups) {
+      return summarizeEntitlements(await this.repository.entitlementGroups(userId, templateId), 'entitlements');
+    }
+    if (!this.repository.all) throw localizedError(503, 'errors.unavailable');
+    const orders = this.repository.all().filter(order => userId === undefined ||
+      (order.userId === userId && order.templateId === templateId));
+    return summarizeEntitlements(orders.map(legacyOrderGroup), 'legacy_orders');
+  }
+  async entitlementDetails(user, templateId) {
+    const template = await this.catalog.getTemplate(templateId);
+    if (!Number.isSafeInteger(template.price) || template.price < 0)
+      throw localizedError(503, 'errors.unavailable');
+    const summary = await this.entitlementSummary(user.sub, template.id);
+    const free = template.price === 0;
+    return { templateId: template.id, free, licensed: free || summary.totals.active > 0, ...summary };
+  }
+  async adminEntitlementSummary(user) {
+    if (user?.role !== 'admin') throw localizedError(403, 'errors.payment.adminReview');
+    return this.entitlementSummary();
+  }
   async hasLicense(userId, templateId) {
     if (this.repository.hasLicense) return this.repository.hasLicense(userId, templateId);
     return this.repository.all().some(order =>
-      order.userId === userId && order.templateId === templateId && ['demo_paid','paid'].includes(order.status));
+      order.userId === userId && order.templateId === templateId && legacyOrderActive(order));
   }
 }

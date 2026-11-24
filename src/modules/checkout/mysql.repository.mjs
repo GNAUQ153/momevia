@@ -1,6 +1,8 @@
 import { randomUUID } from 'node:crypto';
 import { MySqlClient } from '../../infrastructure/mysql/client.mjs';
 import { mysqlDate } from '../identity/mysql.repositories.mjs';
+import { localizedError } from '../../shared/http.mjs';
+import { activeEntitlementSql, entitlementSourceSql, entitlementStateSql } from './entitlement-policy.mjs';
 
 function iso(value) {
   if (value instanceof Date) return value.toISOString();
@@ -27,11 +29,21 @@ export class MySqlCheckoutRepository {
   async hasLicense(userId, templateId) {
     const [rows] = await this.client.execute(`SELECT 1 AS licensed FROM template_entitlements e
       INNER JOIN orders o ON o.id=e.order_id
-      WHERE e.user_id=? AND e.template_id=? AND e.revoked_at IS NULL
-        AND (o.status='paid' OR (o.status='demo_paid' AND o.is_test=1))
-        AND o.user_id=e.user_id AND o.template_id=e.template_id
+      WHERE e.user_id=? AND e.template_id=? AND ${activeEntitlementSql}
       LIMIT 1`, [userId, templateId]);
     return rows.length > 0;
+  }
+
+  // Tổng hợp chỉ đọc; không trả ID đơn, ID người dùng hoặc payload giao dịch.
+  async entitlementGroups(userId, templateId) {
+    const scoped = userId !== undefined && templateId !== undefined;
+    if (!scoped && (userId !== undefined || templateId !== undefined)) throw new Error('Incomplete entitlement scope');
+    const [rows] = await this.client.execute(`SELECT ${entitlementSourceSql} AS source,
+      ${entitlementStateSql} AS state, COUNT(*) AS total
+      FROM template_entitlements e INNER JOIN orders o ON o.id=e.order_id
+      ${scoped ? 'WHERE e.user_id=? AND e.template_id=?' : ''}
+      GROUP BY source, state`, scoped ? [userId, templateId] : []);
+    return rows;
   }
 
   async purchaseDemo({ userId, templateId, templateTitle, grossAmount }) {
@@ -62,11 +74,17 @@ export class MySqlCheckoutRepository {
       return order;
     } catch (error) {
       if (error?.code !== 'ER_DUP_ENTRY') throw error;
-      // Never blindly turn duplicate-key errors into success; ensure the license key exists.
-      const [rows] = await this.client.execute(`SELECT o.* FROM demo_purchases d
+      // Chỉ trả lại giao dịch demo cũ nếu chính entitlement của đơn đó vẫn hợp lệ.
+      // Không cấp lại quyền đã thu hồi và không trả thành công giả khi thiếu entitlement.
+      const [rows] = await this.client.execute(`SELECT o.*, CASE WHEN e.id IS NOT NULL
+        AND o.user_id=d.user_id AND o.template_id=d.template_id
+        AND o.payment_provider='local_demo_only' AND o.is_test=1 AND o.status='demo_paid'
+        AND ${activeEntitlementSql} THEN 1 ELSE 0 END AS active_demo FROM demo_purchases d
         INNER JOIN orders o ON o.id=d.order_id
+        LEFT JOIN template_entitlements e ON e.order_id=o.id
         WHERE d.user_id=? AND d.template_id=? LIMIT 1`, [userId, templateId]);
       if (!rows.length) throw error;
+      if (Number(rows[0].active_demo) !== 1) throw localizedError(409, 'errors.payment.previousClosed');
       return rowToOrder(rows[0]);
     }
   }

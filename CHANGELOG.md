@@ -1,3 +1,9 @@
+## Unreleased — Đưa 50 element động vào MySQL cục bộ (2026-11-24)
+
+- Cập nhật đúng thư viện `momevia_dev` đang phục vụ Studio 4100: 50 ID mới và tim; API có 293 element / 56 mục Chuyển động. Dùng gói baseline thật với revision/fingerprint, nối thứ tự mới và giữ các hàng thư viện khác.
+- Sao lưu SQL đầy đủ và 14 media, khôi phục thử 36 bảng trên schema riêng và so hash dữ liệu trước khi áp dụng. Lệnh live mới có xác nhận target cụ thể, kiểm checksum, dry-run/áp dụng/rollback; giữ nguyên guard của các lệnh QA cũ. Chạy lại ghi 0, rollback chỉ xem trước.
+- Kiểm đủ 50 mẫu qua Studio, lưu/reload, preview và link quà trên DB chính bằng tài khoản tổng hợp riêng; giữ hash tất cả hàng nghiệp vụ đã có. SQL, tài khoản và cookie giữ trong thư mục private/local được gitignore.
+
 ## Unreleased — 50 vật thể động và chuyển động nhiều dòng (2026-11-24)
 
 - Thêm đúng 50 thiết kế vector nội bộ, năm nhóm × mười ID; tìm VI có dấu/không dấu và EN trong Thêm → Chuyển động, thumbnail tĩnh, phát thử riêng và chỉnh màu trong cùng mục.

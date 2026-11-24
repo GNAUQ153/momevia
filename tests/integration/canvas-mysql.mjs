@@ -10,6 +10,7 @@ import { MySqlPublicationUnitOfWork } from '../../src/modules/designs/mysql-publ
 import { MySqlGiftsRepository } from '../../src/modules/gifts/mysql.repositories.mjs';
 import { MySqlCheckoutRepository } from '../../src/modules/checkout/mysql.repository.mjs';
 import { CheckoutService } from '../../src/modules/checkout/checkout.service.mjs';
+import { MySqlPaymentRepository } from '../../src/modules/payments/mysql.repository.mjs';
 
 const require = createRequire(import.meta.url);
 const driver = require('mysql2/promise');
@@ -264,6 +265,36 @@ try {
     await assert.rejects(checkout.adminEntitlementSummary(buyer), { status: 403 });
     const all = await checkout.adminEntitlementSummary({ sub: owner, role: 'admin' });
     assert.deepEqual(all.totals, { active: 2, revoked: 2, inactive: 1 });
+  });
+  await check('Phase 2.4A: publication usage counts committed gifts, not retries or other owners', async () => {
+    const checkout = new CheckoutService({ repository: new MySqlCheckoutRepository(db) });
+    const buyer = { sub: owner };
+    const before = await checkout.publicationUsage(buyer, templateId);
+    const otherBefore = await checkout.publicationUsage({ sub: other }, templateId);
+    const request = publishRequest(paid);
+    const first = await uow.publish(owner, request, 'publication-usage', builder({ paid: true }));
+    const replay = await uow2.publish(owner, request, 'publication-usage', builder({ paid: true }));
+    assert.equal(first.gift.id, replay.gift.id);
+    const after = await checkout.publicationUsage(buyer, templateId);
+    assert.equal(after.total, before.total + 1);
+    assert.equal(after.sources.template, before.sources.template + 1);
+    assert.equal(after.sources.legacy, before.sources.legacy);
+    assert.equal(after.quotaEnforced, false);
+    await admin.execute("UPDATE gifts SET payload=JSON_SET(payload,'$.revokedAt',?) WHERE id=?", [now, first.gift.id]);
+    assert.deepEqual(await checkout.publicationUsage(buyer, templateId), after);
+    assert.deepEqual(await checkout.publicationUsage({ sub: other }, templateId), otherBefore);
+  });
+  await check('Phase 2.4A: checkout replay never crosses sandbox/live mode', async () => {
+    const payments = new MySqlPaymentRepository(db);
+    const request = { userId: other, templateId, title: 'Mẫu thử', amount: 10000, provider: 'momo', isTest: true };
+    const first = await payments.createPending(request);
+    const replay = await payments.createPending(request);
+    assert.equal(replay.id, first.id);
+    assert.equal(replay.isTest, true);
+    await assert.rejects(payments.createPending({ ...request, isTest: false }), { status: 409 });
+    const [rows] = await admin.execute(`SELECT COUNT(*) AS total FROM payment_checkout_keys WHERE user_id=? AND template_id=?`, [other,templateId]);
+    assert.equal(Number(rows[0].total), 1);
+    assert.equal((await payments.forUser(first.orderId, other)).isTest, true);
   });
   console.log(`RESULT PASS ${count} isolated MySQL integration cases; mocks are not included.`);
 } finally {

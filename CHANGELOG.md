@@ -19,6 +19,12 @@
 - Gói riêng 51 mục có preview, revision/fingerprint, gián đoạn/chạy tiếp, chạy lại và rollback; chỉ cho phép CLI ghi MySQL QA loopback có opt-in. Seed DB mới và gói cập nhật dùng chung định nghĩa.
 - Đối chiếu SHA nguồn QA với toàn bộ thay đổi từ baseline, kể cả file đã stage/commit và các contract giữ nguyên. Kiểm 50/50 Studio/preview/player, API MySQL và Admin; đo ma trận tim, kết hợp góc/opacity, reduced motion, thao tác di động, frame pacing và chi phí mở lạnh. Build/check, 767 unit và Canvas browser regression đạt; phạm vi và giới hạn thiết bị/trình duyệt được ghi trong `docs/ANIMATED_ELEMENTS_50.md`. Chưa phát hành ra môi trường người dùng thật.
 
+## Unreleased — Phase 2.4A Đối soát xuất bản (2026-11-24)
+
+- API chỉ đọc số thiệp đã lưu theo mẫu và chủ thiệp trên MySQL, tách legacy và Canvas; không suy ra số lượt còn lại.
+- Chặn trả lại checkout sandbox/live khác môi trường, giữ nguyên khóa giao dịch để đối soát.
+- Không tiêu hao entitlement, không thay đổi dữ liệu hoặc schema; bổ sung kiểm thử trước khi áp dụng hạn mức.
+
 ## Unreleased — Phase 2.3B Vòng đời quyền sử dụng (2026-11-24)
 
 - Thống kê quyền live, sandbox, demo và chưa xác định; phân biệt active, revoked và inactive, với API chỉ đọc theo chủ quyền hoặc Admin.

@@ -91,17 +91,17 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Cập nhật kiểm tra bìa Hero VI/EN theo biến thể `-catalog.svg` đang dùng, giữ kiểm tra chính xác template và thư mục ngôn ngữ.
-- Ca bìa lỗi chặn đúng URL catalog và xác minh yêu cầu đã bị chặn trước khi kiểm tra giữ bìa/player hiện tại.
+- Cập nhật dữ liệu kỳ vọng của test vòng đời 28 mẫu theo cấu hình người nhận mặc định của nháp Sender mới; giữ so sánh đầy đủ document, ảnh riêng, lưu/tải lại và snapshot xuất bản.
+- Giữ các ca tương thích template cũ và kiểm tra retry mất ACK độc lập với phần đánh dấu cá nhân hóa mới.
 
 **Các commit gần nhất trên `main`:**
 
+- `527e646` — Merge pull request #26 from GNAUQ153/feat/recipient-naming-20261124 (2026-11-24)
 - `2ddfdea` — test(ci): sync release fixture with natural library bundles (2026-11-24)
 - `c6e0bbf` — fix(ci): include natural library bundles in release (2026-11-24)
 - `b93a13c` — fix(storage): support persistent Railway volume (2026-11-24)
 - `85ef36a` — Merge pull request #25 from GNAUQ153/feat/template-refresh-live-20261123 (2026-11-23)
 - `83aeb10` — Merge pull request #24 from GNAUQ153/feat/recorded-audio-library (2026-11-23)
-- `126e147` — feat(canvas): add accessible mobile undo redo toolbar (2026-11-23)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

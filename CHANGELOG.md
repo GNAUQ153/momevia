@@ -1,3 +1,8 @@
+## Unreleased — Sửa hồi quy CI PR #26 (2026-11-24)
+
+- Cập nhật dữ liệu kỳ vọng của test vòng đời 28 mẫu theo cấu hình người nhận mặc định của nháp Sender mới; giữ so sánh đầy đủ document, ảnh riêng, lưu/tải lại và snapshot xuất bản.
+- Giữ các ca tương thích template cũ và kiểm tra retry mất ACK độc lập với phần đánh dấu cá nhân hóa mới.
+
 ## Unreleased — Đổi dấu phân cách giao diện sang gạch ngang (2026-11-24)
 
 - Thay dấu chấm nổi phân cách bằng `-` trong giao diện VI/EN, Studio, quyền/trạng thái, thư viện, âm thanh và các lựa chọn tương tác. Nhãn lấy từ phiên bản thư viện cũ cũng hiển thị theo quy tắc mới.

@@ -64,6 +64,9 @@ try {
     const mutationId = randomUUID(); const created = await current.request('/designs/designs', { source: { kind: 'template', templateId: template.id }, presetId: 'envelope-basic', mutationId }, 201);
     let d = created.design;
     const expectedPreset = createDocument({ template });
+    // A new Sender draft opts into versioned manual recipient naming; the
+    // template factory and historical documents remain unchanged.
+    expectedPreset.personalization = { version: 1, mode: 'manual' };
     assert.equal(d.document.assets.length, expectedPreset.assets.length);
     for (const [index, ref] of expectedPreset.assets.entries()) {
       const media = builtinMedia(ref.assetId), original = ref.assetId, owned = d.document.assets[index].assetId;

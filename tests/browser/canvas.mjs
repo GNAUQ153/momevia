@@ -464,7 +464,23 @@ export async function runCanvasBrowser(base, expiredSlug) {
     await page.route('**/api/checkout/payments/methods', route => route.fulfill({ status: 503, contentType: 'application/json', body: JSON.stringify({ error: 'Lỗi methods giả lập' }) }));
     await control('preview').click(); await control('preview-send').click();
     await page.getByRole('heading', { name: 'Không tải được phương thức' }).waitFor();
-    await page.unroute('**/api/checkout/payments/methods'); await page.locator('[data-action="retry-canvas-payment"]').click(); await page.getByRole('heading', { name: 'Chưa có phương thức thanh toán' }).waitFor();
+    // Mô phỏng trường hợp không có phương thức thanh toán và không được mua thử.
+    await page.unroute('**/api/checkout/payments/methods');
+    await page.route('**/api/checkout/payments/methods', route => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ methods: [] }) }));
+    await page.locator('[data-action="retry-canvas-payment"]').click();
+    await page.getByRole('heading', { name: 'Chưa có phương thức thanh toán' }).waitFor();
+    assert.equal(await page.locator('[data-action="demo-buy"]').count(), 0);
+    await page.keyboard.press('Escape');
+    await page.unroute('**/api/checkout/payments/methods');
+    assert.equal(await field('binding.message').inputValue(), quickGreeting);
+    // Fixture thật bật cả hai cờ demo, không bật thanh toán thật.
+    const methods = await api('/checkout/payments/methods');
+    assert.equal(methods.status, 200);
+    assert.deepEqual(methods.data.methods, []);
+    assert.equal(methods.data.demoPurchaseAvailable, true);
+    await control('preview').click(); await control('preview-send').click();
+    await page.getByRole('heading', { name: 'Dùng thử mẫu có giá' }).waitFor();
+    await page.getByRole('button', { name: 'Cấp quyền dùng thử' }).waitFor();
     await page.keyboard.press('Escape');
     assert.equal(await field('binding.message').inputValue(), quickGreeting);
     const grant = await api('/checkout/orders/demo-purchase', { templateId: 'polaroid' });

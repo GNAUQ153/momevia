@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { CredentialsService } from '../modules/identity/credentials.service.mjs';
 import { parseAllowedOrigins } from './request-origin.mjs';
+import { quotaQaEnabled } from '../modules/checkout/quota-config.mjs';
 
 // Tải biến môi trường từ tệp .env ở thư mục gốc mà không cần thư viện ngoài.
 export function loadEnvironment() {
@@ -22,6 +23,7 @@ export function loadEnvironment() {
 export function environment() {
   loadEnvironment();
   validateSecrets(process.env);
+  quotaQaEnabled(process.env);
   const demoEnabled = process.env.DEMO_AUTH_ENABLED === 'true' && process.env.NODE_ENV !== 'production';
   return {
     baseUrl: process.env.PUBLIC_BASE_URL || 'http://localhost:4100',

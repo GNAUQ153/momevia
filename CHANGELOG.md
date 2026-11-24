@@ -1,3 +1,9 @@
+## Unreleased — Phase 2.4B3 Quota xuất bản QA (2026-11-24)
+
+- Migration 018 tạo credit theo entitlement, cấp và tiêu hao cùng transaction ở MySQL Canvas/Legacy.
+- Chỉ bật trên profile MySQL QA cô lập; bảo toàn quyền cũ không có credit, không backfill hoặc thay đổi production.
+- Chưa mở mua thêm lượt, chưa kích hoạt quota production; bổ sung test cạnh tranh, retry và rollback.
+
 ## Unreleased — Phase 2.4B2 Khóa checkout theo môi trường (2026-11-24)
 
 - Thêm khóa checkout theo user/mẫu/sandbox-live, giữ khóa cũ và truy vấn lại đơn cũ đúng scope.

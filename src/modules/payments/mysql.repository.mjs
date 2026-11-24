@@ -8,12 +8,13 @@ import { ReconciliationAudit } from './reconciliation-audit.mjs';
 import { RefundReviewRepository } from './refund-review.mjs';
 import { storedPaymentScope, samePaymentScope } from './payment-scope.mjs';
 import { findScopedCheckout, rememberScopedCheckout } from './checkout-scope-keys.mjs';
+import { grantPublicationCredit } from '../checkout/publication-credit.mjs';
 
 const fromJson = value => typeof value === 'string' ? JSON.parse(value) : (value || {});
 const receiptNo = id => `MV-RC-${id.replace(/-/g, '').toUpperCase()}`;
 
 export class MySqlPaymentRepository {
-  constructor(client = new MySqlClient(), { scopedCheckout = false } = {}) { this.client = client; this.scopedCheckout = scopedCheckout === true; this.finance = new FinanceReport(client); this.audit = new ReconciliationAudit(client); this.refunds = new RefundReviewRepository(client); }
+  constructor(client = new MySqlClient(), { scopedCheckout = false, quotaEnabled = false } = {}) { this.client = client; this.scopedCheckout = scopedCheckout === true; this.quotaEnabled = quotaEnabled === true; this.finance = new FinanceReport(client); this.audit = new ReconciliationAudit(client); this.refunds = new RefundReviewRepository(client); }
 
   async creatorStatement(creatorId, limit) { return this.finance.creatorStatement(creatorId, limit); }
   async adminFinance() { return this.finance.adminOverview(); }
@@ -21,6 +22,7 @@ export class MySqlPaymentRepository {
 
   async createPending({ userId, templateId, title, amount, provider, isTest }) {
     if (typeof isTest !== 'boolean') throw new Error('Invalid checkout environment');
+    if (this.quotaEnabled && !isTest) throw localizedError(503, 'errors.payment.reviewEnvironment');
     const now = new Date().toISOString();
     const orderId = randomUUID();
     const intentId = randomUUID();
@@ -149,7 +151,7 @@ export class MySqlPaymentRepository {
 
   async settleVerified(event, expectedIsTest) {
     // Bắt buộc caller nội bộ truyền phạm vi xác thực đã được xác định ở server.
-    if (typeof expectedIsTest !== 'boolean') throw localizedError(503, 'errors.payment.reviewEnvironment');
+    if (typeof expectedIsTest !== 'boolean' || (this.quotaEnabled && !expectedIsTest)) throw localizedError(503, 'errors.payment.reviewEnvironment');
     const { provider, code, reference, amount, currency, success } = event;
     if (!success) return { settled: false, reason: 'not-paid' };
     if (!Number.isSafeInteger(amount) || amount <= 0 || currency !== 'VND' || !reference || reference.length > 191)
@@ -178,8 +180,10 @@ export class MySqlPaymentRepository {
         (id,order_id,provider,provider_reference,amount_vnd,status,provider_payload)
         VALUES (?,?,?,?,?,'paid',?)`,
         [randomUUID(), item.order_id, provider, reference, amount, JSON.stringify({ verified: true, sandbox: Boolean(item.is_test) })]);
+      const entitlementId = randomUUID();
       await tx.execute(`INSERT INTO template_entitlements(id,user_id,template_id,order_id,granted_at)
-        VALUES (?,?,?,?,UTC_TIMESTAMP(3))`, [randomUUID(), item.user_id, item.template_id, item.order_id]);
+        VALUES (?,?,?,?,UTC_TIMESTAMP(3))`, [entitlementId, item.user_id, item.template_id, item.order_id]);
+      if (this.quotaEnabled) await grantPublicationCredit(tx, entitlementId);
       await tx.execute(`INSERT INTO payment_receipts
         (order_id,receipt_no,provider,provider_reference,amount_vnd) VALUES (?,?,?,?,?)`,
         [item.order_id, receiptNo(item.order_id), provider, reference, amount]);

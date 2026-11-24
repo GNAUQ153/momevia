@@ -3,6 +3,7 @@ import { localizedError } from '../../shared/http.mjs';
 import { mysqlDate } from '../identity/mysql.repositories.mjs';
 import { requireGiftPermission } from './access.mjs';
 import { checkReplyReplay } from './replies.mjs';
+import { readPublicationAuthority, consumePublicationCredit } from '../checkout/publication-credit.mjs';
 
 function iso(value) {
   if (value instanceof Date) return value.toISOString();
@@ -23,7 +24,7 @@ function asReply(row) {
 }
 
 export class MySqlGiftsRepository {
-  constructor(client = new MySqlClient()) { this.client = client; }
+  constructor(client = new MySqlClient(), { quotaEnabled = false } = {}) { this.client = client; this.quotaEnabled = quotaEnabled === true; }
   async get(id) {
     const [rows] = await this.client.execute('SELECT * FROM gifts WHERE id=? LIMIT 1', [id]);
     return asGift(rows[0]);
@@ -49,13 +50,31 @@ export class MySqlGiftsRepository {
     return rows.map(asGift);
   }
   async insert(gift) {
-    await this.client.execute(`INSERT INTO gifts
-      (id, slug, user_id, template_id, recipient_name, sender_name, message,
-       image_file, reply_count, created_at, expires_at, payload)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    [gift.id, gift.slug, gift.userId, gift.templateId, gift.recipientName, gift.senderName,
-      gift.message, gift.imageFile, 0, mysqlDate(gift.createdAt), mysqlDate(gift.expiresAt), JSON.stringify(gift)]);
-    return gift;
+    const persist = async db => {
+      await db.execute(`INSERT INTO gifts
+        (id, slug, user_id, template_id, recipient_name, sender_name, message,
+         image_file, reply_count, created_at, expires_at, payload)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [gift.id, gift.slug, gift.userId, gift.templateId, gift.recipientName, gift.senderName,
+        gift.message, gift.imageFile, 0, mysqlDate(gift.createdAt), mysqlDate(gift.expiresAt), JSON.stringify(gift)]);
+      return gift;
+    };
+    if (!this.quotaEnabled) return persist(this.client);
+    return this.client.withTransaction(async tx => {
+      // Cùng thứ tự khóa với Canvas; GiftService xử lý replay và dọn ảnh thừa sau lỗi.
+      const [owners] = await tx.execute('SELECT id FROM users WHERE id=? FOR UPDATE', [gift.userId]);
+      if (!owners.length) throw localizedError(403, 'errors.forbidden');
+      const [existing] = await tx.execute('SELECT id FROM gifts WHERE id=? FOR UPDATE', [gift.id]);
+      if (existing.length) throw localizedError(409, 'errors.payment.previousClosed');
+      const [templates] = await tx.execute('SELECT price_vnd,status FROM templates WHERE id=? FOR UPDATE', [gift.templateId]);
+      if (!templates.length || templates[0].status !== 'published') throw localizedError(404, 'errors.gift.notFound');
+      const authority = Number(templates[0].price_vnd) > 0
+        ? await readPublicationAuthority(tx, gift.userId, gift.templateId, { lock: true }) : null;
+      if (authority && !authority.allowed) throw localizedError(402, 'errors.gift.licenseRequired');
+      await persist(tx);
+      if (authority) await consumePublicationCredit(tx, authority, gift.id);
+      return gift;
+    });
   }
   async revoke(ownerId, giftId, revokedAt) {
     return this.client.withTransaction(async tx => {

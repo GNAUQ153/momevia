@@ -342,6 +342,53 @@ try {
     const [[rights]] = await admin.execute('SELECT COUNT(*) AS total FROM template_entitlements WHERE order_id=?', [a.orderId]);
     assert.equal(Number(rights.total), 0);
   });
+  await check('Phase 2.4B3: credit grant, rollback, cross-flow competition and replay', async () => {
+    await admin.query(await fs.readFile(new URL('../../database/migrations/018_publication_credits.sql', import.meta.url), 'utf8'));
+    const quotaTemplate = 'canvas-quota-qa-template';
+    await admin.execute(`INSERT INTO templates(id,title,style,theme,price_vnd,status,created_at,payload)
+      VALUES (?,'Mẫu quota','classic','lavender',10000,'published',?,'{}')`, [quotaTemplate, date(now)]);
+    const payments = new MySqlPaymentRepository(db, { quotaEnabled: true });
+    const intent = await payments.createPending({ userId: owner, templateId: quotaTemplate, title: 'Mẫu quota', amount: 10000, provider: 'momo', isTest: true });
+    const event = { provider: 'momo', code: intent.code, reference: uuid(), amount: intent.amount, currency: 'VND', success: true };
+    assert.equal((await payments.settleVerified(event, true)).replay, false);
+    assert.equal((await payments.settleVerified(event, true)).replay, true);
+    const checkout = new MySqlCheckoutRepository(db, { quotaEnabled: true });
+    assert.deepEqual(await checkout.publicationQuota(owner, quotaTemplate), { remaining: 1, consumed: 0, legacyUnlimited: false });
+    assert.equal(await checkout.hasLicense(owner, quotaTemplate), true);
+    assert.equal(await checkout.hasLicense(other, quotaTemplate), false);
+    const d = record({ kind: 'template', templateId: quotaTemplate, templateVersionId: uuid() });
+    await repo.create(owner, uuid(), 'quota-design', d);
+    const qaUow = new MySqlPublicationUnitOfWork(db, { quotaEnabled: true });
+    const failAfterConsumption = { withTransaction: work => db.withTransaction(tx => work({ execute: (sql, params) => {
+      if (sql.includes('INSERT INTO gift_publication_requests')) throw Error('quota rollback injection');
+      return tx.execute(sql, params);
+    } })) };
+    await assert.rejects(new MySqlPublicationUnitOfWork(failAfterConsumption, { quotaEnabled: true })
+      .publish(owner, publishRequest(d), 'quota-rollback', builder()), /quota rollback injection/);
+    assert.equal((await checkout.publicationQuota(owner, quotaTemplate)).remaining, 1);
+    const legacyGift = { id: uuid(), slug: uuid().replaceAll('-', ''), userId: owner, templateId: quotaTemplate,
+      recipientName: 'Mai', senderName: 'An', message: 'QA', imageFile: null, createdAt: now, expiresAt: later };
+    const request = publishRequest(d);
+    const [canvasResult, legacyResult] = await Promise.allSettled([
+      qaUow.publish(owner, request, 'quota-race', builder()),
+      new MySqlGiftsRepository(db2, { quotaEnabled: true }).insert(legacyGift),
+    ]);
+    assert.equal([canvasResult, legacyResult].filter(result => result.status === 'fulfilled').length, 1);
+    const rejected = [canvasResult, legacyResult].find(result => result.status === 'rejected');
+    assert.equal(rejected.reason.status, 402);
+    if (canvasResult.status === 'fulfilled') {
+      const replay = await qaUow.publish(owner, request, 'quota-race', builder({ fail: true }));
+      assert.equal(replay.gift.id, canvasResult.value.gift.id);
+    } else await assert.rejects(qaUow.publish(owner, request, 'quota-race', builder()), { status: 402 });
+    assert.deepEqual(await checkout.publicationQuota(owner, quotaTemplate), { remaining: 0, consumed: 1, legacyUnlimited: false });
+    assert.equal(await checkout.hasLicense(owner, quotaTemplate), false);
+    const [[counts]] = await admin.execute(`SELECT
+      (SELECT COUNT(*) FROM gifts WHERE user_id=? AND template_id=?) AS gifts_count,
+      (SELECT COUNT(*) FROM publication_credits c JOIN template_entitlements e ON e.id=c.entitlement_id WHERE e.order_id=?) AS credit_count`,
+    [owner, quotaTemplate, intent.orderId]);
+    assert.deepEqual([Number(counts.gifts_count), Number(counts.credit_count)], [1, 1]);
+    assert.equal((await checkout.publicationQuota(owner, templateId)).legacyUnlimited, true);
+  });
   console.log(`RESULT PASS ${count} isolated MySQL integration cases; mocks are not included.`);
 } finally {
   await Promise.allSettled(clients.map(c=>c.close()));

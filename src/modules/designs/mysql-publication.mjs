@@ -2,6 +2,8 @@ import { MySqlClient } from '../../infrastructure/mysql/client.mjs';
 import { mysqlDate } from '../identity/mysql.repositories.mjs';
 import { CheckoutService } from '../checkout/checkout.service.mjs';
 import { activeEntitlementSql } from '../checkout/entitlement-policy.mjs';
+import { readPublicationAuthority, consumePublicationCredit } from '../checkout/publication-credit.mjs';
+import { localizedError } from '../../shared/http.mjs';
 import { canvasTransaction, canvasError, designFromRow, assetFromRow, ensureAssets,
   iso, jsonValue, lockOwner, lockedDesign, sameRequest, sameRevision } from './mysql.repository.mjs';
 
@@ -22,7 +24,7 @@ function giftFromRow(row) {
 // (including joined order) -> assets sorted by ID. Revoke UPDATE takes the same
 // entitlement lock: whichever operation obtains it first determines authority.
 export class MySqlPublicationUnitOfWork {
-  constructor(client = new MySqlClient()) { this.client = client; }
+  constructor(client = new MySqlClient(), { quotaEnabled = false } = {}) { this.client = client; this.quotaEnabled = quotaEnabled === true; }
   async publish(ownerId, request, requestHash, build) {
     return canvasTransaction(this.client, async tx => {
       await lockOwner(tx, ownerId);
@@ -40,15 +42,29 @@ export class MySqlPublicationUnitOfWork {
       // The template and entitlement are loaded once and locked before assets.
       let template = null;
       let licensed = true;
+      let authority = null;
       if (design.source.kind === 'template') {
         const [templates] = await tx.execute('SELECT * FROM templates WHERE id=? FOR UPDATE', [design.source.templateId]);
         const row = templates[0];
         if (row) template = { ...(jsonValue(row.payload) || {}), id: row.id, creatorId: row.creator_id || 'system',
           title: row.title, style: row.style, theme: row.theme, price: Number(row.price_vnd), status: row.status, createdAt: iso(row.created_at) };
-        const [rights] = await tx.execute(`SELECT e.id FROM template_entitlements e
-          INNER JOIN orders o ON o.id=e.order_id
-          WHERE e.user_id=? AND e.template_id=? AND ${activeEntitlementSql} FOR UPDATE`, [ownerId, design.source.templateId]);
-        licensed = rights.length > 0;
+        if (this.quotaEnabled) {
+          // Mẫu Creator dùng giá của phiên bản đã ghim, giống preflight; không dùng giá hiện tại để bỏ qua quota.
+          if (!template) throw canvasError(404, 'TEMPLATE_NOT_FOUND', 'Mẫu chưa được phát hành.');
+          const price = design.provenance?.adapter === 'creator-v1' ? design.provenance.price : template.price;
+          if (!Number.isSafeInteger(price) || price < 0)
+            throw localizedError(503, 'errors.unavailable');
+          if (price > 0) {
+            authority = await readPublicationAuthority(tx, ownerId, design.source.templateId, { lock: true });
+            licensed = authority.allowed;
+            if (!licensed) throw localizedError(402, 'errors.gift.licenseRequired');
+          }
+        } else {
+          const [rights] = await tx.execute(`SELECT e.id FROM template_entitlements e
+            INNER JOIN orders o ON o.id=e.order_id
+            WHERE e.user_id=? AND e.template_id=? AND ${activeEntitlementSql} FOR UPDATE`, [ownerId, design.source.templateId]);
+          licensed = rights.length > 0;
+        }
       }
       const lockedAssets = await ensureAssets(tx, ownerId, (design.document.assets || []).map(a => a.assetId));
       const assetsById = new Map(lockedAssets.map(a => [a.id, a]));
@@ -91,6 +107,7 @@ export class MySqlPublicationUnitOfWork {
         VALUES (?,?,?,?,?,?,?,NULL,0,?,?,?,?,?)`, [savedGift.id, savedGift.slug, ownerId, savedGift.templateId || null,
         savedGift.recipientName, savedGift.senderName, savedGift.message, mysqlDate(savedGift.createdAt),
         mysqlDate(savedGift.expiresAt), JSON.stringify(savedGift), design.source.kind, versionId]);
+      if (authority) await consumePublicationCredit(tx, authority, savedGift.id);
       for (const assetId of assetIds) await tx.execute('INSERT INTO gift_asset_refs(gift_id,asset_id) VALUES (?,?)', [savedGift.id, assetId]);
       await tx.execute(`INSERT INTO gift_publication_requests(owner_id,idempotency_key,request_hash,design_id,design_revision,gift_id)
         VALUES (?,?,?,?,?,?)`, [ownerId, request.idempotencyKey, requestHash, design.id, design.revision, savedGift.id]);

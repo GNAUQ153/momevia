@@ -6,10 +6,12 @@ import { GiftService } from './gifts.service.mjs';
 import { RateLimiter } from '../../shared/rate-limit.mjs';
 import { createCatalogClient } from '../catalog/client.mjs';
 import { createCheckoutClient } from '../checkout/client.mjs';
+import { requireCreditSchema } from '../checkout/publication-credit.mjs';
 
 export async function createApp(config = environment(), { catalog = createCatalogClient(config.internalKey), checkout = createCheckoutClient(config.internalKey), resolveUser, canvas } = {}) {
   const { gifts: giftsRepo, replies: repliesRepo, media, client, mode } = createRepositories();
   if (mode === 'mysql') await giftsRepo.allForUser('00000000-0000-0000-0000-000000000000');
+  if (giftsRepo.quotaEnabled) await requireCreditSchema(client);
   const repliesLimit = new RateLimiter({ limit: 3, windowMs: 60_000 });
   const globalReplies = new RateLimiter({ limit: 300, windowMs: 60_000, maxKeys: 1 });
   const creationLimit = new RateLimiter({ limit: 10, windowMs: 600_000 });

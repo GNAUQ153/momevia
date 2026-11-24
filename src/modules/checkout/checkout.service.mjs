@@ -44,7 +44,9 @@ export class CheckoutService {
   // Chỉ đọc dữ liệu của chủ thiệp, không suy ra hạn mức còn lại từ lịch sử.
   async publicationUsage(user, templateId) {
     if (!this.repository.publicationGroups) throw localizedError(503, 'errors.unavailable');
-    return { templateId, ...summarizePublications(await this.repository.publicationGroups(user.sub, templateId)) };
+    const usage = summarizePublications(await this.repository.publicationGroups(user.sub, templateId));
+    const quota = this.repository.quotaEnabled ? await this.repository.publicationQuota(user.sub, templateId) : null;
+    return { templateId, ...usage, ...(quota ? { quota: { ...quota, qaOnly: true } } : {}) };
   }
   async entitlementSummary(userId, templateId) {
     if ((userId === undefined) !== (templateId === undefined)) throw new Error('Incomplete entitlement scope');
@@ -62,7 +64,9 @@ export class CheckoutService {
       throw localizedError(503, 'errors.unavailable');
     const summary = await this.entitlementSummary(user.sub, template.id);
     const free = template.price === 0;
-    return { templateId: template.id, free, licensed: free || summary.totals.active > 0, ...summary };
+    const licensed = free || (this.repository.quotaEnabled
+      ? await this.hasLicense(user.sub, template.id) : summary.totals.active > 0);
+    return { templateId: template.id, free, licensed, ...summary };
   }
   async adminEntitlementSummary(user) {
     if (user?.role !== 'admin') throw localizedError(403, 'errors.payment.adminReview');

@@ -3,6 +3,7 @@ import { MySqlClient } from '../../infrastructure/mysql/client.mjs';
 import { mysqlDate } from '../identity/mysql.repositories.mjs';
 import { localizedError } from '../../shared/http.mjs';
 import { activeEntitlementSql, entitlementSourceSql, entitlementStateSql } from './entitlement-policy.mjs';
+import { readPublicationAuthority, grantPublicationCredit } from './publication-credit.mjs';
 
 function iso(value) {
   if (value instanceof Date) return value.toISOString();
@@ -19,7 +20,7 @@ function rowToOrder(row) {
 
 // The database enforces one demo license per user/template. There is no real payment or payout.
 export class MySqlCheckoutRepository {
-  constructor(client = new MySqlClient()) { this.client = client; }
+  constructor(client = new MySqlClient(), { quotaEnabled = false } = {}) { this.client = client; this.quotaEnabled = quotaEnabled === true; }
 
   async allForUser(userId) {
     const [rows] = await this.client.execute('SELECT * FROM orders WHERE user_id=? ORDER BY created_at DESC, id DESC', [userId]);
@@ -27,11 +28,17 @@ export class MySqlCheckoutRepository {
   }
 
   async hasLicense(userId, templateId) {
+    if (this.quotaEnabled) return (await readPublicationAuthority(this.client, userId, templateId)).allowed;
     const [rows] = await this.client.execute(`SELECT 1 AS licensed FROM template_entitlements e
       INNER JOIN orders o ON o.id=e.order_id
       WHERE e.user_id=? AND e.template_id=? AND ${activeEntitlementSql}
       LIMIT 1`, [userId, templateId]);
     return rows.length > 0;
+  }
+
+  async publicationQuota(userId, templateId) {
+    const { remaining, consumed, legacyUnlimited } = await readPublicationAuthority(this.client, userId, templateId);
+    return { remaining, consumed, legacyUnlimited };
   }
 
   // Đếm thiệp đã lưu, không đếm yêu cầu retry, lượt mở hay số khách nhận.
@@ -73,10 +80,12 @@ export class MySqlCheckoutRepository {
           mysqlDate(order.createdAt), JSON.stringify(order)]);
         await tx.execute(`INSERT INTO demo_purchases(user_id, template_id, order_id)
           VALUES (?, ?, ?)`, [userId, templateId, order.id]);
+        const entitlementId = randomUUID();
         await tx.execute(`INSERT INTO template_entitlements
           (id, user_id, template_id, order_id, granted_at)
           VALUES (?, ?, ?, ?, UTC_TIMESTAMP(3))`,
-        [randomUUID(), userId, templateId, order.id]);
+        [entitlementId, userId, templateId, order.id]);
+        if (this.quotaEnabled) await grantPublicationCredit(tx, entitlementId);
       });
       return order;
     } catch (error) {

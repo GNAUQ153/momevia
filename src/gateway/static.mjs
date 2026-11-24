@@ -21,7 +21,9 @@ const mime = {
 };
 export function staticFile(req, res, url, { cacheControl, publicCatalog } = {}) {
   // Chỉ phục vụ tệp thật nằm trong web; không đọc thư mục hoặc symlink ra ngoài.
-  const pathname = decodeURIComponent(url.pathname);
+  let pathname;
+  try { pathname = decodeURIComponent(url.pathname); }
+  catch { res.writeHead(400); return res.end('Bad request'); }
   const file = pathname.startsWith('/css/') || pathname.startsWith('/js/') || pathname.startsWith('/assets/') || pathname === '/favicon.svg'
     ? path.resolve(webRoot, `.${pathname}`)
     : fs.existsSync(path.join(webRoot,'assets/app/index.html')) ? path.join(webRoot,'assets/app/index.html') : path.join(webRoot, 'index.html');
@@ -48,6 +50,11 @@ export function staticFile(req, res, url, { cacheControl, publicCatalog } = {}) 
     'x-frame-options': 'DENY',
     'content-security-policy': "default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://www.gstatic.com https://upload.wikimedia.org; connect-src 'self'; media-src 'self' blob:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'",
   };
+  // Không lập chỉ mục đường dẫn thiệp hoặc trang xác nhận chia sẻ.
+  if (/^\/(?:g|success)(?:\/|$)/.test(pathname)) {
+    headers['x-robots-tag'] = 'noindex, nofollow, noarchive';
+    headers['cache-control'] = 'private, no-store';
+  }
   const compressible = type.startsWith('text/') || ['image/svg+xml','application/json'].includes(type);
   const encodings=new Map(String(req.headers['accept-encoding']||'').split(',').map(value=>{const [name,...params]=value.trim().toLowerCase().split(';'),quality=params.find(p=>p.trim().startsWith('q='));return [name,quality?Number(quality.trim().slice(2)):1];}));
   const quality=name=>{const n=encodings.get(name)??encodings.get('*')??0;return Number.isFinite(n)&&n>=0&&n<=1?n:0;};

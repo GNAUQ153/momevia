@@ -180,7 +180,7 @@ async function checkGiftTransport(base, env, cookie, email) {
   console.log('PASS  Public API không lộ endpoint /internal');
 
   const photo = await sharp({create:{width:2,height:2,channels:3,background:'red'}}).png().toBuffer();
-  const created = await request(base,'/api/gifts/gifts',{method:'POST',cookie,body:{templateId,recipientName:'Mai',senderName:'An',message:'Quà kiểm thử cô lập',photoDataUrl:`data:image/png;base64,${photo.toString('base64')}`}});
+  const created = await request(base,'/api/gifts/gifts',{method:'POST',cookie,body:{access:{open:'link',send:'link',read:'link'},templateId,recipientName:'Mai',senderName:'An',message:'Quà kiểm thử cô lập',photoDataUrl:`data:image/png;base64,${photo.toString('base64')}`}});
   assert.equal(created.status, 201);
   const slug = created.data.gift.slug;
   const gift = await request(base,`/api/gifts/gifts/${slug}`);
@@ -331,7 +331,7 @@ async function runMonolith({ base, env }) {
 
   await runHttpSmoke(base, { adminCode: env.DEMO_ADMIN_CODE });
 
-  const extraGift = await request(base,'/api/gifts/gifts',{method:'POST',cookie,body:{templateId,recipientName:'QA',senderName:'QA',message:'Concurrent reply regression'}});
+  const extraGift = await request(base,'/api/gifts/gifts',{method:'POST',cookie,body:{access:{open:'link',send:'link',read:'link'},templateId,recipientName:'QA',senderName:'QA',message:'Concurrent reply regression'}});
   assert.equal(extraGift.status,201);
   const extraRoute = `/api/gifts/gifts/${extraGift.data.gift.slug}`;
   const replyResults = await Promise.all(Array.from({length:3},(_,i)=>request(base,`${extraRoute}/replies`,{method:'POST',body:{message:`Concurrent reply ${i}`}})));

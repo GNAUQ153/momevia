@@ -18,7 +18,7 @@ export function localizedError(status, messageKey, messageParams) {
 }
 
 export async function parseJson(request, maxBytes = 3_500_000) {
-  if (!request.headers['content-type']?.startsWith('application/json')) throw localizedError(415, 'errors.contentType');
+  if (String(request.headers['content-type'] || '').split(';', 1)[0].trim().toLowerCase() !== 'application/json') throw localizedError(415, 'errors.contentType');
   if (Number(request.headers['content-length']) > maxBytes) throw localizedError(413, 'errors.payloadTooLarge');
   const chunks = [];
   let size = 0;
@@ -80,7 +80,9 @@ export class Router {
       const entry = this.handlers.find(handler => handler.method === req.method && handler.regex.test(routePath));
       if (!entry) return sendJson(res, 404, { error: canonicalText('errors.notFound'), messageKey: 'errors.notFound' });
       const match = routePath.match(entry.regex);
-      const params = Object.fromEntries(entry.fields.map((field, i) => [field, decodeURIComponent(match[i + 1])]));
+      let params;
+      try { params = Object.fromEntries(entry.fields.map((field, i) => [field, decodeURIComponent(match[i + 1])])); }
+      catch { throw new HttpError(400, 'Đường dẫn không hợp lệ.'); }
       return await entry.fn({ req, res, url: parsedUrl, params });
     } catch (error) {
       sendError(res, error);

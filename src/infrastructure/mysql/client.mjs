@@ -7,13 +7,16 @@ export function resolveMysqlConfig(env = process.env) {
   const user = env.MYSQL_USER || 'momevia';
   const password = env.MYSQL_PASSWORD;
   const port = Number(env.MYSQL_PORT || 3306);
+  const connectionLimit = Number(env.MYSQL_CONNECTION_LIMIT || 5);
+  if (!Number.isSafeInteger(connectionLimit) || connectionLimit < 1 || connectionLimit > 20)
+    throw new Error('MYSQL_CONNECTION_LIMIT phải là số nguyên từ 1 đến 20.');
   if (!password) throw new Error('MYSQL_PASSWORD chưa được cấu hình trong .env.');
   if (!Number.isSafeInteger(port) || port < 1 || port > 65535) throw new Error('MYSQL_PORT không hợp lệ.');
   if (!/^[a-zA-Z0-9_]{1,64}$/.test(database)) throw new Error('MYSQL_DATABASE chỉ được dùng chữ, số, gạch dưới.');
   return {
     host, port, database, user, password,
     waitForConnections: true,
-    connectionLimit: 5,
+    connectionLimit,
     queueLimit: 100,
     charset: 'utf8mb4',
     timezone: 'Z',

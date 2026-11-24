@@ -17,7 +17,8 @@ export function requireActiveGift(gift) {
 }
 
 export function createGiftAccess(input) {
-  if (input === undefined) return {};
+  // Thiệp mới mặc định chỉ chủ sở hữu đọc lời đáp; giữ nguyên quyền của thiệp cũ.
+  if (input === undefined) return { access: { open: 'link', send: 'link', read: 'sender' } };
   if (!input || typeof input !== 'object' || Array.isArray(input) || Object.keys(input).length !== 3
     || !['link', 'invite'].includes(input.open)
     || !['link', 'invite', 'disabled'].includes(input.send)

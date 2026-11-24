@@ -24,7 +24,7 @@ test('JSON Gifts remains compatible after asynchronous MySQL adapter conversion'
     media:{store(){throw Error('unexpected photo write');}},
     repliesLimit:{consume(){return true;}},catalog,checkout:{async hasLicense(){return false;}},
     config:{giftTtlDays:365}});
-  const created=await service.create(user,{templateId:'free',recipientName:'Mai',senderName:'An',message:'A card'});
+  const created=await service.create(user,{templateId:'free',recipientName:'Mai',senderName:'An',message:'A card',access:{open:'link',send:'link',read:'link'}});
   assert.equal(created.userId,user.sub);
   assert.equal((await service.mine(user)).length,1);
   assert.equal((await service.publicGift(created.slug)).userId,undefined);

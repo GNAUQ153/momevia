@@ -1,3 +1,10 @@
+## Unreleased — Phase 1 Security & Production Stability (2026-11-24)
+
+- Bổ sung preflight production và startup strict opt-in; giữ nguyên dữ liệu, secret và storage hiện có.
+- Mặc định bảo vệ lời đáp thiệp mới, giữ quyền thiệp cũ; kiểm tra Origin, JSON MIME, URL và bảo vệ cache/index của trang thiệp Node.
+- Xử lý lỗi stream ảnh, cấu hình giới hạn pool MySQL; bổ sung test và hướng dẫn Hostinger/Railway tại `docs/PHASE01_SECURITY.md`.
+- 20 test mục tiêu đạt; bộ unit rộng chưa hoàn tất do dependency thiếu. Chưa nghiệm thu production.
+
 ## Unreleased — Sửa hồi quy CI PR #26 (2026-11-24)
 
 - Cập nhật dữ liệu kỳ vọng của test vòng đời 28 mẫu theo cấu hình người nhận mặc định của nháp Sender mới; giữ so sánh đầy đủ document, ảnh riêng, lưu/tải lại và snapshot xuất bản.

@@ -114,3 +114,7 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 - [Vận hành, backup, MySQL và CI/CD](docs/OPERATIONS.md)
 - [Lịch sử chức năng và sửa lỗi](CHANGELOG.md)
 - [GitHub Actions](https://github.com/GNAUQ153/momevia/actions)
+
+## Phase 1 — Security & Production Stability
+
+Xem [hướng dẫn nâng cấp và kiểm tra production](docs/PHASE01_SECURITY.md). Chạy `npm run check:production` trước khi bật `PRODUCTION_STRICT=true`; không đổi kho dữ liệu chỉ để vượt kiểm tra.

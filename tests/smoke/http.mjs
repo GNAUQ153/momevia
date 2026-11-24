@@ -101,7 +101,7 @@ async function legacy(base, adminCode) {
   assert(free && paid);
   const demo = await call('/auth/demo', { body: { name: 'Người kiểm thử', deviceId: randomUUID() } });
   const cookie = session(demo.headers);
-  const gift = { recipientName: 'Mai', senderName: 'An', message: 'Chúc mừng sinh nhật!' };
+  const gift = { recipientName: 'Mai', senderName: 'An', message: 'Chúc mừng sinh nhật!', access: { open: 'link', send: 'link', read: 'link' } };
   await call('/gifts/gifts', { cookie, body: { ...gift, templateId: paid.id }, status: 402 });
   const { data: { gift: { slug } } } = await call('/gifts/gifts', { cookie, body: { ...gift, templateId: free.id }, status: 201 });
   assert(slug.length > 18);

@@ -39,3 +39,21 @@ test('isolated demo can opt out of static caching without changing the default',
     assert.equal(response.headers.get('cache-control'), 'no-store');
   } finally { await new Promise(resolve => server.close(resolve)); }
 });
+
+// Đường dẫn riêng tư không được cache hoặc lập chỉ mục trên máy chủ Node.
+test('Thiệp riêng tư có noindex; URL lỗi trả 400', async () => {
+  const server = createServer((req, res) => staticFile(req, res, new URL(req.url, 'http://localhost')));
+  server.listen(0, '127.0.0.1');
+  await once(server, 'listening');
+  try {
+    const base = `http://127.0.0.1:${server.address().port}`;
+    for (const route of ['/g/example', '/success/example']) {
+      const response = await fetch(base + route);
+      assert.equal(response.status, 200);
+      assert.match(response.headers.get('x-robots-tag'), /noindex/);
+      assert.equal(response.headers.get('cache-control'), 'private, no-store');
+    }
+    assert.equal((await fetch(base + '/%ZZ')).status, 400);
+    assert.equal((await fetch(base + '/')).headers.get('x-robots-tag'), null);
+  } finally { await new Promise(resolve => server.close(resolve)); }
+});

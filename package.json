@@ -60,7 +60,8 @@
     "test:recipients": "node tests/integration/recipient-naming.mjs",
     "test:recipients:mysql": "node tests/integration/recipient-naming.mjs --mysql-local",
     "perf:recipients:before": "node tests/integration/recipient-naming.mjs --baseline --perf-only",
-    "perf:recipients:after": "node tests/integration/recipient-naming.mjs --perf-only"
+    "perf:recipients:after": "node tests/integration/recipient-naming.mjs --perf-only",
+    "check:production": "node scripts/quality/check-production.mjs"
   },
   "dependencies": {
     "@payos/node": "2.0.6",

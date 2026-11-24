@@ -145,7 +145,7 @@ try {
   });
   await check('C11/C17/C19 immutable publication/idempotency/allowlist', async () => {
     const preflight = await post(owner, `/designs/designs/${design.id}/preflight`, { expectedRevision: saved.savedRevision }); assert.equal(preflight.authorization.status, 'allowed'); assert.equal(preflight.canPublish, true, JSON.stringify(preflight));
-    publishBody = { designId: design.id, expectedRevision: saved.savedRevision, expectedDocumentHash: preflight.documentHash, idempotencyKey: randomUUID() };
+    publishBody = { designId: design.id, expectedRevision: saved.savedRevision, expectedDocumentHash: preflight.documentHash, idempotencyKey: randomUUID(), access: { open: 'link', send: 'link', read: 'link' } };
     const result = await Promise.all([request('/gifts/gifts/from-design', { cookie: owner.cookie, body: publishBody }), request('/gifts/gifts/from-design', { cookie: owner.cookie, body: publishBody })]);
     assert.deepEqual(result.map(r => r.status).sort(), [200, 201]); assert.equal(result[0].data.gift.slug, result[1].data.gift.slug); published = result[0].data.gift;
     await post(owner, '/gifts/gifts/from-design', { ...publishBody, expectedDocumentHash: 'sha256:' + '0'.repeat(64) }, 409);
@@ -211,9 +211,9 @@ try {
       expectedRevision: draft.revision, mutationId: randomUUID(), title: draft.title, document: draft.document,
     });
     const { gift } = await post(owner, '/gifts/gifts/from-design', {
-      designId: draft.id, expectedRevision: ack.savedRevision, expectedDocumentHash: ack.documentHash, idempotencyKey: randomUUID(),
+      designId: draft.id, expectedRevision: ack.savedRevision, expectedDocumentHash: ack.documentHash, idempotencyKey: randomUUID(), access: { open: 'link', send: 'link', read: 'link' },
     }, 201);
-    const { gift: legacy } = await post(owner, '/gifts/gifts', { templateId: 'sunny-wishes', recipientName: 'Mai', senderName: 'An', message: 'Lời chúc' }, 201);
+    const { gift: legacy } = await post(owner, '/gifts/gifts', { templateId: 'sunny-wishes', recipientName: 'Mai', senderName: 'An', message: 'Lời chúc', access: { open: 'link', send: 'link', read: 'link' } }, 201);
     for (const item of [gift, legacy]) await runReplyIntents(base, item.slug, owner.cookie, other.cookie);
   });
   await check('C18/C27 restart replay and writer-off reader preserved', async () => {

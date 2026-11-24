@@ -1,4 +1,5 @@
 import { validateRecipientSettings } from '../recipient-naming.js';
+import { invitationIssue } from './invitation.js';
 import { registry, STICKERS, FONT_TOKENS, BINDINGS, LIMITS } from './registry.js';
 import { soundtrackById } from './soundtracks.js';
 import { lines, masks, originalStickerIds, shapes } from './artwork.js';
@@ -162,7 +163,7 @@ export function validateDocument(document, { mode = 'draft', requiredBindings = 
   preflightTree(document);
   const serialized = JSON.stringify(document);
   if (new TextEncoder().encode(serialized).length > LIMITS.documentBytes) fail('document', 'Thiết kế vượt giới hạn 256 KiB.', 'DOCUMENT_BUDGET');
-  object(document, 'document', ['schemaVersion', 'registryVersion', 'artboard', 'entrySceneId', 'bindings', 'assets', 'scenes', 'elements', 'responsive', 'soundtrack', 'personalization'], ['schemaVersion', 'registryVersion', 'artboard', 'entrySceneId', 'bindings', 'assets', 'scenes', 'elements', 'responsive']);
+  object(document, 'document', ['schemaVersion', 'registryVersion', 'artboard', 'entrySceneId', 'bindings', 'assets', 'scenes', 'elements', 'responsive', 'soundtrack', 'personalization', 'invitation'], ['schemaVersion', 'registryVersion', 'artboard', 'entrySceneId', 'bindings', 'assets', 'scenes', 'elements', 'responsive']);
   if (own(document, 'personalization')) {
     try { validateRecipientSettings(document.personalization); } catch { fail('personalization', 'recipient.error.settings'); }
   }
@@ -264,6 +265,8 @@ export function validateDocument(document, { mode = 'draft', requiredBindings = 
   }
   for (const e of assigned) if (!elementIds.has(e)) fail('scenes.elementIds', 'Element không tồn tại.');
   for (const e of elementIds) if (!assigned.has(e)) fail(`elements.${e}`, 'Element chưa thuộc cảnh nào.');
+  const eventIssue = invitationIssue(document, mode === 'publish');
+  if (eventIssue) fail('invitation', `invitation.error.${eventIssue}`, 'INVALID_INVITATION');
   if (document.schemaVersion === 1 && requiresCanvasV2(document)) fail('schemaVersion', 'Khối này cần tài liệu Canvas phiên bản 2.');
   if (document.schemaVersion < 3 && usesSound(document)) fail('schemaVersion', 'Âm thanh cần Canvas phiên bản 3.');
   object(document.responsive, 'responsive', ['textOverflow', 'sceneOverflow', 'desktop'], ['textOverflow', 'sceneOverflow', 'desktop']);
@@ -281,6 +284,10 @@ export function duplicateDocument(document, { idFactory = () => globalThis.crypt
   result.entrySceneId = ids.get(result.entrySceneId);
   for (const s of result.scenes) { s.id = ids.get(s.id); s.elementIds = s.elementIds.map(id => ids.get(id)); }
   for (const e of result.elements) { e.id = ids.get(e.id); for (const a of e.actions || []) if (a.targetSceneId) a.targetSceneId = ids.get(a.targetSceneId); }
+  if (result.invitation) {
+    result.invitation.dateElementId = ids.get(result.invitation.dateElementId);
+    result.invitation.venueElementId = ids.get(result.invitation.venueElementId);
+  }
   return validateDocument(result);
 }
 
@@ -293,6 +300,7 @@ export function publicDocument(document) {
     bindings: d.bindings, assets: d.assets.filter(a => used.has(a.assetId)), scenes: d.scenes,
     ...(d.personalization ? { personalization: { version: 1, mode: d.personalization.mode, ...(d.personalization.resolved ? { resolved: true } : {}) } } : {}),
     ...(d.soundtrack ? { soundtrack: d.soundtrack } : {}),
+    ...(d.invitation ? { invitation: d.invitation } : {}),
     elements: d.elements.map(e => ({ id: e.id, type: e.type, elementVersion: e.elementVersion, layout: e.layout, props: e.props, accessibility: e.accessibility, ...(e.sound ? {sound:e.sound} : {}), ...(e.actions ? { actions: e.actions } : {}), ...(e.effects ? { effects: e.effects } : {}), ...(e.artwork ? { artwork: e.artwork } : {}), ...(own(e, 'visible') ? { visible: e.visible } : {}), ...(own(e, 'opacity') ? { opacity: e.opacity } : {}) })),
     responsive: d.responsive,
   };

@@ -1,3 +1,9 @@
+## Unreleased — Phase 2.1B Thông tin sự kiện (2026-11-24)
+
+- Bổ sung nhập ngày giờ, múi giờ và địa điểm có cấu trúc cho thiệp mời hỗ trợ; không ép chuyển đổi nháp/thiệp cũ.
+- Kiểm tra ngày giờ, vùng nội dung, thời hạn và chiếu dữ liệu công khai riêng, giữ tương thích trình xem cũ.
+- Bảo toàn dữ liệu khi nhân bản nháp và loại thông tin sự kiện riêng khi tặng lại; RSVP sẽ triển khai sau.
+
 ## Unreleased — Phase 2.1A Phân loại thiệp (2026-11-24)
 
 - Phân biệt loại thiệp và dịp sử dụng; API và danh mục VI/EN có bộ lọc loại thiệp, giữ tương thích với API cũ.

@@ -3116,5 +3116,22 @@
   "recipient.error.network": "Confirmation failed. Your entered name is kept so you can retry.",
   "recipient.error.intent": "A request ID is required to create a list or shared-name link. Retry from the saved draft.",
   "recipient.variableHint": "Supported name variable: {nameToken}. Example: To {nameToken}. Preview names are sample data.",
-  "recipient.insertHint": "Insert the variable in the greeting or selected text. Creator templates must allow both name and greeting edits."
+  "recipient.insertHint": "Insert the variable in the greeting or selected text. Creator templates must allow both name and greeting edits.",
+  "invitation.title": "Event details",
+  "invitation.hint": "Enable structured date, time and venue. Existing cards keep their current content.",
+  "invitation.enable": "Use structured event details",
+  "invitation.date": "Start date and time",
+  "invitation.zone": "Event time zone",
+  "invitation.venue": "Venue or attendance format",
+  "invitation.publishHint": "Enter the date, time and venue before publishing. Changing the time zone preserves the actual instant. Do not edit the date text separately on the canvas; turn off the option above to leave this mode.",
+  "invitation.error.structure": "Invalid event details.",
+  "invitation.error.slots": "Keep both date and venue areas visible on the card.",
+  "invitation.error.zone": "Choose a valid time zone.",
+  "invitation.error.date": "Choose a valid date and time in the event time zone.",
+  "invitation.error.dateMismatch": "The canvas date does not match. Choose the date again or turn off structured event details.",
+  "invitation.error.venue": "Enter a venue or attendance format, up to 300 characters.",
+  "invitation.error.past": "The event must take place in the future.",
+  "invitation.error.expiry": "The event must start before the card expires.",
+  "invitation.error.creator": "Do not store personal event details in a Creator template.",
+  "invitation.error.source": "This template does not yet support structured event details."
 }

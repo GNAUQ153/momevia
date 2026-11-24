@@ -3104,5 +3104,22 @@
   "recipient.error.network": "Chưa xác nhận được. Tên đang nhập được giữ lại để thử lại.",
   "recipient.error.intent": "Cần mã thao tác để tạo danh sách hoặc link tự điền. Hãy thử lại từ bản nháp.",
   "recipient.variableHint": "Biến tên được hỗ trợ: {nameToken}. Ví dụ: Gửi {nameToken}. Tên ở bản xem thử là minh họa.",
-  "recipient.insertHint": "Chèn biến vào lời chúc hoặc vùng chữ đang chọn. Mẫu Creator cần cho phép sửa cả tên và lời chúc."
+  "recipient.insertHint": "Chèn biến vào lời chúc hoặc vùng chữ đang chọn. Mẫu Creator cần cho phép sửa cả tên và lời chúc.",
+  "invitation.title": "Thông tin sự kiện",
+  "invitation.hint": "Bật để nhập ngày giờ và địa điểm có cấu trúc. Các thiệp cũ vẫn giữ nội dung hiện tại.",
+  "invitation.enable": "Dùng thông tin sự kiện có cấu trúc",
+  "invitation.date": "Ngày và giờ bắt đầu",
+  "invitation.zone": "Múi giờ sự kiện",
+  "invitation.venue": "Địa điểm hoặc hình thức tham dự",
+  "invitation.publishHint": "Nhập ngày giờ và địa điểm trước khi xuất bản. Đổi múi giờ giữ nguyên thời điểm thực tế. Không sửa riêng ô ngày giờ trên Canvas; để bỏ chế độ này, tắt lựa chọn ở trên.",
+  "invitation.error.structure": "Thông tin sự kiện không hợp lệ.",
+  "invitation.error.slots": "Cần giữ hai vùng ngày giờ và địa điểm hiển thị trên thiệp.",
+  "invitation.error.zone": "Chọn múi giờ hợp lệ.",
+  "invitation.error.date": "Chọn ngày giờ hợp lệ trong múi giờ của sự kiện.",
+  "invitation.error.dateMismatch": "Ngày giờ trên Canvas không khớp. Hãy chọn lại ngày giờ hoặc tắt chế độ sự kiện có cấu trúc.",
+  "invitation.error.venue": "Nhập địa điểm hoặc hình thức tham dự, tối đa 300 ký tự.",
+  "invitation.error.past": "Sự kiện cần diễn ra trong tương lai.",
+  "invitation.error.expiry": "Sự kiện phải bắt đầu trước thời điểm thiệp hết hạn.",
+  "invitation.error.creator": "Không lưu thông tin sự kiện cá nhân trong mẫu Creator.",
+  "invitation.error.source": "Mẫu này chưa hỗ trợ thông tin sự kiện có cấu trúc."
 }

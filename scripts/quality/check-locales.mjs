@@ -37,6 +37,8 @@ export function checkLocales() {
   for (const status of ['pending', 'approved', 'changes_requested']) verify(`creator.status.${status}`, 'Creator review');
   for (const topic of [...supportTopics, 'report']) verify(`support.topic.${topic}`, 'support form');
   for (const type of CARD_TYPES) verify(`catalog.cardType.${type}`, 'card type');
+  for (const issue of ['structure', 'slots', 'zone', 'date', 'dateMismatch', 'venue', 'past', 'expiry', 'creator', 'source'])
+    verify(`invitation.error.${issue}`, 'invitation validation');
   for (const binding of ['recipientName', 'senderName', 'message']) verify(`catalog.personalization.${binding}`, 'personalization');
   for (const [id, definition] of Object.entries(BASIC_TEMPLATES))
     for (const field of ['name', 'title', 'subtitle', 'headline', ...(definition.note ? ['note'] : [])])

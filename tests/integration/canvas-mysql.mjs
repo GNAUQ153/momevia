@@ -8,6 +8,8 @@ import { MySqlClient } from '../../src/infrastructure/mysql/client.mjs';
 import { MySqlDesignsRepository } from '../../src/modules/designs/mysql.repository.mjs';
 import { MySqlPublicationUnitOfWork } from '../../src/modules/designs/mysql-publication.mjs';
 import { MySqlGiftsRepository } from '../../src/modules/gifts/mysql.repositories.mjs';
+import { MySqlCheckoutRepository } from '../../src/modules/checkout/mysql.repository.mjs';
+import { CheckoutService } from '../../src/modules/checkout/checkout.service.mjs';
 
 const require = createRequire(import.meta.url);
 const driver = require('mysql2/promise');
@@ -225,6 +227,43 @@ try {
   await check('C25 blank FK/discriminator rejects missing snapshot version',async()=>{
     await assert.rejects(admin.execute(`INSERT INTO gifts(id,slug,user_id,template_id,recipient_name,sender_name,message,reply_count,created_at,expires_at,payload,source_kind)
       VALUES (?,?,?,NULL,'Mai','An','invalid',0,?,?,'{}','blank')`,[uuid(),uuid(),owner,date(now),date(later)]),{code:'ER_CHECK_CONSTRAINT_VIOLATED'});
+  });
+  await check('Phase 2.3B: entitlement provenance, owner scope, revoked demo retry and publication parity', async () => {
+    // Chỉ dùng schema QA đã được xác minh trống ở đầu fixture.
+    const checkoutRepo = new MySqlCheckoutRepository(db);
+    const checkout = new CheckoutService({ repository: checkoutRepo,
+      catalog: { async getTemplate(id) { return { id, price: 10000 }; } } });
+    const purchase = { userId: other, templateId, templateTitle: 'Mẫu thử', grossAmount: 10000 };
+    const demoOrder = await checkoutRepo.purchaseDemo(purchase);
+    assert.equal((await checkoutRepo.purchaseDemo(purchase)).id, demoOrder.id);
+    const buyer = { sub: owner };
+    const guest = { sub: other };
+    let summary = await checkout.entitlementDetails(buyer, templateId);
+    // Fixture cũ dùng provider synthetic; chưa được suy diễn thành thanh toán thật.
+    assert.equal(summary.sources.unknown.revoked, 1);
+    assert.equal(summary.licensed, false);
+    assert.equal((await checkout.entitlementDetails(guest, templateId)).sources.demo.active, 1);
+    for (const [provider, isTest, status] of [['payos', 0, 'paid'], ['momo', 1, 'paid'], ['momo', 1, 'refunded']]) {
+      const id = uuid();
+      await admin.execute(`INSERT INTO orders(id,user_id,template_id,gross_vnd,platform_fee_vnd,creator_amount_vnd,currency,status,payment_provider,is_test,created_at,payload)
+        VALUES (?,?,?,10000,2000,8000,'VND',?,?,?,?, '{}')`, [id,owner,templateId,status,provider,isTest,date(now)]);
+      await admin.execute('INSERT INTO template_entitlements(id,user_id,template_id,order_id) VALUES (?,?,?,?)', [uuid(),owner,templateId,id]);
+    }
+    summary = await checkout.entitlementDetails(buyer, templateId);
+    assert.deepEqual(summary.totals, { active: 2, revoked: 1, inactive: 1 });
+    assert.equal(summary.sources.live.active, 1);
+    assert.equal(summary.sources.sandbox.active, 1);
+    assert.equal(summary.sources.sandbox.inactive, 1);
+    assert.equal(summary.licensed, await checkoutRepo.hasLicense(owner, templateId));
+    const result = await uow.publish(owner,publishRequest(paid),'entitlement-lifecycle',builder({paid:true}));
+    assert.equal(result.replayed, false);
+    await admin.execute('UPDATE template_entitlements SET revoked_at=UTC_TIMESTAMP(3) WHERE order_id=?',[demoOrder.id]);
+    assert.equal(await checkoutRepo.hasLicense(other,templateId), false);
+    assert.equal((await checkout.entitlementDetails(guest, templateId)).sources.demo.revoked, 1);
+    await assert.rejects(checkoutRepo.purchaseDemo(purchase), { status: 409 });
+    await assert.rejects(checkout.adminEntitlementSummary(buyer), { status: 403 });
+    const all = await checkout.adminEntitlementSummary({ sub: owner, role: 'admin' });
+    assert.deepEqual(all.totals, { active: 2, revoked: 2, inactive: 1 });
   });
   console.log(`RESULT PASS ${count} isolated MySQL integration cases; mocks are not included.`);
 } finally {

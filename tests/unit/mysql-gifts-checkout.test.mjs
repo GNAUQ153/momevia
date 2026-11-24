@@ -17,12 +17,13 @@ function checkoutFixture() {
   const orders = [];
   const keys = new Set();
   const entitlements = [];
+  let activeDemo = true;
   const client = {
     async execute(sql, params=[]) {
       operations.push([sql, params]);
       if (sql.includes('INNER JOIN orders o ON o.id=d.order_id')) {
         const order = orders.find(o=>o.userId === params[0] && o.templateId === params[1]);
-        return [order ? [rowFor(order)] : []];
+        return [order ? [{ ...rowFor(order), active_demo: activeDemo ? 1 : 0 }] : []];
       }
       if (sql.includes('FROM template_entitlements')) return [entitlements.length ? [{licensed:1}] : []];
       if (sql.includes('FROM orders WHERE user_id')) return [orders.map(rowFor)];
@@ -51,7 +52,7 @@ function checkoutFixture() {
       return result;
     }
   };
-  return {client,operations,orders,keys,entitlements};
+  return {client,operations,orders,keys,entitlements, revokeDemo() { activeDemo = false; }};
 }
 
 test('purchaseDemo creates one order + unique key + entitlement atomically; retries return same order', async () => {
@@ -68,6 +69,21 @@ test('purchaseDemo creates one order + unique key + entitlement atomically; retr
   assert.equal((await repo.allForUser(userId)).length,1);
   assert(f.operations.some(([sql]) => sql.includes('INNER JOIN orders o ON o.id=e.order_id')));
   assert(f.operations.some(([sql]) => sql.includes('INSERT INTO demo_purchases')));
+});
+
+test('duplicate demo key cannot restore a revoked entitlement or return a false success', async () => {
+  const f=checkoutFixture();
+  const repo=new MySqlCheckoutRepository(f.client);
+  const purchase={userId,templateId,templateTitle:'Demo',grossAmount:100000};
+  await repo.purchaseDemo(purchase);
+  f.revokeDemo();
+  await assert.rejects(repo.purchaseDemo(purchase),{status:409});
+  assert.equal(f.orders.length,1);
+  assert.equal(f.entitlements.length,1);
+  const [sql, params]=f.operations.find(([sql])=>sql.includes('AS active_demo'));
+  assert.match(sql,/e\.revoked_at IS NULL/);
+  assert.match(sql,/e\.order_id=o\.id/);
+  assert.deepEqual(params,[userId,templateId]);
 });
 
 test('checkout service never grants paid rights when demo mode is disabled', async () => {

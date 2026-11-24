@@ -11,6 +11,14 @@ export function registerRoutes(router, { config, service, resolveUser = currentU
     const user = await resolveUser(req, config.jwtSecret);
     sendJson(res, 200, await service.accessFor(user, sanitizeText(params.templateId, 100)));
   });
+  router.on('GET', '/licenses/:templateId/details', async ({req,res,params}) => {
+    const user = await resolveUser(req, config.jwtSecret);
+    sendJson(res, 200, await service.entitlementDetails(user, sanitizeText(params.templateId, 100)));
+  });
+  router.on('GET', '/admin/entitlements/summary', async ({req,res}) => {
+    const user = await resolveUser(req, config.jwtSecret);
+    sendJson(res, 200, await service.adminEntitlementSummary(user));
+  });
   router.on('POST', '/orders/demo-purchase', async ({req,res}) => {
     const user = await resolveUser(req, config.jwtSecret);
     const data = await parseJson(req, 4096);

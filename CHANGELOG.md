@@ -1,3 +1,9 @@
+## Unreleased — Phase 2.3B Vòng đời quyền sử dụng (2026-11-24)
+
+- Thống kê quyền live, sandbox, demo và chưa xác định; phân biệt active, revoked và inactive, với API chỉ đọc theo chủ quyền hoặc Admin.
+- Dùng chung điều kiện entitlement cho kiểm tra quyền và transaction xuất bản; không cấp lại đơn demo đã thu hồi khi retry.
+- Không đổi quyền lịch sử, schema, giá hoặc khóa thanh toán; cần đối soát trước khi áp dụng chính sách loại quyền thử nghiệm trong production.
+
 ## Unreleased — Phase 2.3A Quyền sử dụng mẫu (2026-11-24)
 
 - Chỉ cấp giao dịch demo mới khi cả hai cờ demo bật, production và thanh toán đều tắt.

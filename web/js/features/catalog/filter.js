@@ -1,3 +1,4 @@
+import { normalizeCardTypeFilter, templateCardType } from '../../shared/card-type.js';
 import { canonicalText } from '../../shared/locale.js';
 
 // Các phép lọc thuần, dùng chung cho giao diện và unit tests.
@@ -18,9 +19,10 @@ export function styleOptions(templates) {
 
 export function filterTemplates(
   templates,
-  { style = "all", search = "", freeOnly = false, photoOnly = false, category = "all", palette = "all", searchFields = () => [] } = {},
+  { style = "all", search = "", freeOnly = false, photoOnly = false, category = "all", palette = "all", cardType = "all", searchFields = () => [] } = {},
 ) {
   const query = searchText(String(search).trim());
+  const type = normalizeCardTypeFilter(cardType);
   return templates.filter((template) => {
     const matchesStyle = style === "all" || style === "Tất cả" || template.style === style;
     const matchesPrice = !freeOnly || Number(template.price) === 0;
@@ -38,7 +40,7 @@ export function filterTemplates(
       fields.some((value) =>
         searchText(value).includes(query),
       );
-    return (category === "all" || template.category === category) && (palette === "all" || template.palette === palette) && matchesStyle && matchesPrice && matchesSearch && (!photoOnly || template.personalization?.photoFrames > 0);
+    return (type === 'all' || templateCardType(template) === type) && (category === "all" || template.category === category) && (palette === "all" || template.palette === palette) && matchesStyle && matchesPrice && matchesSearch && (!photoOnly || template.personalization?.photoFrames > 0);
   });
 }
 

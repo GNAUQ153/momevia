@@ -6,6 +6,7 @@ import { personalizationText, templateCover, templateField, templateSearchFields
 import { featuredSeasons, isInSeason } from "../features/catalog/seasonal.js";
 import { templatePreviewDialog } from "../features/catalog/template-preview.js";
 import { templateCreateUrl } from "../features/catalog/template-create-url.js";
+import { CARD_TYPES, templateCardType } from '../shared/card-type.js';
 import { prioritizeTemplates } from '../shared/template-order.js';
 import { preserveLoadedCovers } from '../core/cover-loading.js';
 import {
@@ -25,6 +26,7 @@ export function createCatalogViews({
   function matchingTemplates() {
     return prioritizeTemplates(filterTemplates(state.templates, {
       style: state.filter,
+      cardType: state.cardType,
       search: state.search,
       freeOnly: state.freeOnly,
       photoOnly: state.photoOnly,
@@ -44,7 +46,7 @@ export function createCatalogViews({
   }
 
   function hasFilters() {
-    return Boolean(state.search.trim() || state.freeOnly || state.photoOnly || state.filter !== 'all' || (state.occasion && state.occasion !== 'all') || (state.palette && state.palette !== 'all'));
+    return Boolean(state.search.trim() || (state.cardType && state.cardType !== 'all') || state.freeOnly || state.photoOnly || state.filter !== 'all' || (state.occasion && state.occasion !== 'all') || (state.palette && state.palette !== 'all'));
   }
 
   function syncCatalogResults() {
@@ -108,6 +110,10 @@ export function createCatalogViews({
       <div class="catalog-toolbar"><div class="catalog-title"><h1>${text("shell.pages.catalog")}</h1>${catalogFailed ? '' : `<span id="catalog-count" aria-live="polite" aria-atomic="true">${text('catalog.results.count', { count: result.total })}</span>`}</div>
         <label class="search-field">${icon("search", 19)}<span class="visually-hidden">${text("catalog.search.label")}</span><input type="search" id="template-search" ${attr("placeholder", "catalog.search.placeholder")} value="${e(state.search)}"/></label></div>
       <div class="catalog-filters" role="group" ${attr("aria-label", "catalog.filters.group")}>
+        <label class="catalog-style-select"><span>${text('catalog.cardType.label')}</span><select id="card-type-filter" ${attr('aria-label','catalog.cardType.label')}>
+          <option value="all" ${!state.cardType || state.cardType === 'all' ? 'selected' : ''}>${text('catalog.cardType.all')}</option>
+          ${CARD_TYPES.map(type => `<option value="${type}" ${state.cardType === type ? 'selected' : ''}>${text(`catalog.cardType.${type}`)}</option>`).join('')}
+        </select>${icon('chevron-down', 18)}</label>
         <label class="catalog-style-select"><span>${icon("filter", 17)} ${text("catalog.filters.style")}</span><select id="style-filter" ${attr("aria-label", "catalog.filters.byStyle")}>
           <option value="all" ${state.filter === "all" ? "selected" : ""}>${text('catalog.filters.all', { count: state.templates.length })}</option>
           ${options.join('')}
@@ -133,6 +139,7 @@ export function createCatalogViews({
       <div class="detail-grid"><div class="detail-info">
         <h1>${templateField(template, 'title')}</h1>
         <div class="detail-price-row"><strong>${priceText(template.price)}</strong></div>
+        <p>${text('catalog.cardType.detail', { type: { format: 'message', key: `catalog.cardType.${templateCardType(template)}` } })}</p>
         <p>${personalizationText(template.personalization)}</p>
         <div class="detail-start-actions">
           ${buttonLink(templateCreateUrl(template), text("catalog.detail.use"), "btn--dark", false)}

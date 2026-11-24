@@ -1,3 +1,9 @@
+## Unreleased — Phase 2.1A Phân loại thiệp (2026-11-24)
+
+- Phân biệt loại thiệp và dịp sử dụng; API và danh mục VI/EN có bộ lọc loại thiệp, giữ tương thích với API cũ.
+- Mẫu Creator chưa xác định giữ trạng thái chưa phân loại; không đổi giá, quyền, dữ liệu thiệp hoặc snapshot đã phát hành.
+- Bổ sung kiểm thử phân loại và lọc; nhập thông tin sự kiện và RSVP triển khai ở các bản tiếp theo.
+
 ## Unreleased — Phase 1 Security & Production Stability (2026-11-24)
 
 - Bổ sung preflight production và startup strict opt-in; giữ nguyên dữ liệu, secret và storage hiện có.

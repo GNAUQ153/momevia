@@ -3,6 +3,7 @@ export const state = {
   providers: { demo: true, google: false, zalo: false },
   templates: [],
   filter: 'all',
+  cardType: 'all',
   freeOnly: false,
   photoOnly: false,
   search: '',

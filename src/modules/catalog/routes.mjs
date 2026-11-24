@@ -5,7 +5,7 @@ import { requestLocale } from '../../shared/locale.mjs';
 export function registerRoutes(router, { config, service, resolveUser = currentUser }) {
   router.on('GET', '/health', ({ res }) => sendJson(res, 200, { name: 'catalog', ok: true }));
   router.on('GET', '/templates', async ({ req, res, url }) => {
-    const templates = await service.search({ q: url.searchParams.get('q') || '', style: url.searchParams.get('style') || '', category:url.searchParams.get('occasion') || '', palette:url.searchParams.get('palette') || '', locale: requestLocale(req) });
+    const templates = await service.search({ q: url.searchParams.get('q') || '', style: url.searchParams.get('style') || '', category:url.searchParams.get('occasion') || '', palette:url.searchParams.get('palette') || '', cardType: url.searchParams.get('cardType') || 'all', locale: requestLocale(req) });
     return sendJson(res, 200, { templates });
   });
   router.on('GET', '/templates/:id', async ({ res, params }) => sendJson(res, 200, { template: await service.publicOne(params.id) }));

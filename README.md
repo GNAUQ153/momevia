@@ -91,18 +91,18 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Thống kê quyền live, sandbox, demo và chưa xác định; phân biệt active, revoked và inactive, với API chỉ đọc theo chủ quyền hoặc Admin.
-- Dùng chung điều kiện entitlement cho kiểm tra quyền và transaction xuất bản; không cấp lại đơn demo đã thu hồi khi retry.
-- Không đổi quyền lịch sử, schema, giá hoặc khóa thanh toán; cần đối soát trước khi áp dụng chính sách loại quyền thử nghiệm trong production.
+- API chỉ đọc số thiệp đã lưu theo mẫu và chủ thiệp trên MySQL, tách legacy và Canvas; không suy ra số lượt còn lại.
+- Chặn trả lại checkout sandbox/live khác môi trường, giữ nguyên khóa giao dịch để đối soát.
+- Không tiêu hao entitlement, không thay đổi dữ liệu hoặc schema; bổ sung kiểm thử trước khi áp dụng hạn mức.
 
 **Các commit gần nhất trên `main`:**
 
+- `e803670` — feat(publication): audit template usage and isolate checkout environment replay (2026-11-24)
 - `1b88fdb` — feat(checkout): audit entitlement lifecycle and prevent revoked demo license replay (2026-11-24)
 - `6ad05ad` — fix(ci): cover disabled and enabled demo checkout browser scenarios (2026-11-24)
 - `b368b86` — feat(checkout): enforce demo purchase policy and authoritative template entitlement (2026-11-24)
 - `2966e32` — feat(rsvp): add private invitation attendance responses and sender summary (2026-11-24)
 - `2f45587` — feat(invitation): add structured event details and publication validation (2026-11-24)
-- `7c191f1` — fix(ci): update catalog contract test for card type metadata (2026-11-24)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

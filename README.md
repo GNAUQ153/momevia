@@ -91,18 +91,18 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Thêm khóa checkout theo user/mẫu/sandbox-live, giữ khóa cũ và truy vấn lại đơn cũ đúng scope.
-- Migration 017 bổ sung bảng, không sửa dữ liệu cũ; chỉ bật chính sách sau nghiệm thu và kiểm tra production.
-- Không thay đổi entitlement lịch sử, giá hoặc hạn mức xuất bản.
+- Migration 018 tạo credit theo entitlement, cấp và tiêu hao cùng transaction ở MySQL Canvas/Legacy.
+- Chỉ bật trên profile MySQL QA cô lập; bảo toàn quyền cũ không có credit, không backfill hoặc thay đổi production.
+- Chưa mở mua thêm lượt, chưa kích hoạt quota production; bổ sung test cạnh tranh, retry và rollback.
 
 **Các commit gần nhất trên `main`:**
 
+- `d75f845` — Merge pull request #27 from GNAUQ153:feat/animated-elements-50-20261124 (2026-11-24)
+- `53a48e7` — feat(publication): add transactional premium publication credits for isolated QA (2026-11-24)
 - `205bc3c` — feat(checkout): introduce migration-safe scoped payment checkout keys (2026-11-24)
 - `0b13770` — fix(payment): enforce sandbox and live scope during verified settlement (2026-11-24)
 - `e803670` — feat(publication): audit template usage and isolate checkout environment replay (2026-11-24)
 - `1b88fdb` — feat(checkout): audit entitlement lifecycle and prevent revoked demo license replay (2026-11-24)
-- `6ad05ad` — fix(ci): cover disabled and enabled demo checkout browser scenarios (2026-11-24)
-- `b368b86` — feat(checkout): enforce demo purchase policy and authoritative template entitlement (2026-11-24)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

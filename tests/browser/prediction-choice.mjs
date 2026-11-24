@@ -40,7 +40,7 @@ export async function runPredictionBrowser(base, { account, artifactDir, oldGift
     assert.equal(await scope.locator('.gift-prediction-ending').count(), 0);
     const tree = await scope.ariaSnapshot();
     assert(!tree.includes(sample.reason)); assert(!tree.includes(sample.endingA)); assert(!tree.includes(sample.endingB));
-    const option = scope.getByRole('button', { name: `${choice} · ${sample['option'+choice]}`, exact: true });
+    const option = scope.getByRole('button', { name: `${choice} - ${sample['option'+choice]}`, exact: true });
     if (double) await scope.locator('.gift-prediction-options').evaluate(root => {
       const buttons = root.querySelectorAll('button'); buttons[1].click(); buttons[0].click(); buttons[1].click();
     });
@@ -48,8 +48,8 @@ export async function runPredictionBrowser(base, { account, artifactDir, oldGift
     else await option.tap();
     const guess = scope.locator('.gift-prediction-guessed');
     await guess.waitFor();
-    assert.equal(await guess.innerText(), `Minh đã đoán · ${sample['option'+prediction]}`);
-    assert.equal(await scope.locator('.gift-prediction-chosen').innerText(), `Cậu vừa chọn · ${sample['option'+choice]}`);
+    assert.equal(await guess.innerText(), `Minh đã đoán - ${sample['option'+prediction]}`);
+    assert.equal(await scope.locator('.gift-prediction-chosen').innerText(), `Cậu vừa chọn - ${sample['option'+choice]}`);
     assert.equal(await scope.locator('.gift-prediction-reason').innerText(), sample.reason);
     await scope.locator('.gift-prediction-ending .gift-interaction-copy').waitFor();
     assert.equal(await scope.locator('.gift-prediction-ending .gift-interaction-copy').innerText(), sample['ending'+choice]);
@@ -64,9 +64,9 @@ export async function runPredictionBrowser(base, { account, artifactDir, oldGift
     await page.locator('a.template-card__title[href="/template/to-doan-cau-se-chon"]').click();
     await page.getByRole('button', { name: 'Xem thử', exact: true }).click();
     const preview = page.locator('dialog.template-preview-dialog[open]');
-    await preview.getByRole('button', { name: 'B · '+sample.optionB, exact: true }).waitFor();
+    await preview.getByRole('button', { name: 'B - '+sample.optionB, exact: true }).waitFor();
     assert.equal(await preview.locator('.gift-prediction-guessed').count(), 0);
-    await preview.getByRole('button', { name: 'B · '+sample.optionB, exact: true }).click();
+    await preview.getByRole('button', { name: 'B - '+sample.optionB, exact: true }).click();
     await preview.locator('.gift-prediction-ending').waitFor();
     await page.keyboard.press('Escape');
     await page.getByRole('link', { name: 'Dùng mẫu', exact: true }).click();
@@ -86,7 +86,7 @@ export async function runPredictionBrowser(base, { account, artifactDir, oldGift
     await predictionRadio('A').check();
     await cardField('optionA').fill('Quán mì vừa đổi tên');
     assert(await predictionRadio('A').isChecked());
-    assert.equal(await predictionRadio('A').locator('..').innerText(), 'A · Quán mì vừa đổi tên');
+    assert.equal(await predictionRadio('A').locator('..').innerText(), 'A - Quán mì vừa đổi tên');
     await save(); await page.reload(); await cardField('question').waitFor();
     assert(await predictionRadio('A').isChecked());
     assert.equal(await cardField('optionA').inputValue(), 'Quán mì vừa đổi tên');
@@ -133,7 +133,7 @@ export async function runPredictionBrowser(base, { account, artifactDir, oldGift
     assert.equal((await receiver.cookies()).length, 0);
     await recipient.goto(giftA);
     const stage = recipient.locator('.gift-runtime-stage');
-    await stage.getByRole('button', { name: 'A · '+sample.optionA, exact: true }).waitFor();
+    await stage.getByRole('button', { name: 'A - '+sample.optionA, exact: true }).waitFor();
     assert.equal(await recipient.locator('.gift-runtime-navigation button').count(), 1);
     assert.equal(await recipient.locator('.gift-runtime-navigation').innerText(), '1. Mở quà');
     await capture(recipient, 'recipient-question-390.png');
@@ -143,7 +143,7 @@ export async function runPredictionBrowser(base, { account, artifactDir, oldGift
     await play(recipient, stage, 'A', 'A', { keyboard: true });
     await capture(recipient, 'recipient-A-A-390.png');
     await recipient.reload();
-    await stage.getByRole('button', { name: 'B · '+sample.optionB, exact: true }).waitFor();
+    await stage.getByRole('button', { name: 'B - '+sample.optionB, exact: true }).waitFor();
     assert.equal(await stage.locator('.gift-prediction-guessed').count(), 0);
     completed.push('Published gift opened without sender cookies, replay and reload reset choice');
     const slugA = new URL(giftA).pathname.split('/').at(-1);
@@ -167,7 +167,7 @@ export async function runPredictionBrowser(base, { account, artifactDir, oldGift
     await recipient.locator('.recipient-preferences [data-locale-select]').selectOption('en');
     await stage.getByRole('button', { name: 'Play again', exact: true }).waitFor();
     assert.equal(await stage.locator('.gift-prediction-ending .gift-interaction-copy').innerText(), sample.endingB);
-    assert.equal(await stage.locator('.gift-prediction-guessed').innerText(), 'Minh guessed · '+sample.optionB);
+    assert.equal(await stage.locator('.gift-prediction-guessed').innerText(), 'Minh guessed - '+sample.optionB);
     await recipient.locator('.recipient-preferences [data-locale-select]').selectOption('vi');
     // Long copy and 320px do not overflow; use real UI input + preview.
     await page.goto(draftUrl); await cardField('question').waitFor();
@@ -177,7 +177,7 @@ export async function runPredictionBrowser(base, { account, artifactDir, oldGift
     await cardField('endingA').fill('Một lời hẹn dài. '.repeat(55));
     await action('preview').click();
     await page.setViewportSize({ width: 320, height: 740 });
-    const longOption = page.locator('dialog[open]').getByRole('button', { name: 'A · '+longLabel, exact: true });
+    const longOption = page.locator('dialog[open]').getByRole('button', { name: 'A - '+longLabel, exact: true });
     await longOption.waitFor();
     const box = await longOption.boundingBox(); assert(box.width <= 320 && box.height >= 44);
     assert.equal(await longOption.evaluate(node => node.scrollWidth <= node.clientWidth+1), true);
@@ -220,11 +220,11 @@ export async function runPredictionBrowser(base, { account, artifactDir, oldGift
     // Normal-motion timeline: guess first, ending later; reload cancels old timers.
     await recipient.emulateMedia({ reducedMotion: 'no-preference' });
     await recipient.goto(giftA);
-    await stage.getByRole('button', { name: 'B · '+sample.optionB }).tap();
+    await stage.getByRole('button', { name: 'B - '+sample.optionB }).tap();
     await stage.locator('.gift-prediction-guessed').waitFor();
     assert.equal(await stage.locator('.gift-prediction-ending').count(), 0);
     await stage.locator('.gift-prediction-ending').waitFor();
-    await recipient.reload(); await stage.getByRole('button', { name: 'A · '+sample.optionA }).tap();
+    await recipient.reload(); await stage.getByRole('button', { name: 'A - '+sample.optionA }).tap();
     await recipient.reload(); await recipient.waitForTimeout(4600);
     assert.equal(await stage.locator('.gift-prediction-guessed').count(), 0);
     completed.push('Normal-motion reveal order and stale timer cancellation; reduced-motion immediate results');

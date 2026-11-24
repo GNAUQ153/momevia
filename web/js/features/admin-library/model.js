@@ -2,7 +2,7 @@ import { createElement, registry } from '../../shared/canvas/registry.js';
 import { createDocument } from '../../shared/canvas/presets.js';
 import { interactionKinds } from '../../shared/canvas/interactions.js';
 import { emptyPrediction } from '../../shared/canvas/prediction.js';
-import { libraryText } from '../../shared/canvas/library-state.js';
+import { libraryLabel as libraryText } from '../../shared/canvas/library-state.js';
 import { validateAnimation } from '../../shared/canvas/library-contract.js';
 import { canonicalStringify } from '../../shared/canvas/schema.js';
 

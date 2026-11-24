@@ -63,7 +63,7 @@ export function refundAdminPanel(requests, { filter = 'active', nextCursor = nul
       return `<article class="refund-review__card" data-refund-item="${e(item.id)}">
         <div class="refund-review__top"><strong>${text('refund.admin.order')} <code>${e(item.orderId || '')}</code></strong>
           <span>${refundStatus(status)}</span></div>
-        <p>${text('refund.admin.amount')} ${priceText(Number(item.amountVnd))} · ${text(item.sandbox ? 'finance.group.sandbox' : 'finance.group.live')}</p>
+        <p>${text('refund.admin.amount')} ${priceText(Number(item.amountVnd))} - ${text(item.sandbox ? 'finance.group.sandbox' : 'finance.group.live')}</p>
         <p>${text('refund.admin.reason')}: ${refundReason(item.reasonCode)}</p>
         <p class="refund-review__detail">${e(item.detail || '')}</p>
         ${choices.length ? `<div class="refund-review__actions">

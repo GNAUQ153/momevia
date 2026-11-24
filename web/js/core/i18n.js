@@ -1,4 +1,4 @@
-import { currency, defaultLocale, escapeHtml, isLocale, translate, vi } from '../shared/locale.js';
+import { currency, defaultLocale, escapeHtml, isLocale, translateUi as translate, vi } from '../shared/locale.js';
 
 const storageKey = 'momevia-locale';
 const dictionaries = new Map([[defaultLocale, vi]]);

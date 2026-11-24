@@ -42,7 +42,7 @@ test('100 original library IDs match the approved 72 additions and the 28 origin
     'rectangle','rounded','ellipse','circle','divider','heart','star','flower','sparkles','balloon','cake','gift',
     'flowers','leaves','stars','envelope','gift-box','continue','replay','reply'];
   assert.deepEqual(originalCards.filter(card=>!card.id.startsWith('object-')).map(card=>card.id).sort(), [...baseline,...planned.map(([,id])=>id)].sort());
-  assert.deepEqual(catalog.filter(group => !group.label.startsWith("Kho trang trí · ") && !group.items.every(card=>card.id.startsWith("natural-"))).map(group=>group.items.length),[15,14,15,21,33,17,16]);
+  assert.deepEqual(catalog.filter(group => !group.label.startsWith("Kho trang trí - ") && !group.items.every(card=>card.id.startsWith("natural-"))).map(group=>group.items.length),[15,14,15,21,33,17,16]);
   for (const [,id,label] of planned) assert.equal(cards.find(card=>card.id===id).title,label);
   for (const card of cards) assert(matchesBlock(card, card.title),card.id);
   assert(matchesBlock(cards.find(card=>card.id==='wax-seal'),'con dau'));

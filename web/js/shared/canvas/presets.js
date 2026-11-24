@@ -5,7 +5,7 @@ import { canonicalText } from '../locale.js';
 import { EVENT_CARD_IDS } from './event-cards.js';
 import { predictionCard, predictionFields } from './prediction.js';
 import { eventMediaId } from './event-media.js';
-import { libraryDocument, libraryEntry, libraryEntries, libraryText, libraryLocale } from './library-state.js';
+import { libraryDocument, libraryEntry, libraryEntries, libraryLabel as libraryText, libraryLocale } from './library-state.js';
 import { pinDocumentArtwork } from './library-materialize.js';
 
 const palettes = {

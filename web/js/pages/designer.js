@@ -21,7 +21,7 @@ import { eventTimeFromLocal, interactionKinds, localEventTime, photoSlots } from
 import { effectsFor, elementEffectFamilies, sceneEffectFamilies, effectPreset, effectLabel } from "../shared/canvas/effects.js";
 import { starterPresets } from '../shared/canvas/presets.js';
 import { loadCanvasLibrary, configureLibrary } from '../features/canvas-editor/library-client.js';
-import { librarySnapshot, libraryText } from '../shared/canvas/library-state.js';
+import { librarySnapshot, libraryLabel as libraryText } from '../shared/canvas/library-state.js';
 import { refreshElementArtwork } from '../shared/canvas/library-materialize.js';
 import { textFont } from "../features/gift-runtime/renderer.js";
 import { bindingLabels, clearTemplateBindingDefaults, lockedVisibleNames, visibleBindingKeys } from "../shared/canvas/personalization.js";

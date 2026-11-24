@@ -1,3 +1,9 @@
+## Unreleased — Đổi dấu phân cách giao diện sang gạch ngang (2026-11-24)
+
+- Thay dấu chấm nổi phân cách bằng `-` trong giao diện VI/EN, Studio, quyền/trạng thái, thư viện, âm thanh và các lựa chọn tương tác. Nhãn lấy từ phiên bản thư viện cũ cũng hiển thị theo quy tắc mới.
+- Định dạng mẫu câu trước khi ghép tham số; giữ nguyên tên, lời nhắn, nội dung thiệp đã lưu, dữ liệu thư viện gốc, gói cập nhật có hash và các hạt chấm trang trí. Không thay ký tự `*` trong mã/công thức.
+- Build/check, 757 unit tests và trình duyệt cho thiệp tương tác/lượt nhận đạt; đối chiếu 245 mẫu câu VI/EN, tên chứa dấu chấm vẫn được bảo toàn.
+
 ## Unreleased — Ba cách ghi tên người nhận (2026-11-24)
 
 - Lưu chế độ thủ công/danh sách/tự điền theo nháp; nhập XLSX/CSV có xem trước và lỗi dòng gốc; xuất bản một nội dung cho các link cá nhân hoặc một link chung.

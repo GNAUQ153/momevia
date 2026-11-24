@@ -149,10 +149,10 @@ export function mountPlayer(
     const track=soundtrackPlayback.track;
     if(track.artist){
       const credit=globalThis.document.createElement('small');credit.className='gift-music-credit';
-      credit.append(`${track.originalTitle} — ${track.artist} · `);
-      const license=globalThis.document.createElement('a');license.href=track.licenseUrl||'https://creativecommons.org/publicdomain/zero/1.0/';license.target='_blank';license.rel='noopener noreferrer';license.textContent=track.license;credit.append(license,` · `);
+      credit.append(`${track.originalTitle} — ${track.artist} - `);
+      const license=globalThis.document.createElement('a');license.href=track.licenseUrl||'https://creativecommons.org/publicdomain/zero/1.0/';license.target='_blank';license.rel='noopener noreferrer';license.textContent=track.license;credit.append(license,` - `);
       const source=globalThis.document.createElement('a');source.href=track.sourceUrl;source.target='_blank';source.rel='noopener noreferrer';setText(source,message('editor.music.source'));credit.append(source);musicGroup.append(credit);
-      const changes=globalThis.document.createElement('span');setText(changes,message('musicLibrary.mediaChanges'));credit.append(' · ',changes);
+      const changes=globalThis.document.createElement('span');setText(changes,message('musicLibrary.mediaChanges'));credit.append(' - ',changes);
     }
     toolbar.append(musicGroup);
   }

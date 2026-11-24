@@ -503,14 +503,14 @@ export async function runCreatorJourney(base) {
     await draftCard.waitFor({ state: 'detached' });
     await guest.call(recipientEndpoint + inviteQuery);
     const giftCard = phone.locator('.my-gift').filter({ has: phone.locator(`a[href="/success/${slug}"]`) });
-    await giftCard.getByText(/Đang hoạt động · Hết hạn ngày/).waitFor();
+    await giftCard.getByText(/Đang hoạt động - Hết hạn ngày/).waitFor();
     await giftCard.getByRole('button', { name: /Hồi đáp/ }).click();
     await phone.getByRole('dialog').getByText('Cảm ơn Linh vì tấm ảnh!').waitFor();
     await phone.getByRole('dialog').getByRole('checkbox', { name: 'Chưa đọc' }).waitFor();
     await phone.getByRole('dialog').getByRole('button', { name: 'Đóng' }).click();
     phone.once('dialog', dialog => dialog.accept());
     await giftCard.getByRole('button', { name: 'Ngừng chia sẻ món quà' }).click();
-    await phone.getByText(/Đã thu hồi · Hết hạn ngày/).waitFor();
+    await phone.getByText(/Đã thu hồi - Hết hạn ngày/).waitFor();
     await sender.call(revokeEndpoint, {});
     if (await receiver.locator('#modal-root .dialog').isVisible())
       await receiver.getByRole('button', { name: 'Đóng', exact: true }).click();

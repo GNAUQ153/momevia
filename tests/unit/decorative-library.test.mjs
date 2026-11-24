@@ -18,7 +18,7 @@ test("100 elements cũ vẫn còn, 24 trang trí mới tạo bốn nhóm độc 
   assert.equal(decorations.length, 24);
   assert.deepEqual(decorativeGroups.slice(0, 4).map(([, items]) => items.length), [6, 6, 6, 6]);
   assert.deepEqual(decorativeIds.slice().sort(), decorations.map(item => item.id).sort());
-  assert.deepEqual(catalog.filter(group => !group.label.startsWith("Kho trang trí · ") && !group.items.every(card=>card.id.startsWith("natural-"))).map(group => group.items.length),
+  assert.deepEqual(catalog.filter(group => !group.label.startsWith("Kho trang trí - ") && !group.items.every(card=>card.id.startsWith("natural-"))).map(group => group.items.length),
     [15, 14, 15, 21, 33, 17, 16]);
 });
 

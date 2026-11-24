@@ -56,7 +56,7 @@ export function renderInteraction(model, { mode, signal, motion, bindings, rende
       root.replaceChildren(node('h3', 'gift-prediction-question', p.question));
       const options = node('div', 'gift-prediction-options');
       for (const id of ['A', 'B']) {
-        const control = button(`${id} · ${p['option' + id]}`, () => {
+        const control = button(`${id} - ${p['option' + id]}`, () => {
           if (chosen !== null) return;
           chosen = id; root.dataset.choice = id;
           const result = predictionResult(p, id);

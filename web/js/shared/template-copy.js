@@ -1,4 +1,5 @@
 import { vi } from './locale.js';
+import { uiSeparators } from './ui-copy.js';
 
 export const templateCopyKey = (id, field) => `templates.${id}.${field}`;
 export const isSystemTemplate = template => !template?.versionId &&
@@ -6,7 +7,7 @@ export const isSystemTemplate = template => !template?.versionId &&
 
 const metaKeys = new Map(Object.entries(vi)
   .filter(([key]) => key.startsWith('templates.meta.'))
-  .map(([key, value]) => [`${key.split('.')[2]}:${value}`, key]));
+  .map(([key, value]) => [`${key.split('.')[2]}:${uiSeparators(value)}`, key]));
 
 export function templateFieldKey(template, field) {
   if (!isSystemTemplate(template)) return undefined;
@@ -19,5 +20,5 @@ export function templateFieldKey(template, field) {
 }
 
 export function templateMetaKey(field, value) {
-  return metaKeys.get(`${field}:${value}`);
+  return metaKeys.get(`${field}:${typeof value === 'string' ? uiSeparators(value) : value}`);
 }

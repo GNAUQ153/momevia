@@ -97,7 +97,7 @@ export function renderCanvasConflictReview({ local, remote, localRevision }) {
   }
   return node("dialog", { class: "editor-preview-dialog conflict-review", "aria-label": message("editor.conflict.title") },
     node("div", { class: "conflict-review__head" },
-      node("p", { class: "conflict-review__eyebrow" }, "MOMEVIA · CANVAS"),
+      node("p", { class: "conflict-review__eyebrow" }, "MOMEVIA - CANVAS"),
       node("h2", {}, message("editor.conflict.title")),
       node("p", {}, message("editor.conflict.description"))),
     node("div", { class: "conflict-review__versions" },

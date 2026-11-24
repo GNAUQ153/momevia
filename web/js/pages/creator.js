@@ -73,10 +73,10 @@ export function createCreatorViews({ state }) {
           ${t.versions.slice().reverse().map(v => `<p>${text('creator.list.revision', {
             revision: v.revision,
             status: ['pending', 'approved', 'changes_requested'].includes(v.status) ? { format: 'message', key: `creator.status.${v.status}` } : v.status,
-          })}${v.reason ? ` · ${e(v.reason)}` : ""}</p>`).join("")}</div>
+          })}${v.reason ? ` - ${e(v.reason)}` : ""}</p>`).join("")}</div>
           <div class="my-gift-actions"><a class="btn btn--outline" href="/design/${e(t.creatorDesignId)}" data-link>${text("creator.actions.open")}</a><button class="btn btn--outline" data-action="duplicate-template" data-id="${e(t.id)}">${text("creator.actions.duplicate")}</button>
           ${t.versionId && !t.withdrawn ? `<button class="btn btn--outline" data-action="withdraw-template" data-id="${e(t.id)}">${text("creator.actions.withdraw")}</button>` : ''}</div></article>`).join("") : `<p class="creator-empty">${text("creator.list.empty")}</p>`}
-          ${legacy.length ? `<h3>${text("creator.list.legacy")}</h3>${legacy.map(t => `<p>${e(t.title)} · ${priceText(t.price)}${t.rejectionReason ? ` · ${e(t.rejectionReason)}` : ''}</p>`).join("")}` : ''}</div>
+          ${legacy.length ? `<h3>${text("creator.list.legacy")}</h3>${legacy.map(t => `<p>${e(t.title)} - ${priceText(t.price)}${t.rejectionReason ? ` - ${e(t.rejectionReason)}` : ''}</p>`).join("")}` : ''}</div>
       </div></section>${creatorFinancePanel(statement)}`
         : `<section class="section"><div class="container creator-benefits"><div class="section-heading section-heading--center"><span class="eyebrow">${text("creator.benefits.badge")}</span><h2>${text("creator.benefits.title")} <em>${text("creator.benefits.emphasis")}</em></h2></div><div class="steps-grid"><article class="step-card">${icon("pencil", 30)}<h3>${text("creator.benefits.design")}</h3><p>${text("creator.benefits.designHint")}</p></article><article class="step-card">${icon("layers", 30)}<h3>${text("creator.benefits.management")}</h3><p>${text("creator.benefits.managementHint")}</p></article><article class="step-card">${icon("heart", 30)}<h3>${text("creator.benefits.reach")}</h3><p>${text("creator.benefits.reachHint")}</p></article></div></div></section>`
       }`;

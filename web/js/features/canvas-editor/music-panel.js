@@ -105,15 +105,15 @@ export function createMusicPanel(soundtrack) {
           node("span", { class: "editor-music-track-description" }, message(track.descriptionKey)),
           node("span", { class: "editor-music-track-meta" },
             message(`editor.music.occasion.${occasionFor(track)}`),
-            " · ",
+            " - ",
             message(track.mood === "gentle" ? "editor.music.gentle" : "editor.music.joyful"),
-            ` · ${Math.floor(track.durationSeconds / 60)}:${String(Math.floor(track.durationSeconds % 60)).padStart(2, "0")}`,
+            ` - ${Math.floor(track.durationSeconds / 60)}:${String(Math.floor(track.durationSeconds % 60)).padStart(2, "0")}`,
           ),
         )),
       ),
     ),
     node('p', {class:'editor-music-source','data-music-source':'',hidden:!selectedTrack?.artist},
-      ...(selectedTrack?.artist ? [`${selectedTrack.originalTitle} — ${selectedTrack.artist} · ${selectedTrack.license} · `,
+      ...(selectedTrack?.artist ? [`${selectedTrack.originalTitle} — ${selectedTrack.artist} - ${selectedTrack.license} - `,
         node('a', {href:selectedTrack.sourceUrl,target:'_blank',rel:'noopener noreferrer'}, message('editor.music.source'))] : [])),
     node('p', { class: 'editor-music-help' }, message('musicLibrary.mediaChanges')),
     node("label", { class: "editor-music-volume" },
@@ -136,7 +136,7 @@ export function syncMusicPanel(main, soundtrack, { playing = false } = {}) {
   const selectedId = soundtrack?.id || "";
   const track=soundtrackById(selectedId),credit=main.querySelector('[data-music-source]');
   const legacyHint=main.querySelector('[data-music-legacy]');if(legacyHint){legacyHint.hidden=!track||availableTracks().some(item=>item.id===selectedId);setText(legacyHint,message(track?.version>=2?'musicLibrary.disabledPinned':'editor.music.legacyPinned'));}
-  if(credit){credit.hidden=!track?.artist;credit.replaceChildren(...(track?.artist?[`${track.originalTitle} — ${track.artist} · ${track.license} · `,node('a',{href:track.sourceUrl,target:'_blank',rel:'noopener noreferrer'},message('editor.music.source'))]:[]));}
+  if(credit){credit.hidden=!track?.artist;credit.replaceChildren(...(track?.artist?[`${track.originalTitle} — ${track.artist} - ${track.license} - `,node('a',{href:track.sourceUrl,target:'_blank',rel:'noopener noreferrer'},message('editor.music.source'))]:[]));}
   const selectControl = main.querySelector('[data-editor-field="soundtrack"]');
   if (selectControl && selectControl !== document.activeElement) selectControl.value = selectedId;
   for (const control of main.querySelectorAll('[data-editor-action="soundtrack-pick"]')) {

@@ -1,5 +1,5 @@
 import { eventRecipes, eventRecipe } from './event-recipes.js';
-import { libraryEntries, libraryEntry, libraryText } from './library-state.js';
+import { libraryEntries, libraryEntry, libraryLabel as libraryText } from './library-state.js';
 import { allowsEffect, builtinEffectApplies } from './library-contract.js';
 const group = (label, prefix, names) => Object.freeze({
   label,

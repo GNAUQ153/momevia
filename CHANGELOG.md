@@ -1,3 +1,9 @@
+## Unreleased — Phase 2.5B Cảnh báo hết hạn và gia hạn (2026-11-25)
+
+- Cảnh báo Sender khi thiệp còn tối đa 7 ngày; gia hạn một lần theo cấu hình 0–30 ngày, mặc định tắt.
+- Kiểm tra chủ thiệp, trạng thái và hạn hiện tại trong thao tác ghi; giữ link, RSVP và quyền truy cập. MySQL cập nhật cột thời hạn cùng payload.
+- Không mở lại thiệp đã đóng, không thay đổi giá hoặc quyền Premium, không migration.
+
 ## Unreleased — Phase 2.5A Vòng đời và kho thiệp (2026-11-25)
 
 - Sender có thể lưu trữ/đưa về danh sách thiệp hết hạn hoặc thu hồi, giữ nội dung, lời đáp, RSVP và trạng thái đóng.

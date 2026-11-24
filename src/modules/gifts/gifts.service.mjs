@@ -10,6 +10,7 @@ import { createGiftAccess, requireGiftPermission } from './access.mjs';
 import { checkReplyReplay, replyId, replyView } from './replies.mjs';
 import { supportsRsvp, rsvpRecord, rsvpView, updateRsvp } from './rsvp.mjs';
 import { setGiftArchive } from './lifecycle.mjs';
+import { renewalView, renewGift } from './renewal.mjs';
 
 export class GiftService {
   constructor({ giftsRepo, repliesRepo, media, config, repliesLimit, catalog, checkout, canvas }) {
@@ -34,6 +35,7 @@ export class GiftService {
   ownerView(gift) {
     return { ...giftSummary(gift), unreadCount: gift.unreadCount ?? 0, canRegift: Boolean(this.canvas?.flags.edit && (gift.templateId || gift.documentSnapshot)),
       access: gift.access, inviteToken: gift.inviteToken,
+      ...renewalView(gift, this.config.giftRenewalDays),
       ...(gift.senderArchivedAt ? { senderArchivedAt: gift.senderArchivedAt } : {}),
       photoUrl: gift.imageFile ? `/api/gifts/gifts/${gift.slug}/photo` : null };
   }
@@ -89,6 +91,12 @@ export class GiftService {
   async archive(user, slug, body) {
     const gift = await this.ownGift(user, slug);
     const result = await this.mutateGift(gift, current => setGiftArchive(current, user.sub, body));
+    if (!result) throw localizedError(404, 'errors.gift.notFound');
+    return result;
+  }
+  async renew(user, slug, body) {
+    const gift = await this.ownGift(user, slug);
+    const result = await this.mutateGift(gift, current => renewGift(current, user.sub, body, this.config.giftRenewalDays));
     if (!result) throw localizedError(404, 'errors.gift.notFound');
     return result;
   }

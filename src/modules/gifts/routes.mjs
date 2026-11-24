@@ -60,6 +60,10 @@ export function registerRoutes(router, { config, creationLimit, globalReplies, s
     const user = await resolveUser(req, config.jwtSecret);
     sendJson(res, 200, await service.archive(user, params.slug, await parseJson(req, 1024)));
   });
+  router.on('POST', '/gifts/mine/:slug/renew', async ({req,res,params}) => {
+    const user = await resolveUser(req, config.jwtSecret);
+    sendJson(res, 200, await service.renew(user, params.slug, await parseJson(req, 1024)));
+  });
   router.on('POST', '/gifts/mine/:slug/regift', async ({req,res,params}) => {
     const user = await resolveUser(req, config.jwtSecret);
     const result = await service.regift(user, params.slug, await parseJson(req, 4096));

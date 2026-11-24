@@ -3,6 +3,7 @@ import path from 'node:path';
 import { CredentialsService } from '../modules/identity/credentials.service.mjs';
 import { parseAllowedOrigins } from './request-origin.mjs';
 import { quotaQaEnabled } from '../modules/checkout/quota-config.mjs';
+import { giftRenewalDays } from '../modules/gifts/renewal.mjs';
 
 // Tải biến môi trường từ tệp .env ở thư mục gốc mà không cần thư viện ngoài.
 export function loadEnvironment() {
@@ -37,6 +38,7 @@ export function environment() {
     adminCode: process.env.DEMO_ADMIN_CODE || '',
     testAccount: testAccountConfig(process.env),
     giftTtlDays: Math.max(1, Number(process.env.GIFT_TTL_DAYS || 365)),
+    giftRenewalDays: giftRenewalDays(process.env.GIFT_RENEWAL_DAYS),
     googleId: process.env.GOOGLE_CLIENT_ID || '',
     googleSecret: process.env.GOOGLE_CLIENT_SECRET || '',
     googleCallback: process.env.GOOGLE_CALLBACK_URL || 'http://localhost:4100/api/auth/google/callback',

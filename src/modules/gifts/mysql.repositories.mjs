@@ -34,8 +34,12 @@ export class MySqlGiftsRepository {
       const [rows] = await tx.execute('SELECT * FROM gifts WHERE id=? FOR UPDATE', [giftId]);
       if (!rows.length) throw localizedError(404, 'errors.gift.notFound');
       const gift = asGift(rows[0]);
+      const previousExpiry = gift.expiresAt;
       const result = update(gift);
-      await tx.execute('UPDATE gifts SET payload=? WHERE id=?', [JSON.stringify(gift), giftId]);
+      // Hạn trong cột SQL là nguồn đọc chính; ghi cùng payload trong transaction.
+      if (gift.expiresAt !== previousExpiry) {
+        await tx.execute('UPDATE gifts SET expires_at=?,payload=? WHERE id=?', [mysqlDate(gift.expiresAt), JSON.stringify(gift), giftId]);
+      } else await tx.execute('UPDATE gifts SET payload=? WHERE id=?', [JSON.stringify(gift), giftId]);
       return result;
     });
   }

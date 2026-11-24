@@ -3,7 +3,7 @@ import { randomUUID } from 'node:crypto';
 import { editInvitation } from '../../web/js/shared/canvas/invitation.js';
 
 // Chạy trên fixture HTTP cô lập có sẵn; không dùng tài khoản hoặc DB production.
-export async function runRsvpApi(request, ownerCookie, otherCookie) {
+export async function runRsvpApi(request, ownerCookie, otherCookie, prepareRenewal) {
   async function call(route, options = {}, expected = 200) {
     const result = await request(route, options);
     assert.equal(result.status, expected, `${route}: ${JSON.stringify(result.data)}`);
@@ -49,6 +49,29 @@ export async function runRsvpApi(request, ownerCookie, otherCookie) {
   const result = (await call(`${ownerPath}/recipients`, owner)).recipients;
   assert.deepEqual(result.map(row => row.rsvp.status), ['tentative', 'declined']);
   assert(result.every(row => !Object.hasOwn(row, 'token')));
+  // Thiệp còn xa hạn hoặc tắt gia hạn: kiểm tra quyền trước khi trả lỗi nghiệp vụ.
+  await call(`${ownerPath}/renew`, { body: { expectedExpiresAt: gift.expiresAt } }, 401);
+  await call(`${ownerPath}/renew`, { cookie: otherCookie, body: { expectedExpiresAt: gift.expiresAt } }, 404);
+  await call(`${ownerPath}/renew`, { ...owner, body: { expectedExpiresAt: gift.expiresAt } }, 409);
+  assert.equal((await call(ownerPath, owner)).gift.expiresAt, gift.expiresAt);
+  if (prepareRenewal) {
+    await prepareRenewal(gift.slug);
+    const { gift: nearExpiry } = await call(ownerPath, owner);
+    assert.equal(nearExpiry.expiringSoon, true);
+    assert.equal(nearExpiry.renewalDays, 7);
+    const request = { ...owner, body: { expectedExpiresAt: nearExpiry.expiresAt } };
+    const renewed = await Promise.all([call(`${ownerPath}/renew`, request), call(`${ownerPath}/renew`, request)]);
+    const expected = new Date(Date.parse(nearExpiry.expiresAt) + 7 * 86400_000).toISOString();
+    assert.equal(renewed.filter(item => !item.replayed).length, 1);
+    assert(renewed.every(item => item.expiresAt === expected));
+    const { gift: updated } = await call(ownerPath, owner);
+    assert.equal(updated.expiresAt, expected);
+    assert.equal(updated.renewalDays, undefined);
+    assert.equal((await read(a.search)).expiresAt, expected);
+    assert.equal((await read(a.search)).rsvp.status, 'tentative');
+    assert.deepEqual((await call(`${ownerPath}/recipients`, owner)).recipients, result);
+    await call(`${ownerPath}/renew`, { ...owner, body: { expectedExpiresAt: expected } }, 409);
+  }
   await call(`${ownerPath}/archive`, { ...owner, body: { archived: true } }, 409);
   await call(`${ownerPath}/revoke`, { ...owner, body: {} });
   await respond(a.search, 'declined', 410);

@@ -85,7 +85,7 @@ try{
   const {createHttpApp}=await import(pathToFileURL(path.join(fixture,'src/server/app.mjs')).href);
   ({HttpError:FixtureHttpError}=await import(pathToFileURL(path.join(fixture,'src/shared/http.mjs')).href));
   const {createElement}=await import(pathToFileURL(path.join(fixture,'web/js/shared/canvas/index.js')).href);
-  const config={baseUrl:'http://127.0.0.1',jwtSecret:randomBytes(32).toString('hex'),internalKey:randomBytes(32).toString('hex'),demoEnabled:true,adminCode:'synthetic-admin',giftTtlDays:365,googleId:'synthetic',googleSecret:'synthetic',zaloId:'',zaloSecret:'',testAccount:null};
+  const config={baseUrl:'http://127.0.0.1',jwtSecret:randomBytes(32).toString('hex'),internalKey:randomBytes(32).toString('hex'),demoEnabled:true,adminCode:'synthetic-admin',giftTtlDays:365,giftRenewalDays:7,googleId:'synthetic',googleSecret:'synthetic',zaloId:'',zaloSecret:'',testAccount:null};
   const paymentEnv={NODE_ENV:'test',IDENTITY_STORAGE:'mysql',CATALOG_STORAGE:'mysql',CHECKOUT_STORAGE:'mysql',PAYMENT_ENABLED:'true',PAYMENT_ENV:'sandbox',PAYMENT_LIVE_ENABLED:'false',PUBLIC_BASE_URL:'https://qa.example.test',MOMO_PARTNER_CODE:'synthetic',MOMO_ACCESS_KEY:'synthetic',MOMO_SECRET_KEY:'synthetic'};
   let recoveryNow = Date.now();
   const mailbox = [];
@@ -109,7 +109,10 @@ try{
     assert.deepEqual((await json('/api/gifts/gifts/mine', { cookie })).gifts, []);
   });
   await check('RSVP MySQL HTTP: private receipt, concurrent writes, owner ACL and revoke', () =>
-    runRsvpApi((route, options) => request('/api' + route, { ...options, method: options.body ? 'POST' : 'GET' }), cookie, otherCookie));
+    runRsvpApi((route, options) => request('/api' + route, { ...options, method: options.body ? 'POST' : 'GET' }), cookie, otherCookie, async slug => {
+      // Chỉ thay hạn trong schema QA mới để kiểm thử gia hạn thực.
+      await admin.execute('UPDATE gifts SET expires_at=DATE_ADD(UTC_TIMESTAMP(3), INTERVAL 1 DAY) WHERE slug=?', [slug]);
+    }));
   await check('C01/C05/C06 blank create/save/reload/CAS/lost ACK through HTTP MySQL',async()=>{
     const mutationId=uuid(),body={source:{kind:'blank'},presetId:'envelope-basic',mutationId};
     blank=(await post('/api/designs/designs',cookie,body,201)).design;const replay=await post('/api/designs/designs',cookie,body,201);assert.equal(replay.design.id,blank.id);assert.equal(replay.replayed,true);

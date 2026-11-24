@@ -50,7 +50,7 @@ test('owner gets an advisory for long-pending orders; no automatic cancellation 
   let write = false;
   const repo = { async forUser() { return {
     orderId: 'order-42', createdAt: old, status: 'pending', amount: 25000,
-    provider: 'momo', checkoutUrl: 'https://test-payment.momo.vn/checkout',
+    provider: 'momo', checkoutUrl: 'https://test-payment.momo.vn/checkout', isTest: true,
   }; }, async releaseKey() { write = true; } };
   const service = paymentService(repo);
   const status = await service.status(buyer, 'order-42');
@@ -63,7 +63,7 @@ test('owner gets an advisory for long-pending orders; no automatic cancellation 
 test('signed production webhooks may settle in-flight orders when new live payments have been disabled', async () => {
   const verified = { provider: 'momo', code: 'a', amount: 25000, reference: 'ref', success: true };
   let accepted = false;
-  const service = paymentService({ async settleVerified(value) { accepted = value === verified; return { settled: true }; } },
+  const service = paymentService({ async settleVerified(value, scope) { accepted = value === verified && scope === false; return { settled: true }; } },
     { ...sandbox, PAYMENT_ENV: 'production', NODE_ENV: 'production', PAYMENT_LIVE_ENABLED: 'false' },
     { momo: { async verifyWebhook() { return verified; } } });
   assert.deepEqual(await service.webhook('momo', {}), { settled: true });

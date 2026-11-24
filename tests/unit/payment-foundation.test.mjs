@@ -96,8 +96,8 @@ test('repository issues a single verified entitlement + receipt inside ONE trans
   };
   const repo=new MySqlPaymentRepository(client);
   const event={provider:'momo',code:'x',reference:'provider-txn-42',amount:25000,currency:'VND',success:true};
-  const first=await repo.settleVerified(event);
-  const replay=await repo.settleVerified(event);
+  const first=await repo.settleVerified(event, true);
+  const replay=await repo.settleVerified(event, true);
   assert.equal(first.replay,false);
   assert.equal(replay.replay,true);
   assert.equal(events.filter(([sql])=>sql.includes('INSERT INTO template_entitlements')).length,1);
@@ -115,7 +115,7 @@ test('amount mismatch rejects BEFORE any payment state or entitlement change',as
   }});}};
   await assert.rejects(new MySqlPaymentRepository(client).settleVerified({
     provider:'momo',code:'123',reference:'ref',amount:23000,currency:'VND',success:true,
-  }),{status:400});
+  }, true),{status:400});
   assert.equal(statements.length,1);
 });
 

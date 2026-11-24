@@ -91,18 +91,18 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Thống kê quyền live, sandbox, demo và chưa xác định; phân biệt active, revoked và inactive, với API chỉ đọc theo chủ quyền hoặc Admin.
-- Dùng chung điều kiện entitlement cho kiểm tra quyền và transaction xuất bản; không cấp lại đơn demo đã thu hồi khi retry.
-- Không đổi quyền lịch sử, schema, giá hoặc khóa thanh toán; cần đối soát trước khi áp dụng chính sách loại quyền thử nghiệm trong production.
+- Ghim scope sandbox/live do server xác định vào webhook và đối soát; kiểm tra đơn trong transaction trước ghi dữ liệu hoặc replay.
+- Chỉ trả đường dẫn thanh toán pending đúng scope; giữ lịch sử đơn, quyền cũ và khóa checkout.
+- Chưa đổi schema hoặc tiêu hao lượt Premium; ghi rõ điều kiện migration và chính sách quyền lịch sử trước khi triển khai quota.
 
 **Các commit gần nhất trên `main`:**
 
+- `0b13770` — fix(payment): enforce sandbox and live scope during verified settlement (2026-11-24)
+- `e803670` — feat(publication): audit template usage and isolate checkout environment replay (2026-11-24)
 - `1b88fdb` — feat(checkout): audit entitlement lifecycle and prevent revoked demo license replay (2026-11-24)
 - `6ad05ad` — fix(ci): cover disabled and enabled demo checkout browser scenarios (2026-11-24)
 - `b368b86` — feat(checkout): enforce demo purchase policy and authoritative template entitlement (2026-11-24)
 - `2966e32` — feat(rsvp): add private invitation attendance responses and sender summary (2026-11-24)
-- `2f45587` — feat(invitation): add structured event details and publication validation (2026-11-24)
-- `7c191f1` — fix(ci): update catalog contract test for card type metadata (2026-11-24)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

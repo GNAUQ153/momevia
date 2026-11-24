@@ -296,6 +296,52 @@ try {
     assert.equal(Number(rows[0].total), 1);
     assert.equal((await payments.forUser(first.orderId, other)).isTest, true);
   });
+  await check('Phase 2.4B1: verified payment cannot settle or replay across environments', async () => {
+    const payments = new MySqlPaymentRepository(db);
+    const intent = await payments.createPending({ userId: other, templateId, title: 'Mẫu thử', amount: 10000, provider: 'momo', isTest: true });
+    const event = { provider: intent.provider, code: intent.code, amount: intent.amount, reference: uuid(), currency: 'VND', success: true };
+    const readCounts = async () => {
+      const [[counts]] = await admin.execute(`SELECT
+        (SELECT COUNT(*) FROM template_entitlements WHERE order_id=?) AS rights_count,
+        (SELECT COUNT(*) FROM payment_receipts WHERE order_id=?) AS receipt_count`, [intent.orderId, intent.orderId]);
+      return [Number(counts.rights_count), Number(counts.receipt_count)];
+    };
+    await assert.rejects(payments.settleVerified(event, false), { status: 409 });
+    assert.equal((await payments.forUser(intent.orderId, other)).status, 'pending');
+    assert.deepEqual(await readCounts(), [0, 0]);
+    assert.equal((await payments.settleVerified(event, true)).replay, false);
+    assert.equal((await payments.settleVerified(event, true)).replay, true);
+    await assert.rejects(payments.settleVerified(event, false), { status: 409 });
+    assert.deepEqual(await readCounts(), [1, 1]);
+  });
+  await check('Phase 2.4B2: scoped checkout preserves historical anchor and isolates concurrent retries', async () => {
+    // Chạy migration thật sau khi fixture đã có khóa Sandbox từ phiên bản trước.
+    await admin.query(await fs.readFile(new URL('../../database/migrations/017_payment_scope_keys.sql', import.meta.url), 'utf8'));
+    const legacy = new MySqlPaymentRepository(db);
+    const first = new MySqlPaymentRepository(db, { scopedCheckout: true });
+    const second = new MySqlPaymentRepository(db2, { scopedCheckout: true });
+    const sandbox = { userId: other, templateId, title: 'Mẫu thử', amount: 10000, provider: 'momo', isTest: true };
+    const old = await legacy.createPending(sandbox);
+    assert.equal((await first.createPending(sandbox)).id, old.id);
+    const live = { ...sandbox, isTest: false, provider: 'payos' };
+    const [a, b] = await Promise.all([first.createPending(live), second.createPending(live)]);
+    assert.equal(a.id, b.id);
+    assert.notEqual(a.id, old.id);
+    assert.equal(a.isTest, false);
+    assert.equal((await second.createPending(sandbox)).id, old.id);
+    // Runtime cũ tiếp tục chặn scope khác, không tự tạo đơn thay thế.
+    await assert.rejects(legacy.createPending(live), { status: 409 });
+    const [[counts]] = await admin.execute(`SELECT
+      (SELECT COUNT(*) FROM payment_checkout_scope_keys WHERE user_id=? AND template_id=?) AS scoped_count,
+      (SELECT COUNT(*) FROM payment_checkout_keys WHERE user_id=? AND template_id=?) AS legacy_count,
+      (SELECT COUNT(*) FROM payment_intents p JOIN orders o ON o.id=p.order_id WHERE o.user_id=? AND o.template_id=?) AS intent_count`,
+    [other, templateId, other, templateId, other, templateId]);
+    assert.deepEqual([Number(counts.scoped_count), Number(counts.legacy_count), Number(counts.intent_count)], [1, 1, 2]);
+    assert.equal((await first.forUser(a.orderId, other)).status, 'pending');
+    assert.equal(await first.forUser(a.orderId, owner), null);
+    const [[rights]] = await admin.execute('SELECT COUNT(*) AS total FROM template_entitlements WHERE order_id=?', [a.orderId]);
+    assert.equal(Number(rights.total), 0);
+  });
   console.log(`RESULT PASS ${count} isolated MySQL integration cases; mocks are not included.`);
 } finally {
   await Promise.allSettled(clients.map(c=>c.close()));

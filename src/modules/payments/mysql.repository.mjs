@@ -6,12 +6,14 @@ import { canonicalText } from '../../../web/js/shared/locale.js';
 import { FinanceReport } from './finance-report.mjs';
 import { ReconciliationAudit } from './reconciliation-audit.mjs';
 import { RefundReviewRepository } from './refund-review.mjs';
+import { storedPaymentScope, samePaymentScope } from './payment-scope.mjs';
+import { findScopedCheckout, rememberScopedCheckout } from './checkout-scope-keys.mjs';
 
 const fromJson = value => typeof value === 'string' ? JSON.parse(value) : (value || {});
 const receiptNo = id => `MV-RC-${id.replace(/-/g, '').toUpperCase()}`;
 
 export class MySqlPaymentRepository {
-  constructor(client = new MySqlClient()) { this.client = client; this.finance = new FinanceReport(client); this.audit = new ReconciliationAudit(client); this.refunds = new RefundReviewRepository(client); }
+  constructor(client = new MySqlClient(), { scopedCheckout = false } = {}) { this.client = client; this.scopedCheckout = scopedCheckout === true; this.finance = new FinanceReport(client); this.audit = new ReconciliationAudit(client); this.refunds = new RefundReviewRepository(client); }
 
   async creatorStatement(creatorId, limit) { return this.finance.creatorStatement(creatorId, limit); }
   async adminFinance() { return this.finance.adminOverview(); }
@@ -30,21 +32,34 @@ export class MySqlPaymentRepository {
       platformFee, creatorAmount: amount - platformFee, currency: 'VND',
       status: 'pending_payment', paymentProvider: provider, createdAt: now,
     };
-    try {
-      await this.client.withTransaction(async tx => {
-        await tx.execute(`INSERT INTO orders
+    const persist = async tx => {
+      await tx.execute(`INSERT INTO orders
           (id,user_id,template_id,gross_vnd,platform_fee_vnd,creator_amount_vnd,currency,
            status,payment_provider,is_test,created_at,payload)
           VALUES (?,?,?,?,?,?,'VND','pending_payment',?,?,?,?)`,
           [orderId, userId, templateId, amount, platformFee, amount - platformFee, provider, isTest ? 1 : 0,
             mysqlDate(now), JSON.stringify(payload)]);
-        await tx.execute(`INSERT INTO payment_intents
+      await tx.execute(`INSERT INTO payment_intents
           (id,order_id,provider,provider_order_code,amount_vnd,status)
           VALUES (?,?,?,?,?,'pending')`, [intentId, orderId, provider, code, amount]);
+    };
+    const fresh = { id: intentId, orderId, code, amount, provider, status: 'pending', checkoutUrl: null, qrPayload: null, isTest };
+    if (this.scopedCheckout) {
+      return this.client.withTransaction(async tx => {
+        const { existing, legacy } = await findScopedCheckout(tx, userId, templateId, isTest);
+        if (existing) return this.intentRow(existing);
+        await persist(tx);
+        await rememberScopedCheckout(tx, userId, templateId, isTest, intentId, legacy);
+        return fresh;
+      });
+    }
+    try {
+      await this.client.withTransaction(async tx => {
+        await persist(tx);
         await tx.execute(`INSERT INTO payment_checkout_keys (user_id,template_id,intent_id)
           VALUES (?,?,?)`, [userId, templateId, intentId]);
       });
-      return { id: intentId, orderId, code, amount, provider, status: 'pending', checkoutUrl: null, qrPayload: null };
+      return fresh;
     } catch (error) {
       if (error.code !== 'ER_DUP_ENTRY') throw error;
       const [rows] = await this.client.execute(`SELECT p.*, o.is_test FROM payment_checkout_keys k
@@ -53,8 +68,7 @@ export class MySqlPaymentRepository {
         [userId, templateId]);
       if (!rows.length) throw error; // Không coi xung đột khóa khác là giao dịch thành công.
       // Không trả QR/URL sandbox cho thanh toán thật (hoặc ngược lại). Giữ khóa để đối soát.
-      const mode = rows[0].is_test;
-      if ((mode !== 0 && mode !== 1) || (mode === 1) !== isTest)
+      if (!samePaymentScope(isTest, storedPaymentScope(rows[0].is_test)))
         throw localizedError(409, 'errors.payment.previousClosed');
       return this.intentRow(rows[0]);
     }
@@ -68,7 +82,7 @@ export class MySqlPaymentRepository {
       amount: Number(row.amount_vnd), provider: row.provider, status: row.status,
       checkoutUrl: row.checkout_url || null, qrPayload: row.qr_payload || null, createdAt,
       providerPaymentId: row.provider_payment_id || null,
-      isTest: row.is_test == null ? null : Boolean(row.is_test)
+      isTest: storedPaymentScope(row.is_test)
     };
   }
   async setLink(intentId, link) {
@@ -133,7 +147,9 @@ export class MySqlPaymentRepository {
       VALUES (?,?,?)`, [intentId, actorId, outcome]);
   }
 
-  async settleVerified(event) {
+  async settleVerified(event, expectedIsTest) {
+    // Bắt buộc caller nội bộ truyền phạm vi xác thực đã được xác định ở server.
+    if (typeof expectedIsTest !== 'boolean') throw localizedError(503, 'errors.payment.reviewEnvironment');
     const { provider, code, reference, amount, currency, success } = event;
     if (!success) return { settled: false, reason: 'not-paid' };
     if (!Number.isSafeInteger(amount) || amount <= 0 || currency !== 'VND' || !reference || reference.length > 191)
@@ -147,6 +163,9 @@ export class MySqlPaymentRepository {
       const item = matches[0];
       if (!item) throw localizedError(404, 'errors.payment.orderNotFound');
       if (Number(item.amount_vnd) !== amount) throw localizedError(400, 'errors.payment.amountMismatch');
+      // Kiểm tra trên đơn đã khóa, trước cả nhánh replay và mọi ghi dữ liệu.
+      if (!samePaymentScope(expectedIsTest, storedPaymentScope(item.is_test)))
+        throw localizedError(409, 'errors.payment.reviewEnvironment');
       if (item.status === 'paid' && item.order_status === 'paid') return { settled: true, replay: true, orderId: item.order_id };
       if (item.status !== 'pending' || item.order_status !== 'pending_payment') throw localizedError(409, 'errors.payment.orderState');
       // Event and entitlement are committed together. A failed transaction can be retried safely.

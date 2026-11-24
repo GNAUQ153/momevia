@@ -466,7 +466,7 @@ export async function runCanvasBrowser(base, expiredSlug) {
     await page.getByRole('heading', { name: 'Không tải được phương thức' }).waitFor();
     // Mô phỏng trường hợp không có phương thức thanh toán và không được mua thử.
     await page.unroute('**/api/checkout/payments/methods');
-    await page.route('**/api/checkout/payments/methods', route => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ methods: [] }) }));
+    await page.route('**/api/checkout/payments/methods', route => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ methods: [], demoPurchaseAvailable: false }) }));
     await page.locator('[data-action="retry-canvas-payment"]').click();
     await page.getByRole('heading', { name: 'Chưa có phương thức thanh toán' }).waitFor();
     assert.equal(await page.locator('[data-action="demo-buy"]').count(), 0);

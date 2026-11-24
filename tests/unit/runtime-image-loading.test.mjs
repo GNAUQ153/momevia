@@ -16,6 +16,7 @@ function fixture({ completed = false, naturalWidth = 0, onSource } = {}) {
         };
       },
     },
+    contains(child) {for(let p=child;p;p=p.parentNode)if(p===this)return true;return false;},
     append(child) {
       child.parentNode = this;
       this.children.push(child);
@@ -106,4 +107,10 @@ test('Không có thay đổi trạng thái sau khi ảnh bị tháo khỏi cây 
   f.listeners.get('error')();
   assert.equal(f.frame.dataset.imageState, 'loading');
   assert.deepEqual(f.frame.children, []);
+});
+
+test('Motion wrappers retain image ownership while a moved-out image ignores stale events',()=>{
+ const f=fixture();mountRuntimeImage(f.image,f.frame,{url:'/local.png'});const wrapper={parentNode:f.frame};f.image.parentNode=wrapper;f.listeners.get('load')();assert.equal(f.frame.dataset.imageState,'ready');
+ const moved=fixture();mountRuntimeImage(moved.image,moved.frame,{url:'/local.png'});moved.image.parentNode={};moved.listeners.get('load')();assert.equal(moved.frame.dataset.imageState,'loading');
+ const broken=fixture();mountRuntimeImage(broken.image,broken.frame,{url:'/missing.png'});const crop={parentNode:broken.frame,children:[broken.image],append(child){this.children.push(child);child.parentNode=this;}};broken.frame.children=[crop];broken.image.parentNode=crop;broken.listeners.get('error')();assert.equal(broken.frame.dataset.imageState,'error');assert.deepEqual(broken.frame.children,[crop]);assert.equal(crop.children.length,1);assert.equal(crop.children[0].className,'gift-runtime-placeholder');
 });

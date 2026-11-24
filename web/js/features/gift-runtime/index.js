@@ -173,7 +173,7 @@ export function mountPlayer(
   globalThis.document.addEventListener('visibilitychange',syncVisibility,{signal:lifetime.signal});syncVisibility();
   shell.append(marker, stage, progress, navigation, status);
   if (hasSound) shell.insertBefore(soundControl,stage);
-  if (document.soundtrack || (document.schemaVersion >= 2 && (document.scenes.some(scene => scene.effects) || document.elements.some(element => element.effects))))
+  if (document.soundtrack || (document.schemaVersion >= 2 && (document.scenes.some(scene => scene.effects) || document.elements.some(element => element.effects || element.motions))))
     shell.insertBefore(toolbar, stage);
   root.replaceChildren(shell);
   const size = document.artboard.baseSize;
@@ -297,12 +297,12 @@ export function mountPlayer(
     }
     const loopRuns=new Map();
     const loopSignal=node=>{loopRuns.get(node)?.abort();const controller=new AbortController();loopRuns.set(node,controller);return AbortSignal.any([signal,controller.signal]);};
-    resumeElements=()=>{for(const {node,model}of nodes)if(model.effects?.emphasis?.definition?.animation.iterations==='infinite'&&!signal.aborted)void playElement(node,model,motion,loopSignal(node),'emphasis');};
+    resumeElements=()=>{for(const {node,model}of nodes)if((model.motions || model.effects?.emphasis?.definition?.animation.iterations==='infinite')&&!signal.aborted)void playElement(node,model,motion,loopSignal(node),'emphasis');};
     for (const {node,model} of nodes) {
       if (!family || (effectPreview.elementId === model.id && ["emphasis","entrance"].includes(family))) {
         const animate = () => {
           if (signal.aborted) return;
-          const elementSignal=model.effects?.emphasis?.definition?.animation.iterations==='infinite'?loopSignal(node):signal;
+          const elementSignal=(model.motions || model.effects?.emphasis?.definition?.animation.iterations==='infinite')?loopSignal(node):signal;
           return playElement(node, model, motion, elementSignal, family, (finish, text) => {
             typewriters.add(finish);
             skip.hidden = false;
@@ -320,11 +320,11 @@ export function mountPlayer(
         if (transitionDone) void transitionDone.then(animate);
         else void animate();
       }
-      if (family === "reaction" && effectPreview.elementId === model.id) {
+      if (family === "reaction" && effectPreview.elementId === model.id && model.motions?.enabled!==false) {
         const control = node.matches("button") ? node : node.querySelector("button");
         if (control) {
           if (model.effects?.reaction?.id === "R04") control.click();
-          else void playReaction(control,model.effects?.reaction,motion,signal);
+          else void playReaction(model.motions?control.querySelector('[data-motion-family="reaction"]')||control:control,model.effects?.reaction,motion,signal);
         }
       }
     }

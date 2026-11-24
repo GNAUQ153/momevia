@@ -13,7 +13,7 @@ let cached;
 export function builtinLibraryItems() {
   if (cached) return structuredClone(cached);
   const before = librarySnapshot();
-  const items = [], add = (kind, id, definition) => items.push({ kind, id, revision: 1, status: 'active', sortOrder: items.length, definition });
+  const items = [], add = (kind, id, definition) => items.push({ kind, id, revision: id==='natural-motion-heart'?2:1, status: 'active', sortOrder: items.length, definition });
   const words = key => ({ vi: serverText('vi', key), en: serverText('en', key) });
   try {
     installLibrary(null);
@@ -46,8 +46,8 @@ export function builtinLibraryItems() {
     }
     // Capture the complete compositions, not names pointing back to JS factories.
     for (const [index, group] of catalog.entries()) for (const card of group.items){
-      const elements=card.create(),assets=[...new Set(elements.filter(e=>e.type==='image'&&e.props.assetId).map(e=>e.props.assetId))].map(assetId=>({assetId,kind:'image'}));
-      add('element',card.id,{title:words(`editor.library.item.${card.id}`),group:words(`editor.library.group.${index}`),keywords:card.keywords||'',elements,...(assets.length?{assets}:{}),...(card.visualKind?{visualKind:card.visualKind}:{})});
+      const elements=card.create();if(card.titleTexts||card.id==='natural-motion-heart')elements.forEach((e,i)=>{e.id=card.id+'-subject'+(i?'-'+i:'');});const assets=[...new Set(elements.filter(e=>e.type==='image'&&e.props.assetId).map(e=>e.props.assetId))].map(assetId=>({assetId,kind:'image'}));
+      add('element',card.id,{title:card.titleTexts||words(`editor.library.item.${card.id}`),group:group.titleTexts||words(`editor.library.group.${index}`),keywords:card.keywords||'',elements,...(assets.length?{assets}:{}),...(card.visualKind?{visualKind:card.visualKind}:{})});
     }
     // Pin path data into the DB documents; old source definitions remain solely
     // as migration/bootstrap input and backwards-compatible renderer contracts.

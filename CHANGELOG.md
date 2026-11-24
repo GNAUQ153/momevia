@@ -16,6 +16,27 @@
 - Chỉ trả đường dẫn thanh toán pending đúng scope; giữ lịch sử đơn, quyền cũ và khóa checkout.
 - Chưa đổi schema hoặc tiêu hao lượt Premium; ghi rõ điều kiện migration và chính sách quyền lịch sử trước khi triển khai quota.
 
+## Unreleased — Hai CTA nổi tạo mới và khám phá mẫu (2026-11-24)
+
+- Giữ nút ổn định trong lúc bấm chuột/touch để form gửi ngay ở lần bấm đầu; focus bằng bàn phím hoặc sau thao tác bấm vẫn đưa control ra khỏi dock khi cần.
+- Thêm ô nổi góc dưới phải với “Tạo mẫu ngay” mở Studio và “Khám phá mẫu ngay” mở thư viện. Luôn hiện khi duyệt trang, ẩn ngay trong các route editor và hiện lại khi rời đi; không tự lấy focus hoặc chuyển thông tin riêng của quà vào đích.
+- Trên điện thoại dùng hai nút cạnh nhau, có safe-area, vùng chạm tối thiểu 44 px, khoảng cuối trang và tránh che control đang focus. Giữ màu/font Momevia; CSS có trong cả bundle đầy đủ và bundle catalog; đủ VI/EN và reduced motion.
+- Bấm thật hai đích, đăng nhập/quay lại tạo mới, canvas thật, năm kích cỡ 320–1440 px và nhận quà/mở hộp/hồi đáp ẩn danh trên MySQL chính đạt. Build/check và 769 unit tests đạt; ảnh và bằng chứng tại `docs/FLOATING_CREATION_CTA.md`.
+
+## Unreleased — Đưa 50 element động vào MySQL cục bộ (2026-11-24)
+
+- Cập nhật đúng thư viện `momevia_dev` đang phục vụ Studio 4100: 50 ID mới và tim; API có 293 element / 56 mục Chuyển động. Dùng gói baseline thật với revision/fingerprint, nối thứ tự mới và giữ các hàng thư viện khác.
+- Sao lưu SQL đầy đủ và 14 media, khôi phục thử 36 bảng trên schema riêng và so hash dữ liệu trước khi áp dụng. Lệnh live mới có xác nhận target cụ thể, kiểm checksum, dry-run/áp dụng/rollback; giữ nguyên guard của các lệnh QA cũ. Chạy lại ghi 0, rollback chỉ xem trước.
+- Kiểm đủ 50 mẫu qua Studio, lưu/reload, preview và link quà trên DB chính bằng tài khoản tổng hợp riêng; giữ hash tất cả hàng nghiệp vụ đã có. SQL, tài khoản và cookie giữ trong thư mục private/local được gitignore.
+
+## Unreleased — 50 vật thể động và chuyển động nhiều dòng (2026-11-24)
+
+- Thêm đúng 50 thiết kế vector nội bộ, năm nhóm × mười ID; tìm VI có dấu/không dấu và EN trong Thêm → Chuyển động, thumbnail tĩnh, phát thử riêng và chỉnh màu trong cùng mục.
+- Canvas 4 giữ danh sách chuyển động có ID, tối đa ba dòng chính kể cả emphasis cũ; lớp vị trí/vùng bấm tách khỏi chuyển động, xuất hiện và phản hồi. Studio giữ pha từng dòng, hỗ trợ bật/tắt, tham số, phát thử/xóa, lịch sử, lưu/clone và snapshot.
+- Tim mới đập hai đỉnh trong 1,8 giây và tự xoay độc lập 360°/8 giây. Giữ reader 1/2/3, sáu fixture vòng lặp cũ, A05 một lượt và snapshot đã phát hành.
+- Gói riêng 51 mục có preview, revision/fingerprint, gián đoạn/chạy tiếp, chạy lại và rollback; chỉ cho phép CLI ghi MySQL QA loopback có opt-in. Seed DB mới và gói cập nhật dùng chung định nghĩa.
+- Đối chiếu SHA nguồn QA với toàn bộ thay đổi từ baseline, kể cả file đã stage/commit và các contract giữ nguyên. Kiểm 50/50 Studio/preview/player, API MySQL và Admin; đo ma trận tim, kết hợp góc/opacity, reduced motion, thao tác di động, frame pacing và chi phí mở lạnh. Build/check, 767 unit và Canvas browser regression đạt; phạm vi và giới hạn thiết bị/trình duyệt được ghi trong `docs/ANIMATED_ELEMENTS_50.md`. Chưa phát hành ra môi trường người dùng thật.
+
 ## Unreleased — Phase 2.4A Đối soát xuất bản (2026-11-24)
 
 - API chỉ đọc số thiệp đã lưu theo mẫu và chủ thiệp trên MySQL, tách legacy và Canvas; không suy ra số lượt còn lại.
@@ -30,6 +51,7 @@
 
 ## Unreleased — Phase 2.3A Quyền sử dụng mẫu (2026-11-24)
 
+- Tách fixture browser cho phản hồi methods rỗng/không cấp demo khỏi quyền demo được bật rõ ràng để kiểm tra cấp license về sau trong cùng luồng.
 - Chỉ cấp giao dịch demo mới khi cả hai cờ demo bật, production và thanh toán đều tắt.
 - API kiểm tra quyền mẫu theo người dùng đã xác thực; form legacy không suy quyền từ trạng thái đơn hàng và không quảng cáo mua thử khi chưa bật.
 - Không đổi quyền đã mua, giá, số lượt xuất bản, dữ liệu thiệp hay schema MySQL. Tách kiểm soát quyền demo lịch sử và lượt xuất bản sang bước riêng.

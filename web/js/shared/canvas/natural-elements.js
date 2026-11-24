@@ -1,3 +1,4 @@
+import {motionRow} from './motion-stack.js';
 import {createElement} from './registry.js';
 import {NATURAL_MEDIA_IDS,NATURAL_MEDIA} from './natural-media.js';
 import {NATURAL_ARTWORK_LABEL} from './event-media.js';
@@ -43,7 +44,8 @@ export function naturalElementCards(kind,translate){
   return {id:'natural-'+id,title:translate?.(`editor.library.item.natural-${id}`)||vi,visualKind:kind==='materials'?'graphics':kind,keywords,create:()=>{
    const assetId=NATURAL_MEDIA_IDS[assetKey||'element-'+id],media=NATURAL_MEDIA[assetId],size=kind==='three-d'?220:300,scale=Math.min(size/media.width,size/media.height);
    const model=createElement('image',{name:vi,layout:{x:0,y:0,width:Math.round(media.width*scale),height:Math.round(media.height*scale)},props:{assetId,fit:'contain',radius:0},accessibility:{decorative:true,label:NATURAL_ARTWORK_LABEL}});
-   if(kind==='animation')model.effects={emphasis:naturalMotion(id,spec[2],spec[3])};
+   if(kind==='animation'&&id==='motion-heart')model.motions={version:1,enabled:true,rows:[motionRow('pulse','heart-beat'),motionRow('spin','heart-spin')]};
+   else if(kind==='animation')model.effects={emphasis:naturalMotion(id,spec[2],spec[3])};
    else if(effect){const family=effect==='E02'||effect==='paper-unfold-natural-v1'?'entrance':'emphasis';model.effects={[family]:effect.includes('-v')?eventRecipe(effect):{id:effect,speed:'normal',...(family==='entrance'?{delay:0}:{})}};}
    return [model];
   }};

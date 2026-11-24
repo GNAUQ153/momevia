@@ -1,0 +1,9 @@
+{
+  "mysql": true,
+  "newSchema": "momevia_canvas_qa_music_dab6004aaf64",
+  "rows": 530,
+  "apiElements": 293,
+  "packageUnchanged": 51,
+  "applied": 0,
+  "passed": true
+}

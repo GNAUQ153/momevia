@@ -8,8 +8,9 @@ import { interactionKinds, photoSlots } from './interactions.js';
 import { effectsFor, effectSpeed, elementEffectFamilies, sceneEffectFamilies, CELEBRATION_IDS } from './effects.js';
 import { validatePortableEffect, validateVector } from './library-contract.js';
 import { SOUND_TYPES, usesSound, validateSound } from './sound.js';
+import { usesMotions, validateMotions, validateAssembly } from './motion-stack.js';
 
-export const CANVAS_VERSIONS = Object.freeze([1, 2, 3]);
+export const CANVAS_VERSIONS = Object.freeze([1, 2, 3, 4]);
 export const runtimeVersionFor = document => document.schemaVersion;
 export const requiresCanvasV2 = document => Boolean(document.soundtrack) || document.scenes.some(scene => scene.effects) || document.elements.some(e =>
   e.type === 'interaction' || e.effects || e.artwork ||
@@ -203,7 +204,11 @@ export function validateDocument(document, { mode = 'draft', requiredBindings = 
   }
   id(document.entrySceneId, 'entrySceneId'); if (!sceneIds.has(document.entrySceneId)) fail('entrySceneId', 'Cảnh mở đầu không tồn tại.');
   for (const [i, e] of document.elements.entries()) {
-    const p = `elements.${i}`; object(e, p, ['id', 'type', 'elementVersion', 'layout', 'props', 'accessibility', 'actions', 'name', 'visible', 'locked', 'opacity', 'effects', 'artwork', 'sound'], ['id', 'type', 'elementVersion', 'layout', 'props', 'accessibility']);
+    const p = `elements.${i}`; object(e, p, ['id', 'type', 'elementVersion', 'layout', 'props', 'accessibility', 'actions', 'name', 'visible', 'locked', 'opacity', 'effects', 'artwork', 'sound', 'assembly', 'motions'], ['id', 'type', 'elementVersion', 'layout', 'props', 'accessibility']);
+    try {
+      if(e.assembly){if(e.type!=='shape')fail(p,'Assembly requires a decorative shape.');validateAssembly(e.assembly);}
+      if(e.motions)validateMotions(e.motions,e);
+    }catch(error){fail(p,error.message,'INVALID_MOTION');}
     if (own(e,'sound')) {
       if (!SOUND_TYPES.includes(e.type)) fail(`${p}.sound`, 'Phần tử này không hỗ trợ âm khi nhấn.');
       try { validateSound(e.sound); } catch(error) { fail(`${p}.sound`, error.message, 'INVALID_SOUND'); }
@@ -269,6 +274,7 @@ export function validateDocument(document, { mode = 'draft', requiredBindings = 
   if (eventIssue) fail('invitation', `invitation.error.${eventIssue}`, 'INVALID_INVITATION');
   if (document.schemaVersion === 1 && requiresCanvasV2(document)) fail('schemaVersion', 'Khối này cần tài liệu Canvas phiên bản 2.');
   if (document.schemaVersion < 3 && usesSound(document)) fail('schemaVersion', 'Âm thanh cần Canvas phiên bản 3.');
+  if (document.schemaVersion < 4 && usesMotions(document)) fail('schemaVersion', 'Chuyển động nhiều dòng cần Canvas phiên bản 4.');
   object(document.responsive, 'responsive', ['textOverflow', 'sceneOverflow', 'desktop'], ['textOverflow', 'sceneOverflow', 'desktop']);
   enumeration(document.responsive.textOverflow, 'responsive.textOverflow', ['expand-flow']); enumeration(document.responsive.sceneOverflow, 'responsive.sceneOverflow', ['scroll']);
   object(document.responsive.desktop, 'responsive.desktop', ['maxContentWidth', 'align'], ['maxContentWidth', 'align']); number(document.responsive.desktop.maxContentWidth, 'responsive.desktop.maxContentWidth', 240, 1440); enumeration(document.responsive.desktop.align, 'responsive.desktop.align', ['center']);
@@ -301,7 +307,7 @@ export function publicDocument(document) {
     ...(d.personalization ? { personalization: { version: 1, mode: d.personalization.mode, ...(d.personalization.resolved ? { resolved: true } : {}) } } : {}),
     ...(d.soundtrack ? { soundtrack: d.soundtrack } : {}),
     ...(d.invitation ? { invitation: d.invitation } : {}),
-    elements: d.elements.map(e => ({ id: e.id, type: e.type, elementVersion: e.elementVersion, layout: e.layout, props: e.props, accessibility: e.accessibility, ...(e.sound ? {sound:e.sound} : {}), ...(e.actions ? { actions: e.actions } : {}), ...(e.effects ? { effects: e.effects } : {}), ...(e.artwork ? { artwork: e.artwork } : {}), ...(own(e, 'visible') ? { visible: e.visible } : {}), ...(own(e, 'opacity') ? { opacity: e.opacity } : {}) })),
+    elements: d.elements.map(e => ({ id: e.id, type: e.type, elementVersion: e.elementVersion, layout: e.layout, props: e.props, accessibility: e.accessibility, ...(e.motions ? {motions:e.motions} : {}), ...(e.assembly ? {assembly:e.assembly} : {}), ...(e.sound ? {sound:e.sound} : {}), ...(e.actions ? { actions: e.actions } : {}), ...(e.effects ? { effects: e.effects } : {}), ...(e.artwork ? { artwork: e.artwork } : {}), ...(own(e, 'visible') ? { visible: e.visible } : {}), ...(own(e, 'opacity') ? { opacity: e.opacity } : {}) })),
     responsive: d.responsive,
   };
 }

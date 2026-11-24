@@ -37,6 +37,8 @@ export function fabricView(document, sceneId, policy = null, { includeHidden = f
         props: structuredClone(item.props),
         accessibility: structuredClone(item.accessibility),
         ...(item.artwork ? { artwork: structuredClone(item.artwork) } : {}),
+        ...(item.assembly ? { assembly: structuredClone(item.assembly) } : {}),
+        ...(item.motions ? { motions: structuredClone(item.motions) } : {}),
         ...(item.effects ? { effects: structuredClone(item.effects) } : {}),
         text: item.type === 'text' ? displayText(item, document) : null,
         editable: canFabricEdit(item, policy),

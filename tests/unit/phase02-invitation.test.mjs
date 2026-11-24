@@ -12,6 +12,7 @@ import { JsonDesignRepository } from '../../src/modules/designs/json.repository.
 import { templates } from '../../src/modules/catalog/seed.mjs';
 import { publicGiftView, DesignsService } from '../../src/modules/designs/designs.service.mjs';
 import { serverText } from '../../src/shared/locale.mjs';
+import { animatedElementCards } from '../../web/js/shared/canvas/animated-elements.js';
 
 function draft(locale = 'vi') {
   const doc = createDocument({ template: { id: 'loi-moi-ben-hien' }, localize: (key, params) => serverText(locale, key, params) });
@@ -27,6 +28,24 @@ function complete(locale) {
 }
 const publish = doc => validateDocument(doc, { mode: 'publish' });
 const invalid = (doc, issue) => assert.throws(() => publish(doc), { code: 'INVALID_INVITATION', message: `invitation.error.${issue}` });
+
+test('lời mời Canvas v4 giữ nguyên assembly và motion qua snapshot công khai, nhân bản và public gift', () => {
+  const doc = complete();
+  doc.schemaVersion = doc.registryVersion = 4;
+  doc.personalization = { version: 1, mode: 'manual' };
+  const [animated] = animatedElementCards(0)[0].create();
+  doc.elements.push(animated);
+  doc.scenes.find(scene => scene.id === doc.entrySceneId).elementIds.push(animated.id);
+  const snapshot = publicDocument(doc);
+  assert.deepEqual(snapshot.invitation, doc.invitation);
+  const view = publicGiftView({ documentSnapshot: snapshot, runtimeVersion: 4, expiresAt: '2030-02-01' });
+  for (const result of [snapshot, duplicateDocument(snapshot), view.documentSnapshot]) {
+    const element = result.elements.find(item => item.assembly);
+    assert.deepEqual(element.assembly, animated.assembly);
+    assert.deepEqual(element.motions, animated.motions);
+    assert.doesNotThrow(() => publish(result));
+  }
+});
 
 test('thiệp cũ và mẫu Greeting không bị thêm trường hoặc thay đổi contract', () => {
   for (const locale of ['vi','en']) {

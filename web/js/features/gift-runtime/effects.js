@@ -1,3 +1,4 @@
+import { playMotionStack } from './motion-stack.js';
 import { effectSpeed, builtinPreset } from "../../shared/canvas/effects.js";
 import { celebrate, photoFragments } from './celebrations.js';
 import { playRecipe, playParticleRecipe, applyRecipeSurface } from './recipe-runtime.js';
@@ -24,7 +25,7 @@ export function applySurface(node, preset) {
 export function createMotion(isEnabled) {
   const pending = new Set(), animations=new Set();
   let paused=false;
-  function run(node, keyframes, options, signal, cleanup = () => {}) {
+  function run(node, keyframes, options, signal, cleanup = () => {}, {retain=false} = {}) {
     if (!isEnabled() || signal?.aborted || !node.animate) {
       cleanup();
       return Promise.resolve();
@@ -35,6 +36,13 @@ export function createMotion(isEnabled) {
     pending.add(stop);
     signal?.addEventListener("abort", stop, {once:true});
     return animation.finished.catch(() => {}).finally(() => {
+      if(retain && !signal?.aborted && animation.playState==='finished'){
+        animations.delete(animation);
+        signal?.removeEventListener('abort',stop);
+        const release=()=>{animation.cancel();pending.delete(release);signal?.removeEventListener('abort',release);cleanup();};
+        signal?.addEventListener('abort',release,{once:true});
+        pending.delete(stop);pending.add(release);return;
+      }
       animation.cancel();
       pending.delete(stop);animations.delete(animation);
       signal?.removeEventListener("abort", stop);
@@ -45,7 +53,7 @@ export function createMotion(isEnabled) {
     pending.add(stop);
     return () => pending.delete(stop);
   }
-  return { run, track, pause:()=>{paused=true;animations.forEach(a=>a.pause());}, resume:()=>{paused=false;if(isEnabled())animations.forEach(a=>a.play());}, cancel: () => pending.forEach(stop => stop()), enabled: isEnabled };
+  return { run, track, stats:()=>({animations:animations.size,pending:pending.size}), pause:()=>{paused=true;animations.forEach(a=>a.pause());}, resume:()=>{paused=false;if(isEnabled())animations.forEach(a=>a.play());}, cancel: () => pending.forEach(stop => stop()), enabled: isEnabled };
 }
 
 const typewriters = new WeakMap();
@@ -91,10 +99,13 @@ function playTypewriter(node, entrance, motion, signal, register) {
   });
 }
 
-export async function playElement(node, model, motion, signal, only, registerTypewriter) {
+export async function playElement(host, model, motion, signal, only, registerTypewriter) {
+  if(model.motions?.enabled===false)return;
+  if(!only || only==='emphasis' || only==='motions')void playMotionStack(host,model,motion,signal);
+  let node=host.querySelector?.('[data-motion-family="entrance"]')||host;
   let { entrance, emphasis } = model.effects || {};
   entrance = builtinPreset(entrance); emphasis = builtinPreset(emphasis);
-  const opacity = model.opacity ?? 1;
+  const opacity = model.motions ? 1 : model.opacity ?? 1;
   if (entrance && (!only || only === "entrance") && motion.enabled()) {
     node.dataset.giftEffect = entrance.id;
     const custom = playRecipe(node, entrance, motion, signal);
@@ -114,6 +125,7 @@ export async function playElement(node, model, motion, signal, only, registerTyp
     delete node.dataset.giftEffect;
   }
   if (!emphasis || (only && only !== "emphasis") || signal?.aborted || !motion.enabled()) return;
+  node=host.querySelector?.('[data-motion-family="emphasis"]')||host;
   const custom = playRecipe(node, emphasis, motion, signal);
   if (custom) return custom;
   node.dataset.giftEffect = emphasis.id;

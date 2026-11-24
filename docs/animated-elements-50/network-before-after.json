@@ -1,0 +1,2889 @@
+{
+  "profile": {
+    "viewport": "390x844",
+    "cpuSlowdown": 4,
+    "coldContexts": true,
+    "cacheDisabled": true,
+    "network": "local loopback, no bandwidth emulation",
+    "samples": 3
+  },
+  "samples": [
+    {
+      "version": "before",
+      "type": "library",
+      "run": 0,
+      "readyMs": 2023,
+      "requests": 42,
+      "transferBytes": 2692815,
+      "encodedBodyBytes": 2680215,
+      "resources": [
+        {
+          "path": "/design/a7222068-a078-4f30-8391-70c301d417dd",
+          "transferSize": 2230,
+          "encodedBodySize": 1930,
+          "decodedBodySize": 5121
+        },
+        {
+          "path": "/assets/app/catalog-preload-A7HBQE4B.js",
+          "transferSize": 767,
+          "encodedBodySize": 467,
+          "decodedBodySize": 1000
+        },
+        {
+          "path": "/assets/app/styles-IFE7UOOO.css",
+          "transferSize": 40738,
+          "encodedBodySize": 40438,
+          "decodedBodySize": 239728
+        },
+        {
+          "path": "/assets/app/chunks/chunk-B2ZPUSA5.js",
+          "transferSize": 1644,
+          "encodedBodySize": 1344,
+          "decodedBodySize": 5007
+        },
+        {
+          "path": "/assets/app/chunks/chunk-BTYKR43A.js",
+          "transferSize": 1774,
+          "encodedBodySize": 1474,
+          "decodedBodySize": 3536
+        },
+        {
+          "path": "/assets/app/chunks/chunk-OGVCVJ2Y.js",
+          "transferSize": 48189,
+          "encodedBodySize": 47889,
+          "decodedBodySize": 260571
+        },
+        {
+          "path": "/assets/app/chunks/chunk-JECIP3CH.js",
+          "transferSize": 387,
+          "encodedBodySize": 87,
+          "decodedBodySize": 93
+        },
+        {
+          "path": "/assets/app/chunks/chunk-OU7DSHDL.js",
+          "transferSize": 2417,
+          "encodedBodySize": 2117,
+          "decodedBodySize": 5616
+        },
+        {
+          "path": "/assets/app/chunks/chunk-F3I22UXU.js",
+          "transferSize": 480,
+          "encodedBodySize": 180,
+          "decodedBodySize": 296
+        },
+        {
+          "path": "/assets/app/chunks/chunk-ZS3XSP33.js",
+          "transferSize": 653,
+          "encodedBodySize": 353,
+          "decodedBodySize": 591
+        },
+        {
+          "path": "/assets/app/chunks/chunk-VS7QPGKI.js",
+          "transferSize": 707,
+          "encodedBodySize": 407,
+          "decodedBodySize": 784
+        },
+        {
+          "path": "/assets/app/chunks/chunk-RRS3PSRK.js",
+          "transferSize": 1830,
+          "encodedBodySize": 1530,
+          "decodedBodySize": 4417
+        },
+        {
+          "path": "/assets/app/chunks/chunk-ZNUWAZAH.js",
+          "transferSize": 508,
+          "encodedBodySize": 208,
+          "decodedBodySize": 314
+        },
+        {
+          "path": "/assets/app/chunks/chunk-UM6DQMGX.js",
+          "transferSize": 926,
+          "encodedBodySize": 626,
+          "decodedBodySize": 1376
+        },
+        {
+          "path": "/assets/app/app-DQM5NF6W.js",
+          "transferSize": 27979,
+          "encodedBodySize": 27679,
+          "decodedBodySize": 107257
+        },
+        {
+          "path": "/assets/app/chunks/library-client-BPFMZQSY.js",
+          "transferSize": 462,
+          "encodedBodySize": 162,
+          "decodedBodySize": 353
+        },
+        {
+          "path": "/assets/fonts/app/inter-latin-3100e775e861.woff2",
+          "transferSize": 48556,
+          "encodedBodySize": 48256,
+          "decodedBodySize": 48256
+        },
+        {
+          "path": "/assets/fonts/app/inter-vietnamese-5c66f9e07e90.woff2",
+          "transferSize": 10552,
+          "encodedBodySize": 10252,
+          "decodedBodySize": 10252
+        },
+        {
+          "path": "/assets/momevia-brand-92.webp",
+          "transferSize": 14226,
+          "encodedBodySize": 13926,
+          "decodedBodySize": 13926
+        },
+        {
+          "path": "/assets/app/chunks/chunk-TA57RYUQ.js",
+          "transferSize": 16767,
+          "encodedBodySize": 16467,
+          "decodedBodySize": 51484
+        },
+        {
+          "path": "/assets/app/chunks/chunk-PTEX43TY.js",
+          "transferSize": 442,
+          "encodedBodySize": 142,
+          "decodedBodySize": 190
+        },
+        {
+          "path": "/assets/app/chunks/chunk-JYR6F4FC.js",
+          "transferSize": 28368,
+          "encodedBodySize": 28068,
+          "decodedBodySize": 89299
+        },
+        {
+          "path": "/assets/app/chunks/chunk-54V5A5US.js",
+          "transferSize": 23843,
+          "encodedBodySize": 23543,
+          "decodedBodySize": 97781
+        },
+        {
+          "path": "/assets/app/chunks/chunk-JY4S6HMQ.js",
+          "transferSize": 868,
+          "encodedBodySize": 568,
+          "decodedBodySize": 1294
+        },
+        {
+          "path": "/assets/app/chunks/chunk-77RZKQAB.js",
+          "transferSize": 1722,
+          "encodedBodySize": 1422,
+          "decodedBodySize": 3443
+        },
+        {
+          "path": "/assets/app/chunks/chunk-KOIGPEWY.js",
+          "transferSize": 24605,
+          "encodedBodySize": 24305,
+          "decodedBodySize": 108727
+        },
+        {
+          "path": "/api/designs/library",
+          "transferSize": 1129345,
+          "encodedBodySize": 1129045,
+          "decodedBodySize": 1129045
+        },
+        {
+          "path": "/assets/momevia-icon-128.png",
+          "transferSize": 28032,
+          "encodedBodySize": 27732,
+          "decodedBodySize": 27732
+        },
+        {
+          "path": "/api/auth/me",
+          "transferSize": 553,
+          "encodedBodySize": 253,
+          "decodedBodySize": 253
+        },
+        {
+          "path": "/assets/app/chunks/designer-A37LMS3U.js",
+          "transferSize": 37638,
+          "encodedBodySize": 37338,
+          "decodedBodySize": 134521
+        },
+        {
+          "path": "/assets/app/chunks/chunk-4WOA56RH.js",
+          "transferSize": 2526,
+          "encodedBodySize": 2226,
+          "decodedBodySize": 7172
+        },
+        {
+          "path": "/assets/app/chunks/chunk-IZKSL3SG.js",
+          "transferSize": 4103,
+          "encodedBodySize": 3803,
+          "decodedBodySize": 11790
+        },
+        {
+          "path": "/assets/app/chunks/chunk-C4PBWWYI.js",
+          "transferSize": 882,
+          "encodedBodySize": 582,
+          "decodedBodySize": 1233
+        },
+        {
+          "path": "/assets/app/chunks/chunk-WE6FZEN5.js",
+          "transferSize": 1793,
+          "encodedBodySize": 1493,
+          "decodedBodySize": 4323
+        },
+        {
+          "path": "/assets/app/chunks/chunk-ZWPOD2GR.js",
+          "transferSize": 16733,
+          "encodedBodySize": 16433,
+          "decodedBodySize": 51466
+        },
+        {
+          "path": "/assets/app/chunks/chunk-QNYKRTR7.js",
+          "transferSize": 1502,
+          "encodedBodySize": 1202,
+          "decodedBodySize": 2594
+        },
+        {
+          "path": "/assets/app/chunks/chunk-V5YWCFVU.js",
+          "transferSize": 537,
+          "encodedBodySize": 237,
+          "decodedBodySize": 408
+        },
+        {
+          "path": "/assets/app/chunks/chunk-LC3P5U26.js",
+          "transferSize": 560,
+          "encodedBodySize": 260,
+          "decodedBodySize": 654
+        },
+        {
+          "path": "/api/designs/library",
+          "transferSize": 1129345,
+          "encodedBodySize": 1129045,
+          "decodedBodySize": 1129045
+        },
+        {
+          "path": "/api/designs/designs/a7222068-a078-4f30-8391-70c301d417dd",
+          "transferSize": 1326,
+          "encodedBodySize": 1026,
+          "decodedBodySize": 1026
+        },
+        {
+          "path": "/assets/fonts/app/jakarta-latin-153fc85b7029.woff2",
+          "transferSize": 27648,
+          "encodedBodySize": 27348,
+          "decodedBodySize": 27348
+        },
+        {
+          "path": "/assets/fonts/app/jakarta-vietnamese-b275d1258601.woff2",
+          "transferSize": 8652,
+          "encodedBodySize": 8352,
+          "decodedBodySize": 8352
+        }
+      ]
+    },
+    {
+      "version": "before",
+      "type": "library",
+      "run": 1,
+      "readyMs": 1882,
+      "requests": 42,
+      "transferBytes": 2692815,
+      "encodedBodyBytes": 2680215,
+      "resources": [
+        {
+          "path": "/design/a7222068-a078-4f30-8391-70c301d417dd",
+          "transferSize": 2230,
+          "encodedBodySize": 1930,
+          "decodedBodySize": 5121
+        },
+        {
+          "path": "/assets/app/catalog-preload-A7HBQE4B.js",
+          "transferSize": 767,
+          "encodedBodySize": 467,
+          "decodedBodySize": 1000
+        },
+        {
+          "path": "/assets/app/styles-IFE7UOOO.css",
+          "transferSize": 40738,
+          "encodedBodySize": 40438,
+          "decodedBodySize": 239728
+        },
+        {
+          "path": "/assets/app/chunks/chunk-B2ZPUSA5.js",
+          "transferSize": 1644,
+          "encodedBodySize": 1344,
+          "decodedBodySize": 5007
+        },
+        {
+          "path": "/assets/app/chunks/chunk-BTYKR43A.js",
+          "transferSize": 1774,
+          "encodedBodySize": 1474,
+          "decodedBodySize": 3536
+        },
+        {
+          "path": "/assets/app/chunks/chunk-JECIP3CH.js",
+          "transferSize": 387,
+          "encodedBodySize": 87,
+          "decodedBodySize": 93
+        },
+        {
+          "path": "/assets/app/chunks/chunk-OGVCVJ2Y.js",
+          "transferSize": 48189,
+          "encodedBodySize": 47889,
+          "decodedBodySize": 260571
+        },
+        {
+          "path": "/assets/app/chunks/chunk-OU7DSHDL.js",
+          "transferSize": 2417,
+          "encodedBodySize": 2117,
+          "decodedBodySize": 5616
+        },
+        {
+          "path": "/assets/app/chunks/chunk-F3I22UXU.js",
+          "transferSize": 480,
+          "encodedBodySize": 180,
+          "decodedBodySize": 296
+        },
+        {
+          "path": "/assets/app/chunks/chunk-ZS3XSP33.js",
+          "transferSize": 653,
+          "encodedBodySize": 353,
+          "decodedBodySize": 591
+        },
+        {
+          "path": "/assets/app/chunks/chunk-VS7QPGKI.js",
+          "transferSize": 707,
+          "encodedBodySize": 407,
+          "decodedBodySize": 784
+        },
+        {
+          "path": "/assets/app/chunks/chunk-RRS3PSRK.js",
+          "transferSize": 1830,
+          "encodedBodySize": 1530,
+          "decodedBodySize": 4417
+        },
+        {
+          "path": "/assets/app/chunks/chunk-ZNUWAZAH.js",
+          "transferSize": 508,
+          "encodedBodySize": 208,
+          "decodedBodySize": 314
+        },
+        {
+          "path": "/assets/app/chunks/chunk-UM6DQMGX.js",
+          "transferSize": 926,
+          "encodedBodySize": 626,
+          "decodedBodySize": 1376
+        },
+        {
+          "path": "/assets/app/app-DQM5NF6W.js",
+          "transferSize": 27979,
+          "encodedBodySize": 27679,
+          "decodedBodySize": 107257
+        },
+        {
+          "path": "/assets/app/chunks/library-client-BPFMZQSY.js",
+          "transferSize": 462,
+          "encodedBodySize": 162,
+          "decodedBodySize": 353
+        },
+        {
+          "path": "/assets/fonts/app/inter-latin-3100e775e861.woff2",
+          "transferSize": 48556,
+          "encodedBodySize": 48256,
+          "decodedBodySize": 48256
+        },
+        {
+          "path": "/assets/fonts/app/inter-vietnamese-5c66f9e07e90.woff2",
+          "transferSize": 10552,
+          "encodedBodySize": 10252,
+          "decodedBodySize": 10252
+        },
+        {
+          "path": "/assets/momevia-brand-92.webp",
+          "transferSize": 14226,
+          "encodedBodySize": 13926,
+          "decodedBodySize": 13926
+        },
+        {
+          "path": "/assets/app/chunks/chunk-TA57RYUQ.js",
+          "transferSize": 16767,
+          "encodedBodySize": 16467,
+          "decodedBodySize": 51484
+        },
+        {
+          "path": "/assets/app/chunks/chunk-PTEX43TY.js",
+          "transferSize": 442,
+          "encodedBodySize": 142,
+          "decodedBodySize": 190
+        },
+        {
+          "path": "/assets/app/chunks/chunk-JYR6F4FC.js",
+          "transferSize": 28368,
+          "encodedBodySize": 28068,
+          "decodedBodySize": 89299
+        },
+        {
+          "path": "/assets/app/chunks/chunk-54V5A5US.js",
+          "transferSize": 23843,
+          "encodedBodySize": 23543,
+          "decodedBodySize": 97781
+        },
+        {
+          "path": "/assets/app/chunks/chunk-JY4S6HMQ.js",
+          "transferSize": 868,
+          "encodedBodySize": 568,
+          "decodedBodySize": 1294
+        },
+        {
+          "path": "/assets/app/chunks/chunk-77RZKQAB.js",
+          "transferSize": 1722,
+          "encodedBodySize": 1422,
+          "decodedBodySize": 3443
+        },
+        {
+          "path": "/assets/app/chunks/chunk-KOIGPEWY.js",
+          "transferSize": 24605,
+          "encodedBodySize": 24305,
+          "decodedBodySize": 108727
+        },
+        {
+          "path": "/api/designs/library",
+          "transferSize": 1129345,
+          "encodedBodySize": 1129045,
+          "decodedBodySize": 1129045
+        },
+        {
+          "path": "/assets/momevia-icon-128.png",
+          "transferSize": 28032,
+          "encodedBodySize": 27732,
+          "decodedBodySize": 27732
+        },
+        {
+          "path": "/api/auth/me",
+          "transferSize": 553,
+          "encodedBodySize": 253,
+          "decodedBodySize": 253
+        },
+        {
+          "path": "/assets/app/chunks/designer-A37LMS3U.js",
+          "transferSize": 37638,
+          "encodedBodySize": 37338,
+          "decodedBodySize": 134521
+        },
+        {
+          "path": "/assets/app/chunks/chunk-4WOA56RH.js",
+          "transferSize": 2526,
+          "encodedBodySize": 2226,
+          "decodedBodySize": 7172
+        },
+        {
+          "path": "/assets/app/chunks/chunk-C4PBWWYI.js",
+          "transferSize": 882,
+          "encodedBodySize": 582,
+          "decodedBodySize": 1233
+        },
+        {
+          "path": "/assets/app/chunks/chunk-IZKSL3SG.js",
+          "transferSize": 4103,
+          "encodedBodySize": 3803,
+          "decodedBodySize": 11790
+        },
+        {
+          "path": "/assets/app/chunks/chunk-WE6FZEN5.js",
+          "transferSize": 1793,
+          "encodedBodySize": 1493,
+          "decodedBodySize": 4323
+        },
+        {
+          "path": "/assets/app/chunks/chunk-QNYKRTR7.js",
+          "transferSize": 1502,
+          "encodedBodySize": 1202,
+          "decodedBodySize": 2594
+        },
+        {
+          "path": "/assets/app/chunks/chunk-ZWPOD2GR.js",
+          "transferSize": 16733,
+          "encodedBodySize": 16433,
+          "decodedBodySize": 51466
+        },
+        {
+          "path": "/assets/app/chunks/chunk-V5YWCFVU.js",
+          "transferSize": 537,
+          "encodedBodySize": 237,
+          "decodedBodySize": 408
+        },
+        {
+          "path": "/assets/app/chunks/chunk-LC3P5U26.js",
+          "transferSize": 560,
+          "encodedBodySize": 260,
+          "decodedBodySize": 654
+        },
+        {
+          "path": "/api/designs/library",
+          "transferSize": 1129345,
+          "encodedBodySize": 1129045,
+          "decodedBodySize": 1129045
+        },
+        {
+          "path": "/api/designs/designs/a7222068-a078-4f30-8391-70c301d417dd",
+          "transferSize": 1326,
+          "encodedBodySize": 1026,
+          "decodedBodySize": 1026
+        },
+        {
+          "path": "/assets/fonts/app/jakarta-latin-153fc85b7029.woff2",
+          "transferSize": 27648,
+          "encodedBodySize": 27348,
+          "decodedBodySize": 27348
+        },
+        {
+          "path": "/assets/fonts/app/jakarta-vietnamese-b275d1258601.woff2",
+          "transferSize": 8652,
+          "encodedBodySize": 8352,
+          "decodedBodySize": 8352
+        }
+      ]
+    },
+    {
+      "version": "before",
+      "type": "library",
+      "run": 2,
+      "readyMs": 1785,
+      "requests": 42,
+      "transferBytes": 2692815,
+      "encodedBodyBytes": 2680215,
+      "resources": [
+        {
+          "path": "/design/a7222068-a078-4f30-8391-70c301d417dd",
+          "transferSize": 2230,
+          "encodedBodySize": 1930,
+          "decodedBodySize": 5121
+        },
+        {
+          "path": "/assets/app/catalog-preload-A7HBQE4B.js",
+          "transferSize": 767,
+          "encodedBodySize": 467,
+          "decodedBodySize": 1000
+        },
+        {
+          "path": "/assets/app/styles-IFE7UOOO.css",
+          "transferSize": 40738,
+          "encodedBodySize": 40438,
+          "decodedBodySize": 239728
+        },
+        {
+          "path": "/assets/app/chunks/chunk-B2ZPUSA5.js",
+          "transferSize": 1644,
+          "encodedBodySize": 1344,
+          "decodedBodySize": 5007
+        },
+        {
+          "path": "/assets/app/chunks/chunk-BTYKR43A.js",
+          "transferSize": 1774,
+          "encodedBodySize": 1474,
+          "decodedBodySize": 3536
+        },
+        {
+          "path": "/assets/app/chunks/chunk-OGVCVJ2Y.js",
+          "transferSize": 48189,
+          "encodedBodySize": 47889,
+          "decodedBodySize": 260571
+        },
+        {
+          "path": "/assets/app/chunks/chunk-JECIP3CH.js",
+          "transferSize": 387,
+          "encodedBodySize": 87,
+          "decodedBodySize": 93
+        },
+        {
+          "path": "/assets/app/chunks/chunk-OU7DSHDL.js",
+          "transferSize": 2417,
+          "encodedBodySize": 2117,
+          "decodedBodySize": 5616
+        },
+        {
+          "path": "/assets/app/chunks/chunk-F3I22UXU.js",
+          "transferSize": 480,
+          "encodedBodySize": 180,
+          "decodedBodySize": 296
+        },
+        {
+          "path": "/assets/app/chunks/chunk-ZS3XSP33.js",
+          "transferSize": 653,
+          "encodedBodySize": 353,
+          "decodedBodySize": 591
+        },
+        {
+          "path": "/assets/app/chunks/chunk-VS7QPGKI.js",
+          "transferSize": 707,
+          "encodedBodySize": 407,
+          "decodedBodySize": 784
+        },
+        {
+          "path": "/assets/app/chunks/chunk-RRS3PSRK.js",
+          "transferSize": 1830,
+          "encodedBodySize": 1530,
+          "decodedBodySize": 4417
+        },
+        {
+          "path": "/assets/app/chunks/chunk-ZNUWAZAH.js",
+          "transferSize": 508,
+          "encodedBodySize": 208,
+          "decodedBodySize": 314
+        },
+        {
+          "path": "/assets/app/chunks/chunk-UM6DQMGX.js",
+          "transferSize": 926,
+          "encodedBodySize": 626,
+          "decodedBodySize": 1376
+        },
+        {
+          "path": "/assets/app/app-DQM5NF6W.js",
+          "transferSize": 27979,
+          "encodedBodySize": 27679,
+          "decodedBodySize": 107257
+        },
+        {
+          "path": "/assets/app/chunks/library-client-BPFMZQSY.js",
+          "transferSize": 462,
+          "encodedBodySize": 162,
+          "decodedBodySize": 353
+        },
+        {
+          "path": "/assets/fonts/app/inter-latin-3100e775e861.woff2",
+          "transferSize": 48556,
+          "encodedBodySize": 48256,
+          "decodedBodySize": 48256
+        },
+        {
+          "path": "/assets/fonts/app/inter-vietnamese-5c66f9e07e90.woff2",
+          "transferSize": 10552,
+          "encodedBodySize": 10252,
+          "decodedBodySize": 10252
+        },
+        {
+          "path": "/assets/momevia-brand-92.webp",
+          "transferSize": 14226,
+          "encodedBodySize": 13926,
+          "decodedBodySize": 13926
+        },
+        {
+          "path": "/assets/app/chunks/chunk-TA57RYUQ.js",
+          "transferSize": 16767,
+          "encodedBodySize": 16467,
+          "decodedBodySize": 51484
+        },
+        {
+          "path": "/assets/app/chunks/chunk-PTEX43TY.js",
+          "transferSize": 442,
+          "encodedBodySize": 142,
+          "decodedBodySize": 190
+        },
+        {
+          "path": "/assets/app/chunks/chunk-JYR6F4FC.js",
+          "transferSize": 28368,
+          "encodedBodySize": 28068,
+          "decodedBodySize": 89299
+        },
+        {
+          "path": "/assets/app/chunks/chunk-54V5A5US.js",
+          "transferSize": 23843,
+          "encodedBodySize": 23543,
+          "decodedBodySize": 97781
+        },
+        {
+          "path": "/assets/app/chunks/chunk-JY4S6HMQ.js",
+          "transferSize": 868,
+          "encodedBodySize": 568,
+          "decodedBodySize": 1294
+        },
+        {
+          "path": "/assets/app/chunks/chunk-77RZKQAB.js",
+          "transferSize": 1722,
+          "encodedBodySize": 1422,
+          "decodedBodySize": 3443
+        },
+        {
+          "path": "/assets/app/chunks/chunk-KOIGPEWY.js",
+          "transferSize": 24605,
+          "encodedBodySize": 24305,
+          "decodedBodySize": 108727
+        },
+        {
+          "path": "/api/designs/library",
+          "transferSize": 1129345,
+          "encodedBodySize": 1129045,
+          "decodedBodySize": 1129045
+        },
+        {
+          "path": "/assets/momevia-icon-128.png",
+          "transferSize": 28032,
+          "encodedBodySize": 27732,
+          "decodedBodySize": 27732
+        },
+        {
+          "path": "/api/auth/me",
+          "transferSize": 553,
+          "encodedBodySize": 253,
+          "decodedBodySize": 253
+        },
+        {
+          "path": "/assets/app/chunks/designer-A37LMS3U.js",
+          "transferSize": 37638,
+          "encodedBodySize": 37338,
+          "decodedBodySize": 134521
+        },
+        {
+          "path": "/assets/app/chunks/chunk-4WOA56RH.js",
+          "transferSize": 2526,
+          "encodedBodySize": 2226,
+          "decodedBodySize": 7172
+        },
+        {
+          "path": "/assets/app/chunks/chunk-IZKSL3SG.js",
+          "transferSize": 4103,
+          "encodedBodySize": 3803,
+          "decodedBodySize": 11790
+        },
+        {
+          "path": "/assets/app/chunks/chunk-C4PBWWYI.js",
+          "transferSize": 882,
+          "encodedBodySize": 582,
+          "decodedBodySize": 1233
+        },
+        {
+          "path": "/assets/app/chunks/chunk-WE6FZEN5.js",
+          "transferSize": 1793,
+          "encodedBodySize": 1493,
+          "decodedBodySize": 4323
+        },
+        {
+          "path": "/assets/app/chunks/chunk-ZWPOD2GR.js",
+          "transferSize": 16733,
+          "encodedBodySize": 16433,
+          "decodedBodySize": 51466
+        },
+        {
+          "path": "/assets/app/chunks/chunk-QNYKRTR7.js",
+          "transferSize": 1502,
+          "encodedBodySize": 1202,
+          "decodedBodySize": 2594
+        },
+        {
+          "path": "/assets/app/chunks/chunk-V5YWCFVU.js",
+          "transferSize": 537,
+          "encodedBodySize": 237,
+          "decodedBodySize": 408
+        },
+        {
+          "path": "/assets/app/chunks/chunk-LC3P5U26.js",
+          "transferSize": 560,
+          "encodedBodySize": 260,
+          "decodedBodySize": 654
+        },
+        {
+          "path": "/api/designs/library",
+          "transferSize": 1129345,
+          "encodedBodySize": 1129045,
+          "decodedBodySize": 1129045
+        },
+        {
+          "path": "/api/designs/designs/a7222068-a078-4f30-8391-70c301d417dd",
+          "transferSize": 1326,
+          "encodedBodySize": 1026,
+          "decodedBodySize": 1026
+        },
+        {
+          "path": "/assets/fonts/app/jakarta-latin-153fc85b7029.woff2",
+          "transferSize": 27648,
+          "encodedBodySize": 27348,
+          "decodedBodySize": 27348
+        },
+        {
+          "path": "/assets/fonts/app/jakarta-vietnamese-b275d1258601.woff2",
+          "transferSize": 8652,
+          "encodedBodySize": 8352,
+          "decodedBodySize": 8352
+        }
+      ]
+    },
+    {
+      "version": "before",
+      "type": "legacy-gift",
+      "run": 0,
+      "readyMs": 1169,
+      "requests": 34,
+      "transferBytes": 573145,
+      "encodedBodyBytes": 562945,
+      "resources": [
+        {
+          "path": "/g/fCzbklztqIIr80TBGcDLXpUJDUY5BLN6",
+          "transferSize": 2230,
+          "encodedBodySize": 1930,
+          "decodedBodySize": 5121
+        },
+        {
+          "path": "/assets/app/catalog-preload-A7HBQE4B.js",
+          "transferSize": 767,
+          "encodedBodySize": 467,
+          "decodedBodySize": 1000
+        },
+        {
+          "path": "/assets/app/styles-IFE7UOOO.css",
+          "transferSize": 40738,
+          "encodedBodySize": 40438,
+          "decodedBodySize": 239728
+        },
+        {
+          "path": "/assets/app/chunks/chunk-B2ZPUSA5.js",
+          "transferSize": 1644,
+          "encodedBodySize": 1344,
+          "decodedBodySize": 5007
+        },
+        {
+          "path": "/assets/app/chunks/chunk-BTYKR43A.js",
+          "transferSize": 1774,
+          "encodedBodySize": 1474,
+          "decodedBodySize": 3536
+        },
+        {
+          "path": "/assets/app/chunks/chunk-OGVCVJ2Y.js",
+          "transferSize": 48189,
+          "encodedBodySize": 47889,
+          "decodedBodySize": 260571
+        },
+        {
+          "path": "/assets/app/chunks/chunk-JECIP3CH.js",
+          "transferSize": 387,
+          "encodedBodySize": 87,
+          "decodedBodySize": 93
+        },
+        {
+          "path": "/assets/app/chunks/chunk-OU7DSHDL.js",
+          "transferSize": 2417,
+          "encodedBodySize": 2117,
+          "decodedBodySize": 5616
+        },
+        {
+          "path": "/assets/app/chunks/chunk-F3I22UXU.js",
+          "transferSize": 480,
+          "encodedBodySize": 180,
+          "decodedBodySize": 296
+        },
+        {
+          "path": "/assets/app/chunks/chunk-ZS3XSP33.js",
+          "transferSize": 653,
+          "encodedBodySize": 353,
+          "decodedBodySize": 591
+        },
+        {
+          "path": "/assets/app/chunks/chunk-VS7QPGKI.js",
+          "transferSize": 707,
+          "encodedBodySize": 407,
+          "decodedBodySize": 784
+        },
+        {
+          "path": "/assets/app/chunks/chunk-RRS3PSRK.js",
+          "transferSize": 1830,
+          "encodedBodySize": 1530,
+          "decodedBodySize": 4417
+        },
+        {
+          "path": "/assets/app/chunks/chunk-ZNUWAZAH.js",
+          "transferSize": 508,
+          "encodedBodySize": 208,
+          "decodedBodySize": 314
+        },
+        {
+          "path": "/assets/app/chunks/chunk-UM6DQMGX.js",
+          "transferSize": 926,
+          "encodedBodySize": 626,
+          "decodedBodySize": 1376
+        },
+        {
+          "path": "/assets/app/app-DQM5NF6W.js",
+          "transferSize": 27979,
+          "encodedBodySize": 27679,
+          "decodedBodySize": 107257
+        },
+        {
+          "path": "/api/gifts/gifts/fCzbklztqIIr80TBGcDLXpUJDUY5BLN6",
+          "transferSize": 4693,
+          "encodedBodySize": 4393,
+          "decodedBodySize": 4393
+        },
+        {
+          "path": "/assets/fonts/app/inter-latin-3100e775e861.woff2",
+          "transferSize": 48556,
+          "encodedBodySize": 48256,
+          "decodedBodySize": 48256
+        },
+        {
+          "path": "/assets/fonts/app/inter-vietnamese-5c66f9e07e90.woff2",
+          "transferSize": 10552,
+          "encodedBodySize": 10252,
+          "decodedBodySize": 10252
+        },
+        {
+          "path": "/assets/momevia-brand-92.webp",
+          "transferSize": 14226,
+          "encodedBodySize": 13926,
+          "decodedBodySize": 13926
+        },
+        {
+          "path": "/assets/app/chunks/gift-runtime-EUJC2BWP.js",
+          "transferSize": 497,
+          "encodedBodySize": 197,
+          "decodedBodySize": 476
+        },
+        {
+          "path": "/assets/app/chunks/chunk-ZWPOD2GR.js",
+          "transferSize": 16733,
+          "encodedBodySize": 16433,
+          "decodedBodySize": 51466
+        },
+        {
+          "path": "/assets/app/chunks/chunk-JYR6F4FC.js",
+          "transferSize": 28368,
+          "encodedBodySize": 28068,
+          "decodedBodySize": 89299
+        },
+        {
+          "path": "/assets/app/chunks/chunk-QNYKRTR7.js",
+          "transferSize": 1502,
+          "encodedBodySize": 1202,
+          "decodedBodySize": 2594
+        },
+        {
+          "path": "/assets/app/chunks/chunk-V5YWCFVU.js",
+          "transferSize": 537,
+          "encodedBodySize": 237,
+          "decodedBodySize": 408
+        },
+        {
+          "path": "/assets/app/chunks/chunk-54V5A5US.js",
+          "transferSize": 23843,
+          "encodedBodySize": 23543,
+          "decodedBodySize": 97781
+        },
+        {
+          "path": "/assets/app/chunks/chunk-JY4S6HMQ.js",
+          "transferSize": 868,
+          "encodedBodySize": 568,
+          "decodedBodySize": 1294
+        },
+        {
+          "path": "/assets/app/chunks/chunk-77RZKQAB.js",
+          "transferSize": 1722,
+          "encodedBodySize": 1422,
+          "decodedBodySize": 3443
+        },
+        {
+          "path": "/assets/app/chunks/chunk-KOIGPEWY.js",
+          "transferSize": 24605,
+          "encodedBodySize": 24305,
+          "decodedBodySize": 108727
+        },
+        {
+          "path": "/assets/momevia-icon-128.png",
+          "transferSize": 28032,
+          "encodedBodySize": 27732,
+          "decodedBodySize": 27732
+        },
+        {
+          "path": "/assets/fonts/app/jakarta-latin-153fc85b7029.woff2",
+          "transferSize": 27648,
+          "encodedBodySize": 27348,
+          "decodedBodySize": 27348
+        },
+        {
+          "path": "/assets/fonts/app/jakarta-vietnamese-b275d1258601.woff2",
+          "transferSize": 8652,
+          "encodedBodySize": 8352,
+          "decodedBodySize": 8352
+        },
+        {
+          "path": "/assets/basic-templates/winter-wishes-2026-catalog.svg",
+          "transferSize": 69291,
+          "encodedBodySize": 68991,
+          "decodedBodySize": 91880
+        },
+        {
+          "path": "/assets/basic-templates/birthday-radiance-catalog.svg",
+          "transferSize": 50377,
+          "encodedBodySize": 50077,
+          "decodedBodySize": 67873
+        },
+        {
+          "path": "/assets/basic-templates/thank-you-bloom-catalog.svg",
+          "transferSize": 81214,
+          "encodedBodySize": 80914,
+          "decodedBodySize": 107744
+        }
+      ]
+    },
+    {
+      "version": "before",
+      "type": "legacy-gift",
+      "run": 1,
+      "readyMs": 1172,
+      "requests": 34,
+      "transferBytes": 573145,
+      "encodedBodyBytes": 562945,
+      "resources": [
+        {
+          "path": "/g/fCzbklztqIIr80TBGcDLXpUJDUY5BLN6",
+          "transferSize": 2230,
+          "encodedBodySize": 1930,
+          "decodedBodySize": 5121
+        },
+        {
+          "path": "/assets/app/catalog-preload-A7HBQE4B.js",
+          "transferSize": 767,
+          "encodedBodySize": 467,
+          "decodedBodySize": 1000
+        },
+        {
+          "path": "/assets/app/styles-IFE7UOOO.css",
+          "transferSize": 40738,
+          "encodedBodySize": 40438,
+          "decodedBodySize": 239728
+        },
+        {
+          "path": "/assets/app/chunks/chunk-B2ZPUSA5.js",
+          "transferSize": 1644,
+          "encodedBodySize": 1344,
+          "decodedBodySize": 5007
+        },
+        {
+          "path": "/assets/app/chunks/chunk-BTYKR43A.js",
+          "transferSize": 1774,
+          "encodedBodySize": 1474,
+          "decodedBodySize": 3536
+        },
+        {
+          "path": "/assets/app/chunks/chunk-OGVCVJ2Y.js",
+          "transferSize": 48189,
+          "encodedBodySize": 47889,
+          "decodedBodySize": 260571
+        },
+        {
+          "path": "/assets/app/chunks/chunk-JECIP3CH.js",
+          "transferSize": 387,
+          "encodedBodySize": 87,
+          "decodedBodySize": 93
+        },
+        {
+          "path": "/assets/app/chunks/chunk-OU7DSHDL.js",
+          "transferSize": 2417,
+          "encodedBodySize": 2117,
+          "decodedBodySize": 5616
+        },
+        {
+          "path": "/assets/app/chunks/chunk-F3I22UXU.js",
+          "transferSize": 480,
+          "encodedBodySize": 180,
+          "decodedBodySize": 296
+        },
+        {
+          "path": "/assets/app/chunks/chunk-ZS3XSP33.js",
+          "transferSize": 653,
+          "encodedBodySize": 353,
+          "decodedBodySize": 591
+        },
+        {
+          "path": "/assets/app/chunks/chunk-VS7QPGKI.js",
+          "transferSize": 707,
+          "encodedBodySize": 407,
+          "decodedBodySize": 784
+        },
+        {
+          "path": "/assets/app/chunks/chunk-RRS3PSRK.js",
+          "transferSize": 1830,
+          "encodedBodySize": 1530,
+          "decodedBodySize": 4417
+        },
+        {
+          "path": "/assets/app/chunks/chunk-ZNUWAZAH.js",
+          "transferSize": 508,
+          "encodedBodySize": 208,
+          "decodedBodySize": 314
+        },
+        {
+          "path": "/assets/app/chunks/chunk-UM6DQMGX.js",
+          "transferSize": 926,
+          "encodedBodySize": 626,
+          "decodedBodySize": 1376
+        },
+        {
+          "path": "/assets/app/app-DQM5NF6W.js",
+          "transferSize": 27979,
+          "encodedBodySize": 27679,
+          "decodedBodySize": 107257
+        },
+        {
+          "path": "/api/gifts/gifts/fCzbklztqIIr80TBGcDLXpUJDUY5BLN6",
+          "transferSize": 4693,
+          "encodedBodySize": 4393,
+          "decodedBodySize": 4393
+        },
+        {
+          "path": "/assets/fonts/app/inter-latin-3100e775e861.woff2",
+          "transferSize": 48556,
+          "encodedBodySize": 48256,
+          "decodedBodySize": 48256
+        },
+        {
+          "path": "/assets/fonts/app/inter-vietnamese-5c66f9e07e90.woff2",
+          "transferSize": 10552,
+          "encodedBodySize": 10252,
+          "decodedBodySize": 10252
+        },
+        {
+          "path": "/assets/momevia-brand-92.webp",
+          "transferSize": 14226,
+          "encodedBodySize": 13926,
+          "decodedBodySize": 13926
+        },
+        {
+          "path": "/assets/app/chunks/gift-runtime-EUJC2BWP.js",
+          "transferSize": 497,
+          "encodedBodySize": 197,
+          "decodedBodySize": 476
+        },
+        {
+          "path": "/assets/app/chunks/chunk-ZWPOD2GR.js",
+          "transferSize": 16733,
+          "encodedBodySize": 16433,
+          "decodedBodySize": 51466
+        },
+        {
+          "path": "/assets/app/chunks/chunk-JYR6F4FC.js",
+          "transferSize": 28368,
+          "encodedBodySize": 28068,
+          "decodedBodySize": 89299
+        },
+        {
+          "path": "/assets/app/chunks/chunk-QNYKRTR7.js",
+          "transferSize": 1502,
+          "encodedBodySize": 1202,
+          "decodedBodySize": 2594
+        },
+        {
+          "path": "/assets/app/chunks/chunk-V5YWCFVU.js",
+          "transferSize": 537,
+          "encodedBodySize": 237,
+          "decodedBodySize": 408
+        },
+        {
+          "path": "/assets/app/chunks/chunk-54V5A5US.js",
+          "transferSize": 23843,
+          "encodedBodySize": 23543,
+          "decodedBodySize": 97781
+        },
+        {
+          "path": "/assets/app/chunks/chunk-JY4S6HMQ.js",
+          "transferSize": 868,
+          "encodedBodySize": 568,
+          "decodedBodySize": 1294
+        },
+        {
+          "path": "/assets/app/chunks/chunk-77RZKQAB.js",
+          "transferSize": 1722,
+          "encodedBodySize": 1422,
+          "decodedBodySize": 3443
+        },
+        {
+          "path": "/assets/app/chunks/chunk-KOIGPEWY.js",
+          "transferSize": 24605,
+          "encodedBodySize": 24305,
+          "decodedBodySize": 108727
+        },
+        {
+          "path": "/assets/momevia-icon-128.png",
+          "transferSize": 28032,
+          "encodedBodySize": 27732,
+          "decodedBodySize": 27732
+        },
+        {
+          "path": "/assets/fonts/app/jakarta-latin-153fc85b7029.woff2",
+          "transferSize": 27648,
+          "encodedBodySize": 27348,
+          "decodedBodySize": 27348
+        },
+        {
+          "path": "/assets/fonts/app/jakarta-vietnamese-b275d1258601.woff2",
+          "transferSize": 8652,
+          "encodedBodySize": 8352,
+          "decodedBodySize": 8352
+        },
+        {
+          "path": "/assets/basic-templates/winter-wishes-2026-catalog.svg",
+          "transferSize": 69291,
+          "encodedBodySize": 68991,
+          "decodedBodySize": 91880
+        },
+        {
+          "path": "/assets/basic-templates/birthday-radiance-catalog.svg",
+          "transferSize": 50377,
+          "encodedBodySize": 50077,
+          "decodedBodySize": 67873
+        },
+        {
+          "path": "/assets/basic-templates/thank-you-bloom-catalog.svg",
+          "transferSize": 81214,
+          "encodedBodySize": 80914,
+          "decodedBodySize": 107744
+        }
+      ]
+    },
+    {
+      "version": "before",
+      "type": "legacy-gift",
+      "run": 2,
+      "readyMs": 1185,
+      "requests": 34,
+      "transferBytes": 573145,
+      "encodedBodyBytes": 562945,
+      "resources": [
+        {
+          "path": "/g/fCzbklztqIIr80TBGcDLXpUJDUY5BLN6",
+          "transferSize": 2230,
+          "encodedBodySize": 1930,
+          "decodedBodySize": 5121
+        },
+        {
+          "path": "/assets/app/catalog-preload-A7HBQE4B.js",
+          "transferSize": 767,
+          "encodedBodySize": 467,
+          "decodedBodySize": 1000
+        },
+        {
+          "path": "/assets/app/styles-IFE7UOOO.css",
+          "transferSize": 40738,
+          "encodedBodySize": 40438,
+          "decodedBodySize": 239728
+        },
+        {
+          "path": "/assets/app/chunks/chunk-B2ZPUSA5.js",
+          "transferSize": 1644,
+          "encodedBodySize": 1344,
+          "decodedBodySize": 5007
+        },
+        {
+          "path": "/assets/app/chunks/chunk-BTYKR43A.js",
+          "transferSize": 1774,
+          "encodedBodySize": 1474,
+          "decodedBodySize": 3536
+        },
+        {
+          "path": "/assets/app/chunks/chunk-OGVCVJ2Y.js",
+          "transferSize": 48189,
+          "encodedBodySize": 47889,
+          "decodedBodySize": 260571
+        },
+        {
+          "path": "/assets/app/chunks/chunk-JECIP3CH.js",
+          "transferSize": 387,
+          "encodedBodySize": 87,
+          "decodedBodySize": 93
+        },
+        {
+          "path": "/assets/app/chunks/chunk-OU7DSHDL.js",
+          "transferSize": 2417,
+          "encodedBodySize": 2117,
+          "decodedBodySize": 5616
+        },
+        {
+          "path": "/assets/app/chunks/chunk-F3I22UXU.js",
+          "transferSize": 480,
+          "encodedBodySize": 180,
+          "decodedBodySize": 296
+        },
+        {
+          "path": "/assets/app/chunks/chunk-ZS3XSP33.js",
+          "transferSize": 653,
+          "encodedBodySize": 353,
+          "decodedBodySize": 591
+        },
+        {
+          "path": "/assets/app/chunks/chunk-VS7QPGKI.js",
+          "transferSize": 707,
+          "encodedBodySize": 407,
+          "decodedBodySize": 784
+        },
+        {
+          "path": "/assets/app/chunks/chunk-RRS3PSRK.js",
+          "transferSize": 1830,
+          "encodedBodySize": 1530,
+          "decodedBodySize": 4417
+        },
+        {
+          "path": "/assets/app/chunks/chunk-ZNUWAZAH.js",
+          "transferSize": 508,
+          "encodedBodySize": 208,
+          "decodedBodySize": 314
+        },
+        {
+          "path": "/assets/app/chunks/chunk-UM6DQMGX.js",
+          "transferSize": 926,
+          "encodedBodySize": 626,
+          "decodedBodySize": 1376
+        },
+        {
+          "path": "/assets/app/app-DQM5NF6W.js",
+          "transferSize": 27979,
+          "encodedBodySize": 27679,
+          "decodedBodySize": 107257
+        },
+        {
+          "path": "/api/gifts/gifts/fCzbklztqIIr80TBGcDLXpUJDUY5BLN6",
+          "transferSize": 4693,
+          "encodedBodySize": 4393,
+          "decodedBodySize": 4393
+        },
+        {
+          "path": "/assets/fonts/app/inter-latin-3100e775e861.woff2",
+          "transferSize": 48556,
+          "encodedBodySize": 48256,
+          "decodedBodySize": 48256
+        },
+        {
+          "path": "/assets/fonts/app/inter-vietnamese-5c66f9e07e90.woff2",
+          "transferSize": 10552,
+          "encodedBodySize": 10252,
+          "decodedBodySize": 10252
+        },
+        {
+          "path": "/assets/momevia-brand-92.webp",
+          "transferSize": 14226,
+          "encodedBodySize": 13926,
+          "decodedBodySize": 13926
+        },
+        {
+          "path": "/assets/app/chunks/gift-runtime-EUJC2BWP.js",
+          "transferSize": 497,
+          "encodedBodySize": 197,
+          "decodedBodySize": 476
+        },
+        {
+          "path": "/assets/app/chunks/chunk-ZWPOD2GR.js",
+          "transferSize": 16733,
+          "encodedBodySize": 16433,
+          "decodedBodySize": 51466
+        },
+        {
+          "path": "/assets/app/chunks/chunk-JYR6F4FC.js",
+          "transferSize": 28368,
+          "encodedBodySize": 28068,
+          "decodedBodySize": 89299
+        },
+        {
+          "path": "/assets/app/chunks/chunk-QNYKRTR7.js",
+          "transferSize": 1502,
+          "encodedBodySize": 1202,
+          "decodedBodySize": 2594
+        },
+        {
+          "path": "/assets/app/chunks/chunk-V5YWCFVU.js",
+          "transferSize": 537,
+          "encodedBodySize": 237,
+          "decodedBodySize": 408
+        },
+        {
+          "path": "/assets/app/chunks/chunk-54V5A5US.js",
+          "transferSize": 23843,
+          "encodedBodySize": 23543,
+          "decodedBodySize": 97781
+        },
+        {
+          "path": "/assets/app/chunks/chunk-JY4S6HMQ.js",
+          "transferSize": 868,
+          "encodedBodySize": 568,
+          "decodedBodySize": 1294
+        },
+        {
+          "path": "/assets/app/chunks/chunk-77RZKQAB.js",
+          "transferSize": 1722,
+          "encodedBodySize": 1422,
+          "decodedBodySize": 3443
+        },
+        {
+          "path": "/assets/app/chunks/chunk-KOIGPEWY.js",
+          "transferSize": 24605,
+          "encodedBodySize": 24305,
+          "decodedBodySize": 108727
+        },
+        {
+          "path": "/assets/momevia-icon-128.png",
+          "transferSize": 28032,
+          "encodedBodySize": 27732,
+          "decodedBodySize": 27732
+        },
+        {
+          "path": "/assets/fonts/app/jakarta-latin-153fc85b7029.woff2",
+          "transferSize": 27648,
+          "encodedBodySize": 27348,
+          "decodedBodySize": 27348
+        },
+        {
+          "path": "/assets/fonts/app/jakarta-vietnamese-b275d1258601.woff2",
+          "transferSize": 8652,
+          "encodedBodySize": 8352,
+          "decodedBodySize": 8352
+        },
+        {
+          "path": "/assets/basic-templates/winter-wishes-2026-catalog.svg",
+          "transferSize": 69291,
+          "encodedBodySize": 68991,
+          "decodedBodySize": 91880
+        },
+        {
+          "path": "/assets/basic-templates/birthday-radiance-catalog.svg",
+          "transferSize": 50377,
+          "encodedBodySize": 50077,
+          "decodedBodySize": 67873
+        },
+        {
+          "path": "/assets/basic-templates/thank-you-bloom-catalog.svg",
+          "transferSize": 81214,
+          "encodedBodySize": 80914,
+          "decodedBodySize": 107744
+        }
+      ]
+    },
+    {
+      "version": "after",
+      "type": "library",
+      "run": 0,
+      "readyMs": 2124,
+      "requests": 42,
+      "transferBytes": 2973413,
+      "encodedBodyBytes": 2960813,
+      "resources": [
+        {
+          "path": "/design/3259a826-71ab-496f-b487-c8792e9ff50c",
+          "transferSize": 2232,
+          "encodedBodySize": 1932,
+          "decodedBodySize": 5121
+        },
+        {
+          "path": "/assets/app/catalog-preload-A7HBQE4B.js",
+          "transferSize": 767,
+          "encodedBodySize": 467,
+          "decodedBodySize": 1000
+        },
+        {
+          "path": "/assets/app/styles-GZ4HKULX.css",
+          "transferSize": 40771,
+          "encodedBodySize": 40471,
+          "decodedBodySize": 239884
+        },
+        {
+          "path": "/assets/app/chunks/chunk-EQQYJD27.js",
+          "transferSize": 1650,
+          "encodedBodySize": 1350,
+          "decodedBodySize": 5007
+        },
+        {
+          "path": "/assets/app/chunks/chunk-PJELJMHZ.js",
+          "transferSize": 1768,
+          "encodedBodySize": 1468,
+          "decodedBodySize": 3536
+        },
+        {
+          "path": "/assets/app/chunks/chunk-VWXF5G2Q.js",
+          "transferSize": 49211,
+          "encodedBodySize": 48911,
+          "decodedBodySize": 264898
+        },
+        {
+          "path": "/assets/app/chunks/chunk-JECIP3CH.js",
+          "transferSize": 387,
+          "encodedBodySize": 87,
+          "decodedBodySize": 93
+        },
+        {
+          "path": "/assets/app/chunks/chunk-HDHOFJBN.js",
+          "transferSize": 2421,
+          "encodedBodySize": 2121,
+          "decodedBodySize": 5616
+        },
+        {
+          "path": "/assets/app/chunks/chunk-F3I22UXU.js",
+          "transferSize": 480,
+          "encodedBodySize": 180,
+          "decodedBodySize": 296
+        },
+        {
+          "path": "/assets/app/chunks/chunk-4AM2LUFK.js",
+          "transferSize": 653,
+          "encodedBodySize": 353,
+          "decodedBodySize": 591
+        },
+        {
+          "path": "/assets/app/chunks/chunk-ZLSF6ECL.js",
+          "transferSize": 713,
+          "encodedBodySize": 413,
+          "decodedBodySize": 784
+        },
+        {
+          "path": "/assets/app/chunks/chunk-RRS3PSRK.js",
+          "transferSize": 1830,
+          "encodedBodySize": 1530,
+          "decodedBodySize": 4417
+        },
+        {
+          "path": "/assets/app/chunks/chunk-LXBXYO2O.js",
+          "transferSize": 508,
+          "encodedBodySize": 208,
+          "decodedBodySize": 314
+        },
+        {
+          "path": "/assets/app/chunks/chunk-3EKD5SJA.js",
+          "transferSize": 927,
+          "encodedBodySize": 627,
+          "decodedBodySize": 1376
+        },
+        {
+          "path": "/assets/app/app-CNBA6OLT.js",
+          "transferSize": 27973,
+          "encodedBodySize": 27673,
+          "decodedBodySize": 107257
+        },
+        {
+          "path": "/assets/app/chunks/library-client-CDAP3WWR.js",
+          "transferSize": 462,
+          "encodedBodySize": 162,
+          "decodedBodySize": 353
+        },
+        {
+          "path": "/assets/fonts/app/inter-latin-3100e775e861.woff2",
+          "transferSize": 48556,
+          "encodedBodySize": 48256,
+          "decodedBodySize": 48256
+        },
+        {
+          "path": "/assets/fonts/app/inter-vietnamese-5c66f9e07e90.woff2",
+          "transferSize": 10552,
+          "encodedBodySize": 10252,
+          "decodedBodySize": 10252
+        },
+        {
+          "path": "/assets/momevia-brand-92.webp",
+          "transferSize": 14226,
+          "encodedBodySize": 13926,
+          "decodedBodySize": 13926
+        },
+        {
+          "path": "/assets/app/chunks/chunk-I2XY2VWI.js",
+          "transferSize": 28808,
+          "encodedBodySize": 28508,
+          "decodedBodySize": 91053
+        },
+        {
+          "path": "/assets/app/chunks/chunk-PTEX43TY.js",
+          "transferSize": 442,
+          "encodedBodySize": 142,
+          "decodedBodySize": 190
+        },
+        {
+          "path": "/assets/app/chunks/chunk-WUE4U3HC.js",
+          "transferSize": 28409,
+          "encodedBodySize": 28109,
+          "decodedBodySize": 89376
+        },
+        {
+          "path": "/assets/app/chunks/chunk-SXTSF32T.js",
+          "transferSize": 25689,
+          "encodedBodySize": 25389,
+          "decodedBodySize": 103615
+        },
+        {
+          "path": "/assets/app/chunks/chunk-JY4S6HMQ.js",
+          "transferSize": 868,
+          "encodedBodySize": 568,
+          "decodedBodySize": 1294
+        },
+        {
+          "path": "/assets/app/chunks/chunk-77RZKQAB.js",
+          "transferSize": 1722,
+          "encodedBodySize": 1422,
+          "decodedBodySize": 3443
+        },
+        {
+          "path": "/assets/app/chunks/chunk-KOIGPEWY.js",
+          "transferSize": 24605,
+          "encodedBodySize": 24305,
+          "decodedBodySize": 108727
+        },
+        {
+          "path": "/api/designs/library",
+          "transferSize": 1260525,
+          "encodedBodySize": 1260225,
+          "decodedBodySize": 1260225
+        },
+        {
+          "path": "/assets/momevia-icon-128.png",
+          "transferSize": 28032,
+          "encodedBodySize": 27732,
+          "decodedBodySize": 27732
+        },
+        {
+          "path": "/api/auth/me",
+          "transferSize": 568,
+          "encodedBodySize": 268,
+          "decodedBodySize": 268
+        },
+        {
+          "path": "/assets/app/chunks/designer-HIB7SII4.js",
+          "transferSize": 39483,
+          "encodedBodySize": 39183,
+          "decodedBodySize": 141534
+        },
+        {
+          "path": "/assets/app/chunks/chunk-HYP4MJHK.js",
+          "transferSize": 2535,
+          "encodedBodySize": 2235,
+          "decodedBodySize": 7172
+        },
+        {
+          "path": "/assets/app/chunks/chunk-KUBYI3IS.js",
+          "transferSize": 4139,
+          "encodedBodySize": 3839,
+          "decodedBodySize": 11930
+        },
+        {
+          "path": "/assets/app/chunks/chunk-VY2OAWRR.js",
+          "transferSize": 879,
+          "encodedBodySize": 579,
+          "decodedBodySize": 1233
+        },
+        {
+          "path": "/assets/app/chunks/chunk-QXWZHGN6.js",
+          "transferSize": 1793,
+          "encodedBodySize": 1493,
+          "decodedBodySize": 4323
+        },
+        {
+          "path": "/assets/app/chunks/chunk-XATBXA6H.js",
+          "transferSize": 18079,
+          "encodedBodySize": 17779,
+          "decodedBodySize": 56945
+        },
+        {
+          "path": "/assets/app/chunks/chunk-QNYKRTR7.js",
+          "transferSize": 1502,
+          "encodedBodySize": 1202,
+          "decodedBodySize": 2594
+        },
+        {
+          "path": "/assets/app/chunks/chunk-V5YWCFVU.js",
+          "transferSize": 537,
+          "encodedBodySize": 237,
+          "decodedBodySize": 408
+        },
+        {
+          "path": "/assets/app/chunks/chunk-LC3P5U26.js",
+          "transferSize": 560,
+          "encodedBodySize": 260,
+          "decodedBodySize": 654
+        },
+        {
+          "path": "/api/designs/library",
+          "transferSize": 1260525,
+          "encodedBodySize": 1260225,
+          "decodedBodySize": 1260225
+        },
+        {
+          "path": "/api/designs/designs/3259a826-71ab-496f-b487-c8792e9ff50c",
+          "transferSize": 1326,
+          "encodedBodySize": 1026,
+          "decodedBodySize": 1026
+        },
+        {
+          "path": "/assets/fonts/app/jakarta-latin-153fc85b7029.woff2",
+          "transferSize": 27648,
+          "encodedBodySize": 27348,
+          "decodedBodySize": 27348
+        },
+        {
+          "path": "/assets/fonts/app/jakarta-vietnamese-b275d1258601.woff2",
+          "transferSize": 8652,
+          "encodedBodySize": 8352,
+          "decodedBodySize": 8352
+        }
+      ]
+    },
+    {
+      "version": "after",
+      "type": "library",
+      "run": 1,
+      "readyMs": 2148,
+      "requests": 42,
+      "transferBytes": 2973413,
+      "encodedBodyBytes": 2960813,
+      "resources": [
+        {
+          "path": "/design/3259a826-71ab-496f-b487-c8792e9ff50c",
+          "transferSize": 2232,
+          "encodedBodySize": 1932,
+          "decodedBodySize": 5121
+        },
+        {
+          "path": "/assets/app/catalog-preload-A7HBQE4B.js",
+          "transferSize": 767,
+          "encodedBodySize": 467,
+          "decodedBodySize": 1000
+        },
+        {
+          "path": "/assets/app/styles-GZ4HKULX.css",
+          "transferSize": 40771,
+          "encodedBodySize": 40471,
+          "decodedBodySize": 239884
+        },
+        {
+          "path": "/assets/app/chunks/chunk-EQQYJD27.js",
+          "transferSize": 1650,
+          "encodedBodySize": 1350,
+          "decodedBodySize": 5007
+        },
+        {
+          "path": "/assets/app/chunks/chunk-PJELJMHZ.js",
+          "transferSize": 1768,
+          "encodedBodySize": 1468,
+          "decodedBodySize": 3536
+        },
+        {
+          "path": "/assets/app/chunks/chunk-VWXF5G2Q.js",
+          "transferSize": 49211,
+          "encodedBodySize": 48911,
+          "decodedBodySize": 264898
+        },
+        {
+          "path": "/assets/app/chunks/chunk-JECIP3CH.js",
+          "transferSize": 387,
+          "encodedBodySize": 87,
+          "decodedBodySize": 93
+        },
+        {
+          "path": "/assets/app/chunks/chunk-HDHOFJBN.js",
+          "transferSize": 2421,
+          "encodedBodySize": 2121,
+          "decodedBodySize": 5616
+        },
+        {
+          "path": "/assets/app/chunks/chunk-F3I22UXU.js",
+          "transferSize": 480,
+          "encodedBodySize": 180,
+          "decodedBodySize": 296
+        },
+        {
+          "path": "/assets/app/chunks/chunk-4AM2LUFK.js",
+          "transferSize": 653,
+          "encodedBodySize": 353,
+          "decodedBodySize": 591
+        },
+        {
+          "path": "/assets/app/chunks/chunk-ZLSF6ECL.js",
+          "transferSize": 713,
+          "encodedBodySize": 413,
+          "decodedBodySize": 784
+        },
+        {
+          "path": "/assets/app/chunks/chunk-RRS3PSRK.js",
+          "transferSize": 1830,
+          "encodedBodySize": 1530,
+          "decodedBodySize": 4417
+        },
+        {
+          "path": "/assets/app/chunks/chunk-LXBXYO2O.js",
+          "transferSize": 508,
+          "encodedBodySize": 208,
+          "decodedBodySize": 314
+        },
+        {
+          "path": "/assets/app/chunks/chunk-3EKD5SJA.js",
+          "transferSize": 927,
+          "encodedBodySize": 627,
+          "decodedBodySize": 1376
+        },
+        {
+          "path": "/assets/app/app-CNBA6OLT.js",
+          "transferSize": 27973,
+          "encodedBodySize": 27673,
+          "decodedBodySize": 107257
+        },
+        {
+          "path": "/assets/app/chunks/library-client-CDAP3WWR.js",
+          "transferSize": 462,
+          "encodedBodySize": 162,
+          "decodedBodySize": 353
+        },
+        {
+          "path": "/assets/fonts/app/inter-latin-3100e775e861.woff2",
+          "transferSize": 48556,
+          "encodedBodySize": 48256,
+          "decodedBodySize": 48256
+        },
+        {
+          "path": "/assets/fonts/app/inter-vietnamese-5c66f9e07e90.woff2",
+          "transferSize": 10552,
+          "encodedBodySize": 10252,
+          "decodedBodySize": 10252
+        },
+        {
+          "path": "/assets/momevia-brand-92.webp",
+          "transferSize": 14226,
+          "encodedBodySize": 13926,
+          "decodedBodySize": 13926
+        },
+        {
+          "path": "/assets/app/chunks/chunk-I2XY2VWI.js",
+          "transferSize": 28808,
+          "encodedBodySize": 28508,
+          "decodedBodySize": 91053
+        },
+        {
+          "path": "/assets/app/chunks/chunk-PTEX43TY.js",
+          "transferSize": 442,
+          "encodedBodySize": 142,
+          "decodedBodySize": 190
+        },
+        {
+          "path": "/assets/app/chunks/chunk-WUE4U3HC.js",
+          "transferSize": 28409,
+          "encodedBodySize": 28109,
+          "decodedBodySize": 89376
+        },
+        {
+          "path": "/assets/app/chunks/chunk-SXTSF32T.js",
+          "transferSize": 25689,
+          "encodedBodySize": 25389,
+          "decodedBodySize": 103615
+        },
+        {
+          "path": "/assets/app/chunks/chunk-JY4S6HMQ.js",
+          "transferSize": 868,
+          "encodedBodySize": 568,
+          "decodedBodySize": 1294
+        },
+        {
+          "path": "/assets/app/chunks/chunk-77RZKQAB.js",
+          "transferSize": 1722,
+          "encodedBodySize": 1422,
+          "decodedBodySize": 3443
+        },
+        {
+          "path": "/assets/app/chunks/chunk-KOIGPEWY.js",
+          "transferSize": 24605,
+          "encodedBodySize": 24305,
+          "decodedBodySize": 108727
+        },
+        {
+          "path": "/api/designs/library",
+          "transferSize": 1260525,
+          "encodedBodySize": 1260225,
+          "decodedBodySize": 1260225
+        },
+        {
+          "path": "/assets/momevia-icon-128.png",
+          "transferSize": 28032,
+          "encodedBodySize": 27732,
+          "decodedBodySize": 27732
+        },
+        {
+          "path": "/api/auth/me",
+          "transferSize": 568,
+          "encodedBodySize": 268,
+          "decodedBodySize": 268
+        },
+        {
+          "path": "/assets/app/chunks/designer-HIB7SII4.js",
+          "transferSize": 39483,
+          "encodedBodySize": 39183,
+          "decodedBodySize": 141534
+        },
+        {
+          "path": "/assets/app/chunks/chunk-HYP4MJHK.js",
+          "transferSize": 2535,
+          "encodedBodySize": 2235,
+          "decodedBodySize": 7172
+        },
+        {
+          "path": "/assets/app/chunks/chunk-VY2OAWRR.js",
+          "transferSize": 879,
+          "encodedBodySize": 579,
+          "decodedBodySize": 1233
+        },
+        {
+          "path": "/assets/app/chunks/chunk-KUBYI3IS.js",
+          "transferSize": 4139,
+          "encodedBodySize": 3839,
+          "decodedBodySize": 11930
+        },
+        {
+          "path": "/assets/app/chunks/chunk-QXWZHGN6.js",
+          "transferSize": 1793,
+          "encodedBodySize": 1493,
+          "decodedBodySize": 4323
+        },
+        {
+          "path": "/assets/app/chunks/chunk-QNYKRTR7.js",
+          "transferSize": 1502,
+          "encodedBodySize": 1202,
+          "decodedBodySize": 2594
+        },
+        {
+          "path": "/assets/app/chunks/chunk-XATBXA6H.js",
+          "transferSize": 18079,
+          "encodedBodySize": 17779,
+          "decodedBodySize": 56945
+        },
+        {
+          "path": "/assets/app/chunks/chunk-V5YWCFVU.js",
+          "transferSize": 537,
+          "encodedBodySize": 237,
+          "decodedBodySize": 408
+        },
+        {
+          "path": "/assets/app/chunks/chunk-LC3P5U26.js",
+          "transferSize": 560,
+          "encodedBodySize": 260,
+          "decodedBodySize": 654
+        },
+        {
+          "path": "/api/designs/library",
+          "transferSize": 1260525,
+          "encodedBodySize": 1260225,
+          "decodedBodySize": 1260225
+        },
+        {
+          "path": "/api/designs/designs/3259a826-71ab-496f-b487-c8792e9ff50c",
+          "transferSize": 1326,
+          "encodedBodySize": 1026,
+          "decodedBodySize": 1026
+        },
+        {
+          "path": "/assets/fonts/app/jakarta-latin-153fc85b7029.woff2",
+          "transferSize": 27648,
+          "encodedBodySize": 27348,
+          "decodedBodySize": 27348
+        },
+        {
+          "path": "/assets/fonts/app/jakarta-vietnamese-b275d1258601.woff2",
+          "transferSize": 8652,
+          "encodedBodySize": 8352,
+          "decodedBodySize": 8352
+        }
+      ]
+    },
+    {
+      "version": "after",
+      "type": "library",
+      "run": 2,
+      "readyMs": 1818,
+      "requests": 42,
+      "transferBytes": 2973413,
+      "encodedBodyBytes": 2960813,
+      "resources": [
+        {
+          "path": "/design/3259a826-71ab-496f-b487-c8792e9ff50c",
+          "transferSize": 2232,
+          "encodedBodySize": 1932,
+          "decodedBodySize": 5121
+        },
+        {
+          "path": "/assets/app/catalog-preload-A7HBQE4B.js",
+          "transferSize": 767,
+          "encodedBodySize": 467,
+          "decodedBodySize": 1000
+        },
+        {
+          "path": "/assets/app/styles-GZ4HKULX.css",
+          "transferSize": 40771,
+          "encodedBodySize": 40471,
+          "decodedBodySize": 239884
+        },
+        {
+          "path": "/assets/app/chunks/chunk-EQQYJD27.js",
+          "transferSize": 1650,
+          "encodedBodySize": 1350,
+          "decodedBodySize": 5007
+        },
+        {
+          "path": "/assets/app/chunks/chunk-PJELJMHZ.js",
+          "transferSize": 1768,
+          "encodedBodySize": 1468,
+          "decodedBodySize": 3536
+        },
+        {
+          "path": "/assets/app/chunks/chunk-VWXF5G2Q.js",
+          "transferSize": 49211,
+          "encodedBodySize": 48911,
+          "decodedBodySize": 264898
+        },
+        {
+          "path": "/assets/app/chunks/chunk-JECIP3CH.js",
+          "transferSize": 387,
+          "encodedBodySize": 87,
+          "decodedBodySize": 93
+        },
+        {
+          "path": "/assets/app/chunks/chunk-HDHOFJBN.js",
+          "transferSize": 2421,
+          "encodedBodySize": 2121,
+          "decodedBodySize": 5616
+        },
+        {
+          "path": "/assets/app/chunks/chunk-F3I22UXU.js",
+          "transferSize": 480,
+          "encodedBodySize": 180,
+          "decodedBodySize": 296
+        },
+        {
+          "path": "/assets/app/chunks/chunk-4AM2LUFK.js",
+          "transferSize": 653,
+          "encodedBodySize": 353,
+          "decodedBodySize": 591
+        },
+        {
+          "path": "/assets/app/chunks/chunk-ZLSF6ECL.js",
+          "transferSize": 713,
+          "encodedBodySize": 413,
+          "decodedBodySize": 784
+        },
+        {
+          "path": "/assets/app/chunks/chunk-RRS3PSRK.js",
+          "transferSize": 1830,
+          "encodedBodySize": 1530,
+          "decodedBodySize": 4417
+        },
+        {
+          "path": "/assets/app/chunks/chunk-LXBXYO2O.js",
+          "transferSize": 508,
+          "encodedBodySize": 208,
+          "decodedBodySize": 314
+        },
+        {
+          "path": "/assets/app/chunks/chunk-3EKD5SJA.js",
+          "transferSize": 927,
+          "encodedBodySize": 627,
+          "decodedBodySize": 1376
+        },
+        {
+          "path": "/assets/app/app-CNBA6OLT.js",
+          "transferSize": 27973,
+          "encodedBodySize": 27673,
+          "decodedBodySize": 107257
+        },
+        {
+          "path": "/assets/app/chunks/library-client-CDAP3WWR.js",
+          "transferSize": 462,
+          "encodedBodySize": 162,
+          "decodedBodySize": 353
+        },
+        {
+          "path": "/assets/fonts/app/inter-latin-3100e775e861.woff2",
+          "transferSize": 48556,
+          "encodedBodySize": 48256,
+          "decodedBodySize": 48256
+        },
+        {
+          "path": "/assets/fonts/app/inter-vietnamese-5c66f9e07e90.woff2",
+          "transferSize": 10552,
+          "encodedBodySize": 10252,
+          "decodedBodySize": 10252
+        },
+        {
+          "path": "/assets/momevia-brand-92.webp",
+          "transferSize": 14226,
+          "encodedBodySize": 13926,
+          "decodedBodySize": 13926
+        },
+        {
+          "path": "/assets/app/chunks/chunk-I2XY2VWI.js",
+          "transferSize": 28808,
+          "encodedBodySize": 28508,
+          "decodedBodySize": 91053
+        },
+        {
+          "path": "/assets/app/chunks/chunk-PTEX43TY.js",
+          "transferSize": 442,
+          "encodedBodySize": 142,
+          "decodedBodySize": 190
+        },
+        {
+          "path": "/assets/app/chunks/chunk-WUE4U3HC.js",
+          "transferSize": 28409,
+          "encodedBodySize": 28109,
+          "decodedBodySize": 89376
+        },
+        {
+          "path": "/assets/app/chunks/chunk-SXTSF32T.js",
+          "transferSize": 25689,
+          "encodedBodySize": 25389,
+          "decodedBodySize": 103615
+        },
+        {
+          "path": "/assets/app/chunks/chunk-JY4S6HMQ.js",
+          "transferSize": 868,
+          "encodedBodySize": 568,
+          "decodedBodySize": 1294
+        },
+        {
+          "path": "/assets/app/chunks/chunk-77RZKQAB.js",
+          "transferSize": 1722,
+          "encodedBodySize": 1422,
+          "decodedBodySize": 3443
+        },
+        {
+          "path": "/assets/app/chunks/chunk-KOIGPEWY.js",
+          "transferSize": 24605,
+          "encodedBodySize": 24305,
+          "decodedBodySize": 108727
+        },
+        {
+          "path": "/api/designs/library",
+          "transferSize": 1260525,
+          "encodedBodySize": 1260225,
+          "decodedBodySize": 1260225
+        },
+        {
+          "path": "/assets/momevia-icon-128.png",
+          "transferSize": 28032,
+          "encodedBodySize": 27732,
+          "decodedBodySize": 27732
+        },
+        {
+          "path": "/api/auth/me",
+          "transferSize": 568,
+          "encodedBodySize": 268,
+          "decodedBodySize": 268
+        },
+        {
+          "path": "/assets/app/chunks/designer-HIB7SII4.js",
+          "transferSize": 39483,
+          "encodedBodySize": 39183,
+          "decodedBodySize": 141534
+        },
+        {
+          "path": "/assets/app/chunks/chunk-HYP4MJHK.js",
+          "transferSize": 2535,
+          "encodedBodySize": 2235,
+          "decodedBodySize": 7172
+        },
+        {
+          "path": "/assets/app/chunks/chunk-KUBYI3IS.js",
+          "transferSize": 4139,
+          "encodedBodySize": 3839,
+          "decodedBodySize": 11930
+        },
+        {
+          "path": "/assets/app/chunks/chunk-VY2OAWRR.js",
+          "transferSize": 879,
+          "encodedBodySize": 579,
+          "decodedBodySize": 1233
+        },
+        {
+          "path": "/assets/app/chunks/chunk-QXWZHGN6.js",
+          "transferSize": 1793,
+          "encodedBodySize": 1493,
+          "decodedBodySize": 4323
+        },
+        {
+          "path": "/assets/app/chunks/chunk-XATBXA6H.js",
+          "transferSize": 18079,
+          "encodedBodySize": 17779,
+          "decodedBodySize": 56945
+        },
+        {
+          "path": "/assets/app/chunks/chunk-QNYKRTR7.js",
+          "transferSize": 1502,
+          "encodedBodySize": 1202,
+          "decodedBodySize": 2594
+        },
+        {
+          "path": "/assets/app/chunks/chunk-V5YWCFVU.js",
+          "transferSize": 537,
+          "encodedBodySize": 237,
+          "decodedBodySize": 408
+        },
+        {
+          "path": "/assets/app/chunks/chunk-LC3P5U26.js",
+          "transferSize": 560,
+          "encodedBodySize": 260,
+          "decodedBodySize": 654
+        },
+        {
+          "path": "/api/designs/library",
+          "transferSize": 1260525,
+          "encodedBodySize": 1260225,
+          "decodedBodySize": 1260225
+        },
+        {
+          "path": "/api/designs/designs/3259a826-71ab-496f-b487-c8792e9ff50c",
+          "transferSize": 1326,
+          "encodedBodySize": 1026,
+          "decodedBodySize": 1026
+        },
+        {
+          "path": "/assets/fonts/app/jakarta-latin-153fc85b7029.woff2",
+          "transferSize": 27648,
+          "encodedBodySize": 27348,
+          "decodedBodySize": 27348
+        },
+        {
+          "path": "/assets/fonts/app/jakarta-vietnamese-b275d1258601.woff2",
+          "transferSize": 8652,
+          "encodedBodySize": 8352,
+          "decodedBodySize": 8352
+        }
+      ]
+    },
+    {
+      "version": "after",
+      "type": "legacy-gift",
+      "run": 0,
+      "readyMs": 1171,
+      "requests": 34,
+      "transferBytes": 577438,
+      "encodedBodyBytes": 567238,
+      "resources": [
+        {
+          "path": "/g/be4FLpWzfXCdBf8N2JN2X64ZTjU5Eph2",
+          "transferSize": 2232,
+          "encodedBodySize": 1932,
+          "decodedBodySize": 5121
+        },
+        {
+          "path": "/assets/app/catalog-preload-A7HBQE4B.js",
+          "transferSize": 767,
+          "encodedBodySize": 467,
+          "decodedBodySize": 1000
+        },
+        {
+          "path": "/assets/app/styles-GZ4HKULX.css",
+          "transferSize": 40771,
+          "encodedBodySize": 40471,
+          "decodedBodySize": 239884
+        },
+        {
+          "path": "/assets/app/chunks/chunk-EQQYJD27.js",
+          "transferSize": 1650,
+          "encodedBodySize": 1350,
+          "decodedBodySize": 5007
+        },
+        {
+          "path": "/assets/app/chunks/chunk-PJELJMHZ.js",
+          "transferSize": 1768,
+          "encodedBodySize": 1468,
+          "decodedBodySize": 3536
+        },
+        {
+          "path": "/assets/app/chunks/chunk-VWXF5G2Q.js",
+          "transferSize": 49211,
+          "encodedBodySize": 48911,
+          "decodedBodySize": 264898
+        },
+        {
+          "path": "/assets/app/chunks/chunk-JECIP3CH.js",
+          "transferSize": 387,
+          "encodedBodySize": 87,
+          "decodedBodySize": 93
+        },
+        {
+          "path": "/assets/app/chunks/chunk-HDHOFJBN.js",
+          "transferSize": 2421,
+          "encodedBodySize": 2121,
+          "decodedBodySize": 5616
+        },
+        {
+          "path": "/assets/app/chunks/chunk-F3I22UXU.js",
+          "transferSize": 480,
+          "encodedBodySize": 180,
+          "decodedBodySize": 296
+        },
+        {
+          "path": "/assets/app/chunks/chunk-4AM2LUFK.js",
+          "transferSize": 653,
+          "encodedBodySize": 353,
+          "decodedBodySize": 591
+        },
+        {
+          "path": "/assets/app/chunks/chunk-ZLSF6ECL.js",
+          "transferSize": 713,
+          "encodedBodySize": 413,
+          "decodedBodySize": 784
+        },
+        {
+          "path": "/assets/app/chunks/chunk-RRS3PSRK.js",
+          "transferSize": 1830,
+          "encodedBodySize": 1530,
+          "decodedBodySize": 4417
+        },
+        {
+          "path": "/assets/app/chunks/chunk-LXBXYO2O.js",
+          "transferSize": 508,
+          "encodedBodySize": 208,
+          "decodedBodySize": 314
+        },
+        {
+          "path": "/assets/app/chunks/chunk-3EKD5SJA.js",
+          "transferSize": 927,
+          "encodedBodySize": 627,
+          "decodedBodySize": 1376
+        },
+        {
+          "path": "/assets/app/app-CNBA6OLT.js",
+          "transferSize": 27973,
+          "encodedBodySize": 27673,
+          "decodedBodySize": 107257
+        },
+        {
+          "path": "/api/gifts/gifts/be4FLpWzfXCdBf8N2JN2X64ZTjU5Eph2",
+          "transferSize": 4692,
+          "encodedBodySize": 4392,
+          "decodedBodySize": 4392
+        },
+        {
+          "path": "/assets/fonts/app/inter-latin-3100e775e861.woff2",
+          "transferSize": 48556,
+          "encodedBodySize": 48256,
+          "decodedBodySize": 48256
+        },
+        {
+          "path": "/assets/fonts/app/inter-vietnamese-5c66f9e07e90.woff2",
+          "transferSize": 10552,
+          "encodedBodySize": 10252,
+          "decodedBodySize": 10252
+        },
+        {
+          "path": "/assets/momevia-brand-92.webp",
+          "transferSize": 14226,
+          "encodedBodySize": 13926,
+          "decodedBodySize": 13926
+        },
+        {
+          "path": "/assets/app/chunks/gift-runtime-AEDPQDOR.js",
+          "transferSize": 496,
+          "encodedBodySize": 196,
+          "decodedBodySize": 476
+        },
+        {
+          "path": "/assets/app/chunks/chunk-XATBXA6H.js",
+          "transferSize": 18079,
+          "encodedBodySize": 17779,
+          "decodedBodySize": 56945
+        },
+        {
+          "path": "/assets/app/chunks/chunk-WUE4U3HC.js",
+          "transferSize": 28409,
+          "encodedBodySize": 28109,
+          "decodedBodySize": 89376
+        },
+        {
+          "path": "/assets/app/chunks/chunk-QNYKRTR7.js",
+          "transferSize": 1502,
+          "encodedBodySize": 1202,
+          "decodedBodySize": 2594
+        },
+        {
+          "path": "/assets/app/chunks/chunk-V5YWCFVU.js",
+          "transferSize": 537,
+          "encodedBodySize": 237,
+          "decodedBodySize": 408
+        },
+        {
+          "path": "/assets/app/chunks/chunk-SXTSF32T.js",
+          "transferSize": 25689,
+          "encodedBodySize": 25389,
+          "decodedBodySize": 103615
+        },
+        {
+          "path": "/assets/app/chunks/chunk-JY4S6HMQ.js",
+          "transferSize": 868,
+          "encodedBodySize": 568,
+          "decodedBodySize": 1294
+        },
+        {
+          "path": "/assets/app/chunks/chunk-77RZKQAB.js",
+          "transferSize": 1722,
+          "encodedBodySize": 1422,
+          "decodedBodySize": 3443
+        },
+        {
+          "path": "/assets/app/chunks/chunk-KOIGPEWY.js",
+          "transferSize": 24605,
+          "encodedBodySize": 24305,
+          "decodedBodySize": 108727
+        },
+        {
+          "path": "/assets/momevia-icon-128.png",
+          "transferSize": 28032,
+          "encodedBodySize": 27732,
+          "decodedBodySize": 27732
+        },
+        {
+          "path": "/assets/fonts/app/jakarta-latin-153fc85b7029.woff2",
+          "transferSize": 27648,
+          "encodedBodySize": 27348,
+          "decodedBodySize": 27348
+        },
+        {
+          "path": "/assets/fonts/app/jakarta-vietnamese-b275d1258601.woff2",
+          "transferSize": 8652,
+          "encodedBodySize": 8352,
+          "decodedBodySize": 8352
+        },
+        {
+          "path": "/assets/basic-templates/winter-wishes-2026-catalog.svg",
+          "transferSize": 69291,
+          "encodedBodySize": 68991,
+          "decodedBodySize": 91880
+        },
+        {
+          "path": "/assets/basic-templates/birthday-radiance-catalog.svg",
+          "transferSize": 50377,
+          "encodedBodySize": 50077,
+          "decodedBodySize": 67873
+        },
+        {
+          "path": "/assets/basic-templates/thank-you-bloom-catalog.svg",
+          "transferSize": 81214,
+          "encodedBodySize": 80914,
+          "decodedBodySize": 107744
+        }
+      ]
+    },
+    {
+      "version": "after",
+      "type": "legacy-gift",
+      "run": 1,
+      "readyMs": 1154,
+      "requests": 34,
+      "transferBytes": 577438,
+      "encodedBodyBytes": 567238,
+      "resources": [
+        {
+          "path": "/g/be4FLpWzfXCdBf8N2JN2X64ZTjU5Eph2",
+          "transferSize": 2232,
+          "encodedBodySize": 1932,
+          "decodedBodySize": 5121
+        },
+        {
+          "path": "/assets/app/catalog-preload-A7HBQE4B.js",
+          "transferSize": 767,
+          "encodedBodySize": 467,
+          "decodedBodySize": 1000
+        },
+        {
+          "path": "/assets/app/styles-GZ4HKULX.css",
+          "transferSize": 40771,
+          "encodedBodySize": 40471,
+          "decodedBodySize": 239884
+        },
+        {
+          "path": "/assets/app/chunks/chunk-EQQYJD27.js",
+          "transferSize": 1650,
+          "encodedBodySize": 1350,
+          "decodedBodySize": 5007
+        },
+        {
+          "path": "/assets/app/chunks/chunk-PJELJMHZ.js",
+          "transferSize": 1768,
+          "encodedBodySize": 1468,
+          "decodedBodySize": 3536
+        },
+        {
+          "path": "/assets/app/chunks/chunk-VWXF5G2Q.js",
+          "transferSize": 49211,
+          "encodedBodySize": 48911,
+          "decodedBodySize": 264898
+        },
+        {
+          "path": "/assets/app/chunks/chunk-JECIP3CH.js",
+          "transferSize": 387,
+          "encodedBodySize": 87,
+          "decodedBodySize": 93
+        },
+        {
+          "path": "/assets/app/chunks/chunk-HDHOFJBN.js",
+          "transferSize": 2421,
+          "encodedBodySize": 2121,
+          "decodedBodySize": 5616
+        },
+        {
+          "path": "/assets/app/chunks/chunk-F3I22UXU.js",
+          "transferSize": 480,
+          "encodedBodySize": 180,
+          "decodedBodySize": 296
+        },
+        {
+          "path": "/assets/app/chunks/chunk-4AM2LUFK.js",
+          "transferSize": 653,
+          "encodedBodySize": 353,
+          "decodedBodySize": 591
+        },
+        {
+          "path": "/assets/app/chunks/chunk-ZLSF6ECL.js",
+          "transferSize": 713,
+          "encodedBodySize": 413,
+          "decodedBodySize": 784
+        },
+        {
+          "path": "/assets/app/chunks/chunk-RRS3PSRK.js",
+          "transferSize": 1830,
+          "encodedBodySize": 1530,
+          "decodedBodySize": 4417
+        },
+        {
+          "path": "/assets/app/chunks/chunk-LXBXYO2O.js",
+          "transferSize": 508,
+          "encodedBodySize": 208,
+          "decodedBodySize": 314
+        },
+        {
+          "path": "/assets/app/chunks/chunk-3EKD5SJA.js",
+          "transferSize": 927,
+          "encodedBodySize": 627,
+          "decodedBodySize": 1376
+        },
+        {
+          "path": "/assets/app/app-CNBA6OLT.js",
+          "transferSize": 27973,
+          "encodedBodySize": 27673,
+          "decodedBodySize": 107257
+        },
+        {
+          "path": "/api/gifts/gifts/be4FLpWzfXCdBf8N2JN2X64ZTjU5Eph2",
+          "transferSize": 4692,
+          "encodedBodySize": 4392,
+          "decodedBodySize": 4392
+        },
+        {
+          "path": "/assets/fonts/app/inter-latin-3100e775e861.woff2",
+          "transferSize": 48556,
+          "encodedBodySize": 48256,
+          "decodedBodySize": 48256
+        },
+        {
+          "path": "/assets/fonts/app/inter-vietnamese-5c66f9e07e90.woff2",
+          "transferSize": 10552,
+          "encodedBodySize": 10252,
+          "decodedBodySize": 10252
+        },
+        {
+          "path": "/assets/momevia-brand-92.webp",
+          "transferSize": 14226,
+          "encodedBodySize": 13926,
+          "decodedBodySize": 13926
+        },
+        {
+          "path": "/assets/app/chunks/gift-runtime-AEDPQDOR.js",
+          "transferSize": 496,
+          "encodedBodySize": 196,
+          "decodedBodySize": 476
+        },
+        {
+          "path": "/assets/app/chunks/chunk-XATBXA6H.js",
+          "transferSize": 18079,
+          "encodedBodySize": 17779,
+          "decodedBodySize": 56945
+        },
+        {
+          "path": "/assets/app/chunks/chunk-WUE4U3HC.js",
+          "transferSize": 28409,
+          "encodedBodySize": 28109,
+          "decodedBodySize": 89376
+        },
+        {
+          "path": "/assets/app/chunks/chunk-QNYKRTR7.js",
+          "transferSize": 1502,
+          "encodedBodySize": 1202,
+          "decodedBodySize": 2594
+        },
+        {
+          "path": "/assets/app/chunks/chunk-V5YWCFVU.js",
+          "transferSize": 537,
+          "encodedBodySize": 237,
+          "decodedBodySize": 408
+        },
+        {
+          "path": "/assets/app/chunks/chunk-SXTSF32T.js",
+          "transferSize": 25689,
+          "encodedBodySize": 25389,
+          "decodedBodySize": 103615
+        },
+        {
+          "path": "/assets/app/chunks/chunk-JY4S6HMQ.js",
+          "transferSize": 868,
+          "encodedBodySize": 568,
+          "decodedBodySize": 1294
+        },
+        {
+          "path": "/assets/app/chunks/chunk-77RZKQAB.js",
+          "transferSize": 1722,
+          "encodedBodySize": 1422,
+          "decodedBodySize": 3443
+        },
+        {
+          "path": "/assets/app/chunks/chunk-KOIGPEWY.js",
+          "transferSize": 24605,
+          "encodedBodySize": 24305,
+          "decodedBodySize": 108727
+        },
+        {
+          "path": "/assets/momevia-icon-128.png",
+          "transferSize": 28032,
+          "encodedBodySize": 27732,
+          "decodedBodySize": 27732
+        },
+        {
+          "path": "/assets/fonts/app/jakarta-latin-153fc85b7029.woff2",
+          "transferSize": 27648,
+          "encodedBodySize": 27348,
+          "decodedBodySize": 27348
+        },
+        {
+          "path": "/assets/fonts/app/jakarta-vietnamese-b275d1258601.woff2",
+          "transferSize": 8652,
+          "encodedBodySize": 8352,
+          "decodedBodySize": 8352
+        },
+        {
+          "path": "/assets/basic-templates/winter-wishes-2026-catalog.svg",
+          "transferSize": 69291,
+          "encodedBodySize": 68991,
+          "decodedBodySize": 91880
+        },
+        {
+          "path": "/assets/basic-templates/birthday-radiance-catalog.svg",
+          "transferSize": 50377,
+          "encodedBodySize": 50077,
+          "decodedBodySize": 67873
+        },
+        {
+          "path": "/assets/basic-templates/thank-you-bloom-catalog.svg",
+          "transferSize": 81214,
+          "encodedBodySize": 80914,
+          "decodedBodySize": 107744
+        }
+      ]
+    },
+    {
+      "version": "after",
+      "type": "legacy-gift",
+      "run": 2,
+      "readyMs": 1167,
+      "requests": 34,
+      "transferBytes": 577438,
+      "encodedBodyBytes": 567238,
+      "resources": [
+        {
+          "path": "/g/be4FLpWzfXCdBf8N2JN2X64ZTjU5Eph2",
+          "transferSize": 2232,
+          "encodedBodySize": 1932,
+          "decodedBodySize": 5121
+        },
+        {
+          "path": "/assets/app/catalog-preload-A7HBQE4B.js",
+          "transferSize": 767,
+          "encodedBodySize": 467,
+          "decodedBodySize": 1000
+        },
+        {
+          "path": "/assets/app/styles-GZ4HKULX.css",
+          "transferSize": 40771,
+          "encodedBodySize": 40471,
+          "decodedBodySize": 239884
+        },
+        {
+          "path": "/assets/app/chunks/chunk-EQQYJD27.js",
+          "transferSize": 1650,
+          "encodedBodySize": 1350,
+          "decodedBodySize": 5007
+        },
+        {
+          "path": "/assets/app/chunks/chunk-PJELJMHZ.js",
+          "transferSize": 1768,
+          "encodedBodySize": 1468,
+          "decodedBodySize": 3536
+        },
+        {
+          "path": "/assets/app/chunks/chunk-VWXF5G2Q.js",
+          "transferSize": 49211,
+          "encodedBodySize": 48911,
+          "decodedBodySize": 264898
+        },
+        {
+          "path": "/assets/app/chunks/chunk-JECIP3CH.js",
+          "transferSize": 387,
+          "encodedBodySize": 87,
+          "decodedBodySize": 93
+        },
+        {
+          "path": "/assets/app/chunks/chunk-HDHOFJBN.js",
+          "transferSize": 2421,
+          "encodedBodySize": 2121,
+          "decodedBodySize": 5616
+        },
+        {
+          "path": "/assets/app/chunks/chunk-F3I22UXU.js",
+          "transferSize": 480,
+          "encodedBodySize": 180,
+          "decodedBodySize": 296
+        },
+        {
+          "path": "/assets/app/chunks/chunk-4AM2LUFK.js",
+          "transferSize": 653,
+          "encodedBodySize": 353,
+          "decodedBodySize": 591
+        },
+        {
+          "path": "/assets/app/chunks/chunk-ZLSF6ECL.js",
+          "transferSize": 713,
+          "encodedBodySize": 413,
+          "decodedBodySize": 784
+        },
+        {
+          "path": "/assets/app/chunks/chunk-RRS3PSRK.js",
+          "transferSize": 1830,
+          "encodedBodySize": 1530,
+          "decodedBodySize": 4417
+        },
+        {
+          "path": "/assets/app/chunks/chunk-LXBXYO2O.js",
+          "transferSize": 508,
+          "encodedBodySize": 208,
+          "decodedBodySize": 314
+        },
+        {
+          "path": "/assets/app/chunks/chunk-3EKD5SJA.js",
+          "transferSize": 927,
+          "encodedBodySize": 627,
+          "decodedBodySize": 1376
+        },
+        {
+          "path": "/assets/app/app-CNBA6OLT.js",
+          "transferSize": 27973,
+          "encodedBodySize": 27673,
+          "decodedBodySize": 107257
+        },
+        {
+          "path": "/api/gifts/gifts/be4FLpWzfXCdBf8N2JN2X64ZTjU5Eph2",
+          "transferSize": 4692,
+          "encodedBodySize": 4392,
+          "decodedBodySize": 4392
+        },
+        {
+          "path": "/assets/fonts/app/inter-latin-3100e775e861.woff2",
+          "transferSize": 48556,
+          "encodedBodySize": 48256,
+          "decodedBodySize": 48256
+        },
+        {
+          "path": "/assets/fonts/app/inter-vietnamese-5c66f9e07e90.woff2",
+          "transferSize": 10552,
+          "encodedBodySize": 10252,
+          "decodedBodySize": 10252
+        },
+        {
+          "path": "/assets/momevia-brand-92.webp",
+          "transferSize": 14226,
+          "encodedBodySize": 13926,
+          "decodedBodySize": 13926
+        },
+        {
+          "path": "/assets/app/chunks/gift-runtime-AEDPQDOR.js",
+          "transferSize": 496,
+          "encodedBodySize": 196,
+          "decodedBodySize": 476
+        },
+        {
+          "path": "/assets/app/chunks/chunk-XATBXA6H.js",
+          "transferSize": 18079,
+          "encodedBodySize": 17779,
+          "decodedBodySize": 56945
+        },
+        {
+          "path": "/assets/app/chunks/chunk-WUE4U3HC.js",
+          "transferSize": 28409,
+          "encodedBodySize": 28109,
+          "decodedBodySize": 89376
+        },
+        {
+          "path": "/assets/app/chunks/chunk-QNYKRTR7.js",
+          "transferSize": 1502,
+          "encodedBodySize": 1202,
+          "decodedBodySize": 2594
+        },
+        {
+          "path": "/assets/app/chunks/chunk-V5YWCFVU.js",
+          "transferSize": 537,
+          "encodedBodySize": 237,
+          "decodedBodySize": 408
+        },
+        {
+          "path": "/assets/app/chunks/chunk-SXTSF32T.js",
+          "transferSize": 25689,
+          "encodedBodySize": 25389,
+          "decodedBodySize": 103615
+        },
+        {
+          "path": "/assets/app/chunks/chunk-JY4S6HMQ.js",
+          "transferSize": 868,
+          "encodedBodySize": 568,
+          "decodedBodySize": 1294
+        },
+        {
+          "path": "/assets/app/chunks/chunk-77RZKQAB.js",
+          "transferSize": 1722,
+          "encodedBodySize": 1422,
+          "decodedBodySize": 3443
+        },
+        {
+          "path": "/assets/app/chunks/chunk-KOIGPEWY.js",
+          "transferSize": 24605,
+          "encodedBodySize": 24305,
+          "decodedBodySize": 108727
+        },
+        {
+          "path": "/assets/momevia-icon-128.png",
+          "transferSize": 28032,
+          "encodedBodySize": 27732,
+          "decodedBodySize": 27732
+        },
+        {
+          "path": "/assets/fonts/app/jakarta-latin-153fc85b7029.woff2",
+          "transferSize": 27648,
+          "encodedBodySize": 27348,
+          "decodedBodySize": 27348
+        },
+        {
+          "path": "/assets/fonts/app/jakarta-vietnamese-b275d1258601.woff2",
+          "transferSize": 8652,
+          "encodedBodySize": 8352,
+          "decodedBodySize": 8352
+        },
+        {
+          "path": "/assets/basic-templates/winter-wishes-2026-catalog.svg",
+          "transferSize": 69291,
+          "encodedBodySize": 68991,
+          "decodedBodySize": 91880
+        },
+        {
+          "path": "/assets/basic-templates/birthday-radiance-catalog.svg",
+          "transferSize": 50377,
+          "encodedBodySize": 50077,
+          "decodedBodySize": 67873
+        },
+        {
+          "path": "/assets/basic-templates/thank-you-bloom-catalog.svg",
+          "transferSize": 81214,
+          "encodedBodySize": 80914,
+          "decodedBodySize": 107744
+        }
+      ]
+    }
+  ],
+  "beforeLibrary": {
+    "rows": 480,
+    "elements": 243
+  },
+  "afterLibrary": {
+    "rows": 530,
+    "elements": 293
+  },
+  "passed": true
+}

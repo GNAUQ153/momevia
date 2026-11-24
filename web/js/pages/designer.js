@@ -18,6 +18,12 @@ import {
 import { requiresCanvasV2 } from "../shared/canvas/schema.js";
 import { usesSound, SOUND_TYPES } from '../shared/canvas/sound.js';
 import { eventTimeFromLocal, interactionKinds, localEventTime, photoSlots } from "../shared/canvas/interactions.js";
+import { motionRow, motionKinds, supportsMotions, usesMotions } from '../shared/canvas/motion-stack.js';
+import {eventMediaUrl} from '../shared/canvas/event-media.js';
+import {motionLibraryPreview} from '../features/canvas-editor/motion-library-preview.js';
+import {naturalMotion} from '../shared/canvas/natural-motion.js';
+import {NATURAL_ELEMENT_SPECS} from '../shared/canvas/natural-elements.js';
+import { motionInspector } from '../features/canvas-editor/motion-inspector.js';
 import { effectsFor, elementEffectFamilies, sceneEffectFamilies, effectPreset, effectLabel } from "../shared/canvas/effects.js";
 import { starterPresets } from '../shared/canvas/presets.js';
 import { loadCanvasLibrary, configureLibrary } from '../features/canvas-editor/library-client.js';
@@ -278,7 +284,8 @@ export function mountDesigner(
       next.document.schemaVersion = 2;
       next.document.registryVersion = 2;
     }
-    if(usesSound(next.document))next.document.schemaVersion=next.document.registryVersion=3;
+    if(usesMotions(next.document))next.document.schemaVersion=next.document.registryVersion=4;
+    else if(usesSound(next.document)&&next.document.schemaVersion<3)next.document.schemaVersion=next.document.registryVersion=3;
     validateDocument(next.document);
     store.replace(next, label, options);
     clearError();
@@ -751,6 +758,7 @@ export function mountDesigner(
     const categories = element ? elementEffectFamilies : sceneEffectFamilies;
     const fields = categories.flatMap(family => {
       const preset = model.effects?.[family];
+      if(family==='emphasis'&&element?.motions?.rows.length>=3&&!preset)return [];
       const options = effectsFor(family, element).filter(([id]) => !(family === 'ambience' && model.effects?.celebrations && CELEBRATION_IDS.includes(id)));
       if (preset && !options.some(([id]) => id === preset.id)) options.push([preset.id, preset.id]);
       if (!options.length) return [];
@@ -1008,7 +1016,8 @@ export function mountDesigner(
         }
       }
       children.push(...effectFields(element, element));
-      if(element.type==='image'&&element.effects?.emphasis?.definition?.animation.iterations!=='infinite'){
+      if(supportsMotions(element))children.push(motionInspector(element));
+      if(element.type==='image'&&!element.motions&&element.effects?.emphasis?.definition?.animation.iterations!=='infinite'){
         const loopCard=catalog.flatMap(g=>g.items).find(b=>b.id.startsWith('natural-motion-')&&b.create()[0]?.name===element.name);
         if(loopCard)children.push(button(message('editor.celebrations.loop'),'motion-loop-enable',{'data-motion-card':loopCard.id,disabled:!editableElement(element,design.policy)}));
       }
@@ -2106,12 +2115,26 @@ export function mountDesigner(
       renderAll();
       return;
     }
+    if(name==='motion-card-preview'){
+      const block=catalog.flatMap(g=>g.items).find(b=>b.id===target.dataset.motionCard);if(!block)return;closePreview?.();
+      closePreview=openCanvasPreview({document:motionLibraryPreview(block),assetUrl:id=>eventMediaUrl(id),quickMode:false,signal,dialogs,message,onClose:()=>{closePreview=null;}});return;
+    }
     if (!selected()&&name!=='element-paste') throw new Error(t("editor.error.noSelection"));
+    if(name==='motion-add' || name==='motion-remove' || name==='motion-preview'){
+      const model=store.get().document.elements.find(e=>e.id===selection);if(!model)return;
+      if(name==='motion-preview'){stage.playMotions(target.dataset.motionId);return;}
+      if(!editableElement(model,design.policy))return;
+      commit(value=>{const e=value.document.elements.find(e=>e.id===selection);e.motions??={version:1,enabled:true,rows:[]};
+        if(name==='motion-remove')e.motions.rows=e.motions.rows.filter(r=>r.id!==target.dataset.motionId);
+        else if(e.motions.rows.length+(e.effects?.emphasis?1:0)<3){const kind=main.querySelector('[data-motion-kind]')?.value||'pulse';if(Object.hasOwn(motionKinds,kind)){const row=motionRow(kind),part=main.querySelector('[data-motion-target]')?.value||'whole';row.target=part;row.anchor=structuredClone(e.assembly?.parts.find(p=>p.id===part)?.anchor||{x:.5,y:.5});e.motions.rows.push(row);}}
+      },t('editor.interface.effects'));renderInspector();return;
+    }
     if(name==='motion-loop-enable'){
       if(!editableElement(selected(),design.policy))return;
-      const card=catalog.flatMap(g=>g.items).find(b=>b.id===target.dataset.motionCard),effect=card?.create()[0]?.effects?.emphasis;
+      const card=catalog.flatMap(g=>g.items).find(b=>b.id===target.dataset.motionCard),spec=NATURAL_ELEMENT_SPECS.find(s=>'natural-'+s[0]===card?.id);
+      const effect=card?.create()[0]?.effects?.emphasis||(spec?.[1]==='animation'?naturalMotion(spec[0],spec[2],spec[3]):null);
       if(effect?.definition?.animation.iterations!=='infinite')return;
-      commit(value=>{const e=value.document.elements.find(e=>e.id===selection),speed=e.effects?.emphasis?.speed||e.effects?.entrance?.speed||effect.speed;e.effects??={};delete e.effects.entrance;e.effects.emphasis={...structuredClone(effect),speed};},t('editor.celebrations.loop'));renderInspector();return;
+      commit(value=>{const e=value.document.elements.find(e=>e.id===selection),speed=e.effects?.emphasis?.speed||e.effects?.entrance?.speed||effect.speed;e.effects??={};e.effects.emphasis={...structuredClone(effect),speed};},t('editor.celebrations.loop'));renderInspector();return;
     }
     if (name === "inline-text") {
       closeSheet();
@@ -2355,6 +2378,16 @@ export function mountDesigner(
             if (definition) settings[id].definition = definition;
           }
           scene.effects.celebrations = settings;
+          return;
+        }
+        if(key.startsWith('motion.')){
+          const e=next.document.elements.find(e=>e.id===selection);if(!e?.motions)return;
+          const [,id,property]=key.split('.');
+          if(id==='enabled'){e.motions.enabled=value;return;}
+          const row=e.motions.rows.find(r=>r.id===id);if(!row)return;
+          if(['enabled','direction'].includes(property))row[property]=value;
+          else if(property==='iterations')row.iterations=value==='infinite'?value:Number(value);
+          else if(['periodMs','delayMs','amplitude'].includes(property))row[property]=Number(value);
           return;
         }
         if (key.startsWith("effect.")) {

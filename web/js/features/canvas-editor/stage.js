@@ -40,6 +40,7 @@ export function createStage(
   const preference=globalThis.matchMedia('(prefers-reduced-motion: reduce)');
   const motion=createMotion(()=>!preference.matches&&!disposed);
   const loopPhases=new Map(),effectSignatures=new WeakMap();
+  const entered=new Map();let lastSceneId=null;
   signal.addEventListener('abort',()=>{renderLifecycle?.abort();motion.cancel();},{once:true});
   preference.addEventListener('change',()=>{motion.cancel();loopPhases.clear();render();},{signal});
   const visibility=()=>globalThis.document.hidden?motion.pause():motion.resume();
@@ -58,15 +59,25 @@ export function createStage(
     if (disposed || signal.aborted || gesture || inlineEditor) return;
     const currentModels=new Map(store.get().document.elements.map(e=>[e.id,e]));
     for(const item of artboard.querySelectorAll('.editor-stage-element')){
-      const model=currentModels.get(item.dataset.elementId),signature=JSON.stringify(model?.effects||{}),animation=model?.effects?.emphasis?.definition?.animation.iterations==='infinite'?item.getAnimations().find(a=>!a.animationName&&a.effect?.getTiming().iterations===Infinity):null;
-      if(!model||signature!==effectSignatures.get(item))loopPhases.delete(item.dataset.elementId);
+      const model=currentModels.get(item.dataset.elementId);
+      if(!model)continue;
+      for(const layer of item.querySelectorAll('[data-motion-row]')){
+        const row=model.motions?.rows.find(r=>r.id===layer.dataset.motionRow),key=item.dataset.elementId+':'+layer.dataset.motionRow+':'+layer.dataset.motionTrack;
+        const animation=layer.getAnimations()[0];
+        if(!row||JSON.stringify(row)!==layer.dataset.motionSignature)loopPhases.delete(key);
+        else if(animation?.currentTime!=null)loopPhases.set(key,{time:animation.currentTime,at:performance.now(),running:animation.playState==='running',signature:layer.dataset.motionSignature});
+      }
+      const signature=JSON.stringify(model.effects||{}),animation=model.effects?.emphasis?.definition?.animation.iterations==='infinite'?(item.querySelector('[data-motion-family="emphasis"]')||item).getAnimations().find(a=>!a.animationName&&a.effect?.getTiming().iterations===Infinity):null;
+      if(signature!==effectSignatures.get(item))loopPhases.delete(item.dataset.elementId);
       else if(animation?.currentTime!=null)loopPhases.set(item.dataset.elementId,{time:animation.currentTime,at:performance.now(),running:animation.playState==='running',signature});
     }
-    for(const id of loopPhases.keys())if(!currentModels.has(id))loopPhases.delete(id);
+    for(const id of loopPhases.keys())if(!currentModels.has(id.split(':')[0]))loopPhases.delete(id);
     renderLifecycle?.abort();renderLifecycle=new AbortController();
     const doc = store.get().document,
       scene =
         doc.scenes.find((item) => item.id === getSceneId()) || doc.scenes[0];
+    if(lastSceneId!==scene.id){loopPhases.clear();entered.clear();lastSceneId=scene.id;}
+    motion.cancel();
     artboard.replaceChildren();
     selectionOutline = null;
     artboard.style.backgroundColor = scene.background.color;
@@ -107,13 +118,18 @@ export function createStage(
       }
       artboard.append(item);
       if(selected&&selectionOutline)artboard.append(selectionOutline);
-      if(element.visible!==false&&(element.opacity??1)>0&&element.effects){
+      if(element.visible!==false&&(element.opacity??1)>0&&(element.effects||element.motions)){
         const currentSignal=renderLifecycle.signal;
         void Promise.all([...item.querySelectorAll('img')].map(img=>img.decode().catch(()=>{}))).then(()=>{
           if(!currentSignal.aborted&&item.isConnected&&!gesture&&!inlineEditor){
-            const phase=loopPhases.get(id),resume=phase?.signature===effectSignatures.get(item),playing=playElement(item,element,motion,currentSignal,resume?'emphasis':undefined);
-            const animation=item.getAnimations().find(a=>!a.animationName&&a.effect?.getTiming().iterations===Infinity);
+            const phase=loopPhases.get(id),resume=phase?.signature===effectSignatures.get(item),entranceSignature=JSON.stringify(element.effects?.entrance||null),alreadyEntered=element.motions&&entered.get(id)===entranceSignature;
+            const playing=playElement(item,element,motion,currentSignal,resume||alreadyEntered?'emphasis':undefined);entered.set(id,entranceSignature);
+            const animation=(item.querySelector('[data-motion-family="emphasis"]')||item).getAnimations().find(a=>!a.animationName&&a.effect?.getTiming().iterations===Infinity);
             if(animation&&resume)animation.currentTime=phase.time+(phase.running?performance.now()-phase.at:0);
+            for(const layer of item.querySelectorAll('[data-motion-row]')){
+              const saved=loopPhases.get(id+':'+layer.dataset.motionRow+':'+layer.dataset.motionTrack),a=layer.getAnimations()[0];
+              if(a&&saved?.signature===layer.dataset.motionSignature)a.currentTime=saved.time+(saved.running?performance.now()-saved.at:0);
+            }
             return playing;
           }
         });
@@ -229,7 +245,6 @@ export function createStage(
         model: element,
       };
       motion.pause();
-      loopPhases.clear();
       for(const animation of gesture.node.getAnimations({subtree:true}))animation.pause();
       artboard.setPointerCapture(event.pointerId);
       onGesture?.(true);
@@ -321,6 +336,13 @@ export function createStage(
   );
   return {
     render,
+    playMotions(rowId){
+      if(!rowId){loopPhases.clear();motion.cancel();}
+      else for(const item of artboard.querySelectorAll('.editor-stage-element'))if(item.dataset.elementId===getSelection()){
+        for(const layer of item.querySelectorAll('[data-motion-row]'))if(layer.dataset.motionRow===rowId){loopPhases.delete(item.dataset.elementId+':'+rowId+':'+layer.dataset.motionTrack);layer.getAnimations().forEach(a=>a.cancel());}
+      }
+      render();
+    },
     setZoom,
     cancel,
     editText,

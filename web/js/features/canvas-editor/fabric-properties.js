@@ -44,7 +44,7 @@ export function propertyToFabric(shape, model, field, value) {
     case 'opacity': prop = { opacity: accepted }; break;
     case 'color':
       prop = { fill: accepted };
-      for(const child of shape.getObjects?.()||[])if(child.momeviaFillBinding)child.set('fill',accepted);
+      for(const child of shape.getObjects?.()||[]){if(child.momeviaFillBinding)child.set('fill',accepted);if(child.momeviaStrokeBinding)child.set('stroke',accepted);}
       break;
     case 'strokeColor': prop = { stroke: accepted }; break;
     case 'strokeWidth': prop = { strokeWidth: accepted }; break;

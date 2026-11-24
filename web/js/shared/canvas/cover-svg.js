@@ -97,7 +97,9 @@ export function previewSvg(document, sceneId = document.entrySceneId, images = n
     const rotate = rotation ? ` transform="rotate(${rotation} ${w / 2} ${h / 2})"` : '';
     let body = '';
     const vector = vectorParts(node);
-    if (vector) {
+    if(node.assembly){
+      body=`<svg width="${w}" height="${h}" viewBox="0 0 100 100">${node.assembly.parts.map((part,i)=>`${part.clip?`<clipPath id="assembly-${node.id}-${i}">${part.clip.x!==undefined?`<rect x="${part.clip.x}" y="${part.clip.y}" width="${part.clip.width}" height="${part.clip.height}"/>`:`<ellipse cx="${part.clip.cx}" cy="${part.clip.cy}" rx="${part.clip.rx}" ry="${part.clip.ry}"/>`}</clipPath><g clip-path="url(#assembly-${node.id}-${i})">`:''}${part.vector.paths.map(path=>`<path d="${escape(path.d)}" fill="${path.fill==='color'?p.color:path.fill==='strokeColor'?p.strokeColor||p.color:path.fill||'none'}" stroke="${path.stroke==='color'?p.color:path.stroke==='strokeColor'?p.strokeColor||p.color:path.stroke||'none'}" stroke-width="${path.strokeWidth==='strokeWidth'?p.strokeWidth||0:path.strokeWidth||0}" stroke-linecap="round" stroke-linejoin="round"/>`).join('')}${part.clip?'</g>':''}`).join('')}</svg>`;
+    } else if (vector) {
       const preserve = node.type !== 'sticker' || ['paper-wave', 'lace', 'bunting', 'washi-tape'].includes(p.stickerId) ? 'none' : 'xMidYMid meet';
       body = `<svg width="${w}" height="${h}" viewBox="0 0 100 100" preserveAspectRatio="${preserve}">${vector.map(part =>
         `<path stroke-linecap="round" stroke-linejoin="round" ${Object.entries(part).filter(([, value]) => value != null).map(([key, value]) => `${key}="${escape(value)}"`).join(' ')}/>`).join('')}</svg>`;

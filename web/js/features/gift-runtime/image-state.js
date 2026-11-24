@@ -9,7 +9,9 @@ export function mountRuntimeImage(image, frame, { url, signal, priority = false 
   let state = 'loading';
   frame.dataset.imageState = state;
 
-  const active = () => !signal?.aborted && image.parentNode === frame;
+  // Motion layers may wrap the image after mounting. Ownership remains with
+  // this frame; a reparented image outside it must still ignore stale events.
+  const active = () => !signal?.aborted && frame.contains(image);
   const loaded = () => {
     if (!active() || state !== 'loading') return;
     state = 'ready';
@@ -19,12 +21,13 @@ export function mountRuntimeImage(image, frame, { url, signal, priority = false 
     if (!active() || state !== 'loading') return;
     state = 'error';
     frame.dataset.imageState = state;
+    const container=image.parentNode||frame;
     image.remove();
     const fallback = frame.ownerDocument.createElement('span');
     fallback.className = 'gift-runtime-placeholder';
     fallback.setAttribute('role', 'status');
     setText(fallback, message('gift.runtime.imageError'));
-    frame.append(fallback);
+    container.append(fallback);
   };
 
   image.addEventListener('load', loaded, signal ? { signal } : undefined);

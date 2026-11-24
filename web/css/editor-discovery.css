@@ -193,6 +193,17 @@
 .editor-block-grid {
   min-width: 0;
 }
+.editor-motion-library-card {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+.editor-motion-library-card[hidden] {
+  display: none;
+}
+.editor-motion-library-card > button {
+  width: 100%;
+}
 
 .editor-block-grid [data-block] > span {
   overflow-wrap: anywhere;

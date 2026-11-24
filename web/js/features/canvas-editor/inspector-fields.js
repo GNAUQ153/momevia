@@ -16,6 +16,7 @@ export function buildInspectorPropertyFields(element) {
   const { props } = element;
   const fields = [];
   for (const key of element.type === "interaction" ? [] : registry[element.type].inspector) {
+    if(element.assembly && key!=='color')continue;
     if (dedicatedInspectorProperties.includes(key)) continue;
     if (["color", "strokeColor"].includes(key)) {
       fields.push(input(message(key === "color" ? "editor.interface.color" : "editor.interface.stroke"),

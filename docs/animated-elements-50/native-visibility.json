@@ -1,0 +1,8 @@
+{
+  "method": "Windows Chrome headed, separate temporary offscreen window; native tab switching; timer polling while hidden",
+  "physicalDevice": false,
+  "stage": "background",
+  "initial": "visible",
+  "verified": false,
+  "reason": "page.waitForFunction: Timeout 6000ms exceeded."
+}

@@ -1,0 +1,53 @@
+{
+  "realConflicts": {
+    "staleApplyBlocked": true,
+    "postDeploymentEditPreservedOnRollback": true,
+    "interrupted": 10,
+    "resumed": 41,
+    "rerun": 0,
+    "finalReviewedScope": 51
+  },
+  "a05": {
+    "url": "http://127.0.0.1:4191/g/SDnXQQ7J3v31kVAM0UT5Ik7xorg_4q9q",
+    "iterations": 1,
+    "duration": 640,
+    "stoppedAfterOneRun": true
+  },
+  "manualSticker": {
+    "designId": "41bc2edb-e5c7-44cd-83f8-e5f9af501a5b",
+    "rows": [
+      "pulse",
+      "spin"
+    ],
+    "saved": true
+  },
+  "completeCard": {
+    "url": "http://127.0.0.1:4191/g/oxGNTc6dib_gC1ypppbXX1yjgMTt4qpH",
+    "keyboardOpen": true,
+    "touchNavigation": true,
+    "anonymousReply": true,
+    "recipientNameVisible": true,
+    "readingLayout": true,
+    "movingPhoto": true,
+    "surfaceEntranceReactionWithTwoRows": true
+  },
+  "composition": {
+    "combinedAngle": 199.99998485209312,
+    "remaining": 0,
+    "opacityLayers": [
+      0.65,
+      0.65
+    ],
+    "centerPixel": [
+      148,
+      148,
+      148
+    ]
+  },
+  "admin": {
+    "apiPreviewCount": 50,
+    "actualUiRepresentativeCount": 10,
+    "noWrites": true
+  },
+  "passed": true
+}

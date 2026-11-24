@@ -3,9 +3,11 @@ import { localizedError } from '../../shared/http.mjs';
 import { randomId } from '../../shared/security.mjs';
 import { giftLinkPermissions } from '../../../web/js/shared/gift-permissions.js';
 
-export function giftStatus(gift) {
+export function giftStatus(gift, now = Date.now()) {
   if (gift.revokedAt) return 'revoked';
-  return Date.parse(gift.expiresAt) <= Date.now() ? 'expired' : 'active';
+  // Thiếu thời hạn hoặc thời hạn lỗi không được biến thành link có hiệu lực vô hạn.
+  const expires = typeof gift.expiresAt === 'string' ? Date.parse(gift.expiresAt) : NaN;
+  return !Number.isFinite(expires) || expires <= now ? 'expired' : 'active';
 }
 
 export function requireActiveGift(gift) {

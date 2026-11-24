@@ -49,6 +49,34 @@ export async function runRsvpApi(request, ownerCookie, otherCookie) {
   const result = (await call(`${ownerPath}/recipients`, owner)).recipients;
   assert.deepEqual(result.map(row => row.rsvp.status), ['tentative', 'declined']);
   assert(result.every(row => !Object.hasOwn(row, 'token')));
+  await call(`${ownerPath}/archive`, { ...owner, body: { archived: true } }, 409);
   await call(`${ownerPath}/revoke`, { ...owner, body: {} });
   await respond(a.search, 'declined', 410);
+  // Lưu trữ không cấp quyền cho tài khoản khác và không xóa phản hồi/RSVP.
+  await call(`${ownerPath}/archive`, { cookie: otherCookie, body: { archived: true } }, 404);
+  const archived = await call(`${ownerPath}/archive`, { ...owner, body: { archived: true } });
+  assert(archived.senderArchivedAt);
+  assert.deepEqual(await call(`${ownerPath}/archive`, { ...owner, body: { archived: true } }), archived);
+  const { gift: archivedGift } = await call(ownerPath, owner);
+  assert.equal(archivedGift.senderArchivedAt, archived.senderArchivedAt);
+  assert.equal(archivedGift.status, 'revoked');
+  assert.deepEqual((await call(`${ownerPath}/recipients`, owner)).recipients, result);
+  await call(publicPath + a.search, {}, 410);
+  assert.equal((await call(`${ownerPath}/archive`, { ...owner, body: { archived: false } })).senderArchivedAt, null);
+  const { gift: restored } = await call(ownerPath, owner);
+  assert(!restored.senderArchivedAt);
+  assert.equal(restored.status, 'revoked');
+  await respond(a.search, 'declined', 410);
+
+  // Cả luồng tạo thiệp Legacy và Canvas dùng cùng quyền lưu trữ.
+  const { gift: legacy } = await call('/gifts/gifts', { ...owner, body: { templateId: 'loi-moi-ben-hien', recipientName: 'QA Legacy', senderName: 'QA', message: 'Kiểm thử kho thiệp' } }, 201);
+  const legacyOwner = `/gifts/gifts/mine/${legacy.slug}`;
+  await call(`${legacyOwner}/archive`, { ...owner, body: { archived: true } }, 409);
+  await call(`${legacyOwner}/revoke`, { ...owner, body: {} });
+  const stored = await call(`${legacyOwner}/archive`, { ...owner, body: { archived: true } });
+  assert(stored.senderArchivedAt);
+  assert.equal((await call(legacyOwner, owner)).gift.senderArchivedAt, stored.senderArchivedAt);
+  await call(`/gifts/gifts/${legacy.slug}`, {}, 410);
+  await call(`${legacyOwner}/archive`, { ...owner, body: { archived: false } });
+  assert.equal((await call(legacyOwner, owner)).gift.status, 'revoked');
 }

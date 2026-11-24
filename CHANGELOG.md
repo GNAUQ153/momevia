@@ -1,3 +1,9 @@
+## Unreleased — Phase 2.5A Vòng đời và kho thiệp (2026-11-25)
+
+- Sender có thể lưu trữ/đưa về danh sách thiệp hết hạn hoặc thu hồi, giữ nội dung, lời đáp, RSVP và trạng thái đóng.
+- Backend từ chối thời hạn không hợp lệ; kiểm tra lại thu hồi khi đọc tài nguyên Canvas MySQL. Kiểm tra chủ thiệp và trạng thái trong thao tác ghi.
+- Không migration, không tự gia hạn hoặc hoàn lượt; chưa thay đổi điều khoản Free/Premium. Thêm kiểm thử JSON, MySQL và giao diện VI/EN.
+
 ## Unreleased — Phase 2.4B4 Mua thêm lượt xuất bản QA (2026-11-24)
 
 - Migration 019 lưu liên kết đơn đã tiêu hao với intent mua tiếp; khóa chủ tài khoản, giữ khóa cũ và chống tạo đơn mới khi retry.

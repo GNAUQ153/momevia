@@ -4,6 +4,7 @@ import { CheckoutService } from '../checkout/checkout.service.mjs';
 import { activeEntitlementSql } from '../checkout/entitlement-policy.mjs';
 import { readPublicationAuthority, consumePublicationCredit } from '../checkout/publication-credit.mjs';
 import { localizedError } from '../../shared/http.mjs';
+import { requireActiveGift } from '../gifts/access.mjs';
 import { canvasTransaction, canvasError, designFromRow, assetFromRow, ensureAssets,
   iso, jsonValue, lockOwner, lockedDesign, sameRequest, sameRevision } from './mysql.repository.mjs';
 
@@ -115,11 +116,12 @@ export class MySqlPublicationUnitOfWork {
     });
   }
   async pinnedAsset(slug, assetId) {
-    const [rows] = await this.client.execute(`SELECT a.*,g.expires_at FROM gift_asset_refs r
+    const [rows] = await this.client.execute(`SELECT a.*,g.expires_at,g.payload AS gift_payload FROM gift_asset_refs r
       JOIN gifts g ON g.id=r.gift_id JOIN design_assets a ON a.id=r.asset_id
       WHERE g.slug=? AND r.asset_id=? AND a.status='ready' LIMIT 1`, [slug, assetId]);
     if (!rows.length) return null;
-    if (new Date(iso(rows[0].expires_at)) <= new Date()) throw canvasError(410, 'GIFT_EXPIRED', 'Món quà đã hết thời gian hoạt động.');
+    // Kiểm tra lại trạng thái tại lúc đọc tài nguyên, kể cả khi vừa bị thu hồi.
+    requireActiveGift({ ...jsonValue(rows[0].gift_payload), expiresAt: iso(rows[0].expires_at) });
     return assetFromRow(rows[0]);
   }
   async close() { await this.client.close(); }

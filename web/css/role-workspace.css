@@ -265,3 +265,23 @@
   outline: 3px solid var(--ui-focus-ring, #6136df);
   outline-offset: 3px;
 }
+
+/* Kho thiệp đã đóng, dùng summary gốc để hỗ trợ bàn phím. */
+.gift-archive {
+  margin-top: 24px;
+  padding: 16px;
+  border: 1px solid var(--ui-panel-border);
+  border-radius: var(--radius-lg);
+}
+
+.gift-archive > summary {
+  min-height: 44px;
+  padding: 10px 0;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.gift-archive > summary:focus-visible {
+  outline: 3px solid var(--ui-focus-ring);
+  outline-offset: 3px;
+}

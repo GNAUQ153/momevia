@@ -91,17 +91,19 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Cập nhật dữ liệu kỳ vọng của test vòng đời 28 mẫu theo cấu hình người nhận mặc định của nháp Sender mới; giữ so sánh đầy đủ document, ảnh riêng, lưu/tải lại và snapshot xuất bản.
-- Giữ các ca tương thích template cũ và kiểm tra retry mất ACK độc lập với phần đánh dấu cá nhân hóa mới.
+- Bổ sung preflight production và startup strict opt-in; giữ nguyên dữ liệu, secret và storage hiện có.
+- Mặc định bảo vệ lời đáp thiệp mới, giữ quyền thiệp cũ; kiểm tra Origin, JSON MIME, URL và bảo vệ cache/index của trang thiệp Node.
+- Xử lý lỗi stream ảnh, cấu hình giới hạn pool MySQL; bổ sung test và hướng dẫn Hostinger/Railway tại `docs/PHASE01_SECURITY.md`.
+- 20 test mục tiêu đạt; bộ unit rộng chưa hoàn tất do dependency thiếu. Chưa nghiệm thu production.
 
 **Các commit gần nhất trên `main`:**
 
+- `0b1c2a6` — fix(ci): align recipient browser test with private reply policy and add migration utility (2026-11-24)
+- `9f1362c` — feat(security): complete phase 01 production hardening (2026-11-24)
 - `527e646` — Merge pull request #26 from GNAUQ153/feat/recipient-naming-20261124 (2026-11-24)
 - `2ddfdea` — test(ci): sync release fixture with natural library bundles (2026-11-24)
 - `c6e0bbf` — fix(ci): include natural library bundles in release (2026-11-24)
 - `b93a13c` — fix(storage): support persistent Railway volume (2026-11-24)
-- `85ef36a` — Merge pull request #25 from GNAUQ153/feat/template-refresh-live-20261123 (2026-11-23)
-- `83aeb10` — Merge pull request #24 from GNAUQ153/feat/recorded-audio-library (2026-11-23)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

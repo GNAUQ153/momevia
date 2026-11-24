@@ -14,7 +14,9 @@ export async function createApp(config = environment(), { catalog = createCatalo
   const service = new CheckoutService({ repository, config, catalog });
   const router = new Router();
   registerRoutes(router, { config, service, resolveUser });
-  const paymentRepository = new MySqlPaymentRepository();
+  const paymentRepository = new MySqlPaymentRepository(undefined, {
+    scopedCheckout: (paymentEnv ?? process.env).PAYMENT_SCOPED_CHECKOUT_ENABLED === 'true',
+  });
   const paymentService = new PaymentService({ repository: paymentRepository, catalog, checkout: service, providers: paymentProviders, ...(paymentEnv ? { env: paymentEnv } : {}) });
   registerPaymentRoutes(router, { config, service: paymentService, resolveUser });
   return { router, service, paymentService, close: async () => { await Promise.all([client?.close(), paymentRepository.close()]); paymentService.close(); } };

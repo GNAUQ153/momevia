@@ -7,12 +7,13 @@ import { FinanceReport } from './finance-report.mjs';
 import { ReconciliationAudit } from './reconciliation-audit.mjs';
 import { RefundReviewRepository } from './refund-review.mjs';
 import { storedPaymentScope, samePaymentScope } from './payment-scope.mjs';
+import { findScopedCheckout, rememberScopedCheckout } from './checkout-scope-keys.mjs';
 
 const fromJson = value => typeof value === 'string' ? JSON.parse(value) : (value || {});
 const receiptNo = id => `MV-RC-${id.replace(/-/g, '').toUpperCase()}`;
 
 export class MySqlPaymentRepository {
-  constructor(client = new MySqlClient()) { this.client = client; this.finance = new FinanceReport(client); this.audit = new ReconciliationAudit(client); this.refunds = new RefundReviewRepository(client); }
+  constructor(client = new MySqlClient(), { scopedCheckout = false } = {}) { this.client = client; this.scopedCheckout = scopedCheckout === true; this.finance = new FinanceReport(client); this.audit = new ReconciliationAudit(client); this.refunds = new RefundReviewRepository(client); }
 
   async creatorStatement(creatorId, limit) { return this.finance.creatorStatement(creatorId, limit); }
   async adminFinance() { return this.finance.adminOverview(); }
@@ -31,21 +32,34 @@ export class MySqlPaymentRepository {
       platformFee, creatorAmount: amount - platformFee, currency: 'VND',
       status: 'pending_payment', paymentProvider: provider, createdAt: now,
     };
-    try {
-      await this.client.withTransaction(async tx => {
-        await tx.execute(`INSERT INTO orders
+    const persist = async tx => {
+      await tx.execute(`INSERT INTO orders
           (id,user_id,template_id,gross_vnd,platform_fee_vnd,creator_amount_vnd,currency,
            status,payment_provider,is_test,created_at,payload)
           VALUES (?,?,?,?,?,?,'VND','pending_payment',?,?,?,?)`,
           [orderId, userId, templateId, amount, platformFee, amount - platformFee, provider, isTest ? 1 : 0,
             mysqlDate(now), JSON.stringify(payload)]);
-        await tx.execute(`INSERT INTO payment_intents
+      await tx.execute(`INSERT INTO payment_intents
           (id,order_id,provider,provider_order_code,amount_vnd,status)
           VALUES (?,?,?,?,?,'pending')`, [intentId, orderId, provider, code, amount]);
+    };
+    const fresh = { id: intentId, orderId, code, amount, provider, status: 'pending', checkoutUrl: null, qrPayload: null, isTest };
+    if (this.scopedCheckout) {
+      return this.client.withTransaction(async tx => {
+        const { existing, legacy } = await findScopedCheckout(tx, userId, templateId, isTest);
+        if (existing) return this.intentRow(existing);
+        await persist(tx);
+        await rememberScopedCheckout(tx, userId, templateId, isTest, intentId, legacy);
+        return fresh;
+      });
+    }
+    try {
+      await this.client.withTransaction(async tx => {
+        await persist(tx);
         await tx.execute(`INSERT INTO payment_checkout_keys (user_id,template_id,intent_id)
           VALUES (?,?,?)`, [userId, templateId, intentId]);
       });
-      return { id: intentId, orderId, code, amount, provider, status: 'pending', checkoutUrl: null, qrPayload: null, isTest };
+      return fresh;
     } catch (error) {
       if (error.code !== 'ER_DUP_ENTRY') throw error;
       const [rows] = await this.client.execute(`SELECT p.*, o.is_test FROM payment_checkout_keys k

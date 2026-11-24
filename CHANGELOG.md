@@ -1,3 +1,9 @@
+## Unreleased — Phase 2.4B2 Khóa checkout theo môi trường (2026-11-24)
+
+- Thêm khóa checkout theo user/mẫu/sandbox-live, giữ khóa cũ và truy vấn lại đơn cũ đúng scope.
+- Migration 017 bổ sung bảng, không sửa dữ liệu cũ; chỉ bật chính sách sau nghiệm thu và kiểm tra production.
+- Không thay đổi entitlement lịch sử, giá hoặc hạn mức xuất bản.
+
 ## Unreleased — Phase 2.4B1 Ranh giới xác nhận thanh toán (2026-11-24)
 
 - Ghim scope sandbox/live do server xác định vào webhook và đối soát; kiểm tra đơn trong transaction trước ghi dữ liệu hoặc replay.

@@ -1,8 +1,11 @@
+import { checkedSettings, createRecipients, receiptFor, confirmRecipient, namingError } from './recipients.mjs';
+import { recipientText, recipientCsv } from '../../../web/js/shared/recipient-naming.js';
+import { giftOwnerLinks } from './links.mjs';
 import { randomUUID } from 'node:crypto';
 import { localizedError } from '../../shared/http.mjs';
 import { randomId, sanitizeText, sanitizeOptionalText } from '../../shared/security.mjs';
 import { decodePhoto } from './photo.mjs';
-import { publicGiftView, giftSummary } from '../designs/designs.service.mjs';
+import { publicGiftView, giftSummary, hash } from '../designs/designs.service.mjs';
 import { createGiftAccess, requireGiftPermission } from './access.mjs';
 import { checkReplyReplay, replyId, replyView } from './replies.mjs';
 
@@ -41,6 +44,32 @@ export class GiftService {
     if (!this.canvas.writeLimit.consume(user.sub)) throw localizedError(429, 'errors.rateLimit');
     return this.canvas.service.regift(user, await this.ownGift(user, slug), input);
   }
+  async mutateGift(gift, update) {
+    if (gift.documentSnapshot && this.canvas?.profile.mode === 'json') return this.canvas.repository.mutateGift(gift.id, update);
+    if (this.giftsRepo.mutateGift) return this.giftsRepo.mutateGift(gift.id, update);
+    let result;
+    this.giftsRepo.mutate(gift.id, current => { result = update(current); return current; });
+    return result;
+  }
+  async confirmName(slug, invite, body) {
+    const gift = await this.validateSlug(slug);
+    return this.mutateGift(gift, current => {
+      requireGiftPermission(current, invite);
+      const receipt = confirmRecipient(current, body);
+      return { id: receipt.id, name: receipt.name };
+    });
+  }
+  async recipientRows(user, slug) {
+    const gift = await this.ownGift(user, slug);
+    const replies = await this.giftReplies(gift);
+    const { url: publicUrl, inviteUrl } = giftOwnerLinks(this.config.baseUrl, gift);
+    return (gift.recipients || []).map(({ token, ...receipt }) => {
+      const link = new URL(inviteUrl || publicUrl);
+      if (receipt.source === 'list') link.searchParams.set('r', token);
+      return { ...receipt, url: link.href, status: replies.some(r => r.recipientId === receipt.id) ? 'replied' : receipt.confirmedAt ? 'confirmed' : 'created' };
+    });
+  }
+  async recipientExport(user, slug) { return recipientCsv(await this.recipientRows(user, slug)); }
   async publicStatus(slug, invite) {
     requireGiftPermission(await this.validateSlug(slug), invite);
   }
@@ -71,16 +100,18 @@ export class GiftService {
     if (this.canvas?.profile.mode === 'json') items.push(...await this.canvas.repository.listForUser(user.sub));
     return items.sort((a, b) => b.createdAt.localeCompare(a.createdAt)).map(gift => this.ownerView(gift));
   }
-  async photo(slug, invite) {
+  async photo(slug, invite, token) {
     const gift = await this.validateSlug(slug);
     requireGiftPermission(gift, invite);
+    receiptFor(gift, token);
     if (!gift.imageFile) throw localizedError(404, 'errors.gift.emptyPhoto');
     return this.media.find(gift.imageFile);
   }
-  async replies(slug, invite) {
+  async replies(slug, invite, token) {
     const gift = await this.validateSlug(slug);
     requireGiftPermission(gift, invite, 'canRead');
-    return (await this.giftReplies(gift)).map(reply => replyView(reply));
+    const receipt = receiptFor(gift, token);
+    return (await this.giftReplies(gift)).filter(reply => !receipt || reply.recipientId === receipt.id).map(reply => replyView(reply));
   }
   async giftReplies(gift) {
     if (gift.documentSnapshot && this.canvas?.profile.mode === 'json') return this.canvas.repository.repliesForGift(gift.id);
@@ -103,6 +134,18 @@ export class GiftService {
     return unread;
   }
   async create(user, input) {
+    const settings = checkedSettings(input.personalization);
+    if (settings && settings.mode !== 'manual' && !input.idempotencyKey) throw namingError('recipient.error.intent');
+    const creationId = input.idempotencyKey ? replyId(user.sub, input.idempotencyKey) : null;
+    const creationHash = creationId ? hash({ ...input, personalization: settings }) : null;
+    const previousCreation = async () => {
+      const gift = creationId && (this.giftsRepo.get ? await this.giftsRepo.get(creationId) : this.giftsRepo.all().find(g => g.id === creationId));
+      if (!gift) return null;
+      if (gift.userId !== user.sub || gift.creationHash !== creationHash) throw namingError('recipient.error.retry', 409);
+      return gift;
+    };
+    const previous = await previousCreation();
+    if (previous) return previous;
     const templateId = sanitizeText(input.templateId, 100);
     const template = await this.catalog.getTemplate(templateId);
     if (template.versionId) throw localizedError(409, 'errors.gift.versionRequired');
@@ -110,7 +153,8 @@ export class GiftService {
       const licensed = await this.checkout.hasLicense(user.sub, templateId);
       if (!licensed) throw localizedError(402, 'errors.gift.licenseRequired');
     }
-    const recipientName = sanitizeText(input.recipientName, 60);
+    const recipients = createRecipients(settings, user.sub);
+    const recipientName = settings && settings.mode !== 'manual' ? '' : sanitizeText(input.recipientName, 60);
     const senderName = sanitizeText(input.senderName, 60);
     const message = sanitizeText(input.message, 1000);
     const access = createGiftAccess(input.access);
@@ -118,37 +162,71 @@ export class GiftService {
     const slug = randomId(24);
     const imageFile = photo ? this.media.store(photo) : null;
     const gift = {
-      id: randomUUID(), slug, userId: user.sub,
+      id: creationId || randomUUID(), slug, userId: user.sub, ...(creationHash ? { creationHash } : {}),
       templateId, templateTitle: template.title, theme: template.theme,
-      recipientName, senderName, message, imageFile, replyCount: 0,
+      recipientName, senderName, message, imageFile, replyCount: 0, ...recipients,
       createdAt: new Date().toISOString(),
       expiresAt: new Date(Date.now() + this.config.giftTtlDays * 86400_000).toISOString(), ...access,
     };
-    try { return await this.giftsRepo.insert(gift); }
+    try {
+      // JSON insertion is synchronous after this recheck; MySQL's primary key
+      // resolves concurrent creates. The same full payload commits the roster.
+      const replay = await previousCreation();
+      if (replay) { if (imageFile) this.media.remove?.(imageFile); return replay; }
+      if (creationId && !this.giftsRepo.client) {
+        const existing = this.giftsRepo.all().find(g => g.id === creationId);
+        if (existing) {
+          if (existing.creationHash !== creationHash) throw namingError('recipient.error.retry', 409);
+          if (imageFile) this.media.remove?.(imageFile);
+          return existing;
+        }
+      }
+      return await this.giftsRepo.insert(gift);
+    }
     catch (error) {
+      if (creationId) {
+        // An interrupted DB ACK may already have committed the photo reference.
+        const replay = await previousCreation();
+        if (replay) { if (imageFile && imageFile !== replay.imageFile) this.media.remove?.(imageFile); return replay; }
+      }
       if (imageFile) {
         try { this.media.remove?.(imageFile); } catch { /* Preserve the original database error. */ }
       }
       throw error;
     }
   }
-  async publicGift(slug, invite) {
+  async publicGift(slug, invite, token) {
     const gift = await this.validateSlug(slug);
     const { canSend, canRead, replyAudience, repliesDisabled } = requireGiftPermission(gift, invite);
     if (gift.documentSnapshot && this.canvas && !this.canvas.flags.read) throw localizedError(503, 'errors.gift.canvasReadDisabled');
-    const view = publicGiftView(gift);
-    if (view.photoUrl && gift.access?.open === 'invite') view.photoUrl += `?invite=${encodeURIComponent(invite)}`;
-    return { ...view, replyCount: canRead ? view.replyCount : undefined, replyPermissions: { canSend, canRead, replyAudience, repliesDisabled } };
+    const receipt = receiptFor(gift, token, gift.recipientMode === 'list' || Boolean(token));
+    if (gift.recipientMode === 'self' && !receipt) return { slug: gift.slug, recipientMode: 'self', nameRequired: true };
+    const resolved = structuredClone(gift);
+    if (receipt) {
+      resolved.recipientName = receipt.name;
+      if (resolved.documentSnapshot) {
+        resolved.documentSnapshot.bindings.recipientName.value = receipt.name;
+        resolved.documentSnapshot.personalization = { version: 1, mode: gift.recipientMode, resolved: true };
+      }
+    }
+    const view = publicGiftView(resolved);
+    if (gift.recipientTextVersion === 1) view.message = recipientText(view.message, resolved.recipientName, true);
+    const ownCount = receipt ? (await this.giftReplies(gift)).filter(r => r.recipientId === receipt.id).length : view.replyCount;
+    if (view.photoUrl && token) view.photoUrl += `?r=${encodeURIComponent(token)}`;
+    if (view.photoUrl && gift.access?.open === 'invite') view.photoUrl += `${view.photoUrl.includes('?') ? '&' : '?'}invite=${encodeURIComponent(invite)}`;
+    return { ...view, recipientCount: undefined, receiptId: receipt?.id, replyCount: canRead ? ownCount : undefined, replyPermissions: { canSend, canRead, replyAudience, repliesDisabled } };
   }
-  async reply(slug, body, ip, invite) {
+  async reply(slug, body, ip, invite, token) {
     const gift = await this.validateSlug(slug);
     requireGiftPermission(gift, invite, 'canSend');
-    const key = `${slug}:${ip}`;
+    const receipt = receiptFor(gift, token);
+    const key = `${slug}:${receipt?.id || ip}`;
     const acceptNew = () => {
       if (!this.repliesLimit.consume(key)) throw localizedError(429, 'errors.gift.replyLimit');
     };
     const reply = {
-      id: replyId(gift.id, body.intentId), giftId: gift.id,
+      id: replyId(receipt ? `${gift.id}:${receipt.id}` : gift.id, body.intentId), giftId: gift.id,
+      ...(receipt ? { recipientId: receipt.id, cardName: receipt.name } : {}),
       name: sanitizeOptionalText(body.name, 50) || 'Người nhận',
       message: sanitizeText(body.message, 1000), createdAt: new Date().toISOString(), readStatus: 'unread',
     };

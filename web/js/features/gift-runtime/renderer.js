@@ -1,3 +1,4 @@
+import { recipientText, displayRecipient } from '../../shared/recipient-naming.js';
 import { STICKERS } from "../../shared/canvas/index.js";
 import { message as label, setAttr, setText, t } from "../../core/i18n.js";
 import { masks, vectorParts } from "../../shared/canvas/artwork.js";
@@ -70,9 +71,11 @@ function imageUrl(value, mode) {
   return null;
 }
 export function resolveText(node, document) {
-  return node.props.textBinding
-    ? document.bindings[node.props.textBinding]?.value || ""
-    : node.props.text || "";
+  const name = displayRecipient(document);
+  const value = node.props.textBinding === 'recipientName' ? name : node.props.textBinding
+    ? document.bindings[node.props.textBinding]?.value || '' : node.props.text || '';
+  return node.props.textBinding === 'recipientName' && document.personalization?.mode && document.personalization.mode !== 'manual'
+    ? t('recipient.address', { name }) : recipientText(value, name, document.personalization?.version === 1);
 }
 
 // The system preview regenerates the same document structure with translated copy.
@@ -338,6 +341,7 @@ export function renderElement(
       ),
       status = element("p", "gift-runtime-reply-status");
     name.name = "name";
+    name.value = replyAdapter?.cardName?.slice(0, 50) || '';
     name.maxLength = 50;
     name.autocomplete = "name";
     message.name = "message";

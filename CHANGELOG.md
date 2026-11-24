@@ -1,3 +1,10 @@
+## Unreleased — Ba cách ghi tên người nhận (2026-11-24)
+
+- Lưu chế độ thủ công/danh sách/tự điền theo nháp; nhập XLSX/CSV có xem trước và lỗi dòng gốc; xuất bản một nội dung cho các link cá nhân hoặc một link chung.
+- Thêm biến `{người nhận}`, ô xác nhận tên, khôi phục lượt khi thử lại, quyền theo lượt và kết quả trong Studio. Bảo toàn snapshot cũ, quyền Creator và số chưa đọc.
+- Xuất bảng XLSX an toàn với tên giống công thức, link/QR và danh sách chỉ dành cho chủ. Migration 016 tương thích dữ liệu cũ; cờ bật theo chủ và dừng writer riêng với reader.
+- Build/check, 757 unit, JSON/MySQL + browser và bộ Canvas regression đạt. Có ảnh, số đo trước/sau, backup/migration cục bộ và hướng quay lui tại `docs/RECIPIENT_NAMING.md`.
+
 ## Unreleased — Sửa browser regression của CI PR #25 (2026-11-23)
 
 - Cập nhật kiểm tra bìa Hero VI/EN theo biến thể `-catalog.svg` đang dùng, giữ kiểm tra chính xác template và thư mục ngôn ngữ.

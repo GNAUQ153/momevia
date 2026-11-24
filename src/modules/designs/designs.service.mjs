@@ -1,3 +1,4 @@
+import { createRecipients, requireNamingEnabled } from '../gifts/recipients.mjs';
 import { SEMANTIC_TEMPLATE_IDS, captureSemanticRoles } from '../../../web/js/shared/canvas/template-slots.js';
 import { createHash, randomUUID } from 'node:crypto';
 import fs from 'node:fs';
@@ -38,7 +39,7 @@ export function designView(d) {
 export const designSummary = d => ({ id: d.id, title: d.title, revision: d.revision, sourceKind: d.source.kind, updatedAt: d.updatedAt, createdAt: d.createdAt });
 export function giftSummary(gift) {
   return { id: gift.id, slug: gift.slug, title: gift.title || gift.templateTitle, templateId: gift.templateId, templateTitle: gift.title || gift.templateTitle,
-    theme: gift.theme, recipientName: gift.recipientName, senderName: gift.senderName, replyCount: gift.replyCount,
+    theme: gift.theme, recipientMode: gift.recipientMode || 'manual', recipientCount: gift.recipients?.length || 0, recipientName: gift.recipientName, senderName: gift.senderName, replyCount: gift.replyCount,
     createdAt: gift.createdAt, expiresAt: gift.expiresAt, status: giftStatus(gift) };
 }
 export function publicGiftView(gift) {
@@ -96,6 +97,7 @@ export class DesignsService {
     const document = validateDocument(resolved.document || resolved.version?.document || createDocument({
       presetId: input.presetId || (resolved.template ? 'envelope-basic' : 'blank'), template: resolved.template, localize,
     }));
+    if (!input.purpose) document.personalization = { version: 1, mode: 'manual' };
     const now = new Date().toISOString();
     const id = randomUUID();
     const assets = [];
@@ -180,9 +182,12 @@ export class DesignsService {
   }
   enforcePolicy(current, document) {
     if (current.policy?.kind === 'creator-template') {
+      if (document.personalization?.mode !== 'manual' && document.personalization && !current.policy.editableBindings.includes('recipientName'))
+        throw canvasError(403, 'RECIPIENT_LOCKED', 'Mẫu không cho phép đổi tên người nhận.');
       const normalize = input => {
         const comparable = copy(input);
         comparable.assets = [];
+        delete comparable.personalization;
         // Nhạc từ danh mục được phép cá nhân hóa, không mở khóa cấu trúc mẫu.
         delete comparable.soundtrack;
         // Với mẫu Canvas V1, chỉ chấp nhận lên V2 nếu thay đổi là nhạc nền.
@@ -261,6 +266,11 @@ export class DesignsService {
     const blockers = []; let authorization = { status: 'allowed', reasonCodes: [] }; let template = null;
     const { document, reviewTemplateDefaults } = designView(design);
     const editable = design.policy?.kind === 'creator-template' ? design.policy.editableBindings : null;
+    if (document.personalization?.mode !== 'manual' && document.personalization) {
+      try { requireNamingEnabled(document.personalization, design.ownerId); } catch { blockers.push(preflightCopy('personalization', 'RECIPIENT_DISABLED', 'recipient.error.disabled')); }
+      if (editable && !editable.includes('recipientName')) blockers.push(preflightCopy('personalization', 'RECIPIENT_LOCKED', 'recipient.locked'));
+      if (document.personalization.mode === 'list' && !document.personalization.names?.length) blockers.push(preflightCopy('personalization.names', 'RECIPIENT_LIST_REQUIRED', 'recipient.error.list'));
+    }
     if (reviewTemplateDefaults) blockers.push(preflightCopy('document.bindings', 'REVIEW_TEMPLATE_DEFAULTS', 'editor.preflight.reviewDefaults'));
     try { validateDocument(document, { mode: 'publish', requiredBindings: [] }); }
     catch (error) {
@@ -309,6 +319,7 @@ export class DesignsService {
     const predictionStory = elements.some(e => e.type === 'interaction' && e.props.kind === PREDICTION_KIND && e.visible !== false && e.opacity !== 0);
     const visibleBindings = visibleBindingKeys(document);
     for (const [key, max] of [['recipientName', 60], ['senderName', 60], ['message', 1000]]) {
+      if (key === 'recipientName' && document.personalization && document.personalization.mode !== 'manual') continue;
       if (editable && !editable.includes(key)) continue;
       // This interaction supplies two endings instead of an unused general greeting.
       if (key === 'message' && predictionStory && !visibleBindings.has(key)) continue;
@@ -345,11 +356,13 @@ export class DesignsService {
       if (actualHash !== input.expectedDocumentHash) throw canvasError(409, 'DOCUMENT_HASH_CONFLICT', 'Nội dung không khớp revision yêu cầu.');
       const p = await this.check(d, context);
       if (!p.canPublish) throw canvasError(p.authorization.status === 'needs_template_license' ? 402 : p.authorization.status === 'denied' ? 403 : 422, 'PUBLISH_BLOCKED', 'Thiết kế chưa đủ điều kiện xuất bản.', p.blockers);
-      const document = publicDocument(d.document); const now = new Date().toISOString(); const versionId = randomUUID();
+      const document = publicDocument(d.document);
+      if (d.document.personalization?.mode && d.document.personalization.mode !== 'manual') document.bindings.recipientName.value = '';
+      const now = new Date().toISOString(); const versionId = randomUUID();
       const gift = { id: randomUUID(), slug: randomId(24), userId: user.sub, title: d.title, templateTitle: d.title,
         templateId: d.source.kind === 'template' ? d.source.templateId : null, templateVersionId: d.source.templateVersionId, sourceKind: d.source.kind, designVersionId: versionId,
-        theme: 'violet', recipientName: d.document.bindings.recipientName.value, senderName: d.document.bindings.senderName.value, message: d.document.bindings.message.value,
-        imageFile: null, replyCount: 0, createdAt: now, expiresAt: new Date(Date.now() + this.config.giftTtlDays * 86400000).toISOString(),
+        theme: 'violet', recipientName: d.document.personalization && d.document.personalization.mode !== 'manual' ? '' : d.document.bindings.recipientName.value, senderName: d.document.bindings.senderName.value, message: d.document.bindings.message.value,
+        ...createRecipients(d.document.personalization, user.sub), imageFile: null, replyCount: 0, createdAt: now, expiresAt: new Date(Date.now() + this.config.giftTtlDays * 86400000).toISOString(),
         documentSnapshot: document, runtimeVersion: runtimeVersionFor(document), assetIds: assetIds(document), ...createGiftAccess(input.access) };
       const version = { id: versionId, designId: d.id, revision: d.revision, schemaVersion: document.schemaVersion, runtimeVersion: runtimeVersionFor(document), documentHash: actualHash, document, createdAt: now };
       return { gift, version, assetIds: gift.assetIds };

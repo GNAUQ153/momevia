@@ -1,3 +1,4 @@
+import { coverHasRecipient, displayRecipient } from '../../shared/recipient-naming.js';
 import { validateDocument, runtimeVersionFor } from "../../shared/canvas/schema.js";
 import { message, setAttr, setText, t } from "../../core/i18n.js";
 import { focusVisibleTarget } from "../../core/motion.js";
@@ -37,6 +38,13 @@ export function mountPlayer(
     navigationIntent = null;
   const shell = globalThis.document.createElement("div");
   shell.className = `gift-runtime gift-runtime-mode-${mode}`;
+  if (document.personalization) shell.classList.add('gift-runtime-personalized');
+  if (document.personalization && document.personalization.mode !== 'manual' && !coverHasRecipient(document)) {
+    const dedication = globalThis.document.createElement('h1');
+    dedication.className = 'recipient-dedication';
+    setText(dedication, message('recipient.address', { name: displayRecipient(document) }));
+    shell.append(dedication);
+  }
   if(document.elements.some(e=>(e.id==='reply-object-paper'||e.id.startsWith('reply-object-paper-'))&&e.type==='image'&&e.accessibility?.label===NATURAL_ARTWORK_LABEL)){
     shell.classList.add('is-natural-stationery');
     const accent=document.elements.find(e=>e.type==='button'&&e.props.color)?.props.color;

@@ -11,14 +11,14 @@ export function replyId(giftId, intentId) {
 }
 
 export function checkReplyReplay(previous, intended) {
-  if (previous.name !== intended.name || previous.message !== intended.message)
+  if (previous.name !== intended.name || previous.message !== intended.message || previous.recipientId !== intended.recipientId)
     throw localizedError(409, 'errors.gift.replyConflict');
   return previous;
 }
 
 export function replyView(reply, owner = false) {
-  const { readStatus, ...publicFields } = reply;
-  return { ...publicFields, ...(owner ? { unread: readStatus === 'unread' } : {}) };
+  const { readStatus, recipientId, cardName, ...publicFields } = reply;
+  return { ...publicFields, ...(owner ? { recipientId, cardName, unread: readStatus === 'unread' } : {}) };
 }
 
 export function readRequestIds(body) {

@@ -61,6 +61,7 @@ export function createGiftViews({
 
   function successPage(gift) {
     if (gift.status && gift.status !== "active") return `<section class="success-section"><div class="container"><div class="success-card"><h1>${gift.status === "revoked" ? text("gift.share.revoked") : text("gift.share.expired")}</h1>${buttonLink("/studio", text("auth.recovery.studio"))}</div></div></section>`;
+    if (gift.recipientMode === 'list') return `<section class="success-section"><div class="container"><div class="success-card"><h1>${text('gift.share.ready')}</h1><div data-recipient-results-host data-slug="${e(gift.slug)}"></div></div></div></section>`;
     const primaryInvited = gift.access?.open === "invite";
     const primaryUrl = primaryInvited ? gift.inviteUrl : gift.url;
     const shareLink = (url, invited, primary) => {
@@ -95,7 +96,7 @@ export function createGiftViews({
       <div class="recipient-wrapper"><div class="recipient-preferences">${localeControl()}</div><div class="gift-topline"><span>${icon("sparkles", 17)} ${text("gift.legacy.eyebrow")}</span><span>${icon("lock", 14)} ${text("gift.legacy.private")}</span></div>
         ${recipientJourneyMarkup()}
         <div class="recipient-card" id="recipient-card">
-          <div class="recipient-sealed"><span class="recipient-sealed__subtitle">${text("gift.legacy.dedicated")}</span><h1>${e(gift.recipientName)}</h1><div class="envelope-scene"><span class="envelope-scene__letter"></span><span class="envelope-scene__body"></span><span class="envelope-scene__flap"></span><span class="envelope-scene__seal">${icon("heart", 24)}</span></div>
+          <div class="recipient-sealed"><span class="recipient-sealed__subtitle">${text("gift.legacy.dedicated")}</span><h1>${["list","self"].includes(gift.recipientMode) ? text("recipient.address", { name: gift.recipientName }) : e(gift.recipientName)}</h1><div class="envelope-scene"><span class="envelope-scene__letter"></span><span class="envelope-scene__body"></span><span class="envelope-scene__flap"></span><span class="envelope-scene__seal">${icon("heart", 24)}</span></div>
             <p>${text("gift.legacy.surprise")}</p><button class="btn btn--gift" data-action="open-gift">${text("gift.legacy.open")} ${icon("arrow", 18)}</button></div>
           <div class="recipient-surprise"><span class="eyebrow">${text("gift.legacy.surpriseBadge")}</span><div class="surprise-halo">${icon("sparkles", 67)}</div><h2>${text("gift.legacy.today")}<br><em>${text("gift.legacy.todayEmphasis")}</em></h2><p>${text("gift.legacy.greetingIntro")}</p><button class="btn btn--gift" data-action="reveal-gift">${text("gift.legacy.discover")} ${icon("arrow", 18)}</button></div>
           <div class="recipient-opened"><span class="eyebrow">${text("gift.legacy.letter")}</span><div class="opened-spark">${icon("sparkles", 42)}</div>
@@ -122,7 +123,7 @@ export function createGiftViews({
       ? replies
         .map(
           (r) =>
-            `<article class="reply-item"${owner && r.unread ? ` data-unread-reply="${e(r.id)}"` : ''}><div class="reply-avatar">${e(r.name.charAt(0).toUpperCase())}</div><div><strong>${e(r.name)}</strong><span>${text('common.values.date', { date: { format: 'date', value: r.createdAt } })}</span><p>${e(r.message)}</p></div></article>`,
+            `<article class="reply-item"${owner && r.unread ? ` data-unread-reply="${e(r.id)}"` : ''}><div class="reply-avatar">${e(r.name.charAt(0).toUpperCase())}</div><div><strong>${e(r.name)}</strong><span>${text('common.values.date', { date: { format: 'date', value: r.createdAt } })}</span><p>${e(r.message)}</p>${owner && r.cardName ? `<small>${text("recipient.results.cardName", { name: r.cardName })}</small>` : ""}</div></article>`,
         )
         .join("")
       : `<p class="no-replies">${text("gift.legacy.emptyReplies")}</p>`;
@@ -174,10 +175,10 @@ export function createGiftViews({
     const url = gift.access?.open === "invite" ? gift.inviteUrl : gift.url;
     const status = ['active', 'expired', 'revoked'].includes(gift.status) ? text(`studio.gifts.${gift.status}`) : '';
     const slug = e(gift.slug);
-    const opens = active ? `<a href="${e(new URL(url).pathname + new URL(url).search)}" data-link class="btn btn--outline">${text("studio.gifts.open")} ${icon("arrow-up-right", 16)}</a><a class="btn btn--outline" href="/success/${slug}" data-link>${text("studio.gifts.share")}</a><button class="icon-button" ${attr("aria-label", "studio.gifts.copy")} data-action="copy-link" data-value="${e(url)}">${icon("copy", 18)}</button><button class="btn btn--outline" data-action="revoke-gift" data-id="${slug}">${text("studio.gifts.revoke")}</button>` : '';
-    const recipient = gift.recipientName ? text('studio.gifts.recipient', { name: gift.recipientName }) : text('studio.gifts.anonymous');
+    const opens = active && gift.recipientMode === "list" ? `<a class="btn btn--outline" href="/success/${slug}" data-link>${text("studio.gifts.share")}</a><button class="btn btn--outline" data-action="revoke-gift" data-id="${slug}">${text("studio.gifts.revoke")}</button>` : active ? `<a href="${e(new URL(url).pathname + new URL(url).search)}" data-link class="btn btn--outline">${text("studio.gifts.open")} ${icon("arrow-up-right", 16)}</a><a class="btn btn--outline" href="/success/${slug}" data-link>${text("studio.gifts.share")}</a><button class="icon-button" ${attr("aria-label", "studio.gifts.copy")} data-action="copy-link" data-value="${e(url)}">${icon("copy", 18)}</button><button class="btn btn--outline" data-action="revoke-gift" data-id="${slug}">${text("studio.gifts.revoke")}</button>` : '';
+    const recipient = ['list','self'].includes(gift.recipientMode) ? text(`recipient.mode.${gift.recipientMode}`) : gift.recipientName ? text('studio.gifts.recipient', { name: gift.recipientName }) : text('studio.gifts.anonymous');
     const regift = gift.canRegift ? `<button class="btn btn--outline" data-action="regift" data-id="${slug}">${text("studio.gifts.regift")}</button>` : "";
-    return `<article class="my-gift"><div class="my-gift-art artwork artwork--${e(gift.theme)}">${icon("gift", 40)}</div><div class="my-gift-detail"><span>${recipient}</span><h3>${e(gift.templateTitle)}</h3><p>${status} · ${text('studio.gifts.expiry', { date: { format: 'date', value: gift.expiresAt } })}</p></div><div class="my-gift-actions">${opens}<button class="btn btn--outline" data-action="gift-inbox" data-id="${slug}">${text('studio.gifts.replies', { count: Number(gift.replyCount) })}<span data-unread-count>${gift.unreadCount ? text('studio.gifts.unread', { count: Number(gift.unreadCount) }) : ''}</span></button>${regift}</div></article>`;
+    return `<article class="my-gift"><div class="my-gift-art artwork artwork--${e(gift.theme)}">${icon("gift", 40)}</div><div class="my-gift-detail"><span>${recipient}</span><h3>${e(gift.templateTitle)}</h3><p>${status} · ${text('studio.gifts.expiry', { date: { format: 'date', value: gift.expiresAt } })}</p></div><div class="my-gift-actions">${opens}<button class="btn btn--outline" data-action="gift-inbox" data-id="${slug}">${text('studio.gifts.replies', { count: Number(gift.replyCount) })}<span data-unread-count>${gift.unreadCount ? text('studio.gifts.unread', { count: Number(gift.unreadCount) }) : ''}</span></button>${gift.recipientMode && gift.recipientMode !== "manual" ? `<button class="btn btn--outline" data-action="recipient-results" data-id="${slug}">${text("recipient.results.button", { count: Number(gift.recipientCount || 0) })}</button>` : ""}${regift}</div></article>`;
   }
 
   return {

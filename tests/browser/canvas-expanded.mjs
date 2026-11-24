@@ -158,19 +158,19 @@ export async function runExpandedBrowser(base, cookie, {cards, controls}, artifa
     await addTab.click();
     // Không giảm bộ cũ: 100 khối gốc + 24 họa tiết Phase 5.4 + 48 vector Phase 5.5.
     const catalogIds = catalog.flatMap(group => group.items.map(item => item.id));
-    assert.equal(catalogIds.filter(id => !/^m5[45]-/.test(id) && !id.startsWith('object-') && !id.startsWith('natural-') && !EVENT_CLUSTER_IDS.includes(id) && id!=='sound-button').length, 100, 'Không được thiếu 100 elements gốc');
+    assert.equal(catalogIds.filter(id => !/^m5[45]-/.test(id) && !id.startsWith('object-') && !id.startsWith('natural-') && !id.startsWith('motion-') && !EVENT_CLUSTER_IDS.includes(id) && id!=='sound-button').length, 100, 'Không được thiếu 100 elements gốc');
     assert.equal(catalogIds.filter(id=>id.startsWith('object-')).length,21,'All 21 refreshed objects are reusable insertions');
     assert.equal(catalogIds.filter(id => id.startsWith('m54-')).length, 24, 'Không được mất sticker Phase 5.4');
     assert.equal(catalogIds.filter(id => id.startsWith('m55-')).length, 48, 'Phải có đủ 48 hình trang trí mới');
-    assert.equal(new Set(catalogIds).size, 243, 'Không được trùng ID element');
+    assert.equal(new Set(catalogIds).size, 293, 'Không được trùng ID element');
     const visibleIds = await page.locator('[data-block]:visible').evaluateAll(nodes => nodes.map(node => node.dataset.block));
     assert.deepEqual(visibleIds.slice().sort(), catalogIds.slice().sort(),
-      'Thư viện phải hiển thị đủ 243 elements, không thiếu hoặc trùng mục');
-    assert.match(await page.locator('#editor-block-count').innerText(), /243/);
+      'Thư viện phải hiển thị đủ 293 elements, không thiếu hoặc trùng mục');
+    assert.match(await page.locator('#editor-block-count').innerText(), /293/);
     await shot(page,'library-1440.png');
     const search = page.locator('[data-block-search]');
     await search.fill('con dau');
-    assert.deepEqual(await page.locator('[data-block]:visible').evaluateAll(nodes=>nodes.map(node=>node.dataset.block)),['wax-seal','natural-wax-seal']);
+    assert.deepEqual(await page.locator('[data-block]:visible').evaluateAll(nodes=>nodes.map(node=>node.dataset.block)),['wax-seal','natural-wax-seal','motion-silk-tailed-comet','motion-postage-stamp']);
     await search.fill('từ khóa không tồn tại');
     await control('clear-block-search').click();
     for (const [i,group] of catalog.entries()) {
@@ -191,17 +191,17 @@ export async function runExpandedBrowser(base, cookie, {cards, controls}, artifa
     await page.locator('[data-block-group-select]').selectOption('');
     // Lọc đúng 48 phần tử mới và 12 phần tử dùng gần đây, không cần tải lại trang.
     await control('filter-blocks').filter({hasText:'Mới thêm'}).click();
-    assert.equal(await page.locator('[data-block]:visible').count(), 109);
+    assert.equal(await page.locator('[data-block]:visible').count(), 159);
     await control('filter-blocks').filter({hasText:'Vừa dùng'}).click();
     assert.equal(await page.locator('[data-block]:visible').count(), 12);
     await control('filter-blocks').filter({hasText:'Tất cả'}).click();
-    assert.equal(await page.locator('[data-block]:visible').count(), 243);
+    assert.equal(await page.locator('[data-block]:visible').count(), 293);
     if (artifacts) {
       await page.evaluate(() => {
         const doc = globalThis.document;
         const contact = doc.createElement('section');
         contact.id = 'canvas-contact-sheet';
-        Object.assign(contact.style,{background:'#fffaf4',color:'#32243b',position:'absolute',inset:'0 auto auto 0',
+        Object.assign(contact.style,{background:'#fffaf4',color:'#32293b',position:'absolute',inset:'0 auto auto 0',
           width:'1344px',padding:'24px',zIndex:'9999',display:'grid',gap:'12px'});
         for (const section of doc.querySelectorAll('.editor-block-group')) {
           const clone = section.cloneNode(true);
@@ -211,7 +211,7 @@ export async function runExpandedBrowser(base, cookie, {cards, controls}, artifa
           for (const button of grid.children) {
             button.hidden=false;
             Object.assign(button.style,{display:'grid',justifyItems:'center',gridTemplateRows:'48px auto',
-              border:'1px solid #decce3',borderRadius:'6px',color:'#32243b',background:'#fff',padding:'5px',
+              border:'1px solid #decce3',borderRadius:'6px',color:'#32293b',background:'#fff',padding:'5px',
               fontSize:'12px',lineHeight:'1.25',minHeight:'80px'});
           }
           contact.append(clone);

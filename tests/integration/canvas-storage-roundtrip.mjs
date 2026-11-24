@@ -1,3 +1,4 @@
+import {usesMotions} from '../../web/js/shared/canvas/motion-stack.js';
 import { usesSound } from '../../web/js/shared/canvas/sound.js';
 // Explicit, isolated MySQL schema only. No writes to application databases.
 import assert from 'node:assert/strict';
@@ -76,6 +77,7 @@ async function stop() { if (app) { await new Promise(resolve => app.server.close
 async function check(doc) {
   if (requiresCanvasV2(doc) && doc.schemaVersion < 2) doc.schemaVersion = doc.registryVersion = 2;
   if (usesSound(doc)) doc.schemaVersion = doc.registryVersion = 3;
+  if (usesMotions(doc)) doc.schemaVersion = doc.registryVersion = 4;
   const store = createEditorStore(design), memory = new Map();
   const storage = { getItem: k => memory.get(k) || null, setItem: (k, v) => memory.set(k, v), removeItem: k => memory.delete(k) };
   const session = createSaveSession({ design, store, userId: design.ownerId || 'qa', storage, recoveryStorage: storage,

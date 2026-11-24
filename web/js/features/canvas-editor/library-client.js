@@ -9,7 +9,7 @@ export function configureLibrary(snapshot, locale = 'vi') {
   for (const row of snapshot.items.filter(r => r.kind === 'element' && r.status === 'active')) {
     const d = row.definition, group = libraryText(d.group, locale), title = libraryText(d.title, locale);
     if (!groups.has(group)) groups.set(group, { label: group, database: true, items: [] });
-    groups.get(group).items.push({ id: row.id, title, group, visualKind:d.visualKind, keywords: libraryText(d.keywords, locale), database: true,
+    groups.get(group).items.push({ id: row.id, title, group, visualKind:d.visualKind, keywords: [libraryText(d.keywords, locale),libraryText(d.title,'vi'),libraryText(d.title,'en')].join(' '), database: true,
       create: () => materializeModels(d.elements) });
   }
   replaceCatalog([...groups.values()]);

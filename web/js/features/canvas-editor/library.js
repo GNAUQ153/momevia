@@ -1,3 +1,4 @@
+import {ANIMATED_GROUPS,animatedElementCards} from '../../shared/canvas/animated-elements.js';
 import { EVENT_CLUSTER_IDS, eventCluster } from '../../shared/canvas/event-clusters.js';
 import { REFRESH_21 } from '../../shared/canvas/refresh-21-config.js';
 import vectorInsertions from '../../../assets/canvas/vector-insertions-v1.json' with {type:'json'};
@@ -121,6 +122,7 @@ for(const [kind,label]of [['graphics','Đồ họa tự nhiên'],['materials','C
 const naturalStories=naturalCompositionCards(canonicalText);
 if(naturalStories.length)catalog.push({label:'Cụm thiệp tự nhiên',items:naturalStories.map(card=>({...card,group:'Cụm thiệp tự nhiên'}))});
 
+for(const [group,titles]of ANIMATED_GROUPS.entries())catalog.push({label:titles[0],titleTexts:{vi:titles[0],en:titles[1]},items:animatedElementCards(group).map(card=>({...card,group:titles[0]}))});
 const normalized = value => value.toLowerCase().normalize("NFD").replace(/\p{Diacritic}/gu, "").replaceAll("đ", "d");
 const searchIndex = new Map(catalog.flatMap(({ items }) => items.map(block => [
   block.id, normalized(`${block.title} ${block.group} ${block.keywords}`),

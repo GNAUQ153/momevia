@@ -1,3 +1,4 @@
+import {usesMotions} from '../../web/js/shared/canvas/motion-stack.js';
 import { usesSound } from '../../web/js/shared/canvas/sound.js';
 import { EVENT_CLUSTER_IDS } from '../../web/js/shared/canvas/event-clusters.js';
 import fs from 'node:fs';
@@ -12,7 +13,7 @@ import { previewSvg } from '../../web/js/shared/canvas/cover-svg.js';
 import { cleanGiftLayout } from '../../web/js/shared/canvas/clean-layout.js';
 
 const cards = catalog.flatMap(({items}) => items);
-const originalCards = cards.filter(card => card.id!=='sound-button' && !card.id.startsWith('object-') && !card.id.startsWith('natural-') && !EVENT_CLUSTER_IDS.includes(card.id) && !card.id.startsWith("m54-") && !card.id.startsWith("m55-"));
+const originalCards = cards.filter(card => card.id!=='sound-button' && !card.id.startsWith('object-') && !card.id.startsWith('natural-') && !card.id.startsWith('motion-') && !EVENT_CLUSTER_IDS.includes(card.id) && !card.id.startsWith("m54-") && !card.id.startsWith("m55-"));
 
 test('the pre-expansion V1 fixture round-trips without a document upgrade', () => {
   const document = JSON.parse(fs.readFileSync(new URL('../fixtures/canvas-v1.json',import.meta.url),'utf8'));
@@ -31,6 +32,7 @@ function forCard(id) {
   document.scenes[0].elementIds.push(...elements.map(item => item.id));
   if (requiresCanvasV2(document)) document.schemaVersion = document.registryVersion = 2;
   if(usesSound(document))document.schemaVersion=document.registryVersion=3;
+  if(usesMotions(document))document.schemaVersion=document.registryVersion=4;
   return { document, elements };
 }
 
@@ -42,7 +44,7 @@ test('100 original library IDs match the approved 72 additions and the 28 origin
     'rectangle','rounded','ellipse','circle','divider','heart','star','flower','sparkles','balloon','cake','gift',
     'flowers','leaves','stars','envelope','gift-box','continue','replay','reply'];
   assert.deepEqual(originalCards.filter(card=>!card.id.startsWith('object-')).map(card=>card.id).sort(), [...baseline,...planned.map(([,id])=>id)].sort());
-  assert.deepEqual(catalog.filter(group => !group.label.startsWith("Kho trang trí - ") && !group.items.every(card=>card.id.startsWith("natural-"))).map(group=>group.items.length),[15,14,15,21,33,17,16]);
+  assert.deepEqual(catalog.filter(group => !group.label.startsWith("Kho trang trí - ") && !group.items.every(card=>card.id.startsWith("natural-")||card.id.startsWith("motion-"))).map(group=>group.items.length),[15,14,15,21,33,17,16]);
   for (const [,id,label] of planned) assert.equal(cards.find(card=>card.id===id).title,label);
   for (const card of cards) assert(matchesBlock(card, card.title),card.id);
   assert(matchesBlock(cards.find(card=>card.id==='wax-seal'),'con dau'));

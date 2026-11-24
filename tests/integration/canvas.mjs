@@ -237,7 +237,7 @@ try {
   });
   let expanded;
   const expandedArtifacts = process.env.BROWSER_ARTIFACT_DIR && path.join(process.env.BROWSER_ARTIFACT_DIR, 'qa-gifts');
-  await check('172 Canvas cards survive actual JSON save/read; three V2 gifts publish, enforce media ACL and revoke', async () => {
+  await check('293 Canvas cards survive actual JSON save/read; three V2 gifts publish, enforce media ACL and revoke', async () => {
     expanded = await runExpandedApi(base, owner.cookie, other.cookie, {
       artifacts:expandedArtifacts,allCards:true,browser:process.argv.includes('--browser'),
     });
@@ -247,7 +247,7 @@ try {
     // Keep the isolated fixture's JSON and owner identity; production limits stay intact.
     await stop(); await launch();
     const { runExpandedBrowser } = await import('../browser/canvas-expanded.mjs');
-    await check('172 UI cards, 33 effects, touch/keyboard, and three public V2 QA cards', () =>
+    await check('293 UI cards, 33 effects, touch/keyboard, and three public V2 QA cards', () =>
       runExpandedBrowser(base, owner.cookie, expanded, expandedArtifacts));
     const { runSenderIdentity } = await import('../browser/sender-identity.mjs');
     await check('Creator template identity is isolated from preview data', () => runSenderIdentity(base));

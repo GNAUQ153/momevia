@@ -1,0 +1,572 @@
+[
+  {
+    "kind": "element",
+    "id": "natural-motion-heart",
+    "revision": 1,
+    "status": "active",
+    "sortOrder": 439,
+    "definition": {
+      "title": {
+        "vi": "Tim đập nhẹ",
+        "en": "A gentle heartbeat"
+      },
+      "group": {
+        "vi": "Chuyển động nhẹ",
+        "en": "Gentle motion"
+      },
+      "keywords": "tim animation chuyển động",
+      "elements": [
+        {
+          "id": "61f8f08e-e7a2-4f54-88be-77c9adc1fedc",
+          "type": "image",
+          "elementVersion": 1,
+          "layout": {
+            "x": 0,
+            "y": 0,
+            "width": 300,
+            "height": 300,
+            "rotation": 0
+          },
+          "props": {
+            "assetId": "event-natural-element-3d-heart-3e547963886d",
+            "fit": "contain",
+            "focalPoint": {
+              "x": 0.5,
+              "y": 0.5
+            },
+            "radius": 0
+          },
+          "accessibility": {
+            "alt": "Ảnh kỷ niệm",
+            "decorative": true,
+            "label": "Momevia Original natural artwork v4"
+          },
+          "name": "Tim đập nhẹ",
+          "effects": {
+            "emphasis": {
+              "id": "natural-motion-heart-loop-v1",
+              "speed": "normal",
+              "definition": {
+                "id": "natural-motion-heart-loop-v1",
+                "revision": 1,
+                "family": "emphasis",
+                "title": {
+                  "vi": "Tim đập nhẹ",
+                  "en": "A gentle heartbeat"
+                },
+                "targets": {
+                  "types": [
+                    "image"
+                  ]
+                },
+                "animation": {
+                  "engine": "keyframes",
+                  "easing": "ease-in-out",
+                  "iterations": "infinite",
+                  "composite": "add",
+                  "duration": 1800,
+                  "keyframes": [
+                    {
+                      "transform": "scale(1)"
+                    },
+                    {
+                      "transform": "scale(1.055)",
+                      "offset": 0.18
+                    },
+                    {
+                      "transform": "scale(1)",
+                      "offset": 0.32
+                    },
+                    {
+                      "transform": "scale(1.04)",
+                      "offset": 0.48
+                    },
+                    {
+                      "transform": "scale(1)",
+                      "offset": 0.65
+                    },
+                    {
+                      "transform": "scale(1)"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      ],
+      "assets": [
+        {
+          "assetId": "event-natural-element-3d-heart-3e547963886d",
+          "kind": "image"
+        }
+      ],
+      "visualKind": "animation"
+    }
+  },
+  {
+    "kind": "element",
+    "id": "natural-motion-star",
+    "revision": 1,
+    "status": "active",
+    "sortOrder": 440,
+    "definition": {
+      "title": {
+        "vi": "Sao nghiêng theo sáng",
+        "en": "A star catches the light"
+      },
+      "group": {
+        "vi": "Chuyển động nhẹ",
+        "en": "Gentle motion"
+      },
+      "keywords": "sao 3D animation chuyển động",
+      "elements": [
+        {
+          "id": "0618a682-05f1-4f7f-b9a7-83b7ecc80c05",
+          "type": "image",
+          "elementVersion": 1,
+          "layout": {
+            "x": 0,
+            "y": 0,
+            "width": 300,
+            "height": 300,
+            "rotation": 0
+          },
+          "props": {
+            "assetId": "event-natural-element-3d-star-f332c673e121",
+            "fit": "contain",
+            "focalPoint": {
+              "x": 0.5,
+              "y": 0.5
+            },
+            "radius": 0
+          },
+          "accessibility": {
+            "alt": "Ảnh kỷ niệm",
+            "decorative": true,
+            "label": "Momevia Original natural artwork v4"
+          },
+          "name": "Sao nghiêng theo sáng",
+          "effects": {
+            "emphasis": {
+              "id": "natural-motion-star-loop-v1",
+              "speed": "normal",
+              "definition": {
+                "id": "natural-motion-star-loop-v1",
+                "revision": 1,
+                "family": "emphasis",
+                "title": {
+                  "vi": "Sao nghiêng theo sáng",
+                  "en": "A star catches the light"
+                },
+                "targets": {
+                  "types": [
+                    "image"
+                  ]
+                },
+                "animation": {
+                  "engine": "keyframes",
+                  "easing": "ease-in-out",
+                  "iterations": "infinite",
+                  "composite": "add",
+                  "duration": 3200,
+                  "keyframes": [
+                    {
+                      "transform": "translateY(0px) rotate(-5deg)"
+                    },
+                    {
+                      "transform": "translateY(-3px) rotate(5deg)",
+                      "offset": 0.5
+                    },
+                    {
+                      "transform": "translateY(0px) rotate(-5deg)"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      ],
+      "assets": [
+        {
+          "assetId": "event-natural-element-3d-star-f332c673e121",
+          "kind": "image"
+        }
+      ],
+      "visualKind": "animation"
+    }
+  },
+  {
+    "kind": "element",
+    "id": "natural-motion-gift",
+    "revision": 1,
+    "status": "active",
+    "sortOrder": 441,
+    "definition": {
+      "title": {
+        "vi": "Quà xuất hiện",
+        "en": "A gift arrives"
+      },
+      "group": {
+        "vi": "Chuyển động nhẹ",
+        "en": "Gentle motion"
+      },
+      "keywords": "hộp quà 3D animation",
+      "elements": [
+        {
+          "id": "4ce76270-9d6d-4235-aa29-63b9837ec796",
+          "type": "image",
+          "elementVersion": 1,
+          "layout": {
+            "x": 0,
+            "y": 0,
+            "width": 300,
+            "height": 300,
+            "rotation": 0
+          },
+          "props": {
+            "assetId": "event-natural-element-3d-gift-01eeafd96b34",
+            "fit": "contain",
+            "focalPoint": {
+              "x": 0.5,
+              "y": 0.5
+            },
+            "radius": 0
+          },
+          "accessibility": {
+            "alt": "Ảnh kỷ niệm",
+            "decorative": true,
+            "label": "Momevia Original natural artwork v4"
+          },
+          "name": "Quà xuất hiện",
+          "effects": {
+            "emphasis": {
+              "id": "natural-motion-gift-loop-v1",
+              "speed": "normal",
+              "definition": {
+                "id": "natural-motion-gift-loop-v1",
+                "revision": 1,
+                "family": "emphasis",
+                "title": {
+                  "vi": "Quà xuất hiện",
+                  "en": "A gift arrives"
+                },
+                "targets": {
+                  "types": [
+                    "image"
+                  ]
+                },
+                "animation": {
+                  "engine": "keyframes",
+                  "easing": "ease-in-out",
+                  "iterations": "infinite",
+                  "composite": "add",
+                  "duration": 2400,
+                  "keyframes": [
+                    {
+                      "transform": "translateY(0px) scale(1)"
+                    },
+                    {
+                      "transform": "translateY(-8px) scale(1.025)",
+                      "offset": 0.5
+                    },
+                    {
+                      "transform": "translateY(0px) scale(1)"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      ],
+      "assets": [
+        {
+          "assetId": "event-natural-element-3d-gift-01eeafd96b34",
+          "kind": "image"
+        }
+      ],
+      "visualKind": "animation"
+    }
+  },
+  {
+    "kind": "element",
+    "id": "natural-motion-leaf",
+    "revision": 1,
+    "status": "active",
+    "sortOrder": 442,
+    "definition": {
+      "title": {
+        "vi": "Cành lá đung đưa",
+        "en": "A swaying branch"
+      },
+      "group": {
+        "vi": "Chuyển động nhẹ",
+        "en": "Gentle motion"
+      },
+      "keywords": "lá botanical animation",
+      "elements": [
+        {
+          "id": "86c004ad-d3bc-4971-ac18-32c5485c34f5",
+          "type": "image",
+          "elementVersion": 1,
+          "layout": {
+            "x": 0,
+            "y": 0,
+            "width": 300,
+            "height": 225,
+            "rotation": 0
+          },
+          "props": {
+            "assetId": "event-natural-element-eucalyptus-8efc23015e9f",
+            "fit": "contain",
+            "focalPoint": {
+              "x": 0.5,
+              "y": 0.5
+            },
+            "radius": 0
+          },
+          "accessibility": {
+            "alt": "Ảnh kỷ niệm",
+            "decorative": true,
+            "label": "Momevia Original natural artwork v4"
+          },
+          "name": "Cành lá đung đưa",
+          "effects": {
+            "emphasis": {
+              "id": "natural-motion-leaf-loop-v1",
+              "speed": "normal",
+              "definition": {
+                "id": "natural-motion-leaf-loop-v1",
+                "revision": 1,
+                "family": "emphasis",
+                "title": {
+                  "vi": "Cành lá đung đưa",
+                  "en": "A swaying branch"
+                },
+                "targets": {
+                  "types": [
+                    "image"
+                  ]
+                },
+                "animation": {
+                  "engine": "keyframes",
+                  "easing": "ease-in-out",
+                  "iterations": "infinite",
+                  "composite": "add",
+                  "duration": 3800,
+                  "keyframes": [
+                    {
+                      "transform": "rotate(-2deg)"
+                    },
+                    {
+                      "transform": "rotate(2deg)",
+                      "offset": 0.5
+                    },
+                    {
+                      "transform": "rotate(-2deg)"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      ],
+      "assets": [
+        {
+          "assetId": "event-natural-element-eucalyptus-8efc23015e9f",
+          "kind": "image"
+        }
+      ],
+      "visualKind": "animation"
+    }
+  },
+  {
+    "kind": "element",
+    "id": "natural-motion-ribbon",
+    "revision": 1,
+    "status": "active",
+    "sortOrder": 443,
+    "definition": {
+      "title": {
+        "vi": "Nơ lụa đung đưa",
+        "en": "Swaying satin ribbon"
+      },
+      "group": {
+        "vi": "Chuyển động nhẹ",
+        "en": "Gentle motion"
+      },
+      "keywords": "nơ lụa animation",
+      "elements": [
+        {
+          "id": "fa4a1a15-0a03-4c8a-86e7-5e736b85620a",
+          "type": "image",
+          "elementVersion": 1,
+          "layout": {
+            "x": 0,
+            "y": 0,
+            "width": 300,
+            "height": 225,
+            "rotation": 0
+          },
+          "props": {
+            "assetId": "event-natural-element-satin-bow-2f441b11b6ff",
+            "fit": "contain",
+            "focalPoint": {
+              "x": 0.5,
+              "y": 0.5
+            },
+            "radius": 0
+          },
+          "accessibility": {
+            "alt": "Ảnh kỷ niệm",
+            "decorative": true,
+            "label": "Momevia Original natural artwork v4"
+          },
+          "name": "Nơ lụa đung đưa",
+          "effects": {
+            "emphasis": {
+              "id": "natural-motion-ribbon-loop-v1",
+              "speed": "normal",
+              "definition": {
+                "id": "natural-motion-ribbon-loop-v1",
+                "revision": 1,
+                "family": "emphasis",
+                "title": {
+                  "vi": "Nơ lụa đung đưa",
+                  "en": "Swaying satin ribbon"
+                },
+                "targets": {
+                  "types": [
+                    "image"
+                  ]
+                },
+                "animation": {
+                  "engine": "keyframes",
+                  "easing": "ease-in-out",
+                  "iterations": "infinite",
+                  "composite": "add",
+                  "duration": 3600,
+                  "keyframes": [
+                    {
+                      "transform": "translateY(0px) rotate(-1.5deg)"
+                    },
+                    {
+                      "transform": "translateY(-2px) rotate(1.5deg)",
+                      "offset": 0.5
+                    },
+                    {
+                      "transform": "translateY(0px) rotate(-1.5deg)"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      ],
+      "assets": [
+        {
+          "assetId": "event-natural-element-satin-bow-2f441b11b6ff",
+          "kind": "image"
+        }
+      ],
+      "visualKind": "animation"
+    }
+  },
+  {
+    "kind": "element",
+    "id": "natural-motion-paper",
+    "revision": 1,
+    "status": "active",
+    "sortOrder": 444,
+    "definition": {
+      "title": {
+        "vi": "Giấy mở vào cảnh",
+        "en": "Paper turns into view"
+      },
+      "group": {
+        "vi": "Chuyển động nhẹ",
+        "en": "Gentle motion"
+      },
+      "keywords": "giấy lật mở 3D animation",
+      "elements": [
+        {
+          "id": "110a7817-2fb5-4489-ba9c-806f54290576",
+          "type": "image",
+          "elementVersion": 1,
+          "layout": {
+            "x": 0,
+            "y": 0,
+            "width": 225,
+            "height": 300,
+            "rotation": 0
+          },
+          "props": {
+            "assetId": "event-natural-element-paper-cotton-269a8232df21",
+            "fit": "contain",
+            "focalPoint": {
+              "x": 0.5,
+              "y": 0.5
+            },
+            "radius": 0
+          },
+          "accessibility": {
+            "alt": "Ảnh kỷ niệm",
+            "decorative": true,
+            "label": "Momevia Original natural artwork v4"
+          },
+          "name": "Giấy mở vào cảnh",
+          "effects": {
+            "emphasis": {
+              "id": "natural-motion-paper-loop-v1",
+              "speed": "normal",
+              "definition": {
+                "id": "natural-motion-paper-loop-v1",
+                "revision": 1,
+                "family": "emphasis",
+                "title": {
+                  "vi": "Giấy mở vào cảnh",
+                  "en": "Paper turns into view"
+                },
+                "targets": {
+                  "types": [
+                    "image"
+                  ]
+                },
+                "animation": {
+                  "engine": "keyframes",
+                  "easing": "ease-in-out",
+                  "iterations": "infinite",
+                  "composite": "add",
+                  "duration": 4200,
+                  "keyframes": [
+                    {
+                      "transform": "perspective(1000px) rotateY(-8deg)"
+                    },
+                    {
+                      "transform": "perspective(1000px) rotateY(8deg)",
+                      "offset": 0.5
+                    },
+                    {
+                      "transform": "perspective(1000px) rotateY(-8deg)"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      ],
+      "assets": [
+        {
+          "assetId": "event-natural-element-paper-cotton-269a8232df21",
+          "kind": "image"
+        }
+      ],
+      "visualKind": "animation"
+    }
+  }
+]

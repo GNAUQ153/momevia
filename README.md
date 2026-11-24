@@ -91,16 +91,17 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Chỉ bỏ nút Tạm dừng/Tiếp tục dưới hình mẫu; giữ nguyên hiệu ứng, tự chuyển mẫu và ba nút chọn mẫu. Cập nhật kiểm thử theo giao diện này.
+- Cập nhật kiểm tra bìa Hero VI/EN theo biến thể `-catalog.svg` đang dùng, giữ kiểm tra chính xác template và thư mục ngôn ngữ.
+- Ca bìa lỗi chặn đúng URL catalog và xác minh yêu cầu đã bị chặn trước khi kiểm tra giữ bìa/player hiện tại.
 
 **Các commit gần nhất trên `main`:**
 
+- `2ddfdea` — test(ci): sync release fixture with natural library bundles (2026-11-24)
+- `c6e0bbf` — fix(ci): include natural library bundles in release (2026-11-24)
+- `b93a13c` — fix(storage): support persistent Railway volume (2026-11-24)
+- `85ef36a` — Merge pull request #25 from GNAUQ153/feat/template-refresh-live-20261123 (2026-11-23)
 - `83aeb10` — Merge pull request #24 from GNAUQ153/feat/recorded-audio-library (2026-11-23)
 - `126e147` — feat(canvas): add accessible mobile undo redo toolbar (2026-11-23)
-- `6e97809` — feat(canvas): improve accessible mobile editor sheets (2026-11-23)
-- `2e421bb` — test: open template preview before checking create CTA (2026-11-23)
-- `932b911` — feat: let users create cards directly from template previews (2026-11-23)
-- `3559344` — feat: add occasion discovery shortcuts to marketing home (2026-11-23)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

@@ -1,3 +1,4 @@
+import { renderAssembly, prepareMotionLayers } from './motion-stack.js';
 import { recipientText, displayRecipient } from '../../shared/recipient-naming.js';
 import { STICKERS } from "../../shared/canvas/index.js";
 import { message as label, setAttr, setText, t } from "../../core/i18n.js";
@@ -182,10 +183,11 @@ export function renderElement(
   function activate(control, event, action, actions) {
     if (signal?.aborted || pendingControls.has(control) || control.getAttribute("aria-disabled") === "true") return;
     if(model.sound)onSound(model.sound,{explicit:type==='sound-button'});
-    const preset = !previewFamily || previewFamily === "reaction" ? model.effects?.reaction : null;
+    const preset = model.motions?.enabled!==false&&(!previewFamily || previewFamily === "reaction") ? model.effects?.reaction : null;
+    const reactionTarget=model.motions?control.querySelector('[data-motion-family="reaction"]')||control:control;
     if (actions?.length) {
       onAction(actions, intentSignal => {
-        const played = playReaction(control, preset, motion, intentSignal, event);
+        const played = playReaction(reactionTarget, preset, motion, intentSignal, event);
         if (!played) return;
         pendingControls.add(control);
         return played.finally(() => pendingControls.delete(control));
@@ -193,13 +195,15 @@ export function renderElement(
       return;
     }
     action?.();
-    const played = playReaction(control, preset, motion, signal, event);
+    const played = playReaction(reactionTarget, preset, motion, signal, event);
     if (!played) return;
     pendingControls.add(control);
     void played.finally(() => pendingControls.delete(control));
   }
   let node;
-  if (vector) {
+  if (model.assembly) {
+    node=element('div','gift-runtime-assembly');node.setAttribute('aria-hidden','true');node.style.pointerEvents=mode==='editor'?'auto':'none';node.append(renderAssembly(model.assembly,p));
+  } else if (vector) {
     node = element("div", `gift-runtime-vector-box gift-runtime-${type}`);
     node.setAttribute("aria-hidden", "true");
     node.append(drawVector(vector, { stretch: type !== "sticker" || ["paper-wave", "lace", "bunting", "washi-tape"].includes(p.stickerId) }));
@@ -423,6 +427,7 @@ export function renderElement(
             setText(status, label("gift.reply.loadFailed"));
         });
   } else throw new Error(t("gift.runtime.unsupportedElement"));
+  prepareMotionLayers(node,model);
   node.dataset.runtimeElement = model.id;
   applySurface(node, model.effects?.surface);
   if (model.visible === false) node.hidden = true;

@@ -1,6 +1,6 @@
 // Giao diện thư viện Canvas được tách khỏi session/lưu nháp.
 // Chỉ tạo DOM và lọc theo tên hiển thị; không tạo mutation hay thay đổi document.
-import { message, setText, t } from "../../core/i18n.js";
+import { message, setText, t, currentLocale } from "../../core/i18n.js";
 import { createDocument } from "../../shared/canvas/index.js";
 import { node, button, field } from "./dom.js";
 import { bounds, catalog, matchesBlock, sampleBindings } from "./library.js";
@@ -34,18 +34,18 @@ export function createDiscoveryPanel({ policy, discoveryMode, signal }) {
   },{signal});
   signal.addEventListener("abort", () => lazy.disconnect(), { once: true });
   const groups = catalog.map(({ label, items, database }, index) => node("section", { class: "editor-block-group", "data-block-group": index },
-    node("h3", {}, database ? label : message(`editor.library.group.${index}`)),
+    node("h3", {}, database || catalog[index].titleTexts ? (catalog[index].titleTexts?.[currentLocale()]||label) : message(`editor.library.group.${index}`)),
     node("div", { class: "editor-block-grid" }, ...items.map(block => {
       const control = button("", "add", {
-        "data-block": block.id, "aria-label": block.database ? block.title : message(`editor.library.item.${block.id}`),
+        "data-block": block.id, "aria-label": block.database || block.titleTexts ? (block.titleTexts?.[currentLocale()]||block.title) : message(`editor.library.item.${block.id}`),
         disabled: policy?.kind === "creator-template",
       });
       cards.set(control, block);
       control.draggable=policy?.kind!=='creator-template';
       control.dataset.visualKind=blockVisualKind(block);
-      control.append(node("span", {}, block.database ? block.title : message(`editor.library.item.${block.id}`)));
+      control.append(node("span", {}, block.database || block.titleTexts ? (block.titleTexts?.[currentLocale()]||block.title) : message(`editor.library.item.${block.id}`)));
       lazy.observe(control);
-      return control;
+      return blockVisualKind(block)==='animation'?node('div',{class:'editor-motion-library-card'},control,button(message('editor.interface.preview'),'motion-card-preview',{'data-motion-card':block.id})):control;
     })),
   ));
   return [
@@ -63,7 +63,7 @@ export function createDiscoveryPanel({ policy, discoveryMode, signal }) {
       message("editor.interface.totalBlocks", { count: catalog.flatMap(group => group.items).length })),
     field(message("editor.interface.group"), node("select", { "data-block-group-select": "" },
       node("option", { value: "" }, message("editor.interface.allCount", { count: cards.size })),
-      ...catalog.map(({ label, items, database }, index) => node("option", { value: index }, message("editor.library.groupCount", { group: database ? label : { format: "message", key: `editor.library.group.${index}` }, count: items.length }))))),
+      ...catalog.map(({ label, items, database }, index) => node("option", { value: index }, message("editor.library.groupCount", { group: database || catalog[index].titleTexts ? (catalog[index].titleTexts?.[currentLocale()]||label) : { format: "message", key: `editor.library.group.${index}` }, count: items.length }))))),
     node("div", { class: "editor-help", "data-block-empty": "", hidden: true },
       node("p", { role: "status" }, message("editor.interface.noBlocks")),
       button(message("editor.interface.clearSearch"), "clear-block-search")),
@@ -96,6 +96,7 @@ export function filterDiscoveryPanel(panel, { query, discoveryMode, recentBlocks
     let count = 0;
     for (const [itemIndex, control] of [...section.querySelectorAll("[data-block]")].entries()) {
       control.hidden = !allowed.has(items[itemIndex].id);
+      if(control.parentElement.classList.contains('editor-motion-library-card'))control.parentElement.hidden=control.hidden;
       if (!control.hidden) count += 1;
     }
     section.hidden = count === 0;

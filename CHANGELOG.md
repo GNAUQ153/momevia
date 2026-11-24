@@ -1,3 +1,11 @@
+## Unreleased — 50 vật thể động và chuyển động nhiều dòng (2026-11-24)
+
+- Thêm đúng 50 thiết kế vector nội bộ, năm nhóm × mười ID; tìm VI có dấu/không dấu và EN trong Thêm → Chuyển động, thumbnail tĩnh, phát thử riêng và chỉnh màu trong cùng mục.
+- Canvas 4 giữ danh sách chuyển động có ID, tối đa ba dòng chính kể cả emphasis cũ; lớp vị trí/vùng bấm tách khỏi chuyển động, xuất hiện và phản hồi. Studio giữ pha từng dòng, hỗ trợ bật/tắt, tham số, phát thử/xóa, lịch sử, lưu/clone và snapshot.
+- Tim mới đập hai đỉnh trong 1,8 giây và tự xoay độc lập 360°/8 giây. Giữ reader 1/2/3, sáu fixture vòng lặp cũ, A05 một lượt và snapshot đã phát hành.
+- Gói riêng 51 mục có preview, revision/fingerprint, gián đoạn/chạy tiếp, chạy lại và rollback; chỉ cho phép CLI ghi MySQL QA loopback có opt-in. Seed DB mới và gói cập nhật dùng chung định nghĩa.
+- Đối chiếu SHA nguồn QA với toàn bộ thay đổi từ baseline, kể cả file đã stage/commit và các contract giữ nguyên. Kiểm 50/50 Studio/preview/player, API MySQL và Admin; đo ma trận tim, kết hợp góc/opacity, reduced motion, thao tác di động, frame pacing và chi phí mở lạnh. Build/check, 767 unit và Canvas browser regression đạt; phạm vi và giới hạn thiết bị/trình duyệt được ghi trong `docs/ANIMATED_ELEMENTS_50.md`. Chưa phát hành ra môi trường người dùng thật.
+
 ## Unreleased — Sửa hồi quy CI PR #26 (2026-11-24)
 
 - Cập nhật dữ liệu kỳ vọng của test vòng đời 28 mẫu theo cấu hình người nhận mặc định của nháp Sender mới; giữ so sánh đầy đủ document, ảnh riêng, lưu/tải lại và snapshot xuất bản.

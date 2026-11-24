@@ -11,6 +11,7 @@ const ALLOWED_ALIGN = Object.freeze(['left', 'center', 'right']);
 
 export function styleFieldsFor(element) {
   if (!element || !['text', 'shape', 'image'].includes(element.type)) return [];
+  if(element.assembly)return ['color','opacity'];
   if(element.type==='shape'&&element.artwork)return [...(element.artwork.paths.some(p=>p.fill==='color')?['color']:[]),'opacity'];
   // Unpinned custom shapes still require an explicit renderer.
   if (element.type === 'shape' && !['rectangle', 'ellipse'].includes(element.props?.kind)) return [];

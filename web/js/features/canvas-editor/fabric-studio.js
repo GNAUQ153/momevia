@@ -8,6 +8,7 @@ import { mountFabricProperties } from './fabric-properties.js';
 import {mountFabricShortcuts} from './fabric-shortcuts.js';
 import { vectorParts } from '../../shared/canvas/artwork.js';
 import { PAPER_GRAIN_URL } from '../../shared/canvas/paper-grain.js';
+import {usesMotions} from '../../shared/canvas/motion-stack.js';
 import { previewSvg } from '../../shared/canvas/cover-svg.js';
 import {
   canManageFabricLayer, moveFabricLayer, applyFabricWorkspacePatch,
@@ -63,13 +64,14 @@ async function makeFabricObject(fabric, model, assetUrl, signal) {
   const options = shapeOptions(model);
   const props = model.props;
   let object;
-  const vector=vectorParts(model);
+  const assemblyPaths=model.assembly?.parts.flatMap(p=>p.vector.paths);
+  const vector=assemblyPaths?assemblyPaths.map(p=>({d:p.d,fill:p.fill==='color'?props.color:p.fill,stroke:p.stroke==='color'?props.color:p.stroke,'stroke-width':p.strokeWidth})):vectorParts(model);
   if(vector) {
     const parts=[new fabric.Rect({left:0,top:0,width:100,height:100,originX:'left',originY:'top',fill:'transparent',strokeWidth:0}),
       ...vector.map((part,i)=>{
         const path=new fabric.Path(part.d,{originX:'left',originY:'top',fill:part.fill==='none'?null:part.fill,stroke:part.stroke,strokeWidth:part['stroke-width']||0,
           strokeDashArray:part['stroke-dasharray']?.split(' ').map(Number),strokeUniform:['shape','line'].includes(model.type),strokeLineCap:'round',strokeLineJoin:'round'});
-        path.momeviaFillBinding=model.artwork?.paths[i]?.fill==='color';return path;
+        path.momeviaFillBinding=(assemblyPaths||model.artwork?.paths)?.[i]?.fill==='color';path.momeviaStrokeBinding=(assemblyPaths||model.artwork?.paths)?.[i]?.stroke==='color';return path;
       })];
     object=new fabric.Group(parts,{...options,width:100,height:100,scaleX:options.width/100,scaleY:options.height/100});
     // SVG uses a fixed 100×100 viewBox, including paths extending into their
@@ -161,7 +163,8 @@ async function snapshotFabricElement(fabric,model,signal,includeSurface=false){
   for(const key of ['editable','hidden','text','textEditable'])delete copy[key];
   copy.elementVersion=1;copy.opacity=1;copy.layout={x:0,y:0,width:options.width,height:options.height,rotation:0};copy.accessibility={};
   if(['button','envelope','gift-box'].includes(copy.type))copy.actions=[{on:'activate',type:'replay'}];
-  const doc={schemaVersion:2,registryVersion:2,artboard:{baseSize:{width:Math.max(240,options.width),height:Math.max(240,options.height)},layoutMode:'responsive-scene',safeInsets:{top:0,right:0,bottom:0,left:0}},entrySceneId:'fabric-preview',bindings:{recipientName:{type:'text',value:''},senderName:{type:'text',value:''},message:{type:'text',value:''}},assets:[],elements:[copy],scenes:[{id:'fabric-preview',name:'Preview',background:{kind:'solid',color:'#FFFFFF'},elementIds:[copy.id]}],responsive:{textOverflow:'expand-flow',sceneOverflow:'scroll',desktop:{maxContentWidth:600,align:'center'}}};
+  const version=usesMotions({elements:[copy]})?4:2;
+  const doc={schemaVersion:version,registryVersion:version,artboard:{baseSize:{width:Math.max(240,options.width),height:Math.max(240,options.height)},layoutMode:'responsive-scene',safeInsets:{top:0,right:0,bottom:0,left:0}},entrySceneId:'fabric-preview',bindings:{recipientName:{type:'text',value:''},senderName:{type:'text',value:''},message:{type:'text',value:''}},assets:[],elements:[copy],scenes:[{id:'fabric-preview',name:'Preview',background:{kind:'solid',color:'#FFFFFF'},elementIds:[copy.id]}],responsive:{textOverflow:'expand-flow',sceneOverflow:'scroll',desktop:{maxContentWidth:600,align:'center'}}};
   const svg=previewSvg(doc,undefined,undefined,{validationMode:'draft'}).replace('<rect width="100%" height="100%" fill="#FFFFFF"/>','').replace(/^<svg[^>]+>/,`<svg xmlns="http://www.w3.org/2000/svg" width="${options.width}" height="${options.height}" viewBox="0 0 ${options.width} ${options.height}">`);
   const image=await fabric.FabricImage.fromURL(`data:image/svg+xml,${encodeURIComponent(svg)}`,{signal});image.set(options);return image;
 }

@@ -1,4 +1,5 @@
 // This module is shared verbatim by Node and the browser. No environment or I/O.
+import {MOTION_LIMITS} from './motion-stack.js';
 import { stickerArt } from './artwork.js';
 import { canonicalText } from '../locale.js';
 import { libraryEntry } from './library-state.js';
@@ -21,7 +22,7 @@ export const STICKERS = freeze({ heart: '♥', star: '★', flower: '✿', spark
   ...Object.fromEntries(Object.keys(stickerArt).map(key => [key, ''])) });
 export const FONT_TOKENS = ['body', 'heading', 'serif'];
 export const BINDINGS = ['recipientName', 'senderName', 'message'];
-export const LIMITS = freeze({ documentBytes: 262144, scenes: 32, elements: 400, assets: 64, actionsPerElement: 2, depth: 16, text: 4000, accessibilityText: 240, coordinate: 10000, artboard: 4096 });
+export const LIMITS = freeze({ documentBytes: 262144, motionRows: MOTION_LIMITS.rows, motionParts: MOTION_LIMITS.parts, motionTracks: MOTION_LIMITS.tracks, scenes: 32, elements: 400, assets: 64, actionsPerElement: 2, depth: 16, text: 4000, accessibilityText: 240, coordinate: 10000, artboard: 4096 });
 
 const defaultPropKeys = {
   'sound-button': {label:'sfx.listen'},

@@ -91,18 +91,17 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Bổ sung năm ca liên kết service/repository JSON: duyệt mẫu, Free, Premium, RSVP/gia hạn/lưu trữ, hạ quyền Creator. Tất cả fixture dùng thư mục tạm và không gọi nhà cung cấp thanh toán.
-- Bổ sung ma trận quyền Guest/Sender/Creator/Admin trên HTTP fixture hiện có; kiểm tra từ chối sai role trước khi xử lý báo cáo tài chính MySQL.
-- Tài liệu nghiệm thu phân biệt kết quả CI, QA mô phỏng và điều kiện release production. Không thay đổi nghiệp vụ, schema, cấu hình triển khai hoặc GUI.
+- Bổ sung audit AST, baseline cạnh phụ thuộc hiện hữu và quality gate chống phát sinh vòng import tĩnh/phụ thuộc ngược.
+- Ghi nhận hotspot OOP, frontend, repository và pool MySQL; bổ sung sáu ca kiểm thử, không thay đổi runtime hoặc GUI.
 
 **Các commit gần nhất trên `main`:**
 
+- `478f588` — feat(architecture): add AST-based code quality audit and dependency regression gate (2026-11-25)
 - `7790ddc` — test(business): add cross-role regression journeys and acceptance matrix (2026-11-25)
 - `0600be7` — feat(refund): add isolated QA settlement and transactional creator reversal (2026-11-25)
 - `e7025dc` — feat(refund): validate receipt evidence and audit entitlement usage (2026-11-25)
 - `d6ace84` — Merge pull request #28 from GNAUQ153:feat/creator-layout-image-optimization (2026-11-25)
 - `a3a7a60` — feat(payment): strengthen settlement evidence and reconciliation lifecycle (2026-11-25)
-- `8ac74d5` — fix(ci): isolate hero cover failure scenario and await request rejection (2026-11-25)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

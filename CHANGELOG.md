@@ -1,3 +1,8 @@
+## Unreleased — Gói cập nhật thư viện 56 icon có kiểm phiên bản (2026-11-25)
+
+- Tạo gói cập nhật cho đúng 56 ID hiện hữu, giữ trạng thái và thứ tự thư viện; yêu cầu revision và fingerprint của dữ liệu trước sửa.
+- Bộ áp dụng kiểm toàn bộ ID, số lượng, phụ thuộc và xung đột; giữ cơ chế chạy lại và hoàn tác theo lịch sử. Không kèm gói dữ liệu hoặc cấu hình chỉ dành cho một máy cục bộ.
+
 ## Unreleased — Chỉnh chuyển động 56 icon Studio (2026-11-25)
 
 - Dựng lại hoặc tinh chỉnh 50 vector và 6 mẫu ảnh theo điểm gắn, vùng che, lớp trước/sau và nhịp vật liệu; giữ ID, khả năng chọn một vật thể và hai dòng điều khiển của vector.

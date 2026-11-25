@@ -1,3 +1,9 @@
+## Unreleased — Phase 2.6B Bằng chứng thanh toán (2026-11-25)
+
+- Chuẩn hóa reference của payOS giữa inquiry và webhook; kiểm tra ID link, không tự xác nhận khoản chuyển nhiều lần.
+- Chặn dữ liệu MoMo bị ép kiểu thành thành công; replay khác reference bị từ chối trước khi ghi. Hỗ trợ đối soát đơn bị mất ACK tạo link.
+- Không migration, không mở khóa checkout hoặc kích hoạt quota production; thêm unit và MySQL QA regression.
+
 ## Unreleased — Phase 2.6A Đối soát biên nhận (2026-11-25)
 
 - Kiểm tra biên nhận khớp đơn đã thanh toán, intent, nhà cung cấp, số tiền và mã tham chiếu; dùng chung điều kiện với báo cáo ngoại lệ Admin.

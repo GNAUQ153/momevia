@@ -85,7 +85,7 @@ test('repository issues a single verified entitlement + receipt inside ONE trans
         operations.push([sql,params]);
         if(sql.includes('FROM payment_intents p JOIN orders o'))
           return [[{id:'intent',order_id:'order',provider:'momo',provider_order_code:'x',
-            amount_vnd:25000,status:paid?'paid':'pending',order_status:paid?'paid':'pending_payment',
+            amount_vnd:25000,provider_reference:paid?'provider-txn-42':null,status:paid?'paid':'pending',order_status:paid?'paid':'pending_payment',
             user_id:'user',template_id:'template',is_test:1}]];
         return [{affectedRows:1}];
       }};

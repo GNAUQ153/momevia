@@ -1,5 +1,6 @@
 import { createHmac, timingSafeEqual, randomUUID } from 'node:crypto';
 import { localizedError } from '../../shared/http.mjs';
+import { paymentReference, providerInteger } from './settlement-evidence.mjs';
 
 const hmac = (key, content) => createHmac('sha256', key).update(content).digest('hex');
 function equalHex(a, b) {
@@ -11,20 +12,36 @@ function equalHex(a, b) {
 
 // A payment-link state is provider-owned evidence; never trust a browser redirect.
 export function parsePayOsInquiry(result, { code, amount, providerPaymentId }) {
-  if (String(result?.orderCode) !== String(code) || Number(result?.amount) !== amount
+  if (String(result?.orderCode) !== String(code) || providerInteger(result?.amount) !== amount
     || (providerPaymentId && String(result?.id) !== String(providerPaymentId)))
     throw localizedError(502, 'errors.payment.payOsMismatch');
   const state = String(result.status || '').toUpperCase();
   if (state === 'PAID') {
-    if (Number(result.amountPaid) !== amount || !result.id || String(result.id).length > 191)
+    if (providerInteger(result.amountPaid) !== amount || !paymentReference(result.id))
       throw localizedError(502, 'errors.payment.payOsIncomplete');
+    // Không dùng ID link làm mã giao dịch. Nhiều khoản chuyển cần đối soát riêng.
+    const transactions = result.transactions;
+    if (!Array.isArray(transactions) || transactions.length !== 1
+      || providerInteger(transactions[0]?.amount) !== amount
+      || !paymentReference(transactions[0]?.reference)) return { state: 'terminal_review' };
     return {
       state: 'paid', provider: 'payos', code: String(code),
-      amount, currency: 'VND', reference: String(result.id)
+      amount, currency: 'VND', reference: transactions[0].reference, providerPaymentId: result.id
     };
   }
-  if (state === 'CANCELLED') return { state: 'terminal_review' };
+  if (['CANCELLED', 'EXPIRED'].includes(state)) return { state: 'terminal_review' };
   return { state: 'pending' }; // Includes partial payments and unknown states.
+}
+
+// Chuẩn hóa dữ liệu đã được SDK xác minh, không dùng ID link thay mã giao dịch.
+export function parsePayOsWebhook(data, body) {
+  const amount = providerInteger(data?.amount);
+  if (!data?.orderCode || amount === null) throw localizedError(400, 'errors.payment.payOsWebhook');
+  const success = body.success === true && body.code === '00' && data.code === '00';
+  if (success && (!paymentReference(data.reference) || !paymentReference(data.paymentLinkId) || data.currency !== 'VND'))
+    throw localizedError(400, 'errors.payment.payOsWebhook');
+  return { code: String(data.orderCode), amount, reference: data.reference,
+    currency: data.currency, provider: 'payos', providerPaymentId: data.paymentLinkId, success };
 }
 
 // PayOS SDK handles the provider-specific canonical signature format and webhook validation.
@@ -62,13 +79,7 @@ export function createPayOsProvider(env = process.env) {
     },
     async verifyWebhook(body) {
       const data = await (await instance()).webhooks.verify(body);
-      if (!data?.orderCode || !Number.isSafeInteger(Number(data.amount))) throw localizedError(400, 'errors.payment.payOsWebhook');
-      return {
-        code: String(data.orderCode), amount: Number(data.amount),
-        reference: String(data.reference || data.paymentLinkId || ''),
-        currency: data.currency || 'VND', provider: 'payos',
-        success: body.success === true && body.code === '00' && data.code === '00',
-      };
+      return parsePayOsWebhook(data, body);
     },
   };
 }
@@ -119,13 +130,13 @@ export function createMomoProvider(env = process.env, http = fetch) {
       } catch { throw localizedError(503, 'errors.payment.momoInquiry'); }
       // The authenticated HTTPS inquiry must match ALL identity and monetary fields.
       if (result?.partnerCode !== partnerCode || String(result?.orderId) !== String(code)
-        || result?.requestId !== requestId || !Number.isSafeInteger(Number(result?.amount))
-        || Number(result.amount) !== amount)
+        || result?.requestId !== requestId || providerInteger(result?.amount) !== amount)
         throw localizedError(502, 'errors.payment.momoMismatch');
-      const resultCode = Number(result.resultCode);
+      const resultCode = providerInteger(result.resultCode);
+      if (resultCode === null) throw localizedError(502, 'errors.payment.momoMismatch');
       if (resultCode === 0) {
-        const reference = String(result.transId || '');
-        if (!/^[0-9]{1,30}$/.test(reference) || reference === '0')
+        const reference = typeof result.transId === 'string' || Number.isSafeInteger(result.transId) ? String(result.transId) : '';
+        if (!/^[0-9]{1,30}$/.test(reference) || /^0+$/.test(reference))
           throw localizedError(502, 'errors.payment.momoReference');
         return {
           state: 'paid', provider: 'momo', code: String(code),
@@ -146,11 +157,13 @@ export function createMomoProvider(env = process.env, http = fetch) {
       if (fields.some(k => values[k] === undefined || values[k] === null)) throw localizedError(400, 'errors.payment.momoIpnFields');
       const payload = fields.map(k => `${k}=${values[k]}`).join('&');
       if (!equalHex(hmac(secretKey, payload), body.signature)) throw localizedError(400, 'errors.payment.momoIpnSignature');
-      return {
-        code: String(body.orderId), amount: Number(body.amount),
-        reference: String(body.transId), currency: 'VND', provider: 'momo',
-        success: Number(body.resultCode) === 0,
-      };
+      const resultCode = providerInteger(body.resultCode);
+      const amount = providerInteger(body.amount);
+      const reference = typeof body.transId === 'string' || Number.isSafeInteger(body.transId) ? String(body.transId) : '';
+      if (resultCode === null || amount === null || (resultCode === 0
+        && (!/^[0-9]{1,30}$/.test(reference) || /^0+$/.test(reference) || String(body.requestId) !== String(body.orderId))))
+        throw localizedError(400, 'errors.payment.momoIpnFields');
+      return { code: String(body.orderId), amount, reference, currency: 'VND', provider: 'momo', success: resultCode === 0 };
     },
   };
 }

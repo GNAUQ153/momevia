@@ -28,7 +28,7 @@ function transactionFixture(mode, paid = false) {
     return work({ async execute(sql, params) {
       queries.push([sql, params]);
       if (sql.includes('FROM payment_intents p JOIN orders o')) return [[{ id: 'intent', order_id: 'order',
-        amount_vnd: 25000, is_test: mode, status: paid ? 'paid' : 'pending', order_status: paid ? 'paid' : 'pending_payment',
+        amount_vnd: 25000, provider_reference: paid ? verified.reference : null, is_test: mode, status: paid ? 'paid' : 'pending', order_status: paid ? 'paid' : 'pending_payment',
         user_id: 'buyer', template_id: 'template', seller_id: null }]];
       return [{ affectedRows: 1 }];
     } });

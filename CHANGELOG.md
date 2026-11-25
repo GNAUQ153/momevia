@@ -1,3 +1,23 @@
+## Unreleased — CTA ở chi tiết mẫu (2026-11-25)
+
+- Trang chi tiết mẫu dùng một popup “Tạo thiệp ngay” màu tím, không khung nền, cùng nhịp đập/gợn sóng và chuyển động vào/ra của thư viện.
+- Popup dùng đúng mẫu, chế độ nhanh và phiên bản đang xem; ẩn trong lúc tải/lỗi, khi footer xuất hiện hoặc mở xem thử, hiện lại khi rời footer/đóng xem thử. Rời trang chi tiết trả lại đích tạo thiệp mới.
+
+## Unreleased — CTA tạo thiệp trong thư viện (2026-11-25)
+
+- Thêm nút “Tạo thiệp ngay” ở đầu thư viện, dẫn đến trình tạo thiệp. Popup chỉ hiện khi nút đầu trang bị khuất từ 50% trở lên, tính cả phần bị header cố định che; cuộn lên thì ẩn popup.
+- Thư viện dùng một CTA nổi tạo thiệp, giữ hiệu ứng vào/ra, nhịp chậm và điều kiện ẩn tại footer/modal. Đổi nhãn “Tạo mẫu ngay” thành “Tạo thiệp ngay”, đồng bộ VI/EN.
+- CTA nổi là nút tím chữ trắng, không có khung nền bên ngoài, kèm nhịp đập và vòng sóng tím chậm; nền thư viện trung tính và từng thẻ mẫu có viền riêng, chữ/giá rõ hơn.
+
+## Unreleased — Chuyển động CTA từ banner xuống cụm nổi (2026-11-25)
+
+- Thêm nhịp đập và vòng sóng lan ngắn cho hai CTA, giữ vùng bấm cố định; khi cần ẩn, cả cụm trượt phải rồi mới biến mất. Hủy đúng chuyển động khi cuộn ngược nhanh và hỗ trợ reduced motion.
+- Khi hiện lại, CTA trượt từ mép phải vào; đảo chiều liên tục dùng vị trí hiện tại để không giật. Lần rời banner đầu tiên vẫn dùng chuyển động từ banner.
+- Trên trang chủ, CTA giữ hiển thị qua phần nội dung và FAQ, chỉ ẩn khi footer logo/liên kết thực sự vào màn hình hoặc mở modal; theo dõi lại đúng footer khi giao diện được dựng lại.
+- Hai nút nổi trượt từ vị trí CTA trong banner về góc dưới khi cuộn qua banner; chỉ chạy một lần cho mỗi lượt rời banner, sẵn sàng lại khi cuộn lên.
+- Giữ đích và chức năng các nút hiện có; trang khác tiếp tục tránh che nội dung, trang chủ chỉ ẩn ở footer thật/modal, không thêm khoảng đệm hoặc dịch chuyển bố cục trang.
+- Tạm ngăn tương tác trong lúc nút đang di chuyển, bỏ hiệu ứng khi người dùng yêu cầu giảm chuyển động; hủy sạch chuyển động khi đổi trang hoặc ẩn cụm nút.
+
 ## Unreleased — Creator, bố cục trang và ảnh thư viện (2026-11-25)
 
 - Đồng bộ trang Creator với màu/font Momevia, thêm hướng dẫn tạo mẫu, trạng thái bộ sưu tập và phản hồi thao tác; giữ nội dung form khi chuyển khu vực và quay về Creator sau đăng nhập.

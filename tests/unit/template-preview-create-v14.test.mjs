@@ -53,7 +53,7 @@ test('Hero cập nhật CTA theo mẫu đang được chọn tại thời điể
 test('Trang chi tiết và hộp thoại cùng dùng module tạo URL', () => {
   const catalogSource = source('web/js/pages/catalog.js');
   assert.match(catalogSource, /import \{ templateCreateUrl \}/);
-  assert.match(catalogSource, /buttonLink\(templateCreateUrl\(template\)/);
+  assert.match(catalogSource, /href="\$\{e\(templateCreateUrl\(template\)\)\}" data-link data-template-create-cta/);
   assert.doesNotMatch(catalogSource, /buttonLink\(`\/create\/\$\{encodeURIComponent\(template\.id\)\}\?mode=quick/);
 });
 

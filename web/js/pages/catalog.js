@@ -109,7 +109,8 @@ export function createCatalogViews({
     });
     return `<section class="section catalog-section catalog-compact"><div class="container">
       <div class="catalog-toolbar"><div class="catalog-title"><h1>${text("shell.pages.catalog")}</h1>${catalogFailed ? '' : `<span id="catalog-count" aria-live="polite" aria-atomic="true">${text('catalog.results.count', { count: result.total })}</span>`}</div>
-        <label class="search-field">${icon("search", 19)}<span class="visually-hidden">${text("catalog.search.label")}</span><input type="search" id="template-search" ${attr("placeholder", "catalog.search.placeholder")} value="${e(state.search)}"/></label></div>
+        <div class="catalog-toolbar__actions"><label class="search-field">${icon("search", 19)}<span class="visually-hidden">${text("catalog.search.label")}</span><input type="search" id="template-search" ${attr("placeholder", "catalog.search.placeholder")} value="${e(state.search)}"/></label>
+          <a class="btn btn--dark catalog-create-cta" href="/design/new" data-link data-catalog-create-cta referrerpolicy="no-referrer">${icon('pencil', 18)} ${text('floatingCta.create')}</a></div></div>
       <div class="catalog-filters" role="group" ${attr("aria-label", "catalog.filters.group")}>
         <label class="catalog-style-select"><span>${text('catalog.cardType.label')}</span><select id="card-type-filter" ${attr('aria-label','catalog.cardType.label')}>
           <option value="all" ${!state.cardType || state.cardType === 'all' ? 'selected' : ''}>${text('catalog.cardType.all')}</option>
@@ -143,7 +144,7 @@ export function createCatalogViews({
         <p>${text('catalog.cardType.detail', { type: { format: 'message', key: `catalog.cardType.${templateCardType(template)}` } })}</p>
         <p>${personalizationText(template.personalization)}</p>
         <div class="detail-start-actions">
-          ${buttonLink(templateCreateUrl(template), text("catalog.detail.use"), "btn--dark", false)}
+          <a class="btn btn--dark" href="${e(templateCreateUrl(template))}" data-link data-template-create-cta>${text("catalog.detail.use")}</a>
           <button class="btn btn--outline" type="button" data-template-preview aria-haspopup="dialog">${text("catalog.detail.preview")} ${icon('eye', 17)}</button>
         </div>
         <p class="detail-palette">${template.palette ? text(`templates.meta.palette.${template.palette}`) : ""}</p><p class="detail-subtitle">${templateField(template, 'subtitle')}</p>

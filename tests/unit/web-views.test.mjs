@@ -43,6 +43,22 @@ test('Trang Creator chỉ hiện form cho Creator/Admin và không khôi phục 
   for(const role of ['creator','admin']) assert.match(views({id:'u',name:'QA',role}).creatorPage(),/id="creator-template-form"/);
 });
 
+test('Catalog exposes one inline card-creation CTA with the same destination as the floating action', () => {
+  const html=views().explore();
+  assert.equal([...html.matchAll(/data-catalog-create-cta/g)].length,1);
+  assert.match(html,/href="\/design\/new" data-link data-catalog-create-cta/);
+  assert.match(html,/Tạo thiệp ngay/);
+  assert.doesNotMatch(html,/Tạo mẫu ngay/);
+});
+
+test('template detail exposes its own creation URL for the contextual floating action', () => {
+  const v = views();
+  const html = v.templateDetail({ ...v.template, versionId: 'version/a' });
+  assert.equal([...html.matchAll(/data-template-create-cta/g)].length, 1);
+  assert.match(html, /href="\/create\/sample\?mode=quick&amp;version=version%2Fa" data-link data-template-create-cta/);
+  assert.match(html, /Dùng mẫu/);
+});
+
 test('Admin thấy tổng hai hàng đợi và chỉ thấy trạng thái hoàn tất khi cả hai tải xong và trống', () => {
   const { adminPage } = views({ id: 'admin', name: 'QA', role: 'admin' });
   const legacy = [{ id: 'legacy', title: 'Mẫu cũ', price: 0 }];

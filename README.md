@@ -91,17 +91,17 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Đưa policy cấu hình quota, gia hạn và validation thông tin đăng nhập về shared, giữ method và đường import cũ; sửa thông báo mật khẩu tài khoản test cho khớp giới hạn hiện hành.
-- Loại bỏ vòng import tĩnh và ba cạnh phụ thuộc ngược đã ghi nhận; thu hẹp architecture baseline về rỗng, bổ sung sáu ca kiểm thử. Không đổi API, schema, frontend hoặc chính sách production.
+- Tách hash, projection, chính sách khóa chỉnh sửa và preflight khỏi DesignsService; giữ constructor, method, export và callback transaction cũ.
+- Bổ sung sáu ca hồi quy về quyền xuất bản, tài sản, projection và khóa mẫu; không đổi API, schema, GUI hoặc chính sách production.
 
 **Các commit gần nhất trên `main`:**
 
+- `e18d9a1` — refactor(designs): separate publication checks edit policies and API projections (2026-11-25)
 - `bacfcd6` — refactor(architecture): decouple shared configuration and credential policies (2026-11-25)
 - `478f588` — feat(architecture): add AST-based code quality audit and dependency regression gate (2026-11-25)
 - `7790ddc` — test(business): add cross-role regression journeys and acceptance matrix (2026-11-25)
 - `0600be7` — feat(refund): add isolated QA settlement and transactional creator reversal (2026-11-25)
 - `e7025dc` — feat(refund): validate receipt evidence and audit entitlement usage (2026-11-25)
-- `d6ace84` — Merge pull request #28 from GNAUQ153:feat/creator-layout-image-optimization (2026-11-25)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

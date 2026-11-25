@@ -91,17 +91,17 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Tách Inspector và bảng tài sản khỏi Designer; dùng getter lấy document, quyền, selection và clipboard hiện hành, giữ commit và event handler tại controller.
-- Giữ cấu trúc control, focus, cache thumbnail và cơ chế khóa mẫu; mở rộng kiểm tra i18n sang hai file mới và bổ sung kiểm thử panel. Không đổi API, schema, CSS hoặc dependency.
+- Tách keyboard handler, helper selection và clipboard action theo từng lần mount; giữ Store, commit, history, session, Fabric và API hiện có.
+- Chặn phím đổi thứ tự layer rơi vào nhánh xóa khi bị khóa; xóa selection cũ khi chuyển cảnh trực tiếp hoặc khởi tạo lại. Mở rộng audit i18n và thêm kiểm thử hồi quy; không đổi CSS, schema hay dependency.
 
 **Các commit gần nhất trên `main`:**
 
+- `f35c663` — refactor(frontend): modularize canvas keyboard selection and clipboard actions (2026-11-26)
 - `2c4c8d6` — refactor(frontend): separate canvas inspector and asset panel responsibilities (2026-11-25)
 - `8565cb0` — refactor(frontend): modularize application actions and introduce action dispatcher (2026-11-25)
 - `230866e` — refactor(designs): modularize repository queries and standardize validation contracts (2026-11-25)
 - `e18d9a1` — refactor(designs): separate publication checks edit policies and API projections (2026-11-25)
 - `bacfcd6` — refactor(architecture): decouple shared configuration and credential policies (2026-11-25)
-- `478f588` — feat(architecture): add AST-based code quality audit and dependency regression gate (2026-11-25)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

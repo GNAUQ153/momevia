@@ -244,17 +244,38 @@ export async function runHeroTemplatesBrowser(browser, base) {
     await page.waitForURL('**/explore');
     assert.deepEqual(errors, [], 'No callbacks update a disposed hero');
 
-    // A missing alternate cover never replaces the working cover or its player.
-    let blockedCoverRequests=0;
-    await page.route('**/birthday-radiance-catalog.svg?*', route => {blockedCoverRequests++;return route.abort();});
-    await page.goto(base);
+  } finally { await context.close(); }
+
+  // Dùng context mới để không tái sử dụng ảnh đã tải ở các ca trước.
+  // Chờ request thất bại và trạng thái ảnh lỗi thay vì đọc bộ đếm ngay khi hero mount.
+  const brokenContext = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce', serviceWorkers: 'block' });
+  try {
+    const page = await brokenContext.newPage();
+    const coverPath = '/assets/basic-templates/birthday-radiance-catalog.svg';
+    let blockedCoverRequests = 0;
+    await page.route(url => url.pathname === coverPath, route => {
+      blockedCoverRequests++;
+      return route.abort();
+    });
+    await Promise.all([
+      page.waitForEvent('requestfailed', request => request.resourceType() === 'image' && new URL(request.url()).pathname === coverPath),
+      page.goto(base),
+    ]);
     await waitForTemplate(page, ids[0]);
-    assert(blockedCoverRequests>0,'The alternate catalog cover request was actually blocked');
+    await page.waitForFunction(() => {
+      const first = globalThis.document.querySelector('[data-hero-image="hai-phong-bi"]');
+      const alternate = globalThis.document.querySelector('[data-hero-image="birthday-radiance"]');
+      return first?.complete && first.naturalWidth > 0 && alternate?.complete && alternate.naturalWidth === 0;
+    });
+    assert(blockedCoverRequests > 0, 'The alternate catalog cover request was actually blocked');
     await page.locator('[data-hero-select="1"]').click();
     assert.equal(await active(page), ids[0]);
+    assert.equal(await page.locator('[data-hero-select="0"]').getAttribute('aria-pressed'), 'true');
+    assert.equal(await page.locator('[data-hero-select="1"]').getAttribute('aria-pressed'), 'false');
     await page.locator('.mkt-hero__cover').click();
     await page.getByRole('dialog').locator('[data-runtime-element="open-memory"]').waitFor();
-  } finally { await context.close(); }
+    assert.equal(await active(page), ids[0], 'A failed cover must not replace the working template');
+  } finally { await brokenContext.close(); }
 
   const timed = await browser.newPage({ viewport: { width: 390, height: 844 }, reducedMotion: 'no-preference' });
   try {

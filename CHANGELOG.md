@@ -1,3 +1,10 @@
+## Unreleased — Creator, bố cục trang và ảnh thư viện (2026-11-25)
+
+- Đồng bộ trang Creator với màu/font Momevia, thêm hướng dẫn tạo mẫu, trạng thái bộ sưu tập và phản hồi thao tác; giữ nội dung form khi chuyển khu vực và quay về Creator sau đăng nhập.
+- Bỏ khoảng đệm thừa dưới trang; nút nổi nhường chỗ cho nội dung, footer, modal và các luồng tài khoản/quản lý/thiết kế/nhận quà. Chỉ giữ chiều cao dự phòng khi nội dung đang tải.
+- Thêm ảnh bìa WebP theo kích thước và mật độ màn hình, giữ lazy loading khi cuộn, tái sử dụng ảnh khi lọc/phân trang và đổi đúng VI/EN. Ảnh nhúng WebP được chuẩn hóa trong bộ nhớ trước khi dựng; ảnh SVG gốc và nội dung quà được giữ nguyên.
+- Rà soát 22 trang/luồng tại 130 vị trí; kiểm 28 ảnh bìa và bổ sung kiểm thử tải ảnh, cache, focus và trạng thái mẫu. Phép đo thư viện 1440/390 px đạt 0 lỗi, 0 cảnh báo; ảnh tải trên mobile giảm khoảng 96%. Không có migration hoặc thay đổi dữ liệu người dùng; chưa kiểm tra thiết bị vật lý/Safari.
+
 ## Unreleased — Phase 2.4B4 Mua thêm lượt xuất bản QA (2026-11-24)
 
 - Migration 019 lưu liên kết đơn đã tiêu hao với intent mua tiếp; khóa chủ tài khoản, giữ khóa cũ và chống tạo đơn mới khi retry.

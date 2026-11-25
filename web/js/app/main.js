@@ -378,6 +378,7 @@ async function render() {
   canvasCheckout = null;
   document.body.classList.remove("is-designing", "is-playing-gift");
   document.body.classList.toggle("is-home", isHome);
+  document.body.classList.toggle("is-creator", /^\/creator\/?$/.test(location.pathname));
   document.body.classList.toggle("is-auth", isAuth);
   // Bố cục tối chỉ áp dụng Login/Register; recovery giữ giao diện chung.
   document.body.classList.toggle("is-auth-entry", /^\/(login|register)\/?$/.test(location.pathname));
@@ -1005,6 +1006,12 @@ async function handleAction(action, element) {
     await render();
     return;
   }
+  if (action === "creator-jump") {
+    const target = document.getElementById(element.getAttribute('href')?.slice(1));
+    if (target?.closest('.creator-space')) focusVisibleTarget(target, { block: 'start' });
+    return;
+  }
+  if (action === "creator-login") return requireLogin('/creator');
   if (action === "login") return navigate("/login");
   if (action === "register") return navigate("/register");
   if (action === "support") return openSupport();

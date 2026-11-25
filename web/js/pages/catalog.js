@@ -9,6 +9,7 @@ import { templateCreateUrl } from "../features/catalog/template-create-url.js";
 import { CARD_TYPES, templateCardType } from '../shared/card-type.js';
 import { prioritizeTemplates } from '../shared/template-order.js';
 import { preserveLoadedCovers } from '../core/cover-loading.js';
+import { SEASONAL_COVER_SIZES } from '../shared/cover-images.js';
 import {
   filterTemplates,
   styleOptions,
@@ -90,7 +91,7 @@ export function createCatalogViews({
       </summary>
       <button type="button" class="seasonal-shelf__hint" data-action="filter-seasonal">${text("catalog.seasonal.action")}</button>
       <div class="seasonal-shelf__grid">${seasonal.map(template => `<a class="seasonal-shelf__card" href="/template/${encodeURIComponent(template.id)}" data-link>
-        <img ${templateCover(template,{variant:'seasonal'})} width="390" height="466" loading="lazy" ${attr('alt', 'catalog.seasonal.cover', { title: templateValue(template, 'title') })}/>
+        <img ${templateCover(template,{variant:'seasonal',responsive:true,sizes:SEASONAL_COVER_SIZES})} width="390" height="466" loading="lazy" ${attr('alt', 'catalog.seasonal.cover', { title: templateValue(template, 'title') })}/>
         <div><span>${isInSeason(template) ? text('catalog.seasonal.inSeason') : template.season ? templateField(template, 'season') : text('catalog.seasonal.collection')}</span><strong>${templateField(template, 'title')}</strong></div>
       </a>`).join('')}</div>
     </details>`;

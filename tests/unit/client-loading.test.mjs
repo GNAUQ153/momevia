@@ -5,6 +5,24 @@ import {createHash} from 'node:crypto';
 import {rememberCatalogMetadata} from '../../web/js/core/catalog-bootstrap.js';
 import {templateCover} from '../../web/js/features/catalog/template-copy.js';
 import {installLibrary,librarySnapshot} from '../../web/js/shared/canvas/library-state.js';
+
+test('responsive covers defer all candidates, keep locale/revision in every URL and preserve SVG detail',()=>{
+ const prior=librarySnapshot();
+ try{
+  rememberCatalogMetadata({templates:[]});installLibrary(null);
+  for(const template of [{id:'afterglow',coverRevision:'revision-2'},{id:'birthday-radiance'}]){
+   const html=templateCover(template,{responsive:true,defer:true});
+   assert.match(html,/data-srcset=/);assert.doesNotMatch(html,/(?:^|\s)srcset=/);
+   const sources=html.match(/data-srcset="([^"]+)"/)[1].replaceAll('&amp;','&').split(', ');
+   assert.equal(sources.length,5);
+   for(const source of sources){const[url,width]=source.split(' '),parsed=new URL(url,'http://localhost');
+    assert.equal(parsed.searchParams.get('locale'),'vi');assert.equal(parsed.searchParams.get('variant'),'catalog');
+    assert.equal(parsed.searchParams.get('width')+'w',width);assert.equal(parsed.searchParams.get('v'),template.coverRevision||'9');
+   }
+  }
+  assert.doesNotMatch(templateCover({id:'afterglow',coverRevision:'revision-2'},{variant:'portrait'}),/srcset|width=/);
+ }finally{rememberCatalogMetadata({templates:[]});installLibrary(prior);}
+});
 test('public cover metadata retains DB revisions without an editor library snapshot',()=>{
  try{rememberCatalogMetadata({templates:[{id:'birthday-radiance',coverRevision:'revision-123'}]});assert.match(templateCover('birthday-radiance'),/library\/templates\/birthday-radiance\/cover/);assert.match(templateCover('birthday-radiance'),/revision-123/);
  const deferred=templateCover({id:'birthday-radiance'},{defer:true});assert(deferred.startsWith('data-src='));assert.match(deferred,/data-cover-lazy/);rememberCatalogMetadata({templates:[]});assert.match(templateCover('birthday-radiance'),/assets\/basic-templates/);

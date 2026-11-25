@@ -301,5 +301,14 @@
   color: var(--purple);
 }
 
-/* Reserve the initial viewport while a route loads, keeping the footer still. */
-#main{min-height:100svh}
+/* Short pages use only the space left by the header and footer. */
+#main {
+  flex: 1 0 auto;
+  min-width: 0;
+}
+
+/* Reserve space only while loading, then let the actual page set its height. */
+#main:empty,
+#main:has(.centered-loading) {
+  min-height: 100svh;
+}

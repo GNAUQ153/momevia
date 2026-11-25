@@ -10,6 +10,7 @@ import { imageBody } from './assets.service.mjs';
 import { giftOwnerLinks } from '../gifts/links.mjs';
 import { requestLocale } from '../../shared/locale.mjs';
 import { AudioAssetsService, audioBody, sfxCatalog, librarySound } from './audio.service.mjs';
+import { builtinCoverThumbnail, coverThumbnail, coverThumbnailWidth } from './cover-thumbnail.mjs';
 
 export function streamAsset(res, file) {
   res.writeHead(200, { 'content-type': file.contentType, 'cache-control': 'private, no-store', 'x-content-type-options': 'nosniff' });
@@ -50,8 +51,21 @@ export function registerDesignRoutes(router, { service, assets, resolveUser, con
     const documents=Object.fromEntries(['vi','en'].map(locale=>[locale,templatePreviewDocument(template,(key,values)=>serverText(template.systemOwned?locale:'vi',key,values))]));
     sendJson(res,200,{documents});
   });
+  router.on('GET', '/library/templates/:id/thumbnail', async ({ res, params, url }) => {
+    const width = coverThumbnailWidth(url.searchParams.get('width')) ?? 320;
+    const bytes = await builtinCoverThumbnail(params.id, url.searchParams.get('locale'), url.searchParams.get('variant') || 'catalog', width);
+    res.writeHead(200, { 'content-type': 'image/webp', 'content-length': bytes.length, 'cache-control': 'no-store', 'x-content-type-options': 'nosniff' });
+    res.end(bytes);
+  });
   router.on('GET', '/library/templates/:id/cover', async ({ res, params, url }) => {
+    const width = coverThumbnailWidth(url.searchParams.get('width'));
     const svg = await service.library.cover(params.id, url.searchParams.get('locale') === 'en' ? 'en' : 'vi', url.searchParams.get('variant'));
+    if (width) {
+      const bytes = await coverThumbnail(svg, width);
+      res.writeHead(200, { 'content-type': 'image/webp', 'content-length': bytes.length, 'cache-control': 'no-store', 'x-content-type-options': 'nosniff' });
+      res.end(bytes);
+      return;
+    }
     res.writeHead(200, { 'content-type': 'image/svg+xml; charset=utf-8', 'cache-control': 'no-store', 'x-content-type-options': 'nosniff' });
     res.end(svg);
   });

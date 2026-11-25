@@ -34,7 +34,9 @@ test('Creator quick navigation points at sections available to its role', () => 
   assert.match(html, /href="#creator-list"/);
   assert.match(html, /href="#creator-finance"/);
   assert.match(html, /id="creator-finance"/);
-  assert.match(html, /role\.creator\.templateLoaded/);
+  const counter = html.match(/<span class="creator-list__count">([\s\S]*?)<\/span>/);
+  assert(counter, 'Creator collection exposes its loaded-template count');
+  assert.equal(counter[1].replace(/<!--[\s\S]*?-->/g, '').trim(), '0 mẫu');
 });
 
 test('Sender cannot see Creator dashboard shortcuts or authoring form', () => {

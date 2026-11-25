@@ -58,7 +58,6 @@
 }
 body.has-floating-cta {
   --floating-cta-height: 122px;
-  padding-bottom: calc(var(--floating-cta-height) + 48px + env(safe-area-inset-bottom, 0px));
 }
 body.has-floating-cta .site-tools {
   right: 284px;
@@ -82,7 +81,6 @@ body.has-floating-cta .site-tools {
   }
   body.has-floating-cta {
     --floating-cta-height: 66px;
-    padding-bottom: calc(var(--floating-cta-height) + 24px + env(safe-area-inset-bottom, 0px));
   }
   body.has-floating-cta .site-tools {
     right: 12px;

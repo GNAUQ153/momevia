@@ -11,6 +11,7 @@ import { MySqlGiftsRepository } from '../../src/modules/gifts/mysql.repositories
 import { MySqlCheckoutRepository } from '../../src/modules/checkout/mysql.repository.mjs';
 import { CheckoutService } from '../../src/modules/checkout/checkout.service.mjs';
 import { MySqlPaymentRepository } from '../../src/modules/payments/mysql.repository.mjs';
+import { RefundSettlementQa } from '../../src/modules/payments/refund-settlement-qa.mjs';
 
 const require = createRequire(import.meta.url);
 const driver = require('mysql2/promise');
@@ -447,6 +448,63 @@ try {
       (SELECT COUNT(*) FROM publication_repurchases r JOIN orders o ON o.id=r.previous_order_id WHERE o.user_id=? AND o.template_id=?) AS repurchase_count`,
     [owner, quotaTemplate, owner, quotaTemplate, owner, quotaTemplate]);
     assert.deepEqual([Number(repurchaseCounts.order_count), Number(repurchaseCounts.credit_count), Number(repurchaseCounts.repurchase_count)], [3, 2, 2]);
+  });
+  await check('Phase 2.7B: isolated refund simulation rolls back, reverses pinned creator sale once, and blocks consumed credit', async () => {
+    const operator = uuid(), creator = uuid();
+    for (const [id, role] of [[operator, 'admin'], [creator, 'creator']]) {
+      await admin.execute(`INSERT INTO users(id,provider,provider_id,name,role,created_at,legacy_payload)
+        VALUES (?,'demo',?,'QA',?,?,'{}')`, [id, id, role, date(now)]);
+    }
+    const qaEnv = { ...process.env, NODE_ENV: 'test', PAYMENT_ENV: 'sandbox', REFUND_SETTLEMENT_QA_ENABLED: 'true' };
+    const simulation = new RefundSettlementQa(db, qaEnv), simulation2 = new RefundSettlementQa(db2, qaEnv);
+    const payments = new MySqlPaymentRepository(db, { quotaEnabled: true });
+    const checkout = new MySqlCheckoutRepository(db, { quotaEnabled: true });
+    async function paidReview(template, consumed = false) {
+      await admin.execute(`INSERT INTO templates(id,creator_id,title,style,theme,price_vnd,status,created_at,payload)
+        VALUES (?,?,'QA refund','classic','lavender',10000,'published',?,'{}')`, [template, creator, date(now)]);
+      const intent = await payments.createPending({ userId: owner, templateId: template, title: 'QA refund', amount: 10000, provider: 'momo', isTest: true });
+      const event = { provider: 'momo', code: intent.code, reference: uuid(), amount: 10000, currency: 'VND', success: true };
+      await payments.settleVerified(event, true);
+      if (consumed) await new MySqlGiftsRepository(db, { quotaEnabled: true }).insert({
+        id: uuid(), slug: uuid().replaceAll('-', ''), userId: owner, templateId: template, recipientName: 'QA', senderName: 'QA',
+        message: 'QA', imageFile: null, replyCount: 0, createdAt: now, expiresAt: later });
+      const review = await payments.refunds.createBuyerRequest({ orderId: intent.orderId, requesterId: owner,
+        reasonCode: 'technical_problem', detail: 'QA kiểm thử hoàn tiền nội bộ.' });
+      for (const [expectedStatus, status] of [['submitted', 'in_review'], ['in_review', 'awaiting_provider']]) {
+        await payments.refunds.moveAdmin({ requestId: review.id, actorId: operator, expectedStatus, status, note: 'QA rà soát nội bộ' });
+      }
+      return { intent, event, args: { requestId: review.id, actorId: operator, simulationId: uuid() } };
+    }
+    const template = 'canvas-refund-qa-template';
+    const { intent, event, args } = await paidReview(template);
+    const failClient = { env: db.env, withTransaction: work => db.withTransaction(tx => work({ execute: (sql, params) => {
+      if (sql.includes('INSERT INTO creator_ledger')) throw Error('refund rollback injection');
+      return tx.execute(sql, params);
+    } })) };
+    await assert.rejects(new RefundSettlementQa(failClient, qaEnv).simulate(args), /refund rollback injection/);
+    assert.equal(await checkout.hasLicense(owner, template), true);
+    const [[before]] = await admin.execute('SELECT status FROM orders WHERE id=?', [intent.orderId]);
+    assert.equal(before.status, 'paid');
+    // Không đảo bút toán theo chủ mẫu hiện tại.
+    await admin.execute('UPDATE templates SET creator_id=? WHERE id=?', [other, template]);
+    const results = await Promise.all([simulation.simulate(args), simulation2.simulate(args)]);
+    assert.equal(results.filter(r => r.replayed).length, 1);
+    assert.equal(await checkout.hasLicense(owner, template), false);
+    await assert.rejects(simulation.simulate({ ...args, simulationId: uuid() }), { status: 409 });
+    await assert.rejects(payments.settleVerified(event, true), { status: 409 });
+    const [[order]] = await admin.execute(`SELECT o.status,e.revoked_at,c.gift_id,p.status AS intent_status,
+      (SELECT COUNT(*) FROM payment_receipts r WHERE r.order_id=o.id) AS receipts,
+      (SELECT COUNT(*) FROM payment_transactions t WHERE t.order_id=o.id AND t.status='refunded') AS refunds
+      FROM orders o JOIN template_entitlements e ON e.order_id=o.id JOIN publication_credits c ON c.entitlement_id=e.id
+      JOIN payment_intents p ON p.order_id=o.id WHERE o.id=?`, [intent.orderId]);
+    assert.equal(order.status, 'refunded'); assert(order.revoked_at); assert.equal(order.gift_id, null);
+    assert.equal(order.intent_status, 'paid'); assert.equal(Number(order.receipts), 1); assert.equal(Number(order.refunds), 1);
+    const [ledger] = await admin.execute('SELECT creator_id,amount_vnd,category FROM creator_ledger WHERE order_id=? ORDER BY category', [intent.orderId]);
+    assert.deepEqual(ledger.map(l => [l.creator_id, l.amount_vnd, l.category]), [[creator, -8000, 'refund'], [creator, 8000, 'sale']]);
+    const used = await paidReview('canvas-refund-consumed-qa', true);
+    await assert.rejects(simulation.simulate(used.args), { status: 409 });
+    const [[unchanged]] = await admin.execute('SELECT status FROM orders WHERE id=?', [used.intent.orderId]);
+    assert.equal(unchanged.status, 'paid');
   });
   console.log(`RESULT PASS ${count} isolated MySQL integration cases; mocks are not included.`);
 } finally {

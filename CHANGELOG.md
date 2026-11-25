@@ -1,3 +1,9 @@
+## Unreleased — Phase 2.7B Mô phỏng nhất quán hoàn tiền (2026-11-25)
+
+- Bổ sung module nội bộ chỉ dành cho MySQL QA cô lập; mặc định tắt, không đăng ký API hoàn tiền hoặc gọi provider.
+- Mô phỏng hoàn toàn phần cho đơn Sandbox có credit chưa tiêu hao, đối soát giao dịch gốc và đảo đúng bút toán Creator trong cùng transaction; giữ biên nhận gốc, khóa checkout và hồ sơ chờ provider.
+- Bổ sung kiểm thử replay, rollback, dữ liệu sai, credit đã dùng và cạnh tranh hai kết nối. Không migration hoặc thay đổi production.
+
 ## Unreleased — Phase 2.7A Rà soát hoàn tiền (2026-11-25)
 
 - Dùng chung chính sách biên nhận với yêu cầu hoàn tiền; từ chối hồ sơ mới khi đơn và bằng chứng nội bộ không nhất quán.

@@ -60,7 +60,7 @@ test('Trang chi tiết và hộp thoại cùng dùng module tạo URL', () => {
 test('CTA không gọi POST, giữ luồng đăng nhập của SPA khi người xem chưa có tài khoản', () => {
   const html = templatePreviewDialog(template);
   assert.match(html, /data-template-use data-link/);
-  const app = source('web/js/app/main.js');
+  const app = source('web/js/app/payment-actions.js');
   assert.match(app, /requireLogin\(location\.pathname \+ location\.search\)/);
   assert.doesNotMatch(html, /data-action=\"submit\"|onclick=|<form/);
 });

@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 // Các chuỗi thuộc dữ liệu thiệp được cho phép có giải thích tường minh.
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const auditedFile = 'web/js/pages/designer.js';
-const appShellFile = 'web/js/app/main.js';
+const appShellFolder = 'web/js/app';
 // Tên bộ lọc danh mục được lưu trong catalog metadata, không phải nhãn UI.
 export const persistedShellCopy = new Set(['Lễ hội']);
 export const persistedCanvasCopy = new Set([
@@ -92,7 +92,8 @@ if (current) {
   } else if (mode === '--check') {
     const violations = [
       ...checkDesignerCopy(fs.readFileSync(path.join(root, auditedFile), 'utf8')).map(item => ({ ...item, file: auditedFile })),
-      ...checkAppShellCopy(fs.readFileSync(path.join(root, appShellFile), 'utf8')).map(item => ({ ...item, file: appShellFile })),
+      ...walkJs(path.join(root, appShellFolder)).flatMap(file =>
+        checkAppShellCopy(fs.readFileSync(file, 'utf8')).map(item => ({ ...item, file: path.relative(root, file) }))),
     ];
     for (const { file, line, value } of violations) console.error(`${file}:${line}: chuỗi UI chưa dịch: ${JSON.stringify(value.slice(0, 100))}`);
     if (violations.length) process.exitCode = 1;
@@ -108,7 +109,7 @@ if (current) {
         const source = fs.readFileSync(file, 'utf8');
         const matches = relative === auditedFile
           ? checkDesignerCopy(source)
-          : relative === appShellFile ? checkAppShellCopy(source) : readUiLiterals(source);
+          : relative.startsWith(`${appShellFolder}/`) ? checkAppShellCopy(source) : readUiLiterals(source);
         if (!matches.length) continue;
         total += matches.length;
         console.log(`${relative}: ${matches.length} ứng viên`);

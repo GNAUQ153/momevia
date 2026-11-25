@@ -1,3 +1,8 @@
+## Unreleased — Phase 3.4A Điều phối hành động frontend (2026-11-25)
+
+- Tách 56 action thành năm nhóm chuyên biệt, giữ listener và trạng thái hiện hành tại Application Controller; bổ sung dispatcher chống đăng ký trùng.
+- Giữ API, guard bất đồng bộ và lazy loading; mở rộng kiểm tra i18n và thêm tám ca hồi quy. Không thay đổi UI, schema hay dependency.
+
 ## Unreleased — Phase 3.3 Chuẩn hóa Designs Repository (2026-11-25)
 
 - Tách mapping SQL, helper transaction, tài sản và checkout context khỏi MySqlDesignsRepository; giữ class, export cũ, SQL và phạm vi transaction.

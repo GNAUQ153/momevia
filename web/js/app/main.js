@@ -1,3 +1,9 @@
+import { createActionDispatcher } from './action-dispatcher.js';
+import { createFinanceActions } from './finance-actions.js';
+import { createCatalogActions } from './catalog-actions.js';
+import { createShellActions } from './shell-actions.js';
+import { createPaymentActions } from './payment-actions.js';
+import { createStudioActions } from './studio-actions.js';
 import {mountFloatingCta} from '../ui/floating-cta.js';
 import { api, errorCopy, escapeHtml as e } from "../core/api.js";
 import {takeCatalogBootstrap,rememberCatalogMetadata} from '../core/catalog-bootstrap.js';
@@ -5,15 +11,12 @@ import {mountCoverLoading} from '../core/cover-loading.js';
 import {ensureFullStyles} from '../core/client-styles.js';
 import { attr, initializeLocale, localeControl, message, onLocaleChange, setAttr, setText, t, text } from "../core/i18n.js";
 import { clearAuthReturn, rememberAuthReturn, takeAuthReturn } from "../core/auth-return.js";
-import { focusVisibleTarget, scrollBehavior } from "../core/motion.js";
+import { scrollBehavior } from "../core/motion.js";
 import { canTransitionPage, createPageTransition, sameDocument } from '../core/page-transition.js';
 import { icon } from "../ui/icons.js";
 import { normalizeCardTypeFilter } from '../shared/card-type.js';
-import { paginateTemplates } from "../features/catalog/filter.js";
 import { legalPages, legalPage } from "../pages/policies.js";
 import { submitReplyIntent } from "../features/gifts/reply-intent.js";
-import { advanceRecipientStage } from "../features/gifts/recipient-journey.js";
-import { mountInbox } from "../features/gifts/inbox.js";
 import { supportTopics, topicForRequest, topicKey } from "../features/support/topics.js";
 import { state } from "../core/state.js";
 import { templateValue } from "../features/catalog/template-copy.js";
@@ -26,7 +29,7 @@ import { mountTemplatePreview } from "../features/catalog/template-preview.js";
 import { createCatalogViews } from "../pages/catalog.js";
 import { pricingPage } from '../pages/pricing.js';
 import { paymentMethodText, paymentReceipt, paymentStatusPanel } from "../pages/payment-status.js";
-import { refundBuyerPanel, refundHistoryPanel, refundAdminPanel } from "../pages/refund-review.js";
+import { refundBuyerPanel, refundAdminPanel } from "../pages/refund-review.js";
 import { createLatestRequest } from "../features/refund/latest-request.js";
 import { createSystemViews } from "../pages/system.js";
 
@@ -944,512 +947,75 @@ async function copyText(trigger) {
     input.select();
   }
 }
-async function handleAction(action, element) {
-  if (action === 'creator-finance-export' || action === 'admin-finance-export') {
-    const isAdmin = action === 'admin-finance-export';
-    if (isAdmin ? state.user?.role !== 'admin' : !['creator', 'admin'].includes(state.user?.role)) return;
-    element.disabled = true;
-    try {
-      // Luôn tải báo cáo mới, chỉ từ API đã xác thực; không nhận creatorId từ trình duyệt.
-      const result = await api.get(isAdmin
-        ? '/checkout/payments/admin/finance/exceptions?limit=100'
-        : '/checkout/payments/creator/statement?limit=100');
-      if (!element.isConnected) return;
-      const report = isAdmin ? result.audit : result.statement;
-      const records = isAdmin ? report?.records : report?.recent;
-      if (!Array.isArray(records) || !records.length) return toast(message('finance.export.empty'));
-      const csv = isAdmin ? adminExceptionsCsv(report) : creatorSalesCsv(report);
-      const kind = isAdmin ? 'admin-exceptions' : 'creator-sales';
-      downloadCsvFile(exportFileName(kind), csv);
-    } catch {
-      if (element.isConnected) toast(message('finance.export.error'), 'error');
-    } finally {
-      if (element.isConnected) element.disabled = false;
-    }
-    return;
-  }
-  if (action === 'admin-refund-next' || action === 'admin-refund-prev') {
-    if (state.user?.role !== 'admin') return;
-    const forward = action === 'admin-refund-next';
-    if (forward && !refundQueue.nextCursor) return;
-    if (!forward && refundQueue.index === 0) return;
-    const index = refundQueue.index + (forward ? 1 : -1);
-    const cursor = forward ? refundQueue.nextCursor : refundQueue.cursors[index];
-    element.disabled = true;
-    try {
-      await loadAdminRefundQueue({ index, cursor });
-    } finally { if (element.isConnected) element.disabled = false; }
-    return;
-  }
-  if (action === 'admin-refund-move') {
-    if (state.user?.role !== 'admin') return;
-    const card = element.closest('[data-refund-item]');
-    const status = card?.querySelector('[data-refund-next]')?.value;
-    const note = card?.querySelector('[data-refund-note]')?.value.trim() || '';
-    if (!status || note.length < 10) return toast(message('refund.admin.noteRequired'), 'error');
-    element.disabled = true;
-    try {
-      await api.post(`/checkout/payments/admin/refund-requests/${encodeURIComponent(element.dataset.requestId)}/transition`, {
-        expectedStatus: element.dataset.expectedStatus, status, note,
-      });
-      toast(message('refund.admin.updated'));
-      await render();
-    } finally { if (element.isConnected) element.disabled = false; }
-    return;
-  }
-  if (action === 'admin-refund-history') {
-    if (state.user?.role !== 'admin') return;
-    element.disabled = true;
-    try {
-      const { events } = await api.get(`/checkout/payments/admin/refund-requests/${encodeURIComponent(element.dataset.requestId)}/history?limit=50`);
-      if (element.isConnected) openModal(`<h2>${text('refund.admin.history')}</h2>${refundHistoryPanel(events)}`);
-    } finally { if (element.isConnected) element.disabled = false; }
-    return;
-  }
-  if (action === "admin-payment-refresh") return render();
-  if (action === "admin-payment-audit") {
-    const panel = element.closest(".payment-review-card")?.querySelector("[data-payment-audit]");
-    if (!panel) return;
-    panel.hidden = false;
-    panel.innerHTML = `<p role="status">${text('admin.payments.auditLoading')}</p>`;
-    element.disabled = true;
-    try {
-      const { attempts } = await api.get(`/checkout/payments/admin/orders/${encodeURIComponent(element.dataset.orderId)}/audit?limit=50`);
-      if (panel.isConnected) panel.innerHTML = paymentAuditRows(attempts);
-    } catch {
-      if (panel.isConnected) panel.innerHTML = `<p role="alert">${text('admin.payments.auditError')}</p>`;
-    } finally { if (element.isConnected) element.disabled = false; }
-    return;
-  }
-  if (action === "retry-admin-queues") return render();
-  if (action === "duplicate-template" || action === "withdraw-template") {
-    const withdraw = action === "withdraw-template";
-    if (withdraw && !window.confirm(t("creator.actions.confirmWithdraw"))) return;
-    element.disabled = true;
-    try {
-      const body = withdraw ? {} : { mutationId: element.dataset.mutation || (element.dataset.mutation = crypto.randomUUID()) };
-      const result = await api.post(`/catalog/creator/workspaces/${encodeURIComponent(element.dataset.id)}/${withdraw ? "withdraw" : "duplicate"}`, body);
-      if (withdraw) return render();
-      navigate(`/design/${encodeURIComponent(result.id)}`);
-    } finally { element.disabled = false; }
-    return;
-  }
-  if (action === "report-content") return openSupport({ kind: element.dataset.kind, id: element.dataset.id });
-  if (action === "claim-report" || action === "resolve-report") {
-    const claim = action === "claim-report";
-    const resolution = claim ? null : window.prompt(t("admin.support.prompt"));
-    if (!claim && !resolution?.trim()) return;
-    await api.post(`/support/admin/requests/${encodeURIComponent(element.dataset.id)}/resolve`, { action: claim ? "claim" : "resolve", resolution });
-    await render();
-    return;
-  }
-  if (action === "creator-jump") {
-    const target = document.getElementById(element.getAttribute('href')?.slice(1));
-    if (target?.closest('.creator-space')) focusVisibleTarget(target, { block: 'start' });
-    return;
-  }
-  if (action === "creator-login") return requireLogin('/creator');
-  if (action === "login") return navigate("/login");
-  if (action === "register") return navigate("/register");
-  if (action === "support") return openSupport();
-  if (action === "back-to-top") {
-    window.scrollTo({ top: 0, behavior: scrollBehavior() });
-    return;
-  }
-  if (action === "toggle-favorite") {
-    const templateId = element.dataset.id;
-    if (!state.user) {
-      requireLogin(location.pathname + location.search + location.hash, templateId);
-      return;
-    }
-    element.disabled = true;
-    try {
-      const saved = !state.favorites.has(templateId);
-      await saveFavorite(templateId, saved);
-      toast(saved ? message("catalog.saved.added") : message("catalog.saved.removed"));
-      if (location.pathname === "/favorites") render();
-    } finally {
-      element.disabled = false;
-    }
-    return;
-  }
-  if (action === "demo-mode") {
-    const demo = document.getElementById("auth-demo");
-    if (demo) {
-      demo.hidden = !demo.hidden;
-      demo.querySelector("input")?.focus();
-    }
-    return;
-  }
-  if (action === "toggle-password") {
-    const input = element.parentElement?.querySelector("input");
-    if (!input) return;
-    input.type = input.type === "password" ? "text" : "password";
-    const showing = input.type === "text";
-    element.innerHTML = icon(showing ? "eye-off" : "eye", 19);
-    setAttr(
-      element,
-      "aria-label",
-      message(showing ? "auth.password.hide" : "auth.password.show"),
-    );
-    element.setAttribute("aria-pressed", String(showing));
-    return;
-  }
-  if (action === "close-modal") return closeModal();
-  if (action === "account-menu") {
-    const menu = document.getElementById('mobile-nav');
-    if (menu && !menu.hidden) setMobileMenu(header.querySelector('[data-action="toggle-menu"]'), menu, false);
-    return setAccountMenu(element.getAttribute('aria-expanded') !== 'true');
-  }
-  if (action === "toggle-menu") {
-    const menu = document.getElementById("mobile-nav");
-    setAccountMenu(false);
-    setMobileMenu(element, menu, menu.hidden);
-    return;
-  }
-  if (action === "logout") {
-    if (routeController?.beforeLeave && !routeController.beforeLeave()) return;
-    routeController?.dispose?.();
-    routeController = null;
-    await api.post("/auth/logout");
-    clearAuthReturn();
-    setUser(null);
-    toast(message("auth.logout.done"));
-    navigate("/");
-    return;
-  }
-  if (action === "filter-seasonal") {
-    // Chỉ thay đổi bộ lọc phía client; không đưa link mời riêng tư vào URL.
-    state.filter = "Lễ hội";
-    state.search = "";
-    state.catalogPage = 1;
-    state.freeOnly = false;
-    state.photoOnly = false;
-    state.occasion=state.palette=state.cardType="all";
-    for(const id of ["occasion-filter","palette-filter","card-type-filter"]){const control=document.getElementById(id);if(control)control.value="all";}
-    const style = document.getElementById("style-filter");
-    if (style) style.value = state.filter;
-    const search = document.getElementById("template-search");
-    if (search) search.value = "";
-    const free = document.getElementById("free-filter");
-    if (free) free.checked = false;
-    const photo = document.getElementById("photo-filter");
-    if (photo) photo.checked = false;
-    commitCatalogFilters();
-    document.getElementById("catalog-range")?.focus();
-    return;
-  }
-  if (action === "retry-catalog") return render();
-  if (action === "clear-filters") {
-    state.catalogPage = 1;
-    state.filter = "all";
-    state.freeOnly = false;
-    state.photoOnly = false;
-    state.occasion=state.palette=state.cardType="all";
-    for(const id of ["occasion-filter","palette-filter","card-type-filter"]){const control=document.getElementById(id);if(control)control.value="all";}
-    const style = document.getElementById("style-filter");
-    const free = document.getElementById("free-filter");
-    const photo = document.getElementById("photo-filter");
-    const search = document.getElementById("template-search");
-    if (style) style.value = "all";
-    if (free) free.checked = false;
-    if (photo) photo.checked = false;
-    if (search && element.hasAttribute('data-clear-search')) search.value = state.search = '';
-    commitCatalogFilters();
-    document.querySelector('.catalog-reset')?.focus();
-    return;
-  }
-  if (action === "set-page") {
-    const page = Number(element.dataset.page);
-    const list = element.dataset.list;
-    if (list === "catalog" && Number.isInteger(page)) {
-      const result = paginateTemplates(matchingTemplates(), page);
-      if (state.catalogPage === result.page) return;
-      state.catalogPage = result.page;
-      commitCatalogFilters();
-      focusVisibleTarget(document.getElementById("catalog-range"), { block: "start" });
-    } else if (list === "favorites" && Number.isInteger(page)) {
-      const templates = state.templates.filter((item) =>
-        state.favorites.has(item.id),
-      );
-      const result = paginateTemplates(templates, page);
-      if (state.favoritePage === result.page) return;
-      state.favoritePage = result.page;
-      render().then(() => {
-        if (location.pathname === "/favorites") focusVisibleTarget(document.getElementById("catalog-range"), { block: "start" });
-      });
-    }
-    return;
-  }
-  if (action === "print-receipt") {
-    window.print();
-    return;
-  }
-  if (action === "payment-status") {
-    closeModal();
-    navigate(`/payment-result/${encodeURIComponent(element.dataset.id)}`);
-    return;
-  }
-  if (action === "reconcile-payment") {
-    const orderId = location.pathname.split('/').filter(Boolean).at(-1);
-    if (!orderId) return;
-    element.disabled = true;
-    try {
-      const result = await api.post(`/checkout/payments/orders/${encodeURIComponent(orderId)}/reconcile`);
-      if (result.providerState === 'terminal_review') toast(message('payment.status.manualReview'));
-      else toast(result.payment.status === 'paid' ? message("payment.status.confirmed") : message("payment.status.unconfirmed"));
-      await render();
-    } finally { element.disabled = false; }
-    return;
-  }
-  if (action === "refresh-payment") {
-    await render();
-    return;
-  }
-  if (action === "retry-canvas-payment" && canvasCheckout)
-    return openCanvasCheckout(canvasCheckout);
-  if (action === "archive-design" || action === "revoke-gift") {
-    const archive = action === "archive-design";
-    const confirmed = window.confirm(archive
-      ? t("studio.drafts.confirmArchive")
-      : t("studio.gifts.confirmRevoke"));
-    if (!confirmed) return;
-    const id = encodeURIComponent(element.dataset.id);
-    await api.post(archive ? `/designs/designs/${id}/archive` : `/gifts/gifts/mine/${id}/revoke`);
-    await render();
-    return;
-  }
-  if (action === "renew-gift") {
-    if (!window.confirm(t("studio.gifts.confirmRenew", { days: Number(element.dataset.days) }))) return;
-    element.disabled = true;
-    try {
-      await api.post(`/gifts/gifts/mine/${encodeURIComponent(element.dataset.id)}/renew`, { expectedExpiresAt: element.dataset.expiry });
-      await render();
-    } finally { if (element.isConnected) element.disabled = false; }
-    return;
-  }
-  if (action === "archive-gift" || action === "restore-gift-list") {
-    const archived = action === "archive-gift";
-    if (archived && !window.confirm(t("studio.gifts.confirmArchive"))) return;
-    element.disabled = true;
-    try {
-      await api.post(`/gifts/gifts/mine/${encodeURIComponent(element.dataset.id)}/archive`, { archived });
-      await render();
-    } finally { if (element.isConnected) element.disabled = false; }
-    return;
-  }
-  if (action === "recipient-results") {
-    openModal(`<div data-recipient-results-host></div>`);
-    const { mountRecipientResults } = await import("../features/gifts/recipient-results.js");
-    await mountRecipientResults(modal.querySelector("[data-recipient-results-host]"), element.dataset.id);
-    return;
-  }
-  if (action === "gift-inbox") {
-    const endpoint = `/gifts/gifts/mine/${encodeURIComponent(element.dataset.id)}/replies`;
-    const { replies } = await api.get(endpoint);
-    if (!element.isConnected) return;
-    openModal(`<h2>${text('gift.inbox.title')}</h2><label class="inbox-filter"><input type="checkbox"/> ${text('gift.inbox.unread')}</label>
-      <p class="inbox-status" role="status"></p><div class="reply-list"></div>`);
-    disposeInbox = mountInbox(modal.querySelector(".dialog"), {
-      replies, renderReplies,
-      markRead: ids => api.post(endpoint + "/read", { ids }),
-      onUnreadCount: count => {
-        if (element.isConnected) setText(element.querySelector("[data-unread-count]"), count ? message('studio.gifts.unread', { count }) : '');
-      },
-    });
-    return;
-  }
-  if (action === "regift") {
-    element.disabled = true;
-    try {
-      const mutationId = element.dataset.mutation || (element.dataset.mutation = crypto.randomUUID());
-      const { design } = await api.post(`/gifts/gifts/mine/${encodeURIComponent(element.dataset.id)}/regift`, { mutationId });
-      if (element.isConnected) navigate(`/design/${encodeURIComponent(design.id)}${design.source.kind === "template" ? "?mode=quick" : ""}`);
-    } finally {
-      if (element.isConnected) element.disabled = false;
-    }
-    return;
-  }
-  if (action === "duplicate-design") {
-    element.disabled = true;
-    try {
-      const result = await api.post(
-        `/designs/designs/${encodeURIComponent(element.dataset.id)}/duplicate`,
-        { mutationId: crypto.randomUUID() },
-      );
-      navigate(`/design/${result.design.id}`);
-    } finally {
-      element.disabled = false;
-    }
-    return;
-  }
-  if (action === 'load-more-designs') {
-    const generation = renderGeneration; element.disabled = true;
-    try {
-      const result = await api.get(`/designs/designs?offset=${Number(element.dataset.offset)}`);
-      if (generation !== renderGeneration) return;
-      document.getElementById('studio-drafts').insertAdjacentHTML('beforeend', draftCards(result.designs));
-      if (result.nextOffset === null) element.remove(); else element.dataset.offset = String(result.nextOffset);
-    } finally { if (element.isConnected) element.disabled = false; }
-    return;
-  }
-  if (action === "payment-options") {
-    if (!requireLogin(location.pathname)) return;
-    const generation = renderGeneration;
-    const { methods, repurchaseAvailable } = await api.get("/checkout/payments/methods");
-    if (!methods.length)
-      throw new Error(t("payment.checkout.unavailable"));
-    const previousOrderId = repurchaseAvailable
-      ? (await api.get(`/checkout/payments/repurchase/${encodeURIComponent(element.dataset.id)}`)).previousOrderId : null;
-    if (generation !== renderGeneration || !element.isConnected) return;
-    openModal(`<div class="support-modal"><h2>${previousOrderId ? text("payment.checkout.repurchase") : text("payment.checkout.choose")}</h2>
-      <p>${previousOrderId ? text("payment.checkout.repurchaseHint") : text("payment.checkout.serverAmount")}</p>
-      ${methods.map((m) => `<button class="btn btn--outline btn--wide" type="button" data-action="start-payment" data-id="${e(element.dataset.id)}" data-method="${e(m.id)}"${previousOrderId ? ` data-previous-order-id="${e(previousOrderId)}"` : ""}>${paymentMethodText(m)}</button>`).join("")}
-    </div>`);
-    return;
-  }
-  if (action === "start-payment") {
-    const checkoutContext = canvasCheckout,
-      checkoutGeneration = renderGeneration;
-    const stillActive = () =>
-      checkoutGeneration === renderGeneration &&
-      canvasCheckout === checkoutContext &&
-      element.isConnected;
-    element.disabled = true;
-    try {
-      if (checkoutContext) await checkoutContext.flushSave();
-      if (!stillActive()) return;
-      const { payment } = await api.post("/checkout/payments/create", {
-        templateId: element.dataset.id,
-        method: element.dataset.method,
-        ...(element.dataset.previousOrderId ? { previousOrderId: element.dataset.previousOrderId } : {}),
-      });
-      if (!stillActive()) return;
-      if (checkoutContext) {
-        const ack = await checkoutContext.flushSave();
-        if (!stillActive()) return;
-        const fingerprint = `${ack.revision}:${ack.documentHash}`;
-        checkoutContext.contextMutations ||= new Map();
-        if (!checkoutContext.contextMutations.has(fingerprint))
-          checkoutContext.contextMutations.set(
-            fingerprint,
-            crypto.randomUUID(),
-          );
-        const { context } = await api.post(
-          `/checkout/payments/orders/${encodeURIComponent(payment.orderId)}/design-contexts`,
-          {
-            designId: checkoutContext.design.id,
-            expectedRevision: ack.revision,
-            expectedDocumentHash: ack.documentHash,
-            mutationId: checkoutContext.contextMutations.get(fingerprint),
-          },
-        );
-        if (!stillActive()) return;
-        try {
-          sessionStorage.setItem(
-            `momevia:checkout-context:${state.user.id || state.user.sub}:${payment.orderId}`,
-            context.contextId,
-          );
-        } catch {
-          /* Server context list also supports resume. */
-        }
-      }
-      if (payment.status === "paid") {
-        closeModal();
-        navigate(`/payment-result/${encodeURIComponent(payment.orderId)}`);
-        return;
-      }
-      if (!payment.checkoutUrl)
-        throw new Error(t("payment.checkout.noUrl"));
-      const destination = new URL(payment.checkoutUrl);
-      if (destination.protocol !== "https:")
-        throw new Error(t("payment.checkout.unsafeUrl"));
-      if (element.dataset.method === "payos" && payment.qrPayload) {
-        const {giftQrDataUrl}=await import('../features/gifts/qr.js');
-        if(!element.isConnected)return;
-        const qr = giftQrDataUrl(payment.qrPayload);
-        openModal(`<div class="qr-modal"><h2>${text("payment.checkout.qrTitle")}</h2>
-          <p>${text("payment.checkout.orderAmount", { amount: { format: "currency", value: Number(payment.amount) } })}</p>
-          <p>${text("payment.checkout.qrHint")}</p>
-          <img class="qr-image" src="${e(qr)}" ${attr("alt", "payment.checkout.qrAlt")}/>
-          <p><a class="btn btn--outline btn--wide" href="${e(destination.href)}" target="_blank" rel="noopener noreferrer">${text("payment.checkout.openPayos")}</a></p>
-          <button class="btn btn--dark btn--wide" data-action="payment-status" data-id="${e(payment.orderId)}">${text("payment.checkout.checkStatus")}</button>
-          <p>${text("payment.checkout.webhook")}</p>
-        </div>`);
-        return;
-      }
-      if (checkoutContext) await checkoutContext.flushSave();
-      if (!stillActive()) return;
-      window.location.assign(destination.href);
-    } finally {
-      element.disabled = false;
-    }
-    return;
-  }
-  if (action === "demo-buy") {
-    if (!requireLogin(location.pathname + location.search)) return;
-    const context = canvasCheckout;
-    const id = element.dataset.id;
-    element.disabled = true;
-    setText(element, message("payment.checkout.demoLoading"));
-    try {
-      if (context) await context.flushSave();
-      if (!element.isConnected || canvasCheckout !== context) return;
-      await api.post("/checkout/orders/demo-purchase", { templateId: id });
-      if (!element.isConnected || canvasCheckout !== context) return;
-      toast(t("payment.checkout.demoGranted"));
-      if (context) closeModal();
-      else await render();
-    } catch (error) {
-      if (!element.isConnected) return;
-      element.disabled = false;
-      setText(element, message("payment.checkout.demoButton"));
-      toast(error.message, "error");
-    }
-    return;
-  }
-  if (action === "open-gift" || action === "reveal-gift") {
-    // Chỉ đổi trạng thái giao diện; nội dung và quyền quà vẫn do backend quyết định.
-    advanceRecipientStage(
-      document.getElementById("recipient-card"),
-      action === "open-gift" ? "surprise" : "opened",
-    );
-    return;
-  }
-  if (action === "copy-link") return copyText(element);
-  if (action === "share-gift") {
-    try {
-      await navigator.share({ url: element.dataset.value });
-    } catch (error) {
-      if (error.name !== "AbortError") await copyText(element);
-    }
-    return;
-  }
-  if (action === "approve-template" || action === "reject-template") {
-    const id = encodeURIComponent(element.dataset.id);
-    if (action === "approve-template") {
-      await api.post(`/catalog/admin/templates/${id}/approve`);
-      toast(message("admin.moderation.approved"));
-      await loadTemplates();
-      render();
-    } else {
-      openModal(
-        `<div class="reject-modal"><span class="eyebrow">${text("admin.moderation.rejectionBadge")}</span><h2>${text("admin.moderation.rejectionTitle")}</h2><p>${text("admin.moderation.rejectionHint")}</p><form id="reject-form" data-template-id="${e(id)}"><label class="field"><span>${text("admin.moderation.rejectionReason")}</span><textarea name="reason" rows="4" maxlength="250" required ${attr("placeholder", "admin.moderation.rejectionExample")}></textarea></label><button type="submit" class="btn btn--dark btn--wide">${text("admin.moderation.confirmReject")} ${icon("arrow", 17)}</button></form></div>`,
-      );
-    }
-    return;
-  }
-  if (action === "qr") {
-    const link = element.dataset.value;
-    const generation=renderGeneration,{giftQrDataUrl}=await import('../features/gifts/qr.js');
-    if(generation!==renderGeneration||!element.isConnected)return;
-    const url = giftQrDataUrl(link);
-    openModal(
-      `<div class="qr-modal" data-copy-container><h2>${text('gift.qr.title')}</h2><p>${text('gift.qr.hint')}</p><img class="qr-image" src="${e(url)}" ${attr('alt', 'gift.qr.alt')}/><a class="btn btn--dark btn--wide" href="${e(url)}" download="momevia-qr.gif">${text('gift.qr.download')}</a><button class="btn btn--outline btn--wide" data-action="copy-link" data-value="${e(link)}">${icon("copy", 17)} ${text('studio.gifts.copy')}</button><label class="field" data-copy-fallback hidden><span>${text('gift.share.link')}</span><input data-copy-value readonly value="${e(link)}"/></label></div>`,
-    );
-    return;
-  }
-}
+// Đọc trạng thái thay đổi và view lazy-load tại thời điểm hành động, không chụp giá trị lúc khởi tạo.
+const handleAction = createActionDispatcher(
+  createFinanceActions({
+    state,
+    api,
+    toast,
+    render,
+    openModal,
+    getRefundQueue: () => refundQueue,
+    loadAdminRefundQueue,
+    adminExceptionsCsv: (...args) => adminExceptionsCsv(...args),
+    creatorSalesCsv: (...args) => creatorSalesCsv(...args),
+    exportFileName: (...args) => exportFileName(...args),
+    downloadCsvFile: (...args) => downloadCsvFile(...args),
+    paymentAuditRows: (...args) => paymentAuditRows(...args),
+  }),
+  createCatalogActions({
+    state,
+    api,
+    toast,
+    render,
+    openModal,
+    navigate,
+    requireLogin,
+    saveFavorite,
+    commitCatalogFilters,
+    matchingTemplates,
+    loadTemplates,
+  }),
+  createShellActions({
+    api,
+    toast,
+    render,
+    navigate,
+    openSupport,
+    closeModal,
+    setAccountMenu,
+    setMobileMenu,
+    header,
+    getRouteController: () => routeController,
+    clearRouteController: () => { routeController = null; },
+    setUser,
+  }),
+  createPaymentActions({
+    state,
+    api,
+    toast,
+    render,
+    navigate,
+    requireLogin,
+    openModal,
+    closeModal,
+    openCanvasCheckout,
+    getCanvasCheckout: () => canvasCheckout,
+    getRenderGeneration: () => renderGeneration,
+  }),
+  createStudioActions({
+    api,
+    render,
+    navigate,
+    openModal,
+    modal,
+    getRenderGeneration: () => renderGeneration,
+    setDisposeInbox: dispose => { disposeInbox = dispose; },
+    renderReplies: (...args) => renderReplies(...args),
+    draftCards: (...args) => draftCards(...args),
+    copyText,
+  }),
+);
 
 document.addEventListener("click", async (event) => {
   if (!event.target.closest('#account-menu, [data-action="account-menu"]')) setAccountMenu(false);

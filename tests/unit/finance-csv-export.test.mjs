@@ -84,7 +84,7 @@ test('UI chỉ hiển thị nút xuất khi có dữ liệu, không hiện khi l
 test('Tên CSV cố định, không nhận path injection; luồng frontend sử dụng endpoint role-scoped', async () => {
   assert.equal(exportFileName('creator-sales', new Date('2026-11-21T00:00:00Z')), 'momevia-creator-sales-2026-11-21.csv');
   assert.throws(() => exportFileName('../../private', new Date()), TypeError);
-  const app = await readFile(new URL('../../web/js/app/main.js', import.meta.url), 'utf8');
+  const app = await readFile(new URL('../../web/js/app/finance-actions.js', import.meta.url), 'utf8');
   assert.match(app, /state\.user\?\.role !== 'admin'/);
   assert.match(app, /'\/checkout\/payments\/creator\/statement\?limit=100'/);
   assert.match(app, /'\/checkout\/payments\/admin\/finance\/exceptions\?limit=100'/);

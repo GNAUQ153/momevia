@@ -127,6 +127,7 @@ test('Route mới chỉ gọi service đã xác thực; không mở endpoint tha
   assert.match(source, /'GET', '\/payments\/admin\/refund-queue'/);
   assert.match(source, /service\.refundReview\.adminQueue\(admin/);
   assert.match(ui, /admin\/refund-queue\?filter=active&limit=20/);
-  assert.match(ui, /admin-refund-next/);
+  const actions = await readFile(new URL('../../web/js/app/finance-actions.js', import.meta.url), 'utf8');
+  assert.match(actions, /admin-refund-next/);
   assert.doesNotMatch(source, /refund-execute|payout-execute/);
 });

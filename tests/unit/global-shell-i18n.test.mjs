@@ -66,7 +66,9 @@ test('Admin Refund panel exposes a localized, accessible load status', () => {
 });
 
 test('Payment reconciliation notice and photo preview are bound to the active locale', () => {
-  assert.match(source, /toast\(message\('payment\.status\.manualReview'\)\)/);
+  const payment = fs.readFileSync(new URL('../../web/js/app/payment-actions.js', import.meta.url), 'utf8');
+  assert.deepEqual(checkAppShellCopy(payment), []);
+  assert.match(payment, /toast\(message\('payment\.status\.manualReview'\)\)/);
   assert.match(source, /setAttr\(img, 'alt', message\('gift\.builder\.photoPreview'\)\)/);
   assert.deepEqual(checkAppShellCopy(source), []);
   for (const key of ['payment.status.manualReview', 'gift.builder.photoPreview', 'refund.queue.loading', 'refund.queue.loadFailed']) {

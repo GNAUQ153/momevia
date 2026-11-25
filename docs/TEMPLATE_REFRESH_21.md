@@ -9,7 +9,6 @@ Các phần QA bên dưới ghi lại kết quả trước lần áp dụng này
 Bản hiện tại là **Natural Originals V4**, thay hướng minh họa vector trước đó bằng vật thể có chất liệu, ảnh, đồ họa tự nhiên và các lớp chỉnh sửa độc lập.
 
 - Chạy: [Danh mục QA 4121](http://localhost:4121/explore).
-- Xem toàn bộ bằng chứng: [21 mẫu, ba cảnh, 40 element, kệ mùa và báo cáo](http://localhost:4121/assets/template-natural-qa/index.html).
 - [4100](http://localhost:4100/explore) hiện dùng thư viện mới trong momevia_dev. Repo chạy chính ở nhánh feat/template-refresh-live-20261123; nhánh triển khai nội dung là feat/template-refresh-21, xuất phát 38c465d007687f54190adcb521dadfea04ad9d40. Tổng 12 commit, không commit trên main và chưa push. Chuỗi commit.
 
 ## Trạng thái 21/21

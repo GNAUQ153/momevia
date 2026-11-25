@@ -9,7 +9,7 @@ import { createHash } from 'node:crypto';
 import {isExcludedSourcePath} from '../../scripts/release/policy.mjs';
 
 test('release excludes generated QA artifacts while retaining product media and regression fixtures',()=>{
-  for(const file of ['docs/animated-elements-50/static/heart.png','docs/motion-56-20261125/review.html','docs/template-refresh-natural-20261123/gallery.png','docs/event-cards/index.html','docs/interactive-cards-20261122/result.json','docs/evidence/video.webm','scripts/qa/local-session.mjs'])assert(isExcludedSourcePath(file),file);
+  for(const file of ['web/assets/template-natural-qa/index.html','web/assets/template-refresh-qa/result.json','docs/animated-elements-50/static/heart.png','docs/motion-56-20261125/review.html','docs/template-refresh-natural-20261123/gallery.png','docs/event-cards/index.html','docs/interactive-cards-20261122/result.json','docs/evidence/video.webm','scripts/qa/local-session.mjs'])assert(isExcludedSourcePath(file),file);
   for(const file of ['web/assets/event-cards/natural-v4/heart.webp','tests/fixtures/motion-legacy-elements.json','tests/browser/motion-stack.mjs','docs/MOTION_REPAIR_56.md'])assert.equal(isExcludedSourcePath(file),false,file);
 });
 

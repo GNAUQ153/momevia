@@ -11,6 +11,7 @@ node_modules/
 dist/
 web/js/vendor/
 /web/assets/app/
+/web/assets/*-qa/
 .DS_Store
 /local/
 /graphify-out

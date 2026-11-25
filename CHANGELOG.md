@@ -1,3 +1,8 @@
+## Unreleased — Loại tài nguyên QA và dữ liệu công cụ đã cũ (2026-11-25)
+
+- Bỏ 64 tệp minh chứng trong tài nguyên web, gói xuất 50 icon không còn được đọc và script chèn changelog một lần đã hoàn tất.
+- Chặn thư mục tài nguyên QA trong Git và gói nguồn; giữ media sản phẩm, fixture hồi quy, dữ liệu và các gói nâng cấp còn được dùng.
+
 ## Unreleased — Kiểm thử chuyển động có thể chạy lại (2026-11-25)
 
 - Giữ kiểm thử hợp đồng, tương thích bản cũ, tài nguyên ảnh và xung đột gói cập nhật cho 56 icon.

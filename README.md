@@ -91,17 +91,17 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Bổ sung audit AST, baseline cạnh phụ thuộc hiện hữu và quality gate chống phát sinh vòng import tĩnh/phụ thuộc ngược.
-- Ghi nhận hotspot OOP, frontend, repository và pool MySQL; bổ sung sáu ca kiểm thử, không thay đổi runtime hoặc GUI.
+- Đưa policy cấu hình quota, gia hạn và validation thông tin đăng nhập về shared, giữ method và đường import cũ; sửa thông báo mật khẩu tài khoản test cho khớp giới hạn hiện hành.
+- Loại bỏ vòng import tĩnh và ba cạnh phụ thuộc ngược đã ghi nhận; thu hẹp architecture baseline về rỗng, bổ sung sáu ca kiểm thử. Không đổi API, schema, frontend hoặc chính sách production.
 
 **Các commit gần nhất trên `main`:**
 
+- `bacfcd6` — refactor(architecture): decouple shared configuration and credential policies (2026-11-25)
 - `478f588` — feat(architecture): add AST-based code quality audit and dependency regression gate (2026-11-25)
 - `7790ddc` — test(business): add cross-role regression journeys and acceptance matrix (2026-11-25)
 - `0600be7` — feat(refund): add isolated QA settlement and transactional creator reversal (2026-11-25)
 - `e7025dc` — feat(refund): validate receipt evidence and audit entitlement usage (2026-11-25)
 - `d6ace84` — Merge pull request #28 from GNAUQ153:feat/creator-layout-image-optimization (2026-11-25)
-- `a3a7a60` — feat(payment): strengthen settlement evidence and reconciliation lifecycle (2026-11-25)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

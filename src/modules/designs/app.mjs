@@ -10,7 +10,7 @@ import { AssetsService } from './assets.service.mjs';
 import { registerDesignRoutes } from './routes.mjs';
 import { CanvasLibraryService } from './library.service.mjs';
 import { MusicLibraryService } from './music-library.service.mjs';
-import { quotaQaEnabled } from '../checkout/quota-config.mjs';
+import { quotaQaEnabled } from '../../shared/feature-config.mjs';
 import { requireCreditSchema } from '../checkout/publication-credit.mjs';
 
 export function canvasProfile(env = process.env) {

@@ -2,7 +2,7 @@ import { JsonRepository } from '../../shared/storage.mjs';
 import { dataPath } from '../../shared/paths.mjs';
 import { MySqlClient } from '../../infrastructure/mysql/client.mjs';
 import { MySqlCheckoutRepository } from './mysql.repository.mjs';
-import { quotaQaEnabled } from './quota-config.mjs';
+import { quotaQaEnabled } from '../../shared/feature-config.mjs';
 
 export function createRepositories() {
   const quotaEnabled = quotaQaEnabled();

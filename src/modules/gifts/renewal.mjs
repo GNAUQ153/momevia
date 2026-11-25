@@ -4,13 +4,8 @@ import { giftStatus } from './access.mjs';
 const DAY = 86400_000;
 const WINDOW = 7 * DAY;
 
-// Chưa chốt điều khoản thương mại: mặc định tắt gia hạn, không thay đổi hạn cũ.
-export function giftRenewalDays(value) {
-  if (value === undefined || value === '') return 0;
-  if (!/^(0|[1-9]|[12][0-9]|30)$/.test(String(value)))
-    throw new Error('GIFT_RENEWAL_DAYS phải là số nguyên từ 0 đến 30.');
-  return Number(value);
-}
+// Giữ đường import cũ cho các module và bộ kiểm thử hiện có.
+export { giftRenewalDays } from '../../shared/feature-config.mjs';
 
 export function renewalView(gift, days = 0, now = Date.now()) {
   if (giftStatus(gift, now) !== 'active' || gift.senderArchivedAt) return {};

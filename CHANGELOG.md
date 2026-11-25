@@ -1,3 +1,8 @@
+## Unreleased — Phase 3.2A Tách phụ thuộc cấu hình (2026-11-25)
+
+- Đưa policy cấu hình quota, gia hạn và validation thông tin đăng nhập về shared, giữ method và đường import cũ; sửa thông báo mật khẩu tài khoản test cho khớp giới hạn hiện hành.
+- Loại bỏ vòng import tĩnh và ba cạnh phụ thuộc ngược đã ghi nhận; thu hẹp architecture baseline về rỗng, bổ sung sáu ca kiểm thử. Không đổi API, schema, frontend hoặc chính sách production.
+
 ## Unreleased — Phase 3.1 Kiểm tra kiến trúc (2026-11-25)
 
 - Bổ sung audit AST, baseline cạnh phụ thuộc hiện hữu và quality gate chống phát sinh vòng import tĩnh/phụ thuộc ngược.

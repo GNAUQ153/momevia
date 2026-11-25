@@ -1,13 +1,4 @@
 {
-  "cycleEdges": [
-    "src/modules/gifts/access.mjs -> src/shared/security.mjs",
-    "src/modules/gifts/renewal.mjs -> src/modules/gifts/access.mjs",
-    "src/shared/config.mjs -> src/modules/gifts/renewal.mjs",
-    "src/shared/security.mjs -> src/shared/config.mjs"
-  ],
-  "boundaries": [
-    "src/shared/config.mjs -> src/modules/checkout/quota-config.mjs",
-    "src/shared/config.mjs -> src/modules/gifts/renewal.mjs",
-    "src/shared/config.mjs -> src/modules/identity/credentials.service.mjs"
-  ]
+  "cycleEdges": [],
+  "boundaries": []
 }

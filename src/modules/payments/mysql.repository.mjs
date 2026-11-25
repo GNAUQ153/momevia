@@ -10,6 +10,7 @@ import { storedPaymentScope, samePaymentScope } from './payment-scope.mjs';
 import { findScopedCheckout, rememberScopedCheckout } from './checkout-scope-keys.mjs';
 import { findRepurchase, rememberRepurchase, repurchaseCandidate } from './publication-repurchase.mjs';
 import { grantPublicationCredit } from '../checkout/publication-credit.mjs';
+import { verifiedReceiptSql, paidAtIso } from './receipt-policy.mjs';
 
 const fromJson = value => typeof value === 'string' ? JSON.parse(value) : (value || {});
 const receiptNo = id => `MV-RC-${id.replace(/-/g, '').toUpperCase()}`;
@@ -115,8 +116,10 @@ export class MySqlPaymentRepository {
   }
   async receipt(orderId, userId) {
     const [rows] = await this.client.execute(`SELECT r.*,o.user_id,o.template_id,o.gross_vnd,o.currency,
-      o.is_test,o.status,o.payload FROM payment_receipts r
-      JOIN orders o ON o.id=r.order_id WHERE o.id=? AND o.user_id=? AND o.status='paid' LIMIT 1`,
+      o.is_test,o.status,o.payload,p.paid_at FROM payment_receipts r
+      JOIN orders o ON o.id=r.order_id
+      JOIN payment_intents p ON p.order_id=o.id
+      WHERE o.id=? AND o.user_id=? AND o.status='paid' AND (${verifiedReceiptSql}) LIMIT 1`,
       [orderId, userId]);
     const row = rows[0];
     if (!row) return null;
@@ -126,7 +129,8 @@ export class MySqlPaymentRepository {
       templateTitle: data.templateTitle || '', amountVnd: Number(row.amount_vnd),
       currency: row.currency, provider: row.provider,
       transactionReference: row.provider_reference, issuedAt: row.issued_at,
-      testPayment: Boolean(row.is_test), status: 'paid',
+      paidAt: paidAtIso(row.paid_at),
+      testPayment: storedPaymentScope(row.is_test) === true, status: 'paid',
       note: canonicalText('payment.receipt.taxNote'),
     };
   }

@@ -1979,6 +1979,8 @@
   "payment.receipt.amount": "Số tiền: {amount}",
   "payment.receipt.loadError": "Biên nhận chưa tải được: {error}",
   "payment.receipt.method": "Phương thức: {provider}",
+  "payment.receipt.order": "Mã đơn hàng: {order}",
+  "payment.receipt.paidAt": "Thanh toán được xác nhận lúc: {date} (UTC)",
   "payment.receipt.print": "In / Lưu PDF",
   "payment.receipt.reference": "Mã giao dịch: {reference}",
   "payment.receipt.retry": "Thử tải biên nhận",

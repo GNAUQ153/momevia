@@ -1,9 +1,16 @@
+## Unreleased — Phase 2.6A Đối soát biên nhận (2026-11-25)
+
+- Kiểm tra biên nhận khớp đơn đã thanh toán, intent, nhà cung cấp, số tiền và mã tham chiếu; dùng chung điều kiện với báo cáo ngoại lệ Admin.
+- Hiển thị mã đơn, ngày xác nhận UTC, nhãn thử nghiệm và lưu ý không phải hóa đơn VAT; giữ giao diện VI/EN và nút in hiện tại.
+- Không migration, không sửa dữ liệu lịch sử hoặc thay đổi chính sách thanh toán; bổ sung kiểm thử unit, MySQL QA và browser.
+
 ## Unreleased — Sửa kiểm thử trình duyệt CI của PR #28 (2026-11-25)
 
 - Giữ nhãn và bộ chọn bộ lọc trên cùng hàng ở màn hình hẹp để thẻ mẫu đầu tiên vẫn xuất hiện trong màn hình 390 px ở cả VI/EN.
 - Khôi phục vùng chạm tối thiểu 44 px cho Undo/Redo của Editor trên màn hình nhỏ.
 - Kiểm thử Editor mở menu Công cụ qua summary trước khi đổi ngôn ngữ, chuyển chế độ hoặc mở Fabric; giữ các kiểm tra nội dung, lưu nháp và quyền truy cập hiện có.
 - Kiểm thử nhận quà Canvas dùng nút trong thiệp, xác minh không có thanh chuyển cảnh/CTA bên ngoài và giữ kiểm tra điều hướng, tải dữ liệu, hồi đáp độc lập với Auth/Catalog.
+
 
 ## Unreleased — Phase 2.5B Cảnh báo hết hạn và gia hạn (2026-11-25)
 

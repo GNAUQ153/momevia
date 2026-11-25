@@ -8,7 +8,8 @@ import { translate, vi } from '../../web/js/shared/locale.js';
 import { checkDesignerCopy, persistedCanvasCopy, readUiLiterals } from '../../scripts/quality/check-ui-i18n.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-const designer = fs.readFileSync(path.join(root, 'web/js/pages/designer.js'), 'utf8');
+const designer = ['web/js/pages/designer.js', 'web/js/features/canvas-editor/asset-panel.js', 'web/js/features/canvas-editor/inspector-panel.js']
+  .map(file => fs.readFileSync(path.join(root, file), 'utf8')).join('\n');
 const historyKeys = [
   'editCardText', 'editPhotoSlot', 'editFocalPoint', 'replacePhoto', 'fabricInline',
   'fabricDialog', 'useUploadedPhoto', 'addUploadedPhoto', 'insertOpening',

@@ -1,3 +1,8 @@
+## Unreleased — Phase 3.4B Tách panel Canvas Designer (2026-11-25)
+
+- Tách Inspector và bảng tài sản khỏi Designer; dùng getter lấy document, quyền, selection và clipboard hiện hành, giữ commit và event handler tại controller.
+- Giữ cấu trúc control, focus, cache thumbnail và cơ chế khóa mẫu; mở rộng kiểm tra i18n sang hai file mới và bổ sung kiểm thử panel. Không đổi API, schema, CSS hoặc dependency.
+
 ## Unreleased — Phase 3.4A Điều phối hành động frontend (2026-11-25)
 
 - Tách 56 action thành năm nhóm chuyên biệt, giữ listener và trạng thái hiện hành tại Application Controller; bổ sung dispatcher chống đăng ký trùng.

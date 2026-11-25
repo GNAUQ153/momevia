@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 // Các chuỗi thuộc dữ liệu thiệp được cho phép có giải thích tường minh.
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const auditedFile = 'web/js/pages/designer.js';
+const designerPanels = ['web/js/features/canvas-editor/asset-panel.js', 'web/js/features/canvas-editor/inspector-panel.js'];
 const appShellFolder = 'web/js/app';
 // Tên bộ lọc danh mục được lưu trong catalog metadata, không phải nhãn UI.
 export const persistedShellCopy = new Set(['Lễ hội']);
@@ -91,7 +92,8 @@ if (current) {
     process.exitCode = 2;
   } else if (mode === '--check') {
     const violations = [
-      ...checkDesignerCopy(fs.readFileSync(path.join(root, auditedFile), 'utf8')).map(item => ({ ...item, file: auditedFile })),
+      ...[auditedFile, ...designerPanels].flatMap(file =>
+        checkDesignerCopy(fs.readFileSync(path.join(root, file), 'utf8')).map(item => ({ ...item, file }))),
       ...walkJs(path.join(root, appShellFolder)).flatMap(file =>
         checkAppShellCopy(fs.readFileSync(file, 'utf8')).map(item => ({ ...item, file: path.relative(root, file) }))),
     ];
@@ -107,7 +109,7 @@ if (current) {
       for (const file of walkJs(path.join(root, folder))) {
         const relative = path.relative(root, file).replaceAll('\\', '/');
         const source = fs.readFileSync(file, 'utf8');
-        const matches = relative === auditedFile
+        const matches = (relative === auditedFile || designerPanels.includes(relative))
           ? checkDesignerCopy(source)
           : relative.startsWith(`${appShellFolder}/`) ? checkAppShellCopy(source) : readUiLiterals(source);
         if (!matches.length) continue;

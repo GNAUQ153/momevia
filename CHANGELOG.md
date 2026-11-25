@@ -1,3 +1,8 @@
+## Unreleased — Phase 3.2B Tách trách nhiệm thiết kế (2026-11-25)
+
+- Tách hash, projection, chính sách khóa chỉnh sửa và preflight khỏi DesignsService; giữ constructor, method, export và callback transaction cũ.
+- Bổ sung sáu ca hồi quy về quyền xuất bản, tài sản, projection và khóa mẫu; không đổi API, schema, GUI hoặc chính sách production.
+
 ## Unreleased — Phase 3.2A Tách phụ thuộc cấu hình (2026-11-25)
 
 - Đưa policy cấu hình quota, gia hạn và validation thông tin đăng nhập về shared, giữ method và đường import cũ; sửa thông báo mật khẩu tài khoản test cho khớp giới hạn hiện hành.

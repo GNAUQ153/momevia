@@ -4,7 +4,8 @@ import { RESTYLE_PAIRS, mapTemplateSlots, semanticSlots, captureSemanticRoles } 
 import { createDocument } from '../../../web/js/shared/canvas/presets.js';
 import { validateDocument } from '../../../web/js/shared/canvas/schema.js';
 import { serverText } from '../../shared/locale.mjs';
-import { hash, designView } from './designs.service.mjs';
+import { hash } from './document-hash.mjs';
+import { designView } from './design-views.mjs';
 import { canvasError } from './errors.mjs';
 import { materializeBuiltinMedia } from './builtin-media.mjs';
 import {EVENT_MEDIA} from '../../../web/js/shared/canvas/event-media.js';

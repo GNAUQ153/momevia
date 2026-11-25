@@ -128,6 +128,18 @@ try {
     await assert.rejects(repo.save(owner,design.id,{...winningSave,requestHash:'bad'}),{status:409});
     design=await repo.get(owner,design.id);
   });
+  await check('Phase 3.3: asynchronous save policy rejection preserves revision and mutation ledger', async () => {
+    const before = await repo.get(owner, design.id);
+    const input = { expectedRevision: before.revision, mutationId: uuid(), requestHash: 'policy-qa', title: before.title, document: before.document, documentHash: before.documentHash, assetIds: [] };
+    await assert.rejects(repo.save(owner, design.id, input, async current => {
+      await Promise.resolve();
+      assert.equal(current.revision, before.revision);
+      throw new Error('QA policy rejected');
+    }), /QA policy rejected/);
+    assert.deepEqual(await repo2.get(owner, design.id), before);
+    const [rows] = await admin.execute('SELECT mutation_id FROM design_mutations WHERE owner_id=? AND design_id=? AND mutation_id=?', [owner, design.id, input.mutationId]);
+    assert.equal(rows.length, 0);
+  });
   await check('C08/C09 owner asset ACL, ready validation and draft refs', async () => {
     asset={id:uuid(),ownerId:owner,designId:design.id,status:'ready',mime:'image/png',bytes:68,width:1,height:1,contentHash:hash('synthetic-png'),storageKey:`${uuid()}.png`,createdAt:now};
     await repo.insertAsset(owner,design.id,asset);

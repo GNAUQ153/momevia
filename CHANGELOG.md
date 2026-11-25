@@ -1,3 +1,8 @@
+## Unreleased — Phase 3.3 Chuẩn hóa Designs Repository (2026-11-25)
+
+- Tách mapping SQL, helper transaction, tài sản và checkout context khỏi MySqlDesignsRepository; giữ class, export cũ, SQL và phạm vi transaction.
+- JSON Repository chờ callback validation bất đồng bộ trước khi lưu, đồng nhất với MySQL; bổ sung kiểm thử contract và MySQL QA. Không đổi API, schema, dependency hoặc giao diện.
+
 ## Unreleased — Phase 3.2B Tách trách nhiệm thiết kế (2026-11-25)
 
 - Tách hash, projection, chính sách khóa chỉnh sửa và preflight khỏi DesignsService; giữ constructor, method, export và callback transaction cũ.

@@ -5,8 +5,8 @@ import { activeEntitlementSql } from '../checkout/entitlement-policy.mjs';
 import { readPublicationAuthority, consumePublicationCredit } from '../checkout/publication-credit.mjs';
 import { localizedError } from '../../shared/http.mjs';
 import { requireActiveGift } from '../gifts/access.mjs';
-import { canvasTransaction, canvasError, designFromRow, assetFromRow, ensureAssets,
-  iso, jsonValue, lockOwner, lockedDesign, sameRequest, sameRevision } from './mysql.repository.mjs';
+import { designFromRow, assetFromRow, iso, jsonValue } from './mysql-row-mapping.mjs';
+import { canvasTransaction, canvasError, ensureAssets, lockOwner, lockedDesign, sameRequest, sameRevision } from './mysql-transaction.mjs';
 
 function giftFromRow(row) {
   if (!row) return null;

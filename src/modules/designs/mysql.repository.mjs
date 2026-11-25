@@ -1,158 +1,13 @@
 import { MySqlClient } from "../../infrastructure/mysql/client.mjs";
-import { HttpError } from "../../shared/http.mjs";
 import { mysqlDate } from "../identity/mysql.repositories.mjs";
-import { AUDIO_LIMITS } from '../../../web/js/shared/canvas/audio-pcm.js';
+import { jsonValue, iso, designFromRow } from "./mysql-row-mapping.mjs";
+import { canvasError, canvasTransaction, lockOwner, lockedDesign, sameRequest, sameRevision, ensureAssets } from "./mysql-transaction.mjs";
+import * as assetsModule from "./mysql-assets.mjs";
+import * as contexts from "./mysql-contexts.mjs";
 
-export const jsonValue = (value) =>
-  typeof value === "string" ? JSON.parse(value) : value;
-export function iso(value) {
-  if (value == null) return null;
-  return value instanceof Date
-    ? value.toISOString()
-    : new Date(
-        `${String(value).replace(" ", "T").replace(/Z$/, "")}Z`,
-      ).toISOString();
-}
-export function canvasError(status, code, message, details) {
-  return Object.assign(new HttpError(status, message), {
-    code,
-    ...(details ? { details } : {}),
-  });
-}
-export function designFromRow(row) {
-  if (!row) return null;
-  return {
-    id: row.id,
-    ownerId: row.owner_id,
-    title: row.title,
-    source:
-      row.source_kind === "blank"
-        ? { kind: "blank" }
-        : {
-            kind: "template",
-            templateId: row.template_id,
-            templateVersionId: row.template_version_id,
-          },
-    provenance: jsonValue(row.provenance),
-    policy: jsonValue(row.policy),
-    revision: Number(row.revision),
-    schemaVersion: Number(row.schema_version),
-    document: jsonValue(row.document),
-    documentHash: row.document_hash,
-    createdAt: iso(row.created_at),
-    updatedAt: iso(row.updated_at),
-    archivedAt: iso(row.archived_at),
-  };
-}
-export function assetFromRow(row) {
-  if (!row) return null;
-  return {
-    id: row.id,
-    ownerId: row.owner_id,
-    designId: row.design_id,
-    status: row.status,
-    mime: row.mime,
-    bytes: Number(row.bytes),
-    width: Number(row.width),
-    height: Number(row.height),
-    ...(row.media_kind === 'audio' ? {mediaKind:'audio',durationMs:Number(row.sample_count)/44.1,sampleCount:Number(row.sample_count),sampleRate:Number(row.sample_rate),channels:Number(row.channels)} : {}),
-    contentHash: row.content_hash,
-    storageKey: row.storage_key,
-    createdAt: iso(row.created_at),
-  };
-}
-function contextFromRow(row) {
-  if (!row) return null;
-  return {
-    contextId: row.context_id,
-    ownerId: row.owner_id,
-    orderId: row.order_id,
-    mutationId: row.mutation_id,
-    requestHash: row.request_hash,
-    designId: row.design_id,
-    designRevision: Number(row.design_revision),
-    documentHash: row.document_hash,
-    source: {
-      kind: "template",
-      templateId: row.template_id,
-      templateVersionId: row.template_version_id,
-    },
-    resumePath: `/design/${row.design_id}`,
-    createdAt: iso(row.created_at),
-  };
-}
-export async function lockedDesign(tx, ownerId, id) {
-  const [rows] = await tx.execute(
-    "SELECT * FROM designs WHERE id=? AND owner_id=? AND archived_at IS NULL FOR UPDATE",
-    [id, ownerId],
-  );
-  if (!rows.length)
-    throw canvasError(404, "DESIGN_NOT_FOUND", "Không tìm thấy thiết kế.");
-  return designFromRow(rows[0]);
-}
-export function sameRequest(actual, expected) {
-  if (actual !== expected)
-    throw canvasError(
-      409,
-      "IDEMPOTENCY_CONFLICT",
-      "Mã yêu cầu đã được dùng cho nội dung khác.",
-    );
-}
-export function sameRevision(design, expectedRevision, expectedDocumentHash) {
-  if (
-    design.revision !== expectedRevision ||
-    (expectedDocumentHash && design.documentHash !== expectedDocumentHash)
-  ) {
-    throw canvasError(
-      409,
-      "REVISION_CONFLICT",
-      "Thiết kế đã thay đổi. Giữ bản cục bộ và tải lại để đối chiếu.",
-      { revision: design.revision, documentHash: design.documentHash },
-    );
-  }
-}
-// Only retry rolled-back InnoDB deadlocks/lock timeouts; callback must have no
-// filesystem/provider side effects. Request and idempotency keys remain fixed.
-export async function canvasTransaction(client, work) {
-  for (let attempt = 0; ; attempt++) {
-    try {
-      return await client.withTransaction(work);
-    } catch (error) {
-      if (
-        attempt >= 2 ||
-        !["ER_LOCK_DEADLOCK", "ER_LOCK_WAIT_TIMEOUT"].includes(error.code)
-      )
-        throw error;
-    }
-  }
-}
-export async function lockOwner(tx, ownerId) {
-  const [rows] = await tx.execute(
-    "SELECT id FROM users WHERE id=? FOR UPDATE",
-    [ownerId],
-  );
-  if (!rows.length)
-    throw canvasError(404, "OWNER_NOT_FOUND", "Không tìm thấy tài khoản.");
-}
-export async function ensureAssets(tx, ownerId, ids) {
-  const assets = [];
-  for (const id of [...new Set(ids)].sort()) {
-    const [rows] = await tx.execute(
-      "SELECT * FROM design_assets WHERE id=? AND owner_id=? FOR UPDATE",
-      [id, ownerId],
-    );
-    const asset = assetFromRow(rows[0]);
-    if (!asset || asset.status !== "ready")
-      throw canvasError(
-        422,
-        "ASSET_NOT_READY",
-        "Ảnh chưa sẵn sàng hoặc không thuộc tài khoản này.",
-        [{ path: "assets", code: "ASSET_NOT_READY", assetId: id }],
-      );
-    assets.push(asset);
-  }
-  return assets;
-}
+// Giữ export cũ cho script import database, test và consumer hiện hữu.
+export { jsonValue, iso, designFromRow, assetFromRow } from "./mysql-row-mapping.mjs";
+export { canvasError, canvasTransaction, lockOwner, lockedDesign, sameRequest, sameRevision, ensureAssets } from "./mysql-transaction.mjs";
 
 export class MySqlDesignsRepository {
   constructor(client = new MySqlClient()) {
@@ -249,7 +104,7 @@ export class MySqlDesignsRepository {
           mysqlDate(design.updatedAt),
         ],
       );
-      for (const asset of assets) await insertAssetRow(tx, ownerId, design.id, asset);
+      for (const asset of assets) await assetsModule.insertAssetRow(tx, ownerId, design.id, asset);
       await ensureAssets(
         tx,
         ownerId,
@@ -339,111 +194,25 @@ export class MySqlDesignsRepository {
       );
     });
   }
-  async insertAsset(ownerId, designId, asset, {prepare}={}) {
-    return canvasTransaction(this.client, async (tx) => {
-      await lockOwner(tx,ownerId);
-      await lockedDesign(tx, ownerId, designId);
-      const [existing]=await tx.execute('SELECT * FROM design_assets WHERE id=? FOR UPDATE',[asset.id]);
-      if(existing.length){const old=assetFromRow(existing[0]);if(old.ownerId!==ownerId||old.contentHash!==asset.contentHash)throw canvasError(409,'ASSET_MUTATION_CONFLICT','Nội dung tải lại không khớp.');await prepare?.();return old;}
-      {
-        const [[usage]]=await tx.execute("SELECT COALESCE(SUM(bytes),0) bytes FROM design_assets WHERE owner_id=? AND status<>'removed'",[ownerId]);
-        if(Number(usage.bytes)+asset.bytes>AUDIO_LIMITS.ownerBytes)throw canvasError(413,'ASSET_QUOTA','Tổng tài sản vượt giới hạn 50 MiB.');
-      }
-      // Audio prepare only promotes an immutable, hash-checked local stage;
-      // replay after rollback is idempotent. No network work is allowed here.
-      await prepare?.();await insertAssetRow(tx, ownerId, designId, asset);
-      return asset;
-    });
+  async insertAsset(ownerId, designId, asset, options = {}) {
+    return assetsModule.insertAsset(this.client, ownerId, designId, asset, options);
   }
   async requireAudio() {
-    const [rows]=await this.client.execute("SELECT version FROM schema_migrations WHERE version='014_canvas_audio'");
-    if(!rows.length)throw canvasError(503,'CANVAS_MIGRATION_REQUIRED','Tải âm cá nhân cần migration 014_canvas_audio.');
+    return assetsModule.requireAudio(this.client);
   }
   async getAsset(ownerId, assetId) {
-    const [rows] = await this.client.execute(
-      "SELECT * FROM design_assets WHERE id=? AND owner_id=? LIMIT 1",
-      [assetId, ownerId],
-    );
-    return assetFromRow(rows[0]);
+    return assetsModule.getAsset(this.client, ownerId, assetId);
   }
   async attachContext(ownerId, orderId, mutationId, requestHash, context) {
-    return canvasTransaction(this.client, async (tx) => {
-      await lockOwner(tx, ownerId);
-      const design = await lockedDesign(tx, ownerId, context.designId);
-      const [requests] = await tx.execute(
-        "SELECT * FROM checkout_design_contexts WHERE owner_id=? AND order_id=? AND mutation_id=? FOR UPDATE",
-        [ownerId, orderId, mutationId],
-      );
-      if (requests.length) {
-        sameRequest(requests[0].request_hash, requestHash);
-        return { ...contextFromRow(requests[0]), replayed: true };
-      }
-      const [orders] = await tx.execute(
-        "SELECT id,user_id,template_id FROM orders WHERE id=? AND user_id=? FOR UPDATE",
-        [orderId, ownerId],
-      );
-      if (!orders.length)
-        throw canvasError(404, "ORDER_NOT_FOUND", "Không tìm thấy đơn hàng.");
-      sameRevision(design, context.designRevision, context.documentHash);
-      if (
-        design.source.kind !== "template" ||
-        orders[0].template_id !== design.source.templateId
-      )
-        throw canvasError(
-          409,
-          "CONTEXT_SOURCE_MISMATCH",
-          "Đơn hàng không khớp nguồn thiết kế.",
-        );
-      await tx.execute(
-        `INSERT INTO checkout_design_contexts
-        (context_id,owner_id,order_id,design_id,design_revision,document_hash,template_id,template_version_id,mutation_id,request_hash)
-        VALUES (?,?,?,?,?,?,?,?,?,?)`,
-        [
-          context.contextId,
-          ownerId,
-          orderId,
-          design.id,
-          design.revision,
-          design.documentHash,
-          design.source.templateId,
-          design.source.templateVersionId,
-          mutationId,
-          requestHash,
-        ],
-      );
-      return { ...context, replayed: false };
-    });
+    return contexts.attachContext(this.client, ownerId, orderId, mutationId, requestHash, context);
   }
   async listContexts(ownerId, orderId) {
-    const [rows] = await this.client.execute(
-      `SELECT c.* FROM checkout_design_contexts c
-      JOIN orders o ON o.id=c.order_id AND o.user_id=c.owner_id
-      WHERE c.owner_id=? AND c.order_id=? ORDER BY c.created_at,c.context_id LIMIT 200`,
-      [ownerId, orderId],
-    );
-    return rows.map(contextFromRow);
+    return contexts.listContexts(this.client, ownerId, orderId);
   }
   async getContext(ownerId, orderId, contextId) {
-    const [rows] = await this.client.execute(
-      `SELECT c.* FROM checkout_design_contexts c
-      JOIN orders o ON o.id=c.order_id AND o.user_id=c.owner_id
-      WHERE c.owner_id=? AND c.order_id=? AND c.context_id=? LIMIT 1`,
-      [ownerId, orderId, contextId],
-    );
-    return contextFromRow(rows[0]);
+    return contexts.getContext(this.client, ownerId, orderId, contextId);
   }
   async close() {
     await this.client.close();
   }
-}
-
-async function insertAssetRow(tx, ownerId, designId, asset) {
-  if(asset.mediaKind==='audio'){
-    await tx.execute(`INSERT INTO design_assets(id,owner_id,design_id,status,mime,bytes,width,height,content_hash,storage_key,created_at,media_kind,duration_ms,sample_count,sample_rate,channels)
-      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,[asset.id,ownerId,designId,asset.status,asset.mime,asset.bytes,0,0,asset.contentHash,asset.storageKey,mysqlDate(asset.createdAt),'audio',asset.durationMs,asset.sampleCount,asset.sampleRate,asset.channels]);
-    return;
-  }
-  await tx.execute(`INSERT INTO design_assets(id,owner_id,design_id,status,mime,bytes,width,height,content_hash,storage_key,created_at)
-    VALUES (?,?,?,?,?,?,?,?,?,?,?)`, [asset.id, ownerId, designId, asset.status, asset.mime, asset.bytes,
-    asset.width, asset.height, asset.contentHash, asset.storageKey, mysqlDate(asset.createdAt)]);
 }

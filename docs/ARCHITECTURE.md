@@ -20,4 +20,4 @@
 - JSON dùng một tiến trình, ghi vào `services/*/data/`. Canvas commit aggregate bằng atomic rename. MySQL dùng transaction và khóa cho xuất bản cùng quyền mẫu. Ảnh nằm ngoài DB.
 - Public API chặn `/internal`. Server bỏ header chuyển tiếp do client tự khai khi nhận trực tiếp. Static assets, logo và CSS dùng chung nằm trong `web/`. Build tạo QR cục bộ và thumbnail từ lockfile và preset.
 
-[Hợp đồng API](ENDPOINTS.md) · [Lưu trữ, khôi phục và CI/CD](OPERATIONS.md) · [Giấy phép](THIRD_PARTY_NOTICES.md)
+[Frontend và Studio](FRONTEND.md) · [Hợp đồng API](ENDPOINTS.md) · [Lưu trữ, khôi phục và CI/CD](OPERATIONS.md) · [Giấy phép](THIRD_PARTY_NOTICES.md)

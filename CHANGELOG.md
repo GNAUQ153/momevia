@@ -1,3 +1,8 @@
+## Unreleased — Gộp tài liệu frontend hiện hành (2026-11-25)
+
+- Thay 25 ghi chú UI/kiểm kê theo phase hoặc phiên bản cũ bằng một hướng dẫn bảo trì frontend, liên kết với Canvas, API, icon và vận hành hiện hành.
+- Giữ các hợp đồng về tài liệu Canvas, snapshot, media bất biến, quyền, CAS, thao tác lớp và khả năng tiếp cận; lịch sử chi tiết tiếp tục nằm trong Git.
+
 ## Unreleased — Dọn đầu ra build web không còn dùng (2026-11-25)
 
 - Build ghi đủ manifest JS/CSS và dọn tệp sinh ra không thuộc bản hiện tại hoặc bản liền trước, gồm các bản nén; giữ nguyên URL còn được tham chiếu.

@@ -30,6 +30,8 @@ test('Designer sử dụng cùng guard cho trước khi đóng tab và rời rou
   assert.match(source, /const beforeUnload = \(event\) => \{[\s\S]*?if \(hasUnsaved\(\)\)/);
   assert.match(source, /function beforeLeave\(\) \{[\s\S]*?!hasUnsaved\(\)/);
   assert.match(source, /function hasUnsaved\(\) \{[\s\S]*?hasPendingEditorWork/);
-  assert.match(source, /const historyAction = historyShortcut\(event\)/);
-  assert.match(source, /if \(stopKeys\(event.target\) \|\| document.querySelector\("dialog\[open\]"\)\)/);
+  const keyboard = fs.readFileSync(new URL('../../web/js/features/canvas-editor/keyboard-handler.js', import.meta.url), 'utf8');
+  assert.match(source, /safe\(handleKey\), \{ signal \}/);
+  assert.match(keyboard, /const historyAction = historyShortcut\(event\)/);
+  assert.match(keyboard, /if \(stopKeys\(event.target\) \|\| document.querySelector\("dialog\[open\]"\)\)/);
 });

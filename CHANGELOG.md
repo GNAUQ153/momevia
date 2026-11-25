@@ -1,3 +1,8 @@
+## Unreleased — Phase 3.4C Tách xử lý sự kiện và Clipboard Canvas (2026-11-25)
+
+- Tách keyboard handler, helper selection và clipboard action theo từng lần mount; giữ Store, commit, history, session, Fabric và API hiện có.
+- Chặn phím đổi thứ tự layer rơi vào nhánh xóa khi bị khóa; xóa selection cũ khi chuyển cảnh trực tiếp hoặc khởi tạo lại. Mở rộng audit i18n và thêm kiểm thử hồi quy; không đổi CSS, schema hay dependency.
+
 ## Unreleased — Phase 3.4B Tách panel Canvas Designer (2026-11-25)
 
 - Tách Inspector và bảng tài sản khỏi Designer; dùng getter lấy document, quyền, selection và clipboard hiện hành, giữ commit và event handler tại controller.

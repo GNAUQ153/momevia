@@ -39,21 +39,22 @@ import { predictionCard, PREDICTION_KIND } from '../shared/canvas/prediction.js'
 import { createPredictionFields, updatePredictionFields } from '../features/canvas-editor/prediction-fields.js';
 import { CELEBRATION_IDS, celebrationSettings } from '../shared/canvas/effects.js';
 import { createEditorStore } from "../features/canvas-editor/store.js";
-import {copyElements,pasteElements,removeElements,editableElement} from '../features/canvas-editor/clipboard.js';
+import { editableElement } from '../features/canvas-editor/clipboard.js';
+import { createClipboardActions, isClipboardAction } from '../features/canvas-editor/clipboard-actions.js';
 import {
   zoomLevels,
   libraryTabs,
   sceneActions,
   starterActions,
-  stopKeys,
   readableInk,
 } from "../features/canvas-editor/designer-helpers.js";
 import { createSaveSession } from "../features/canvas-editor/session.js";
 import { openRecoveryCenter } from "../features/canvas-editor/recovery-center.js";
 import { renderCanvasConflictReview } from "../features/canvas-editor/conflict-review.js";
 import { describeSaveFeedback } from "../features/canvas-editor/save-feedback.js";
-import { hasPendingEditorWork, historyShortcut } from "../features/canvas-editor/editor-guards.js";
-import { nextSheetFocus } from "../features/canvas-editor/mobile-sheet.js";
+import { hasPendingEditorWork } from "../features/canvas-editor/editor-guards.js";
+import { createKeyboardHandler } from "../features/canvas-editor/keyboard-handler.js";
+import { activeSelectionIds, editableSceneIds, toggleSelection } from "../features/canvas-editor/selection.js";
 import { syncHistoryControls } from "../features/canvas-editor/history-controls.js";
 import { createStage } from "../features/canvas-editor/stage.js";
 import { applyFabricWorkspacePatch } from "../features/canvas-editor/fabric-workspace.js";
@@ -251,14 +252,30 @@ export function mountDesigner(
     const doc = store.get().document;
     return doc.scenes.find((item) => item.id === sceneId) || doc.scenes[0];
   }
-  let selectedSet=new Set(),elementClipboard=null,pasteCount=0;
-  const selectedIds=()=>{const doc=store?.get().document,scene=doc?.scenes.find(s=>s.id===sceneId)||doc?.scenes[0];return [...new Set([...selectedSet,...(selection?[selection]:[])])].filter(id=>scene?.elementIds.includes(id)&&doc.elements.some(e=>e.id===id));};
+  let selectedSet = new Set();
+  const selectedIds = () => activeSelectionIds(store?.get().document, sceneId, selectedSet, selection);
+  const clipboardActions = createClipboardActions({
+    getContext: () => ({ store, design, sceneId, quickMode }),
+    selectedIds, choose, selectRestored, commit, newId,
+    renderInspector: () => renderInspector(),
+    clearSelection: () => { selection = null; selectedSet.clear(); stage.render(); },
+  });
+  function selectAll() {
+    selectedSet = new Set(editableSceneIds(store.get().document, currentScene(), design.policy));
+    selection = [...selectedSet].at(-1) || null;
+    stage.render();
+    renderInspector();
+  }
+  function selectRestored(ids) {
+    choose(ids.at(-1));
+    selectedSet = new Set(ids);
+    stage.render();
+  }
   function selected() {
     return store.get().document.elements.find((item) => item.id === selection);
   }
   function choose(idValue,{additive=false}={}) {
-    if(additive&&idValue){if(selectedSet.has(idValue))selectedSet.delete(idValue);else selectedSet.add(idValue);selection=[...selectedSet].at(-1)||null;}
-    else {selection=idValue;selectedSet=new Set(idValue?[idValue]:[]);}
+    ({ selection, selectedSet } = toggleSelection(selectedSet, idValue, additive));
     store?.endMerge();
     stage?.render();
     renderInspector();
@@ -710,7 +727,7 @@ export function mountDesigner(
     getStore: () => store,
     getDesign: () => design,
     getStage: () => stage,
-    getClipboard: () => elementClipboard,
+    getClipboard: clipboardActions.getClipboard,
     isQuickMode: () => quickMode,
     isComposing: () => composing,
     selected, selectedIds, currentScene, textOptions, isLegacyFrame, assetUrl, commit, safe,
@@ -779,6 +796,7 @@ export function mountDesigner(
     quickMode = quickMode && design.source?.kind === "template";
     sceneId = design.document.entrySceneId;
     selection = null;
+    selectedSet.clear();
     store = createEditorStore(design);
     if(quickMode){
       const frame=quickPhotoFrame();
@@ -1540,6 +1558,7 @@ export function mountDesigner(
     if (name === "scene-select") {
       sceneId = target.dataset.id;
       selection = null;
+      selectedSet.clear();
       stage.render();
       renderScenes();
       renderLayers();
@@ -1879,29 +1898,7 @@ export function mountDesigner(
       renderInspector();
       return;
     }
-    if(['element-copy','element-cut','element-paste'].includes(name)){
-      if(quickMode||design.policy?.kind==='creator-template')return;
-      if(name==='element-paste'){
-        const pasted=pasteElements(store.get().document,sceneId,elementClipboard,design.id,newId,target.dataset?.pasteInPlace==='true'?0:16*(++pasteCount));
-        if(pasted.ids.length){commit(value=>{value.document=pasted.document;},t('editor.history.pasteElements'));choose(pasted.ids.at(-1));selectedSet=new Set(pasted.ids);stage.render();}
-      }else{
-        elementClipboard=copyElements(store.get().document,selectedIds(),design.id,design.policy);pasteCount=0;
-        if(name==='element-cut'&&elementClipboard.models.length){commit(value=>{value.document=removeElements(value.document,elementClipboard.models.map(e=>e.id),design.policy);},t('editor.history.cutElements'));choose(null);}
-      }
-      renderInspector();return;
-    }
-    if (name === "element-delete") {
-      if(quickMode)return;
-      commit(value=>{value.document=removeElements(value.document,selectedIds(),design.policy);},t("editor.history.deleteElement"));
-      selection = null;selectedSet.clear();stage.render();
-      renderInspector();
-      return;
-    }
-    if (name === "element-duplicate") {
-      if(quickMode)return;const clip=copyElements(store.get().document,selectedIds(),design.id,design.policy),pasted=pasteElements(store.get().document,sceneId,clip,design.id,newId);
-      if(!pasted.ids.length)return;commit(value=>{value.document=pasted.document;},t("editor.history.duplicateElement"));choose(pasted.ids.at(-1));selectedSet=new Set(pasted.ids);stage.render();
-      return;
-    }
+    if (isClipboardAction(name)) return clipboardActions.handle(name, target);
     if (name === "layer-up" || name === "layer-down") {
       commit((value) => {
         const list = value.document.scenes.find(
@@ -2255,108 +2252,14 @@ export function mountDesigner(
     },
     { signal },
   );
-  window.addEventListener(
-    "keydown",
-    safe((event) => {
-      if (disposed || !store || composing || event.isComposing) return;
-      if (event.key === "Escape") {
-        if (document.querySelector("dialog[open]")) return;
-        const toolsMenu = main.querySelector('.editor-more-tools[open]');
-        if (toolsMenu) {
-          event.preventDefault();
-          toolsMenu.open = false;
-          toolsMenu.querySelector('summary').focus();
-          return;
-        }
-        if (sheet) {
-          event.preventDefault();
-          closeSheet();
-          return;
-        }
-        if (stage.gestureActive) {
-          event.preventDefault();
-          stage.cancel();
-          return;
-        }
-        const menu = event.target.closest(".editor-scene-menu[open]");
-        if (menu) {
-          menu.open = false;
-          menu.querySelector("summary").focus();
-          return;
-        }
-        if (stopKeys(event.target)) {
-          event.preventDefault();
-          event.target.blur();
-          return;
-        }
-        choose(null);
-        return;
-      }
-      if (sheet && event.key === "Tab") {
-        const next = nextSheetFocus(sheet.target, document.activeElement, event.shiftKey);
-        if (next) {
-          event.preventDefault();
-          next.focus({ preventScroll: true });
-        }
-        return;
-      }
-      // Không cho shortcut Undo/Redo hoặc dịch lớp hoạt động phía sau modal sheet.
-      if (sheet) return;
-      if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==='s'&&!document.querySelector('dialog[open]')){
-        event.preventDefault();stage.flushText();
-        if(stopKeys(event.target)&&!event.target.closest('.editor-inline-text'))event.target.dispatchEvent(new Event('change',{bubbles:true}));
-        return flushSave({force:Boolean(design?.reviewTemplateDefaults)});
-      }
-      if (stopKeys(event.target) || document.querySelector("dialog[open]"))
-        return;
-      const chord=event.ctrlKey||event.metaKey,key=event.key.toLowerCase();
-      if(!quickMode&&!event.altKey&&((chord&&(!event.shiftKey||key==='v')&&['x','c','v','d','a','[',']'].includes(key))||['Delete','Backspace'].includes(event.key))){
-        event.preventDefault();
-        if(chord&&key==='a'){selectedSet=new Set(currentScene().elementIds.filter(id=>{const e=store.get().document.elements.find(e=>e.id===id);return e.visible!==false&&editableElement(e,design.policy);}));selection=[...selectedSet].at(-1)||null;stage.render();renderInspector();return;}
-        if(chord&&['c','x'].includes(key))return action(key==='c'?'element-copy':'element-cut',event.target);
-        if(chord&&key==='v')return action('element-paste',{dataset:{pasteInPlace:String(event.shiftKey)}});
-        if(chord&&key==='d')return action('element-duplicate',event.target);
-        if(chord&&['[',']'].includes(key)&&editableElement(selected(),design.policy))return action(key===']'?'layer-up':'layer-down',event.target);
-        return action('element-delete',event.target);
-      }
-      const historyAction = historyShortcut(event);
-      if (historyAction) {
-        event.preventDefault();
-        const beforeIds=new Set(store.get().document.elements.map(e=>e.id));
-        if (historyAction === "redo") store.redo();
-        else store.undo();
-        const restored=store.get().document.elements.filter(e=>!beforeIds.has(e.id)&&currentScene().elementIds.includes(e.id));
-        if(restored.length){choose(restored.at(-1).id);selectedSet=new Set(restored.map(e=>e.id));stage.render();}
-        else if(selection&&!store.get().document.elements.some(e=>e.id===selection))choose(null);
-        return;
-      }
-      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "s") {
-        event.preventDefault();
-        return flushSave({ force: Boolean(design?.reviewTemplateDefaults) });
-      }
-      if (
-        ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(
-          event.key,
-        ) &&
-        selected() &&
-        !quickMode &&
-        selectedIds().some(id=>editableElement(store.get().document.elements.find(e=>e.id===id),design.policy))
-      ) {
-        event.preventDefault();
-        const step = event.shiftKey ? 10 : 1;
-        commit((value) => {
-          for(const item of value.document.elements.filter(e=>selectedIds().includes(e.id)&&editableElement(e,design.policy))){const layout=item.layout;
-          if (event.key === "ArrowLeft") layout.x -= step;
-          if (event.key === "ArrowRight") layout.x += step;
-          if (event.key === "ArrowUp") layout.y -= step;
-          if (event.key === "ArrowDown") layout.y += step;
-          }
-        }, t("editor.history.keyboardMove"));
-        renderInspector();
-      }
-    }),
-    { signal },
-  );
+  const handleKey = createKeyboardHandler({
+    main, document: globalThis.document,
+    getContext: () => ({ disposed, store, composing, stage, sheet, design, quickMode }),
+    getSelection: () => selection,
+    choose, selectAll, selectRestored, currentScene, selected, selectedIds,
+    action, closeSheet, flushSave, commit, renderInspector,
+  });
+  window.addEventListener("keydown", safe(handleKey), { signal });
   function hasUnsaved() {
     return hasPendingEditorWork({
       sessionDirty: session?.dirty,

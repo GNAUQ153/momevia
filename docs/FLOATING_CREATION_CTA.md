@@ -11,10 +11,10 @@ Desktop dùng ô hai dòng ở góc phải. Điện thoại dùng hai nút cạn
 
 Đã thử bằng Chrome trên ứng dụng MySQL cục bộ đang dùng, tại 320/390/768/1024/1440 px, VI/EN, bấm thật cả hai đích, đăng nhập/quay lại tạo, mở canvas thật và rời editor. Giao diện menu di động được dùng để đổi ngôn ngữ. Đã thử nhận quà ẩn danh: Enter mở hộp, chạm sang lời chúc, nhập và gửi hồi đáp khi ô CTA hiện. Ảnh đính kèm được chụp sau khi thư viện đã tải.
 
-- [Bằng chứng trình duyệt](animated-elements-live-20261124/floating-cta-browser.json)
-- [Desktop](animated-elements-live-20261124/floating-cta-1440.png)
-- [Điện thoại 390 px](animated-elements-live-20261124/floating-cta-390.png)
-- [Gửi hồi đáp](animated-elements-live-20261124/floating-cta-reply-390.png)
-- [MySQL cục bộ và backup](ANIMATED_ELEMENTS_LOCAL_MYSQL.md)
+- Bằng chứng trình duyệt
+- Desktop
+- Điện thoại 390 px
+- Gửi hồi đáp
+- MySQL cục bộ và backup
 
 Các kích thước điện thoại là mô phỏng trình duyệt, chưa xác minh bàn phím ảo hoặc thiết bị vật lý. Việc cập nhật này không bao gồm phát hành dịch vụ ngoài máy cục bộ.

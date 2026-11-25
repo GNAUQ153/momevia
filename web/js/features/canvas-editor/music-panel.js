@@ -46,12 +46,8 @@ export function createMusicPanel(soundtrack) {
   const legacySelected = selectedTrack && !available.some(track => track.id === selectedId);
   const choices = legacySelected ? [selectedTrack, ...available] : available;
   const volume = Math.round((soundtrack?.volume ?? 0.55) * 100);
-  return node("section", { class: "editor-music-card", "aria-label": message("editor.music.title") },
-    node("div", { class: "editor-music-heading" },
-      node("h3", {}, message("editor.music.title")),
-      node("span", { class: "editor-music-caption" }, message("editor.music.badge")),
-    ),
-    node("p", { class: "editor-music-help" }, message("editor.music.help")),
+  return node("details", { class: "editor-music-card", "aria-label": message("editor.music.title") },
+    node("summary", {}, message("editor.music.title")),
     node('p',{class:'editor-music-help','data-music-legacy':'',hidden:!legacySelected},message(selectedTrack?.version>=2?'musicLibrary.disabledPinned':'editor.music.legacyPinned')),
     select(message("editor.music.choice"), "soundtrack", selectedId, [
       ["", message("editor.music.none")],
@@ -115,7 +111,6 @@ export function createMusicPanel(soundtrack) {
     node('p', {class:'editor-music-source','data-music-source':'',hidden:!selectedTrack?.artist},
       ...(selectedTrack?.artist ? [`${selectedTrack.originalTitle} — ${selectedTrack.artist} - ${selectedTrack.license} - `,
         node('a', {href:selectedTrack.sourceUrl,target:'_blank',rel:'noopener noreferrer'}, message('editor.music.source'))] : [])),
-    node('p', { class: 'editor-music-help' }, message('musicLibrary.mediaChanges')),
     node("label", { class: "editor-music-volume" },
       node("span", {}, message("editor.music.volume")),
       node("input", {

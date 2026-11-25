@@ -1,7 +1,0 @@
-
-> momevia-mvp@1.1.0 check
-> node scripts/quality/check-source.mjs && node scripts/quality/check-ui-i18n.mjs --check
-
-PASS 2653 VI/EN keys, parameter parity, tracked dynamic keys and plural counts 0/1/2.
-PASS JavaScript syntax/scope, workflow YAML and local QR module.
-PASS Designer & App Shell UI: không có chuỗi tiếng Việt ngoài giá trị Canvas/catalog đã giải thích.

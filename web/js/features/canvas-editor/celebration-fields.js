@@ -6,7 +6,6 @@ export function celebrationFields(scene) {
   const settings = celebrationSettings(scene.effects);
   return node('fieldset', { class: 'editor-celebration-settings' },
     node('legend', {}, message('editor.celebrations.title')),
-    node('p', { class: 'editor-help' }, message('editor.celebrations.help')),
     ...CELEBRATION_IDS.map(id => {
       const config = settings[id], prefix = `celebration.${id}.`;
       return node('fieldset', { class: 'editor-celebration-row', 'data-celebration-row': id },

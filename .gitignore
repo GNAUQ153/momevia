@@ -11,6 +11,7 @@ node_modules/
 dist/
 web/js/vendor/
 /web/assets/app/
+/web/assets/*-qa/
 .DS_Store
 /local/
 /graphify-out
@@ -23,6 +24,17 @@ web/js/vendor/
 /coverage/
 /.nyc_output/
 /.eslintcache
+/scripts/qa/
+/docs/qa/
+/docs/evidence/
+/docs/animated-elements-*/
+/docs/template-refresh-*/
+/docs/event-cards/
+/docs/event-cards-expanded/
+/docs/interactive-cards-*/
+/docs/celebration-loops/
+/docs/recipient-naming/
+/docs/motion-[0-9]*-20*/
 Thumbs.db
 Desktop.ini
 

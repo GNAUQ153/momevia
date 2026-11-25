@@ -24,6 +24,7 @@ const paths = {
   "zoom-out": '<circle cx="10" cy="10" r="6"/><path d="m15 15 5 5M7 10h6"/>',
   "zoom-in": '<circle cx="10" cy="10" r="6"/><path d="m15 15 5 5M7 10h6m-3-3v6"/>',
   more: '<circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/>',
+  'more-vertical': '<circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/>',
   unlock: '<rect x="5" y="11" width="14" height="11" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.5-2"/>',
   "align-left": '<path d="M4 6h16M4 10h11M4 14h16M4 18h11"/>',
   "align-center": '<path d="M4 6h16M7 10h10M4 14h16M7 18h10"/>',

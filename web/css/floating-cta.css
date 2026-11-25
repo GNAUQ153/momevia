@@ -1,15 +1,18 @@
 .floating-cta {
   --cta-width: 248px;
+  --cta-frame-background: var(--white, #fff);
+  --cta-frame-border: var(--line, #e6d9fb);
+  --cta-frame-shadow: 0 12px 32px rgb(69 35 132 / 18%);
   position: fixed;
   z-index: 55;
   right: 22px;
   bottom: calc(24px + env(safe-area-inset-bottom, 0px));
   width: var(--cta-width);
   padding: 10px;
-  border: 1px solid var(--line, #e6d9fb);
+  border: 1px solid var(--cta-frame-border);
   border-radius: 20px;
-  background: var(--white, #fff);
-  box-shadow: 0 8px 28px #352b3024;
+  background: var(--cta-frame-background);
+  box-shadow: var(--cta-frame-shadow);
   font-family: var(--font-shell, sans-serif);
 }
 .floating-cta[hidden] {
@@ -19,7 +22,28 @@
   display: grid;
   gap: 8px;
 }
+
+.floating-cta.floating-cta--catalog nav {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.floating-cta.floating-cta--catalog {
+  --cta-frame-background: transparent;
+  --cta-frame-border: transparent;
+  --cta-frame-shadow: none;
+  right: 22px;
+  width: min(var(--cta-width), calc(100% - 44px));
+  padding: 0;
+  border: 0;
+  border-radius: 12px;
+}
+
+.floating-cta--catalog .floating-cta__create {
+  box-shadow: 0 8px 24px rgb(97 54 223 / 24%);
+}
 .floating-cta a {
+  position: relative;
+  isolation: isolate;
   display: flex;
   min-height: 46px;
   align-items: center;
@@ -29,7 +53,7 @@
   border: 1px solid transparent;
   border-radius: 12px;
   font-size: 14px;
-  font-weight: 650;
+  font-weight: 750;
   line-height: 1.35;
   text-align: center;
   text-decoration: none;
@@ -46,19 +70,19 @@
   outline-offset: 3px;
 }
 .floating-cta__create {
-  background: var(--purple, #6136df);
+  background: linear-gradient(115deg, #8054f3, #552bcf);
   color: #fff;
 }
 .floating-cta__create:hover {
   background: var(--purple-deep, #4e27bd);
 }
 .floating-cta__explore {
-  background: var(--purple-soft, #f5f0ff);
+  border-color: #d7c5ff;
+  background: #f1e8ff;
   color: var(--purple-deep, #4e27bd);
 }
 body.has-floating-cta {
   --floating-cta-height: 122px;
-  padding-bottom: calc(var(--floating-cta-height) + 48px + env(safe-area-inset-bottom, 0px));
 }
 body.has-floating-cta .site-tools {
   right: 284px;
@@ -82,7 +106,6 @@ body.has-floating-cta .site-tools {
   }
   body.has-floating-cta {
     --floating-cta-height: 66px;
-    padding-bottom: calc(var(--floating-cta-height) + 24px + env(safe-area-inset-bottom, 0px));
   }
   body.has-floating-cta .site-tools {
     right: 12px;
@@ -92,5 +115,165 @@ body.has-floating-cta .site-tools {
 @media (prefers-reduced-motion: reduce) {
   .floating-cta a {
     transition: none;
+  }
+}
+
+/* The fixed frame stays still for overlap checks; only its actions travel. */
+.floating-cta--travelling,
+.floating-cta--entering,
+.floating-cta--leaving {
+  isolation: isolate;
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+}
+
+.floating-cta--travelling::before,
+.floating-cta--entering::before,
+.floating-cta--leaving::before {
+  position: absolute;
+  z-index: -1;
+  inset: -1px;
+  border: 1px solid var(--cta-frame-border);
+  border-radius: inherit;
+  background: var(--cta-frame-background);
+  box-shadow: var(--cta-frame-shadow);
+  content: '';
+}
+
+.floating-cta--travelling::before {
+  animation: floating-cta-arrive 440ms ease both;
+}
+
+.floating-cta--entering,
+.floating-cta--leaving {
+  overflow: hidden;
+}
+
+.floating-cta--entering::before {
+  animation: floating-cta-enter 320ms cubic-bezier(.22, 1, .36, 1) forwards;
+}
+
+@keyframes floating-cta-enter {
+  from {
+    transform: var(--cta-motion-from, translateX(calc(100% + 48px)));
+    opacity: var(--cta-motion-opacity, 0);
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.floating-cta--leaving::before {
+  animation: floating-cta-exit 260ms cubic-bezier(.4, 0, 1, 1) forwards;
+}
+
+@keyframes floating-cta-exit {
+  from {
+    transform: var(--cta-motion-from, translateX(0));
+    opacity: var(--cta-motion-opacity, 1);
+  }
+  to {
+    transform: translateX(calc(100% + 48px));
+    opacity: 0;
+  }
+}
+
+/* Short attention bursts leave the hit targets and the page layout stationary. */
+@media (prefers-reduced-motion: no-preference) {
+  .floating-cta:not([hidden]):not(.floating-cta--travelling):not(.floating-cta--entering):not(.floating-cta--leaving) a::before,
+  .floating-cta:not([hidden]):not(.floating-cta--travelling):not(.floating-cta--entering):not(.floating-cta--leaving) a::after {
+    position: absolute;
+    z-index: -1;
+    inset: -1px;
+    border-radius: inherit;
+    pointer-events: none;
+    content: '';
+  }
+
+  .floating-cta:not([hidden]):not(.floating-cta--travelling):not(.floating-cta--entering):not(.floating-cta--leaving) a::before {
+    background: rgb(113 71 244 / 18%);
+    opacity: 0;
+    animation: floating-cta-beat 2400ms ease-in-out 2;
+  }
+
+  .floating-cta:not([hidden]):not(.floating-cta--travelling):not(.floating-cta--entering):not(.floating-cta--leaving) a::after {
+    border: 2px solid rgb(113 71 244 / 48%);
+    opacity: 0;
+    animation: floating-cta-ripple 3600ms ease-out 1;
+  }
+
+  .floating-cta:not([hidden]):not(.floating-cta--travelling):not(.floating-cta--entering):not(.floating-cta--leaving) a > .icon {
+    animation: floating-cta-icon-beat 2400ms ease-in-out 2;
+  }
+
+  .floating-cta:not([hidden]):not(.floating-cta--travelling):not(.floating-cta--entering):not(.floating-cta--leaving) a:nth-child(2)::before,
+  .floating-cta:not([hidden]):not(.floating-cta--travelling):not(.floating-cta--entering):not(.floating-cta--leaving) a:nth-child(2)::after,
+  .floating-cta:not([hidden]):not(.floating-cta--travelling):not(.floating-cta--entering):not(.floating-cta--leaving) a:nth-child(2) > .icon {
+    animation-delay: 160ms;
+  }
+}
+
+@keyframes floating-cta-beat {
+  0%, 55%, 100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+  14%, 34% {
+    transform: scale(1.045, 1.1);
+    opacity: 1;
+  }
+  24% {
+    transform: scale(1.015, 1.04);
+    opacity: 0.45;
+  }
+}
+
+@keyframes floating-cta-ripple {
+  0%, 12% {
+    transform: scale(1);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.7;
+  }
+  75%, 100% {
+    transform: scale(1.12, 1.35);
+    opacity: 0;
+  }
+}
+
+@keyframes floating-cta-icon-beat {
+  0%, 55%, 100% {
+    transform: scale(1);
+  }
+  14%, 34% {
+    transform: scale(1.16);
+  }
+  24% {
+    transform: scale(1.04);
+  }
+}
+
+.floating-cta--travelling a {
+  transform-origin: top left;
+  will-change: transform, opacity;
+}
+
+@keyframes floating-cta-arrive {
+  0%, 50% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .floating-cta--travelling::before,
+  .floating-cta--entering::before,
+  .floating-cta--leaving::before {
+    animation: none;
   }
 }

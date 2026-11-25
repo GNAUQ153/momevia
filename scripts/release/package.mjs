@@ -31,7 +31,6 @@ const roots = [
   'database/verify.sql',
   // Dữ liệu phát hành cần cho library rollout và unit test trong release-smoke.
   'database/updates/interactive-cards-20261122-v1.json',
-  'database/updates/interactive-cards-20261122-v1.json',
   'database/updates/template-refresh-natural-20261123-v2.json',
   'database/updates/natural-motion-loop-20261123-v1.json',
   'database/updates/natural-open-elements-20261123-v1.json',

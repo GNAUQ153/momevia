@@ -6,22 +6,31 @@ export function preserveLoadedCovers(current, candidate) {
   const loaded=previous[index];
   if(!img.hasAttribute('data-cover-lazy')||!loaded||loaded.hasAttribute('data-cover-lazy')
    ||loaded.getAttribute('src')!==img.getAttribute('data-src')
-   ||loaded.getAttribute('data-i18n-src')!==img.getAttribute('data-i18n-data-src'))continue;
+   ||loaded.getAttribute('data-i18n-src')!==img.getAttribute('data-i18n-data-src')
+   ||loaded.getAttribute('srcset')!==img.getAttribute('data-srcset')
+   ||loaded.getAttribute('data-i18n-srcset')!==img.getAttribute('data-i18n-data-srcset')
+   ||loaded.getAttribute('sizes')!==img.getAttribute('sizes'))continue;
   // Match only the loader's presentation state. New cover URLs, translations
   // and every other card attribute still participate in isEqualNode below.
-  for(const name of ['src','loading','fetchpriority','data-i18n-src']){
+  for(const name of ['src','srcset','sizes','loading','fetchpriority','data-i18n-src','data-i18n-srcset']){
    const value=loaded.getAttribute(name);if(value===null)img.removeAttribute(name);else img.setAttribute(name,value);
   }
-  for(const name of ['data-src','data-cover-lazy','data-i18n-data-src'])img.removeAttribute(name);
+  for(const name of ['data-src','data-srcset','data-cover-lazy','data-i18n-data-src','data-i18n-data-srcset'])img.removeAttribute(name);
  }
 }
 
 export function mountCoverLoading(root){
  const selector='img[data-cover-lazy]',observed=new Set();
  const promote=img=>{
-  img.loading='eager';if(img.getBoundingClientRect().top<innerHeight)img.fetchPriority='high';
-  const binding=img.getAttribute('data-i18n-data-src');if(binding)img.setAttribute('data-i18n-src',binding);
-  img.removeAttribute('data-i18n-data-src');img.src=img.getAttribute('data-src');img.removeAttribute('data-src');img.removeAttribute('data-cover-lazy');
+  const initialFold=img.getBoundingClientRect().top+scrollY<innerHeight;
+  img.loading=initialFold?'eager':'lazy';img.fetchPriority=initialFold?'high':'auto';
+  for(const name of ['srcset','src']){
+   const binding=img.getAttribute('data-i18n-data-'+name);if(binding)img.setAttribute('data-i18n-'+name,binding);
+   img.removeAttribute('data-i18n-data-'+name);
+   const value=img.getAttribute('data-'+name);if(value!==null)img.setAttribute(name,value);
+   img.removeAttribute('data-'+name);
+  }
+  img.removeAttribute('data-cover-lazy');
   observed.delete(img);intersection?.unobserve(img);
  };
  const intersection=typeof IntersectionObserver==='function'?new IntersectionObserver(entries=>{for(const entry of entries)if(entry.isIntersecting)promote(entry.target);},{rootMargin:'100px 0px'}):null;

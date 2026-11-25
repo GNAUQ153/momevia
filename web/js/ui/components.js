@@ -5,9 +5,9 @@ import { isSystemTemplate } from '../shared/template-copy.js';
 import { personalizationText, templateCover, templateField, templateValue } from '../features/catalog/template-copy.js';
 
 export function createComponents({ state }) {
-  function artwork(template, variant = "", { eager = false } = {}) {
+  function artwork(template, variant = "", { eager = false, responsive = false } = {}) {
     const loading = eager ? 'eager' : 'lazy';
-    if (isSystemTemplate(template)) return `<div class="artwork artwork--${e(template.theme)} artwork--canvas ${variant}"><img ${templateCover(template,{defer:!eager,variant:variant.includes('detail')?'portrait':'catalog'})} ${attr('alt', 'catalog.artwork.systemAlt', { title: templateValue(template, 'title') })} width="390" height="${variant.includes('detail')?'844':'330'}" loading="${loading}" ${eager?'fetchpriority="high"':''}/></div>`;
+    if (isSystemTemplate(template)) return `<div class="artwork artwork--${e(template.theme)} artwork--canvas ${variant}"><img ${templateCover(template,{defer:!eager,variant:variant.includes('detail')?'portrait':'catalog',responsive})} ${attr('alt', 'catalog.artwork.systemAlt', { title: templateValue(template, 'title') })} width="390" height="${variant.includes('detail')?'844':'330'}" loading="${loading}" ${eager?'fetchpriority="high"':''}/></div>`;
     if (template.thumbnail) return `<div class="artwork artwork--${e(template.theme)} artwork--canvas ${variant}"><img src="${e(template.thumbnail)}" ${attr('alt', 'catalog.artwork.creatorAlt', { title: template.title })} width="390" height="844" loading="${loading}"/></div>`;
     const theme = e(template.theme || "violet");
     const title = template.title ? e(template.title) : text('catalog.artwork.fallbackTitle');
@@ -40,7 +40,7 @@ export function createComponents({ state }) {
     const title = templateField(template, 'title');
     return `<article class="template-card${compact ? ' card template-card--home' : ''}" data-template-id="${e(template.id)}">
       <a href="/template/${encodeURIComponent(template.id)}" data-link class="template-card__visual" ${attr('aria-label', 'catalog.actions.viewNamed', { title: templateValue(template, 'title') })}>
-        ${artwork(template)}
+        ${artwork(template, '', { responsive: !compact })}
         ${compact ? '' : `<span class="template-card__view">${icon("eye", 16)} ${text('catalog.actions.view')}</span>`}
       </a>
       ${favoriteButton(template.id)}

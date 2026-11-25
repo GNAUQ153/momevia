@@ -74,6 +74,7 @@ import { createMusicPanel, filterMusicPanel, syncMusicPanel } from '../features/
 import { openCanvasPreview } from "../features/canvas-editor/preview-dialog.js";
 import { openGiftAccessDialog } from "../features/canvas-editor/gift-access-dialog.js";
 import { createSceneLayerPanel } from "../features/canvas-editor/scene-layer-panel.js";
+import { mountSceneMenus } from '../features/canvas-editor/scene-menu.js';
 import { buildInspectorPropertyFields, buildInspectorGeometryFields, lockInspectorControls } from "../features/canvas-editor/inspector-fields.js";
 import { createSoundtrackPlayback } from '../features/gift-runtime/soundtrack.js';
 import {
@@ -156,12 +157,13 @@ export function mountDesigner(
     try { return readRecent(localStorage.getItem(recentKey), catalog); }
     catch { return []; }
   })();
-  const mobile = matchMedia("(max-width: 800px)");
+  const mobile = matchMedia("(max-width: 1024px)");
   const dialogs = new Set();
   let quickMode = mode === "quick" || (Boolean(templateId) && mode !== "layout");
   const ownerId = user?.sub || user?.id;
   const modeKey = draftId => `momevia:canvas:mode:${ownerId}:${draftId}`;
   main.classList.add("editor-main");
+  mountSceneMenus(main, { signal });
   main.replaceChildren(
     node(
       "section",
@@ -214,7 +216,7 @@ export function mountDesigner(
     const hint = main.querySelector(".editor-save-hint");
     if (hint) {
       setText(hint, detail);
-      hint.hidden = !detail;
+      hint.hidden = !detail || tone === 'saved';
     }
   }
   function markStatus(key, tone) {
@@ -441,29 +443,35 @@ export function mountDesigner(
   }
 
   function shell() {
+    const moreTools = node('details', { class: 'editor-more-tools' },
+      node('summary', {}, message('editor.interface.moreTools')),
+      node('div', { class: 'editor-more-tools__panel' },
+        design.source?.kind === 'template' ? button('', 'toggle-mode', { class: 'editor-mode' }) : null,
+        button(message('editor.interface.draft'), 'recovery-center', { class: 'editor-recovery-entry', title: message('editor.interface.draftHint') }),
+        createLocaleControl(),
+        canOpenAdvancedEditor(design.policy) ? button(message('editor.actions.inline'), 'inline-fabric', {
+          class: 'editor-inline-cta', title: message('editor.actions.inlineHint'),
+        }) : null,
+        canOpenAdvancedEditor(design.policy) ? button(message("editor.actions.advanced"), "advanced-design", {
+          class: 'editor-advanced-cta', title: message('editor.actions.advancedHint'),
+        }) : null,
+        node('details', { class: 'editor-help-disclosure' },
+          node('summary', {}, message('editor.help.title')),
+          node('ol', {}, ...['add', 'select', 'advanced', 'save'].map(key => node('li', {}, message(`editor.help.${key}`)))),
+        ),
+      ),
+    );
     const tools = node(
       "div",
       { class: "editor-top-actions" },
-      button(message("editor.interface.draft"), "recovery-center", { class: "editor-recovery-entry", title: message("editor.interface.draftHint") }),
-      createLocaleControl(),
       iconButton(message("editor.actions.undo"), "undo", "undo"),
       iconButton(message("editor.actions.redo"), "redo", "redo"),
       button(message("editor.actions.saveDraft"), "save", { class: "editor-save" }),
       button(message("editor.actions.preview"), "preview"),
-      canOpenAdvancedEditor(design.policy)
-        ? button(message("editor.actions.inline"), "inline-fabric", {
-          class: "editor-inline-cta",
-          title: message("editor.actions.inlineHint"),
-        }) : null,
-      canOpenAdvancedEditor(design.policy)
-        ? button(message("editor.actions.advanced"), "advanced-design", {
-          class: "editor-advanced-cta",
-          title: message("editor.actions.advancedHint"),
-        })
-        : null,
       design.purpose === "creator"
         ? button(message("editor.actions.submit"), "submit-template", { class: "editor-primary" })
         : button(message("editor.actions.publish"), "publish", { class: "editor-primary editor-layout-only" }),
+      moreTools,
     );
     const heading = node(
       "div",
@@ -479,7 +487,6 @@ export function mountDesigner(
       statusNode(),
       design.restyledFrom ? button(message("restyle.original"),"restyle-original") : null,
       design.policy?.kind === "sender-basic" && RESTYLE_PAIRS[design.source.templateId] ? button(message("restyle.title"), "restyle") : null,
-      design.source?.kind === "template" ? button("", "toggle-mode", { class: "editor-mode" }) : null,
     );
     const top = node("header", { class: "editor-topbar" }, heading, tools);
     const sidebar = node(
@@ -555,9 +562,6 @@ export function mountDesigner(
           ),
         ),
         design.purpose !== 'creator' ? createMusicPanel(store.get().document.soundtrack) : null,
-        node("p", { class: "editor-help editor-layout-only" },
-          message("editor.quick.bindingsHelp"),
-        ),
       ),
       node("div", { "data-library-panel": "assets", id: "editor-panel-assets", class: "editor-assets" }),
       node('div',{'data-library-panel':'sounds',id:'editor-panel-sounds'},node('h3',{},message('sfx.title')),node('p',{class:'editor-help'},message('sfx.hint')),button(message('sfx.addButton'),'sound-add',{disabled:design.policy?.kind==='creator-template'}),button(message('sfx.open'),'sound-picker',{disabled:design.policy?.kind==='creator-template'})),
@@ -575,19 +579,10 @@ export function mountDesigner(
       "section",
       { class: "editor-stage-column", "aria-label": message("editor.stage.label") },
       node("h2", { class: "editor-quick-only" }, message("editor.stage.layout")),
-      node("div", { class: "editor-experience-header editor-layout-only" },
-        node("div", { class: "editor-experience-heading" },
-          node("span", { class: "editor-experience-kicker" }, message("editor.stage.badge")),
-          node("h2", {}, message("editor.stage.title")),
-          node("p", {}, message("editor.stage.body")),
-        ),
-        node("span", { class: "editor-scene-progress", "data-editor-scene-progress": "" }, message("editor.stage.initialScene")),
-      ),
-      node("p", { class: "editor-quick-tip editor-quick-only" },
-        message("editor.stage.tip")),
       node(
         "div",
         { class: "editor-stage-tools editor-layout-only" },
+        node("span", { class: "editor-scene-progress", "data-editor-scene-progress": "" }, message("editor.stage.initialScene")),
         iconButton(message("editor.zoom.out"), "zoom-out", "zoom-out"),
         zoomControl,
         iconButton(message("editor.zoom.in"), "zoom-in", "zoom-in"),
@@ -601,7 +596,7 @@ export function mountDesigner(
           }),
         ),
       ),
-      node("p", { class: "editor-selection-summary editor-layout-only", "data-editor-selection": "", role: "status", "aria-live": "polite" },
+      node("p", { class: "editor-selection-summary editor-layout-only editor-visually-hidden", "data-editor-selection": "", role: "status", "aria-live": "polite" },
         message("editor.stage.select")),
       // Các nút lịch sử được chuyển gần vùng thiết kế trên mobile, dùng chung store.
       node("div", { class: "editor-mobile-history editor-layout-only", role: "group", "aria-label": message("editor.mobileHistory.title") },
@@ -610,15 +605,6 @@ export function mountDesigner(
       ),
       node("div", { class: "editor-stage-scroll" }),
       node("div", { class: "editor-inline-mount", hidden: true, "aria-label": message("editor.stage.fabricLabel") }),
-      node("details", { class: "editor-editing-help editor-layout-only" },
-        node("summary", {}, message("editor.help.title")),
-        node("ol", {},
-          node("li", {}, message("editor.help.add")),
-          node("li", {}, message("editor.help.select")),
-          node("li", {}, message("editor.help.advanced")),
-          node("li", {}, message("editor.help.save")),
-        ),
-      ),
     );
     const inspector = node("aside", {
       class: "editor-inspector editor-layout-only",
@@ -786,7 +772,9 @@ export function mountDesigner(
       )];
     });
     if (!element) fields.push(celebrationFields(model));
-    return fields;
+    return [node('details', { class: 'editor-effects-disclosure',
+      ...(main.querySelector('.editor-effects-disclosure')?.open ? { open: '' } : {}),
+    }, node('summary', {}, message('editor.interface.effects')), ...fields)];
   }
   function interactionFields(model) {
     const p = model.props, spec = interactionKinds[p.kind], doc = store.get().document;
@@ -876,11 +864,6 @@ export function mountDesigner(
           type: "color",
         }),
         ...effectFields(scene),
-        node(
-          "p",
-          { class: "editor-help" },
-          message("editor.interface.sceneHint"),
-        ),
       );
     } else {
       const { props } = element;
@@ -1027,7 +1010,7 @@ export function mountDesigner(
       button(message('editor.interface.copyElements'),'element-copy',{disabled:!selectedIds().some(id=>editableElement(store.get().document.elements.find(e=>e.id===id),design.policy)),'aria-keyshortcuts':'Control+c Meta+c'}),
       button(message('editor.interface.cutElements'),'element-cut',{disabled:!selectedIds().some(id=>editableElement(store.get().document.elements.find(e=>e.id===id),design.policy)),'aria-keyshortcuts':'Control+x Meta+x'}),
       button(message('editor.interface.pasteElements'),'element-paste',{disabled:!elementClipboard?.models.length,'aria-keyshortcuts':'Control+v Meta+v'})));
-    host.replaceChildren(...children);
+    host.replaceChildren(...children.filter(child => child != null));
     if (keepGeometry) host.querySelector(".editor-geometry").open = true;
     if (!element && design.policy?.kind === "creator-template")
       host.querySelectorAll("[data-editor-field], [data-editor-action='effect-remove']").forEach(control => { control.disabled = true; });
@@ -1212,7 +1195,7 @@ export function mountDesigner(
     const width = scroll.clientWidth - parseFloat(padding.paddingLeft) - parseFloat(padding.paddingRight);
     const height = scroll.clientHeight - parseFloat(padding.paddingTop) - parseFloat(padding.paddingBottom);
     const size = store.get().document.artboard.baseSize;
-    setZoom(Math.min(1, Math.max(0.1, Math.min(width / size.width, quickMode ? 1 : height / size.height))));
+    setZoom(Math.min(1, Math.max(0.1, Math.min(width / size.width, height / size.height))));
   }
   function setZoom(value) {
     zoom = value;
@@ -2500,7 +2483,12 @@ export function mountDesigner(
   main.addEventListener(
     "click",
     safe(async (event) => {
+      const menu = main.querySelector('.editor-more-tools[open]');
       const target = event.target.closest("[data-editor-action]");
+      if (menu && (!event.target.closest('.editor-more-tools') || target)) {
+        menu.open = false;
+        if (target?.closest('.editor-more-tools')) menu.querySelector('summary').focus({ preventScroll: true });
+      }
       if (!target) return;
       event.preventDefault();
       await action(target.dataset.editorAction, target);
@@ -2508,11 +2496,6 @@ export function mountDesigner(
     { signal },
   );
   main.addEventListener("change", safe(change), { signal });
-  main.addEventListener("toggle", event => {
-    if (event.target.matches(".editor-scene-menu[open]"))
-      for (const menu of main.querySelectorAll(".editor-scene-menu[open]"))
-        if (menu !== event.target) menu.open = false;
-  }, { signal, capture: true });
   main.addEventListener(
     "input",
     safe((event) => {
@@ -2581,6 +2564,13 @@ export function mountDesigner(
       if (disposed || !store || composing || event.isComposing) return;
       if (event.key === "Escape") {
         if (document.querySelector("dialog[open]")) return;
+        const toolsMenu = main.querySelector('.editor-more-tools[open]');
+        if (toolsMenu) {
+          event.preventDefault();
+          toolsMenu.open = false;
+          toolsMenu.querySelector('summary').focus();
+          return;
+        }
         if (sheet) {
           event.preventDefault();
           closeSheet();

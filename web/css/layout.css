@@ -1,3 +1,32 @@
+html.is-page-pending::after {
+  content: "";
+  position: fixed;
+  inset: 0 0 auto;
+  height: 3px;
+  z-index: 2000;
+  pointer-events: none;
+  background: #7950e8;
+  transform-origin: left;
+  opacity: 0;
+  animation: page-progress 8s 150ms cubic-bezier(.1, .6, .2, 1) forwards;
+}
+@keyframes page-progress {
+  0% {
+    opacity: 1;
+    transform: scaleX(.08);
+  }
+  100% {
+    opacity: 1;
+    transform: scaleX(.92);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  html.is-page-pending::after {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
 .announcement {
   min-height: 33px;
   padding: 7px 16px;
@@ -301,5 +330,14 @@
   color: var(--purple);
 }
 
-/* Reserve the initial viewport while a route loads, keeping the footer still. */
-#main{min-height:100svh}
+/* Short pages use only the space left by the header and footer. */
+#main {
+  flex: 1 0 auto;
+  min-width: 0;
+}
+
+/* Reserve space only while loading, then let the actual page set its height. */
+#main:empty,
+#main:has(.centered-loading) {
+  min-height: 100svh;
+}

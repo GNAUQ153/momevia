@@ -99,8 +99,10 @@ export function createSceneLayerPanel({
       const bindings = models.map(model => doc.bindings[model?.props.textBinding]?.value);
       const signature = JSON.stringify([doc.artboard.baseSize, scene.background, scene.effects?.surface, models, bindings]);
       const cached = sceneThumbs.get(scene.id);
+      const size = doc.artboard.baseSize;
+      const previewWidth = Math.min(24, 50 * size.width / size.height);
       const thumbnail = cached?.signature === signature
-        ? cached.thumbnail : sceneThumbnail(doc, scene, { assetUrl, indexed });
+        ? cached.thumbnail : sceneThumbnail(doc, scene, { width: previewWidth, assetUrl, indexed });
       sceneThumbs.set(scene.id, { signature, thumbnail });
       const current = card.querySelector(".editor-thumbnail");
       if (current === thumbnail) return;
@@ -128,14 +130,14 @@ export function createSceneLayerPanel({
       const entry = scene.id === doc.entrySceneId;
       const selected = scene.id === sceneId;
       const card = button("", "scene-select", {
-        "data-id": scene.id, "aria-pressed": selected,
+        "data-id": scene.id, "aria-pressed": selected, title: scene.name,
         class: `editor-scene-choice${selected ? " is-selected" : ""}`,
       });
       updateThumbnail(card, scene);
       card.append(node("span", { class: "editor-scene-name" }, scene.name));
       if (entry && !quickMode) card.append(node("span", { class: "editor-scene-entry" }, message("editor.scene.entry")));
       const summary = node("summary", { "aria-label": message("editor.interface.sceneMenu", { name: scene.name }) });
-      summary.innerHTML = icon("more", 18);
+      summary.innerHTML = icon("more-vertical", 18);
       const menu = node("details", { class: "editor-scene-menu editor-layout-only" },
         summary,
         node("div", { class: "editor-scene-menu-actions" }, ...sceneActions.map(([, action]) =>

@@ -13,7 +13,10 @@ export function mountRecipientOptions(host, { store, commit, policy, signal }) {
       next.document.personalization = { ...(next.document.personalization || { version: 1 }), mode };
     }, t('recipient.title')), { signal });
   }
-  group.append(choices, node('p', { class: 'editor-help' }, message('recipient.variableHint', { nameToken: '{người nhận}' })));
+  group.append(choices, node('details', { class: 'editor-help-disclosure' },
+    node('summary', {}, message('recipient.variableHelp')),
+    node('p', { class: 'editor-help' }, message('recipient.variableHint', { nameToken: '{người nhận}' })),
+  ));
   if (locked) group.append(node('p', { class: 'editor-help' }, message('recipient.locked')));
   const upload = node('input', { type: 'file', accept: '.xlsx,.csv', 'data-recipient-file': '' });
   const status = node('p', { role: 'status', 'aria-live': 'polite', class: 'recipient-import-status' });

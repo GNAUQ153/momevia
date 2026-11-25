@@ -6,6 +6,7 @@ import {ensureFullStyles} from '../core/client-styles.js';
 import { attr, initializeLocale, localeControl, message, onLocaleChange, setAttr, setText, t, text } from "../core/i18n.js";
 import { clearAuthReturn, rememberAuthReturn, takeAuthReturn } from "../core/auth-return.js";
 import { focusVisibleTarget, scrollBehavior } from "../core/motion.js";
+import { canTransitionPage, createPageTransition, sameDocument } from '../core/page-transition.js';
 import { icon } from "../ui/icons.js";
 import { normalizeCardTypeFilter } from '../shared/card-type.js';
 import { paginateTemplates } from "../features/catalog/filter.js";
@@ -27,11 +28,11 @@ import { pricingPage } from '../pages/pricing.js';
 import { paymentMethodText, paymentReceipt, paymentStatusPanel } from "../pages/payment-status.js";
 import { refundBuyerPanel, refundHistoryPanel, refundAdminPanel } from "../pages/refund-review.js";
 import { createLatestRequest } from "../features/refund/latest-request.js";
-import { recipientViralCta } from "../ui/recipient-viral.js";
 import { createSystemViews } from "../pages/system.js";
 
 const floatingCta=mountFloatingCta();
 const main = document.getElementById("main");
+const pageTransition = createPageTransition(main);
 mountCoverLoading(main);
 const publicCatalogGet=endpoint=>(takeCatalogBootstrap(endpoint)?.catch(()=>api.get(endpoint))||api.get(endpoint)).then(rememberCatalogMetadata);
 const modal = document.getElementById("modal-root");
@@ -170,15 +171,32 @@ function navigate(path, { replace = false } = {}) {
   const target = new URL(path, location.origin);
   if (routeController?.beforeLeave && !routeController.beforeLeave())
     return false;
+  const previousPath = location.pathname;
+  const withinPage = sameDocument(activeUrl, target.href) && location.hash !== target.hash;
   const catalogReturn = location.pathname === '/explore' && target.pathname.startsWith('/template/')
     ? location.pathname + location.search : null;
   if (catalogReturn) history.replaceState({ ...history.state, catalogScrollY: window.scrollY }, '');
   if (replace) history.replaceState({ momeviaIndex: historyIndex, catalogReturn }, "", path);
   else history.pushState({ momeviaIndex: ++historyIndex, catalogReturn }, "", path);
   activeUrl = location.pathname + location.search + location.hash;
-  window.scrollTo({ top: 0, behavior: "instant" });
+  closeNavigationMenus();
+  if (withinPage) {
+    scrollToPageAnchor();
+    return;
+  }
   state.photoDataUrl = null;
-  render();
+  render({ transition: canTransitionPage(previousPath) && canTransitionPage(target.pathname), resetScroll: true });
+}
+function closeNavigationMenus() {
+  setAccountMenu(false);
+  const menu = document.getElementById('mobile-nav');
+  const trigger = header.querySelector('[data-action="toggle-menu"]');
+  if (menu && trigger && !menu.hidden) setMobileMenu(trigger, menu, false);
+}
+function scrollToPageAnchor() {
+  const target = document.getElementById(location.hash.slice(1));
+  if (target) target.scrollIntoView({ behavior: scrollBehavior() });
+  else if (!location.hash) window.scrollTo({ top: 0, behavior: scrollBehavior() });
 }
 function readCatalogUrl() {
   const query = new URLSearchParams(location.search);
@@ -334,7 +352,7 @@ function mountHome() {
   }, { signal });
   loadFeatured();
   loadIdentity().then(() => {
-    if (state.user && !signal.aborted) refreshNav();
+    if (state.user && !signal.aborted && location.pathname === '/') refreshNav();
   }, () => {});
   const moment = main.querySelector('[data-moment]');
   const momentHost = moment.parentNode;
@@ -364,27 +382,43 @@ function mountHome() {
     moment.__moment?.destroy?.();
   } };
 }
-async function render() {
-  floatingCta.sync(location.pathname);
+async function render({ transition = false, resetScroll = false } = {}) {
   const isHome = location.pathname === '/';
   const isAuth = /^\/(login|register|recover|verify-email)\/?$/.test(location.pathname);
-  updatePageMetadata();
-  updatePageType(isHome);
   if (!isHome) loadAppFonts();
   const generation = ++renderGeneration;
-  closeModal();
-  routeController?.dispose?.();
-  routeController = null;
-  canvasCheckout = null;
-  document.body.classList.remove("is-designing", "is-playing-gift");
-  document.body.classList.toggle("is-home", isHome);
-  document.body.classList.toggle("is-auth", isAuth);
-  // Bố cục tối chỉ áp dụng Login/Register; recovery giữ giao diện chung.
-  document.body.classList.toggle("is-auth-entry", /^\/(login|register)\/?$/.test(location.pathname));
-  document.documentElement.classList.toggle("m-enter", isHome);
-  document.getElementById('announcement').hidden = location.pathname.startsWith('/g/');
-  refreshNav();
-  if (!isHome) main.innerHTML = loadingPage();
+  const deferred = transition && main.hasChildNodes() && canTransitionPage(location.pathname);
+  const finishTransition = pageTransition.begin(deferred);
+  let committed = false;
+  function commitPage() {
+    if (committed || generation !== renderGeneration) return;
+    committed = true;
+    closeModal();
+    routeController?.dispose?.();
+    routeController = null;
+    canvasCheckout = null;
+    updatePageMetadata();
+    updatePageType(isHome);
+    document.body.classList.remove('is-designing', 'is-playing-gift');
+    document.body.classList.toggle('is-home', isHome);
+    document.body.classList.toggle('is-creator', /^\/creator\/?$/.test(location.pathname));
+    document.body.classList.toggle('is-auth', isAuth);
+    document.body.classList.toggle("is-auth-entry", /^\/(login|register)\/?$/.test(location.pathname));
+    document.documentElement.classList.toggle('m-enter', isHome);
+    document.getElementById('announcement').hidden = location.pathname.startsWith('/g/');
+    refreshNav();
+    floatingCta.sync(location.pathname);
+  }
+  function showPage(html) {
+    if (generation !== renderGeneration) return;
+    commitPage();
+    main.innerHTML = html;
+  }
+  if (!deferred) {
+    commitPage();
+    if (resetScroll) window.scrollTo({ top: 0, behavior: 'instant' });
+    if (!isHome) main.innerHTML = loadingPage();
+  }
   try {
     const segments = location.pathname.split("/").filter(Boolean);
     const [route, id] = segments;
@@ -401,7 +435,7 @@ async function render() {
     if (route && route !== "g") {
       const results = await loadPageData(route);
       if (generation !== renderGeneration) return;
-      refreshNav();
+      if (!deferred) refreshNav();
       const failure = results.find(result => result.status === "rejected");
       catalogFailed = route === 'explore' && results[1]?.status === 'rejected';
       if (failure && !catalogFailed) toast(failure.reason.message, "error");
@@ -409,20 +443,21 @@ async function render() {
     if (!route) {
       try{await loadCatalog();}catch{/* Home retains its Catalog retry state. */}
       if(generation!==renderGeneration)return;
+      commitPage();
       routeController = mountHome();
     }
     else if (route === "explore") {
       readCatalogUrl();
-      main.innerHTML = explore({ catalogFailed });
+      showPage(explore({ catalogFailed }));
       const scrollPosition = history.state?.catalogScrollY;
       if (Number.isFinite(scrollPosition)) window.scrollTo({ top: scrollPosition, behavior: 'instant' });
     }
     else if (route === "template") {
       const { template } = await publicCatalogGet(`/catalog/templates/${encodeURIComponent(id)}`);
       if (generation !== renderGeneration) return;
-      main.innerHTML = template
+      showPage(template
         ? templateDetail(template, { catalogReturn: history.state?.catalogReturn })
-        : errorPage(message("catalog.detail.unavailable"));
+        : errorPage(message("catalog.detail.unavailable")));
       if (template && main.querySelector('[data-template-preview]')) {
         routeController = mountTemplatePreview(main, template, { api, autoOpen: new URLSearchParams(location.search).get('preview') === '1' });
       }
@@ -504,7 +539,7 @@ async function render() {
         const { mountPlayer } =
           await import("../features/gift-runtime/index.js");
         if (generation !== renderGeneration) return;
-        main.innerHTML = `<section class="section"><div class="container"><div class="recipient-preferences">${localeControl()}</div><div id="canvas-public-player"></div>${gift.rsvp ? '<div data-rsvp-host></div>' : ''}<p class="recipient-disclaimer">${text("gift.player.forwarded")}</p><button class="btn btn--outline" data-action="report-content" data-kind="gift" data-id="${e(id)}">${text("gift.player.report")}</button> ${recipientViralCta()}</div></section>`;
+        main.innerHTML = `<section class="section recipient-section"><div class="container recipient-shell"><div id="canvas-public-player" class="recipient-player-host"></div>${gift.rsvp ? '<div data-rsvp-host></div>' : ''}</div></section>`;
         const player = mountPlayer(
           document.getElementById("canvas-public-player"),
           {
@@ -672,7 +707,7 @@ async function render() {
         statement = financeResult?.statement || null;
       }
       if (generation !== renderGeneration) return;
-      main.innerHTML = creatorPage(templates, legacy, statement);
+      showPage(creatorPage(templates, legacy, statement));
     } else if (route === "admin") {
       if (state.user?.role !== "admin")
         main.innerHTML = errorPage(message("admin.access"));
@@ -716,28 +751,31 @@ async function render() {
         if (generation !== renderGeneration) return;
         main.innerHTML = adminPage(pending.value?.templates ?? null, tickets.value?.requests ?? null, state.user, versions.value?.queue ?? null);
       }
-    } else if (route === "about") main.innerHTML = aboutPage();
-    else if (route === 'pricing') main.innerHTML = pricingPage();
+    } else if (route === "about") showPage(aboutPage());
+    else if (route === 'pricing') showPage(pricingPage());
     else if (route === "recover" || route === "verify-email")
-      main.innerHTML = recoveryPage({ verify: route === "verify-email", googleUnlinked: new URLSearchParams(location.search).get("google") === "unlinked" });
+      showPage(recoveryPage({ verify: route === "verify-email", googleUnlinked: new URLSearchParams(location.search).get("google") === "unlinked" }));
     else if (route === "login" || route === "register") {
       if (state.user && await finishAuthentication(state.user, null, { defaultTarget: null })) return;
-      main.innerHTML = authPage(route);
+      if (generation !== renderGeneration) return;
+      showPage(authPage(route));
     } else if (route === "policies" && legalPages[id])
-      main.innerHTML = legalPage(id);
-    else main.innerHTML = errorPage(message("system.error.notFound"));
+      showPage(legalPage(id));
+    else showPage(errorPage(message("system.error.notFound")));
     const anchor = location.hash.slice(1);
     if (anchor)
-      setTimeout(
-        () =>
-          document
-            .getElementById(anchor)
-            ?.scrollIntoView({ behavior: scrollBehavior() }),
-        30,
-      );
+      requestAnimationFrame(() => {
+        if (generation === renderGeneration) scrollToPageAnchor();
+      });
   } catch (error) {
     if (generation !== renderGeneration || error.name === "AbortError") return;
-    main.innerHTML = errorPage(errorCopy(error, message("system.error.unknown")));
+    showPage(errorPage(errorCopy(error, message("system.error.unknown"))));
+  } finally {
+    if (generation === renderGeneration && committed) {
+      if (deferred && resetScroll && !Number.isFinite(history.state?.catalogScrollY)) window.scrollTo({ top: 0, behavior: 'instant' });
+      if (deferred) main.focus({ preventScroll: true });
+      finishTransition();
+    }
   }
 }
 function updatePreview() {
@@ -1005,6 +1043,12 @@ async function handleAction(action, element) {
     await render();
     return;
   }
+  if (action === "creator-jump") {
+    const target = document.getElementById(element.getAttribute('href')?.slice(1));
+    if (target?.closest('.creator-space')) focusVisibleTarget(target, { block: 'start' });
+    return;
+  }
+  if (action === "creator-login") return requireLogin('/creator');
   if (action === "login") return navigate("/login");
   if (action === "register") return navigate("/register");
   if (action === "support") return openSupport();
@@ -1705,9 +1749,12 @@ window.addEventListener("popstate", (event) => {
     } else history.pushState({ momeviaIndex: historyIndex }, "", activeUrl);
     return;
   }
+  const previous = new URL(activeUrl, location.origin);
   historyIndex = Number.isInteger(targetIndex) ? targetIndex : historyIndex;
   activeUrl = location.pathname + location.search + location.hash;
-  render();
+  closeNavigationMenus();
+  if (sameDocument(previous.href, location.href)) return;
+  render({ transition: canTransitionPage(previous.pathname) && canTransitionPage(location.pathname) });
 });
 function updateScrollTools() {
   const button = document.getElementById("back-to-top");

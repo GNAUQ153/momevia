@@ -60,7 +60,7 @@ test('CTA gửi tiếp không rò rỉ invite token hoặc nội dung quà', () 
   assert(!html.includes('🎁'));
 });
 
-test('Legacy Gift và Canvas Gift đều gắn component CTA chung', () => {
+test('Legacy Gift giữ CTA chung, Canvas nhận quà chỉ dựng khung thiệp', () => {
   const legacy = createGiftViews({
     state: { user: null, favorites: new Set() },
     buttonLink: () => '',
@@ -73,7 +73,7 @@ test('Legacy Gift và Canvas Gift đều gắn component CTA chung', () => {
   assert.match(legacy.replace(/<!--[^]*?-->/g, ''), /Tạo bằng <strong>Momevia<\/strong>/);
   assert.doesNotMatch(legacy, /source=gift-private/);
   const main = fs.readFileSync(new URL('../../web/js/app/main.js', import.meta.url), 'utf8');
-  assert.match(main, /\$\{recipientViralCta\(\)\}/);
+  assert.doesNotMatch(main, /\$\{recipientViralCta\(\)\}/, 'Canvas recipient links show the card without an external promotion');
   assert(!main.includes('Created with momevia.'));
 });
 

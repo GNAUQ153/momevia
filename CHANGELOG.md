@@ -10,6 +10,14 @@
 - Hiển thị mã đơn, ngày xác nhận UTC, nhãn thử nghiệm và lưu ý không phải hóa đơn VAT; giữ giao diện VI/EN và nút in hiện tại.
 - Không migration, không sửa dữ liệu lịch sử hoặc thay đổi chính sách thanh toán; bổ sung kiểm thử unit, MySQL QA và browser.
 
+## Unreleased — Sửa kiểm thử trình duyệt CI của PR #28 (2026-11-25)
+
+- Giữ nhãn và bộ chọn bộ lọc trên cùng hàng ở màn hình hẹp để thẻ mẫu đầu tiên vẫn xuất hiện trong màn hình 390 px ở cả VI/EN.
+- Khôi phục vùng chạm tối thiểu 44 px cho Undo/Redo của Editor trên màn hình nhỏ.
+- Kiểm thử Editor mở menu Công cụ qua summary trước khi đổi ngôn ngữ, chuyển chế độ hoặc mở Fabric; giữ các kiểm tra nội dung, lưu nháp và quyền truy cập hiện có.
+- Kiểm thử nhận quà Canvas dùng nút trong thiệp, xác minh không có thanh chuyển cảnh/CTA bên ngoài và giữ kiểm tra điều hướng, tải dữ liệu, hồi đáp độc lập với Auth/Catalog.
+
+
 ## Unreleased — Phase 2.5B Cảnh báo hết hạn và gia hạn (2026-11-25)
 
 - Cảnh báo Sender khi thiệp còn tối đa 7 ngày; gia hạn một lần theo cấu hình 0–30 ngày, mặc định tắt.
@@ -21,6 +29,107 @@
 - Sender có thể lưu trữ/đưa về danh sách thiệp hết hạn hoặc thu hồi, giữ nội dung, lời đáp, RSVP và trạng thái đóng.
 - Backend từ chối thời hạn không hợp lệ; kiểm tra lại thu hồi khi đọc tài nguyên Canvas MySQL. Kiểm tra chủ thiệp và trạng thái trong thao tác ghi.
 - Không migration, không tự gia hạn hoặc hoàn lượt; chưa thay đổi điều khoản Free/Premium. Thêm kiểm thử JSON, MySQL và giao diện VI/EN.
+
+## Unreleased — Gộp tài liệu frontend hiện hành (2026-11-25)
+
+- Thay 25 ghi chú UI/kiểm kê theo phase hoặc phiên bản cũ bằng một hướng dẫn bảo trì frontend, liên kết với Canvas, API, icon và vận hành hiện hành.
+- Giữ các hợp đồng về tài liệu Canvas, snapshot, media bất biến, quyền, CAS, thao tác lớp và khả năng tiếp cận; lịch sử chi tiết tiếp tục nằm trong Git.
+
+## Unreleased — Dọn đầu ra build web không còn dùng (2026-11-25)
+
+- Build ghi đủ manifest JS/CSS và dọn tệp sinh ra không thuộc bản hiện tại hoặc bản liền trước, gồm các bản nén; giữ nguyên URL còn được tham chiếu.
+- Bỏ qua dọn khi manifest cũ thiếu/hỏng; không đi theo liên kết thư mục/tệp và kiểm đường dẫn trước khi xóa. Bổ sung kiểm thử bảo toàn đầu ra và giới hạn phạm vi dọn.
+
+## Unreleased — Loại tài nguyên QA và dữ liệu công cụ đã cũ (2026-11-25)
+
+- Bỏ 64 tệp minh chứng trong tài nguyên web, gói xuất 50 icon không còn được đọc và script chèn changelog một lần đã hoàn tất.
+- Chặn thư mục tài nguyên QA trong Git và gói nguồn; giữ media sản phẩm, fixture hồi quy, dữ liệu và các gói nâng cấp còn được dùng.
+
+## Unreleased — Kiểm thử chuyển động có thể chạy lại (2026-11-25)
+
+- Giữ kiểm thử hợp đồng, tương thích bản cũ, tài nguyên ảnh và xung đột gói cập nhật cho 56 icon.
+- Thêm lệnh kiểm hình học trên renderer thật bằng Chrome/Chromium hoặc WebKit; tự mở cổng trống, không dùng DB/tài khoản/phiên QA đã lưu và không sinh minh chứng vào repo. Bổ sung hướng dẫn bảo trì ngắn thay các báo cáo theo đợt.
+
+## Unreleased — Gói cập nhật thư viện 56 icon có kiểm phiên bản (2026-11-25)
+
+- Tạo gói cập nhật cho đúng 56 ID hiện hữu, giữ trạng thái và thứ tự thư viện; yêu cầu revision và fingerprint của dữ liệu trước sửa.
+- Bộ áp dụng kiểm toàn bộ ID, số lượng, phụ thuộc và xung đột; giữ cơ chế chạy lại và hoàn tác theo lịch sử. Không kèm gói dữ liệu hoặc cấu hình chỉ dành cho một máy cục bộ.
+
+## Unreleased — Chỉnh chuyển động 56 icon Studio (2026-11-25)
+
+- Dựng lại hoặc tinh chỉnh 50 vector và 6 mẫu ảnh theo điểm gắn, vùng che, lớp trước/sau và nhịp vật liệu; giữ ID, khả năng chọn một vật thể và hai dòng điều khiển của vector.
+- Đổi nhãn mặt dây chuyền, bồ câu và sao, giữ từ khóa cũ; tim mới mặc định tắt xoay, quà/giấy chạy một lượt và tia cát kết thúc cùng lượng cát.
+
+## Unreleased — Cấu trúc icon chuyển động có phiên bản (2026-11-25)
+
+- Thêm tư thế đường nét đồng cấu, vùng che theo biên, tư thế nghỉ và lớp ảnh nội bộ đã duyệt; giữ bộ đọc cấu hình cũ và các giới hạn dữ liệu hiện hành.
+- Ngòi đi theo chính chiều dài đường mực; dựng hình, ảnh bìa và chế độ giảm chuyển động dùng cùng cấu trúc bộ phận. Bổ sung cách cập nhật đường nét cho trình duyệt chưa hỗ trợ nội suy trực tiếp, có dừng và giải phóng theo cảnh.
+
+## Unreleased — Dọn repo và tách tệp phát sinh (2026-11-25)
+
+- Loại các gallery/mẫu thử, ảnh/video, báo cáo và script QA theo đợt; giữ tài nguyên sản phẩm, giấy phép và fixture hồi quy đang dùng.
+- Chặn thư mục bằng chứng phát sinh trong Git và gói nguồn, chuyển báo cáo dựng artwork vào local; cập nhật liên kết tài liệu và bỏ mục đóng gói trùng.
+
+## Unreleased — Thiệp nhận quà sát mép trên điện thoại (2026-11-25)
+
+- Điện thoại và màn hình dọc dùng toàn bộ chiều rộng, bỏ khoảng đệm và góc bo tạo viền trắng. Nền thiệp kéo hết chiều cao màn hình khi nội dung ngắn, đổi theo màu cảnh đang mở.
+- Chỉ căn giữa/giới hạn chiều cao trên màn hình rộng từ 1025 px và tỷ lệ ngang/dọc từ 3:2; điện thoại xoay ngang vẫn ưu tiên sát mép. Giữ đúng tỷ lệ nội dung, cuộn dọc và responsive của chữ/form, không cắt thiệp hoặc sửa snapshot.
+
+## Unreleased — Link nhận quà không hiển thị điều hướng cảnh (2026-11-25)
+
+- Không dựng thanh tiến trình, các nút chọn cảnh và nhãn số cảnh trên link nhận quà; người nhận chuyển cảnh bằng các tương tác nằm trong thiệp.
+- Bỏ bộ chọn ngôn ngữ, thông báo chuyển tiếp, nút báo cáo và khối gợi ý/tạo quà nằm ngoài thiệp ở trang Canvas nhận quà. Giữ tương tác trong thiệp, âm thanh/chuyển động khi có cấu hình và RSVP của thiệp mời.
+- Giữ điều hướng cảnh trong chế độ xem thử, các hiệu ứng chuyển cảnh, phản hồi lỗi cần thiết và luồng hồi đáp hiện có.
+
+## Unreleased — Ô cảnh nhỏ gọn và bố cục link nhận quà (2026-11-25)
+
+- Giảm ô cảnh xuống khoảng 128 × 64 px, thumbnail nhỏ hơn, tên tối đa hai dòng và có tooltip; giữ nút ba chấm trong ô và vùng chạm 44 px trên màn hình nhỏ.
+- Canvas gửi qua link vốn co giãn theo chiều rộng, chữ tối thiểu 16 px và tự nới chiều cao khi nội dung dài. Bổ sung khung nhận quà theo tỷ lệ thiệp, chiều cao màn hình và giới hạn tác giả; giảm khoảng đệm đầu trang để nút mở không bị đẩy quá xa trên máy tính.
+- Giữ cuộn dọc, thứ tự lớp, nội dung/snapshot và quyền mở/hồi đáp; preview và Editor không thay đổi tỷ lệ thiết kế. Không thay đổi dữ liệu thiệp hoặc cơ chế gửi link.
+
+## Unreleased — Menu cảnh gọn và chuyển cảnh trong Editor (2026-11-25)
+
+- Đặt nút ba chấm dọc bên trong từng ô cảnh; menu mở nổi phía trên/cạnh nút, không kéo dài dải cảnh hoặc làm vùng thiệp co lại. Đóng khi bấm ngoài, Escape, cuộn hay đổi kích thước màn hình.
+- Chọn cảnh khác trong Editor có hiệu ứng hiện nhẹ 180 ms; không chạy lại khi chỉ chọn/chỉnh một lớp, không thay đổi mức thu phóng, hủy đúng khi đổi nhanh hoặc yêu cầu giảm chuyển động. Xem thử/nhận quà tiếp tục dùng hiệu ứng từng cảnh đã cấu hình.
+
+## Unreleased — Không gian chỉnh sửa thích ứng màn hình (2026-11-25)
+
+- Gọn thanh thao tác: giữ Lưu/Xem trước/Xuất bản, chuyển chế độ và các công cụ mở rộng vào menu Công cụ; bỏ tiêu đề/hướng dẫn lặp quanh Canvas và chỉ hiện mô tả lưu khi cần chú ý.
+- Bố cục chỉnh sửa vừa chiều cao màn hình, các bảng cuộn riêng, thiệp tự vừa khung; dưới 1024 px dùng các bảng mở theo mục, có khóa focus và đóng bằng Escape. Cá nhân hóa nhanh vẫn giữ bảng nhập nội dung.
+- Thu gọn phần hiệu ứng và hướng dẫn biến tên, bỏ mô tả nhạc/hiệu ứng thừa; giữ thông tin lỗi, giới hạn tải ảnh, quyền chỉnh sửa, nhập danh sách và trạng thái lưu. Không thay đổi dữ liệu thiệp, API hay quyền.
+
+## Unreleased — CTA ở chi tiết mẫu (2026-11-25)
+
+- Trang chi tiết mẫu dùng một popup “Tạo thiệp ngay” màu tím, không khung nền, cùng nhịp đập/gợn sóng và chuyển động vào/ra của thư viện.
+- Popup dùng đúng mẫu, chế độ nhanh và phiên bản đang xem; ẩn trong lúc tải/lỗi, khi footer xuất hiện hoặc mở xem thử, hiện lại khi rời footer/đóng xem thử. Rời trang chi tiết trả lại đích tạo thiệp mới.
+
+## Unreleased — Menu và chuyển trang nhẹ (2026-11-25)
+
+- Bỏ mục “Cách hoạt động” ở menu desktop và menu thu gọn; giữ phần hướng dẫn trong trang chủ.
+- Khi đi giữa các trang công khai, giữ nội dung hiện tại trong lúc tải và chỉ đổi bố cục/cuộn khi trang mới sẵn sàng, kèm hiệu ứng hiện nhẹ 220 ms và thanh báo tải nhỏ nếu phải chờ.
+- Hủy hiệu ứng cũ khi chuyển nhanh, tôn trọng tùy chọn giảm chuyển động; liên kết cùng trang không dựng lại toàn bộ nội dung, giữ cảnh báo rời trình chỉnh sửa và vị trí quay lại thư viện.
+
+## Unreleased — CTA tạo thiệp trong thư viện (2026-11-25)
+
+- Thêm nút “Tạo thiệp ngay” ở đầu thư viện, dẫn đến trình tạo thiệp. Popup chỉ hiện khi nút đầu trang bị khuất từ 50% trở lên, tính cả phần bị header cố định che; cuộn lên thì ẩn popup.
+- Thư viện dùng một CTA nổi tạo thiệp, giữ hiệu ứng vào/ra, nhịp chậm và điều kiện ẩn tại footer/modal. Đổi nhãn “Tạo mẫu ngay” thành “Tạo thiệp ngay”, đồng bộ VI/EN.
+- CTA nổi là nút tím chữ trắng, không có khung nền bên ngoài, kèm nhịp đập và vòng sóng tím chậm; nền thư viện trung tính và từng thẻ mẫu có viền riêng, chữ/giá rõ hơn.
+
+## Unreleased — Chuyển động CTA từ banner xuống cụm nổi (2026-11-25)
+
+- Thêm nhịp đập và vòng sóng lan ngắn cho hai CTA, giữ vùng bấm cố định; khi cần ẩn, cả cụm trượt phải rồi mới biến mất. Hủy đúng chuyển động khi cuộn ngược nhanh và hỗ trợ reduced motion.
+- Khi hiện lại, CTA trượt từ mép phải vào; đảo chiều liên tục dùng vị trí hiện tại để không giật. Lần rời banner đầu tiên vẫn dùng chuyển động từ banner.
+- Trên trang chủ, CTA giữ hiển thị qua phần nội dung và FAQ, chỉ ẩn khi footer logo/liên kết thực sự vào màn hình hoặc mở modal; theo dõi lại đúng footer khi giao diện được dựng lại.
+- Hai nút nổi trượt từ vị trí CTA trong banner về góc dưới khi cuộn qua banner; chỉ chạy một lần cho mỗi lượt rời banner, sẵn sàng lại khi cuộn lên.
+- Giữ đích và chức năng các nút hiện có; trang khác tiếp tục tránh che nội dung, trang chủ chỉ ẩn ở footer thật/modal, không thêm khoảng đệm hoặc dịch chuyển bố cục trang.
+- Tạm ngăn tương tác trong lúc nút đang di chuyển, bỏ hiệu ứng khi người dùng yêu cầu giảm chuyển động; hủy sạch chuyển động khi đổi trang hoặc ẩn cụm nút.
+
+## Unreleased — Creator, bố cục trang và ảnh thư viện (2026-11-25)
+
+- Đồng bộ trang Creator với màu/font Momevia, thêm hướng dẫn tạo mẫu, trạng thái bộ sưu tập và phản hồi thao tác; giữ nội dung form khi chuyển khu vực và quay về Creator sau đăng nhập.
+- Bỏ khoảng đệm thừa dưới trang; nút nổi nhường chỗ cho nội dung, footer, modal và các luồng tài khoản/quản lý/thiết kế/nhận quà. Chỉ giữ chiều cao dự phòng khi nội dung đang tải.
+- Thêm ảnh bìa WebP theo kích thước và mật độ màn hình, giữ lazy loading khi cuộn, tái sử dụng ảnh khi lọc/phân trang và đổi đúng VI/EN. Ảnh nhúng WebP được chuẩn hóa trong bộ nhớ trước khi dựng; ảnh SVG gốc và nội dung quà được giữ nguyên.
+- Rà soát 22 trang/luồng tại 130 vị trí; kiểm 28 ảnh bìa và bổ sung kiểm thử tải ảnh, cache, focus và trạng thái mẫu. Phép đo thư viện 1440/390 px đạt 0 lỗi, 0 cảnh báo; ảnh tải trên mobile giảm khoảng 96%. Không có migration hoặc thay đổi dữ liệu người dùng; chưa kiểm tra thiết bị vật lý/Safari.
 
 ## Unreleased — Phase 2.4B4 Mua thêm lượt xuất bản QA (2026-11-24)
 

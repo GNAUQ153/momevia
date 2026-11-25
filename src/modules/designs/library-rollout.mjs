@@ -1,4 +1,5 @@
 import {MOTION_ROLLOUT_ID,MOTION_ROLLOUT_IDS} from './motion-rollout.mjs';
+import {MOTION_REPAIR_ROLLOUT_ID,MOTION_REPAIR_IDS} from './motion-repair-rollout.mjs';
 import { CANDLE_SKINS } from '../../../web/js/shared/canvas/candle-skins.js';
 import { builtinMedia } from './builtin-media.mjs';
 import { createHash } from 'node:crypto';
@@ -11,11 +12,16 @@ const key=row=>`${row.kind}:${row.id}`;
 const state=row=>row?{status:row.status,sortOrder:row.sortOrder,definition:row.definition}:null;
 export function validateRollout(bundle){
  const stack=bundle?.id===MOTION_ROLLOUT_ID;
+ const repair=bundle?.id===MOTION_REPAIR_ROLLOUT_ID;
  const refresh=bundle?.id==='template-refresh-21-20261123-v1';
  const natural=['template-refresh-natural-20261123-v2','template-refresh-natural-20261123-v2-from-vector-v1'].includes(bundle?.id);
  const external=bundle?.id==='natural-open-elements-20261123-v1';
  const motion=bundle?.id==='natural-motion-loop-20261123-v1';
- if(bundle?.formatVersion!==1 || (!stack&&!refresh&&!natural&&!external&&!motion&&bundle.id!=='interactive-cards-20261122-v1') || !Array.isArray(bundle.changes) || bundle.changes.length>(stack?51:motion?6:external?12:natural?75:refresh?45:32))throw new Error('Unsupported library update');
+ if(bundle?.formatVersion!==1 || (!repair&&!stack&&!refresh&&!natural&&!external&&!motion&&bundle.id!=='interactive-cards-20261122-v1') || !Array.isArray(bundle.changes) || bundle.changes.length>(repair?56:stack?51:motion?6:external?12:natural?75:refresh?45:32))throw new Error('Unsupported library update');
+ if(repair){
+  if(bundle.changes.length!==56||!Array.isArray(bundle.dependencies)||bundle.dependencies.length)throw new Error('Exactly 56 existing icons required');
+  for(const c of bundle.changes){if(c.next.kind!=='element'||!MOTION_REPAIR_IDS.includes(c.next.id)||!c.before||c.expectedRevision!==c.before.revision||c.expectedFingerprint!==fingerprint(c.before))throw new Error('Unreviewed motion repair baseline');}
+ }
  if(stack){
   if(bundle.changes.length!==51||!Array.isArray(bundle.dependencies)||bundle.dependencies.length)throw new Error('Exactly 50 new IDs and the heart upgrade required; no external dependencies.');
   for(const c of bundle.changes){

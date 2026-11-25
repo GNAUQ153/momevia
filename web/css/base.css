@@ -8,6 +8,9 @@ html {
   scroll-padding-top: 100px;
 }
 body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100svh;
   margin: 0;
   background: var(--paper);
   color: var(--ink);

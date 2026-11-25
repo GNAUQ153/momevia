@@ -6,19 +6,16 @@ export function createLayout({ state, header, footer, homeClosing }) {
   let headerKey;
   let footerIsHome;
 
-  function activeLink(path, label, section = "") {
+  function activeLink(path, label) {
     const current = location.pathname;
-    const hash = location.hash;
     const active =
       path === "/"
-        ? current === "/" && hash !== "#how-it-works"
-        : section
-          ? current === "/" && hash === "#how-it-works"
-          : current === path ||
-            (path === "/explore" &&
-              ["/template/", "/create/"].some((prefix) =>
-                current.startsWith(prefix),
-              ));
+        ? current === "/"
+        : current === path ||
+          (path === "/explore" &&
+            ["/template/", "/create/"].some((prefix) =>
+              current.startsWith(prefix),
+            ));
     return `<a href="${path}" data-link class="${active ? "is-active" : ""}" ${active ? 'aria-current="page"' : ""}>${label}</a>`;
   }
 
@@ -28,7 +25,6 @@ export function createLayout({ state, header, footer, homeClosing }) {
     const links = [
       activeLink("/", text("shell.nav.home")),
       activeLink("/explore", text("shell.nav.explore")),
-      activeLink("/#how-it-works", text("shell.nav.how"), "how-it-works"),
       activeLink("/creator", text("shell.nav.forCreators")),
       activeLink("/pricing", text("shell.pages.pricing")),
       activeLink("/about", text("shell.nav.about")),
@@ -36,7 +32,7 @@ export function createLayout({ state, header, footer, homeClosing }) {
     const studioActive =
       location.pathname === "/studio" || location.pathname === "/favorites";
     const nextHeaderKey = JSON.stringify([
-      location.pathname, location.hash, state.user?.name, state.user?.role, signedIn,
+      location.pathname, state.user?.name, state.user?.role, signedIn,
     ]);
     if (headerKey !== nextHeaderKey) {
       header.innerHTML = `

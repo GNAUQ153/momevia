@@ -2,6 +2,7 @@
 // All parts use the same local 100×100 artboard, including their resting poses.
 import {createElement} from './registry.js';
 import {motionRow} from './motion-stack.js';
+import {revisePriorityMotion,reviseOtherMotion,refineMotion} from './motion-revision-20261125.js';
 const rose='#CB7799',pink='#EFC2D6',purple='#8C71AA',ink='#7B6C86',paper='#FFF4DE',gold='#D9AC62',green='#527E68',leaf='#9FBDA0',blue='#9DBFD2',white='#FFFDF8';
 const path=(d,fill='none',stroke=ink,strokeWidth=1.5)=>({d,fill,stroke,strokeWidth});
 const rect=(x,y,w,h,fill=paper)=>path(`M${x} ${y}h${w}v${h}h${-w}Z`,fill);
@@ -219,11 +220,14 @@ entries[45].rows[0].tracks=[track('lid',[[0,{scaleY:.05}],[.8,{scaleY:1}],[1,{sc
 const ticket=entries[48];ticket.parts[0].vector.paths.pop();ticket.parts.splice(1,0,part('hole','Lỗ vé vừa bấm',ellipse(75,59,3.5,3.5,ink)));ticket.rows[1].tracks.push(track('hole',[[0,{opacity:0}],[.45,{opacity:0}],[.6,{opacity:1}],[1,{opacity:1}]],.75,.59));
 for(const e of entries)for(const r of e.rows)for(const t of r.tracks){const p=e.parts.find(p=>p.id===t.target);if(p)p.anchor={...t.anchor};}
 const accents=[rose,gold,rose,gold,gold,pink,rose,blue,blue,rose,pink,pink,purple,blue,purple,gold,purple,rose,pink,rose,pink,gold,paper,leaf,leaf,pink,purple,gold,green,gold,gold,gold,purple,gold,rose,rose,pink,blue,rose,leaf,ink,ink,pink,purple,ink,purple,rose,gold,gold,paper];
+revisePriorityMotion(entries);
+reviseOtherMotion(entries);
+refineMotion(entries);
 for(const [i,e]of entries.entries()){
- e.accent=accents[i];for(const p of e.parts)for(const vector of p.vector.paths)for(const key of ['fill','stroke'])if(vector[key]===e.accent)vector[key]='color';
+ e.accent=accents[i];for(const p of e.parts)for(const vector of [...p.vector.paths,...(p.poses||[]).flatMap(v=>v.paths)])for(const key of ['fill','stroke'])if(vector[key]===e.accent)vector[key]='color';
 }
 export const ANIMATED_GROUPS=[['Tình yêu và gắn kết','Love and connection'],['Sinh nhật và chúc mừng','Birthday and celebration'],['Hoa lá và khu vườn','Flowers and garden'],['Bầu trời và ánh sáng','Sky and light'],['Giấy thư và kỷ vật','Letters and keepsakes']];
 export const ANIMATED_ELEMENTS=Object.freeze(entries);
 export function animatedElementCards(group,locale='vi'){
- return entries.filter(e=>e.group===group).map(e=>({id:e.id,title:locale==='en'?e.en:e.vi,titleTexts:{vi:e.vi,en:e.en},visualKind:'animation',keywords:`${e.vi} ${e.en} ${e.rest} ${e.rows.map(r=>r.title).join(' ')}`,create:()=>[createElement('shape',{name:e.vi,layout:{x:0,y:0,width:220,height:220},props:{kind:'rectangle',color:e.accent,strokeWidth:0,radius:0},assembly:{version:1,parts:structuredClone(e.parts)},motions:{version:1,enabled:true,rows:structuredClone(e.rows)}})]}));
+ return entries.filter(e=>e.group===group).map(e=>({id:e.id,title:locale==='en'?e.en:e.vi,titleTexts:{vi:e.vi,en:e.en},visualKind:'animation',keywords:`${e.vi} ${e.en} ${e.rest} ${e.keywords||''} ${e.rows.map(r=>r.title).join(' ')}`,create:()=>[createElement('shape',{name:e.vi,layout:{x:0,y:0,width:220,height:220},props:{kind:'rectangle',color:e.accent,strokeWidth:0,radius:0},assembly:{version:e.assemblyVersion||1,parts:structuredClone(e.parts)},motions:{version:1,enabled:true,rows:structuredClone(e.rows)}})]}));
 }

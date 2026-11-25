@@ -1,9 +1,0 @@
-
-> momevia-mvp@1.1.0 build
-> node scripts/build/web.mjs
-
-PASS 2653 VI/EN keys, parameter parity, tracked dynamic keys and plural counts 0/1/2.
-Built local QR module (qrcode-generator 2.0.4, MIT).
-Built 28 editable-template cover previews.
-Built local Fabric.js 7.4.0 ESM bundle (MIT).
-Built browser ESM chunks and 46 stylesheets in one ordered CSS bundle.

@@ -229,6 +229,22 @@ export async function runExpandedApi(base, cookie, otherCookie, { artifacts, all
       for (const [i,slot] of element.props.photos.slice(0,2).entries())
         Object.assign(slot,{assetId:photoIds[i],alt:`Ảnh QA ${i+1}`,caption:`Chú thích QA ${i+1}`,focalPoint:{x:i?.7:.2,y:.29}});
     }
+    // Public gifts navigate only through document elements. Give this synthetic
+    // interaction fixture its own scene links; preview still tests shell navigation.
+    for (const scene of document.scenes) {
+      const bottom = Math.max(...document.elements.filter(element => scene.elementIds.includes(element.id))
+        .map(element => element.layout.y + element.layout.height));
+      for (const [index, target] of document.scenes.entries()) {
+        const link = createElement('button', {
+          id: `qa-nav-${scene.id}-${target.id}`,
+          layout: { x: 26, y: bottom + 20 + index * 54, width: 334, height: 44 },
+          props: { label: `Cảnh QA ${index + 1}`, color: '#6136DF' },
+          actions: [{ on: 'activate', type: 'goToScene', targetSceneId: target.id }],
+        });
+        scene.elementIds.push(link.id);
+        document.elements.push(link);
+      }
+    }
     const ack=await save(draft,document);
     const {gift}=await api('/gifts/gifts/from-design',{status:201,body:{designId:draft.id,expectedRevision:ack.savedRevision,
       expectedDocumentHash:ack.documentHash,idempotencyKey:randomUUID()}});

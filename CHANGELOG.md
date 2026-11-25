@@ -1,3 +1,8 @@
+## Unreleased — Kiểm thử chuyển động có thể chạy lại (2026-11-25)
+
+- Giữ kiểm thử hợp đồng, tương thích bản cũ, tài nguyên ảnh và xung đột gói cập nhật cho 56 icon.
+- Thêm lệnh kiểm hình học trên renderer thật bằng Chrome/Chromium hoặc WebKit; tự mở cổng trống, không dùng DB/tài khoản/phiên QA đã lưu và không sinh minh chứng vào repo. Bổ sung hướng dẫn bảo trì ngắn thay các báo cáo theo đợt.
+
 ## Unreleased — Gói cập nhật thư viện 56 icon có kiểm phiên bản (2026-11-25)
 
 - Tạo gói cập nhật cho đúng 56 ID hiện hữu, giữ trạng thái và thứ tự thư viện; yêu cầu revision và fingerprint của dữ liệu trước sửa.

@@ -19,6 +19,7 @@
     "test:browser": "node tests/integration/architecture.mjs --browser",
     "test:demo:browser": "node tests/integration/web-demo.mjs",
     "test:canvas": "node tests/integration/canvas.mjs",
+    "test:motion:browser": "node tests/browser/motion-stack.mjs",
     "test:canvas:browser": "node tests/integration/canvas.mjs --browser",
     "test:canvas:mysql": "node tests/integration/canvas-mysql.mjs",
     "test:canvas:storage": "node tests/integration/canvas-storage-roundtrip.mjs",

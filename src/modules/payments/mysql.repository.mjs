@@ -11,6 +11,7 @@ import { findScopedCheckout, rememberScopedCheckout } from './checkout-scope-key
 import { findRepurchase, rememberRepurchase, repurchaseCandidate } from './publication-repurchase.mjs';
 import { grantPublicationCredit } from '../checkout/publication-credit.mjs';
 import { verifiedReceiptSql, paidAtIso } from './receipt-policy.mjs';
+import { paymentReference } from './settlement-evidence.mjs';
 
 const fromJson = value => typeof value === 'string' ? JSON.parse(value) : (value || {});
 const receiptNo = id => `MV-RC-${id.replace(/-/g, '').toUpperCase()}`;
@@ -174,8 +175,8 @@ export class MySqlPaymentRepository {
     // Bắt buộc caller nội bộ truyền phạm vi xác thực đã được xác định ở server.
     if (typeof expectedIsTest !== 'boolean' || (this.quotaEnabled && !expectedIsTest)) throw localizedError(503, 'errors.payment.reviewEnvironment');
     const { provider, code, reference, amount, currency, success } = event;
-    if (!success) return { settled: false, reason: 'not-paid' };
-    if (!Number.isSafeInteger(amount) || amount <= 0 || currency !== 'VND' || !reference || reference.length > 191)
+    if (success !== true) return { settled: false, reason: 'not-paid' };
+    if (!Number.isSafeInteger(amount) || amount <= 0 || currency !== 'VND' || !paymentReference(reference) || !['momo', 'payos'].includes(provider))
       throw localizedError(400, 'errors.payment.invalidTransaction');
     return this.client.withTransaction(async tx => {
       const [matches] = await tx.execute(`SELECT p.*,o.user_id,o.template_id,o.is_test,
@@ -189,13 +190,22 @@ export class MySqlPaymentRepository {
       // Kiểm tra trên đơn đã khóa, trước cả nhánh replay và mọi ghi dữ liệu.
       if (!samePaymentScope(expectedIsTest, storedPaymentScope(item.is_test)))
         throw localizedError(409, 'errors.payment.reviewEnvironment');
-      if (item.status === 'paid' && item.order_status === 'paid') return { settled: true, replay: true, orderId: item.order_id };
+      // payOS trả ID link và mã giao dịch riêng; đối chiếu link nếu đã lưu.
+      if (provider === 'payos' && (!paymentReference(event.providerPaymentId)
+        || (item.provider_payment_id && item.provider_payment_id !== event.providerPaymentId)))
+        throw localizedError(409, 'errors.payment.orderState');
+      if (item.status === 'paid' && item.order_status === 'paid') {
+        // Không báo replay thành công cho khoản chuyển khác. Giữ dữ liệu cũ để đối soát.
+        if (item.provider_reference !== reference) throw localizedError(409, 'errors.payment.orderState');
+        return { settled: true, replay: true, orderId: item.order_id };
+      }
       if (item.status !== 'pending' || item.order_status !== 'pending_payment') throw localizedError(409, 'errors.payment.orderState');
       // Event and entitlement are committed together. A failed transaction can be retried safely.
       await tx.execute('INSERT INTO payment_events(provider,event_key,payload) VALUES (?,?,?)',
         [provider, reference, JSON.stringify({ provider, code, reference, amount, currency })]);
-      await tx.execute(`UPDATE payment_intents SET status='paid',provider_reference=?,paid_at=UTC_TIMESTAMP(3)
-        WHERE id=? AND status='pending'`, [reference, item.id]);
+      await tx.execute(`UPDATE payment_intents SET status='paid',provider_reference=?,paid_at=UTC_TIMESTAMP(3),
+        provider_payment_id=COALESCE(NULLIF(provider_payment_id,''),?)
+        WHERE id=? AND status='pending'`, [reference, provider === 'payos' ? event.providerPaymentId : null, item.id]);
       await tx.execute(`UPDATE orders SET status='paid',payload=JSON_SET(payload,'$.status','paid') WHERE id=?`, [item.order_id]);
       await tx.execute(`INSERT INTO payment_transactions
         (id,order_id,provider,provider_reference,amount_vnd,status,provider_payload)

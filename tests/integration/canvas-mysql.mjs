@@ -311,6 +311,8 @@ try {
     assert.deepEqual(await readCounts(), [0, 0]);
     assert.equal((await payments.settleVerified(event, true)).replay, false);
     assert.equal((await payments.settleVerified(event, true)).replay, true);
+    // Phase 2.6B: giao dịch khác không được báo là replay thành công.
+    await assert.rejects(payments.settleVerified({ ...event, reference: uuid() }, true), { status: 409 });
     await assert.rejects(payments.settleVerified(event, false), { status: 409 });
     assert.deepEqual(await readCounts(), [1, 1]);
     // Phase 2.6A: đối chiếu biên nhận với intent thật trên MySQL QA.

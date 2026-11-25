@@ -98,7 +98,7 @@ test('Xác nhận Sandbox cấp đúng một credit; replay không ghi và Live 
     const result = await work({ async execute(sql, args) {
       calls.push([sql, args]);
       if (sql.includes('FROM payment_intents p JOIN orders o')) return [[{ id: 'intent', order_id: 'order', amount_vnd: 10000,
-        is_test: 1, status: paid ? 'paid' : 'pending', order_status: paid ? 'paid' : 'pending_payment', user_id: 'buyer', template_id: 'template' }]];
+        is_test: 1, provider_reference: paid ? 'ref' : null, status: paid ? 'paid' : 'pending', order_status: paid ? 'paid' : 'pending_payment', user_id: 'buyer', template_id: 'template' }]];
       return [{ affectedRows: 1 }];
     } });
     paid = true; return result;

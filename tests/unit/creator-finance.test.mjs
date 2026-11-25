@@ -101,7 +101,7 @@ test('Webhook ghi sale đúng một lần, cùng transaction cấp quyền và b
       run.push([sql, args]);
       if (sql.includes('FROM payment_intents p JOIN orders o')) return [[{
         id: 'intent-a', order_id: '00000000-0000-4000-8000-000000000001',
-        provider: 'momo', status: paid ? 'paid' : 'pending',
+        provider: 'momo', provider_reference: paid ? 'provider-txn-a' : null, status: paid ? 'paid' : 'pending',
         order_status: paid ? 'paid' : 'pending_payment',
         amount_vnd: 59000, user_id: 'buyer-a', template_id: 'template-a',
         creator_amount_vnd: 47200, seller_id: 'creator-a', is_test: 0,

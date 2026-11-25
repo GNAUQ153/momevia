@@ -3,6 +3,7 @@ import { RateLimiter } from '../../shared/rate-limit.mjs';
 import { createMomoProvider, createPayOsProvider } from './providers.mjs';
 import { canonicalText } from '../../../web/js/shared/locale.js';
 import { RefundReviewService } from './refund-review.mjs';
+import { paymentReference } from './settlement-evidence.mjs';
 import { configuredPaymentScope, samePaymentScope } from './payment-scope.mjs';
 
 export function paymentMethods(env = process.env) {
@@ -199,7 +200,7 @@ export class PaymentService {
     const intent = await this.repository.forUser(orderId, user.sub);
     if (!intent) throw localizedError(404, 'errors.payment.notFound');
     if (intent.status === 'paid') return { payment: await this.status(user, orderId), providerState: 'paid' };
-    if (intent.status !== 'pending' || !intent.checkoutUrl || !intent.code)
+    if (intent.status !== 'pending' || !intent.code)
       throw localizedError(409, 'errors.payment.reviewState');
     if (!['momo', 'payos'].includes(intent.provider)) throw localizedError(503, 'errors.payment.providerUnsupported');
     // Queries of existing checkouts are allowed while NEW payments are disabled,
@@ -234,7 +235,9 @@ export class PaymentService {
     }
     if (result.state === 'paid') {
       if (result.provider !== intent.provider || result.code !== intent.code
-        || result.amount !== intent.amount || result.currency !== 'VND' || !result.reference) {
+        || result.amount !== intent.amount || result.currency !== 'VND' || !paymentReference(result.reference)
+        || (intent.provider === 'payos' && (!paymentReference(result.providerPaymentId)
+          || (intent.providerPaymentId && intent.providerPaymentId !== result.providerPaymentId)))) {
         await audit('mismatch');
         throw localizedError(502, 'errors.payment.reviewMismatch');
       }

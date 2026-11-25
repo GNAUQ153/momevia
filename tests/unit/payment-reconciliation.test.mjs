@@ -88,9 +88,9 @@ test('reconciliation is throttled per buyer/order after ownership check', async 
 
 test('payOS check never treats partial/cancelled as paid or accepts wrong link ID', () => {
   const params = {code:'1001234567', amount:25000, providerPaymentId:'link-123'};
-  const base = {id:'link-123',orderCode:1001234567, amount:25000, amountPaid:25000,status:'PAID'};
+  const base = {id:'link-123',orderCode:1001234567, amount:25000, amountPaid:25000,status:'PAID',transactions:[{amount:25000,reference:'bank-ref'}]};
   assert.deepEqual(parsePayOsInquiry(base, params), {
-    state:'paid',provider:'payos',code:params.code,amount:25000,currency:'VND',reference:'link-123',
+    state:'paid',provider:'payos',code:params.code,amount:25000,currency:'VND',reference:'bank-ref',providerPaymentId:'link-123',
   });
   assert.deepEqual(parsePayOsInquiry({...base, status:'CANCELLED'},params),{state:'terminal_review'});
   assert.deepEqual(parsePayOsInquiry({...base, status:'PENDING',amountPaid:5000},params),{state:'pending'});

@@ -91,18 +91,18 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Cảnh báo Sender khi thiệp còn tối đa 7 ngày; gia hạn một lần theo cấu hình 0–30 ngày, mặc định tắt.
-- Kiểm tra chủ thiệp, trạng thái và hạn hiện tại trong thao tác ghi; giữ link, RSVP và quyền truy cập. MySQL cập nhật cột thời hạn cùng payload.
-- Không mở lại thiệp đã đóng, không thay đổi giá hoặc quyền Premium, không migration.
+- Kiểm tra biên nhận khớp đơn đã thanh toán, intent, nhà cung cấp, số tiền và mã tham chiếu; dùng chung điều kiện với báo cáo ngoại lệ Admin.
+- Hiển thị mã đơn, ngày xác nhận UTC, nhãn thử nghiệm và lưu ý không phải hóa đơn VAT; giữ giao diện VI/EN và nút in hiện tại.
+- Không migration, không sửa dữ liệu lịch sử hoặc thay đổi chính sách thanh toán; bổ sung kiểm thử unit, MySQL QA và browser.
 
 **Các commit gần nhất trên `main`:**
 
+- `8ac74d5` — fix(ci): isolate hero cover failure scenario and await request rejection (2026-11-25)
+- `fad91e2` — feat(payment): validate receipt integrity and improve bilingual payment details (2026-11-25)
 - `6cdb9c3` — feat(gifts): add expiration warnings and idempotent gift renewal (2026-11-25)
 - `4107fce` — feat(gifts): add sender archive management and harden gift lifecycle access (2026-11-25)
 - `23ee34e` — feat(checkout): support additional premium publication credits in isolated QA (2026-11-25)
 - `d75f845` — Merge pull request #27 from GNAUQ153:feat/animated-elements-50-20261124 (2026-11-24)
-- `53a48e7` — feat(publication): add transactional premium publication credits for isolated QA (2026-11-24)
-- `205bc3c` — feat(checkout): introduce migration-safe scoped payment checkout keys (2026-11-24)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

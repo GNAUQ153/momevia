@@ -3,6 +3,12 @@
 - Trang chi tiết mẫu dùng một popup “Tạo thiệp ngay” màu tím, không khung nền, cùng nhịp đập/gợn sóng và chuyển động vào/ra của thư viện.
 - Popup dùng đúng mẫu, chế độ nhanh và phiên bản đang xem; ẩn trong lúc tải/lỗi, khi footer xuất hiện hoặc mở xem thử, hiện lại khi rời footer/đóng xem thử. Rời trang chi tiết trả lại đích tạo thiệp mới.
 
+## Unreleased — Menu và chuyển trang nhẹ (2026-11-25)
+
+- Bỏ mục “Cách hoạt động” ở menu desktop và menu thu gọn; giữ phần hướng dẫn trong trang chủ.
+- Khi đi giữa các trang công khai, giữ nội dung hiện tại trong lúc tải và chỉ đổi bố cục/cuộn khi trang mới sẵn sàng, kèm hiệu ứng hiện nhẹ 220 ms và thanh báo tải nhỏ nếu phải chờ.
+- Hủy hiệu ứng cũ khi chuyển nhanh, tôn trọng tùy chọn giảm chuyển động; liên kết cùng trang không dựng lại toàn bộ nội dung, giữ cảnh báo rời trình chỉnh sửa và vị trí quay lại thư viện.
+
 ## Unreleased — CTA tạo thiệp trong thư viện (2026-11-25)
 
 - Thêm nút “Tạo thiệp ngay” ở đầu thư viện, dẫn đến trình tạo thiệp. Popup chỉ hiện khi nút đầu trang bị khuất từ 50% trở lên, tính cả phần bị header cố định che; cuộn lên thì ẩn popup.

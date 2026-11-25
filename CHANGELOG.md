@@ -1,3 +1,8 @@
+## Unreleased — Phase 3.1 Kiểm tra kiến trúc (2026-11-25)
+
+- Bổ sung audit AST, baseline cạnh phụ thuộc hiện hữu và quality gate chống phát sinh vòng import tĩnh/phụ thuộc ngược.
+- Ghi nhận hotspot OOP, frontend, repository và pool MySQL; bổ sung sáu ca kiểm thử, không thay đổi runtime hoặc GUI.
+
 ## Unreleased — Phase 2.8 Nghiệm thu hồi quy nghiệp vụ (2026-11-25)
 
 - Bổ sung năm ca liên kết service/repository JSON: duyệt mẫu, Free, Premium, RSVP/gia hạn/lưu trữ, hạ quyền Creator. Tất cả fixture dùng thư mục tạm và không gọi nhà cung cấp thanh toán.

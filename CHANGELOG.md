@@ -1,3 +1,9 @@
+## Unreleased — Phase 2.8 Nghiệm thu hồi quy nghiệp vụ (2026-11-25)
+
+- Bổ sung năm ca liên kết service/repository JSON: duyệt mẫu, Free, Premium, RSVP/gia hạn/lưu trữ, hạ quyền Creator. Tất cả fixture dùng thư mục tạm và không gọi nhà cung cấp thanh toán.
+- Bổ sung ma trận quyền Guest/Sender/Creator/Admin trên HTTP fixture hiện có; kiểm tra từ chối sai role trước khi xử lý báo cáo tài chính MySQL.
+- Tài liệu nghiệm thu phân biệt kết quả CI, QA mô phỏng và điều kiện release production. Không thay đổi nghiệp vụ, schema, cấu hình triển khai hoặc GUI.
+
 ## Unreleased — Phase 2.7B Mô phỏng nhất quán hoàn tiền (2026-11-25)
 
 - Bổ sung module nội bộ chỉ dành cho MySQL QA cô lập; mặc định tắt, không đăng ký API hoàn tiền hoặc gọi provider.

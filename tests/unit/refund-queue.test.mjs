@@ -23,11 +23,13 @@ class QueueStub {
         status: index % 5 === 0 ? 'closed_declined' : index % 3 === 0 ? 'in_review' : 'submitted',
         page_created: timestamp, created_at: timestamp, updated_at: timestamp,
         payment_provider: 'payos', is_test: 1, gross_vnd: 59000,
+        receipt_consistent: 1, entitlement_state: 'active', credit_state: 'unavailable', sale_entries: 1, refund_entries: 0,
       };
     });
   }
   async execute(sql, params = []) {
     this.calls.push({ sql, params });
+    if (sql.includes('FROM schema_migrations')) return [[]];
     assert.match(sql, /^SELECT r\.\*,o\.payment_provider/);
     assert.match(sql, /ORDER BY r\.created_at DESC,r\.id DESC LIMIT \?/);
     assert(!sql.includes('UPDATE ') && !sql.includes('DELETE '));
@@ -103,6 +105,7 @@ test('Phân trang all/closed cho ra dữ liệu đúng và không lộ thông ti
   assert.equal(page.requests.length, db.rows.filter(r => r.status === 'closed_declined').length);
   for (const row of page.requests) {
     assert.equal(row.canRefund, false);
+    assert.deepEqual(row.assessment, { receipt: 'consistent', entitlement: 'active', credit: 'unavailable', creatorSaleEntries: 1, creatorRefundEntries: 0 });
     assert(!Object.keys(row).some(key => /webhook|bank|token|secret|raw/i.test(key)));
   }
 });

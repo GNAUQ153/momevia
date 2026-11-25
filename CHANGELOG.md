@@ -1,3 +1,9 @@
+## Unreleased — Phase 2.7A Rà soát hoàn tiền (2026-11-25)
+
+- Dùng chung chính sách biên nhận với yêu cầu hoàn tiền; từ chối hồ sơ mới khi đơn và bằng chứng nội bộ không nhất quán.
+- Admin xem dữ liệu đối soát quyền, credit và số bút toán Creator; chưa có migration 018 thì báo chưa có dữ liệu credit. Không trả thêm dữ liệu giao dịch cho Buyer.
+- Không thực hiện hoàn tiền, sửa ledger, thu hồi quyền hoặc kích hoạt quota; bổ sung unit và MySQL QA regression, VI/EN.
+
 ## Unreleased — Phase 2.6B Bằng chứng thanh toán (2026-11-25)
 
 - Chuẩn hóa reference của payOS giữa inquiry và webhook; kiểm tra ID link, không tự xác nhận khoản chuyển nhiều lần.

@@ -42,6 +42,22 @@ export function refundBuyerPanel(payment, request, available = true) {
     </form></section>`;
 }
 
+// Dữ liệu chỉ đọc; nhãn không khẳng định đã hoàn tiền hoặc đủ điều kiện hoàn tiền.
+function assessmentPanel(assessment) {
+  if (!assessment || typeof assessment !== 'object') return '';
+  const entitlement = ['missing', 'mismatch', 'revoked', 'active', 'inactive'].includes(assessment.entitlement) ? assessment.entitlement : 'unknown';
+  const credit = ['not_recorded', 'unused', 'consumed', 'unavailable'].includes(assessment.credit) ? assessment.credit : 'unknown';
+  const countLabel = value => Number.isSafeInteger(value) && value >= 0 ? String(value) : text('refund.assessment.unknown');
+  return `<div class="refund-review__summary">
+    <strong>${text('refund.assessment.title')}</strong><span>${text('refund.assessment.notice')}</span>
+    <span>${text('refund.assessment.receipt')}</span><span>${text(assessment.receipt === 'consistent' ? 'refund.assessment.consistent' : 'refund.assessment.review')}</span>
+    <span>${text('refund.assessment.entitlement')}</span><span>${text(`refund.assessment.entitlement.${entitlement}`)}</span>
+    <span>${text('refund.assessment.credit')}</span><span>${text(`refund.assessment.credit.${credit}`)}</span>
+    <span>${text('refund.assessment.sales')}</span><span>${countLabel(assessment.creatorSaleEntries)}</span>
+    <span>${text('refund.assessment.refunds')}</span><span>${countLabel(assessment.creatorRefundEntries)}</span>
+  </div>`;
+}
+
 export function refundAdminPanel(requests, { filter = 'active', nextCursor = null, hasPrev = false } = {}) {
   const intro = `<header class="refund-review__heading"><h2>${text('refund.admin.title')}</h2>
     <p>${text('refund.admin.notice')}</p></header>`;
@@ -66,6 +82,7 @@ export function refundAdminPanel(requests, { filter = 'active', nextCursor = nul
         <p>${text('refund.admin.amount')} ${priceText(Number(item.amountVnd))} - ${text(item.sandbox ? 'finance.group.sandbox' : 'finance.group.live')}</p>
         <p>${text('refund.admin.reason')}: ${refundReason(item.reasonCode)}</p>
         <p class="refund-review__detail">${e(item.detail || '')}</p>
+        ${assessmentPanel(item.assessment)}
         ${choices.length ? `<div class="refund-review__actions">
           <label>${text('refund.admin.next')}
             <select data-refund-next>${choices.map(value => `<option value="${value}">${refundStatus(value)}</option>`).join('')}</select>

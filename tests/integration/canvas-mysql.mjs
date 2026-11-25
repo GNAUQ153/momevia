@@ -321,15 +321,23 @@ try {
     assert.equal(receipt.testPayment, true);
     assert.match(receipt.paidAt, /Z$/);
     assert.equal(await payments.receipt(intent.orderId, owner), null);
+    const refundPayload = { orderId: intent.orderId, requesterId: other, reasonCode: 'technical_problem', detail: 'Yêu cầu QA rà soát giao dịch.' };
     await admin.execute('UPDATE payment_receipts SET provider_reference=? WHERE order_id=?', ['mismatch-fixture', intent.orderId]);
     try {
       assert.equal(await payments.receipt(intent.orderId, other), null);
+      await assert.rejects(payments.refunds.createBuyerRequest(refundPayload), { status: 404 });
       const audit = await payments.adminFinanceExceptions(100);
       assert(audit.records.find(row => row.orderId === intent.orderId)?.issues.includes('receipt'));
     } finally {
       await admin.execute('UPDATE payment_receipts SET provider_reference=? WHERE order_id=?', [event.reference, intent.orderId]);
     }
     assert.equal((await payments.receipt(intent.orderId, other)).transactionReference, event.reference);
+    const review = await payments.refunds.createBuyerRequest(refundPayload);
+    const assessment = (await payments.refunds.listAdmin(100)).find(row => row.id === review.id).assessment;
+    assert.equal(assessment.receipt, 'consistent');
+    assert.equal(assessment.entitlement, 'active');
+    assert.equal(assessment.credit, 'unavailable');
+    assert.equal((await payments.refunds.byBuyer(intent.orderId, other)).assessment, undefined);
   });
   await check('Phase 2.4B2: scoped checkout preserves historical anchor and isolates concurrent retries', async () => {
     // Chạy migration thật sau khi fixture đã có khóa Sandbox từ phiên bản trước.
@@ -371,6 +379,9 @@ try {
     assert.equal((await payments.settleVerified(event, true)).replay, true);
     const checkout = new MySqlCheckoutRepository(db, { quotaEnabled: true });
     assert.deepEqual(await checkout.publicationQuota(owner, quotaTemplate), { remaining: 1, consumed: 0, legacyUnlimited: false });
+    const refundReview = await payments.refunds.createBuyerRequest({ orderId: intent.orderId, requesterId: owner, reasonCode: 'technical_problem', detail: 'Yêu cầu QA đối soát credit.' });
+    const refundAssessment = async () => (await payments.refunds.listAdmin(100)).find(row => row.id === refundReview.id).assessment;
+    assert.equal((await refundAssessment()).credit, 'unused');
     assert.equal(await checkout.hasLicense(owner, quotaTemplate), true);
     assert.equal(await checkout.hasLicense(other, quotaTemplate), false);
     const d = record({ kind: 'template', templateId: quotaTemplate, templateVersionId: uuid() });
@@ -398,6 +409,7 @@ try {
       assert.equal(replay.gift.id, canvasResult.value.gift.id);
     } else await assert.rejects(qaUow.publish(owner, request, 'quota-race', builder()), { status: 402 });
     assert.deepEqual(await checkout.publicationQuota(owner, quotaTemplate), { remaining: 0, consumed: 1, legacyUnlimited: false });
+    assert.equal((await refundAssessment()).credit, 'consumed');
     assert.equal(await checkout.hasLicense(owner, quotaTemplate), false);
     const [[counts]] = await admin.execute(`SELECT
       (SELECT COUNT(*) FROM gifts WHERE user_id=? AND template_id=?) AS gifts_count,

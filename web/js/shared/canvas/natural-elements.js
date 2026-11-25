@@ -5,6 +5,7 @@ import {NATURAL_ARTWORK_LABEL} from './event-media.js';
 import {eventRecipe} from './event-recipes.js';
 import {openVectorCards,OPEN_VECTOR_IDS} from './open-source-elements.js';
 import {naturalMotion} from './natural-motion.js';
+import {reviseNaturalMotion} from './natural-motion-revision.js';
 
 export const NATURAL_ELEMENT_SPECS=[
  ['open-kit-alocasia','graphics','Trầu bà vẽ tay','Hand-drawn alocasia','cây lá Kitbitz CC0 alocasia'],
@@ -31,7 +32,7 @@ export const NATURAL_ELEMENT_SPECS=[
  ['satin-bow','materials','Nơ lụa mềm','Soft satin bow','nơ ruy băng lụa satin bow ribbon'],
  ...[['gift','Hộp quà','Gift'],['heart','Trái tim','Heart'],['star','Ngôi sao','Star'],['camera','Máy ảnh','Camera'],['moon','Mặt trăng','Moon'],['cup','Cúp','Trophy'],['notebook','Sổ tay','Notebook'],['clock','Đồng hồ','Clock']].map(([id,vi,en])=>['3d-'+id,'three-d',vi+' 3D',en+' 3D','3D khối '+vi+' '+en]),
  ['motion-heart','animation','Tim đập nhẹ','A gentle heartbeat','tim animation chuyển động','element-3d-heart','A01'],
- ['motion-star','animation','Sao nghiêng theo sáng','A star catches the light','sao 3D animation chuyển động','element-3d-star','keepsake-sway-v1'],
+ ['motion-star','animation','Sao nghiêng nhẹ','Gently tilting star','sao 3D animation chuyển động Sao nghiêng theo sáng A star catches the light','element-3d-star','keepsake-sway-v1'],
  ['motion-gift','animation','Quà xuất hiện','A gift arrives','hộp quà 3D animation','element-3d-gift','E02'],
  ['motion-leaf','animation','Cành lá đung đưa','A swaying branch','lá botanical animation','element-eucalyptus','keepsake-sway-v1'],
  ['motion-ribbon','animation','Nơ lụa đung đưa','Swaying satin ribbon','nơ lụa animation','element-satin-bow','keepsake-sway-v1'],
@@ -47,6 +48,7 @@ export function naturalElementCards(kind,translate){
    if(kind==='animation'&&id==='motion-heart')model.motions={version:1,enabled:true,rows:[motionRow('pulse','heart-beat'),motionRow('spin','heart-spin')]};
    else if(kind==='animation')model.effects={emphasis:naturalMotion(id,spec[2],spec[3])};
    else if(effect){const family=effect==='E02'||effect==='paper-unfold-natural-v1'?'entrance':'emphasis';model.effects={[family]:effect.includes('-v')?eventRecipe(effect):{id:effect,speed:'normal',...(family==='entrance'?{delay:0}:{})}};}
+   if(kind==='animation')reviseNaturalMotion(model,id);
    return [model];
   }};
  });

@@ -1,3 +1,8 @@
+## Unreleased — Chỉnh chuyển động 56 icon Studio (2026-11-25)
+
+- Dựng lại hoặc tinh chỉnh 50 vector và 6 mẫu ảnh theo điểm gắn, vùng che, lớp trước/sau và nhịp vật liệu; giữ ID, khả năng chọn một vật thể và hai dòng điều khiển của vector.
+- Đổi nhãn mặt dây chuyền, bồ câu và sao, giữ từ khóa cũ; tim mới mặc định tắt xoay, quà/giấy chạy một lượt và tia cát kết thúc cùng lượng cát.
+
 ## Unreleased — Cấu trúc icon chuyển động có phiên bản (2026-11-25)
 
 - Thêm tư thế đường nét đồng cấu, vùng che theo biên, tư thế nghỉ và lớp ảnh nội bộ đã duyệt; giữ bộ đọc cấu hình cũ và các giới hạn dữ liệu hiện hành.

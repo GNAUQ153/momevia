@@ -91,17 +91,17 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Tách hash, projection, chính sách khóa chỉnh sửa và preflight khỏi DesignsService; giữ constructor, method, export và callback transaction cũ.
-- Bổ sung sáu ca hồi quy về quyền xuất bản, tài sản, projection và khóa mẫu; không đổi API, schema, GUI hoặc chính sách production.
+- Tách mapping SQL, helper transaction, tài sản và checkout context khỏi MySqlDesignsRepository; giữ class, export cũ, SQL và phạm vi transaction.
+- JSON Repository chờ callback validation bất đồng bộ trước khi lưu, đồng nhất với MySQL; bổ sung kiểm thử contract và MySQL QA. Không đổi API, schema, dependency hoặc giao diện.
 
 **Các commit gần nhất trên `main`:**
 
+- `230866e` — refactor(designs): modularize repository queries and standardize validation contracts (2026-11-25)
 - `e18d9a1` — refactor(designs): separate publication checks edit policies and API projections (2026-11-25)
 - `bacfcd6` — refactor(architecture): decouple shared configuration and credential policies (2026-11-25)
 - `478f588` — feat(architecture): add AST-based code quality audit and dependency regression gate (2026-11-25)
 - `7790ddc` — test(business): add cross-role regression journeys and acceptance matrix (2026-11-25)
 - `0600be7` — feat(refund): add isolated QA settlement and transactional creator reversal (2026-11-25)
-- `e7025dc` — feat(refund): validate receipt evidence and audit entitlement usage (2026-11-25)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

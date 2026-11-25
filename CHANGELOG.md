@@ -1,3 +1,8 @@
+## Unreleased — Dọn repo và tách tệp phát sinh (2026-11-25)
+
+- Loại các gallery/mẫu thử, ảnh/video, báo cáo và script QA theo đợt; giữ tài nguyên sản phẩm, giấy phép và fixture hồi quy đang dùng.
+- Chặn thư mục bằng chứng phát sinh trong Git và gói nguồn, chuyển báo cáo dựng artwork vào local; cập nhật liên kết tài liệu và bỏ mục đóng gói trùng.
+
 ## Unreleased — Thiệp nhận quà sát mép trên điện thoại (2026-11-25)
 
 - Điện thoại và màn hình dọc dùng toàn bộ chiều rộng, bỏ khoảng đệm và góc bo tạo viền trắng. Nền thiệp kéo hết chiều cao màn hình khi nội dung ngắn, đổi theo màu cảnh đang mở.

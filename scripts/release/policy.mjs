@@ -20,6 +20,7 @@ const backupSuffix = /(?:\.(?:sql|json|jsonl|ndjson|csv))\.(?:gz|zip|bak|backup)
 // được đóng gói vì cần khi chạy; snapshot, báo cáo và tài liệu cũ thì không.
 export function isExcludedSourcePath(relative) {
   const normalized = relative.replaceAll('\\', '/');
+  if (/^scripts\/qa(?:\/|$)/.test(normalized) || /^docs\/(?:qa|evidence|animated-elements-[^/]+|template-refresh-[^/]+|event-cards(?:-expanded)?|interactive-cards-[^/]+|celebration-loops|recipient-naming|motion-\d+-\d+)(?:\/|$)/.test(normalized)) return true;
   if (localOnlyDocuments.has(normalized)) return true;
   return normalized.split('/').some(part => {
     const lower = part.toLowerCase();

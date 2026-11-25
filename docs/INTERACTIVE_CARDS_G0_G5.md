@@ -2,14 +2,14 @@
 
 Đã triển khai trên nhánh `feat/interactive-cards-g0-g5`, xuất phát từ `70f2be0` của `feat/guess-your-choice`. Checkout sạch, có một worktree tại `P:/entrepreneuer/project/momevia` khi bắt đầu. Không có thay đổi của người khác bị ghi đè. Không tìm thấy `KE_HOACH.md` trong checkout/thư mục làm việc được cung cấp; toàn bộ yêu cầu trong prompt là căn cứ triển khai.
 
-Đây là bản bàn giao **local**, chưa phải xác nhận đủ điều kiện phát hành. Các số đo LCP bên dưới là lịch sử của đợt G0–G5; xem [đợt tối ưu tiếp với ngưỡng chốt 2,6 giây](INTERACTIVE_CARDS_LCP.md) để có kết quả mới. Thử nghiệm với năm người vẫn có trạng thái riêng bên dưới. Không push, deploy, thanh toán, gửi thông báo hoặc cập nhật DB production.
+Đây là bản bàn giao **local**, chưa phải xác nhận đủ điều kiện phát hành. Các số đo LCP bên dưới là lịch sử của đợt G0–G5; xem đợt tối ưu tiếp với ngưỡng chốt 2,6 giây để có kết quả mới. Thử nghiệm với năm người vẫn có trạng thái riêng bên dưới. Không push, deploy, thanh toán, gửi thông báo hoặc cập nhật DB production.
 
 ## Mở bản chạy
 
 - [Catalog local](http://localhost:4119/explore).
-- [Bảng ảnh trước/sau, VI/EN và video](interactive-cards-20261122/index.html).
-- [Danh mục ID/giá/quyền/hash/phiên bản/cảnh/ảnh trước và sau](interactive-cards-20261122/template-inventory.json).
-- [Vai trò nội dung](interactive-cards-20261122/semantic-slots.json), [nguồn/quyền artwork](interactive-cards-20261122/artwork-rights.json).
+- Bảng ảnh trước/sau, VI/EN và video.
+- Danh mục ID/giá/quyền/hash/phiên bản/cảnh/ảnh trước và sau.
+- Vai trò nội dung, nguồn/quyền artwork.
 
 | Mẫu | Trang local | Cảnh | Phân phối |
 |---|---|---:|---|
@@ -115,9 +115,9 @@ Các lớp có thể chọn, sửa, di chuyển, xóa theo policy hiện hữu. 
 
 Bảng màu lần lượt là giấy ngà/xanh lá/đất nung, giấy ấm/nâu phim/hồng phấn và giấy xanh/mực xanh/vàng. App shell vẫn tím/hồng.
 
-Bản mặc định mới dùng tám artwork phong cách chụp thật tạo riêng bằng imagegen tích hợp: hai phong bì, bánh chưa sáng, mũ không tua, hiên nhà, hộp phim, bản đồ giấy và lửa nến alpha. Đây là ảnh sinh nguyên bản, không phải ảnh chụp địa điểm/người thật. WebP từ 7.652 đến 103.672 byte; kích thước, crop contain, focal point, anchor, phiên bản và SHA-256 trong manifest v3. [Toàn bộ prompt, nguồn và quyền](interactive-cards-20261122/REALISTIC_ASSETS.md); file sử dụng thực nằm trong `web/assets/event-cards/realistic-v3/`. Tua mũ là vector ghim, đường/chấm trên bản đồ là element sửa được. Bảy SVG/WebP v2 và toàn bộ v1 vẫn giữ để đọc snapshot. Không chép chữ, ảnh, code hoặc artwork của Chung Đôi. Cảm hứng sử dụng là nhịp mở thư, kể chuyện ảnh và thử trước khi tạo.
+Bản mặc định mới dùng tám artwork phong cách chụp thật tạo riêng bằng imagegen tích hợp: hai phong bì, bánh chưa sáng, mũ không tua, hiên nhà, hộp phim, bản đồ giấy và lửa nến alpha. Đây là ảnh sinh nguyên bản, không phải ảnh chụp địa điểm/người thật. WebP từ 7.652 đến 103.672 byte; kích thước, crop contain, focal point, anchor, phiên bản và SHA-256 trong manifest v3. Toàn bộ prompt, nguồn và quyền; file sử dụng thực nằm trong `web/assets/event-cards/realistic-v3/`. Tua mũ là vector ghim, đường/chấm trên bản đồ là element sửa được. Bảy SVG/WebP v2 và toàn bộ v1 vẫn giữ để đọc snapshot. Không chép chữ, ảnh, code hoặc artwork của Chung Đôi. Cảm hứng sử dụng là nhịp mở thư, kể chuyện ảnh và thử trước khi tạo.
 
-Các ảnh album minh họa cũ chỉ ở preview, không vào draft. Nguồn cũ: [Artwork 21/11](event-cards/IMAGE_ASSETS.md) và [ảnh album preview](event-cards-expanded/IMAGE_PROMPTS.md). Giữ nguyên các tệp media cũ để đọc snapshot. `materializeBuiltinMedia` nay remap cả `image.props.assetId` và `interaction.props.photos[]`; có unit regression kiểm hai loại ref cùng đổi sang asset thuộc owner.
+Các ảnh album minh họa cũ chỉ ở preview, không vào draft. Nguồn cũ: Artwork 21/11 và ảnh album preview. Giữ nguyên các tệp media cũ để đọc snapshot. `materializeBuiltinMedia` nay remap cả `image.props.assetId` và `interaction.props.photos[]`; có unit regression kiểm hai loại ref cùng đổi sang asset thuộc owner.
 
 ## G4 · Catalog và đổi mẫu
 
@@ -154,7 +154,7 @@ node database/scripts/interactive-library-rollout.mjs --rollback --apply
 
 CLI từ chối nếu không có `CANVAS_QA_MYSQL_ISOLATED=true`, host `127.0.0.1`, DB `momevia_canvas_qa_*`. Không tự áp dụng vào DB khi app khởi động. Cài mới vẫn seed toàn bộ thư viện; Catalog chỉ chèn ID thiếu. Khi gói chưa bật ba template mới trong DB, chúng không hiện công khai.
 
-Diễn tập MySQL thật: 387 → 415 mục; ngắt sau 5 mục, chạy lại thành công; rerun tạo thêm 0 mục. Admin sửa Proud of You tạo đúng một conflict. Sau đối chiếu revision, rollback phục hồi đủ 387 định nghĩa gốc, tắt 28 mục mới, ghi 36 hàng history. Catalog còn 28 hàng để không mất dữ liệu nhưng chỉ 25 hiển thị. Rollback là revision mới, không xóa history hay sửa quà/nháp. [Bằng chứng](interactive-cards-20261122/rollout-report.json).
+Diễn tập MySQL thật: 387 → 415 mục; ngắt sau 5 mục, chạy lại thành công; rerun tạo thêm 0 mục. Admin sửa Proud of You tạo đúng một conflict. Sau đối chiếu revision, rollback phục hồi đủ 387 định nghĩa gốc, tắt 28 mục mới, ghi 36 hàng history. Catalog còn 28 hàng để không mất dữ liệu nhưng chỉ 25 hiển thị. Rollback là revision mới, không xóa history hay sửa quà/nháp. Bằng chứng.
 
 Cần phân phối cùng client/server của nhánh này trước khi bật gói: `photo-caption-v3` cho envelope, `cake-photo-v2` cho candle và `paper-fold-v2` cho thư gấp là enum tùy chọn đã validate/serialize/render có chủ đích. Các enum và media cũ giữ nguyên; skin nến ghim body/flame/anchor, không trỏ lại file của snapshot cũ. Reader mới đọc snapshot cũ; không yêu cầu reader cũ hiểu enum mới. Các recipe chỉ dùng engine khai báo đang có.
 
@@ -196,10 +196,10 @@ Mỗi hàng có **5 lượt**. Catalog giảm LCP từ 11.872 s xuống 6.448 s,
 
 WebP decoration v3 mặc định 7.652–103.672 byte; sáu bìa SVG VI lần lượt 150.888 / 67.873 / 110.498 / 155.502 / 169.790 / 106.565 byte theo thứ tự bảng mẫu. Bìa lớn nhất trong cả VI/EN là 169.790 byte, dưới ngân sách 200 KB, có tính font/ảnh nhúng. Không coi giới hạn này là cam kết cho ảnh riêng bất kỳ của người gửi.
 
-[35 mẫu tải lạnh G5 và 20 mẫu G0](interactive-cards-20261122/performance-summary.json) có từng lượt, tổng tài nguyên và ảnh thực tải. Dữ liệu tải cùng các import trong entry ứng dụng cho thấy cần tối ưu tiếp chuỗi nhiều module khởi tạo chung và tải Catalog. Chưa đo tách riêng đóng góp của từng module; cần profiling/tách tải hoặc đóng gói tiếp để đạt LCP 2,5 s. Kết quả này chưa đủ để mở rollout thật.
+35 mẫu tải lạnh G5 và 20 mẫu G0 có từng lượt, tổng tài nguyên và ảnh thực tải. Dữ liệu tải cùng các import trong entry ứng dụng cho thấy cần tối ưu tiếp chuỗi nhiều module khởi tạo chung và tải Catalog. Chưa đo tách riêng đóng góp của từng module; cần profiling/tách tải hoặc đóng gói tiếp để đạt LCP 2,5 s. Kết quả này chưa đủ để mở rollout thật.
 
 Cấu hình G0/G5: cùng profile Chrome QA riêng, viewport 390×844, DPR 1, mobile/touch giả lập, CPU slowdown 4×, latency 100 ms, download 200.000 B/s, upload 93.750 B/s; cache trình duyệt tắt, năm lượt mỗi route. Không xóa DNS/TLS cache. Bộ đo G5 dùng ảnh phong cách chụp thật v3 và cấu hình motion/bóng cuối. Tổng tải lấy encoded bytes của CDP Network, gồm HTML, font ngoài origin và response tải dở; không cộng lại data URI. ResourceTiming được giữ riêng trong dữ liệu gốc. Lab dùng JSON local một process, không phải số đo khách thật hay máy MySQL production. Bìa SVG được tính cả font/ảnh nhúng và tài nguyên thực tải, không chỉ kích thước WebP.
 
 Đã giảm tải bằng artwork WebP nhỏ, nén gzip tệp tĩnh, chỉ tải chức năng thử đổi mẫu khi cần và giữ chỗ viewport trong lúc route nạp để footer không nhảy. Gzip không áp dụng lên API/media riêng tư. Animation chính hữu hạn 1–3 lượt; lửa CSS lặp chỉ trong cảnh nến đã thắp, dừng khi motion off/tab ẩn và bị gỡ cùng scene. Ảnh của scene khác chỉ dựng khi vào scene. Timer/WAAPI được đo trong edge suite sau mỗi lần đóng preview; số cuối là 0/0. Chữ thật, CTA, fallback ảnh và đọc tiếp vẫn còn khi tắt chuyển động; không có audio autoplay.
 
-Frame pacing có một mẫu lab ba giây cho ảnh Birthday E01, ảnh Cuộn phim (hạ/chao) và bìa hiên (hạ/chao/bụi nắng): lần lượt 59.9 / 59.1 / 59.1 FPS, p95 16.8 / 16.8 / 16.8 ms; mỗi mẫu có một khung >50 ms. Đỉnh 2 / 2 / 6 animation, đỉnh hạt 0 / 0 / 4; sau đóng đều 0 animation. Đây là RAF trong Chrome headless/CPU 4×, không phải FPS thiết bị thật. [Dữ liệu frame pacing](interactive-cards-20261122/motion-budget.json).
+Frame pacing có một mẫu lab ba giây cho ảnh Birthday E01, ảnh Cuộn phim (hạ/chao) và bìa hiên (hạ/chao/bụi nắng): lần lượt 59.9 / 59.1 / 59.1 FPS, p95 16.8 / 16.8 / 16.8 ms; mỗi mẫu có một khung >50 ms. Đỉnh 2 / 2 / 6 animation, đỉnh hạt 0 / 0 / 4; sau đóng đều 0 animation. Đây là RAF trong Chrome headless/CPU 4×, không phải FPS thiết bị thật. Dữ liệu frame pacing.

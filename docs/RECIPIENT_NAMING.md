@@ -60,12 +60,12 @@ Môi trường: Windows, Node 24.14.0, Playwright với Microsoft Edge 158.0.437
 
 Ảnh giao diện:
 
-- [Chọn danh sách ở Designer](recipient-naming/sender-list-1440.png)
-- [Trang chia sẻ 100 link](recipient-naming/share-list-1440.png)
-- [Ô tên trước khi mở thiệp](recipient-naming/self-name-gate-390.png)
-- [Lan](recipient-naming/self-lan-390.png) / [Minh](recipient-naming/self-minh-390.png)
-- [Tên dài 320 px](recipient-naming/long-name-320.png) / [390 px](recipient-naming/long-name-390.png)
-- [Kết quả trong Studio](recipient-naming/studio-recipients-1440.png)
+- Chọn danh sách ở Designer
+- Trang chia sẻ 100 link
+- Ô tên trước khi mở thiệp
+- Lan / Minh
+- Tên dài 320 px / 390 px
+- Kết quả trong Studio
 
 ## Đo trước/sau
 
@@ -79,7 +79,7 @@ Môi trường: Windows, Node 24.14.0, Playwright với Microsoft Edge 158.0.437
 | Đọc + xem trước 100 tên XLSX | Chưa có | 54 ms |
 | Đọc + xem trước 100 tên CSV | Chưa có | 57 ms |
 
-Thời gian file là một lượt trên trang người gửi desktop 1440×1000, không mô phỏng chậm mạng/CPU; không so trực tiếp với số mobile. Đây là số đo cục bộ, không phải cam kết thời gian trên thiết bị thật. Dữ liệu thô: [trước](recipient-naming/metrics-before.json), [sau](recipient-naming/metrics-after.json), [lượt chức năng MySQL/file](recipient-naming/metrics-mysql-functional.json).
+Thời gian file là một lượt trên trang người gửi desktop 1440×1000, không mô phỏng chậm mạng/CPU; không so trực tiếp với số mobile. Đây là số đo cục bộ, không phải cam kết thời gian trên thiết bị thật. Dữ liệu thô: trước, sau, lượt chức năng MySQL/file.
 
 
 ## Trạng thái dữ liệu cục bộ

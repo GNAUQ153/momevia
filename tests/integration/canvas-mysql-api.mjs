@@ -295,6 +295,8 @@ try{
         await context.route('**/*',route=>new URL(route.request().url()).origin===base?route.continue():route.abort());
         const page=await context.newPage();await page.goto(`${base}/payment-result/${old.orderId}`);await page.locator('#payment-receipt').waitFor();
         assert(await page.getByRole('button',{name:'In / Lưu PDF',exact:true}).isVisible());assert(await page.getByRole('link',{name:'Về không gian của tôi',exact:true}).isVisible());
+        assert.match(await page.locator('#payment-receipt').innerText(), /Thanh toán được xác nhận lúc:.*UTC/);
+        assert.match(await page.locator('#payment-receipt').innerText(), /không thu tiền thật/);
       }finally{await browser.close();}
     });
   }

@@ -1989,6 +1989,8 @@
   "payment.receipt.amount": "Amount: {amount}",
   "payment.receipt.loadError": "Could not load the receipt: {error}",
   "payment.receipt.method": "Method: {provider}",
+  "payment.receipt.order": "Order ID: {order}",
+  "payment.receipt.paidAt": "Payment confirmed at: {date} (UTC)",
   "payment.receipt.print": "Print / Save as PDF",
   "payment.receipt.reference": "Transaction reference: {reference}",
   "payment.receipt.retry": "Retry receipt",

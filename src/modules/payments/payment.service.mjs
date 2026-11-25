@@ -141,6 +141,7 @@ export class PaymentService {
     const scopeMatches = samePaymentScope(configuredPaymentScope(this.env, record.provider), record.isTest);
     return {
       orderId: record.orderId, status: record.status, method: record.provider,
+      ...(record.isTest === true ? { testPayment: true } : {}),
       // Lịch sử vẫn đọc được, nhưng không tiếp tục thanh toán qua link khác môi trường.
       amountVnd: record.amount, checkoutUrl: record.status === 'pending' && scopeMatches ? record.checkoutUrl : null,
       pendingSince, needsReview,

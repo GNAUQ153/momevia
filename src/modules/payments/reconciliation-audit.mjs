@@ -1,3 +1,5 @@
+import { verifiedReceiptSql } from './receipt-policy.mjs';
+
 // Kiểm soát đối soát chỉ đọc cho Admin.
 // Phát hiện sai lệch nội bộ; KHÔNG suy ra giao dịch đã hoàn tiền hay có thể chi trả.
 const ISSUE_COLUMNS = Object.freeze({
@@ -40,8 +42,7 @@ export class ReconciliationAudit {
       SELECT o.id AS order_id, o.payment_provider, o.is_test, o.gross_vnd, o.created_at,
         CASE WHEN p.id IS NULL OR p.status <> 'paid' OR p.amount_vnd <> o.gross_vnd
           THEN 1 ELSE 0 END AS intent_issue,
-        CASE WHEN r.order_id IS NULL OR r.amount_vnd <> o.gross_vnd
-          OR r.provider <> o.payment_provider THEN 1 ELSE 0 END AS receipt_issue,
+        CASE WHEN NOT COALESCE((${verifiedReceiptSql}), 0) THEN 1 ELSE 0 END AS receipt_issue,
         CASE WHEN e.order_id IS NULL OR e.revoked_at IS NOT NULL
           THEN 1 ELSE 0 END AS entitlement_issue,
         CASE WHEN t.creator_id IS NOT NULL AND o.creator_amount_vnd > 0

@@ -313,6 +313,21 @@ try {
     assert.equal((await payments.settleVerified(event, true)).replay, true);
     await assert.rejects(payments.settleVerified(event, false), { status: 409 });
     assert.deepEqual(await readCounts(), [1, 1]);
+    // Phase 2.6A: đối chiếu biên nhận với intent thật trên MySQL QA.
+    const receipt = await payments.receipt(intent.orderId, other);
+    assert.equal(receipt.transactionReference, event.reference);
+    assert.equal(receipt.testPayment, true);
+    assert.match(receipt.paidAt, /Z$/);
+    assert.equal(await payments.receipt(intent.orderId, owner), null);
+    await admin.execute('UPDATE payment_receipts SET provider_reference=? WHERE order_id=?', ['mismatch-fixture', intent.orderId]);
+    try {
+      assert.equal(await payments.receipt(intent.orderId, other), null);
+      const audit = await payments.adminFinanceExceptions(100);
+      assert(audit.records.find(row => row.orderId === intent.orderId)?.issues.includes('receipt'));
+    } finally {
+      await admin.execute('UPDATE payment_receipts SET provider_reference=? WHERE order_id=?', [event.reference, intent.orderId]);
+    }
+    assert.equal((await payments.receipt(intent.orderId, other)).transactionReference, event.reference);
   });
   await check('Phase 2.4B2: scoped checkout preserves historical anchor and isolates concurrent retries', async () => {
     // Chạy migration thật sau khi fixture đã có khóa Sandbox từ phiên bản trước.

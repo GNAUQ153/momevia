@@ -1,3 +1,9 @@
+## Unreleased — Phase 2.6A Đối soát biên nhận (2026-11-25)
+
+- Kiểm tra biên nhận khớp đơn đã thanh toán, intent, nhà cung cấp, số tiền và mã tham chiếu; dùng chung điều kiện với báo cáo ngoại lệ Admin.
+- Hiển thị mã đơn, ngày xác nhận UTC, nhãn thử nghiệm và lưu ý không phải hóa đơn VAT; giữ giao diện VI/EN và nút in hiện tại.
+- Không migration, không sửa dữ liệu lịch sử hoặc thay đổi chính sách thanh toán; bổ sung kiểm thử unit, MySQL QA và browser.
+
 ## Unreleased — Phase 2.5B Cảnh báo hết hạn và gia hạn (2026-11-25)
 
 - Cảnh báo Sender khi thiệp còn tối đa 7 ngày; gia hạn một lần theo cấu hình 0–30 ngày, mặc định tắt.

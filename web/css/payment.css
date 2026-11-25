@@ -151,7 +151,17 @@
   }
 }
 
+.payment-receipt {
+  overflow-wrap: anywhere;
+  margin-block: 20px;
+  padding: 20px;
+  border: 1px solid currentColor;
+  border-radius: 16px;
+  text-align: start;
+}
+
 @media print {
+  [data-action="print-receipt"],
   .payment-status__actions,
   .payment-status__notice,
   .payment-status__review {

@@ -21,6 +21,7 @@ export function paymentStatusPanel(payment) {
     <span class="payment-status__eyebrow">${text("payment.status.eyebrow")}</span>
     <h1>${title}</h1>
     <p>${message}</p>
+    ${payment?.testPayment === true ? `<p role="note">${text('payment.receipt.testNote')}</p>` : ''}
     <div class="payment-status__facts" ${attr("aria-label", "payment.status.details")}>
       <div><span>${text("payment.status.order")}</span><strong>${payment?.orderId ? e(payment.orderId) : text("payment.status.noOrder")}</strong></div>
       <div><span>${text("payment.status.amount")}</span><strong>${priceText(payment?.amountVnd ?? payment?.amount ?? 0)}</strong></div>
@@ -51,12 +52,15 @@ export function paymentMethodText(method) {
 }
 
 export function paymentReceipt(receipt) {
-  return `<div id="payment-receipt">
+  return `<div id="payment-receipt" class="payment-receipt">
     <h2>${text('payment.receipt.title', { receipt: receipt.receiptNo })}</h2>
+    ${receipt.orderId ? `<p>${text('payment.receipt.order', { order: receipt.orderId })}</p>` : ''}
+    ${receipt.paidAt ? `<p>${text('payment.receipt.paidAt', { date: { format: 'date', value: receipt.paidAt, options: { dateStyle: 'medium', timeStyle: 'short', timeZone: 'UTC' } } })}</p>` : ''}
     <p>${text('payment.receipt.template', { template: receipt.templateTitle })}</p>
     <p>${text('payment.receipt.amount', { amount: { format: 'currency', value: receipt.amountVnd } })}</p>
     <p>${text('payment.receipt.method', { provider: receipt.provider })}</p>
     <p>${text('payment.receipt.reference', { reference: receipt.transactionReference })}</p>
-    <p>${receipt.testPayment ? text('payment.receipt.testNote') : systemPaymentText(receipt.note, 'payment.receipt.taxNote')}</p>
+    ${receipt.testPayment === true ? `<p role="note">${text('payment.receipt.testNote')}</p>` : ''}
+    <p>${text('payment.receipt.taxNote')}</p>
     </div><button class="btn btn--outline" data-action="print-receipt">${text('payment.receipt.print')}</button>`;
 }

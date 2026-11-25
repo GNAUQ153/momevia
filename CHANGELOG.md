@@ -1,3 +1,14 @@
+## Unreleased — Menu cảnh gọn và chuyển cảnh trong Editor (2026-11-25)
+
+- Đặt nút ba chấm dọc bên trong từng ô cảnh; menu mở nổi phía trên/cạnh nút, không kéo dài dải cảnh hoặc làm vùng thiệp co lại. Đóng khi bấm ngoài, Escape, cuộn hay đổi kích thước màn hình.
+- Chọn cảnh khác trong Editor có hiệu ứng hiện nhẹ 180 ms; không chạy lại khi chỉ chọn/chỉnh một lớp, không thay đổi mức thu phóng, hủy đúng khi đổi nhanh hoặc yêu cầu giảm chuyển động. Xem thử/nhận quà tiếp tục dùng hiệu ứng từng cảnh đã cấu hình.
+
+## Unreleased — Không gian chỉnh sửa thích ứng màn hình (2026-11-25)
+
+- Gọn thanh thao tác: giữ Lưu/Xem trước/Xuất bản, chuyển chế độ và các công cụ mở rộng vào menu Công cụ; bỏ tiêu đề/hướng dẫn lặp quanh Canvas và chỉ hiện mô tả lưu khi cần chú ý.
+- Bố cục chỉnh sửa vừa chiều cao màn hình, các bảng cuộn riêng, thiệp tự vừa khung; dưới 1024 px dùng các bảng mở theo mục, có khóa focus và đóng bằng Escape. Cá nhân hóa nhanh vẫn giữ bảng nhập nội dung.
+- Thu gọn phần hiệu ứng và hướng dẫn biến tên, bỏ mô tả nhạc/hiệu ứng thừa; giữ thông tin lỗi, giới hạn tải ảnh, quyền chỉnh sửa, nhập danh sách và trạng thái lưu. Không thay đổi dữ liệu thiệp, API hay quyền.
+
 ## Unreleased — CTA ở chi tiết mẫu (2026-11-25)
 
 - Trang chi tiết mẫu dùng một popup “Tạo thiệp ngay” màu tím, không khung nền, cùng nhịp đập/gợn sóng và chuyển động vào/ra của thư viện.

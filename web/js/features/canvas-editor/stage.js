@@ -3,6 +3,7 @@ import { renderElement, applyLayout, resolveText, applyFocalPoint, textFont } fr
 import { applySurface, createMotion, playElement } from "../gift-runtime/effects.js";
 import { logicalPoint, gestureLayout, snapLayout } from "./store.js";
 import { node } from "./dom.js";
+import { createEditorSceneMotion } from './scene-motion.js';
 
 export function createStage(
   host,
@@ -38,6 +39,7 @@ export function createStage(
     disposed = false;
   let selectionOutline, inlineEditor, renderLifecycle;
   const preference=globalThis.matchMedia('(prefers-reduced-motion: reduce)');
+  const sceneMotion = createEditorSceneMotion(artboard, { signal, preference });
   const motion=createMotion(()=>!preference.matches&&!disposed);
   const loopPhases=new Map(),effectSignatures=new WeakMap();
   const entered=new Map();let lastSceneId=null;
@@ -136,6 +138,7 @@ export function createStage(
       }
     }
     setZoom(zoom);
+    sceneMotion.sync(scene.id);
   }
   function point(event, rect) {
     return logicalPoint(

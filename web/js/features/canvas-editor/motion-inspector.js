@@ -7,7 +7,6 @@ export function motionInspector(model){
  for(const id of ['pulse','spin','float','sway'])kind.append(node('option',{value:id},motionKinds[id][en?'en':'vi']));
  const target=node('select',{'data-motion-target':'','aria-label':label('Bộ phận','Part')},node('option',{value:'whole'},label('Toàn vật thể','Whole object')),...(model.assembly?.parts||[]).map(p=>node('option',{value:p.id},p.title)));
  const children=[node('legend',{},label('Chuyển động trên vật thể','Object motions')),
-  node('p',{class:'editor-help'},label('Tối đa 3 dòng. Mỗi dòng có lớp riêng; các góc quay cộng lại, tỉ lệ nhân nhau. Lớp ngoài giữ vị trí và vùng chọn.','Up to 3 rows. Each row has its own layer; rotations add and scales multiply. Layout and selection stay fixed.')),
   model.effects?.emphasis?node('p',{class:'editor-help'},label('Hiệu ứng nhấn cũ chiếm một trong ba dòng.','Legacy emphasis occupies one of the three rows.')):null,
   stack?field(label('Bật toàn bộ chuyển động','Enable all motions'),node('input',{type:'checkbox',checked:stack.enabled,'data-editor-field':'motion.enabled'})):null,
   ...((stack?.rows||[]).map(row=>{

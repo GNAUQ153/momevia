@@ -1,3 +1,9 @@
+## Unreleased — Bố cục trải nghiệm và CTA responsive (2026-11-25)
+
+- Gom tiêu đề, các bước và nút khám phá của phần trải nghiệm trang chủ vào cùng bố cục; xếp dọc trên tablet/điện thoại và giữ bước đang chọn trong thanh cuộn ngang.
+- CTA nổi chuyển từ hàng ngang sang hai nút xếp dọc ở màn hình tối đa 600 px; giữ cỡ chữ, icon và vùng chạm trên điện thoại, căn cụm công cụ phía trên CTA.
+- CTA trang Bảng giá hiện ổn định sau phần giới thiệu; giữ logic ẩn ở footer, hiện lại khi cuộn lên và nhường chỗ cho hộp thoại. Bổ sung kiểm thử hồi quy điều kiện hiển thị.
+
 ## Unreleased — Phase 2.6B Bằng chứng thanh toán (2026-11-25)
 
 - Chuẩn hóa reference của payOS giữa inquiry và webhook; kiểm tra ID link, không tự xác nhận khoản chuyển nhiều lần.

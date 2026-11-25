@@ -283,7 +283,8 @@ export async function runCreatorJourney(base) {
     const receiver = guest.page;
     await receiver.goto(base + giftPath(inviteUrl));
     await receiver.locator('.gift-runtime-stage img').first().waitFor();
-    await receiver.getByRole('button', { name: /Lời chúc/ }).click();
+    await receiver.locator('.gift-runtime-stage:not([inert]) [data-runtime-element="open-gift"]').click();
+    await receiver.locator('.gift-runtime-stage:not([inert]) [data-runtime-element="to-message"]').click();
     await receiver.locator('.gift-runtime-stage').getByText(greeting, { exact: true }).waitFor();
     await receiver.getByText('Chỉ người gửi quà đọc được lời đáp.').waitFor();
     await capture(receiver, 'recipient-390');
@@ -299,7 +300,8 @@ export async function runCreatorJourney(base) {
     await receiver.getByRole('button', { name: 'Gửi lời đáp' }).click();
     await lostAck;
     await receiver.reload();
-    await receiver.getByRole('button', { name: /Lời chúc/ }).click();
+    await receiver.locator('.gift-runtime-stage:not([inert]) [data-runtime-element="open-gift"]').click();
+    await receiver.locator('.gift-runtime-stage:not([inert]) [data-runtime-element="to-message"]').click();
     await receiver.getByLabel('Lời đáp', { exact: true }).fill('Cảm ơn Linh vì tấm ảnh!');
     const retryReply = receiver.waitForRequest(request => request.method() === 'POST' && request.url().includes('/replies'));
     await receiver.getByRole('button', { name: 'Gửi lời đáp' }).click();
@@ -312,13 +314,14 @@ export async function runCreatorJourney(base) {
     const originalPhoto = await (await guest.ask(`${recipientEndpoint}/assets/${uploaded.asset.id}${inviteQuery}`)).body();
     const inbox = (await sender.call(`/gifts/gifts/mine/${slug}/replies`)).replies;
     assert.equal(inbox[0].message, 'Cảm ơn Linh vì tấm ảnh!');
-    await receiver.getByRole('button', { name: 'Báo cáo món quà' }).click();
-    const report = receiver.locator('#support-form');
-    await report.getByLabel('Họ tên').fill('Khách thử');
-    await report.getByLabel('Email liên hệ').fill('guest@example.test');
-    await report.getByLabel('Nội dung', { exact: true }).fill('Đây là báo cáo tổng hợp khi thử beta.');
-    await report.getByRole('button', { name: 'Gửi yêu cầu' }).click();
-    await receiver.getByRole('heading', { name: 'Đã ghi nhận yêu cầu' }).waitFor();
+    assert.equal(await receiver.getByRole('button', { name: 'Báo cáo món quà' }).count(), 0);
+    // The immersive Canvas page omits outside controls; retain report access,
+    // redaction and competing-admin coverage through the real Support API.
+    await guest.call('/support/requests', {
+      name: 'Khách thử', email: 'guest@example.test', topic: 'report',
+      message: 'Đây là báo cáo tổng hợp khi thử beta.', reportKind: 'gift', reportId: slug,
+      invite: new URL(inviteUrl).searchParams.get('invite') || '',
+    }, 201);
     const ticket = (await admin.call('/support/admin/requests')).requests.find(item => item.reportTarget === before.id);
     assert.equal(ticket.reportKind, 'gift');
     assert(!JSON.stringify(ticket).includes(inviteQuery));
@@ -482,9 +485,13 @@ export async function runCreatorJourney(base) {
     const resume = phone.locator(`#studio-drafts a[href="/design/${senderId}"]`);
     await resume.click();
     await field(phone, 'binding.recipientName').waitFor();
+    await phone.locator('.editor-more-tools > summary').click();
     await phone.getByRole('button', { name: 'Chỉnh bố cục' }).waitFor();
+    await phone.locator('.editor-more-tools > summary').click();
     await phone.goto(`${base}/design/${senderId}?mode=layout`);
+    await phone.locator('.editor-more-tools > summary').click();
     await phone.getByRole('button', { name: 'Cá nhân hóa nhanh' }).waitFor();
+    await phone.locator('.editor-more-tools > summary').click();
     await action(phone, 'sheet-layers').click();
     await phone.locator(`.editor-layers [data-id="${photoId}"]`).click();
     await phone.keyboard.press('Escape');

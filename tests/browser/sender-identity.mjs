@@ -3,6 +3,7 @@ import { randomUUID } from 'node:crypto';
 import path from 'node:path';
 import { chromium } from 'playwright';
 import { confirmGiftAccess } from './gift-access.mjs';
+import { selectEditorLocale } from './editor-tools.mjs';
 
 export async function runSenderIdentity(base) {
   const browser = await chromium.launch({ headless: true, channel: process.env.BROWSER_CHANNEL || (process.platform === 'win32' ? 'msedge' : undefined) });
@@ -102,14 +103,12 @@ export async function runSenderIdentity(base) {
     assert.equal(new URL(sender.page.url()).searchParams.get('mode'), 'quick');
     const greeting = 'Một lời chúc do Sender viết.';
     await input.fill(greeting);
-    const locale = sender.page.locator('.editor-top-actions [data-locale-select]');
-    await locale.selectOption('en');
-    await sender.page.waitForFunction(() => globalThis.document.documentElement.lang === 'en');
+    await selectEditorLocale(sender.page, 'en');
     assert.equal(await input.inputValue(), greeting);
     await editor(sender.page, 'preview').click();
     await sender.page.getByRole('dialog', { name: 'Preview as recipient' }).waitFor();
     await sender.page.keyboard.press('Escape');
-    await locale.selectOption('vi');
+    await selectEditorLocale(sender.page, 'vi');
     await editor(sender.page, 'save').click();
     await sender.page.locator('.editor-save-status').filter({ hasText: 'Đã lưu' }).waitFor();
     const draftEndpoint = `/designs/designs/${idOf(sender.page)}`;
@@ -127,7 +126,9 @@ export async function runSenderIdentity(base) {
     await guest.page.goto(base + '/g/' + slug);
     await guest.page.locator('.gift-runtime-stage').getByText('Dành cho bạn', { exact: true }).waitFor();
     await capture(guest.page, 'identity-recipient-cover.png');
-    await guest.page.getByRole('button', { name: /Lời chúc/ }).click();
+    assert.equal(await guest.page.locator('.gift-runtime-navigation').count(), 0);
+    await guest.page.locator('.gift-runtime-stage:not([inert]) [data-runtime-element="open-gift"]').click();
+    await guest.page.locator('.gift-runtime-stage:not([inert]) [data-runtime-element="to-message"]').click();
     await guest.page.locator('.gift-runtime-stage').getByText('Thân mến', { exact: true }).waitFor();
     await guest.page.locator('.gift-runtime-stage').getByText('Một lời chúc do Sender viết.', { exact: true }).waitFor();
     await capture(guest.page, 'identity-recipient-message.png');

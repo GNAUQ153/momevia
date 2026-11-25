@@ -4,6 +4,7 @@ import path from 'node:path';
 import sharp from 'sharp';
 import { chromium } from 'playwright';
 import { confirmGiftAccess } from './gift-access.mjs';
+import { clickEditorTool, selectEditorLocale } from './editor-tools.mjs';
 
 export async function runNewTemplates(base) {
   const browser = await chromium.launch({ headless: true, channel: process.env.BROWSER_CHANNEL || (process.platform === 'win32' ? 'msedge' : undefined) });
@@ -27,10 +28,9 @@ export async function runNewTemplates(base) {
     await page.getByRole('button', { name: 'Mình vẫn nhớ lần…' }).click();
     assert.equal(await field('binding.message').inputValue(), 'Lời chúc đang viết.\nMình vẫn nhớ lần…');
     const draftPath = new URL(page.url()).pathname;
-    const editorLocale = page.locator('.editor-top-actions [data-locale-select]');
     const editorInput = await field('binding.message').elementHandle();
     await field('binding.message').evaluate(node => node.setSelectionRange(2, 7));
-    await editorLocale.selectOption('en');
+    await selectEditorLocale(page, 'en');
     await page.getByRole('button', { name: 'Save draft' }).waitFor();
     assert.equal(new URL(page.url()).pathname, draftPath);
     assert.equal(await field('binding.message').evaluate((node, previous) => node === previous, editorInput), true);
@@ -39,9 +39,9 @@ export async function runNewTemplates(base) {
     await capture('locale-editor-en-390.png');
     await action('undo').click();
     assert.equal(await field('binding.message').inputValue(), 'Lời chúc đang viết.');
-    await editorLocale.selectOption('vi');
+    await selectEditorLocale(page, 'vi');
     await page.getByRole('button', { name: 'Lưu nháp' }).waitFor();
-    await action('inline-fabric').click();
+    await clickEditorTool(page, 'inline-fabric');
     const fabric = page.locator('.editor-fabric-dialog--inline[open]');
     const fabricCanvas = await fabric.locator('canvas.upper-canvas').elementHandle();
     await fabric.locator('[data-locale-select]').selectOption('en');
@@ -50,7 +50,7 @@ export async function runNewTemplates(base) {
     await capture('locale-fabric-en-390.png');
     await fabric.locator('[data-locale-select]').selectOption('vi');
     await fabric.getByRole('button', { name: 'Đóng', exact: true }).click();
-    await action('toggle-mode').click();
+    await clickEditorTool(page, 'toggle-mode');
     await page.getByRole('heading', { name: 'Điền nội dung' }).waitFor();
     assert.equal(await field('binding.message').inputValue(), 'Lời chúc đang viết.');
     await page.getByLabel('Chú thích ảnh').fill('Ảnh mừng sinh nhật');
@@ -79,18 +79,26 @@ export async function runNewTemplates(base) {
     await stage.getByRole('button', { name: 'Lật góc khung ảnh' }).click();
     await stage.getByText(long, { exact: true }).waitFor();
     await capture('memory-long-greeting.png');
-    const playerLocale = page.locator('.recipient-preferences [data-locale-select]');
+    assert.equal(await page.locator('.recipient-preferences,.gift-runtime-navigation').count(), 0);
+    // Preferences selected on another public tab still translate the player in
+    // place, without adding controls outside the immersive recipient card.
+    const preferences = await context.newPage();
+    await preferences.setViewportSize({ width: 1440, height: 900 });
+    await preferences.goto(base + '/about');
+    const playerLocale = preferences.locator('.nav-actions [data-locale-select]');
     await playerLocale.selectOption('en');
-    await page.getByRole('navigation', { name: 'Gift scenes' }).waitFor();
+    await page.waitForFunction(() => globalThis.document.documentElement.lang === 'en');
     await stage.getByText(long, { exact: true }).waitFor();
     await stage.getByRole('button', { name: 'Gửi một lời hồi đáp' }).click();
     await stage.getByLabel('Reply', { exact: true }).fill('Lời đáp đang nhập ở trang quà.');
     const replyInput = await stage.locator('textarea').elementHandle();
     await capture('locale-recipient-en-390.png');
     await playerLocale.selectOption('vi');
+    await page.waitForFunction(() => globalThis.document.documentElement.lang === 'vi');
     await stage.getByLabel('Lời đáp', { exact: true }).waitFor();
     assert.equal(await stage.locator('textarea').evaluate((node, previous) => node === previous, replyInput), true);
     assert.equal(await stage.locator('textarea').inputValue(), 'Lời đáp đang nhập ở trang quà.');
+    await preferences.close();
     console.log('PASS Browser locale: 390 px editor keeps input, caret, undo and Fabric canvas; gift keeps scene, author text and in-progress reply.');
 
     await page.goto(base + '/template/hai-phong-bi');

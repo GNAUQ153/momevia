@@ -374,7 +374,7 @@ body.is-designing:has(.editor-workspace):not(:has(.editor-inline-active)) {
     margin: 0 0 8px;
   }
   .editor-main .editor-mobile-history .editor-history-control {
-    min-height: 36px;
+    min-height: 44px;
     padding: 6px 8px;
     font-size: 12px;
   }

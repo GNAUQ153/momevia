@@ -6,9 +6,19 @@ import { chromium } from 'playwright';
 import jsQR from 'jsqr';
 import sharp from 'sharp';
 import { confirmGiftAccess } from './gift-access.mjs';
+import { clickEditorTool, selectEditorLocale } from './editor-tools.mjs';
 import { checkContextualCanvas } from './canvas-contextual.mjs';
 import {catalog} from '../../web/js/features/canvas-editor/library.js';
 import {filteredIds} from '../../web/js/features/canvas-editor/library-discovery.js';
+
+// Public Canvas gifts have no shell links. Drive the SPA's browser-history
+// entry point directly when testing pending navigation and return behavior.
+async function visitHomeThroughHistory(page) {
+  await page.evaluate(() => {
+    globalThis.history.pushState(null, '', '/');
+    globalThis.dispatchEvent(new globalThis.PopStateEvent('popstate'));
+  });
+}
 
 async function checkShareInBrowser(browser, context, base, gifts) {
   const alias = base.replace('127.0.0.1', 'localhost');
@@ -116,14 +126,14 @@ async function checkRecipientDependencies(browser, base, canvasGift, legacyGift,
     const stage = page.locator('.gift-runtime-stage').getByText(greeting, { exact: true });
     await page.goto(base + giftPath);
     await stage.waitFor({ timeout: 5000 });
-    // CTA lan truyền xuất hiện cả khi Auth/Catalog đang tạm mất kết nối.
+    // Canvas gifts stay immersive even while Auth/Catalog are unavailable.
     const canvasCta = page.getByRole('link', { name: /Tạo thiệp của riêng bạn/ });
-    await canvasCta.waitFor();
-    assert.equal(await canvasCta.getAttribute('href'), '/explore?source=recipient');
-    assert.equal(await page.getByText('Tạo bằng Momevia', { exact: false }).count(), 1);
+    assert.equal(await canvasCta.count(), 0);
+    assert.equal(await page.getByText('Tạo bằng Momevia', { exact: false }).count(), 0);
+    assert.equal(await page.locator('.gift-runtime-navigation').count(), 0);
     assert.deepEqual(paths.filter(path => path.startsWith('/api/')), [`/api/gifts/gifts/${canvasGift.slug}`]);
     const catalogRequest = page.waitForRequest(request => request.url().endsWith('/api/catalog/templates'), { timeout: 5000 });
-    await page.locator('#main a[href="/"]').click();
+    await visitHomeThroughHistory(page);
     await catalogRequest;
     await catalogStarted.promise;
     assert(paths.includes('/api/catalog/templates'), 'The library started its catalog request');
@@ -132,7 +142,7 @@ async function checkRecipientDependencies(browser, base, canvasGift, legacyGift,
     await stage.waitFor({ timeout: 5000 });
     assert.equal(paths.filter(path => path === `/api/gifts/gifts/${canvasGift.slug}`).length, 2);
     releaseCatalog.resolve();
-    await page.locator('#main a[href="/"]').click();
+    await visitHomeThroughHistory(page);
     await page.locator('.hero a[href="/explore"]').first().click();
     await page.locator('#catalog-grid .template-card').first().waitFor();
     assert.equal(paths.filter(path => path === '/api/catalog/templates').length, 1);
@@ -193,7 +203,7 @@ async function measureGiftReadability(browser, base, { slug }, greeting) {
       return { readableMs: Math.round(performance.now() - start), giftRequests: apiRequests.length };
     };
     const firstOpen = await measure(() => page.goto(url, { waitUntil: 'commit' }));
-    await page.locator('#main a[href="/"]').click();
+    await visitHomeThroughHistory(page);
     await page.locator('.hero').waitFor();
     const spaReturn = await measure(() => page.evaluate(() => globalThis.history.back()));
     await cdp.send('Network.setCacheDisabled', { cacheDisabled: true });
@@ -332,22 +342,22 @@ export async function runCanvasBrowser(base, expiredSlug) {
     await field('binding.message').fill('Bản chưa có ACK mạng'); await control('save').click();
     const saveStatus = page.locator('.editor-save-status[data-tone="warning"]');
     const saveHint = page.locator('.editor-save-hint');
-    const locale = page.locator('.editor-top-actions [data-locale-select]');
     await saveStatus.filter({ hasText: 'Mất kết nối' }).waitFor();
     await saveHint.filter({ hasText: 'Có bản nháp tạm' }).waitFor();
-    await locale.selectOption('en');
+    await selectEditorLocale(page, 'en');
     await saveStatus.filter({ hasText: 'Offline' }).waitFor();
     await saveHint.filter({ hasText: 'A temporary draft is available in this tab' }).waitFor();
     assert.match(await saveStatus.getAttribute('title'), /A temporary draft/);
     assert.equal(await field('binding.message').inputValue(), 'Bản chưa có ACK mạng');
-    await locale.selectOption('vi');
+    await selectEditorLocale(page, 'vi');
     await saveStatus.filter({ hasText: 'Mất kết nối' }).waitFor();
     page.once('dialog', dialog => dialog.dismiss()); await control('studio').click(); assert.equal(new URL(page.url()).pathname, designPath);
     page.once('dialog', dialog => dialog.dismiss()); await page.evaluate(() => globalThis.history.back());
     await page.waitForURL(`**${designPath}`); assert.equal(await field('binding.message').inputValue(), 'Bản chưa có ACK mạng');
     await page.unroute('**/api/designs/designs/*/save'); await control('retry-save').click();
     await page.locator('.editor-save-status[data-tone="saved"]').filter({ hasText: 'Đã lưu trên máy chủ' }).waitFor();
-    await saveHint.filter({ hasText: 'Lần lưu được xác nhận' }).waitFor();
+    assert.match(await page.locator('.editor-save-status[data-tone="saved"]').getAttribute('title'), /Lần lưu được xác nhận/);
+    assert.equal(await saveHint.isHidden(), true);
     completed.push('offline feedback in VI/EN, retry, and internal/Back navigation guard');
 
     for (const width of [320, 375, 390, 768, 1024, 1440]) {
@@ -439,13 +449,13 @@ export async function runCanvasBrowser(base, expiredSlug) {
     await field('quick-photo').setInputFiles({ name: 'invalid.png', mimeType: 'image/png', buffer: Buffer.from('invalid PNG fixture') });
     await page.locator('.editor-error').waitFor();
     await page.locator(`.editor-artboard [data-element-id="photo-window-image"] img[src$="/${uploadedAsset.id}"]`).waitFor();
-    await control('toggle-mode').click();
+    await clickEditorTool(page, 'toggle-mode');
     assert.equal(new URL(page.url()).pathname, quickDraft.pathname);
     assert.equal(new URL(page.url()).searchParams.has('mode'), false);
     await control('sheet-scenes').click();
     assert.equal(await control('scene-add').isVisible(), true);
     await page.keyboard.press('Escape');
-    await control('toggle-mode').click();
+    await clickEditorTool(page, 'toggle-mode');
     assert.equal(await field('binding.message').inputValue(), quickGreeting);
     await save();
     await page.reload();

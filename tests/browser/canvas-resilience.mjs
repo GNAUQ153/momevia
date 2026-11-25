@@ -5,6 +5,7 @@ import { randomUUID } from 'node:crypto';
 import { chromium } from 'playwright';
 import { createElement } from '../../web/js/shared/canvas/index.js';
 import { syntheticPhoto } from '../integration/canvas-expanded.mjs';
+import { clickEditorTool } from './editor-tools.mjs';
 
 const deferred = () => { let resolve; const promise = new Promise(done => { resolve = done; }); return { promise, resolve }; };
 const json = (route, value, status = 200) => route.fulfill({ status, contentType: 'application/json', body: JSON.stringify(value) });
@@ -227,7 +228,7 @@ export async function runCanvasResilience(base) {
     assert.equal(await page.locator(`a.btn--outline[href="/design/${paidA.id}"]`).count(), 1); assert.equal(await page.locator(`a.btn--dark[href="/design/${paidA.id}"]`).count(), 1); assert(!(await page.locator('.success-card').innerText()).includes('bản đã thanh toán'));
     completed.push('C14 attach lost ACK retries identical context mutation; server intent amount displayed; pending return never publishes');
 
-    await open(paidB); await control('toggle-mode').click(); await control('preview').click(); await control('preview-send').click(); await page.locator('[data-action="start-payment"]').click(); await page.getByRole('heading', { name: 'Quét VietQR để thanh toán' }).waitFor();
+    await open(paidB); await clickEditorTool(page, 'toggle-mode'); await control('preview').click(); await control('preview-send').click(); await page.locator('[data-action="start-payment"]').click(); await page.getByRole('heading', { name: 'Quét VietQR để thanh toán' }).waitFor();
     await page.locator('[data-action="payment-status"]').click(); await page.getByRole('heading', { name: 'Đang xác nhận thanh toán' }).waitFor();
     assert.equal(contexts.length, 2); assert.deepEqual(new Set(contexts.map(context => context.designId)), new Set([paidA.id, paidB.id])); assert.equal(await page.locator(`a.btn--outline[href="/design/${paidA.id}"]`).count(), 1); assert.equal(await page.locator(`a.btn--outline[href="/design/${paidB.id}?mode=quick"]`).count(), 1); assert.equal(await page.locator(`a.btn--dark[href="/design/${paidB.id}?mode=quick"]`).count(), 1);
     const changedB = (await api(`/designs/designs/${paidB.id}`)).design; expectedPaidBMessage = 'Draft B vừa chỉnh ở tab khác trước khi quay lại'; changedB.document.bindings.message.value = expectedPaidBMessage;

@@ -98,14 +98,10 @@
 }
 @media (max-width: 410px) {
   .catalog-style-select {
-    flex-wrap: wrap;
-    row-gap: 6px;
+    gap: 8px;
   }
   .catalog-style-select > span {
-    width: 100%;
-  }
-  .catalog-style-select > .icon {
-    top: 40px;
+    max-width: 35%;
   }
 }
 

@@ -170,7 +170,7 @@ export async function runExpandedBrowser(base, cookie, {cards, controls}, artifa
     await shot(page,'library-1440.png');
     const search = page.locator('[data-block-search]');
     await search.fill('con dau');
-    assert.deepEqual(await page.locator('[data-block]:visible').evaluateAll(nodes=>nodes.map(node=>node.dataset.block)),['wax-seal','natural-wax-seal','motion-silk-tailed-comet','motion-postage-stamp']);
+    assert.deepEqual(await page.locator('[data-block]:visible').evaluateAll(nodes=>nodes.map(node=>node.dataset.block)),['wax-seal','natural-wax-seal','motion-dove-olive','motion-drawn-constellation','motion-postage-stamp']);
     await search.fill('từ khóa không tồn tại');
     await control('clear-block-search').click();
     for (const [i,group] of catalog.entries()) {
@@ -230,6 +230,8 @@ export async function runExpandedBrowser(base, cookie, {cards, controls}, artifa
         const scene = ['transition','ambience'].includes(family);
         if (!scene) await page.locator(`[data-block="${effectCard[id] || 'rectangle'}"]`).click();
         else await control('scene-select').first().click();
+        const effects = page.locator('.editor-effects-disclosure');
+        if (!await effects.evaluate(element => element.open)) await effects.locator(':scope > summary').click();
         const choice = field(`effect.${family}.id`);
         await choice.selectOption(id);
         if (family !== 'surface') await field(`effect.${family}.speed`).selectOption('slow');
@@ -330,20 +332,26 @@ export async function runExpandedBrowser(base, cookie, {cards, controls}, artifa
     await dialog.getByText('Mình nhớ những buổi chiều nghe bạn kể chuyện.').waitFor();
     await close();
 
+    await page.goto(`${base}/design/${controls.draftId}`);
+    await control('preview').click();
+    const previewNav = n => dialog.locator('.gift-runtime-navigation button').nth(n-1);
+    await previewNav(2).click();
+    assert.equal(await dialog.locator('.gift-runtime-progress').getAttribute('value'), '2');
+    assert.equal(await previewNav(2).getAttribute('aria-current'), 'step');
+    await previewNav(2).press('ArrowRight');
+    assert(await previewNav(3).evaluate(node => node.ownerDocument.activeElement === node));
+    assert.equal(await previewNav(2).getAttribute('aria-current'), 'step');
+    await close();
+
     const guest = await pageFor(mobile);
-    const nav = n => guest.locator('.gift-runtime-navigation button').nth(n-1);
-    const stagePublic = guest.locator('.gift-runtime-stage');
+    const stagePublic = guest.locator('.gift-runtime-stage:not([inert])');
+    const nav = n => stagePublic.getByRole('button', { name: `Cảnh QA ${n}`, exact: true });
     await guest.goto(`${base}/g/${controls.slug}`);
+    assert.equal(await guest.locator('.gift-runtime-navigation,.gift-runtime-progress').count(), 0);
     const flip = stagePublic.getByRole('button',{name:'Lật thẻ'});
     await flip.tap();
     assert.equal(await flip.getAttribute('aria-pressed'),'true');
     await nav(2).tap();
-    assert.equal(await guest.locator('.gift-runtime-progress').getAttribute('value'), '2');
-    assert.equal(await nav(2).getAttribute('aria-current'), 'step');
-    await nav(2).press('ArrowRight');
-    assert(await nav(3).evaluate(node => node.ownerDocument.activeElement === node));
-    // Di chuyển focus bằng mũi tên không tự mở hoặc bỏ qua cảnh.
-    assert.equal(await nav(2).getAttribute('aria-current'), 'step');
     await stagePublic.getByRole('button',{name:'Mở ngay',...exact}).press('Enter');
     await stagePublic.getByText('Hẹn nhau ở quán nhỏ cuối phố nhé!').waitFor();
     await nav(3).tap();

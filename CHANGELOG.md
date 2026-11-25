@@ -1,3 +1,10 @@
+## Unreleased — Sửa kiểm thử trình duyệt CI của PR #28 (2026-11-25)
+
+- Giữ nhãn và bộ chọn bộ lọc trên cùng hàng ở màn hình hẹp để thẻ mẫu đầu tiên vẫn xuất hiện trong màn hình 390 px ở cả VI/EN.
+- Khôi phục vùng chạm tối thiểu 44 px cho Undo/Redo của Editor trên màn hình nhỏ.
+- Kiểm thử Editor mở menu Công cụ qua summary trước khi đổi ngôn ngữ, chuyển chế độ hoặc mở Fabric; giữ các kiểm tra nội dung, lưu nháp và quyền truy cập hiện có.
+- Kiểm thử nhận quà Canvas dùng nút trong thiệp, xác minh không có thanh chuyển cảnh/CTA bên ngoài và giữ kiểm tra điều hướng, tải dữ liệu, hồi đáp độc lập với Auth/Catalog.
+
 ## Unreleased — Phase 2.5B Cảnh báo hết hạn và gia hạn (2026-11-25)
 
 - Cảnh báo Sender khi thiệp còn tối đa 7 ngày; gia hạn một lần theo cấu hình 0–30 ngày, mặc định tắt.

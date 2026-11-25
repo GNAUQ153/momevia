@@ -91,18 +91,18 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Dùng chung chính sách biên nhận với yêu cầu hoàn tiền; từ chối hồ sơ mới khi đơn và bằng chứng nội bộ không nhất quán.
-- Admin xem dữ liệu đối soát quyền, credit và số bút toán Creator; chưa có migration 018 thì báo chưa có dữ liệu credit. Không trả thêm dữ liệu giao dịch cho Buyer.
-- Không thực hiện hoàn tiền, sửa ledger, thu hồi quyền hoặc kích hoạt quota; bổ sung unit và MySQL QA regression, VI/EN.
+- Bổ sung module nội bộ chỉ dành cho MySQL QA cô lập; mặc định tắt, không đăng ký API hoàn tiền hoặc gọi provider.
+- Mô phỏng hoàn toàn phần cho đơn Sandbox có credit chưa tiêu hao, đối soát giao dịch gốc và đảo đúng bút toán Creator trong cùng transaction; giữ biên nhận gốc, khóa checkout và hồ sơ chờ provider.
+- Bổ sung kiểm thử replay, rollback, dữ liệu sai, credit đã dùng và cạnh tranh hai kết nối. Không migration hoặc thay đổi production.
 
 **Các commit gần nhất trên `main`:**
 
+- `0600be7` — feat(refund): add isolated QA settlement and transactional creator reversal (2026-11-25)
 - `e7025dc` — feat(refund): validate receipt evidence and audit entitlement usage (2026-11-25)
 - `d6ace84` — Merge pull request #28 from GNAUQ153:feat/creator-layout-image-optimization (2026-11-25)
 - `a3a7a60` — feat(payment): strengthen settlement evidence and reconciliation lifecycle (2026-11-25)
 - `8ac74d5` — fix(ci): isolate hero cover failure scenario and await request rejection (2026-11-25)
 - `fad91e2` — feat(payment): validate receipt integrity and improve bilingual payment details (2026-11-25)
-- `6cdb9c3` — feat(gifts): add expiration warnings and idempotent gift renewal (2026-11-25)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

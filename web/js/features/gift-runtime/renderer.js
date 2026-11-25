@@ -202,7 +202,7 @@ export function renderElement(
   }
   let node;
   if (model.assembly) {
-    node=element('div','gift-runtime-assembly');node.setAttribute('aria-hidden','true');node.style.pointerEvents=mode==='editor'?'auto':'none';node.append(renderAssembly(model.assembly,p));
+    node=element('div','gift-runtime-assembly');node.setAttribute('aria-hidden','true');node.style.pointerEvents=mode==='editor'?'auto':'none';node.append(renderAssembly(model.assembly,p,assetUrl));
   } else if (vector) {
     node = element("div", `gift-runtime-vector-box gift-runtime-${type}`);
     node.setAttribute("aria-hidden", "true");

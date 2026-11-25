@@ -3,8 +3,22 @@ import { STICKERS } from './registry.js';
 import { validateDocument } from './schema.js';
 import { heartPieces, masks, vectorParts } from './artwork.js';
 import { interactionKinds } from './interactions.js';
+import {EVENT_MEDIA} from './event-media.js';
 
 const escape = value => String(value).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+
+function assemblySvg(node,images){
+ const {assembly,props:p,id,layout:{width:w,height:h}}=node,paint=v=>v==='color'?p.color:v==='strokeColor'?p.strokeColor||p.color:v;
+ const draw=part=>{
+  const index=assembly.parts.indexOf(part),clipId=`assembly-${id}-${index}`,rest=part.rest||{},transform=rest.x!==undefined||rest.y!==undefined||rest.rotation!==undefined?` transform="translate(${rest.x||0} ${rest.y||0}) rotate(${rest.rotation||0} ${part.anchor.x*100} ${part.anchor.y*100})"`:'';
+  const boundary=part.clip?(part.clip.d?`<path clip-rule="evenodd" d="${escape(part.clip.d)}"/>`:part.clip.x!==undefined?`<rect x="${part.clip.x}" y="${part.clip.y}" width="${part.clip.width}" height="${part.clip.height}"/>`:`<ellipse cx="${part.clip.cx}" cy="${part.clip.cy}" rx="${part.clip.rx}" ry="${part.clip.ry}"/>`):'';
+  const media=part.image&&(images.get(part.image.mediaId)||images.get(p.assetId)),picture=part.image&&media?`<image href="${escape(media.url)}" x="${part.image.x}" y="${part.image.y}" width="${part.image.width}" height="${part.image.height}" preserveAspectRatio="none"/>`:'';
+  const paths=part.vector.paths.map(path=>`<path d="${escape(path.d)}" fill="${paint(path.fill)||'none'}" stroke="${paint(path.stroke)||'none'}" stroke-width="${path.strokeWidth==='strokeWidth'?p.strokeWidth||0:path.strokeWidth||0}" stroke-linecap="round" stroke-linejoin="round"/>`).join('');
+  return `${boundary?`<clipPath id="${clipId}">${boundary}</clipPath>`:''}<g${transform}${rest.opacity!==undefined?` opacity="${rest.opacity}"`:''}${boundary?` clip-path="url(#${clipId})"`:''}>${picture}${paths}${assembly.parts.filter(child=>child.parent===part.id).map(draw).join('')}</g>`;
+ };
+ const raster=assembly.parts.find(p=>p.image),media=raster&&EVENT_MEDIA[raster.image.mediaId],aspect=media?media.width/media.height:1;
+ return `<svg width="${w}" height="${h}" viewBox="0 0 ${100*aspect} 100"><g transform="scale(${aspect} 1)">${assembly.parts.filter(part=>!part.parent).map(draw).join('')}</g></svg>`;
+}
 
 function recipeSurface(body,node,id){
  const preset=node.effects?.surface,animation=preset?.definition?.animation;if(animation?.engine!=='surface')return body;
@@ -98,7 +112,7 @@ export function previewSvg(document, sceneId = document.entrySceneId, images = n
     let body = '';
     const vector = vectorParts(node);
     if(node.assembly){
-      body=`<svg width="${w}" height="${h}" viewBox="0 0 100 100">${node.assembly.parts.map((part,i)=>`${part.clip?`<clipPath id="assembly-${node.id}-${i}">${part.clip.x!==undefined?`<rect x="${part.clip.x}" y="${part.clip.y}" width="${part.clip.width}" height="${part.clip.height}"/>`:`<ellipse cx="${part.clip.cx}" cy="${part.clip.cy}" rx="${part.clip.rx}" ry="${part.clip.ry}"/>`}</clipPath><g clip-path="url(#assembly-${node.id}-${i})">`:''}${part.vector.paths.map(path=>`<path d="${escape(path.d)}" fill="${path.fill==='color'?p.color:path.fill==='strokeColor'?p.strokeColor||p.color:path.fill||'none'}" stroke="${path.stroke==='color'?p.color:path.stroke==='strokeColor'?p.strokeColor||p.color:path.stroke||'none'}" stroke-width="${path.strokeWidth==='strokeWidth'?p.strokeWidth||0:path.strokeWidth||0}" stroke-linecap="round" stroke-linejoin="round"/>`).join('')}${part.clip?'</g>':''}`).join('')}</svg>`;
+      body=assemblySvg(node,images);
     } else if (vector) {
       const preserve = node.type !== 'sticker' || ['paper-wave', 'lace', 'bunting', 'washi-tape'].includes(p.stickerId) ? 'none' : 'xMidYMid meet';
       body = `<svg width="${w}" height="${h}" viewBox="0 0 100 100" preserveAspectRatio="${preserve}">${vector.map(part =>

@@ -1,3 +1,8 @@
+## Unreleased — Cấu trúc icon chuyển động có phiên bản (2026-11-25)
+
+- Thêm tư thế đường nét đồng cấu, vùng che theo biên, tư thế nghỉ và lớp ảnh nội bộ đã duyệt; giữ bộ đọc cấu hình cũ và các giới hạn dữ liệu hiện hành.
+- Ngòi đi theo chính chiều dài đường mực; dựng hình, ảnh bìa và chế độ giảm chuyển động dùng cùng cấu trúc bộ phận. Bổ sung cách cập nhật đường nét cho trình duyệt chưa hỗ trợ nội suy trực tiếp, có dừng và giải phóng theo cảnh.
+
 ## Unreleased — Dọn repo và tách tệp phát sinh (2026-11-25)
 
 - Loại các gallery/mẫu thử, ảnh/video, báo cáo và script QA theo đợt; giữ tài nguyên sản phẩm, giấy phép và fixture hồi quy đang dùng.

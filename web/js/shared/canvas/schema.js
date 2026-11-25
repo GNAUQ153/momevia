@@ -206,7 +206,7 @@ export function validateDocument(document, { mode = 'draft', requiredBindings = 
   for (const [i, e] of document.elements.entries()) {
     const p = `elements.${i}`; object(e, p, ['id', 'type', 'elementVersion', 'layout', 'props', 'accessibility', 'actions', 'name', 'visible', 'locked', 'opacity', 'effects', 'artwork', 'sound', 'assembly', 'motions'], ['id', 'type', 'elementVersion', 'layout', 'props', 'accessibility']);
     try {
-      if(e.assembly){if(e.type!=='shape')fail(p,'Assembly requires a decorative shape.');validateAssembly(e.assembly);}
+      if(e.assembly){if(e.type!=='shape'&&!(e.type==='image'&&e.assembly.version===2))fail(p,'Assembly requires a decorative shape or an internal image assembly.');validateAssembly(e.assembly);}
       if(e.motions)validateMotions(e.motions,e);
     }catch(error){fail(p,error.message,'INVALID_MOTION');}
     if (own(e,'sound')) {

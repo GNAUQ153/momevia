@@ -97,12 +97,12 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các commit gần nhất trên `main`:**
 
+- `d6ace84` — Merge pull request #28 from GNAUQ153:feat/creator-layout-image-optimization (2026-11-25)
 - `a3a7a60` — feat(payment): strengthen settlement evidence and reconciliation lifecycle (2026-11-25)
 - `8ac74d5` — fix(ci): isolate hero cover failure scenario and await request rejection (2026-11-25)
 - `fad91e2` — feat(payment): validate receipt integrity and improve bilingual payment details (2026-11-25)
 - `6cdb9c3` — feat(gifts): add expiration warnings and idempotent gift renewal (2026-11-25)
 - `4107fce` — feat(gifts): add sender archive management and harden gift lifecycle access (2026-11-25)
-- `23ee34e` — feat(checkout): support additional premium publication credits in isolated QA (2026-11-25)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

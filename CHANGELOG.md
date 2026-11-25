@@ -1,3 +1,15 @@
+## Unreleased — Phase 2.5B Cảnh báo hết hạn và gia hạn (2026-11-25)
+
+- Cảnh báo Sender khi thiệp còn tối đa 7 ngày; gia hạn một lần theo cấu hình 0–30 ngày, mặc định tắt.
+- Kiểm tra chủ thiệp, trạng thái và hạn hiện tại trong thao tác ghi; giữ link, RSVP và quyền truy cập. MySQL cập nhật cột thời hạn cùng payload.
+- Không mở lại thiệp đã đóng, không thay đổi giá hoặc quyền Premium, không migration.
+
+## Unreleased — Phase 2.5A Vòng đời và kho thiệp (2026-11-25)
+
+- Sender có thể lưu trữ/đưa về danh sách thiệp hết hạn hoặc thu hồi, giữ nội dung, lời đáp, RSVP và trạng thái đóng.
+- Backend từ chối thời hạn không hợp lệ; kiểm tra lại thu hồi khi đọc tài nguyên Canvas MySQL. Kiểm tra chủ thiệp và trạng thái trong thao tác ghi.
+- Không migration, không tự gia hạn hoặc hoàn lượt; chưa thay đổi điều khoản Free/Premium. Thêm kiểm thử JSON, MySQL và giao diện VI/EN.
+
 ## Unreleased — Gộp tài liệu frontend hiện hành (2026-11-25)
 
 - Thay 25 ghi chú UI/kiểm kê theo phase hoặc phiên bản cũ bằng một hướng dẫn bảo trì frontend, liên kết với Canvas, API, icon và vận hành hiện hành.

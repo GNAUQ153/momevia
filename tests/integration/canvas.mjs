@@ -21,7 +21,7 @@ async function launch(extra = {}) {
     JWT_SECRET: randomBytes(32).toString('hex'), INTERNAL_SERVICE_KEY: randomBytes(32).toString('hex'), DEMO_AUTH_ENABLED: 'true', DEMO_TEMPLATE_CHECKOUT_ENABLED: 'true', DEMO_ADMIN_CODE: 'synthetic-admin',
     IDENTITY_STORAGE: 'json', CATALOG_STORAGE: 'json', CHECKOUT_STORAGE: 'json', GIFTS_STORAGE: 'json', SUPPORT_STORAGE: 'json', DESIGNS_STORAGE: 'json',
     PAYMENT_ENABLED: 'false', PAYMENT_LIVE_ENABLED: 'false', CANVAS_READ_ENABLED: 'true', CANVAS_EDIT_ENABLED: 'true', CANVAS_PUBLISH_ENABLED: 'true',
-    TEST_ACCOUNT_ENABLED: 'false', ...extra };
+    TEST_ACCOUNT_ENABLED: 'false', GIFT_RENEWAL_DAYS: '0', ...extra };
   env.ALLOWED_ORIGINS = 'https://canvas-qa.example.test';
   // Session keys stay fixed across restart so the replay caller is the same owner.
   if (launch.secrets) Object.assign(env, launch.secrets); else launch.secrets = { JWT_SECRET: env.JWT_SECRET, INTERNAL_SERVICE_KEY: env.INTERNAL_SERVICE_KEY };

@@ -91,18 +91,18 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Migration 018 tạo credit theo entitlement, cấp và tiêu hao cùng transaction ở MySQL Canvas/Legacy.
-- Chỉ bật trên profile MySQL QA cô lập; bảo toàn quyền cũ không có credit, không backfill hoặc thay đổi production.
-- Chưa mở mua thêm lượt, chưa kích hoạt quota production; bổ sung test cạnh tranh, retry và rollback.
+- Cảnh báo Sender khi thiệp còn tối đa 7 ngày; gia hạn một lần theo cấu hình 0–30 ngày, mặc định tắt.
+- Kiểm tra chủ thiệp, trạng thái và hạn hiện tại trong thao tác ghi; giữ link, RSVP và quyền truy cập. MySQL cập nhật cột thời hạn cùng payload.
+- Không mở lại thiệp đã đóng, không thay đổi giá hoặc quyền Premium, không migration.
 
 **Các commit gần nhất trên `main`:**
 
+- `6cdb9c3` — feat(gifts): add expiration warnings and idempotent gift renewal (2026-11-25)
+- `4107fce` — feat(gifts): add sender archive management and harden gift lifecycle access (2026-11-25)
+- `23ee34e` — feat(checkout): support additional premium publication credits in isolated QA (2026-11-25)
 - `d75f845` — Merge pull request #27 from GNAUQ153:feat/animated-elements-50-20261124 (2026-11-24)
 - `53a48e7` — feat(publication): add transactional premium publication credits for isolated QA (2026-11-24)
 - `205bc3c` — feat(checkout): introduce migration-safe scoped payment checkout keys (2026-11-24)
-- `0b13770` — fix(payment): enforce sandbox and live scope during verified settlement (2026-11-24)
-- `e803670` — feat(publication): audit template usage and isolate checkout environment replay (2026-11-24)
-- `1b88fdb` — feat(checkout): audit entitlement lifecycle and prevent revoked demo license replay (2026-11-24)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

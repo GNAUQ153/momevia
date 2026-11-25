@@ -151,14 +151,16 @@ export function createGiftViews({
   }
   function studioGifts({ gifts }) {
     const usedTemplates = new Set(gifts.map(gift => gift.templateId).filter(Boolean)).size;
+    const visible = gifts.filter(gift => !gift.senderArchivedAt);
+    const archived = gifts.filter(gift => gift.senderArchivedAt);
     return `<div class="dashboard-stats">
       <article class="stat-card">${icon("gift", 23)}<strong>${gifts.length}</strong><span>${text("studio.stats.gifts")}</span></article>
       <article class="stat-card">${icon("message-circle", 23)}<strong>${gifts.reduce((n, g) => n + g.replyCount, 0)}</strong><span>${text("gift.reply.title")}</span></article>
       <article class="stat-card">${icon("layers", 23)}<strong>${usedTemplates}</strong><span>${text("studio.stats.templates")}</span></article>
-      </div>${gifts.length
-        ? `<div class="my-gifts">${gifts.map(giftCard).join("")}</div>`
-        : `<div class="empty-state empty-state--panel">${icon("gift", 38)}<h3>${text("studio.gifts.empty")}</h3><p>${text("studio.gifts.emptyHint")}</p>${buttonLink("/explore", text("studio.gifts.firstTemplate"))}</div>`
-      }`;
+      </div>${visible.length
+        ? `<div class="my-gifts">${visible.map(giftCard).join("")}</div>`
+        : archived.length ? `<p>${text("studio.gifts.noUnarchived")}</p>` : `<div class="empty-state empty-state--panel">${icon("gift", 38)}<h3>${text("studio.gifts.empty")}</h3><p>${text("studio.gifts.emptyHint")}</p>${buttonLink("/explore", text("studio.gifts.firstTemplate"))}</div>`
+      }${archived.length ? `<details class="gift-archive"><summary>${text("studio.gifts.archiveTitle", { count: archived.length })}</summary><p>${text("studio.gifts.archiveHint")}</p><div class="my-gifts">${archived.map(giftCard).join("")}</div></details>` : ''}`;
   }
   function studioOrders({ orders }) {
     const paid = orders.filter(order => order.status === "paid");
@@ -173,8 +175,14 @@ export function createGiftViews({
     const slug = e(gift.slug);
     const opens = active && gift.recipientMode === "list" ? `<a class="btn btn--outline" href="/success/${slug}" data-link>${text("studio.gifts.share")}</a><button class="btn btn--outline" data-action="revoke-gift" data-id="${slug}">${text("studio.gifts.revoke")}</button>` : active ? `<a href="${e(new URL(url).pathname + new URL(url).search)}" data-link class="btn btn--outline">${text("studio.gifts.open")} ${icon("arrow-up-right", 16)}</a><a class="btn btn--outline" href="/success/${slug}" data-link>${text("studio.gifts.share")}</a><button class="icon-button" ${attr("aria-label", "studio.gifts.copy")} data-action="copy-link" data-value="${e(url)}">${icon("copy", 18)}</button><button class="btn btn--outline" data-action="revoke-gift" data-id="${slug}">${text("studio.gifts.revoke")}</button>` : '';
     const recipient = ['list','self'].includes(gift.recipientMode) ? text(`recipient.mode.${gift.recipientMode}`) : gift.recipientName ? text('studio.gifts.recipient', { name: gift.recipientName }) : text('studio.gifts.anonymous');
+    const archive = gift.senderArchivedAt
+      ? `<button type="button" class="btn btn--outline" data-action="restore-gift-list" data-id="${slug}">${text("studio.gifts.restoreList")}</button>`
+      : !active ? `<button type="button" class="btn btn--outline" data-action="archive-gift" data-id="${slug}">${text("studio.gifts.archive")}</button>` : '';
+    const warning = active && gift.expiringSoon ? `<p role="status">${text("studio.gifts.expiringSoon")}</p>` : '';
+    const renewal = active && Number.isInteger(gift.renewalDays) && gift.renewalDays > 0 && gift.renewalDays <= 30
+      ? `<button type="button" class="btn btn--outline" data-action="renew-gift" data-id="${slug}" data-expiry="${e(gift.expiresAt)}" data-days="${gift.renewalDays}">${text("studio.gifts.renew", { days: gift.renewalDays })}</button>` : '';
     const regift = gift.canRegift ? `<button class="btn btn--outline" data-action="regift" data-id="${slug}">${text("studio.gifts.regift")}</button>` : "";
-    return `<article class="my-gift"><div class="my-gift-art artwork artwork--${e(gift.theme)}">${icon("gift", 40)}</div><div class="my-gift-detail"><span>${recipient}</span><h3>${e(gift.templateTitle)}</h3><p>${status} - ${text('studio.gifts.expiry', { date: { format: 'date', value: gift.expiresAt } })}</p></div><div class="my-gift-actions">${opens}<button class="btn btn--outline" data-action="gift-inbox" data-id="${slug}">${text('studio.gifts.replies', { count: Number(gift.replyCount) })}<span data-unread-count>${gift.unreadCount ? text('studio.gifts.unread', { count: Number(gift.unreadCount) }) : ''}</span></button>${gift.recipientMode && gift.recipientMode !== "manual" ? `<button class="btn btn--outline" data-action="recipient-results" data-id="${slug}">${text("recipient.results.button", { count: Number(gift.recipientCount || 0) })}</button>` : ""}${regift}</div></article>`;
+    return `<article class="my-gift"><div class="my-gift-art artwork artwork--${e(gift.theme)}">${icon("gift", 40)}</div><div class="my-gift-detail"><span>${recipient}</span><h3>${e(gift.templateTitle)}</h3><p>${status} - ${text('studio.gifts.expiry', { date: { format: 'date', value: gift.expiresAt } })}</p>${warning}</div><div class="my-gift-actions">${opens}${renewal}<button class="btn btn--outline" data-action="gift-inbox" data-id="${slug}">${text('studio.gifts.replies', { count: Number(gift.replyCount) })}<span data-unread-count>${gift.unreadCount ? text('studio.gifts.unread', { count: Number(gift.unreadCount) }) : ''}</span></button>${gift.recipientMode && gift.recipientMode !== "manual" ? `<button class="btn btn--outline" data-action="recipient-results" data-id="${slug}">${text("recipient.results.button", { count: Number(gift.recipientCount || 0) })}</button>` : ""}${regift}${archive}</div></article>`;
   }
 
   return {

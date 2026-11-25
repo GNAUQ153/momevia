@@ -1219,6 +1219,25 @@ async function handleAction(action, element) {
     await render();
     return;
   }
+  if (action === "renew-gift") {
+    if (!window.confirm(t("studio.gifts.confirmRenew", { days: Number(element.dataset.days) }))) return;
+    element.disabled = true;
+    try {
+      await api.post(`/gifts/gifts/mine/${encodeURIComponent(element.dataset.id)}/renew`, { expectedExpiresAt: element.dataset.expiry });
+      await render();
+    } finally { if (element.isConnected) element.disabled = false; }
+    return;
+  }
+  if (action === "archive-gift" || action === "restore-gift-list") {
+    const archived = action === "archive-gift";
+    if (archived && !window.confirm(t("studio.gifts.confirmArchive"))) return;
+    element.disabled = true;
+    try {
+      await api.post(`/gifts/gifts/mine/${encodeURIComponent(element.dataset.id)}/archive`, { archived });
+      await render();
+    } finally { if (element.isConnected) element.disabled = false; }
+    return;
+  }
   if (action === "recipient-results") {
     openModal(`<div data-recipient-results-host></div>`);
     const { mountRecipientResults } = await import("../features/gifts/recipient-results.js");

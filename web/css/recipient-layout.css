@@ -1,0 +1,50 @@
+/* Phones fill the viewport; only wide desktop screens use a centered card. */
+body.is-playing-gift .recipient-section {
+  padding: 0;
+}
+body.is-playing-gift .recipient-section > .recipient-shell {
+  width: 100%;
+  max-width: none;
+}
+.recipient-shell {
+  --recipient-card-width: 100%;
+  min-width: 0;
+}
+.recipient-shell .recipient-player-host {
+  width: var(--recipient-card-width);
+  max-width: 100%;
+  margin-inline: auto;
+  min-width: 0;
+  min-height: 100svh;
+  background: var(--recipient-scene-background, transparent);
+}
+.recipient-shell .gift-runtime-mode-public {
+  max-width: none;
+}
+.recipient-shell .gift-runtime-stage {
+  border-radius: 0;
+}
+.recipient-shell [data-rsvp-host] {
+  max-width: var(--recipient-card-width);
+  margin-inline: auto;
+}
+.recipient-shell .gift-runtime-status:empty {
+  display: none;
+}
+.recipient-shell .gift-runtime-reply :is(input, textarea) {
+  min-height: 44px;
+}
+@media (min-width: 1025px) and (min-aspect-ratio: 3/2) {
+  body.is-playing-gift .recipient-section {
+    padding: 24px 0;
+  }
+  .recipient-shell {
+    --recipient-card-width: min(100%, var(--gift-content-limit, 720px), max(280px, calc((100svh - 48px) * var(--gift-artboard-ratio, .462))));
+  }
+  .recipient-shell .recipient-player-host {
+    min-height: 0;
+  }
+  .recipient-shell .gift-runtime-stage {
+    border-radius: 16px;
+  }
+}

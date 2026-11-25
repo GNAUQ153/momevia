@@ -28,7 +28,6 @@ import { pricingPage } from '../pages/pricing.js';
 import { paymentMethodText, paymentReceipt, paymentStatusPanel } from "../pages/payment-status.js";
 import { refundBuyerPanel, refundHistoryPanel, refundAdminPanel } from "../pages/refund-review.js";
 import { createLatestRequest } from "../features/refund/latest-request.js";
-import { recipientViralCta } from "../ui/recipient-viral.js";
 import { createSystemViews } from "../pages/system.js";
 
 const floatingCta=mountFloatingCta();
@@ -540,7 +539,7 @@ async function render({ transition = false, resetScroll = false } = {}) {
         const { mountPlayer } =
           await import("../features/gift-runtime/index.js");
         if (generation !== renderGeneration) return;
-        main.innerHTML = `<section class="section"><div class="container"><div class="recipient-preferences">${localeControl()}</div><div id="canvas-public-player"></div>${gift.rsvp ? '<div data-rsvp-host></div>' : ''}<p class="recipient-disclaimer">${text("gift.player.forwarded")}</p><button class="btn btn--outline" data-action="report-content" data-kind="gift" data-id="${e(id)}">${text("gift.player.report")}</button> ${recipientViralCta()}</div></section>`;
+        main.innerHTML = `<section class="section recipient-section"><div class="container recipient-shell"><div id="canvas-public-player" class="recipient-player-host"></div>${gift.rsvp ? '<div data-rsvp-host></div>' : ''}</div></section>`;
         const player = mountPlayer(
           document.getElementById("canvas-public-player"),
           {

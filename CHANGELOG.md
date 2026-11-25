@@ -1,3 +1,20 @@
+## Unreleased — Thiệp nhận quà sát mép trên điện thoại (2026-11-25)
+
+- Điện thoại và màn hình dọc dùng toàn bộ chiều rộng, bỏ khoảng đệm và góc bo tạo viền trắng. Nền thiệp kéo hết chiều cao màn hình khi nội dung ngắn, đổi theo màu cảnh đang mở.
+- Chỉ căn giữa/giới hạn chiều cao trên màn hình rộng từ 1025 px và tỷ lệ ngang/dọc từ 3:2; điện thoại xoay ngang vẫn ưu tiên sát mép. Giữ đúng tỷ lệ nội dung, cuộn dọc và responsive của chữ/form, không cắt thiệp hoặc sửa snapshot.
+
+## Unreleased — Link nhận quà không hiển thị điều hướng cảnh (2026-11-25)
+
+- Không dựng thanh tiến trình, các nút chọn cảnh và nhãn số cảnh trên link nhận quà; người nhận chuyển cảnh bằng các tương tác nằm trong thiệp.
+- Bỏ bộ chọn ngôn ngữ, thông báo chuyển tiếp, nút báo cáo và khối gợi ý/tạo quà nằm ngoài thiệp ở trang Canvas nhận quà. Giữ tương tác trong thiệp, âm thanh/chuyển động khi có cấu hình và RSVP của thiệp mời.
+- Giữ điều hướng cảnh trong chế độ xem thử, các hiệu ứng chuyển cảnh, phản hồi lỗi cần thiết và luồng hồi đáp hiện có.
+
+## Unreleased — Ô cảnh nhỏ gọn và bố cục link nhận quà (2026-11-25)
+
+- Giảm ô cảnh xuống khoảng 128 × 64 px, thumbnail nhỏ hơn, tên tối đa hai dòng và có tooltip; giữ nút ba chấm trong ô và vùng chạm 44 px trên màn hình nhỏ.
+- Canvas gửi qua link vốn co giãn theo chiều rộng, chữ tối thiểu 16 px và tự nới chiều cao khi nội dung dài. Bổ sung khung nhận quà theo tỷ lệ thiệp, chiều cao màn hình và giới hạn tác giả; giảm khoảng đệm đầu trang để nút mở không bị đẩy quá xa trên máy tính.
+- Giữ cuộn dọc, thứ tự lớp, nội dung/snapshot và quyền mở/hồi đáp; preview và Editor không thay đổi tỷ lệ thiết kế. Không thay đổi dữ liệu thiệp hoặc cơ chế gửi link.
+
 ## Unreleased — Menu cảnh gọn và chuyển cảnh trong Editor (2026-11-25)
 
 - Đặt nút ba chấm dọc bên trong từng ô cảnh; menu mở nổi phía trên/cạnh nút, không kéo dài dải cảnh hoặc làm vùng thiệp co lại. Đóng khi bấm ngoài, Escape, cuộn hay đổi kích thước màn hình.

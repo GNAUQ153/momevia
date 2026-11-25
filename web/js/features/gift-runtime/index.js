@@ -31,6 +31,12 @@ export function mountPlayer(
     mode: mode === "public" ? "publish" : "draft",
     requiredBindings: [],
   });
+  const recipientContainer = mode === 'public' ? root.closest?.('.recipient-shell') : null;
+  if (recipientContainer) {
+    const size = document.artboard.baseSize;
+    recipientContainer.style.setProperty('--gift-artboard-ratio', String(size.width / size.height));
+    recipientContainer.style.setProperty('--gift-content-limit', `${document.responsive.desktop.maxContentWidth}px`);
+  }
   let activeSceneId = effectPreview?.sceneId || document.entrySceneId,
     disposed = false,
     sceneController = null,
@@ -51,7 +57,7 @@ export function mountPlayer(
     if(accent)shell.style.setProperty('--stationery-accent',accent);
   }
   if(effectPreview?.family)shell.dataset.effectPreview=effectPreview.family;
-  shell.style.maxWidth = `${document.responsive.desktop.maxContentWidth}px`;
+  if (mode !== 'public') shell.style.maxWidth = `${document.responsive.desktop.maxContentWidth}px`;
   const marker = globalThis.document.createElement("p");
   marker.className = "gift-runtime-mode-label";
   setText(marker, mode === "preview" ? message("gift.player.previewMode") : "");
@@ -81,10 +87,10 @@ export function mountPlayer(
   soundControl.addEventListener('click',()=>{audio.setEnabled(!audio.enabled);updateSound();prepareSceneSound();},{signal:lifetime.signal});updateSound();
   globalThis.document.addEventListener('visibilitychange',()=>{if(globalThis.document.hidden)audio.suspend();else prepareSceneSound();},{signal:lifetime.signal});
   globalThis.addEventListener('pagehide',()=>audio.suspend(),{signal:lifetime.signal});
-  const sceneNavigation = createSceneNavigation(navigation, progress, {
+  const sceneNavigation = mode === 'preview' ? createSceneNavigation(navigation, progress, {
     onSelect: id => requestScene(id),
     signal: lifetime.signal,
-  });
+  }) : null;
   const preference = globalThis.matchMedia("(prefers-reduced-motion: reduce)");
   let motionOff = false, resumeCelebrations = () => {}, resumeElements = () => {};
   const motion = createMotion(() => !preference.matches && !motionOff);
@@ -171,7 +177,8 @@ export function mountPlayer(
   updateMotionControl();
   const syncVisibility=()=>{shell.dataset.visibility=globalThis.document.hidden?'hidden':'visible';if(globalThis.document.hidden)motion.pause();else motion.resume();};
   globalThis.document.addEventListener('visibilitychange',syncVisibility,{signal:lifetime.signal});syncVisibility();
-  shell.append(marker, stage, progress, navigation, status);
+  if (mode === 'preview') shell.append(marker, stage, progress, navigation, status);
+  else shell.append(stage, status);
   if (hasSound) shell.insertBefore(soundControl,stage);
   if (document.soundtrack || (document.schemaVersion >= 2 && (document.scenes.some(scene => scene.effects) || document.elements.some(element => element.effects || element.motions))))
     shell.insertBefore(toolbar, stage);
@@ -181,10 +188,10 @@ export function mountPlayer(
   function syncSceneCopy() {
     const scene = document.scenes.find(s => s.id === activeSceneId);
     stage.setAttribute("aria-label", scene.name);
-    sceneNavigation.sync(document.scenes, activeSceneId);
-    setText(status, message("gift.player.scenePosition", {
+    sceneNavigation?.sync(document.scenes, activeSceneId);
+    setText(status, mode === 'preview' ? message("gift.player.scenePosition", {
       index: document.scenes.indexOf(scene) + 1, total: document.scenes.length, name: scene.name,
-    }));
+    }) : '');
   }
   const render = ({ focus = true } = {}) => {
     if (disposed) return;
@@ -194,6 +201,7 @@ export function mountPlayer(
     stage.inert = false;
     resizeObserver?.disconnect();
     const scene = document.scenes.find((s) => s.id === activeSceneId);
+    recipientContainer?.style.setProperty('--recipient-scene-background', scene.background.color);
     const family = effectPreview?.family;
     const transition = ((!family && focus) || family === "transition") ? scene.effects?.transition : null;
     let previous;

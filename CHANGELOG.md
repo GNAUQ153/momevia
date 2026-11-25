@@ -1,3 +1,8 @@
+## Unreleased — Dọn đầu ra build web không còn dùng (2026-11-25)
+
+- Build ghi đủ manifest JS/CSS và dọn tệp sinh ra không thuộc bản hiện tại hoặc bản liền trước, gồm các bản nén; giữ nguyên URL còn được tham chiếu.
+- Bỏ qua dọn khi manifest cũ thiếu/hỏng; không đi theo liên kết thư mục/tệp và kiểm đường dẫn trước khi xóa. Bổ sung kiểm thử bảo toàn đầu ra và giới hạn phạm vi dọn.
+
 ## Unreleased — Loại tài nguyên QA và dữ liệu công cụ đã cũ (2026-11-25)
 
 - Bỏ 64 tệp minh chứng trong tài nguyên web, gói xuất 50 icon không còn được đọc và script chèn changelog một lần đã hoàn tất.

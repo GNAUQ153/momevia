@@ -5,7 +5,7 @@ web/assets/basic-templates/en/*.svg text eol=lf
 # Preserve third-party license bytes and hashes exactly as shipped in source ZIPs.
 web/assets/audio-licenses/*-upstream-*.txt binary
 
-# Preserve downloaded OFL bytes for typography checksum.
-web/assets/fonts/app/bricolagegrotesque-OFL.txt -text
-web/assets/fonts/app/bevietnampro-OFL.txt -text
-web/assets/fonts/app/fraunces-OFL.txt -text
+# Giữ nguyên byte OFL để xác minh checksum; khoảng trắng cuối dòng thuộc văn bản gốc.
+web/assets/fonts/app/bricolagegrotesque-OFL.txt -text whitespace=-blank-at-eol
+web/assets/fonts/app/bevietnampro-OFL.txt -text whitespace=-blank-at-eol
+web/assets/fonts/app/fraunces-OFL.txt -text whitespace=-blank-at-eol

@@ -1,3 +1,7 @@
+## Unreleased — Phase 4.1.1 Bảo toàn giấy phép font (2026-11-26)
+
+- Giữ nguyên byte ba giấy phép OFL mới, miễn kiểm tra khoảng trắng cuối dòng riêng ba file license; cập nhật tài liệu nguồn font self-hosted. Không đổi font, CSS, nghiệp vụ hoặc database.
+
 ## Unreleased — Phase 4.1 Typography (2026-11-26)
 
 - Đổi token nhận diện sang Bricolage Grotesque, Be Vietnam Pro và Fraunces; giữ bộ font nội dung Canvas cũ, sửa phân cấp tiêu đề marketing. Thêm công cụ tải WOFF2 và OFL thủ công, xác minh checksum trước build; không tải font từ bên ngoài khi chạy website.

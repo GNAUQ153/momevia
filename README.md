@@ -91,16 +91,16 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Đưa migration baseline vào allowlist release và kiểm thử nội dung, checksum manifest; tiếp tục loại dữ liệu xuất riêng tư. Không thay đổi SQL hoặc schema.
+- Gom INSERT liên kết tài sản Canvas thành batch tối đa 100 dòng, giữ transaction và quyền sở hữu; bổ sung kiểm tra prefix index MySQL chỉ đọc và kiểm thử rollback. Không thay đổi migration.
 
 **Các commit gần nhất trên `main`:**
 
+- `4b2e72c` — perf(database): batch canvas asset references and add read-only index audit (2026-11-26)
 - `bd6f4d6` — fix(ci): include migration baseline in verified release package (2026-11-26)
 - `ed33199` — feat(database): add migration integrity audit and read-only schema verification (2026-11-26)
 - `144f396` — fix(frontend): harden carousel lifecycle and add frontend regression coverage (2026-11-26)
 - `7b74cdc` — Merge pull request #29 from GNAUQ153/fix/responsive-home-pricing-cta-20261125 (2026-11-26)
 - `abb9c85` — refactor(frontend): isolate editor component lifecycles and release resources (2026-11-26)
-- `f35c663` — refactor(frontend): modularize canvas keyboard selection and clipboard actions (2026-11-26)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

@@ -326,7 +326,7 @@ async function verifyCatalog(context, page, base) {
   assert.equal(await search.inputValue(), '');
   assert.equal(await free.isChecked(), true, 'Clear search preserves other filters');
   assert.equal(await clearSearch.isDisabled(), true);
-  assert.equal(await search.evaluate(input => input === document.activeElement), true);
+  assert.equal(await search.evaluate(input => input === input.ownerDocument.activeElement), true);
   assert.equal(new URL(page.url()).searchParams.has('q'), false);
   assert.equal(new URL(page.url()).searchParams.get('free'), '1');
   await page.locator('.catalog-reset').click();

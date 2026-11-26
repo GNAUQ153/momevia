@@ -1,3 +1,7 @@
+## Unreleased — Phase 4.3B.1 Browser Test Hotfix (2026-11-27)
+
+- Sửa kiểm thử focus của ô tìm kiếm Catalog bằng ownerDocument của phần tử để tương thích ESLint no-undef trong Node.js, giữ nguyên điều kiện kiểm thử và hành vi ứng dụng.
+
 ## Unreleased — Phase 4.3B Interactive Controls (2026-11-27)
 
 - Chuẩn hóa nút marketing, trường tìm kiếm và bộ lọc danh mục bằng token chung; bổ sung nút xóa riêng từ khóa có nhãn VI/EN, giữ bộ lọc và focus. Giữ nguyên Auth, Canvas, thanh toán và database.

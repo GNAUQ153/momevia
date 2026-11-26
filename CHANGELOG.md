@@ -1,3 +1,8 @@
+## Unreleased — Phase 3.4E Hồi quy kiến trúc Frontend (2026-11-26)
+
+- Bổ sung kiểm thử vòng đời Featured Carousel sau PR #29, bao gồm focus, visibility, tiết kiệm dữ liệu, dispose và mount lại.
+- Không tải trước ảnh ngoài cửa sổ khi carousel dừng; chặn observer trễ và cleanup lặp. Giữ API, schema, giá, giao diện và dependency hiện tại.
+
 ## Unreleased — Phase 3.4D Vòng đời Canvas Editor (2026-11-26)
 
 - Cô lập listener theo dialog; giải phóng khi đóng, Escape hoặc hủy route, không giữ callback cũ. Chặn mở Fabric/Sound Editor muộn; hủy fetch âm thanh khi đóng.

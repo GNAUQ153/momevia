@@ -32,7 +32,8 @@ export function mountFeaturedCarousel(host) {
     root.dataset.featuredWindow=all.slice(0,count).map(card=>card.dataset.templateId).join(',');
   }
   async function preload(card){
-    if(!card)return;
+    // Không tải trước ảnh ngoài cửa sổ khi carousel đã dừng.
+    if(!card||!allowed())return;
     await Promise.all([...card.querySelectorAll('img')].map(async img=>{
       if(img.hasAttribute('data-cover-lazy'))loadCoverImage(img);
       img.loading='eager';
@@ -83,13 +84,15 @@ export function mountFeaturedCarousel(host) {
   connection?.addEventListener?.('change',()=>{cancelMove();setWindow();sync();},options);
   const resize=new ResizeObserver(measure);resize.observe(viewport);
   const intersection=new IntersectionObserver(entries=>{
+    // Observer có thể đã xếp callback trước lúc component bị hủy.
+    if(disposed||!entries.length)return;
     visible=entries[0].isIntersecting&&entries[0].intersectionRatio>=.15;
-    if(visible)void preload(cards()[count]);
+    if(allowed())void preload(cards()[count]);
     sync();
   },{threshold:[0,.15]});intersection.observe(viewport);
   const dialogs=new MutationObserver(sync);
   const main=root.closest('main');if(main)dialogs.observe(main,{subtree:true,attributes:true,attributeFilter:['open']});
   const modal=document.getElementById('modal-root');if(modal)dialogs.observe(modal,{subtree:true,childList:true});
   measure();setWindow();
-  return {dispose(){disposed=true;lifetime.abort();if(timer!==null)clearInterval(timer);timer=null;cancelMove();root.dataset.featuredRunning='false';resize.disconnect();intersection.disconnect();dialogs.disconnect();}};
+  return {dispose(){if(disposed)return;disposed=true;lifetime.abort();if(timer!==null)clearInterval(timer);timer=null;cancelMove();root.dataset.featuredRunning='false';resize.disconnect();intersection.disconnect();dialogs.disconnect();}};
 }

@@ -1,14 +1,10 @@
 import { MySqlClient } from '../../infrastructure/mysql/client.mjs';
 import { localizedError } from '../../shared/http.mjs';
-import { mysqlDate } from '../identity/mysql.repositories.mjs';
+import { mysqlDate, mysqlTimestampToIso as iso } from '../../infrastructure/mysql/datetime.mjs';
 import { requireGiftPermission } from './access.mjs';
 import { checkReplyReplay } from './replies.mjs';
 import { readPublicationAuthority, consumePublicationCredit } from '../checkout/publication-credit.mjs';
 
-function iso(value) {
-  if (value instanceof Date) return value.toISOString();
-  return new Date(`${String(value).replace(' ', 'T').replace(/Z$/, '')}Z`).toISOString();
-}
 function asGift(row) {
   if (!row) return null;
   const payload = typeof row.payload === 'string' ? JSON.parse(row.payload) : (row.payload || {});

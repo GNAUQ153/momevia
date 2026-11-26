@@ -1,3 +1,7 @@
+## Unreleased — Phase 3.7B Chuẩn hóa thời gian MySQL (2026-11-26)
+
+- Gom chuyển đổi thời gian UTC vào tầng Infrastructure, giảm phụ thuộc Repository vào Identity; giữ export tương thích, hành vi null và lỗi hiện tại. Không đổi SQL, schema, API hoặc giao diện.
+
 ## Unreleased — Khôi phục giao diện Auth tối từ d36c664 (2026-11-26)
 
 - Khôi phục nguyên stylesheet Auth tại `d36c664` cho nền tím–mận có lưới, thẻ kính, chữ sáng và nút gradient hồng–tím của Login/Register, gồm logo Zalo nội bộ đã có.

@@ -7,8 +7,8 @@
     "node": "^22.13.0 || >=24.0.0"
   },
   "scripts": {
-    "build": "node scripts/build/web.mjs",
-    "check": "node scripts/quality/check-source.mjs && node scripts/quality/check-ui-i18n.mjs --check && node scripts/quality/check-css-style.mjs && npm run check:technical",
+    "build": "npm run fonts:check && node scripts/build/web.mjs",
+    "check": "npm run fonts:check && node scripts/quality/check-source.mjs && node scripts/quality/check-ui-i18n.mjs --check && node scripts/quality/check-css-style.mjs && npm run check:technical",
     "changelog:check": "node scripts/quality/check-changelog.mjs --staged",
     "package": "node scripts/release/package.mjs",
     "verify:package": "node scripts/release/verify.mjs dist/release",
@@ -64,6 +64,8 @@
     "test:recipients:mysql": "node tests/integration/recipient-naming.mjs --mysql-local",
     "perf:recipients:before": "node tests/integration/recipient-naming.mjs --baseline --perf-only",
     "perf:recipients:after": "node tests/integration/recipient-naming.mjs --perf-only",
+    "fonts:install": "node scripts/assets/install-app-fonts.mjs",
+    "fonts:check": "node scripts/assets/install-app-fonts.mjs --check",
     "check:production": "node scripts/quality/check-production.mjs",
     "audit:technical": "node scripts/quality/audit-technical.mjs",
     "check:technical": "node scripts/quality/audit-technical.mjs --built",

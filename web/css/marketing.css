@@ -17,8 +17,6 @@
 }
 
 .mkt-gift-grid {
-  --font-display: var(--mkt-font);
-  --font-body: var(--mkt-font);
   font-family: var(--mkt-font);
 }
 
@@ -59,10 +57,10 @@
 .is-home .mkt-hero h1,
 .is-home .mkt-section h2 {
   margin: 0;
-  font-family: var(--mkt-font);
-  font-weight: 500;
-  line-height: 1.02;
-  letter-spacing: -.05em;
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: 1.12;
+  letter-spacing: -.035em;
   text-wrap: balance;
   color: inherit;
 }
@@ -202,10 +200,10 @@
 .is-home :is(.mkt-section h2, #mkt-faq-title) {
   margin: 0;
   color: inherit;
-  font-family: var(--mkt-font);
-  font-weight: 500;
-  line-height: 1.06;
-  letter-spacing: -.04em;
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -.03em;
   font-size: clamp(32px, 3.4vw, 50px);
 }
 
@@ -286,7 +284,7 @@
   color: var(--mkt-ink);
   white-space: normal;
   overflow-wrap: anywhere;
-  font: 650 clamp(17px, 1.65vw, 25px)/1.1 var(--mkt-font);
+  font: 650 clamp(17px, 1.65vw, 25px)/1.2 var(--font-display);
 }
 
 .mkt-gift-grid .template-card__title .icon {
@@ -345,7 +343,7 @@
 .mkt-steps h3,
 .mkt-example h3 {
   margin: 0;
-  font: 650 19px/1.2 var(--mkt-font);
+  font: 650 19px/1.3 var(--font-display);
 }
 
 .mkt-steps p {
@@ -414,7 +412,7 @@
 }
 
 .mkt-example__letter p {
-  font-family: Georgia, serif;
+  font-family: var(--font-serif);
   color: var(--mkt-ink);
   font-size: clamp(20px, 2.1vw, 30px);
 }

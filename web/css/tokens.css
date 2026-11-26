@@ -70,11 +70,24 @@
   --radius-xl: 34px;
   --shadow-soft: 0 14px 40px rgba(52, 26, 115, 0.09);
   --shadow-elevated: 0 26px 70px rgba(52, 26, 115, 0.18);
-  --font-display: "Plus Jakarta Sans", "Inter", system-ui, -apple-system, sans-serif;
-  --font-body: "Inter", system-ui, -apple-system, sans-serif;
-  --font-serif: "Lora", Georgia, serif;
-  --font-shell: "Inter", system-ui, -apple-system, sans-serif;
+  /* Font nhận diện UI; giữ bộ font cũ cho nội dung thiệp đã lưu. */
+  --canvas-font-display: "Plus Jakarta Sans", "Inter", system-ui, -apple-system, sans-serif;
+  --canvas-font-body: "Inter", system-ui, -apple-system, sans-serif;
+  --canvas-font-serif: "Lora", Georgia, serif;
+  --font-display: "Bricolage Grotesque", var(--canvas-font-display);
+  --font-body: "Be Vietnam Pro", var(--canvas-font-body);
+  --font-serif: "Fraunces", var(--canvas-font-serif);
+  --font-shell: var(--font-body);
   --container: 1190px;
   --ease: cubic-bezier(.2, .8, .2, 1);
   --ease-in-out: cubic-bezier(.77, 0, .175, 1);
+}
+
+/* Không đổi font nội dung Canvas/thiệp, kể cả bản nháp cũ. */
+.editor-artboard,
+.gift-runtime-stage {
+  --font-display: var(--canvas-font-display);
+  --font-body: var(--canvas-font-body);
+  --font-serif: var(--canvas-font-serif);
+  font-family: var(--canvas-font-body);
 }

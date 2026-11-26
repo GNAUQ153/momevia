@@ -41,8 +41,8 @@ test('DB cover variant belongs to the image URL and survives localized attribute
  }finally{rememberCatalogMetadata({templates:[]});installLibrary(prior);}
 });
 test('self-hosted variable fonts retain exact approved binaries and all script fallbacks',()=>{
- const manifest=JSON.parse(fs.readFileSync(new URL('../../web/assets/fonts/app/manifest.json',import.meta.url))),css=fs.readFileSync(new URL('../../web/css/app-fonts.css',import.meta.url),'utf8');assert.equal(manifest.fonts.length,11);
- for(const font of manifest.fonts){const bytes=fs.readFileSync(new URL('../../web/assets/fonts/app/'+font.file,import.meta.url));assert.equal(createHash('sha256').update(bytes).digest('hex'),font.sha256);assert.equal(font.weight,'400 800');assert(css.includes(font.file));}
+ const manifest=JSON.parse(fs.readFileSync(new URL('../../web/assets/fonts/app/manifest.json',import.meta.url))),css=fs.readFileSync(new URL('../../web/css/app-fonts.css',import.meta.url),'utf8');const legacy=manifest.fonts.filter(font=>['Inter','Plus Jakarta Sans'].includes(font.family));assert.equal(legacy.length,11);
+ for(const font of legacy){const bytes=fs.readFileSync(new URL('../../web/assets/fonts/app/'+font.file,import.meta.url));assert.equal(createHash('sha256').update(bytes).digest('hex'),font.sha256);assert.equal(font.weight,'400 800');assert(css.includes(font.file));}
  for(const family of ['Inter','Plus Jakarta Sans']){assert(css.indexOf(`/* ${family} / vietnamese */`)>css.indexOf(`/* ${family} / latin-ext */`));assert(css.includes(`/* ${family} / latin */`));}
 });
 

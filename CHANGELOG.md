@@ -1,3 +1,7 @@
+## Unreleased — Phase 4.1 Typography (2026-11-26)
+
+- Đổi token nhận diện sang Bricolage Grotesque, Be Vietnam Pro và Fraunces; giữ bộ font nội dung Canvas cũ, sửa phân cấp tiêu đề marketing. Thêm công cụ tải WOFF2 và OFL thủ công, xác minh checksum trước build; không tải font từ bên ngoài khi chạy website.
+
 ## Unreleased — Phase 3.8 Nghiệm thu kỹ thuật (2026-11-26)
 
 - Tổng hợp audit kiến trúc, CSS, font, migration và nợ kỹ thuật; chặn import tương đối chưa rà soát, yêu cầu vendor đã build trong Quality Gate. Phân biệt nghiệm thu source và production readiness; không đổi runtime, dữ liệu hoặc giao diện.

@@ -159,14 +159,14 @@ test('home and pricing CTAs stay visible after their intro, but hide at the foot
  }finally{Object.assign(globalThis,saved);}
 });
 
-test('template detail has one contextual purple CTA, follows the selected template and yields only to footer/dialog',()=>{
+test('template detail shows its contextual CTA only when the inline action is outside the visible area',()=>{
  const keys=['document','ResizeObserver','IntersectionObserver','requestAnimationFrame','getComputedStyle'];
  const saved=Object.fromEntries(keys.map(key=>[key,globalThis[key]]));
- let sourceUrl='/create/birthday?mode=quick&version=v1',dialogOpen=false,sourcePresent=true,single=false,notifyFooter;
+ let sourceUrl='/create/birthday?mode=quick&version=v1',dialogOpen=false,sourcePresent=true,single=false,notifyFooter,sourceTop=120;
  const box={left:900,right:1148,top:650,bottom:696,width:248,height:46};
  const create={href:FLOATING_CREATE_URL,getAttribute(){return this.href;},setAttribute(_key,value){this.href=value;}};
  const explore={hidden:false};
- const source={getAttribute:()=>sourceUrl};
+ const source={getAttribute:()=>sourceUrl,getBoundingClientRect:()=>({...box,top:sourceTop,bottom:sourceTop+46})};
  const main={querySelector:selector=>selector==='[data-template-create-cta]'?(sourcePresent?source:null):selector==='dialog[open]'&&dialogOpen?{}:null,
   querySelectorAll:()=>[{getBoundingClientRect:()=>box}]};
  const footer={getBoundingClientRect:()=>({...box,top:1000,bottom:1200,height:200})};
@@ -175,21 +175,27 @@ test('template detail has one contextual purple CTA, follows the selected templa
   querySelector:selector=>selector==='[data-floating-action="create"]'?create:selector==='[data-floating-action="explore"]'?explore:null};
  try{
   globalThis.document={documentElement:{clientWidth:1200,clientHeight:800},createElement:()=>panel,
-   getElementById:id=>id==='main'?main:id==='site-footer'?footer:null,
+   getElementById:id=>id==='main'?main:id==='site-footer'?footer:id==='site-header'?{getBoundingClientRect:()=>({bottom:80})}:null,
    body:{append(){},style:{setProperty(){}},classList:{toggle(){}}},addEventListener(){}};
   globalThis.ResizeObserver=class{observe(){}};
   globalThis.IntersectionObserver=class{constructor(callback){notifyFooter=callback;}observe(){}unobserve(){}};
   globalThis.requestAnimationFrame=()=>1;
   globalThis.getComputedStyle=()=>({visibility:'visible',display:'block'});
   const dock=mountFloatingCta();dock.sync('/template/birthday');
-  assert.equal(panel.hidden,false,'Inline CTA and preview artwork do not suppress the detail popup');
+  assert.equal(panel.hidden,true,'Visible inline action suppresses the duplicate dock');
   assert.equal(single,true);assert.equal(explore.hidden,true);assert.equal(create.href,sourceUrl);
+  sourceTop=79;dock.sync('/template/birthday');assert.equal(panel.hidden,true,'A partially visible action is still available');
+  sourceTop=34;dock.sync('/template/birthday');assert.equal(panel.hidden,false,'Dock appears once the action is fully behind the header');
+  sourceTop=800;dock.sync('/template/birthday');assert.equal(panel.hidden,false,'An action below the viewport is also unavailable');
+  sourceTop=799;dock.sync('/template/birthday');assert.equal(panel.hidden,true,'One visible pixel is sufficient to hide the duplicate');
+  sourceTop=-100;dock.sync('/template/birthday');
   notifyFooter([{target:footer,isIntersecting:true}]);assert.equal(panel.hidden,true);
   notifyFooter([{target:footer,isIntersecting:false}]);assert.equal(panel.hidden,false);
   dialogOpen=true;dock.sync('/template/birthday');assert.equal(panel.hidden,true);
   dialogOpen=false;dock.sync('/template/birthday');assert.equal(panel.hidden,false);
   sourceUrl='/create/wedding?mode=quick&version=v2';dock.sync('/template/wedding/');
   assert.equal(create.href,sourceUrl);assert.equal(panel.hidden,false);
+  sourceTop=120;dock.sync('/template/wedding');assert.equal(panel.hidden,true,'Scrolling back restores the inline action');
   sourcePresent=false;dock.sync('/template/missing');assert.equal(panel.hidden,true,'Loading/error content cannot create the previous template');
   dock.sync('/about');assert.equal(single,false);assert.equal(explore.hidden,false);assert.equal(create.href,FLOATING_CREATE_URL);
  }finally{Object.assign(globalThis,saved);}

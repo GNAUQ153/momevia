@@ -85,7 +85,8 @@ export function mountFloatingCta() {
     const pricingIntro = pricing ? main?.querySelector('.pricing-intro')?.getBoundingClientRect() : null;
     const pricingPassed = pricingIntro && pricingIntro.bottom <= headerBottom + 8;
     const catalogPassed = catalogCreate && visibleCtaRatio(catalogCreate.getBoundingClientRect(), document.documentElement.clientWidth, document.documentElement.clientHeight, headerBottom) <= 0.5;
-    const disabled = footerInView || dialogOpen || (home && main && !heroPassed) || (pricing && main && !pricingPassed) || (catalog && main && !catalogPassed) || (detail && !templateCreate);
+    const detailPassed = templateCreate && visibleCtaRatio(templateCreate.getBoundingClientRect(), document.documentElement.clientWidth, document.documentElement.clientHeight, headerBottom) === 0;
+    const disabled = footerInView || dialogOpen || (home && main && !heroPassed) || (pricing && main && !pricingPassed) || (catalog && main && !catalogPassed) || (detail && !detailPassed);
     // Probe fixed overlays synchronously, then settle visibility before painting.
     // Changing visibility never changes document padding or scroll position.
     const eligible = !(routeHidden || disabled);

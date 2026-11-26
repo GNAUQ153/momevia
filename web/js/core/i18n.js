@@ -28,6 +28,14 @@ export function priceText(value) {
     ? text('common.price.free') : text('common.price.value', { amount: { format: 'currency', value } });
 }
 
+// Financial totals keep zero distinct from a free product or missing data.
+export function moneyText(value) {
+  const numeric = typeof value === 'number' || (typeof value === 'string' && value.trim() !== '');
+  return numeric && Number.isFinite(Number(value))
+    ? text('common.price.value', { amount: { format: 'currency', value: Number(value) } })
+    : text('common.values.noData');
+}
+
 function encode(key, params) {
   return encodeURIComponent(JSON.stringify([key, params]));
 }

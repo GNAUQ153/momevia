@@ -633,7 +633,8 @@ async function render({ transition = false, resetScroll = false } = {}) {
       if (gift.recipientMode === 'self') gateTools.addChangeRecipient(main, id, () => void render());
     } else if (route === "payment-result" && id) {
       if (!state.user) {
-        main.innerHTML = errorPage(message("payment.checkout.login"));
+        main.innerHTML = errorPage(message("payment.checkout.login"),
+          `<button type="button" class="btn btn--dark" data-action="payment-login">${text('shell.pages.login')}</button>`);
       } else {
         const { payment } = await api.get(
           `/checkout/payments/orders/${encodeURIComponent(id)}`,

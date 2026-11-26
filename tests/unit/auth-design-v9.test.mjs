@@ -96,5 +96,5 @@ test('Giữ bảng dịch VI/EN tương ứng cho heading, CTA và lựa chọn 
 
 test('Auth CSS có version để tránh cache cũ sau khi deploy', () => {
   const html = src('web/index.html');
-  assert.match(html, /href="\/css\/auth-pages\.css\?v=20261122-v10"/);
+  assert.match(html, /href="\/css\/auth-pages\.css\?v=20261126-dark-v11"/);
 });

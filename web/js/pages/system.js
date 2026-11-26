@@ -4,8 +4,8 @@ import { isMessage, text } from '../core/i18n.js';
 
 
 export function createSystemViews({ buttonLink }) {
-  function errorPage(message) {
-    return `<section class="section"><div class="container"><div class="empty-state empty-state--panel">${icon('shield', 36)}<h2>${text('system.error.title')}</h2><p>${isMessage(message) ? text(message.key, message.params) : e(message)}</p>${buttonLink('/', text('common.actions.home'))}</div></div></section>`;
+  function errorPage(message, action = buttonLink('/', text('common.actions.home'))) {
+    return `<section class="section"><div class="container"><div class="empty-state empty-state--panel">${icon('shield', 36)}<h2>${text('system.error.title')}</h2><p>${isMessage(message) ? text(message.key, message.params) : e(message)}</p>${action}</div></div></section>`;
   }
 
   function loadingPage() {

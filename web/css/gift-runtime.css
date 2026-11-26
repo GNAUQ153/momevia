@@ -1248,6 +1248,13 @@ span.gift-comparison-range {
   text-align: left;
   max-width: 100%;
 }
+.recipient-results > a[download] {
+  max-width: 100%;
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-align: center;
+}
 .recipient-results select {
   min-height: 44px;
 }

@@ -7,7 +7,7 @@ import { templateCreateUrl } from './template-create-url.js';
 
 export function templatePreviewDialog(template) {
   return `<dialog class="template-preview-dialog" ${attr('aria-label', 'catalog.detail.previewLabel', { title: templateValue(template, 'title') })}>
-    <div class="template-preview-toolbar"><h2>${templateField(template, 'title')}</h2><button class="btn btn--outline" type="button" data-template-reset hidden>${text('catalog.detail.replay')}</button><a class="btn btn--dark template-preview-use" href="${templateCreateUrl(template)}" data-template-use data-link>${text('catalog.detail.use')}</a><button class="btn btn--outline" type="button" data-template-close>${text('common.actions.close')}</button></div>
+    <div class="template-preview-toolbar"><h2>${templateField(template, 'title')}</h2><div class="template-preview-actions"><button class="btn btn--outline" type="button" data-template-reset hidden>${text('catalog.detail.replay')}</button><a class="btn btn--dark template-preview-use" href="${templateCreateUrl(template)}" data-template-use data-link>${text('catalog.detail.use')}</a><button class="btn btn--outline" type="button" data-template-close>${text('common.actions.close')}</button></div></div>
     <p class="template-preview-note">${text('catalog.detail.previewNote')}</p>
     <p role="status" data-template-loading hidden>${text('catalog.detail.previewLoading')}</p>
     <div data-template-error hidden><p role="alert">${text('catalog.detail.previewError')}</p><button class="btn btn--outline" type="button" data-template-retry>${text('common.actions.retry')}</button></div>
@@ -38,7 +38,7 @@ export function mountTemplatePreview(host, template, { api, onOpen, autoOpen = f
     if (dialog.open && player && localizedPreview) player.updatePreviewCopy(localizedPreview(activeTemplate, t));
   });
   const toolbar = dialog.querySelector('.template-preview-toolbar');
-  toolbar.prepend(createLocaleControl());
+  toolbar.querySelector('.template-preview-actions').prepend(createLocaleControl());
   // Locale, zoom and a visible Replay action can change the sticky toolbar's
   // height. Reserve its measured space when focusing content in the player.
   const syncScrollPadding = () => {

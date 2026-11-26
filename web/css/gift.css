@@ -353,6 +353,19 @@
   font-weight: 750;
   white-space: nowrap;
 }
+.share-option .share-link button {
+  min-height: 44px;
+  max-width: 100%;
+  font-size: 14px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.share-option .share-link {
+  flex-wrap: wrap;
+}
+.share-option .share-link input {
+  flex: 1 1 160px;
+}
 .success-buttons {
   display: flex;
   align-items: center;
@@ -367,8 +380,9 @@
   justify-content: center;
   gap: 7px;
   margin-top: 26px;
-  color: #948a97;
-  font-size: 11px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.5;
 }
 /* Trình phát quà tương tác không cần tài khoản */
 .recipient-page {

@@ -1769,6 +1769,8 @@
   "gift.runtime.unsupportedVersion": "This player version is not supported.",
   "gift.share.copied": "Copied.",
   "gift.share.copy": "Copy",
+  "gift.share.copyInvite": "Copy invitation link",
+  "gift.share.copyPublic": "Copy regular link",
   "gift.share.expired": "Gift expired",
   "gift.share.generateQr": "Generate QR code",
   "gift.share.guide.copy": "Copy the right link",

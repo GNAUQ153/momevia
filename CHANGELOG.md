@@ -1,3 +1,15 @@
+## Unreleased — Khôi phục giao diện Auth tối từ d36c664 (2026-11-26)
+
+- Khôi phục nguyên stylesheet Auth tại `d36c664` cho nền tím–mận có lưới, thẻ kính, chữ sáng và nút gradient hồng–tím của Login/Register, gồm logo Zalo nội bộ đã có.
+- Giới hạn lớp màu sáng dùng chung để không ghi đè Auth; giữ nền sáng cho các trang khác và recovery. Đổi phiên bản URL CSS để tránh cache cũ.
+- Bổ sung kiểm tra Chrome trên 24 màn VI/EN từ 320–1920 px, xác nhận màu sau cascade, responsive, toggle mật khẩu, ngôn ngữ, đăng ký và đăng nhập email. Không đổi logic xác thực, OAuth, mật khẩu hoặc dữ liệu.
+
+## Unreleased — Tiếp tục bàn giao UI/UX B1a, B2 và XLSX (2026-11-26)
+
+- Trang chia sẻ ghi rõ nút sao chép link mời/link thường theo VI/EN; giữ thứ tự theo quyền mở, URL, chia sẻ, QR và mô tả quyền.
+- Chi tiết mẫu trên mobile theo thứ tự tên, giá, bìa, hành động; desktop giữ hai cột. Gom toolbar preview, giữ phát lại, dùng mẫu, đóng và ngôn ngữ; nút nổi nhường chỗ khi CTA trong nội dung còn nhìn thấy.
+- Nút tải danh sách XLSX giới hạn theo vùng chứa và xuống dòng ở màn nhỏ. Bổ sung kiểm tra Chrome VI/EN, chữ lớn, đúng phiên bản, retry, focus và quay lại bộ lọc; không đổi API, giá, dữ liệu hoặc dependency.
+
 ## Unreleased — Phase 3.4D Vòng đời Canvas Editor (2026-11-26)
 
 - Cô lập listener theo dialog; giải phóng khi đóng, Escape hoặc hủy route, không giữ callback cũ. Chặn mở Fabric/Sound Editor muộn; hủy fetch âm thanh khi đóng.

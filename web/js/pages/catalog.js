@@ -145,12 +145,14 @@ export function createCatalogViews({
       <div class="detail-grid"><div class="detail-info">
         <h1>${templateField(template, 'title')}</h1>
         <div class="detail-price-row"><strong>${priceText(template.price)}</strong></div>
-        <p>${text('catalog.cardType.detail', { type: { format: 'message', key: `catalog.cardType.${templateCardType(template)}` } })}</p>
-        <p>${personalizationText(template.personalization)}</p>
+        <div class="detail-art">${artwork(template, "artwork--detail",{eager:true})}</div>
+        <div class="detail-body">
         <div class="detail-start-actions">
           <a class="btn btn--dark" href="${e(templateCreateUrl(template))}" data-link data-template-create-cta>${text("catalog.detail.use")}</a>
           <button class="btn btn--outline" type="button" data-template-preview aria-haspopup="dialog">${text("catalog.detail.preview")} ${icon('eye', 17)}</button>
         </div>
+        <p>${text('catalog.cardType.detail', { type: { format: 'message', key: `catalog.cardType.${templateCardType(template)}` } })}</p>
+        <p>${personalizationText(template.personalization)}</p>
         <p class="detail-palette">${template.palette ? text(`templates.meta.palette.${template.palette}`) : ""}</p><p class="detail-subtitle">${templateField(template, 'subtitle')}</p>
         <p class="detail-meta">${text('catalog.detail.meta', { creator: template.creator, count: template.scenes })}</p>
         <div class="detail-secondary-actions">
@@ -158,7 +160,7 @@ export function createCatalogViews({
           ${buttonLink(`/create/${encodeURIComponent(template.id)}?mode=layout${version}`, template.personalization?.layout === false ? text("catalog.detail.viewLayout") : text("catalog.detail.editLayout"), "detail-text-action", false)}
           <button type="button" class="btn detail-text-action" data-action="report-content" data-kind="template" data-id="${e(template.id)}">${text("catalog.detail.report")}</button>
         </div>
-        </div><div class="detail-art">${artwork(template, "artwork--detail",{eager:true})}</div>
+        </div></div>
       </div>
       ${templatePreviewDialog(template)}
     </div></section>`;

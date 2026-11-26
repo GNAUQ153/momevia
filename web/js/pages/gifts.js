@@ -65,7 +65,7 @@ export function createGiftViews({
       const share = typeof navigator.share === "function" && (!navigator.canShare || navigator.canShare({ url }));
       const linkLabel = primary ? "gift.share.link" : title;
       return `<section class="share-option"><h2>${text(title)}</h2><p>${giftLinkDescriptionKeys(gift.access, invited).map(key => text(key)).join(' ')}</p>
-        <div class="share-link" data-copy-container><input ${primary ? 'id="share-link"' : ''} data-copy-value readonly value="${e(url)}" ${attr("aria-label", linkLabel)}/><button data-action="copy-link" data-value="${e(url)}">${icon("copy", 18)} ${text("gift.share.copy")}</button></div>
+        <div class="share-link" data-copy-container><input ${primary ? 'id="share-link"' : ''} data-copy-value readonly value="${e(url)}" ${attr("aria-label", linkLabel)}/><button data-action="copy-link" data-value="${e(url)}">${icon("copy", 18)} ${text(invited ? "gift.share.copyInvite" : "gift.share.copyPublic")}</button></div>
         <div class="success-buttons">${primary ? buttonLink(new URL(url).pathname + new URL(url).search, text("gift.share.view"), "btn--dark") : ''}
         ${share ? `<button class="btn btn--outline" data-action="share-gift" data-value="${e(url)}">${text(primary ? "gift.share.share" : invited ? "gift.share.shareInvite" : "gift.share.sharePublic")}</button>` : ''}
         <button class="btn btn--outline" data-action="qr" data-value="${e(url)}">${icon("qr-code", 18)} ${text(primary ? "gift.share.generateQr" : invited ? "gift.share.inviteQr" : "gift.share.publicQr")}</button></div></section>`;

@@ -19,10 +19,9 @@
 }
 
 /* Application surfaces share roles across routes, including lazy-loaded pages. */
-body:not(.is-playing-gift):not(.is-designing),
+body:not(.is-playing-gift):not(.is-designing):not(.is-auth-entry),
 .page-banner,
 .about-hero,
-.auth-page,
 .legal-hero,
 .pricing-page,
 .catalog-section.catalog-compact,
@@ -38,12 +37,6 @@ body:not(.is-playing-gift):not(.is-designing),
 .studio-space > .section,
 .studio-space .studio-space__toolbar {
   background: var(--cream);
-}
-
-.auth-showcase__story {
-  background: var(--paper);
-  border-color: var(--line);
-  box-shadow: var(--shadow-soft);
 }
 
 .section--white,
@@ -78,7 +71,7 @@ body:not(.is-playing-gift):not(.is-designing),
 }
 
 .is-home .btn.mkt-primary,
-.auth-panel .auth-submit,
+body:not(.is-auth-entry) .auth-panel .auth-submit,
 .studio-space__hero-actions .btn--dark,
 .creator-space .btn--dark {
   background: var(--purple);
@@ -96,7 +89,7 @@ body:not(.is-playing-gift):not(.is-designing),
 .btn--outline,
 .btn--light,
 .is-home .btn.mkt-secondary,
-.auth-panel .auth-support,
+body:not(.is-auth-entry) .auth-panel .auth-support,
 .floating-cta__explore {
   background: var(--paper);
   border-color: var(--app-control-border);
@@ -105,7 +98,7 @@ body:not(.is-playing-gift):not(.is-designing),
 
 .btn--dark:hover,
 .is-home .btn.mkt-primary:hover,
-.auth-panel .auth-submit:hover:not(:disabled) {
+body:not(.is-auth-entry) .auth-panel .auth-submit:hover:not(:disabled) {
   background: var(--purple-deep);
   color: var(--white);
 }
@@ -117,7 +110,7 @@ body:not(.is-playing-gift):not(.is-designing),
 
 .btn--outline:hover,
 .is-home .btn.mkt-secondary:hover,
-.auth-panel .auth-social:hover:not(:disabled) {
+body:not(.is-auth-entry) .auth-panel .auth-social:hover:not(:disabled) {
   background: var(--app-accent-soft);
   border-color: var(--purple);
   color: var(--purple-deep);
@@ -133,8 +126,8 @@ body:not(.is-playing-gift):not(.is-designing),
 .search-field,
 .search-field input,
 .studio-space__search input,
-.auth-panel .auth-input input,
-.auth-panel .auth-social {
+body:not(.is-auth-entry) .auth-panel .auth-input input,
+body:not(.is-auth-entry) .auth-panel .auth-social {
   background-color: var(--paper);
   border-color: var(--app-control-border);
   color: var(--ink);
@@ -152,7 +145,7 @@ body:not(.is-playing-gift):not(.is-designing),
   background: var(--app-accent-soft);
 }
 
-.auth-panel .auth-input input:focus-visible,
+body:not(.is-auth-entry) .auth-panel .auth-input input:focus-visible,
 .field input:focus,
 .field textarea:focus,
 .field select:focus,
@@ -175,8 +168,7 @@ body:not(.is-playing-gift):not(.is-designing),
 .about-value__icon,
 .about-value:nth-child(2) .about-value__icon,
 .about-value:nth-child(3) .about-value__icon,
-.favorite-button.is-saved,
-.auth-signed-in__icon {
+.favorite-button.is-saved {
   background: var(--app-accent-soft);
   color: var(--purple);
 }
@@ -213,37 +205,43 @@ body:not(.is-playing-gift):not(.is-designing),
   color: var(--purple);
 }
 
-body.is-auth-entry .site-header,
-body.is-auth-entry .locale-control select {
-  background: var(--cream);
+/* Login/Register keep the dark d36c664 theme in auth-pages.css. */
+body:not(.is-auth-entry) .auth-panel {
   border-color: var(--line);
+  background: var(--paper);
+  box-shadow: var(--shadow-soft);
   color: var(--ink);
 }
 
-body.is-auth-entry .brand-name,
-.auth-panel .auth-panel__brand,
-.auth-panel .auth-field__label {
+body:not(.is-auth-entry) .auth-panel .auth-panel__brand,
+body:not(.is-auth-entry) .auth-panel .auth-field__label {
   color: var(--ink);
 }
 
-.auth-panel .auth-toggle-password,
-.auth-panel .auth-divider,
-.auth-panel .auth-provider-note {
+body:not(.is-auth-entry) .auth-panel .auth-toggle-password,
+body:not(.is-auth-entry) .auth-panel .auth-divider,
+body:not(.is-auth-entry) .auth-panel .auth-provider-note {
   color: var(--muted);
 }
 
-.auth-panel .auth-social--disabled {
+body:not(.is-auth-entry) .auth-panel .auth-social--disabled {
   background: var(--app-surface-muted);
   color: var(--muted);
 }
 
-.auth-panel .auth-switch a,
-.auth-panel .auth-recovery-link a,
-.auth-panel .auth-policy-note a,
-.auth-panel .auth-support,
-.auth-panel .auth-back {
+body:not(.is-auth-entry) .auth-panel .auth-switch a,
+body:not(.is-auth-entry) .auth-panel .auth-recovery-link a,
+body:not(.is-auth-entry) .auth-panel .auth-policy-note a,
+body:not(.is-auth-entry) .auth-panel .auth-support,
+body:not(.is-auth-entry) .auth-panel .auth-back {
   color: var(--purple);
   border-color: var(--app-control-border);
+}
+
+body:not(.is-auth-entry) .auth-inline-error {
+  border-color: var(--error);
+  background: #fff0f3;
+  color: var(--error);
 }
 
 .editor-main {

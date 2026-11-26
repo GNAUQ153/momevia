@@ -1759,6 +1759,8 @@
   "gift.runtime.unsupportedVersion": "Phiên bản trình phát chưa được hỗ trợ.",
   "gift.share.copied": "Đã sao chép.",
   "gift.share.copy": "Sao chép",
+  "gift.share.copyInvite": "Sao chép link mời",
+  "gift.share.copyPublic": "Sao chép link thường",
   "gift.share.expired": "Quà đã hết hạn",
   "gift.share.generateQr": "Tạo mã QR",
   "gift.share.guide.copy": "Sao chép đúng liên kết",

@@ -370,12 +370,22 @@ export function createStage(
       return Boolean(gesture);
     },
     dispose() {
+      if (disposed) return;
       disposed = true;
       lifecycle.abort();
-      if (gesture) cancelAnimationFrame(gesture.frame);
-      gesture = null;
+      if (gesture) {
+        const { frame, pointerId } = gesture;
+        gesture = null;
+        cancelAnimationFrame(frame);
+        if (artboard.hasPointerCapture(pointerId)) artboard.releasePointerCapture(pointerId);
+        onGesture?.(false);
+      }
+      // Không lưu text khi hủy Stage; luồng flush/recovery vẫn do Editor quản lý.
       inlineEditor = null;
-      host.replaceChildren();
+      loopPhases.clear();
+      entered.clear();
+      // Chỉ xóa DOM của Stage này, không xóa Stage mới trong cùng host.
+      surround.remove();
     },
   };
 }

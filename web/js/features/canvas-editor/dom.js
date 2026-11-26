@@ -63,19 +63,39 @@ export function select(label, name, value, options) {
   control.value = value ?? "";
   return field(label, control);
 }
-export function trapDialog(dialog, onClose) {
+// Mỗi dialog có vòng đời riêng, không giữ listener đến hết vòng đời Editor.
+export function trapDialog(dialog, onClose, { signal, lifetime = new AbortController() } = {}) {
   const previous = document.activeElement;
-  dialog.prepend(createLocaleControl());
-  dialog.showModal();
+  let closed = false;
   const close = () => {
-    dialog.close();
-    dialog.remove();
-    previous?.focus();
-    onClose?.();
+    if (closed) return;
+    closed = true;
+    signal?.removeEventListener("abort", close);
+    lifetime.abort();
+    try {
+      if (dialog.open) dialog.close();
+      dialog.remove();
+      if (!signal?.aborted && previous?.isConnected) previous.focus();
+    } finally {
+      onClose?.();
+    }
   };
-  dialog.addEventListener("cancel", (event) => {
-    event.preventDefault();
+  if (signal?.aborted) {
     close();
-  });
+    return close;
+  }
+  try {
+    dialog.prepend(createLocaleControl());
+    dialog.showModal();
+    dialog.addEventListener("cancel", (event) => {
+      event.preventDefault();
+      close();
+    }, { signal: lifetime.signal });
+    dialog.addEventListener("close", close, { signal: lifetime.signal });
+    signal?.addEventListener("abort", close, { once: true });
+  } catch (error) {
+    close();
+    throw error;
+  }
   return close;
 }

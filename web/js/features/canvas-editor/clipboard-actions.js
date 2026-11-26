@@ -9,8 +9,9 @@ export function createClipboardActions({ getContext, selectedIds, choose, select
   clearSelection, commit, renderInspector, newId }) {
   let clipboard = null;
   let pasteCount = 0;
+  let disposed = false;
   function handle(name, target) {
-    if (!isClipboardAction(name)) return;
+    if (disposed || !isClipboardAction(name)) return;
     const { store, design, sceneId, quickMode } = getContext();
     if (quickMode) return;
     const policy = design.policy;
@@ -46,5 +47,14 @@ export function createClipboardActions({ getContext, selectedIds, choose, select
     commit(value => { value.document = pasted.document; }, t("editor.history.duplicateElement"));
     selectRestored(pasted.ids);
   }
-  return { handle, getClipboard: () => clipboard };
+  // Xóa dữ liệu cũ khi nạp lại thiết kế hoặc đóng Editor.
+  function clear() {
+    clipboard = null;
+    pasteCount = 0;
+  }
+  function dispose() {
+    disposed = true;
+    clear();
+  }
+  return { handle, clear, dispose, getClipboard: () => clipboard };
 }

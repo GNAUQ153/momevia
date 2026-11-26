@@ -1,3 +1,8 @@
+## Unreleased — Phase 3.4D Vòng đời Canvas Editor (2026-11-26)
+
+- Cô lập listener theo dialog; giải phóng khi đóng, Escape hoặc hủy route, không giữ callback cũ. Chặn mở Fabric/Sound Editor muộn; hủy fetch âm thanh khi đóng.
+- Dọn Clipboard, cache và Stage an toàn, giữ luồng lưu nháp và recovery. Bổ sung tám ca hồi quy; không đổi API, schema, CSS hoặc dependency.
+
 ## Unreleased — Phase 3.4C Tách xử lý sự kiện và Clipboard Canvas (2026-11-25)
 
 - Tách keyboard handler, helper selection và clipboard action theo từng lần mount; giữ Store, commit, history, session, Fabric và API hiện có.

@@ -73,7 +73,7 @@ test("Designer dùng module riêng và không đưa quyền lên API trước kh
   assert.match(source, /const access = await chooseGiftAccess\(\);/);
   assert.match(source, /if \(!access \|\| disposed\) return;/);
   assert.match(source, /request\("\/gifts\/gifts\/from-design", \{/);
-  assert.match(giftDialog, /signal\?\.addEventListener\("abort", close/);
+  assert.match(giftDialog, /\{ signal, lifetime \}/);
 });
 
 test("Player xem trước có riêng vòng đời và giải phóng khi rời Designer", () => {

@@ -1,3 +1,7 @@
+## Unreleased — Phase 4.4F CTA Conversion (2026-11-27)
+
+- Bổ sung CTA tạo thiệp sau khi mở quà mẫu, dùng chung hộp thoại chọn loại thiệp với Hero; chuyển replay thành hành động phụ, giữ focus, giao diện VI/EN và reduced motion. Không phát sinh giao dịch hoặc dữ liệu nghiệp vụ.
+
 ## Unreleased — Phase 4.4E Interactive Product Showcase (2026-11-27)
 
 - Bổ sung mở/đóng quà mẫu tại bước Open của Interactive Journey, đồng bộ trạng thái ARIA và VI/EN; không gọi API, giữ chức năng vuốt và reduced motion.

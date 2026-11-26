@@ -304,7 +304,17 @@
   margin-top: var(--space-4);
 }
 
-.is-home .mkt-journey__gift-toggle {
+/* CTA sau demo dùng cùng token nút và cho phép nhãn dài xuống dòng. */
+.is-home .mkt-journey__gift-next {
+  display: grid;
+  gap: var(--space-3);
+  justify-items: start;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.is-home .mkt-journey__gift-toggle,
+.is-home .mkt-journey__gift-create {
   min-height: 48px;
   max-width: 100%;
   white-space: normal;
@@ -312,7 +322,8 @@
   text-align: center;
 }
 
-.is-home .mkt-journey__gift-toggle:focus-visible {
+.is-home .mkt-journey__gift-toggle:focus-visible,
+.is-home .mkt-journey__gift-create:focus-visible {
   outline: 2px solid var(--mkt-action);
   outline-offset: 3px;
 }
@@ -523,6 +534,13 @@
     padding: 20px;
   }
 
+  .is-home .mkt-journey__gift-controls,
+  .is-home .mkt-journey__gift-next {
+    justify-items: stretch;
+  }
+
+  .is-home .mkt-journey__gift-toggle,
+  .is-home .mkt-journey__gift-create,
   .is-home .mkt-journey__footer .btn {
     width: 100%;
   }
@@ -538,6 +556,12 @@
   }
 
   .is-home .mkt-journey__step:hover {
+    transform: none;
+  }
+
+  .is-home .mkt-journey__gift-toggle.btn,
+  .is-home .mkt-journey__gift-create.btn {
+    transition: none;
     transform: none;
   }
 }

@@ -1910,6 +1910,7 @@
   "home.journey.keep.body": "Reopen the gift while its access period remains valid under the published retention policy.",
   "home.journey.keep.title": "Revisit the moment",
   "home.journey.gift.close": "Close gift to replay",
+  "home.journey.gift.create": "Create my own card",
   "home.journey.gift.message": "You just opened a sample card. Create your own to send a personal greeting.",
   "home.journey.gift.open": "Open demo gift",
   "home.journey.open.body": "The recipient opens the card in a browser and interacts without creating an account.",

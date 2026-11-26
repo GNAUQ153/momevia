@@ -170,7 +170,10 @@ export function createHomeViews({ state, buttonLink, templateCard }) {
                 <button type="button" class="btn mkt-primary mkt-journey__gift-toggle" data-mkt-gift-toggle aria-expanded="false" aria-controls="mkt-journey-gift-message">
                   ${icon('gift', 18)}<span data-mkt-gift-label-closed>${text('home.journey.gift.open')}</span><span data-mkt-gift-label-open hidden>${text('home.journey.gift.close')}</span>
                 </button>
-                <p id="mkt-journey-gift-message" data-mkt-gift-message hidden>${text('home.journey.gift.message')}</p>
+                <div id="mkt-journey-gift-message" class="mkt-journey__gift-next" data-mkt-gift-message hidden>
+                  <p>${text('home.journey.gift.message')}</p>
+                  <button type="button" class="btn mkt-primary mkt-journey__gift-create" data-home-create-after-demo aria-haspopup="dialog">${text('home.journey.gift.create')} ${icon('arrow-up-right', 18)}</button>
+                </div>
               </div>` : ''}
             </div>`).join('')}
           </div>

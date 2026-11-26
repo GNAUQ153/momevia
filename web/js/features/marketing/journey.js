@@ -33,6 +33,9 @@ export function mountJourney(root, { signal } = {}) {
     giftOpened = opened;
     if (scene) scene.dataset.giftOpen = String(opened);
     giftToggle?.setAttribute('aria-expanded', String(opened));
+    // Khi đã mở quà, ưu tiên tạo thiệp; nút replay trở thành hành động phụ.
+    giftToggle?.classList.toggle('mkt-primary', !opened);
+    giftToggle?.classList.toggle('mkt-secondary', opened);
     if (giftClosedLabel) giftClosedLabel.hidden = opened;
     if (giftOpenLabel) giftOpenLabel.hidden = !opened;
     if (giftMessage) giftMessage.hidden = !opened;

@@ -1,3 +1,8 @@
+## Unreleased — Bố cục trình sửa canvas (2026-11-26)
+
+- Tách rail công cụ/thư viện khối, tên cảnh hiện hành, canvas/thuộc tính và thumbnail cảnh; giữ hành động chính trên mobile.
+- Giữ vị trí cuộn lớp khi chọn/đổi tên; quick mode không lộ công cụ layout. Hướng dẫn RSVP theo cấu hình sự kiện, không đổi quyền/lưu/Fabric.
+
 ## Unreleased — Không gian quản lý thiệp (2026-11-26)
 
 - Gom phần giới thiệu Studio, giữ liên kết đến đúng mục nháp/quà/biên nhận và bộ lọc hiện có.

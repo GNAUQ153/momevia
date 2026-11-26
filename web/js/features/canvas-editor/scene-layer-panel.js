@@ -60,7 +60,8 @@ export function createSceneLayerPanel({
     }
     const active = globalThis.document.activeElement;
     const focusedId = host.contains(active) ? active.dataset.id : null;
-    preserveScroll(host.closest('.editor-library') || host, () => {
+    // Mobile scrolls the sheet; desktop scrolls the panel below the fixed tool rail.
+    preserveScroll(host.closest('.editor-library') || host, () => preserveScroll(host, () => {
     host.replaceChildren(...layers.map(({ id, label, locked, hidden, selected }) => {
       const choice = button(label, "select", {
         "data-id": id,
@@ -80,7 +81,7 @@ export function createSceneLayerPanel({
       return choice;
     }));
       if (focusedId) host.querySelector(`[data-id="${globalThis.CSS.escape(focusedId)}"]`)?.focus({ preventScroll: true });
-    });
+    }));
     layerHost = host; layerSignature = signature;
   }
 
@@ -100,7 +101,7 @@ export function createSceneLayerPanel({
       const signature = JSON.stringify([doc.artboard.baseSize, scene.background, scene.effects?.surface, models, bindings]);
       const cached = sceneThumbs.get(scene.id);
       const size = doc.artboard.baseSize;
-      const previewWidth = Math.min(24, 50 * size.width / size.height);
+      const previewWidth = Math.min(44, 72 * size.width / size.height);
       const thumbnail = cached?.signature === signature
         ? cached.thumbnail : sceneThumbnail(doc, scene, { width: previewWidth, assetUrl, indexed });
       sceneThumbs.set(scene.id, { signature, thumbnail });

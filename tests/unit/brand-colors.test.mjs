@@ -66,7 +66,7 @@ test('Marketing dùng cùng token ở cả stylesheet thường và immersive', 
 test('Cache bust cho toàn bộ stylesheet đổi màu', () => {
   const html = read('web/index.html');
   for (const name of ['tokens', 'marketing', 'marketing-immersive', 'marketing-journey', 'open-me-website', 'open-me-system']) {
-    assert(html.includes(`/css/${name}.css?v=${["tokens", "open-me-system"].includes(name) ? "20261127-controls" : "20261127-layout"}`), name);
+    assert(html.includes(`/css/${name}.css?v=${["tokens", "open-me-system"].includes(name) ? "20261127-feedback" : "20261127-layout"}`), name);
   }
 });
 

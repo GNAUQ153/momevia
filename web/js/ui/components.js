@@ -48,7 +48,7 @@ export function createComponents({ state }) {
       <div class="template-card__info"><span class="template-card__type">${text(`catalog.cardType.${templateCardType(template)}`)}</span><div class="template-card__${compact ? 'occasion' : 'caption'}">${templateField(template, template.category ? 'category' : 'style')}${compact ? '' : ` <span class="dot-separator"></span> ${text('catalog.scenes', { count: template.scenes })}`}</div>
         <a href="/template/${encodeURIComponent(template.id)}" data-link class="template-card__title">${compact ? `<span>${title}</span>${icon('arrow-up-right', 16)}` : title}</a>
         ${compact ? '' : `<p${template.personalization ? ' class="template-card__capabilities"' : ''}>${personalizationText(template.personalization) || templateField(template, 'subtitle')}</p>`}
-        <div class="template-card__bottom">${compact ? '' : `<span>${e(template.creator)}</span>`}<strong>${priceText(template.price)}</strong></div>
+        <div class="template-card__bottom">${compact ? '' : `<span>${e(template.creator)}</span>`}<strong class="template-card__price${Number(template.price) === 0 ? ' template-card__price--free' : ''}">${priceText(template.price)}</strong></div>
       </div>
     </article>`;
   }

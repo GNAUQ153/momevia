@@ -59,6 +59,13 @@ export async function runBrowserSmoke(base) {
     await page.locator('.qr-image').waitFor();
     assert((await page.locator('.qr-image').getAttribute('src')).startsWith('data:image/gif;base64,'));
     await page.setViewportSize({ width: 390, height: 844 });
+    const qrDialog = page.locator('#modal-root .dialog');
+    const close = qrDialog.locator('.dialog-close');
+    await close.focus();
+    await page.keyboard.press('Shift+Tab');
+    assert.equal(await qrDialog.evaluate(node => node.contains(node.ownerDocument.activeElement)), true);
+    await page.keyboard.press('Tab');
+    assert.equal(await close.evaluate(node => node === node.ownerDocument.activeElement), true);
     if (process.env.BROWSER_ARTIFACT_DIR) {
       const directory = path.resolve(process.env.BROWSER_ARTIFACT_DIR);
       fs.mkdirSync(directory, { recursive: true });

@@ -141,6 +141,10 @@
   --control-font-size: max(16px, 1rem);
   --control-focus-width: 2px;
   --control-focus-offset: 2px;
+  /* Thành phần phản hồi và hộp thoại dùng chung hệ layout. */
+  --feedback-radius: var(--layout-radius-control);
+  --feedback-padding: var(--space-4);
+  --dialog-padding: clamp(var(--space-5), 4vw, var(--space-10));
   --layout-radius-control: 12px;
   --layout-radius-card: 20px;
   --layout-radius-card-inner: calc(var(--layout-radius-card) - 1px);

@@ -430,3 +430,150 @@ body.is-designing {
     transform: none;
   }
 }
+
+/* Thẻ mẫu và trạng thái giá: chỉ trang danh mục, giữ artwork và dữ liệu giá. */
+.catalog-compact .template-card__type {
+  max-width: 100%;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--layout-radius-control);
+  background: var(--color-lavender);
+  color: var(--color-primary-hover);
+  overflow-wrap: anywhere;
+  line-height: 1.5;
+}
+
+.catalog-compact .template-card__title {
+  color: var(--color-ink);
+  overflow-wrap: anywhere;
+  font-weight: 600;
+}
+
+.catalog-compact .template-card__title:hover {
+  color: var(--color-primary);
+}
+
+.catalog-compact .template-card__caption {
+  flex-wrap: wrap;
+  color: var(--color-muted);
+  font-size: var(--ui-text-caption);
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.catalog-compact .template-card__bottom {
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  border-color: var(--color-border);
+}
+
+.catalog-compact .template-card__bottom span {
+  min-width: 0;
+  color: var(--color-muted);
+  overflow-wrap: anywhere;
+}
+
+.catalog-compact .template-card__price {
+  max-width: 100%;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--layout-radius-control);
+  background: var(--color-lavender);
+  color: var(--color-primary-hover);
+  overflow-wrap: anywhere;
+}
+
+.catalog-compact .template-card__price--free {
+  background: var(--color-success-soft);
+  color: var(--color-success);
+}
+
+.catalog-compact .empty-state {
+  padding: var(--layout-section-space) var(--space-4);
+  border-radius: var(--layout-radius-card);
+  background: var(--color-page);
+  color: var(--color-ink);
+}
+
+.catalog-compact .empty-state > svg {
+  color: var(--color-primary);
+}
+
+.catalog-compact .empty-state p {
+  color: var(--color-muted);
+  font-size: var(--ui-text-base);
+  line-height: 1.6;
+}
+
+/* Hộp thoại app shell; Auth và các dialog native giữ CSS riêng. */
+#modal-root .dialog:not(:has(.auth-modal)) {
+  min-width: 0;
+  max-height: calc(100dvh - 40px);
+  padding: var(--dialog-padding);
+  padding-top: max(var(--dialog-padding), 56px);
+  border-radius: var(--layout-radius-card);
+  box-shadow: var(--layout-shadow-stage);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  overflow-wrap: anywhere;
+}
+
+#modal-root .dialog:not(:has(.auth-modal)) .dialog-close {
+  min-width: var(--ui-control-min-height);
+  min-height: var(--ui-control-min-height);
+}
+
+#modal-root .dialog:not(:has(.auth-modal)) :focus-visible {
+  outline: var(--control-focus-width) solid var(--color-focus);
+  outline-offset: var(--control-focus-offset);
+}
+
+/* Không che toàn chiều ngang điện thoại; nội dung dài được phép xuống dòng. */
+.toast-host {
+  right: max(var(--space-3), env(safe-area-inset-right));
+  bottom: max(var(--space-3), env(safe-area-inset-bottom));
+  max-width: calc(100% - 2 * var(--space-3));
+  pointer-events: none;
+}
+
+.toast-host .toast {
+  align-items: flex-start;
+  gap: var(--space-3);
+  max-width: min(410px, 100%);
+  padding: var(--feedback-padding);
+  border-color: currentColor;
+  border-radius: var(--feedback-radius);
+  background: var(--color-success-soft);
+  color: var(--color-success);
+  box-shadow: var(--layout-shadow-card);
+  font-size: var(--ui-text-small);
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.toast-host .toast > svg {
+  flex: 0 0 auto;
+}
+
+.toast-host .toast > span {
+  min-width: 0;
+}
+
+.toast-host .toast--error {
+  background: var(--color-error-soft);
+  color: var(--color-error);
+}
+
+.toast-host .toast--warning {
+  background: var(--color-warning-soft);
+  color: var(--color-warning);
+}
+
+.toast-host .toast--info {
+  background: var(--color-info-soft);
+  color: var(--color-info);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast-host .toast {
+    animation: none;
+  }
+}

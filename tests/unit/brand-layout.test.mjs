@@ -65,7 +65,7 @@ test('Độ bo ảnh khớp card, bóng đổ hover dùng cùng token', () => {
 test('CSS thay đổi được cache bust, không thêm phân nhánh layout VI/EN', () => {
   const html = read('web/index.html');
   for (const name of ['tokens', 'base', 'responsive', 'marketing', 'marketing-mobile', 'featured-carousel', 'marketing-immersive', 'marketing-journey', 'open-me-website', 'brand-system']) {
-    assert(html.includes(`/css/${name}.css?v=${name === "tokens" ? "20261127-controls" : "20261127-layout"}`), name);
+    assert(html.includes(`/css/${name}.css?v=${name === "tokens" ? "20261127-feedback" : "20261127-layout"}`), name);
     // Không cấm selector locale cũ ngoài phạm vi; token layout mới không phụ thuộc ngôn ngữ.
     assert.doesNotMatch(css(name), /(?:\[lang[^\]]*\]|:lang\([^)]*\))[^{}]*\{[^}]*--(?:layout|space)-/);
   }

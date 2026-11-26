@@ -1,3 +1,7 @@
+## Unreleased — Phase 4.3C Card & Feedback (2026-11-27)
+
+- Đồng bộ thẻ mẫu, nhãn giá và trạng thái rỗng Catalog; tách điều khiển focus hộp thoại app shell và thông báo toast, giữ binding VI/EN, hỗ trợ reduced motion và bảo toàn nghiệp vụ giá, Canvas, database.
+
 ## Unreleased — Phase 4.3B.1 Browser Test Hotfix (2026-11-27)
 
 - Sửa kiểm thử focus của ô tìm kiếm Catalog bằng ownerDocument của phần tử để tương thích ESLint no-undef trong Node.js, giữ nguyên điều kiện kiểm thử và hành vi ứng dụng.

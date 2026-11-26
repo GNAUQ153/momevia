@@ -21,6 +21,8 @@ import { supportTopics, topicForRequest, topicKey } from "../features/support/to
 import { state } from "../core/state.js";
 import { templateValue } from "../features/catalog/template-copy.js";
 import { createComponents } from "../ui/components.js";
+import { createToast } from "../ui/feedback.js";
+import { focusDialog, trapDialogTab } from "../ui/dialog-focus.js";
 import { createLayout } from "../ui/layout.js";
 import { createHomeViews, homeDemo, selectHomeDemos } from "../pages/home.js";
 import { mountMarketingMotion } from "../features/marketing/scene-motion.js";
@@ -40,6 +42,7 @@ const pageTransition = createPageTransition(main);
 mountCoverLoading(main);
 const publicCatalogGet=endpoint=>(takeCatalogBootstrap(endpoint)?.catch(()=>api.get(endpoint))||api.get(endpoint)).then(rememberCatalogMetadata);
 const modal = document.getElementById("modal-root");
+const toast = createToast(document.getElementById("toast-host"));
 const header = document.getElementById("site-header");
 const footer = document.getElementById("site-footer");
 let routeController = null,
@@ -229,23 +232,6 @@ function commitCatalogFilters() {
   }
   activeUrl = url.pathname + url.search + url.hash;
   history.replaceState(history.state, '', activeUrl);
-}
-let toastTimer;
-function toast(copy, type = "success") {
-  const host = document.getElementById("toast-host");
-  let item = host.firstElementChild;
-  if (!item) {
-    item = document.createElement("div");
-    host.append(item);
-  }
-  const className = `toast toast--${type}`;
-  if (item.className !== className) {
-    item.className = className;
-    item.innerHTML = `${icon(type === "success" ? "check-circle" : "shield", 18)} <span></span>`;
-  }
-  setText(item.querySelector("span"), copy);
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => item.remove(), 4800);
 }
 async function openCanvasCheckout(context) {
   try { sessionStorage.setItem(checkoutDraftModeKey(context.design.id), context.mode); } catch { /* Optional cache. */ }
@@ -890,7 +876,7 @@ function openModal(content, { showLocaleControl = true } = {}) {
   disposeInbox?.();
   disposeInbox = null;
   if (!modal.hasChildNodes()) modalReturnFocus = document.activeElement;
-  modal.innerHTML = `<div class="modal-backdrop" data-action="close-modal"><div class="dialog" role="dialog" aria-modal="true" ${attr("aria-label", "shell.dialog")}><button class="icon-button dialog-close" data-action="close-modal" ${attr("aria-label", "common.actions.close")}>${icon("close", 21)}</button>${showLocaleControl ? localeControl() : ""}${content}</div></div>`;
+  modal.innerHTML = `<div class="modal-backdrop" data-action="close-modal"><div class="dialog" role="dialog" aria-modal="true" tabindex="-1" ${attr("aria-label", "shell.dialog")}><button type="button" class="icon-button dialog-close" data-action="close-modal" ${attr("aria-label", "common.actions.close")}>${icon("close", 21)}</button>${showLocaleControl ? localeControl() : ""}${content}</div></div>`;
   const heading = modal.querySelector('.dialog h2');
   if (heading) {
     heading.id ||= 'site-dialog-title';
@@ -900,10 +886,7 @@ function openModal(content, { showLocaleControl = true } = {}) {
   main.inert = true;
   header.inert = true;
   footer.inert = true;
-  (
-    modal.querySelector('input:not([disabled], [type="hidden"])') ||
-    modal.querySelector("button")
-  )?.focus();
+  focusDialog(modal.querySelector('.dialog'));
 }
 function openSupport(report) {
   const displayName = state.user?.name || "";
@@ -1320,20 +1303,7 @@ document.addEventListener("keydown", (event) => {
     event.preventDefault();
     closeModal();
   }
-  if (event.key === "Tab") {
-    const controls = [
-      ...modal.querySelectorAll('button,input:not([type="hidden"]),textarea,select,a[href]'),
-    ].filter((el) => !el.disabled && el.getClientRects().length);
-    const first = controls[0],
-      last = controls.at(-1);
-    if (event.shiftKey && document.activeElement === first) {
-      event.preventDefault();
-      last?.focus();
-    } else if (!event.shiftKey && document.activeElement === last) {
-      event.preventDefault();
-      first?.focus();
-    }
-  }
+  trapDialogTab(modal.querySelector('.dialog'), event);
 });
 window.addEventListener("popstate", (event) => {
   if (restoringHistory) {

@@ -91,16 +91,16 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Đồng bộ thẻ mẫu, nhãn giá và trạng thái rỗng Catalog; tách điều khiển focus hộp thoại app shell và thông báo toast, giữ binding VI/EN, hỗ trợ reduced motion và bảo toàn nghiệp vụ giá, Canvas, database.
+- Chuẩn hóa cỡ chữ responsive cho Hero, Catalog và Pricing bằng token rem/clamp, đồng bộ cascade và chiều cao dòng; giữ typography Canvas, Auth và Workspace.
 
 **Các commit gần nhất trên `main`:**
 
+- `5ee4871` — feat(ui): introduce fluid typography scale and responsive text sizing (2026-11-27)
 - `5195caa` — feat(ui): standardize template cards modal focus and toast feedback (2026-11-27)
 - `a1e5b85` — fix(ci): resolve browser focus assertion lint error (2026-11-27)
 - `a56250b` — feat(ui): standardize interactive controls and improve catalog search experience (2026-11-27)
 - `cefab3d` — feat(ui): standardize responsive layout spacing radius and elevation tokens (2026-11-27)
 - `064cd36` — feat(ui): unify brand color tokens and improve marketing contrast (2026-11-27)
-- `dd38cf6` — fix(typography): preserve upstream font licenses and checksums (2026-11-27)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

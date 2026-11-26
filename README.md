@@ -91,16 +91,16 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Bổ sung audit 11 invariant liên bảng chỉ đọc theo opt-in, trả số lượng bất thường và không xuất ID khách hàng; kiểm thử rollback và phát hiện sai chủ/quyền, sai bằng chứng biên nhận. Không đổi schema hoặc dữ liệu.
+- Bổ sung log hiệu năng tổng hợp opt-in theo cửa sổ, histogram cố định cho HTTP và MySQL, CPU/RAM và event loop; không ghi URL, SQL hoặc dữ liệu khách hàng. Không thay đổi schema hay API.
 
 **Các commit gần nhất trên `main`:**
 
+- `24c974a` — feat(performance): add privacy-safe backend and mysql performance monitoring (2026-11-26)
 - `7cdd8c3` — feat(database): add cross-table integrity audit and shared pool regression coverage (2026-11-26)
 - `eadedb9` — refactor(database): share mysql connection pool and harden transaction lifecycle (2026-11-26)
 - `4b2e72c` — perf(database): batch canvas asset references and add read-only index audit (2026-11-26)
 - `bd6f4d6` — fix(ci): include migration baseline in verified release package (2026-11-26)
 - `ed33199` — feat(database): add migration integrity audit and read-only schema verification (2026-11-26)
-- `144f396` — fix(frontend): harden carousel lifecycle and add frontend regression coverage (2026-11-26)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

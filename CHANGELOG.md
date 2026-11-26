@@ -1,3 +1,7 @@
+## Unreleased — Phase 3.6E Đo tải Backend local (2026-11-26)
+
+- Bổ sung benchmark GET loopback opt-in cho Catalog VI/EN và thumbnail 200/304, giới hạn tải, timeout, báo cáo tổng hợp và quy trình đánh giá chi phí Railway. Không đổi runtime, dữ liệu hoặc schema.
+
 ## Unreleased — Phase 3.6D Tối ưu tải ảnh Frontend (2026-11-26)
 
 - Chặn callback lazy loading cũ và giữ ưu tiên tải ảnh Carousel; không preload dự đoán Catalog khi bật tiết kiệm dữ liệu. Giữ giao diện, bản dịch, font, API và schema hiện tại.

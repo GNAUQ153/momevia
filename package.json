@@ -54,6 +54,7 @@
     "cert:local": "node scripts/dev/certificate-local.mjs",
     "test:https": "node tests/integration/https.mjs",
     "perf:marketing": "node scripts/quality/measure-marketing.mjs",
+    "perf:backend": "node scripts/quality/measure-backend.mjs",
     "perf:marketing:compare": "node scripts/quality/compare-marketing.mjs",
     "demo:music": "npm run build && node scripts/dev/music-library-local.mjs",
     "test:music:library": "node tests/integration/music-library.mjs --browser",

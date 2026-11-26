@@ -91,16 +91,16 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Giữ nguyên byte ba giấy phép OFL mới, miễn kiểm tra khoảng trắng cuối dòng riêng ba file license; cập nhật tài liệu nguồn font self-hosted. Không đổi font, CSS, nghiệp vụ hoặc database.
+- Chuẩn hóa token màu thương hiệu, trạng thái, gradient và CTA marketing; tăng tương phản viền điều khiển và khoảng cách dòng tiêu đề. Giữ màu Auth, Workspace và Canvas cũ. Bổ sung kiểm thử tương phản và nghiệm thu VI/EN.
 
 **Các commit gần nhất trên `main`:**
 
+- `064cd36` — feat(ui): unify brand color tokens and improve marketing contrast (2026-11-27)
 - `dd38cf6` — fix(typography): preserve upstream font licenses and checksums (2026-11-27)
 - `5203f11` — feat(ui): introduce bilingual typography system and self-hosted brand fonts (2026-11-26)
 - `47ad256` — feat(quality): consolidate technical acceptance and enforce import integrity (2026-11-26)
 - `1f62c35` — refactor(quality): normalize all stylesheets and add source asset audit (2026-11-26)
 - `363e456` — refactor(database): centralize mysql datetime mapping and reduce repository coupling (2026-11-26)
-- `197a5f3` — Merge pull request #30 from GNAUQ153/fix/ui-ux-audit-20261126 (2026-11-26)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

@@ -105,7 +105,7 @@ export function mountHeroTemplates(host, initialTemplates) {
 
   function canRotate() {
     return !lifetime.signal.aborted && !reduce.matches &&
-      !dataPaused && !document.hidden && visible && !dialog.open;
+      !dataPaused && !document.hidden && visible && !dialog.open && !host.hasAttribute('data-home-construction-running');
   }
   function schedule() {
     // Dùng cùng trạng thái với đồng hồ thiệp để tạm dừng quầng sáng CSS.
@@ -184,6 +184,7 @@ export function mountHeroTemplates(host, initialTemplates) {
     if (event.target.closest('[data-template-preview]')) schedule();
   }, options);
   dialog.addEventListener('close', schedule, options);
+  host.addEventListener('home-construction:complete', schedule, options);
   document.addEventListener('visibilitychange', schedule, options);
   globalThis.addEventListener('resize', () => { ++generation; resetProgress(); update(); schedule(); }, options);
   reduce.addEventListener('change', () => { update(); schedule(); }, options);

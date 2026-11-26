@@ -18,6 +18,7 @@ export const monitoredStylesheets = Object.freeze([
   'open-me-system.css',
   'open-me-website.css',
   'featured-carousel.css',
+  'home-construction.css',
 ]);
 
 /**

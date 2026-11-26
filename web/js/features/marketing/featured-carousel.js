@@ -20,7 +20,7 @@ export function mountFeaturedCarousel(host) {
   const cards=()=>[...track.children];
   const focused=()=>Boolean(root.querySelector(':focus-visible'));
   function allowed(){
-    return !disposed&&visible&&!document.hidden&&!pressed&&!focused()&&cards().length>count&&
+    return !disposed&&visible&&!document.hidden&&!pressed&&!focused()&&!root.closest('[data-home-construction-running]')&&cards().length>count&&
       !document.querySelector('dialog[open]')&&!document.getElementById('modal-root')?.hasChildNodes()&&
       !marketingShouldShowStatic({reducedMotion:reduce.matches,reducedData:reducedData.matches,saveData:connection?.saveData});
   }
@@ -92,6 +92,7 @@ export function mountFeaturedCarousel(host) {
   },{threshold:[0,.15]});intersection.observe(viewport);
   const dialogs=new MutationObserver(sync);
   const main=root.closest('main');if(main)dialogs.observe(main,{subtree:true,attributes:true,attributeFilter:['open']});
+  main?.addEventListener('home-construction:complete',sync,options);
   const modal=document.getElementById('modal-root');if(modal)dialogs.observe(modal,{subtree:true,childList:true});
   measure();setWindow();
   return {dispose(){if(disposed)return;disposed=true;lifetime.abort();if(timer!==null)clearInterval(timer);timer=null;cancelMove();root.dataset.featuredRunning='false';resize.disconnect();intersection.disconnect();dialogs.disconnect();}};

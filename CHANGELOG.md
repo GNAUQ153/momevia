@@ -1,3 +1,9 @@
+## Unreleased — Hiệu ứng con trỏ dựng trang chủ (2026-11-26)
+
+- Thêm 15 con trỏ dựng từng phần tử trên trang chủ, nhận việc từ hàng đợi chung theo vùng hiển thị và cập nhật khi đổi kích thước cửa sổ hoặc tải xong danh mục.
+- Giữ chuyển động liên tục giữa các phần tử và khu vực; tự cuộn để mở thêm nội dung rồi quay lại đầu trang khi hoàn tất. Tạm dừng vòng quay thiệp và carousel trong lượt dựng.
+- Hỗ trợ giảm chuyển động, tiết kiệm dữ liệu và dọn animation khi rời trang; bổ sung kiểm thử phân việc, phụ thuộc khung cha, nhiều khu vực cùng hiển thị, resize và hủy route.
+
 ## Unreleased — Khôi phục giao diện Auth tối từ d36c664 (2026-11-26)
 
 - Khôi phục nguyên stylesheet Auth tại `d36c664` cho nền tím–mận có lưới, thẻ kính, chữ sáng và nút gradient hồng–tím của Login/Register, gồm logo Zalo nội bộ đã có.

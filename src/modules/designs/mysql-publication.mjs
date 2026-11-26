@@ -6,7 +6,7 @@ import { readPublicationAuthority, consumePublicationCredit } from '../checkout/
 import { localizedError } from '../../shared/http.mjs';
 import { requireActiveGift } from '../gifts/access.mjs';
 import { designFromRow, assetFromRow, iso, jsonValue } from './mysql-row-mapping.mjs';
-import { canvasTransaction, canvasError, ensureAssets, lockOwner, lockedDesign, sameRequest, sameRevision } from './mysql-transaction.mjs';
+import { canvasTransaction, canvasError, ensureAssets, lockOwner, lockedDesign, sameRequest, sameRevision, insertGiftAssetRefs } from './mysql-transaction.mjs';
 
 function giftFromRow(row) {
   if (!row) return null;
@@ -109,7 +109,7 @@ export class MySqlPublicationUnitOfWork {
         savedGift.recipientName, savedGift.senderName, savedGift.message, mysqlDate(savedGift.createdAt),
         mysqlDate(savedGift.expiresAt), JSON.stringify(savedGift), design.source.kind, versionId]);
       if (authority) await consumePublicationCredit(tx, authority, savedGift.id);
-      for (const assetId of assetIds) await tx.execute('INSERT INTO gift_asset_refs(gift_id,asset_id) VALUES (?,?)', [savedGift.id, assetId]);
+      await insertGiftAssetRefs(tx, savedGift.id, assetIds);
       await tx.execute(`INSERT INTO gift_publication_requests(owner_id,idempotency_key,request_hash,design_id,design_revision,gift_id)
         VALUES (?,?,?,?,?,?)`, [ownerId, request.idempotencyKey, requestHash, design.id, design.revision, savedGift.id]);
       return { gift: savedGift, publishedRevision: design.revision, replayed: false };

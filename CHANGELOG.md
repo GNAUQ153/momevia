@@ -1,3 +1,7 @@
+## Unreleased — Phase 3.5B Tối ưu truy vấn và audit index (2026-11-26)
+
+- Gom INSERT liên kết tài sản Canvas thành batch tối đa 100 dòng, giữ transaction và quyền sở hữu; bổ sung kiểm tra prefix index MySQL chỉ đọc và kiểm thử rollback. Không thay đổi migration.
+
 ## Unreleased — Phase 3.5A Sửa đóng gói release (2026-11-26)
 
 - Đưa migration baseline vào allowlist release và kiểm thử nội dung, checksum manifest; tiếp tục loại dữ liệu xuất riêng tư. Không thay đổi SQL hoặc schema.

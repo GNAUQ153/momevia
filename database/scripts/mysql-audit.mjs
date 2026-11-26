@@ -4,8 +4,9 @@ try {
   const args = process.argv.slice(2);
   const live = args.includes('--live');
   const requireLatest = args.includes('--require-latest');
-  if (args.some(arg => !['--live', '--require-latest'].includes(arg)) || (requireLatest && !live)) {
-    throw new Error('Cách dùng: npm run db:audit [-- --live [--require-latest]]');
+  const indexes = args.includes('--indexes');
+  if (args.some(arg => !['--live', '--require-latest', '--indexes'].includes(arg)) || ((requireLatest || indexes) && !live)) {
+    throw new Error('Cách dùng: npm run db:audit [-- --live [--require-latest] [--indexes]]');
   }
   const repository = await auditRepository();
   const report = { mode: live ? 'metadata' : 'offline', repository };
@@ -15,6 +16,10 @@ try {
     const client = new MySqlClient();
     try {
       report.schema = assessSchema(repository.migrations, await readSchemaMetadata(client), { requireLatest });
+      if (indexes) {
+        const { readIndexMetadata } = await import('./index-audit.mjs');
+        report.indexAudit = await readIndexMetadata(client);
+      }
     } finally {
       await client.close();
     }

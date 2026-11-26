@@ -1,7 +1,7 @@
 import { MySqlClient } from "../../infrastructure/mysql/client.mjs";
 import { mysqlDate } from "../identity/mysql.repositories.mjs";
 import { jsonValue, iso, designFromRow } from "./mysql-row-mapping.mjs";
-import { canvasError, canvasTransaction, lockOwner, lockedDesign, sameRequest, sameRevision, ensureAssets } from "./mysql-transaction.mjs";
+import { canvasError, canvasTransaction, lockOwner, lockedDesign, sameRequest, sameRevision, ensureAssets, insertDesignAssetRefs } from "./mysql-transaction.mjs";
 import * as assetsModule from "./mysql-assets.mjs";
 import * as contexts from "./mysql-contexts.mjs";
 
@@ -110,11 +110,7 @@ export class MySqlDesignsRepository {
         ownerId,
         (design.document.assets || []).map((a) => a.assetId),
       );
-      for (const asset of design.document.assets || [])
-        await tx.execute(
-          "INSERT INTO design_asset_refs(design_id,asset_id) VALUES (?,?)",
-          [design.id, asset.assetId],
-        );
+      await insertDesignAssetRefs(tx, design.id, (design.document.assets || []).map(asset => asset.assetId));
       await tx.execute(
         "INSERT INTO design_create_requests(owner_id,mutation_id,request_hash,design_id) VALUES (?,?,?,?)",
         [ownerId, mutationId, requestHash, design.id],
@@ -166,11 +162,7 @@ export class MySqlDesignsRepository {
       if (result.affectedRows !== 1)
         throw canvasError(409, "REVISION_CONFLICT", "Thiết kế đã thay đổi.");
       await tx.execute("DELETE FROM design_asset_refs WHERE design_id=?", [id]);
-      for (const assetId of [...new Set(input.assetIds || [])])
-        await tx.execute(
-          "INSERT INTO design_asset_refs(design_id,asset_id) VALUES (?,?)",
-          [id, assetId],
-        );
+      await insertDesignAssetRefs(tx, id, [...new Set(input.assetIds || [])]);
       const ack = {
         designId: id,
         mutationId: input.mutationId,

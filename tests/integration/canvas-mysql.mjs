@@ -170,6 +170,34 @@ try {
     const result=await uow.publish(owner,failRequest,'fail-hash',builder()); assert.equal(result.replayed,false);
     assert.equal((await uow2.publish(owner,failRequest,'fail-hash',builder())).gift.id,result.gift.id);
   });
+  await check('Phase 3.5B: multi-asset create/save/publication preserve refs and rollback', async () => {
+    const otherAsset = { ...asset, id: uuid(), storageKey: `${uuid()}.png` };
+    await repo.insertAsset(owner, design.id, otherAsset);
+    const assetIds = [asset.id, otherAsset.id].sort();
+    const d = record();
+    d.document.assets = assetIds.map(assetId => ({ assetId, kind: 'image' }));
+    d.documentHash = hash(d.document);
+    await repo.create(owner, uuid(), 'batch-create', d);
+    const readRefs = async () => (await admin.execute('SELECT asset_id FROM design_asset_refs WHERE design_id=? ORDER BY asset_id', [d.id]))[0].map(row => row.asset_id);
+    assert.deepEqual(await readRefs(), assetIds);
+    const input = { expectedRevision: d.revision, mutationId: uuid(), requestHash: 'batch-save', title: d.title, document: d.document, documentHash: d.documentHash, assetIds };
+    const failing = { withTransaction: work => db2.withTransaction(tx => work({ async execute(sql, args) {
+      const result = await tx.execute(sql, args);
+      if (sql.startsWith('INSERT INTO design_asset_refs')) throw new Error('batch rollback injection');
+      return result;
+    } })) };
+    await assert.rejects(new MySqlDesignsRepository(failing).save(owner, d.id, input), /batch rollback injection/);
+    assert.equal((await repo.get(owner, d.id)).revision, d.revision);
+    assert.deepEqual(await readRefs(), assetIds);
+    const [mutations] = await admin.execute('SELECT mutation_id FROM design_mutations WHERE design_id=? AND mutation_id=?', [d.id, input.mutationId]);
+    assert.equal(mutations.length, 0);
+    await repo.save(owner, d.id, input);
+    assert.deepEqual(await readRefs(), assetIds);
+    const current = await repo.get(owner, d.id);
+    const result = await uow.publish(owner, publishRequest(current), 'batch-publish', builder());
+    const [pins] = await admin.execute('SELECT asset_id FROM gift_asset_refs WHERE gift_id=? ORDER BY asset_id', [result.gift.id]);
+    assert.deepEqual(pins.map(row => row.asset_id), assetIds);
+  });
   await check('C19 archive draft keeps public snapshot/pins and replay after process adapter recreation', async () => {
     await repo.archive(owner,design.id); assert.equal(await repo.get(owner,design.id),null);
     const recreated=new MySqlPublicationUnitOfWork(client());

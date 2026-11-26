@@ -80,3 +80,23 @@ export async function ensureAssets(tx, ownerId, ids) {
   }
   return assets;
 }
+
+// Chỉ gom lệnh ghi liên kết; giữ nguyên kiểm tra quyền và khóa tài sản trước đó.
+// Mỗi batch tối đa 100 dòng để giới hạn số placeholder và kích thước câu SQL.
+const ASSET_REF_BATCH_SIZE = 100;
+async function insertAssetRefs(tx, target, parentId, assetIds) {
+  for (let offset = 0; offset < assetIds.length; offset += ASSET_REF_BATCH_SIZE) {
+    const batch = assetIds.slice(offset, offset + ASSET_REF_BATCH_SIZE);
+    const placeholders = batch.map(() => '(?,?)').join(',');
+    await tx.execute(`INSERT INTO ${target} VALUES ${placeholders}`,
+      batch.flatMap(assetId => [parentId, assetId]));
+  }
+}
+
+// Tên bảng và cột cố định, không nhận định danh SQL từ người dùng.
+export function insertDesignAssetRefs(tx, designId, assetIds) {
+  return insertAssetRefs(tx, 'design_asset_refs(design_id,asset_id)', designId, assetIds);
+}
+export function insertGiftAssetRefs(tx, giftId, assetIds) {
+  return insertAssetRefs(tx, 'gift_asset_refs(gift_id,asset_id)', giftId, assetIds);
+}

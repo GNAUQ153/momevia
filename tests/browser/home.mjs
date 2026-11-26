@@ -48,6 +48,11 @@ export async function runHomeBrowser(base) {
           assert.equal(await hero.locator('[data-hero-image]').count(),5,'Five distinct sample layers');
           if (width < 768) assert(previewBox.y + previewBox.height <= frame.y, `${width}: mobile actions precede the artwork`);
           else assert(headingBox.x + headingBox.width < frame.x, `${width}: artwork and heading have distinct columns`);
+          // Giữ gutter theo breakpoint và xác minh token của Hero sau toàn bộ cascade.
+          const gutter = width <= 370 ? 13 : width <= 680 ? 17 : width <= 900 ? 22 : 36;
+          const container = await hero.locator(':scope > .container').boundingBox();
+          assert(Math.abs(container.width - Math.min(1190, width - 2 * gutter)) <= 1, `${width}: shared container width`);
+          assert.equal(await primary.evaluate(element => globalThis.getComputedStyle(element).borderTopLeftRadius), '12px');
           assert.equal(await page.evaluate(() => globalThis.document.documentElement.scrollWidth), width);
           if (width === 1024) {
             const toggle = page.locator('#site-header [data-action="toggle-menu"]');

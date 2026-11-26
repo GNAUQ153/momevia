@@ -288,14 +288,14 @@
 .is-home .mkt-gift-grid .template-card--home {
   overflow: hidden;
   border: 1px solid var(--line);
-  border-radius: 22px;
-  box-shadow: 0 13px 28px #3e25410f;
+  border-radius: var(--layout-radius-card);
+  box-shadow: var(--layout-shadow-card);
   transition: transform 240ms ease, box-shadow 240ms ease;
 }
 
 .is-home .mkt-gift-grid .template-card--home:hover {
   transform: translateY(-5px);
-  box-shadow: 0 20px 38px #3e254126;
+  box-shadow: var(--layout-shadow-card-hover);
 }
 
 .is-home .mkt-how {

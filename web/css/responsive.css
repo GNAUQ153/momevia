@@ -23,8 +23,8 @@
   }
 }
 @media (max-width: 900px) {
-  .container {
-    width: min(var(--container), calc(100% - 44px));
+  :root {
+    --layout-gutter: var(--layout-gutter-tablet);
   }
   .nav-inner {
     min-height: 70px;
@@ -108,8 +108,8 @@
   html {
     scroll-padding-top: 74px;
   }
-  .container {
-    width: calc(100% - 34px);
+  :root {
+    --layout-gutter: var(--layout-gutter-mobile);
   }
   .announcement {
     padding-inline: 10px;
@@ -405,8 +405,8 @@
   }
 }
 @media (max-width: 370px) {
-  .container {
-    width: calc(100% - 26px);
+  :root {
+    --layout-gutter: var(--layout-gutter-small);
   }
   .template-grid {
     gap: 19px 10px;

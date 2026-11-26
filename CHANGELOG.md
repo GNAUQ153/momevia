@@ -1,3 +1,7 @@
+## Unreleased — Phase 4.3A Layout Foundation (2026-11-27)
+
+- Chuẩn hóa thang khoảng cách, container responsive, độ bo góc và bóng đổ marketing; giữ breakpoint, hình học Canvas và bố cục Auth hiện tại. Đồng bộ Hero, carousel, hành trình và hộp thoại tạo thiệp qua token chung.
+
 ## Unreleased — Phase 4.2 Hệ màu nhận diện (2026-11-27)
 
 - Chuẩn hóa token màu thương hiệu, trạng thái, gradient và CTA marketing; tăng tương phản viền điều khiển và khoảng cách dòng tiêu đề. Giữ màu Auth, Workspace và Canvas cũ. Bổ sung kiểm thử tương phản và nghiệm thu VI/EN.

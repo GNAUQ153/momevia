@@ -85,7 +85,7 @@ h2 em {
   font-weight: 500;
 }
 .container {
-  width: min(var(--container), calc(100% - 72px));
+  width: min(var(--container), calc(100% - 2 * var(--layout-gutter)));
   margin-inline: auto;
 }
 .visually-hidden {

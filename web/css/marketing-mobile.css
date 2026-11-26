@@ -42,13 +42,13 @@
     grid-template-columns: clamp(132px, 37.5vw, 148px) minmax(0, 1fr);
   }
   .mkt-gift-grid .template-card__visual {
-    border-radius: 17px 0 0 17px;
+    border-radius: var(--layout-radius-card-inner) 0 0 var(--layout-radius-card-inner);
     aspect-ratio: auto;
     min-height: clamp(154px, 45vw, 178px);
   }
   .mkt-gift-grid .template-card__info {
     align-self: center;
-    padding: 34px 14px 14px;
+    padding: var(--space-8) var(--space-3) var(--space-3);
   }
 }
 

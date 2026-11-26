@@ -8,7 +8,7 @@
   --mkt-action-hover: var(--color-primary-hover);
   --mkt-line: var(--color-border);
   --mkt-font: var(--font-shell);
-  --mkt-section-space: clamp(28px, 3vw, 44px);
+  --mkt-section-space: var(--layout-section-space);
   background: var(--mkt-paper);
 }
 
@@ -216,8 +216,8 @@
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 24px;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
 }
 
 #home-featured-gifts {
@@ -227,7 +227,7 @@
 .mkt-gift-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 24px;
+  gap: var(--layout-card-gap);
 }
 
 .mkt-gift-grid .template-card--home {
@@ -237,14 +237,14 @@
   min-width: 0;
   padding: 0;
   border: 1px solid var(--mkt-line);
-  border-radius: 18px;
+  border-radius: var(--layout-radius-card);
   background: var(--mkt-paper);
-  box-shadow: none;
+  box-shadow: var(--layout-shadow-card);
   transition: transform 180ms ease;
 }
 
 .mkt-gift-grid .template-card__visual {
-  border-radius: 17px 17px 0 0;
+  border-radius: var(--layout-radius-card-inner) var(--layout-radius-card-inner) 0 0;
   aspect-ratio: .91;
   height: auto;
 }
@@ -264,7 +264,7 @@
 .mkt-gift-grid .template-card__info {
   min-width: 0;
   align-self: start;
-  padding: 15px 18px 17px;
+  padding: var(--space-4) var(--space-5);
 }
 
 .mkt-gift-grid .template-card__occasion {

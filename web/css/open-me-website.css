@@ -5,7 +5,7 @@
 
 .is-home .open-me-hero {
   min-height: 0;
-  padding-block: clamp(28px, 3.2vw, 46px);
+  padding-block: var(--layout-hero-space);
   background: var(--color-gradient-hero);
   overflow: visible;
 }
@@ -18,7 +18,7 @@
 
 .is-home .open-me-hero .mkt-hero__layout {
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: clamp(28px, 5vw, 72px);
+  gap: var(--layout-hero-gap);
   align-items: center;
 }
 
@@ -94,8 +94,8 @@
 
 .is-home .open-me-hero .mkt-actions .btn {
   min-height: 48px;
-  border-radius: 9px;
-  padding-inline: 22px;
+  border-radius: var(--layout-radius-control);
+  padding-inline: var(--space-5);
 }
 
 .is-home .open-me-hero .mkt-hero__scroll {
@@ -123,7 +123,7 @@
   min-height: 0;
   padding: 0;
   border: 1px solid var(--line);
-  border-radius: 20px;
+  border-radius: var(--layout-radius-stage);
   background: var(--app-surface-muted);
   transform: none;
   transform-style: flat;
@@ -227,9 +227,9 @@
 .home-create-dialog {
   width: min(640px, calc(100% - 24px));
   max-height: calc(100svh - 24px);
-  padding: clamp(20px, 4vw, 32px);
+  padding: clamp(var(--space-5), 4vw, var(--space-8));
   border: 1px solid var(--line);
-  border-radius: 18px;
+  border-radius: var(--layout-radius-card);
   background: var(--cream);
   color: var(--ink);
   overflow-y: auto;
@@ -267,16 +267,16 @@
 .home-create-dialog__choices {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
+  gap: var(--space-4);
 }
 
 .home-create-choice {
   display: grid;
-  gap: 12px;
+  gap: var(--space-3);
   align-content: start;
-  padding: 22px;
+  padding: var(--space-5);
   border: 1px solid var(--app-control-border);
-  border-radius: 12px;
+  border-radius: var(--layout-radius-control);
   background: #fff;
   color: var(--ink);
   text-decoration: none;
@@ -498,7 +498,7 @@
 
 @media (max-width: 1023px) {
   .is-home .open-me-hero .mkt-hero__layout {
-    gap: 26px;
+    gap: var(--layout-hero-gap-compact);
   }
 
 
@@ -524,7 +524,7 @@
 
   .is-home .open-me-hero .mkt-hero__layout {
     grid-template-columns: minmax(0, 1fr);
-    gap: 26px;
+    gap: var(--layout-hero-gap-compact);
   }
 
   .is-home .open-me-hero h1 {
@@ -545,7 +545,7 @@
 
   .home-create-choice {
     gap: 8px;
-    padding: 18px;
+    padding: var(--space-4);
   }
 
   .catalog-compact .catalog-style-select {

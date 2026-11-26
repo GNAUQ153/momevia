@@ -1,6 +1,6 @@
 /* Hành trình Create–Share–Open–Reply–Keep: thẻ thiệp xoay trong không gian 3D CSS. */
 .is-home .mkt-journey {
-  padding-block: clamp(40px, 5vw, 72px);
+  padding-block: clamp(var(--space-10), 5vw, var(--space-18));
   overflow: hidden;
   background: var(--color-gradient-journey);
 }
@@ -41,7 +41,7 @@
   display: grid;
   grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
   grid-template-areas: "heading showcase" "steps showcase" "footer showcase";
-  gap: 24px clamp(32px, 4vw, 56px);
+  gap: var(--space-6) clamp(var(--space-8), 4vw, 56px);
   align-items: start;
 }
 
@@ -49,19 +49,19 @@
   grid-area: steps;
   min-width: 0;
   display: grid;
-  gap: 8px;
+  gap: var(--space-2);
 }
 
 .is-home .mkt-journey__step {
   display: grid;
   grid-template-columns: 24px 24px minmax(0, 1fr);
-  gap: 12px;
+  gap: var(--space-3);
   align-items: center;
   width: 100%;
   min-height: 48px;
   padding: 10px 16px;
   border: 1px solid var(--color-control-border);
-  border-radius: 12px;
+  border-radius: var(--layout-radius-control);
   background: #ffffffbd;
   color: var(--mkt-ink);
   cursor: pointer;
@@ -89,7 +89,7 @@
 .is-home .mkt-journey__step[aria-pressed="true"] {
   border-color: var(--mkt-action);
   background: var(--color-lavender);
-  box-shadow: 0 14px 35px #553b8520;
+  box-shadow: var(--layout-shadow-card);
   color: var(--mkt-action-hover);
 }
 
@@ -106,9 +106,9 @@
   min-width: 0;
   overflow: hidden;
   border: 1px solid #f7f0ff;
-  border-radius: 30px;
+  border-radius: var(--layout-radius-showcase);
   background: #ffffffaa;
-  box-shadow: 0 26px 80px #56407815;
+  box-shadow: var(--layout-shadow-stage);
 }
 
 /* Hai mặt thiệp tạo hiệu ứng lật thật bằng perspective và backface-visibility. */
@@ -291,7 +291,7 @@
   .is-home .mkt-journey__layout {
     grid-template-columns: 1fr;
     grid-template-areas: "heading" "steps" "showcase" "footer";
-    gap: 24px;
+    gap: var(--space-6);
   }
 
   .is-home .mkt-journey__heading {
@@ -300,13 +300,13 @@
 
   .is-home .mkt-journey__steps {
     grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: 8px;
+    gap: var(--space-2);
   }
 
   .is-home .mkt-journey__step {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: var(--space-2);
     justify-content: center;
     min-height: 96px;
     padding: 12px 8px;
@@ -325,7 +325,7 @@
     grid-template-columns: none;
     grid-auto-flow: column;
     grid-auto-columns: minmax(112px, 1fr);
-    gap: 8px;
+    gap: var(--space-2);
     min-width: 0;
     overflow-x: auto;
     overscroll-behavior-x: contain;

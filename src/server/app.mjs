@@ -1,3 +1,4 @@
+import { createPerformanceMonitor, performanceInterval } from '../shared/performance-monitor.mjs';
 import { MySqlClient } from '../infrastructure/mysql/client.mjs';
 import { receiptFor } from '../modules/gifts/recipients.mjs';
 import http from 'node:http';
@@ -32,17 +33,21 @@ const prefixes = [
 
 export async function createHttpApp(config = environment(), options = {}) {
   // Composition Root sở hữu một client lazy cho toàn bộ module trong tiến trình.
-  const mysqlClient = (options.createMysqlClient ?? (() => new MySqlClient()))();
+  const monitor = createPerformanceMonitor({ intervalMs: performanceInterval() });
+  const mysqlClient = (options.createMysqlClient ?? (() => new MySqlClient({ monitor })))();
   const modules = {};
   let closing;
   const close = () => closing ??= (async () => {
+    monitor?.stop();
     const results = await Promise.allSettled(Object.values(modules).map(async module => module.close?.()));
     results.push(...await Promise.allSettled([mysqlClient.close()]));
     const errors = results.filter(result => result.status === 'rejected').map(result => result.reason);
     if (errors.length) throw new AggregateError(errors, 'Không đóng được toàn bộ tài nguyên Backend.');
   })();
   try {
-    return await assembleHttpApp(config, options, mysqlClient, modules, close);
+    const app = await assembleHttpApp(config, options, mysqlClient, modules, close, monitor);
+    monitor?.start(() => mysqlClient.active?.size ?? 0);
+    return app;
   } catch (error) {
     // Startup lỗi vẫn đóng module đã khởi tạo và pool; giữ lỗi gốc.
     try { await close(); } catch { /* Giữ lỗi startup. */ }
@@ -50,7 +55,7 @@ export async function createHttpApp(config = environment(), options = {}) {
   }
 }
 
-async function assembleHttpApp(config, { paymentProviders, paymentEnv, sendRecoveryMail, recoveryNow, staticOptions }, mysqlClient, modules, close) {
+async function assembleHttpApp(config, { paymentProviders, paymentEnv, sendRecoveryMail, recoveryNow, staticOptions }, mysqlClient, modules, close, monitor) {
   const tlsOptions = loadTlsOptions(config);
   const identity = modules.identity = await identityApp(config, { sendRecoveryMail, recoveryNow, mysqlClient });
   // Phiên và role được xác nhận từ Identity module tại mỗi request, kể cả sau khi logout.
@@ -117,6 +122,7 @@ async function assembleHttpApp(config, { paymentProviders, paymentEnv, sendRecov
   });
 
   const server = (tlsOptions ? https : http).createServer({ ...serverTimeouts, ...tlsOptions }, async (req, res) => {
+    const classify = monitor?.observeResponse(res);
     try {
       res.setHeader('x-content-type-options', 'nosniff');
       res.setHeader('referrer-policy', 'no-referrer');
@@ -127,6 +133,7 @@ async function assembleHttpApp(config, { paymentProviders, paymentEnv, sendRecov
       const matching = prefixes.find(([prefix]) => url.pathname === prefix || url.pathname.startsWith(`${prefix}/`));
       if (matching) {
         const [prefix, name] = matching;
+        classify?.(name);
         const pathname = url.pathname.slice(prefix.length) || '/';
         // Từ chối public API nội bộ, kể cả khi người gọi biết khóa service cũ.
         if (isInternalRoute(pathname)) {
@@ -143,6 +150,7 @@ async function assembleHttpApp(config, { paymentProviders, paymentEnv, sendRecov
         }
         return modules[name].router.handle(req, res, { pathname, url });
       }
+      classify?.('static');
       if (!['GET', 'HEAD'].includes(req.method)) {
         res.writeHead(405); return res.end();
       }

@@ -26,9 +26,10 @@ export function resolveMysqlConfig(env = process.env) {
 }
 
 export class MySqlClient {
-  constructor({ env = process.env, createPool } = {}) {
+  constructor({ env = process.env, createPool, monitor } = {}) {
     this.env = env;
     this.poolFactory = createPool;
+    this.monitor = monitor;
     this.poolPromise = null;
     this.active = new Set();
     this.closing = null;
@@ -51,16 +52,18 @@ export class MySqlClient {
   }
 
   // Theo dõi cả công việc đang đợi kết nối, không chỉ transaction đã bắt đầu.
-  async run(work) {
+  async run(work, kind) {
     if (this.closing) throw new Error('MySQL client đã đóng hoặc đang đóng.');
     const operation = (async () => work(await this.pool()))();
     this.active.add(operation);
-    try { return await operation; }
-    finally { this.active.delete(operation); }
+    const finish = this.monitor?.observeDb(kind, this.active.size);
+    let failed = true;
+    try { const result = await operation; failed = false; return result; }
+    finally { this.active.delete(operation); finish?.(failed); }
   }
 
   execute(sql, params = []) {
-    return this.run(pool => pool.execute(sql, params));
+    return this.run(pool => pool.execute(sql, params), 'query');
   }
 
   withTransaction(work) {
@@ -87,7 +90,7 @@ export class MySqlClient {
         if (reusable) connection.release();
         else { try { connection.destroy(); } catch { /* Giữ lỗi gốc. */ } }
       }
-    });
+    }, 'transaction');
   }
 
   close() {

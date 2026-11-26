@@ -1,3 +1,7 @@
+## Unreleased — Phase 3.6A Giám sát hiệu năng Backend (2026-11-26)
+
+- Bổ sung log hiệu năng tổng hợp opt-in theo cửa sổ, histogram cố định cho HTTP và MySQL, CPU/RAM và event loop; không ghi URL, SQL hoặc dữ liệu khách hàng. Không thay đổi schema hay API.
+
 ## Unreleased — Phase 3.5D Kiểm tra toàn vẹn dữ liệu (2026-11-26)
 
 - Bổ sung audit 11 invariant liên bảng chỉ đọc theo opt-in, trả số lượng bất thường và không xuất ID khách hàng; kiểm thử rollback và phát hiện sai chủ/quyền, sai bằng chứng biên nhận. Không đổi schema hoặc dữ liệu.

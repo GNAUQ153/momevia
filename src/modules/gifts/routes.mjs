@@ -1,4 +1,4 @@
-import fs from 'node:fs';
+import { streamPrivateAsset } from '../../shared/asset-response.mjs';
 import { parseJson, sendJson, localizedError } from '../../shared/http.mjs';
 import { currentUser } from '../../shared/security.mjs';
 import { clientIp } from '../../shared/proxy.mjs';
@@ -82,16 +82,7 @@ export function registerRoutes(router, { config, creationLimit, globalReplies, s
   });
   router.on('GET', '/gifts/:slug/photo', async ({res,params,url}) => {
     const { filePath, contentType } = await service.photo(params.slug, url.searchParams.get('invite'), url.searchParams.get('r'));
-    res.writeHead(200, {
-      'content-type': contentType,
-      'cache-control': 'private, no-store',
-      'x-content-type-options': 'nosniff',
-    });
-    const stream = fs.createReadStream(filePath);
-    // Tệp có thể biến mất sau khi kiểm tra tồn tại; không để lỗi stream làm sập backend.
-    stream.on('error', () => res.destroy());
-    res.on('close', () => stream.destroy());
-    stream.pipe(res);
+    streamPrivateAsset(res, { filePath, contentType });
   });
   router.on('GET', '/gifts/:slug/replies', async ({res,params,url}) => {
     sendJson(res, 200, { replies: await service.replies(params.slug, url.searchParams.get('invite'), url.searchParams.get('r')) });

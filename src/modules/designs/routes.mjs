@@ -2,7 +2,7 @@ import { createDocument,templatePreviewDocument } from '../../../web/js/shared/c
 import { serverText } from '../../shared/locale.mjs';
 import { RESTYLE_PAIRS } from '../../../web/js/shared/canvas/template-slots.js';
 import { previewRestyle, createRestyle } from './restyle.mjs';
-import fs from 'node:fs';
+import { sendBuiltinThumbnail, streamPrivateAsset } from '../../shared/asset-response.mjs';
 import { parseJson, sendJson } from '../../shared/http.mjs';
 import { canvasError } from './errors.mjs';
 import { designView, giftSummary } from './design-views.mjs';
@@ -13,8 +13,7 @@ import { AudioAssetsService, audioBody, sfxCatalog, librarySound } from './audio
 import { builtinCoverThumbnail, coverThumbnail, coverThumbnailWidth } from './cover-thumbnail.mjs';
 
 export function streamAsset(res, file) {
-  res.writeHead(200, { 'content-type': file.contentType, 'cache-control': 'private, no-store', 'x-content-type-options': 'nosniff' });
-  const stream = fs.createReadStream(file.filePath); stream.on('error', () => res.destroy()); stream.pipe(res);
+  return streamPrivateAsset(res, file);
 }
 export function registerDesignRoutes(router, { service, assets, resolveUser, config, writeLimit }) {
   const audio=new AudioAssetsService(service);
@@ -51,11 +50,10 @@ export function registerDesignRoutes(router, { service, assets, resolveUser, con
     const documents=Object.fromEntries(['vi','en'].map(locale=>[locale,templatePreviewDocument(template,(key,values)=>serverText(template.systemOwned?locale:'vi',key,values))]));
     sendJson(res,200,{documents});
   });
-  router.on('GET', '/library/templates/:id/thumbnail', async ({ res, params, url }) => {
+  router.on('GET', '/library/templates/:id/thumbnail', async ({ req, res, params, url }) => {
     const width = coverThumbnailWidth(url.searchParams.get('width')) ?? 320;
     const bytes = await builtinCoverThumbnail(params.id, url.searchParams.get('locale'), url.searchParams.get('variant') || 'catalog', width);
-    res.writeHead(200, { 'content-type': 'image/webp', 'content-length': bytes.length, 'cache-control': 'no-store', 'x-content-type-options': 'nosniff' });
-    res.end(bytes);
+    sendBuiltinThumbnail(req, res, bytes);
   });
   router.on('GET', '/library/templates/:id/cover', async ({ res, params, url }) => {
     const width = coverThumbnailWidth(url.searchParams.get('width'));

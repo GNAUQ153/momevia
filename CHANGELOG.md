@@ -1,3 +1,7 @@
+## Unreleased — Phase 3.6C Cache và luồng tài nguyên (2026-11-26)
+
+- Bổ sung ETag/HTTP 304 cho thumbnail mẫu tĩnh công khai, luôn xác thực lại; giữ no-store cho cover động và tài nguyên riêng tư. Dùng pipeline để đóng file stream khi client ngắt kết nối, không đổi quyền truy cập hoặc schema.
+
 ## Unreleased — Phase 3.6B Giới hạn tài nguyên thumbnail (2026-11-26)
 
 - Giới hạn render thumbnail đồng thời, tách tác vụ đang xử lý khỏi LRU, giới hạn số tác vụ và dung lượng input/cache; từ chối quá tải rõ ràng và giải phóng slot khi lỗi. Giữ định dạng ảnh và schema.

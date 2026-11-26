@@ -91,16 +91,16 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Mở rộng kiểm tra toàn bộ stylesheet nguồn, bao gồm @font-face; tách các rule viết dồn dòng và giữ nguyên thứ tự cascade. Thêm audit tài nguyên chỉ đọc, thống kê dung lượng, bản sao byte và kiểm tra manifest font; không xóa tài nguyên hoặc đổi dependency.
+- Tổng hợp audit kiến trúc, CSS, font, migration và nợ kỹ thuật; chặn import tương đối chưa rà soát, yêu cầu vendor đã build trong Quality Gate. Phân biệt nghiệm thu source và production readiness; không đổi runtime, dữ liệu hoặc giao diện.
 
 **Các commit gần nhất trên `main`:**
 
+- `47ad256` — feat(quality): consolidate technical acceptance and enforce import integrity (2026-11-26)
 - `1f62c35` — refactor(quality): normalize all stylesheets and add source asset audit (2026-11-26)
 - `363e456` — refactor(database): centralize mysql datetime mapping and reduce repository coupling (2026-11-26)
 - `197a5f3` — Merge pull request #30 from GNAUQ153/fix/ui-ux-audit-20261126 (2026-11-26)
 - `605013c` — refactor(quality): add unused export audit and tighten module encapsulation (2026-11-26)
 - `9755479` — feat(performance): add bounded local backend load testing and cost evaluation guide (2026-11-26)
-- `b5a7c21` — perf(frontend): optimize cover loading lifecycle and data-aware preloading (2026-11-26)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

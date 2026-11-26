@@ -1,3 +1,7 @@
+## Unreleased — Phase 3.7A Rà soát mã dư thừa (2026-11-26)
+
+- Bổ sung audit AST chỉ đọc cho export và module chưa thấy consumer; phân biệt test/tool, giữ module tương thích, thu hẹp hai hằng nội bộ. Không xóa tính năng, đổi API HTTP hoặc schema.
+
 ## Unreleased — Phase 3.6E Đo tải Backend local (2026-11-26)
 
 - Bổ sung benchmark GET loopback opt-in cho Catalog VI/EN và thumbnail 200/304, giới hạn tải, timeout, báo cáo tổng hợp và quy trình đánh giá chi phí Railway. Không đổi runtime, dữ liệu hoặc schema.

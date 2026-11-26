@@ -10,7 +10,7 @@ import { validatePortableEffect, validateVector } from './library-contract.js';
 import { SOUND_TYPES, usesSound, validateSound } from './sound.js';
 import { usesMotions, validateMotions, validateAssembly } from './motion-stack.js';
 
-export const CANVAS_VERSIONS = Object.freeze([1, 2, 3, 4]);
+const CANVAS_VERSIONS = Object.freeze([1, 2, 3, 4]);
 export const runtimeVersionFor = document => document.schemaVersion;
 export const requiresCanvasV2 = document => Boolean(document.soundtrack) || document.scenes.some(scene => scene.effects) || document.elements.some(e =>
   e.type === 'interaction' || e.effects || e.artwork ||

@@ -11,8 +11,8 @@ import { provisionTestAccount } from './test-account.service.mjs';
 import { MySqlSessionStore, MySqlRoleService } from './mysql.repositories.mjs';
 import { RecoveryService, recoveryMailer } from './recovery.service.mjs';
 
-export async function createApp(config = environment(), { sendRecoveryMail = recoveryMailer(config), recoveryNow } = {}) {
-  const { users: repo, sessions: sessionsRepo, client, mode } = createRepositories();
+export async function createApp(config = environment(), { sendRecoveryMail = recoveryMailer(config), recoveryNow, mysqlClient } = {}) {
+  const { users: repo, sessions: sessionsRepo, client, mode } = createRepositories(mysqlClient);
   if (mode === 'mysql') await repo.all(); // Fail fast if MySQL/migrations are unavailable.
   const sessions = mode === 'mysql' ? new MySqlSessionStore(client, repo, config.jwtSecret)
     : new SessionStore(sessionsRepo, repo, config.jwtSecret);
@@ -24,5 +24,5 @@ export async function createApp(config = environment(), { sendRecoveryMail = rec
   const recovery = new RecoveryService({ users: repo, credentials, secret: config.internalKey, sendMail: sendRecoveryMail, now: recoveryNow });
   const router = new Router();
   registerRoutes(router, { config, credentials, sessions, authLimits, roles, service, recovery });
-  return { router, sessions, service, close: async () => { authLimits.close(); await client?.close(); } };
+  return { router, sessions, service, close: async () => { authLimits.close(); if (!mysqlClient) await client?.close(); } };
 }

@@ -4,10 +4,10 @@ import { templates as seed } from './seed.mjs';
 import { MySqlClient } from '../../infrastructure/mysql/client.mjs';
 import { MySqlTemplatesRepository, MySqlFavoritesService } from './mysql.repositories.mjs';
 
-export function createRepositories() {
+export function createRepositories(mysqlClient) {
   const mode = process.env.CATALOG_STORAGE || 'json';
   if (mode === 'mysql') {
-    const client = new MySqlClient();
+    const client = mysqlClient ?? new MySqlClient();
     return { templates: new MySqlTemplatesRepository(client), favoritesService: new MySqlFavoritesService(client), client, mode };
   }
   if (mode !== 'json') throw new Error(`CATALOG_STORAGE không hợp lệ: ${mode}`);

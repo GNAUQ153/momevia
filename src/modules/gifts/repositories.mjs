@@ -5,13 +5,13 @@ import { MySqlClient } from '../../infrastructure/mysql/client.mjs';
 import { MySqlGiftsRepository, MySqlRepliesRepository } from './mysql.repositories.mjs';
 import { quotaQaEnabled } from '../../shared/feature-config.mjs';
 
-export function createRepositories() {
+export function createRepositories(mysqlClient) {
   const quotaEnabled = quotaQaEnabled();
   const mode = process.env.GIFTS_STORAGE || 'json';
   if (!['json', 'mysql'].includes(mode)) throw new Error('GIFTS_STORAGE phải là json hoặc mysql.');
   const media = new MediaRepository(dataPath('gifts', 'images'));
   if (mode === 'mysql') {
-    const client = new MySqlClient();
+    const client = mysqlClient ?? new MySqlClient();
     return { gifts: new MySqlGiftsRepository(client, { quotaEnabled }), replies: new MySqlRepliesRepository(client),
       media, client, mode };
   }

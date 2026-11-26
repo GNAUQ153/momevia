@@ -89,8 +89,28 @@ try{
   const paymentEnv={NODE_ENV:'test',IDENTITY_STORAGE:'mysql',CATALOG_STORAGE:'mysql',CHECKOUT_STORAGE:'mysql',PAYMENT_ENABLED:'true',PAYMENT_ENV:'sandbox',PAYMENT_LIVE_ENABLED:'false',PUBLIC_BASE_URL:'https://qa.example.test',MOMO_PARTNER_CODE:'synthetic',MOMO_ACCESS_KEY:'synthetic',MOMO_SECRET_KEY:'synthetic'};
   let recoveryNow = Date.now();
   const mailbox = [];
+  await check('Startup failure closes the shared client and preserves the original error', async () => {
+    let closed = 0;
+    const original = new Error('synthetic catalog startup failure');
+    const brokenClient = { async execute(sql) {
+      if (sql.startsWith('SELECT * FROM users')) return [[]];
+      throw original;
+    }, async close() { closed++; } };
+    await assert.rejects(createHttpApp(config, { createMysqlClient: () => brokenClient }), error => error === original);
+    assert.equal(closed, 1);
+  });
   app=await createHttpApp(config,{paymentProviders:{momo:fakeProvider},paymentEnv, sendRecoveryMail: async mail => mailbox.push(mail), recoveryNow: () => recoveryNow});app.server.listen(0,'127.0.0.1');await once(app.server,'listening');base=`http://127.0.0.1:${app.server.address().port}`;config.baseUrl=base;
   console.log(`TARGET MySQL ${server.version}; NEW synthetic schema=${database}; temp copy, provider injected, all external fetch denied.`);
+  await check('Composition Root shares one MySQL client across all repositories', async () => {
+    const { identity, catalog, checkout, designs, gifts, support } = app.modules;
+    const client = identity.service.users.client;
+    const consumers = [identity.sessions, catalog.service.repo, catalog.service.favorites,
+      checkout.service.repository, checkout.paymentService.repository, designs.repository,
+      designs.publication, designs.library, designs.service.musicLibrary,
+      gifts.service.giftsRepo, gifts.service.repliesRepo, support.service.repo];
+    for (const consumer of consumers) assert.equal(consumer.client, client);
+    assert.equal(await client.pool(), await designs.repository.client.pool());
+  });
   await check('MySQL composition readiness and sender sessions via actual Identity API',async()=>{
     const health=await json('/api/designs/health');assert.equal(health.profile.mode,'mysql');assert.equal(health.profile.supported,true);
     const first=await request('/api/auth/demo',{method:'POST',body:{name:'Người gửi QA',deviceId:uuid()}});assert.equal(first.status,200);owner=first.data.user.id;cookie=first.headers.get('set-cookie').split(';')[0];assert.equal(first.data.user.role,'sender');

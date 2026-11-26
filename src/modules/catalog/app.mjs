@@ -6,8 +6,8 @@ import { CatalogService } from './catalog.service.mjs';
 import { FavoritesService } from './favorites.service.mjs';
 import { addedSystemTemplates } from './seed.mjs';
 
-export async function createApp(config = environment(), { resolveUser } = {}) {
-  const { templates: repo, favorites: favoritesRepo, favoritesService, client, mode } = createRepositories();
+export async function createApp(config = environment(), { resolveUser, mysqlClient } = {}) {
+  const { templates: repo, favorites: favoritesRepo, favoritesService, client, mode } = createRepositories(mysqlClient);
   for (const template of addedSystemTemplates) {
     if (await repo.get(template.id)) continue;
     try { await repo.insertUnique(template); }
@@ -19,5 +19,5 @@ export async function createApp(config = environment(), { resolveUser } = {}) {
   const service = new CatalogService(repo, favorites);
   const router = new Router();
   registerRoutes(router, { config, service, resolveUser });
-  return { router, service, close: async () => { await client?.close(); } };
+  return { router, service, close: async () => { if (!mysqlClient) await client?.close(); } };
 }

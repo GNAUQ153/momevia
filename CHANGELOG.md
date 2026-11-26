@@ -1,3 +1,7 @@
+## Unreleased — Phase 3.5C Quản lý kết nối MySQL (2026-11-26)
+
+- Dùng chung MySqlClient tại Composition Root, giữ client riêng cho service độc lập; đóng pool một lần sau khi dừng module, kể cả startup lỗi. Chờ thao tác SQL đang chạy, hủy kết nối nếu rollback lỗi và chặn transaction đã kết thúc. Không thay đổi migration hoặc cấu hình kết nối.
+
 ## Unreleased — Phase 3.5B Tối ưu truy vấn và audit index (2026-11-26)
 
 - Gom INSERT liên kết tài sản Canvas thành batch tối đa 100 dòng, giữ transaction và quyền sở hữu; bổ sung kiểm tra prefix index MySQL chỉ đọc và kiểm thử rollback. Không thay đổi migration.

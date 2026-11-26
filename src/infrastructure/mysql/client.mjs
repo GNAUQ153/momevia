@@ -30,9 +30,12 @@ export class MySqlClient {
     this.env = env;
     this.poolFactory = createPool;
     this.poolPromise = null;
+    this.active = new Set();
+    this.closing = null;
   }
 
   async pool() {
+    if (this.closing) throw new Error('MySQL client đã đóng hoặc đang đóng.');
     if (!this.poolPromise) {
       this.poolPromise = (async () => {
         const driver = this.poolFactory ? null : await import('mysql2/promise');
@@ -47,31 +50,56 @@ export class MySqlClient {
     return this.poolPromise;
   }
 
-  async execute(sql, params = []) {
-    const pool = await this.pool();
-    return pool.execute(sql, params);
+  // Theo dõi cả công việc đang đợi kết nối, không chỉ transaction đã bắt đầu.
+  async run(work) {
+    if (this.closing) throw new Error('MySQL client đã đóng hoặc đang đóng.');
+    const operation = (async () => work(await this.pool()))();
+    this.active.add(operation);
+    try { return await operation; }
+    finally { this.active.delete(operation); }
   }
 
-  async withTransaction(work) {
-    const pool = await this.pool();
-    const connection = await pool.getConnection();
-    try {
-      await connection.beginTransaction();
-      const value = await work({ execute: (sql, params = []) => connection.execute(sql, params) });
-      await connection.commit();
-      return value;
-    } catch (error) {
-      try { await connection.rollback(); } catch { /* Ưu tiên giữ nguyên lỗi gốc. */ }
-      throw error;
-    } finally {
-      connection.release();
+  execute(sql, params = []) {
+    return this.run(pool => pool.execute(sql, params));
+  }
+
+  withTransaction(work) {
+    return this.run(async pool => {
+      const connection = await pool.getConnection();
+      let reusable = true;
+      let active = true;
+      try {
+        await connection.beginTransaction();
+        const value = await work({ execute: (sql, params = []) => {
+          if (!active) return Promise.reject(new Error('Transaction đã kết thúc.'));
+          return connection.execute(sql, params);
+        } });
+        active = false;
+        await connection.commit();
+        return value;
+      } catch (error) {
+        active = false;
+        try { await connection.rollback(); }
+        catch { reusable = false; }
+        throw error;
+      } finally {
+        // Không đưa kết nối có rollback lỗi trở lại pool.
+        if (reusable) connection.release();
+        else { try { connection.destroy(); } catch { /* Giữ lỗi gốc. */ } }
+      }
+    });
+  }
+
+  close() {
+    if (!this.closing) {
+      this.closing = (async () => {
+        await Promise.allSettled(this.active);
+        if (!this.poolPromise) return;
+        const pool = await this.poolPromise;
+        try { await pool.end(); }
+        finally { this.poolPromise = null; }
+      })();
     }
-  }
-
-  async close() {
-    if (!this.poolPromise) return;
-    const pool = await this.poolPromise;
-    this.poolPromise = null;
-    await pool.end();
+    return this.closing;
   }
 }

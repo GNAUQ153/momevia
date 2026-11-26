@@ -302,15 +302,51 @@
   background: var(--color-gradient-section);
 }
 
-.is-home #main[data-mkt-motion-ready] [data-mkt-reveal] {
-  opacity: 0;
-  transform: translateY(22px);
-  transition: opacity 650ms ease, transform 650ms ease;
+/* Nội dung luôn đọc được; chỉ chạy hiệu ứng trên chi tiết đã vào viewport.
+   Không dịch chuyển section, carousel, nút hoặc vùng tương tác. */
+@media (prefers-reduced-motion: no-preference) {
+  .is-home #main[data-mkt-motion-ready] .mkt-is-visible .mkt-featured__heading h2,
+  .is-home #main[data-mkt-motion-ready] .mkt-is-visible .mkt-journey__heading h2 {
+    animation: mkt-reveal-title 420ms ease-out;
+  }
 }
 
-.is-home #main[data-mkt-motion-ready] [data-mkt-reveal].mkt-is-visible {
-  opacity: 1;
-  transform: translateY(0);
+@media (min-width: 900px) and (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .is-home #main[data-mkt-motion-ready] .mkt-is-visible .mkt-step-number,
+  .is-home #main[data-mkt-motion-ready] .mkt-is-visible .mkt-example__field,
+  .is-home #main[data-mkt-motion-ready] .mkt-is-visible .mkt-example__letter {
+    animation: mkt-reveal-detail 480ms ease-out backwards;
+  }
+
+  .is-home #main[data-mkt-motion-ready] .mkt-is-visible .mkt-steps li:nth-child(2) .mkt-step-number,
+  .is-home #main[data-mkt-motion-ready] .mkt-is-visible .mkt-example__field {
+    animation-delay: 80ms;
+  }
+
+  .is-home #main[data-mkt-motion-ready] .mkt-is-visible .mkt-steps li:nth-child(3) .mkt-step-number,
+  .is-home #main[data-mkt-motion-ready] .mkt-is-visible .mkt-example__letter {
+    animation-delay: 160ms;
+  }
+}
+
+@keyframes mkt-reveal-title {
+  from {
+    opacity: .92;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes mkt-reveal-detail {
+  from {
+    transform: translateY(8px);
+  }
+
+  to {
+    transform: none;
+  }
 }
 
 /* Trạng thái điều khiển bằng bàn phím và người dùng ít chuyển động */
@@ -424,8 +460,7 @@
 @media (prefers-reduced-motion: reduce) {
   .is-home .mkt-stage,
   .is-home .mkt-stage .mkt-hero__cover,
-  .is-home .mkt-gift-grid .template-card--home,
-  .is-home #main[data-mkt-motion-ready] [data-mkt-reveal] {
+  .is-home .mkt-gift-grid .template-card--home {
     opacity: 1;
     animation: none;
     transform: none;

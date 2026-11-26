@@ -1,3 +1,7 @@
+## Unreleased — Phase 4.4C Scroll Reveal (2026-11-27)
+
+- Thay reveal ẩn toàn section bằng hiệu ứng tiêu đề và chi tiết theo viewport, giới hạn stagger trên desktop; giữ nội dung luôn đọc được, bỏ chuyển động khi tab ẩn hoặc chế độ tĩnh, không dịch chuyển bố cục và CTA.
+
 ## Unreleased — Phase 4.4B Hero Mesh (2026-11-27)
 
 - Bổ sung nền mesh gradient sau thiệp Hero, một lượt chuyển động 4,4 giây trên desktop; dùng chung vòng đời ambient, giữ nền tĩnh trên mobile và reduced motion, không thay đổi bố cục hoặc nghiệp vụ.

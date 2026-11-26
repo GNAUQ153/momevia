@@ -266,6 +266,20 @@ export async function runHomeBrowser(base) {
     await motionPage.goto(base);
     assert.equal(await motionPage.locator('.mkt-hero__cover').count(), 1, 'Motion mode has one featured cover');
     assert.equal(await motionPage.locator('[data-hero-image]').count(),5);
+    // Nội dung luôn hiển thị, kể cả trước khi observer đánh dấu section.
+    const sections = motionPage.locator('main > [data-mkt-reveal]');
+    assert.equal(await sections.count(), 3);
+    for (const section of await sections.all()) {
+      assert.deepEqual(await section.evaluate(node => {
+        const style = node.ownerDocument.defaultView.getComputedStyle(node);
+        return { opacity: style.opacity, transform: style.transform };
+      }), { opacity: '1', transform: 'none' });
+    }
+    const how = motionPage.locator('#how-it-works');
+    await how.scrollIntoViewIfNeeded();
+    await motionPage.waitForFunction(() => globalThis.document.getElementById('how-it-works').classList.contains('mkt-is-visible'));
+    const steps = how.locator('.mkt-step-number');
+    assert.deepEqual(await steps.evaluateAll(nodes => nodes.map(node => node.ownerDocument.defaultView.getComputedStyle(node).animationDelay)), ['0s', '0.08s', '0.16s']);
     const title = motionPage.locator('[data-moment="liquid-type"] h2');
     const filter = motionPage.locator('filter[id^="mo-lt-"]');
     await filter.waitFor({ state: 'attached' });
@@ -277,6 +291,8 @@ export async function runHomeBrowser(base) {
     await motionPage.emulateMedia({ reducedMotion: 'reduce' });
     await filter.waitFor({ state: 'detached' });
     assert.equal(await title.evaluate(node => node.style.filter), '');
+    assert.equal(await motionPage.locator('#main').getAttribute('data-mkt-motion-ready'), null);
+    assert.deepEqual(await steps.evaluateAll(nodes => nodes.map(node => node.ownerDocument.defaultView.getComputedStyle(node).animationName)), ['none', 'none', 'none']);
     await motionPage.emulateMedia({ reducedMotion: 'no-preference' });
     await filter.waitFor({ state: 'attached' });
     await motionPage.locator('.mkt-hero a[href="/explore"]').click();

@@ -34,8 +34,9 @@ function mockBrowser({ reduce = false, fine = true, saveData = false, reducedDat
   let nextFrame = 0;
   const observers = [];
   class FakeObserver {
-    constructor(callback) {
+    constructor(callback, options) {
       this.callback = callback;
+      this.options = options;
       this.active = new Set();
       this.disconnected = false;
       observers.push(this);
@@ -202,4 +203,57 @@ test('CSS không nhúng tài nguyên ngoài, không emoji và không viết dồ
   assert.doesNotMatch(css, /@import|fonts\.googleapis|cdn\./);
   assert.doesNotMatch(css, /[\p{Extended_Pictographic}]/u);
   assert.deepEqual(css.split('\n').filter(line => /;\s*[\w-]+\s*:/.test(line)), []);
+});
+
+
+test('Reveal chỉ đánh dấu phần tử vào viewport, sau đó bỏ theo dõi', () => {
+  withBrowser({}, ({ root, observers, item, revealed }) => {
+    const dispose = mountMarketingMotion(root);
+    const observer = observers[0];
+    assert.equal(observer.options.threshold, 0);
+    observer.callback([{ target: item, isIntersecting: false }]);
+    assert.equal(revealed.has('mkt-is-visible'), false);
+    assert.equal(observer.active.has(item), true);
+    observer.intersect(item);
+    assert.equal(revealed.has('mkt-is-visible'), true);
+    assert.equal(observer.active.has(item), false);
+    dispose();
+  });
+});
+
+test('Tab ẩn kết thúc reveal, không chạy lại khi quay về', () => {
+  withBrowser({}, ({ root, doc, rootAttrs, observers, revealed }) => {
+    const dispose = mountMarketingMotion(root);
+    doc.hidden = true;
+    doc.dispatchEvent(new Event('visibilitychange'));
+    assert.equal(observers[0].disconnected, true);
+    assert.equal(rootAttrs.has('data-mkt-motion-ready'), false);
+    assert.equal(revealed.has('mkt-is-visible'), true);
+    doc.hidden = false;
+    doc.dispatchEvent(new Event('visibilitychange'));
+    assert.equal(observers.length, 1);
+    assert.equal(rootAttrs.has('data-mkt-motion-ready'), false);
+    dispose();
+  });
+});
+
+test('Callback observer đến muộn không sửa DOM sau khi rời trang', () => {
+  withBrowser({}, ({ root, observers, item, revealed, rootAttrs }) => {
+    const dispose = mountMarketingMotion(root);
+    dispose();
+    observers[0].intersect(item);
+    assert.equal(revealed.has('mkt-is-visible'), false);
+    assert.equal(rootAttrs.has('data-mkt-motion-ready'), false);
+  });
+});
+
+test('Reveal không ẩn section hoặc dịch chuyển tiêu đề, stagger giới hạn trên desktop', () => {
+  const css = readFileSync(new URL('../../web/css/marketing-immersive.css', import.meta.url), 'utf8');
+  assert.doesNotMatch(css, /\[data-mkt-reveal\][^{]*\{[^}]*opacity:\s*0\s*;/);
+  assert.doesNotMatch(css, /\[data-mkt-reveal\][^{]*\{[^}]*transform:/);
+  assert.match(css, /@keyframes mkt-reveal-title \{\s*from \{\s*opacity: \.92;/);
+  const titleFrames = css.split('@keyframes mkt-reveal-title')[1].split('@keyframes mkt-reveal-detail')[0];
+  assert.doesNotMatch(titleFrames, /transform:/);
+  assert.match(css, /@media \(min-width: 900px\) and \(hover: hover\) and \(pointer: fine\) and \(prefers-reduced-motion: no-preference\) \{\s*\.is-home #main\[data-mkt-motion-ready\] \.mkt-is-visible \.mkt-step-number/);
+  assert.match(css, /animation-delay: 160ms;/);
 });

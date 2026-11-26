@@ -91,16 +91,16 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Bổ sung ETag/HTTP 304 cho thumbnail mẫu tĩnh công khai, luôn xác thực lại; giữ no-store cho cover động và tài nguyên riêng tư. Dùng pipeline để đóng file stream khi client ngắt kết nối, không đổi quyền truy cập hoặc schema.
+- Chặn callback lazy loading cũ và giữ ưu tiên tải ảnh Carousel; không preload dự đoán Catalog khi bật tiết kiệm dữ liệu. Giữ giao diện, bản dịch, font, API và schema hiện tại.
 
 **Các commit gần nhất trên `main`:**
 
+- `b5a7c21` — perf(frontend): optimize cover loading lifecycle and data-aware preloading (2026-11-26)
 - `d5f78fa` — perf(backend): add conditional thumbnail responses and safe asset streaming (2026-11-26)
 - `85bdf56` — perf(backend): bound thumbnail rendering concurrency and memory cache (2026-11-26)
 - `24c974a` — feat(performance): add privacy-safe backend and mysql performance monitoring (2026-11-26)
 - `7cdd8c3` — feat(database): add cross-table integrity audit and shared pool regression coverage (2026-11-26)
 - `eadedb9` — refactor(database): share mysql connection pool and harden transaction lifecycle (2026-11-26)
-- `4b2e72c` — perf(database): batch canvas asset references and add read-only index audit (2026-11-26)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

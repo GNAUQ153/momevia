@@ -1,4 +1,4 @@
-import { attr, priceText, text } from "../core/i18n.js";
+import { attr, moneyText, text } from "../core/i18n.js";
 import { escapeHtml as e } from '../core/api.js';
 import { refundAdminPanel } from './refund-review.js';
 
@@ -30,7 +30,7 @@ export function paymentReviewRows(orders, filters = {}) {
     <div class="payment-review-card__main">
       <div><span class="payment-review-card__label">${text("admin.payments.orderId")}</span>
         <strong class="payment-review-card__id">${e(order.orderId)}</strong></div>
-      <strong class="payment-review-card__amount">${priceText(order.amountVnd)}</strong>
+      <strong class="payment-review-card__amount">${moneyText(order.amountVnd)}</strong>
     </div>
     <div class="payment-review-card__meta">
       <span>${order.provider ? e(providerLabels[order.provider] || order.provider) : text('admin.payments.methodUnknown')}</span>
@@ -59,12 +59,12 @@ export function adminFinancePanel(finance) {
   return `<section class="finance-panel" aria-label="${text('finance.admin.title')}">
     <h2>${text('finance.admin.title')}</h2>
     <div class="finance-panel__groups">${['live', 'sandbox'].map(group => {
-    const data = finance.summary[group];
+    const data = finance.summary?.[group];
     return `<article class="finance-panel__group"><h3>${text('finance.group.' + group)}</h3>
-        <p>${text('finance.orders', { count: data.orders })}</p>
-        <div class="finance-metric"><span>${text('finance.gross')}</span><strong>${priceText(data.grossVnd)}</strong></div>
-        <div class="finance-metric"><span>${text('finance.platform')}</span><strong>${priceText(data.platformFeeVnd)}</strong></div>
-        <div class="finance-metric"><span>${text('finance.creatorShare')}</span><strong>${priceText(data.creatorVnd)}</strong></div>
+        <p>${text('finance.orders', { count: data?.orders })}</p>
+        <div class="finance-metric"><span>${text('finance.gross')}</span><strong>${moneyText(data?.grossVnd)}</strong></div>
+        <div class="finance-metric"><span>${text('finance.platform')}</span><strong>${moneyText(data?.platformFeeVnd)}</strong></div>
+        <div class="finance-metric"><span>${text('finance.creatorShare')}</span><strong>${moneyText(data?.creatorVnd)}</strong></div>
       </article>`;
   }).join('')}</div>
     ${finance.missingSaleEntries ? `<p role="status">${text('finance.admin.missing', { count: finance.missingSaleEntries })}</p>` : ''}
@@ -89,7 +89,7 @@ export function adminReconciliationPanel(audit) {
       <div class="finance-audit__top"><strong>${text('finance.audit.order')} <code>${e(String(row.orderId || '').slice(0, 12))}</code></strong>
         <span>${text(row.sandbox ? 'finance.group.sandbox' : 'finance.group.live')}</span></div>
       <div class="finance-audit__meta"><span>${e(providerLabels[row.provider] || text('admin.payments.methodUnknown'))}</span>
-        <span>${priceText(Number(row.amountVnd))}</span>
+        <span>${moneyText(row.amountVnd)}</span>
         <span>${text('common.values.date', { date: dateValue(row.createdAt) })}</span></div>
       <ul class="finance-audit__issues">${(Array.isArray(row.issues) ? row.issues : [])
       .filter(issue => auditIssueKeys.has(issue))

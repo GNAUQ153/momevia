@@ -17,6 +17,9 @@ export function createPaymentActions({
   getRenderGeneration,
 }) {
   return [
+    [["payment-login"], async () => {
+      return requireLogin(location.pathname + location.search + location.hash);
+    }],
     [["print-receipt"], async (action, element) => {
       window.print();
       return;

@@ -367,8 +367,9 @@
   justify-content: center;
   gap: 7px;
   margin-top: 26px;
-  color: #948a97;
-  font-size: 11px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.5;
 }
 /* Trình phát quà tương tác không cần tài khoản */
 .recipient-page {

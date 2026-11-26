@@ -1,4 +1,4 @@
-import { attr, priceText, text } from "../core/i18n.js";
+import { attr, moneyText, priceText, text } from "../core/i18n.js";
 import { escapeHtml as e } from "../core/api.js";
 import { icon } from "../ui/icons.js";
 
@@ -46,7 +46,7 @@ function creatorTemplateCard(template) {
 }
 
 export function creatorFinancePanel(statement) {
-  const renderMetric = (caption, value) => `<div class="finance-metric"><span>${text(caption)}</span><strong>${priceText(value)}</strong></div>`;
+  const renderMetric = (caption, value) => `<div class="finance-metric"><span>${text(caption)}</span><strong>${moneyText(value)}</strong></div>`;
   return `<section class="section finance-panel role-workspace__section" id="creator-finance" aria-labelledby="creator-finance-heading"><div class="container">
     <div class="finance-panel__heading"><div><h2 id="creator-finance-heading">${text('finance.creator.title')}</h2>
       <p>${text('finance.creator.subtitle')}</p></div>
@@ -55,10 +55,10 @@ export function creatorFinancePanel(statement) {
     ${statement ? `<div class="finance-panel__groups">
       ${['live', 'sandbox'].map(group => `<article class="finance-panel__group">
         <h3>${text('finance.group.' + group)}</h3>
-        <p>${text('finance.orders', { count: statement.summary[group].orders })}</p>
-        ${renderMetric('finance.gross', statement.summary[group].grossVnd)}
-        ${renderMetric('finance.platform', statement.summary[group].platformFeeVnd)}
-        ${renderMetric('finance.creatorShare', statement.summary[group].creatorVnd)}
+        <p>${text('finance.orders', { count: statement.summary?.[group]?.orders })}</p>
+        ${renderMetric('finance.gross', statement.summary?.[group]?.grossVnd)}
+        ${renderMetric('finance.platform', statement.summary?.[group]?.platformFeeVnd)}
+        ${renderMetric('finance.creatorShare', statement.summary?.[group]?.creatorVnd)}
       </article>`).join('')}
     </div>` : `<p role="status">${text('finance.unavailable')}</p>`}
     ${statement && Array.isArray(statement.recent) ? `<div class="finance-recent">
@@ -66,7 +66,7 @@ export function creatorFinancePanel(statement) {
       ${statement.recent.length ? `<div class="finance-recent__list">${statement.recent.map(item => `<article class="finance-recent__row">
         <div><strong>${e(String(item.templateId || ''))}</strong>
           <p>${text('finance.creator.orderRef', { id: String(item.orderId || '').slice(0, 8) })}</p></div>
-        <div class="finance-recent__amount"><strong>${priceText(Number(item.creatorVnd))}</strong>
+        <div class="finance-recent__amount"><strong>${moneyText(item.creatorVnd)}</strong>
           <span>${text(item.sandbox ? 'finance.group.sandbox' : 'finance.group.live')}</span></div>
       </article>`).join('')}</div>` : `<p>${text('finance.creator.recentEmpty')}</p>`}
     </div>` : ''}

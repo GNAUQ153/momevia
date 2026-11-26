@@ -397,6 +397,10 @@
     flex-direction: column;
   }
 
+  .studio-space__hero-actions .btn {
+    flex: 0 1 auto;
+  }
+
   .studio-space__jump a {
     gap: 5px;
     font-size: 10px;
@@ -417,8 +421,13 @@
 }
 
 .studio-space__hero-inner > a:not(.btn) {
-  color: #fff;
+  color: var(--app-accent);
   font-size: 13px;
   text-decoration: underline;
   text-underline-offset: 3px;
+}
+
+.studio-space__hero-inner > a:not(.btn):focus-visible {
+  outline: 2px solid var(--app-accent);
+  outline-offset: 4px;
 }

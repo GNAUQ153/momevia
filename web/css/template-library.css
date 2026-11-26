@@ -297,8 +297,13 @@
 }
 .template-review-grid {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 24px;
   align-items: start;
+}
+.template-review-grid > *,
+.template-review-controls > * {
+  min-width: 0;
 }
 .template-review-controls {
   display: grid;

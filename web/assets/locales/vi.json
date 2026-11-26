@@ -483,6 +483,7 @@
   "common.roles.admin": "Quản trị viên",
   "common.roles.creator": "Nhà sáng tạo",
   "common.roles.sender": "Người gửi",
+  "common.values.noData": "Chưa có dữ liệu",
   "common.values.date": "{date}",
   "creator.access.login": "Đăng nhập bằng tài khoản được quản trị viên cấp quyền Creator để đăng mẫu.",
   "creator.access.requestRole": "Liên hệ quản trị viên để được cấp quyền Creator.",

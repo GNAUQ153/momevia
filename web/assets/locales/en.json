@@ -488,6 +488,7 @@
   "common.roles.admin": "Administrator",
   "common.roles.creator": "Creator",
   "common.roles.sender": "Sender",
+  "common.values.noData": "No data",
   "common.values.date": "{date}",
   "creator.access.login": "Sign in with an account that has Creator access.",
   "creator.access.requestRole": "Contact an administrator for Creator access.",

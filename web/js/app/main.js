@@ -548,6 +548,7 @@ async function render({ transition = false, resetScroll = false } = {}) {
       lifetime.signal.addEventListener("abort", () => clearInterval(poll), { once: true });
       if (gift.documentSnapshot) {
         document.body.classList.add("is-playing-gift");
+        const openMeRecipient = ['club-22-invitation', 'cozy-christmas-invitation', 'tet-phong-thu'].includes(gift.templateId);
         const { mountPlayer } =
           await import("../features/gift-runtime/index.js");
         if (generation !== renderGeneration) return;
@@ -558,6 +559,25 @@ async function render({ transition = false, resetScroll = false } = {}) {
             document: gift.documentSnapshot,
             runtimeVersion: gift.runtimeVersion,
             mode: "public",
+            onSceneChange: sceneId => {
+              if (openMeRecipient) {
+                const dedication = main.querySelector('.recipient-dedication');
+                if (dedication) {
+                  dedication.hidden = sceneId !== gift.documentSnapshot.entrySceneId;
+                  const scene = gift.documentSnapshot.scenes.find(item => item.id === sceneId);
+                  const heading = gift.documentSnapshot.elements.find(item => scene.elementIds.includes(item.id) && item.type === 'text' && item.accessibility.role === 'heading');
+                  if (heading) dedication.style.color = heading.props.color;
+                }
+              }
+              if (sceneId !== 'scene-reply' || !gift.rsvp || ![
+                'club-22-invitation', 'cozy-christmas-invitation',
+              ].includes(gift.templateId)) return;
+              // The canvas action selects its reply scene; Gifts owns RSVP and
+              // its existing permission/storage contract outside the canvas.
+              queueMicrotask(() => {
+                if (!lifetime.signal.aborted) focusVisibleTarget(main.querySelector('[data-rsvp-host] h2'));
+              });
+            },
             assetUrl: (assetId) =>
               `/api/gifts/gifts/${encodeURIComponent(id)}/assets/${encodeURIComponent(assetId)}${query}`,
             replyAdapter: {

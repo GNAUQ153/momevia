@@ -18,6 +18,7 @@ import { isSystemTemplate, templateFieldKey } from '../../../web/js/shared/templ
 import { materializeBuiltinMedia } from './builtin-media.mjs';
 import { EVENT_MEDIA } from '../../../web/js/shared/canvas/event-media.js';
 import { libraryEntry, librarySnapshot } from '../../../web/js/shared/canvas/library-state.js';
+import { systemCardType } from '../../../web/js/shared/card-type.js';
 
 export const hash = value => `sha256:${createHash('sha256').update(canonicalStringify(value)).digest('hex')}`;
 const copy = value => structuredClone(value);
@@ -30,7 +31,9 @@ function title(value) {
 }
 // Vai trò vùng nội dung của mẫu được giữ khi nhân bản và đổi ID Canvas.
 function invitationSlotIds(d) {
-  if (d.source?.templateId !== 'loi-moi-ben-hien' || d.policy?.kind !== 'sender-basic') return undefined;
+  // Catalog admits only published sources. Keep their supported event slots
+  // editable in saved drafts even after a source stops being advertised.
+  if (systemCardType(d.source?.templateId) !== 'invitation' || d.policy?.kind !== 'sender-basic') return undefined;
   const mapped = d.provenance?.slotMap?.elements;
   const slots = invitationSlots(d.document, { dateElementId: mapped?.['event-date'], venueElementId: mapped?.['event-location'] });
   return slots ? { dateElementId: slots.date.id, venueElementId: slots.venue.id } : undefined;

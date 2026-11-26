@@ -1,3 +1,9 @@
+## Unreleased — Bộ bố cục thiệp Open Me (2026-11-26)
+
+- Thêm ba tài liệu canvas VI/EN chỉnh sửa được với ID ổn định: club-22-invitation, cozy-christmas-invitation, tet-phong-thu; sinh bìa qua pipeline hiện hữu.
+- Giữ binding, ngày/nơi hẹn, tương tác bàn phím, hồi đáp và nhạc chủ động. Nhận đúng slot sự kiện và focus RSVP của bố cục mới.
+- Không thêm sản phẩm vào Catalog/seed, không gán giá, không migration hoặc cập nhật đè nháp/quà cũ. Đã loại đăng ký dữ liệu thử/cờ QA khỏi luồng sản phẩm.
+
 ## Unreleased — Điều khiển tên người nhận canvas (2026-11-26)
 
 - Thêm vị trí gắn bộ chọn ngôn ngữ/đổi tên cho quà canvas ở chế độ người nhận tự điền tên.

@@ -8,16 +8,17 @@ import { mountJourney } from './journey.js';
 import { createLatestFrameScheduler } from './latest-frame.js';
 import { marketingConnection, marketingShouldShowStatic } from './motion-preferences.js';
 
-export function marketingPointerGeometry(event, bounds) {
+export function marketingPointerGeometry(event, bounds, strength = 1) {
   if (!event || !bounds) return null;
   const values = [event.clientX, event.clientY, bounds.left, bounds.top, bounds.width, bounds.height];
   if (!values.every(Number.isFinite) || bounds.width <= 0 || bounds.height <= 0) return null;
 
   const x = clamp((event.clientX - bounds.left) / bounds.width, 0, 1);
   const y = clamp((event.clientY - bounds.top) / bounds.height, 0, 1);
+  const amplitude = Number.isFinite(strength) ? clamp(strength, 0, 1) : 1;
   return {
-    tiltX: `${((1 - y * 2) * 3).toFixed(2)}deg`,
-    tiltY: `${((x * 2 - 1) * 4).toFixed(2)}deg`,
+    tiltX: `${((1 - y * 2) * 3 * amplitude).toFixed(2)}deg`,
+    tiltY: `${((x * 2 - 1) * 4 * amplitude).toFixed(2)}deg`,
     glowX: `${(x * 100).toFixed(1)}%`,
     glowY: `${(y * 100).toFixed(1)}%`,
   };
@@ -57,7 +58,7 @@ export function mountMarketingMotion(root, { signal } = {}) {
         resetTilt();
         return;
       }
-      const geometry = marketingPointerGeometry(point, stage.getBoundingClientRect());
+      const geometry = marketingPointerGeometry(point, stage.getBoundingClientRect(), Number(stage.dataset?.mktTiltStrength ?? 1));
       if (!geometry) {
         resetTilt();
         return;

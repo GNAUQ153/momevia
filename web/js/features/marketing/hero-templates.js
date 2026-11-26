@@ -1,18 +1,26 @@
-import { message, onLocaleChange, setAttr, setText } from '../../core/i18n.js';
-import { templateValue } from '../catalog/template-copy.js';
+import { attr, message, onLocaleChange, setAttr } from '../../core/i18n.js';
+import { heroTemplateCover, templateValue } from '../catalog/template-copy.js';
+import { escapeHtml as e } from '../../shared/locale.js';
 import { marketingConnection, marketingDataSaverEnabled } from './motion-preferences.js';
 
 const duration = 5000;
 
+export function heroImages(templates,active=0) {
+  return templates.map((template,index)=>`<img ${index===active?heroTemplateCover(template):''} data-hero-image="${e(template.id)}" data-active="${index===active}" alt="" width="390" height="844" ${index===active?'fetchpriority="high"':'decoding="async"'} />`).join('');
+}
+export function heroSelectors(templates,active=0) {
+  return templates.map((template,index)=>`<button type="button" class="mkt-hero__slide" data-hero-select="${index}" aria-pressed="${index===active}" ${attr('aria-label','catalog.actions.viewNamed',{title:templateValue(template,'title')})}><span aria-hidden="true"><span data-hero-progress></span></span></button>`).join('');
+}
+
+
+
 // One native animation clocks both the progress fill and the next cover.
 // The live player is loaded on demand.
-export function mountHeroTemplates(host, templates) {
+export function mountHeroTemplates(host, initialTemplates) {
   const root = host.querySelector('.mkt-hero');
   const cover = root.querySelector('.mkt-hero__cover');
-  const images = [...cover.querySelectorAll('[data-hero-image]')];
-  const selectors = [...root.querySelectorAll('[data-hero-select]')];
-  const playback = root.querySelector('[data-hero-playback]');
-  const playbackLabel = playback?.querySelector('[data-hero-playback-label]');
+  const rotation = root.querySelector('.mkt-hero__rotation');
+  let templates = initialTemplates, images = [...cover.querySelectorAll('[data-hero-image]')], selectors = [...root.querySelectorAll('[data-hero-select]')];
   const notes = [...root.querySelectorAll('.mkt-stage__note, .mkt-stage__reply')];
   const dialog = root.querySelector('.template-preview-dialog');
   const reduce = matchMedia('(prefers-reduced-motion: reduce)');
@@ -22,17 +30,26 @@ export function mountHeroTemplates(host, templates) {
   const options = { signal: lifetime.signal };
   let index = 0, progress, peek, peekImage, generation = 0, visible = true;
   const savingData = () => marketingDataSaverEnabled({ reducedData: reducedData?.matches, saveData: connection?.saveData });
-  let userPaused = false;
   let dataPaused = savingData();
   let noteMotions = [], noteStarts;
 
-  function syncPlayback() {
-    if (!playback || !playbackLabel) return;
-    const paused = userPaused || dataPaused;
-    const key = paused ? 'home.hero.resumeSlides' : 'home.hero.pauseSlides';
-    playback.dataset.state = paused ? 'paused' : 'playing';
-    setAttr(playback, 'aria-label', message(key));
-    setText(playbackLabel, message(key));
+  function ensureImage(position) {
+    const image=images[position], fragment=document.createElement('template');
+    fragment.innerHTML='<img '+heroTemplateCover(templates[position])+'>';
+    const source=fragment.content.firstElementChild;
+    for(const name of ['srcset','sizes','src','data-i18n-src','data-i18n-params','data-i18n-srcset','data-i18n-src-params']) {
+      const value=source.getAttribute(name);
+      if(value!==null&&image.getAttribute(name)!==value)image.setAttribute(name,value);
+    }
+    return image;
+  }
+  function updateTemplates(next) {
+    if(!next?.length)return;
+    ++generation;resetProgress();templates=next;index=Math.min(index,next.length-1);
+    cover.innerHTML=heroImages(templates,index);
+    rotation.innerHTML=heroSelectors(templates,index);
+    images=[...cover.querySelectorAll('[data-hero-image]')];selectors=[...rotation.querySelectorAll('[data-hero-select]')];
+    ensureImage(index);update();schedule();
   }
 
   function moveNotes(clock) {
@@ -59,15 +76,15 @@ export function mountHeroTemplates(host, templates) {
   }
 
   function preparePeek(clock) {
-    const image = images[(index + 1) % templates.length];
+    const image = ensureImage((index + 1) % templates.length);
     image.decode().then(() => {
       if (progress !== clock || lifetime.signal.aborted || reduce.matches) return;
       peekImage = image;
       image.setAttribute('data-peeking', '');
       peek = image.animate([
-        { offset: 0, transform: 'rotate(18deg)', opacity: 0, filter: 'blur(2px)' },
-        { offset: 0.6, transform: 'rotate(18deg)', opacity: 0, filter: 'blur(2px)' },
-        { offset: 1, transform: 'rotate(12deg)', opacity: 0.72, filter: 'blur(1px)' },
+        { offset: 0, transform: 'rotate(8deg)', opacity: 0, filter: 'none' },
+        { offset: 0.6, transform: 'rotate(8deg)', opacity: 0, filter: 'none' },
+        { offset: 1, transform: 'rotate(4deg)', opacity: 0.56, filter: 'none' },
       ], { duration, easing: 'linear', fill: 'forwards' });
       peek.currentTime = Number(clock.currentTime) || 0;
       if (!canRotate()) peek.pause();
@@ -87,12 +104,12 @@ export function mountHeroTemplates(host, templates) {
   }
 
   function canRotate() {
-    return !lifetime.signal.aborted && !reduce.matches && !userPaused &&
+    return !lifetime.signal.aborted && !reduce.matches &&
       !dataPaused && !document.hidden && visible && !dialog.open;
   }
   function schedule() {
     // Dùng cùng trạng thái với đồng hồ thiệp để tạm dừng quầng sáng CSS.
-    // Không để animation chạy ngầm khi hero ngoài viewport, tab ẩn hoặc người dùng tạm dừng.
+    // Không để animation chạy ngầm khi hero ngoài viewport, tab ẩn hoặc mở preview.
     const running = canRotate();
     root.toggleAttribute('data-mkt-ambient-running', running);
     if (!running) {
@@ -139,70 +156,55 @@ export function mountHeroTemplates(host, templates) {
   function update() {
     root.dataset.heroTemplate = templates[index].id;
     images.forEach((image, position) => { image.dataset.active = String(position === index); });
-    selectors.forEach((button, position) => button.setAttribute('aria-pressed', String(position === index)));
-    for (const trigger of root.querySelectorAll('[data-template-preview]')) {
-      setAttr(trigger, 'aria-label', message('home.hero.openTemplate', { title: templateValue(templates[index], 'title') }));
-    }
+    selectors.forEach((button,position)=>button.setAttribute('aria-pressed',String(position===index)));
+    for(const trigger of root.querySelectorAll('[data-template-preview]'))
+      setAttr(trigger,'aria-label',message('home.hero.openTemplate',{title:templateValue(templates[index],'title')}));
   }
-  async function select(next, automatic = false) {
-    // At the boundary, sample the teaser at the clock's exact endpoint rather
-    // than the compositor's previous frame (especially with a blur layer).
-    if (automatic && peek) peek.currentTime = duration;
-    if (automatic) noteMotions.forEach(motion => { motion.currentTime = duration; });
-    progress?.pause();
-    peek?.pause();
-    noteMotions.forEach(motion => motion.pause());
-    const request = ++generation;
+  async function select(next,automatic=false) {
+    if(automatic&&peek)peek.currentTime=duration;
+    if(automatic)noteMotions.forEach(motion=>{motion.currentTime=duration;});
+    progress?.pause();peek?.pause();noteMotions.forEach(motion=>motion.pause());
+    const request=++generation;
     try {
-      await images[next].decode();
-      if (request !== generation || lifetime.signal.aborted || (automatic && !canRotate())) return;
-      const held = clearPeek(next !== index && images[next] === peekImage);
+      await ensureImage(next).decode();
+      if(request!==generation||lifetime.signal.aborted||(automatic&&!canRotate()))return;
+      const held=clearPeek(next!==index&&images[next]===peekImage);
       resetProgress(true);
-      if (next !== index) images.forEach((image, position) => image.toggleAttribute('data-exiting', position === index));
-      index = next;
-      update();
-      held?.style.removeProperty('transform');
-      held?.style.removeProperty('opacity');
-      held?.style.removeProperty('filter');
-    } catch {
-      // Retry on a new full cycle, avoiding a tight loop after a failed image.
-      if (request === generation) resetProgress();
-    }
-    finally { if (request === generation) schedule(); }
+      if(next!==index)images.forEach((image,position)=>image.toggleAttribute('data-exiting',position===index));
+      index=next;update();
+      held?.style.removeProperty('transform');held?.style.removeProperty('opacity');held?.style.removeProperty('filter');
+    } catch {if(request===generation)resetProgress();}
+    finally {if(request===generation)schedule();}
   }
-  selectors.forEach((button, position) => button.addEventListener('click', () => void select(position), options));
-  playback?.addEventListener('click', () => {
-    // Người dùng chủ động bật lại slideshow dù chế độ tiết kiệm dữ liệu đang bật.
-    // Chỉ tự tạm dừng ban đầu; không bỏ qua yêu cầu giảm chuyển động.
-    if (dataPaused) { dataPaused = false; userPaused = false; }
-    else userPaused = !userPaused;
-    syncPlayback();
-    schedule();
+  rotation.addEventListener('click', event => {
+    const button=event.target.closest('[data-hero-select]');
+    if(button)void select(Number(button.dataset.heroSelect));
   }, options);
   root.addEventListener('click', event => {
     if (event.target.closest('[data-template-preview]')) schedule();
   }, options);
   dialog.addEventListener('close', schedule, options);
   document.addEventListener('visibilitychange', schedule, options);
+  globalThis.addEventListener('resize', () => { ++generation; resetProgress(); update(); schedule(); }, options);
   reduce.addEventListener('change', () => { update(); schedule(); }, options);
   function onDataPreferenceChange() {
     dataPaused = savingData();
-    syncPlayback();
     schedule();
   }
   reducedData?.addEventListener?.('change', onDataPreferenceChange, options);
   connection?.addEventListener?.('change', onDataPreferenceChange, options);
-  const removeLocaleListener = onLocaleChange(() => { ++generation; update(); syncPlayback(); schedule(); });
+  const removeLocaleListener = onLocaleChange(() => { ++generation; update(); schedule(); });
   const observer = new IntersectionObserver(entries => {
     visible = entries[0].isIntersecting;
     schedule();
   });
   observer.observe(cover);
+  ensureImage(index);
   update();
-  syncPlayback();
   schedule();
   return {
     get template() { return templates[index]; },
+    updateTemplates,
     dispose() {
       lifetime.abort();
       ++generation;
@@ -212,4 +214,23 @@ export function mountHeroTemplates(host, templates) {
       removeLocaleListener();
     },
   };
+}
+
+export function mountHomeChoices(host) {
+  const dialog = host.querySelector('.home-create-dialog');
+  if (!dialog) return () => {};
+  const lifetime = new AbortController();
+  const options = {signal:lifetime.signal};
+  let opener;
+  host.querySelector('[data-home-create]')?.addEventListener('click', event => {
+    opener = event.currentTarget;
+    dialog.showModal();
+    dialog.querySelector('.home-create-choice')?.focus();
+  }, options);
+  dialog.querySelector('[data-home-create-close]').addEventListener('click', () => dialog.close(), options);
+  dialog.addEventListener('click', event => {
+    if (event.target.closest('a[data-link]')) dialog.close();
+  }, options);
+  dialog.addEventListener('close', () => {if (opener?.isConnected) opener.focus();}, options);
+  return () => {lifetime.abort();if (dialog.open) dialog.close();};
 }

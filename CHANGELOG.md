@@ -1,3 +1,8 @@
+## Unreleased — Khám phá và mẫu nổi bật chuyển động (2026-11-26)
+
+- Hero xoay vòng năm mẫu, mẫu tiếp theo hé sau; giữ hai tab nổi, góc 5° và khung gọn. Tạo thiệp chọn đúng loại và preview giữ nguồn/phiên bản.
+- Mẫu nổi bật chọn tối đa 15 bản ghi Catalog, trượt trái từng thẻ mỗi 5 giây; giữ giá, yêu thích, Tab và vòng đời. Thu gọn bộ lọc và sửa wrap/focus toolbar preview ở cỡ chữ lớn.
+
 ## Unreleased — Đồng bộ hệ màu giao diện (2026-11-26)
 
 - Dùng token chung cho nền giấy, bảng trắng, chữ, nút, trạng thái chọn và focus trên website, tài khoản và các vai trò.

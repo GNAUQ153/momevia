@@ -44,7 +44,7 @@ test('home recommendations and first catalog page show the three event cards bef
   const state={templates:templates.map(t=>({...t,systemOwned:true})),filter:'all',search:'',freeOnly:false,photoOnly:false,catalogPage:1,favorites:new Set()};
   const chosen=[];
   const home=createHomeViews({state,templateCard:t=>{chosen.push(t.id);return `<article>${t.id}</article>`;}});
-  home.featuredGifts('ready');assert.deepEqual(chosen,PRIORITY_TEMPLATE_IDS);
+  home.featuredGifts('ready');assert.equal(chosen.length,15);assert.equal(new Set(chosen).size,15);assert.deepEqual(chosen.slice(0,3),PRIORITY_TEMPLATE_IDS);
   const catalog=createCatalogViews({state,templateCard:t=>`<article data-template-id="${t.id}"></article>`,paginationMarkup:()=>'',buttonLink:()=>'',artwork:()=>'',favoriteButton:()=>''});
   const html=catalog.explore();
   assert.deepEqual([...html.matchAll(/data-template-id="([^"]+)"/g)].slice(0,3).map(m=>m[1]),PRIORITY_TEMPLATE_IDS);

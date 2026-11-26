@@ -29,15 +29,14 @@ test('Lấy connection có fallback mà không cần cấp quyền hoặc truy c
   assert.equal(marketingConnection({ connection: { saveData: false } }).saveData, false);
 });
 
-test('Hero dừng autoplay mặc định khi bật Save-Data, giữ nút cho phép người dùng tự phát', () => {
+test('Hero giữ tiết kiệm dữ liệu, reduced motion và nạp player theo yêu cầu', () => {
   const source = read('../../web/js/features/marketing/hero-templates.js');
-  assert.match(source, /let dataPaused = savingData\(\)/);
-  assert.match(source, /!dataPaused && !document\.hidden && visible && !dialog\.open/);
-  assert.match(source, /if \(dataPaused\) \{ dataPaused = false; userPaused = false; \}/);
-  assert.match(source, /connection\?\.addEventListener\?\.\('change', onDataPreferenceChange/);
-  assert.match(source, /root\.toggleAttribute\('data-mkt-ambient-running', running\)/);
-  assert.match(source, /const paused = userPaused \|\| dataPaused/);
-  assert.match(source, /!reduce\.matches/);
+  assert.doesNotMatch(source, /setInterval|setTimeout|import\(/);
+  assert.match(source,/dataPaused\s*=\s*savingData\(\)/);
+  assert.match(source,/!reduce\.matches &&\s*!dataPaused/);
+  assert.match(source,/connection\?\.addEventListener\?\.\('change', onDataPreferenceChange/);
+  assert.match(source, /get template\(\)/);
+  assert.match(source, /lifetime\.abort\(\)/);
 });
 
 test('Lối thoát nội dung reveal vẫn hiện khi dữ liệu hạn chế, không thay đổi Canvas', () => {

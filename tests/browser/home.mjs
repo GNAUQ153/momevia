@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import path from 'node:path';
 import { chromium } from 'playwright';
 import { runHeroTemplatesBrowser } from './hero-templates.mjs';
+import { runFeaturedCarousel } from './featured-carousel.mjs';
 
 const screens = [[1614, 1040], [1440, 900], [1024, 768], [820, 1180], [768, 1024], [390, 844], [320, 740]];
 
@@ -22,9 +23,9 @@ export async function runHomeBrowser(base) {
           await page.goto(base);
           const hero = page.locator('main > .mkt-hero');
           await hero.getByRole('heading', { level: 1 }).waitFor();
-          const primary = hero.locator('a[href="/explore"]');
-          const preview = hero.locator('.mkt-actions [data-template-preview]');
-          const cover = hero.locator('.mkt-hero__cover');
+          const primary = hero.locator('[data-home-create]');
+          const preview = hero.locator('.mkt-actions a[href="/explore"]');
+          const cover = hero.locator('.mkt-hero__cover').first();
           const image = cover.locator('img[data-active="true"]');
           await image.evaluate(img => img.decode());
           assert.equal(await page.locator('html').getAttribute('lang'), language);
@@ -40,10 +41,12 @@ export async function runHomeBrowser(base) {
           ]);
           assert(headingBox.y + headingBox.height <= primaryBox.y, `${width}: headline precedes actions`);
           assert(primaryBox.height >= 44 && previewBox.height >= 44 && previewBox.y + previewBox.height <= height, `${width}: both actions fit the first screen`);
-          assert(coverBox.width >= (width < 400 ? 145 : 175), `${width}: full cover is readable`);
-          const frame = await hero.locator('.mkt-hero__frame').boundingBox();
-          assert(Math.abs(coverBox.x * 2 + coverBox.width - frame.x * 2 - frame.width) < 3, `${width}: cover is centred inside its own frame`);
-          if (width <= 680) assert(previewBox.y + previewBox.height <= frame.y, `${width}: mobile actions precede the artwork`);
+          assert(coverBox.width >= 100, `${width}: each complete thumbnail is at least 100px wide`);
+          const frame = await hero.locator('.open-me-stack').boundingBox();
+          assert(coverBox.x >= frame.x && coverBox.x + coverBox.width <= frame.x + frame.width, `${width}: featured cover stays within its frame`);
+          assert.equal(await hero.locator('[data-hero-image][data-active="true"]').count(),1,'Exactly one featured sample');
+          assert.equal(await hero.locator('[data-hero-image]').count(),5,'Five distinct sample layers');
+          if (width < 768) assert(previewBox.y + previewBox.height <= frame.y, `${width}: mobile actions precede the artwork`);
           else assert(headingBox.x + headingBox.width < frame.x, `${width}: artwork and heading have distinct columns`);
           assert.equal(await page.evaluate(() => globalThis.document.documentElement.scrollWidth), width);
           if (width === 1024) {
@@ -93,11 +96,11 @@ export async function runHomeBrowser(base) {
             cards.evaluateAll(items => Math.max(...items.map(item => item.getBoundingClientRect().bottom))),
             page.locator('main > .mkt-journey').boundingBox(),
           ]);
-          const artwork = await hero.locator('.mkt-hero__artwork').boundingBox();
-          const frameGap = featuredTitle.y - Math.max(artwork.y + artwork.height, previewBox.y + previewBox.height);
+          const heroSection = await hero.boundingBox();
+          const frameGap = featuredTitle.y - (heroSection.y + heroSection.height);
           const featuredToJourneyGap = journeyTitle.y - cardsTail;
           const journeyToHowGap = howTitle.y - (journeySection.y + journeySection.height);
-          assert(frameGap >= 30 && frameGap <= (width <= 900 ? 80 : 120),
+          assert(frameGap >= 20 && frameGap <= 120,
             `${width}×${height} ${language} hero → featured: ${frameGap}px`);
           assert(featuredToJourneyGap >= 30 && featuredToJourneyGap <= 220,
             `${width}×${height} ${language} featured → journey: ${featuredToJourneyGap}px`);
@@ -154,42 +157,35 @@ export async function runHomeBrowser(base) {
           assert.equal(await journey.locator('[data-mkt-step="share"]').getAttribute('aria-pressed'), 'true');
           assert.equal(await journey.locator('[data-mkt-panel="share"]').isVisible(), true);
           assert.equal(await page.evaluate(() => globalThis.document.documentElement.scrollWidth), width);
-          assert.equal(new URL(await image.getAttribute('src'),base).pathname,
-            `/assets/basic-templates/${language==='en'?'en/':''}hai-phong-bi-catalog.svg`);
+          const firstTemplateId = await image.getAttribute('data-hero-image');
+          assert(new URL(await image.getAttribute('src'),base).pathname.includes(firstTemplateId), 'Cover source and visible template identity agree');
           assert(!requests.some(request => request.url().includes('/gift-runtime/index.js')), 'Guest landing leaves the player unloaded');
-          const dialog = page.getByRole('dialog');
-          await preview.focus();
+          const dialog = page.locator('.template-preview-dialog');
+          await cover.focus();
           await page.keyboard.press('Enter');
           await dialog.waitFor({ state: 'visible' });
-          // Chỉ đọc CTA sau khi modal đã mở; trước đó role dialog bị ẩn khỏi accessibility tree.
           const useTemplate = dialog.locator('[data-template-use]');
           await useTemplate.waitFor({ state: 'visible' });
-          assert.equal(await useTemplate.getAttribute('href'), '/create/hai-phong-bi?mode=quick');
-          const entry = dialog.locator('[data-runtime-element="open-memory"]');
-          await entry.waitFor();
-          assert.match(await dialog.getAttribute('aria-label'), language === 'en' ? /Two Envelopes/i : /Hai phong bì/i);
+          assert.equal(new URL(await useTemplate.getAttribute('href'),base).pathname, '/create/'+firstTemplateId);
           const stage = dialog.locator('.gift-runtime-stage');
+          await stage.waitFor();
           const coverName = await stage.getAttribute('aria-label');
+          const entry = stage.locator('button[data-runtime-element], [data-runtime-element] button').first();
           await entry.tap();
-          assert.notEqual(await stage.getAttribute('aria-label'), coverName);
-          const back = stage.locator('[data-runtime-element="memory-back"]');
-          await back.waitFor();
-          const modelNode = await back.elementHandle();
+          await page.waitForFunction(name => globalThis.document.querySelector('.template-preview-dialog .gift-runtime-stage')?.getAttribute('aria-label') !== name, coverName);
           const previewLanguage = dialog.locator('[data-locale-select]');
-          await previewLanguage.selectOption('en');
-          await stage.getByText('A memory', { exact: true }).waitFor();
-          assert.equal(await stage.getAttribute('aria-label'), 'Memory');
-          assert.equal(await back.evaluate((node, original) => node === original, modelNode), true);
+          await previewLanguage.selectOption(language === 'vi' ? 'en' : 'vi');
+          await page.waitForFunction(value => globalThis.document.documentElement.lang === value, language === 'vi' ? 'en' : 'vi');
           await previewLanguage.selectOption(language);
           await page.waitForFunction(value => globalThis.document.documentElement.lang === value, language);
           if (process.env.BROWSER_ARTIFACT_DIR) await page.screenshot({ path: path.join(process.env.BROWSER_ARTIFACT_DIR, `home-preview-${language}-390.png`) });
           await page.keyboard.press('Escape');
           await dialog.waitFor({ state: 'hidden' });
-          await page.waitForFunction(() => globalThis.document.activeElement?.matches('.mkt-actions [data-template-preview]'));
+          assert.equal(await cover.evaluate(node => globalThis.document.activeElement === node), true);
           await cover.tap();
-          await entry.waitFor();
+          await stage.waitFor();
           await dialog.locator('[data-template-close]').click();
-          await page.waitForFunction(() => globalThis.document.activeElement?.matches('.mkt-hero__cover'));
+          assert.equal(await cover.evaluate(node => globalThis.document.activeElement === node), true);
           assert(!requests.some(request => request.method() === 'POST' && request.url().includes('/api/')), 'Preview makes no writes');
           const featured = page.locator('.mkt-gift-grid .template-card__title').first();
           const target = await featured.getAttribute('href');
@@ -237,12 +233,8 @@ export async function runHomeBrowser(base) {
     }
     const motionPage = await browser.newPage({ viewport: { width: 1440, height: 900 } });
     await motionPage.goto(base);
-    const intro = motionPage.locator('.mkt-hero__intro');
-    await motionPage.waitForFunction(() => globalThis.document.getAnimations()
-      .some(animation => animation.animationName === 'mkt-glass-sheen' && animation.playState === 'finished'));
-    await intro.hover();
-    await motionPage.waitForFunction(() => globalThis.document.getAnimations()
-      .some(animation => animation.animationName === 'mkt-glass-sheen' && animation.playState === 'running'));
+    assert.equal(await motionPage.locator('.mkt-hero__cover').count(), 1, 'Motion mode has one featured cover');
+    assert.equal(await motionPage.locator('[data-hero-image]').count(),5);
     const title = motionPage.locator('[data-moment="liquid-type"] h2');
     const filter = motionPage.locator('filter[id^="mo-lt-"]');
     await filter.waitFor({ state: 'attached' });
@@ -260,6 +252,7 @@ export async function runHomeBrowser(base) {
     await filter.waitFor({ state: 'detached' });
     await motionPage.close();
     await runHeroTemplatesBrowser(browser, base);
+    await runFeaturedCarousel(browser,base);
     console.log('PASS Browser home VI/EN: seven viewports, compact section gaps, first-screen actions, preview, Escape and focus, Back and how-it-works, reduced motion.');
   } finally { await browser.close(); }
 }
@@ -334,6 +327,18 @@ async function verifyCatalog(context, page, base) {
   await page.waitForURL('**/pricing');
   await page.goto(base + '/explore');
   assert.equal(await free.isChecked(), false);
+  await search.fill('loi moi ben hien');
+  assert.equal(await page.locator('#catalog-grid .template-card[data-template-id="loi-moi-ben-hien"]').count(), 1, 'Vietnamese search works without accents');
+  await search.fill('khong-co-mau-nao-qa-20261126');
+  await page.locator('#catalog-grid .empty-state').waitFor();
+  await page.locator('[data-clear-search]').click();
+  assert.equal(await search.inputValue(), '', 'Empty result has a working clear action');
+  await page.locator('#card-type-filter').selectOption('invitation');
+  const catalog = (await (await context.request.get(base + '/api/catalog/templates')).json()).templates;
+  const invitations = new Set(catalog.filter(template => template.cardType === 'invitation').map(template => template.id));
+  const ids = await page.locator('#catalog-grid .template-card').evaluateAll(cards => cards.map(card => card.dataset.templateId));
+  assert(ids.length > 0 && ids.every(id => invitations.has(id)), 'Card-type selection filters by Catalog type');
+  await page.locator('.catalog-reset').click();
   const first = page.locator('#catalog-grid .template-card').first();
   const firstBox = await first.boundingBox();
   assert(firstBox.y < 844);

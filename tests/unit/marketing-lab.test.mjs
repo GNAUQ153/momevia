@@ -16,13 +16,15 @@ test('Báo cảnh báo tràn ngang, thiếu LCP nhưng không tự gắn nhãn C
   assert.deepEqual(marketingLabWarnings(metrics), ['horizontal-overflow', 'lcp-unavailable']);
 });
 
-test('Animation môi trường chỉ chạy khi Hero hoạt động và tự tắt khi unmount', () => {
+test('Hero khôi phục animation và dừng đồng hồ khi ẩn hoặc unmount', () => {
   const js = read('../../web/js/features/marketing/hero-templates.js');
-  const css = read('../../web/css/marketing-immersive.css');
-  assert.match(js, /root\.toggleAttribute\('data-mkt-ambient-running', running\)/);
-  assert.match(js, /root\.removeAttribute\('data-mkt-ambient-running'\)/);
-  assert.match(css, /\.mkt-hero:not\(\[data-mkt-ambient-running\]\) \.mkt-stage__orb\s*\{\s*animation-play-state:\s*paused;/);
-  assert.match(js, /!document\.hidden && visible && !dialog\.open/);
+  const html = read('../../web/js/pages/home.js');
+  assert.doesNotMatch(js, /setInterval|setTimeout/);
+  for(const marker of ['mkt-stage__orb','data-mkt-tilt'])assert(html.includes(marker));
+  assert(js.includes('data-hero-progress'));
+  assert.match(js,/root\.toggleAttribute\('data-mkt-ambient-running', running\)/);
+  assert.match(js,/lifetime\.abort\(\);/);assert.match(js,/resetProgress\(\);/);
+  assert.match(js, /const removeLocaleListener = onLocaleChange/);
 });
 
 test('Công cụ lab chỉ đo máy local, không gửi số liệu ra dịch vụ ngoài', () => {

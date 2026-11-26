@@ -37,7 +37,15 @@ export function mountTemplatePreview(host, template, { api, onOpen, autoOpen = f
   const removeLocaleListener = onLocaleChange(() => {
     if (dialog.open && player && localizedPreview) player.updatePreviewCopy(localizedPreview(activeTemplate, t));
   });
-  dialog.querySelector('.template-preview-toolbar').prepend(createLocaleControl());
+  const toolbar = dialog.querySelector('.template-preview-toolbar');
+  toolbar.prepend(createLocaleControl());
+  // Locale, zoom and a visible Replay action can change the sticky toolbar's
+  // height. Reserve its measured space when focusing content in the player.
+  const syncScrollPadding = () => {
+    if (dialog.open) dialog.style.scrollPaddingTop = `${Math.ceil(toolbar.getBoundingClientRect().height) + 12}px`;
+  };
+  const toolbarSize = globalThis.ResizeObserver ? new ResizeObserver(syncScrollPadding) : null;
+  toolbarSize?.observe(toolbar);
 
   function clear() {
     attempt?.abort();
@@ -76,6 +84,7 @@ export function mountTemplatePreview(host, template, { api, onOpen, autoOpen = f
       });
       reset.hidden = false;
       note.hidden = true;
+      syncScrollPadding();
     } catch {
       if (signal.aborted || !dialog.open) return;
       errorPanel.hidden = false;
@@ -98,6 +107,7 @@ export function mountTemplatePreview(host, template, { api, onOpen, autoOpen = f
       opener = trigger;
       onOpen?.();
       dialog.showModal();
+      syncScrollPadding();
       close.focus();
       load();
     }, options);
@@ -112,5 +122,5 @@ export function mountTemplatePreview(host, template, { api, onOpen, autoOpen = f
   }, options);
   dialog.addEventListener('submit', event => event.stopPropagation(), options);
   if (autoOpen) queueMicrotask(() => { if (!lifecycle.signal.aborted) host.querySelector('[data-template-preview]')?.click(); });
-  return { dispose() { removeLocaleListener(); lifecycle.abort(); clear(); if (dialog.open) dialog.close(); } };
+  return { dispose() { toolbarSize?.disconnect(); removeLocaleListener(); lifecycle.abort(); clear(); if (dialog.open) dialog.close(); } };
 }

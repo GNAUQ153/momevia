@@ -158,6 +158,8 @@ export async function runCreatorJourney(base) {
     const search = phone.getByRole('searchbox', { name: 'Tìm kiếm mẫu' });
     await search.fill('sinh nhat ben khung anh');
     await phone.getByRole('checkbox', { name: 'Miễn phí' }).check();
+    // Các bộ lọc chi tiết nằm trong disclosure để giữ thanh tìm mẫu gọn trên mobile.
+    await phone.locator('.catalog-advanced-filters > summary').click();
     await phone.getByRole('checkbox', { name: 'Thay được ảnh' }).check();
     assert.equal(await phone.locator('#catalog-grid .template-card').count(), 1);
     await phone.getByRole('button', { name: 'Bỏ lọc' }).click();

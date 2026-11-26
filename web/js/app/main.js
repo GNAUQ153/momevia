@@ -19,9 +19,10 @@ import { state } from "../core/state.js";
 import { templateValue } from "../features/catalog/template-copy.js";
 import { createComponents } from "../ui/components.js";
 import { createLayout } from "../ui/layout.js";
-import { createHomeViews, homeDemo, homeDemos } from "../pages/home.js";
+import { createHomeViews, homeDemo, selectHomeDemos } from "../pages/home.js";
 import { mountMarketingMotion } from "../features/marketing/scene-motion.js";
-import { mountHeroTemplates } from "../features/marketing/hero-templates.js";
+import { mountHeroTemplates, mountHomeChoices } from "../features/marketing/hero-templates.js";
+import { mountFeaturedCarousel } from '../features/marketing/featured-carousel.js';
 import { mountTemplatePreview } from "../features/catalog/template-preview.js";
 import { createCatalogViews } from "../pages/catalog.js";
 import { pricingPage } from '../pages/pricing.js';
@@ -335,16 +336,25 @@ function mountHome() {
     sheen.play();
   }, { signal });
   const disposeMarketingMotion = mountMarketingMotion(main, { signal });
-  const rotation = mountHeroTemplates(main, homeDemos);
+  const rotation = mountHeroTemplates(main, selectHomeDemos(state.templates));
+  const disposeChoices = mountHomeChoices(main);
   const preview = mountTemplatePreview(main, homeDemo, { api, onOpen: loadAppFonts, getTemplate: () => rotation.template });
   const featured = main.querySelector('#home-featured-gifts');
+  let featuredCarousel=null;
+  function showFeatured(status){
+    featuredCarousel?.dispose();featured.innerHTML=featuredGifts(status);
+    featuredCarousel=status==='ready'?mountFeaturedCarousel(featured):null;
+  }
   async function loadFeatured() {
-    featured.innerHTML = featuredGifts('loading');
+    showFeatured('loading');
     try {
       await Promise.all([loadCatalog(), loadIdentity().then(loadFavorites, () => {})]);
-      if (!signal.aborted) featured.innerHTML = featuredGifts('ready');
+      if (!signal.aborted) {
+        rotation.updateTemplates(selectHomeDemos(state.templates));
+        showFeatured('ready');
+      }
     } catch {
-      if (!signal.aborted) featured.innerHTML = featuredGifts('error');
+      if (!signal.aborted) showFeatured('error');
     }
   }
   featured.addEventListener('click', event => {
@@ -377,7 +387,9 @@ function mountHome() {
     lifetime.abort();
     disposeMarketingMotion();
     rotation.dispose();
+    disposeChoices();
     preview.dispose();
+    featuredCarousel?.dispose();
     removeLocaleListener();
     moment.__moment?.destroy?.();
   } };

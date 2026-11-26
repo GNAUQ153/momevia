@@ -67,14 +67,14 @@
 
 .is-home .mkt-hero h1 {
   max-width: 16ch;
-  font-size: clamp(40px, 4.35vw, 60px);
+  font-size: var(--type-display);
 }
 
 .mkt-hero__intro > p {
   margin: 18px 0 24px;
   max-width: 38ch;
   color: var(--mkt-muted);
-  font-size: clamp(17px, 1.5vw, 22px);
+  font-size: var(--type-lead);
   line-height: 1.5;
 }
 
@@ -202,9 +202,9 @@
   color: inherit;
   font-family: var(--font-display);
   font-weight: 600;
-  line-height: 1.15;
+  line-height: var(--type-line-heading);
   letter-spacing: -.03em;
-  font-size: clamp(32px, 3.4vw, 50px);
+  font-size: var(--type-h2);
 }
 
 .mkt-featured {
@@ -284,7 +284,7 @@
   color: var(--mkt-ink);
   white-space: normal;
   overflow-wrap: anywhere;
-  font: 650 clamp(17px, 1.65vw, 25px)/1.2 var(--font-display);
+  font: 650 var(--type-card)/var(--type-line-heading) var(--font-display);
 }
 
 .mkt-gift-grid .template-card__title .icon {

@@ -1,3 +1,7 @@
+## Unreleased — Phase 4.3D Typography Scale (2026-11-27)
+
+- Chuẩn hóa cỡ chữ responsive cho Hero, Catalog và Pricing bằng token rem/clamp, đồng bộ cascade và chiều cao dòng; giữ typography Canvas, Auth và Workspace.
+
 ## Unreleased — Phase 4.3C Card & Feedback (2026-11-27)
 
 - Đồng bộ thẻ mẫu, nhãn giá và trạng thái rỗng Catalog; tách điều khiển focus hộp thoại app shell và thông báo toast, giữ binding VI/EN, hỗ trợ reduced motion và bảo toàn nghiệp vụ giá, Canvas, database.

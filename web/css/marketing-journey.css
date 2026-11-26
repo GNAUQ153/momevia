@@ -24,8 +24,8 @@
 .is-home .mkt-journey__heading h2 {
   margin: 0;
   color: var(--mkt-ink);
-  font-size: clamp(30px, 3.2vw, 44px);
-  line-height: 1.16;
+  font-size: var(--type-h2);
+  line-height: var(--type-line-heading);
   letter-spacing: -0.04em;
 }
 
@@ -33,7 +33,7 @@
   max-width: 56ch;
   margin: 16px 0 0;
   color: var(--mkt-muted);
-  font-size: clamp(15px, 1.5vw, 18px);
+  font-size: var(--type-lead);
   line-height: 1.65;
 }
 

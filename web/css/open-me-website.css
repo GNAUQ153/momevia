@@ -51,18 +51,19 @@
   border: 0;
   background: transparent;
   color: var(--mkt-action);
-  font-size: 12px;
+  font-size: var(--type-caption);
   line-height: 1.6;
   letter-spacing: .06em;
 }
 
 .is-home .open-me-hero h1 {
-  max-width: 12ch;
+  max-width: 14ch;
+  overflow-wrap: anywhere;
   margin-top: 20px;
   color: var(--mkt-ink);
-  font-size: clamp(40px, 5.1vw, 74px);
+  font-size: var(--type-display);
   font-weight: 800;
-  line-height: 1.12;
+  line-height: var(--type-line-display);
   letter-spacing: -.035em;
 }
 
@@ -75,8 +76,8 @@
   max-width: 44ch;
   margin-block: 22px 26px;
   color: var(--mkt-muted);
-  font-size: clamp(16px, 1.25vw, 18px);
-  line-height: 1.7;
+  font-size: var(--type-lead);
+  line-height: var(--type-line-body);
 }
 
 .is-home .open-me-hero .mkt-primary {
@@ -248,8 +249,8 @@
 
 .home-create-dialog__heading h2 {
   margin: 0;
-  font-size: clamp(22px, 3vw, 30px);
-  line-height: 1.25;
+  font-size: var(--type-h3);
+  line-height: var(--type-line-heading);
 }
 
 .home-create-dialog__heading button {
@@ -318,8 +319,8 @@
 .catalog-intro {
   margin: 0 0 14px;
   color: var(--muted);
-  font-size: 15px;
-  line-height: 1.6;
+  font-size: var(--type-body);
+  line-height: var(--type-line-body);
 }
 
 .catalog-advanced-filters {
@@ -503,7 +504,7 @@
 
 
   .is-home .open-me-hero h1 {
-    font-size: clamp(40px, 5vw, 60px);
+    font-size: var(--type-display);
   }
 }
 
@@ -529,7 +530,7 @@
 
   .is-home .open-me-hero h1 {
     max-width: 14ch;
-    font-size: clamp(37px, 9.7vw, 52px);
+    font-size: var(--type-display);
   }
 
   .is-home .open-me-hero .hero__lead {
@@ -589,11 +590,11 @@
   }
 
   .is-home .open-me-hero .mkt-hero__eyebrow {
-    font-size: 10px;
+    font-size: var(--type-caption);
     letter-spacing: .025em;
   }
 
   .is-home .open-me-hero h1 {
-    font-size: 36px;
+    font-size: var(--type-display);
   }
 }

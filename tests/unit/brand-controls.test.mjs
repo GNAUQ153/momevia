@@ -73,6 +73,6 @@ test('Nhãn tìm kiếm VI/EN và cache CSS đồng bộ', () => {
     assert(dict['catalog.search.clear'].length > 0);
   }
   const html = read('web/index.html');
-  assert(html.includes('/css/tokens.css?v=20261127-feedback'));
+  assert(html.includes('/css/tokens.css?v=20261127-type-scale'));
   assert(html.includes('/css/open-me-system.css?v=20261127-feedback'));
 });

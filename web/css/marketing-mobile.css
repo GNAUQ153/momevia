@@ -3,7 +3,7 @@
     gap: 26px;
   }
   .is-home .mkt-hero h1 {
-    font-size: clamp(42px, 5.6vw, 54px);
+    font-size: var(--type-display);
   }
   .mkt-gift-grid .template-card__info {
     padding: 12px;
@@ -54,7 +54,7 @@
 
 @media (max-width: 520px) {
   .is-home .mkt-hero h1 {
-    font-size: clamp(32px, 9.7vw, 42px);
+    font-size: var(--type-display);
   }
   .mkt-hero__layout {
     gap: 18px;

@@ -29,7 +29,7 @@ test('Font dùng ở trang chủ lẫn các vai trò khác và không phụ thu�
   const script = html.indexOf('<script type="module" src="/js/app.js"');
   assert(meta >= 0 && font > meta && script > font);
   assert.match(css, /\.site-header,\s*\.site-footer\s*\{\s*font-family: var\(--font-body\);/);
-  assert.match(html, /href="\/css\/brand-system\.css\?v=20261127-layout"/);
+  assert.match(html, /href="\/css\/brand-system\.css\?v=20261127-type-scale"/);
 });
 
 test('CSS hoàn thiện được tách thành từng thuộc tính rõ ràng', () => {

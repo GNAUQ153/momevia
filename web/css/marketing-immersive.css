@@ -63,9 +63,9 @@
 .is-home .mkt-hero h1 {
   max-width: 13ch;
   margin-top: 22px;
-  font-size: clamp(45px, 5.6vw, 82px);
+  font-size: var(--type-display);
   font-weight: 750;
-  line-height: 1.12;
+  line-height: var(--type-line-display);
   letter-spacing: -0.035em;
   color: var(--mkt-ink);
 }
@@ -73,7 +73,7 @@
 .is-home .mkt-hero__intro > p {
   max-width: 49ch;
   margin-top: 22px;
-  font-size: clamp(16px, 1.45vw, 20px);
+  font-size: var(--type-lead);
   line-height: 1.66;
   color: var(--mkt-muted);
 }
@@ -370,7 +370,7 @@
 
   .is-home .mkt-hero h1 {
     max-width: 15ch;
-    font-size: clamp(40px, 9vw, 62px);
+    font-size: var(--type-display);
   }
 
   .is-home .mkt-stage {

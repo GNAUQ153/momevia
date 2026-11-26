@@ -65,8 +65,13 @@ test('Độ bo ảnh khớp card, bóng đổ hover dùng cùng token', () => {
 test('CSS thay đổi được cache bust, không thêm phân nhánh layout VI/EN', () => {
   const html = read('web/index.html');
   for (const name of ['tokens', 'base', 'responsive', 'marketing', 'marketing-mobile', 'featured-carousel', 'marketing-immersive', 'marketing-journey', 'open-me-website', 'brand-system']) {
-    assert(html.includes(`/css/${name}.css?v=${name === "open-me-website" ? "20261127-hero-depth" : name === "base" ? "20261127-accessibility" : ["responsive", "featured-carousel"].includes(name) ? "20261127-layout" : "20261127-type-scale"}`), name);
+    assert(html.includes(`/css/${name}.css?v=${name === "marketing" ? "20261127-hero-spacing" : name === "open-me-website" ? "20261127-hero-depth" : name === "base" ? "20261127-accessibility" : ["responsive", "featured-carousel"].includes(name) ? "20261127-layout" : "20261127-type-scale"}`), name);
     // Không cấm selector locale cũ ngoài phạm vi; token layout mới không phụ thuộc ngôn ngữ.
     assert.doesNotMatch(css(name), /(?:\[lang[^\]]*\]|:lang\([^)]*\))[^{}]*\{[^}]*--(?:layout|space)-/);
   }
+});
+
+test('Featured giữ khoảng đệm tối thiểu 24px từ tablet rộng, chung VI/EN', () => {
+  assert.equal(px('--space-6'), 24);
+  assert.match(css('marketing'), /@media \(min-width: 681px\) \{\s*\.is-home \.mkt-featured \{\s*padding-top: var\(--space-6\);/);
 });

@@ -1,3 +1,7 @@
+## Unreleased — Phase 4.4A.1 Featured Spacing Hotfix (2026-11-27)
+
+- Dùng token khoảng đệm 24px cho mục mẫu thiệp từ 681px, đồng nhất VI/EN và giữ ngưỡng kiểm thử khoảng cách Hero–Featured hiện tại.
+
 ## Unreleased — Phase 4.4A Hero Visual Depth (2026-11-27)
 
 - Làm mới sân khấu thiệp với phong bì CSS 3D, ánh sáng và màu nhận diện; giới hạn lớp trang trí trên màn hình hẹp, tôn trọng reduced motion và giữ preview, CTA, VI/EN, Canvas cùng nghiệp vụ hiện tại.

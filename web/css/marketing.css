@@ -524,7 +524,7 @@
 /* Khoảng cách đầu mục Mẫu thiệp thống nhất trên màn hình từ tablet rộng. */
 @media (min-width: 681px) {
   .is-home .mkt-featured {
-    padding-top: clamp(16px, 1.5vw, 20px);
+    padding-top: var(--space-6);
   }
 }
 

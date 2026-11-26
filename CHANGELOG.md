@@ -1,3 +1,7 @@
+## Unreleased — Phase 3.7C Chuẩn hóa CSS và kiểm kê tài nguyên (2026-11-26)
+
+- Mở rộng kiểm tra toàn bộ stylesheet nguồn, bao gồm @font-face; tách các rule viết dồn dòng và giữ nguyên thứ tự cascade. Thêm audit tài nguyên chỉ đọc, thống kê dung lượng, bản sao byte và kiểm tra manifest font; không xóa tài nguyên hoặc đổi dependency.
+
 ## Unreleased — Phase 3.7B Chuẩn hóa thời gian MySQL (2026-11-26)
 
 - Gom chuyển đổi thời gian UTC vào tầng Infrastructure, giảm phụ thuộc Repository vào Identity; giữ export tương thích, hành vi null và lỗi hiện tại. Không đổi SQL, schema, API hoặc giao diện.

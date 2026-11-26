@@ -497,7 +497,9 @@
   animation: gentle-float 4.5s ease-in-out infinite;
 }
 @media (prefers-reduced-motion: reduce) {
-  .envelope-scene, .surprise-halo { animation: none !important; }
+  .envelope-scene, .surprise-halo {
+    animation: none !important;
+  }
 }
 .envelope-scene__body {
   position: absolute;

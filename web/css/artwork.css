@@ -149,7 +149,9 @@
   animation: gentle-float 5s ease-in-out infinite;
 }
 @media (prefers-reduced-motion: reduce) {
-  .artwork__symbol { animation: none; }
+  .artwork__symbol {
+    animation: none;
+  }
 }
 .artwork__content strong {
   max-width: 100%;

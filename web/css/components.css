@@ -16,8 +16,12 @@
     box-shadow 0.2s ease;
 }
 @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
-  .btn:not(:disabled):hover { transform: translateY(-2px); }
-  .inline-link:hover .icon { transform: translateX(4px); }
+  .btn:not(:disabled):hover {
+    transform: translateY(-2px);
+  }
+  .inline-link:hover .icon {
+    transform: translateX(4px);
+  }
 }
 .btn--dark {
   background: var(--purple);
@@ -140,12 +144,21 @@
   transform: translateY(0);
 }
 @media (hover: hover) and (pointer: fine) {
-  .template-card:hover .artwork { transform: scale(1.04); }
-  .template-card:hover .template-card__view { opacity: 1; transform: translateY(0); }
+  .template-card:hover .artwork {
+    transform: scale(1.04);
+  }
+  .template-card:hover .template-card__view {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 @media (prefers-reduced-motion: reduce) {
-  .loading-spinner, .template-card { animation: none !important; }
-  .template-card:hover .artwork { transform: none; }
+  .loading-spinner, .template-card {
+    animation: none !important;
+  }
+  .template-card:hover .artwork {
+    transform: none;
+  }
 }
 .template-card__info {
   padding: 19px 2px 0;

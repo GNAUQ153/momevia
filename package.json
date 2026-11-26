@@ -8,7 +8,7 @@
   },
   "scripts": {
     "build": "node scripts/build/web.mjs",
-    "check": "node scripts/quality/check-source.mjs && node scripts/quality/check-ui-i18n.mjs --check && node scripts/quality/check-css-style.mjs && npm run check:architecture",
+    "check": "node scripts/quality/check-source.mjs && node scripts/quality/check-ui-i18n.mjs --check && node scripts/quality/check-css-style.mjs && npm run check:technical",
     "changelog:check": "node scripts/quality/check-changelog.mjs --staged",
     "package": "node scripts/release/package.mjs",
     "verify:package": "node scripts/release/verify.mjs dist/release",
@@ -65,6 +65,8 @@
     "perf:recipients:before": "node tests/integration/recipient-naming.mjs --baseline --perf-only",
     "perf:recipients:after": "node tests/integration/recipient-naming.mjs --perf-only",
     "check:production": "node scripts/quality/check-production.mjs",
+    "audit:technical": "node scripts/quality/audit-technical.mjs",
+    "check:technical": "node scripts/quality/audit-technical.mjs --built",
     "audit:assets": "node scripts/quality/audit-assets.mjs",
     "audit:unused": "node scripts/quality/audit-unused.mjs",
     "audit:architecture": "node scripts/quality/audit-architecture.mjs",

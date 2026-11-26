@@ -1,3 +1,7 @@
+## Unreleased — Phase 3.8 Nghiệm thu kỹ thuật (2026-11-26)
+
+- Tổng hợp audit kiến trúc, CSS, font, migration và nợ kỹ thuật; chặn import tương đối chưa rà soát, yêu cầu vendor đã build trong Quality Gate. Phân biệt nghiệm thu source và production readiness; không đổi runtime, dữ liệu hoặc giao diện.
+
 ## Unreleased — Phase 3.7C Chuẩn hóa CSS và kiểm kê tài nguyên (2026-11-26)
 
 - Mở rộng kiểm tra toàn bộ stylesheet nguồn, bao gồm @font-face; tách các rule viết dồn dòng và giữ nguyên thứ tự cascade. Thêm audit tài nguyên chỉ đọc, thống kê dung lượng, bản sao byte và kiểm tra manifest font; không xóa tài nguyên hoặc đổi dependency.

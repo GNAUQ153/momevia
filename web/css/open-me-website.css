@@ -211,6 +211,40 @@
   margin-top: 10px;
 }
 
+/* Nền mesh chỉ nằm trong sân khấu, không đổi màu nền dưới chữ hoặc mặt thiệp. */
+.is-home .open-me-stack .mkt-stage__atmosphere::before {
+  position: absolute;
+  inset: -12%;
+  content: "";
+  background: radial-gradient(ellipse at 18% 26%, var(--color-peach) 0%, transparent 52%), radial-gradient(ellipse at 78% 28%, var(--color-pink) 0%, transparent 56%), radial-gradient(ellipse at 46% 85%, var(--color-primary-light) 0%, transparent 61%);
+  opacity: .48;
+  pointer-events: none;
+}
+
+/* Chỉ một lượt chuyển động ngắn; dùng chung trạng thái vòng đời của Hero. */
+@media (min-width: 900px) and (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .is-home .open-me-stack .mkt-stage__atmosphere::before {
+    animation: momevia-hero-mesh 4400ms ease-in-out both;
+    animation-play-state: paused;
+  }
+
+  .is-home .open-me-hero[data-mkt-ambient-running] .open-me-stack .mkt-stage__atmosphere::before {
+    animation-play-state: running;
+  }
+}
+
+@keyframes momevia-hero-mesh {
+  0%, 100% {
+    transform: none;
+    opacity: .48;
+  }
+
+  50% {
+    transform: translate3d(6%, -5%, 0) scale(1.08);
+    opacity: .72;
+  }
+}
+
 .is-home .open-me-stack .mkt-stage__orb--first {
   background: radial-gradient(circle at 32% 32%, var(--color-white), var(--color-lavender) 45%, var(--color-primary-light) 100%);
 }

@@ -1,3 +1,7 @@
+## Unreleased — Phase 4.4B Hero Mesh (2026-11-27)
+
+- Bổ sung nền mesh gradient sau thiệp Hero, một lượt chuyển động 4,4 giây trên desktop; dùng chung vòng đời ambient, giữ nền tĩnh trên mobile và reduced motion, không thay đổi bố cục hoặc nghiệp vụ.
+
 ## Unreleased — Phase 4.4A.1 Featured Spacing Hotfix (2026-11-27)
 
 - Dùng token khoảng đệm 24px cho mục mẫu thiệp từ 681px, đồng nhất VI/EN và giữ ngưỡng kiểm thử khoảng cách Hero–Featured hiện tại.

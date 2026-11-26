@@ -46,6 +46,13 @@ export async function runHeroMotionBrowser(browser,base) {
   try {
     const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto(base);
     const cover=page.locator('.mkt-hero__cover');await cover.waitFor();
+    const mesh = page.locator('.mkt-stage__atmosphere');
+    const meshStyle = () => mesh.evaluate(node => {
+      const style = node.ownerDocument.defaultView.getComputedStyle(node, '::before');
+      return { name: style.animationName, state: style.animationPlayState, iterations: style.animationIterationCount };
+    });
+    assert.equal((await meshStyle()).name, 'momevia-hero-mesh');
+    assert.equal((await meshStyle()).iterations, '1');
     const ids=await cover.locator('img').evaluateAll(ns=>ns.map(n=>n.dataset.heroImage));assert.equal(new Set(ids).size,5);
     await page.waitForFunction(()=>{const peek=globalThis.document.querySelector('[data-peeking]');return peek&&Number(globalThis.getComputedStyle(peek).opacity)>.3;},null,{timeout:8000});
     const peek=await page.locator('[data-peeking]').evaluate(n=>({id:n.dataset.heroImage,active:n.dataset.active,z:globalThis.getComputedStyle(n).zIndex,opacity:Number(globalThis.getComputedStyle(n).opacity),transform:globalThis.getComputedStyle(n).transform}));
@@ -62,10 +69,12 @@ export async function runHeroMotionBrowser(browser,base) {
     assert(hero.y+hero.height-Math.max(art.y+art.height,intro.y+intro.height)<=65,'No viewport-sized blank below hero');
     await cover.click();await page.locator('.template-preview-player .gift-runtime').waitFor();
     assert.equal(await page.locator('.mkt-hero').getAttribute('data-mkt-ambient-running'),null);
+    assert.equal((await meshStyle()).state, 'paused');
     await page.keyboard.press('Escape');await page.locator('.template-preview-player .gift-runtime').waitFor({state:'detached'});
     await page.emulateMedia({reducedMotion:'reduce'});
     await page.waitForFunction(()=>globalThis.document.querySelectorAll('[data-hero-progress]').length>0&&!globalThis.document.querySelector('.mkt-hero').hasAttribute('data-mkt-ambient-running'));
     assert.equal(await page.locator('[data-hero-progress]').evaluateAll(ns=>ns.flatMap(n=>n.getAnimations()).filter(a=>a.playState==='running').length),0);
+    assert.equal((await meshStyle()).name, 'none');
     await page.emulateMedia({reducedMotion:'no-preference'});await page.locator('#how-it-works').scrollIntoViewIfNeeded();
     await page.waitForFunction(()=>!globalThis.document.querySelector('.mkt-hero').hasAttribute('data-mkt-ambient-running'));
     assert.equal(await page.locator('[data-hero-progress]').evaluateAll(ns=>ns.flatMap(n=>n.getAnimations()).filter(a=>a.playState==='running').length),0);

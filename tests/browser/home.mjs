@@ -49,6 +49,14 @@ export async function runHomeBrowser(base) {
           assert.equal(await envelope.count(), 1);
           assert.equal(await hero.locator('.mkt-stage__atmosphere').getAttribute('aria-hidden'), 'true');
           assert.equal(await envelope.evaluate(node => node.ownerDocument.defaultView.getComputedStyle(node).pointerEvents), 'none');
+          // Nền mesh luôn hiện diện nhưng không chuyển động trong chế độ giảm chuyển động.
+          const mesh = await hero.locator('.mkt-stage__atmosphere').evaluate(node => {
+            const style = node.ownerDocument.defaultView.getComputedStyle(node, '::before');
+            return { background: style.backgroundImage, animation: style.animationName, pointer: style.pointerEvents };
+          });
+          assert.match(mesh.background, /radial-gradient/);
+          assert.equal(mesh.animation, 'none');
+          assert.equal(mesh.pointer, 'none');
           assert.equal(await cover.evaluate(node => node.ownerDocument.defaultView.getComputedStyle(node).transform), 'none');
           const showDecorativeLabels = !(width <= 520 || (width >= 768 && width <= 1100));
           for (const selector of ['.mkt-stage__note', '.mkt-stage__reply', '.open-me-posters__stamp']) {

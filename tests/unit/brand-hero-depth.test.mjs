@@ -34,7 +34,7 @@ test('Chiều sâu được tạo bằng CSS cục bộ, không thêm tài nguy�
   assert.match(css, /\.mkt-stage__envelope::before \{[^}]*clip-path: polygon/);
   assert.match(css, /\.mkt-stage__envelope::after \{[^}]*clip-path: polygon/);
   assert.doesNotMatch(css, /@import|url\(https?:/);
-  assert.match(read('web/index.html'), /open-me-website\.css\?v=20261127-hero-depth/);
+  assert.match(read('web/index.html'), /open-me-website\.css\?v=20261127-hero-mesh/);
 });
 
 test('Ẩn nhãn trang trí tại cột hẹp, bỏ transform và transition trong reduced motion', () => {

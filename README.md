@@ -91,16 +91,16 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Chuẩn hóa thang khoảng cách, container responsive, độ bo góc và bóng đổ marketing; giữ breakpoint, hình học Canvas và bố cục Auth hiện tại. Đồng bộ Hero, carousel, hành trình và hộp thoại tạo thiệp qua token chung.
+- Sửa kiểm thử focus của ô tìm kiếm Catalog bằng ownerDocument của phần tử để tương thích ESLint no-undef trong Node.js, giữ nguyên điều kiện kiểm thử và hành vi ứng dụng.
 
 **Các commit gần nhất trên `main`:**
 
+- `a1e5b85` — fix(ci): resolve browser focus assertion lint error (2026-11-27)
+- `a56250b` — feat(ui): standardize interactive controls and improve catalog search experience (2026-11-27)
 - `cefab3d` — feat(ui): standardize responsive layout spacing radius and elevation tokens (2026-11-27)
 - `064cd36` — feat(ui): unify brand color tokens and improve marketing contrast (2026-11-27)
 - `dd38cf6` — fix(typography): preserve upstream font licenses and checksums (2026-11-27)
 - `5203f11` — feat(ui): introduce bilingual typography system and self-hosted brand fonts (2026-11-26)
-- `47ad256` — feat(quality): consolidate technical acceptance and enforce import integrity (2026-11-26)
-- `1f62c35` — refactor(quality): normalize all stylesheets and add source asset audit (2026-11-26)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

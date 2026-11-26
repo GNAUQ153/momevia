@@ -2,14 +2,19 @@ import { createHash } from 'node:crypto';
 import sharp from 'sharp';
 import { COVER_WIDTHS } from '../../../web/js/shared/cover-images.js';
 import { canvasError } from './errors.mjs';
+import { createThumbnailCache } from './thumbnail-cache.mjs';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { projectRoot } from '../../shared/paths.mjs';
 import { BASIC_TEMPLATES } from '../../../web/js/shared/canvas/basic-templates.js';
 import { OPEN_ME_TEMPLATE_IDS } from '../../../web/js/shared/canvas/open-me-templates.js';
 
-const cache = new Map();
-const cacheLimit = 128;
+const thumbnails = createThumbnailCache({ render: async (svg, width) => {
+  const source = await svgWithPortablePhotos(svg);
+  // Rasterize vectors at the requested density, including HiDPI sizes.
+  return sharp(source, { density: Math.ceil(72 * width / 390) })
+    .resize({ width }).webp({ quality: 82, effort: 4 }).toBuffer();
+} });
 
 async function svgWithPortablePhotos(svg) {
   let source = svg.toString();
@@ -33,15 +38,7 @@ export function coverThumbnailWidth(value) {
 
 export function coverThumbnail(svg, width) {
   const key = `${width}:${createHash('sha256').update(svg).digest('hex')}`;
-  if (cache.has(key)) return cache.get(key);
-  // Rasterize vectors at the requested density before encoding, including HiDPI sizes.
-  const pending = svgWithPortablePhotos(svg).then(source =>
-    sharp(source, { density: Math.ceil(72 * width / 390) })
-      .resize({ width }).webp({ quality: 82, effort: 4 }).toBuffer())
-    .catch(error => { cache.delete(key); throw error; });
-  cache.set(key, pending);
-  if (cache.size > cacheLimit) cache.delete(cache.keys().next().value);
-  return pending;
+  return thumbnails.get(key, svg, width);
 }
 
 export async function builtinCoverThumbnail(id, locale, variant, width) {

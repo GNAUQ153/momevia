@@ -91,17 +91,16 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Tách keyboard handler, helper selection và clipboard action theo từng lần mount; giữ Store, commit, history, session, Fabric và API hiện có.
-- Chặn phím đổi thứ tự layer rơi vào nhánh xóa khi bị khóa; xóa selection cũ khi chuyển cảnh trực tiếp hoặc khởi tạo lại. Mở rộng audit i18n và thêm kiểm thử hồi quy; không đổi CSS, schema hay dependency.
+- Bổ sung benchmark GET loopback opt-in cho Catalog VI/EN và thumbnail 200/304, giới hạn tải, timeout, báo cáo tổng hợp và quy trình đánh giá chi phí Railway. Không đổi runtime, dữ liệu hoặc schema.
 
 **Các commit gần nhất trên `main`:**
 
-- `f35c663` — refactor(frontend): modularize canvas keyboard selection and clipboard actions (2026-11-26)
-- `2c4c8d6` — refactor(frontend): separate canvas inspector and asset panel responsibilities (2026-11-25)
-- `8565cb0` — refactor(frontend): modularize application actions and introduce action dispatcher (2026-11-25)
-- `230866e` — refactor(designs): modularize repository queries and standardize validation contracts (2026-11-25)
-- `e18d9a1` — refactor(designs): separate publication checks edit policies and API projections (2026-11-25)
-- `bacfcd6` — refactor(architecture): decouple shared configuration and credential policies (2026-11-25)
+- `9755479` — feat(performance): add bounded local backend load testing and cost evaluation guide (2026-11-26)
+- `b5a7c21` — perf(frontend): optimize cover loading lifecycle and data-aware preloading (2026-11-26)
+- `d5f78fa` — perf(backend): add conditional thumbnail responses and safe asset streaming (2026-11-26)
+- `85bdf56` — perf(backend): bound thumbnail rendering concurrency and memory cache (2026-11-26)
+- `24c974a` — feat(performance): add privacy-safe backend and mysql performance monitoring (2026-11-26)
+- `7cdd8c3` — feat(database): add cross-table integrity audit and shared pool regression coverage (2026-11-26)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

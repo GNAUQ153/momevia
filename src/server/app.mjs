@@ -1,3 +1,5 @@
+import { createPerformanceMonitor, performanceInterval } from '../shared/performance-monitor.mjs';
+import { MySqlClient } from '../infrastructure/mysql/client.mjs';
 import { receiptFor } from '../modules/gifts/recipients.mjs';
 import http from 'node:http';
 import https from 'node:https';
@@ -29,23 +31,47 @@ const prefixes = [
   ['/api/designs', 'designs'],
 ];
 
-export async function createHttpApp(config = environment(), { paymentProviders, paymentEnv, sendRecoveryMail, recoveryNow, staticOptions } = {}) {
+export async function createHttpApp(config = environment(), options = {}) {
+  // Composition Root sở hữu một client lazy cho toàn bộ module trong tiến trình.
+  const monitor = createPerformanceMonitor({ intervalMs: performanceInterval() });
+  const mysqlClient = (options.createMysqlClient ?? (() => new MySqlClient({ monitor })))();
+  const modules = {};
+  let closing;
+  const close = () => closing ??= (async () => {
+    monitor?.stop();
+    const results = await Promise.allSettled(Object.values(modules).map(async module => module.close?.()));
+    results.push(...await Promise.allSettled([mysqlClient.close()]));
+    const errors = results.filter(result => result.status === 'rejected').map(result => result.reason);
+    if (errors.length) throw new AggregateError(errors, 'Không đóng được toàn bộ tài nguyên Backend.');
+  })();
+  try {
+    const app = await assembleHttpApp(config, options, mysqlClient, modules, close, monitor);
+    monitor?.start(() => mysqlClient.active?.size ?? 0);
+    return app;
+  } catch (error) {
+    // Startup lỗi vẫn đóng module đã khởi tạo và pool; giữ lỗi gốc.
+    try { await close(); } catch { /* Giữ lỗi startup. */ }
+    throw error;
+  }
+}
+
+async function assembleHttpApp(config, { paymentProviders, paymentEnv, sendRecoveryMail, recoveryNow, staticOptions }, mysqlClient, modules, close, monitor) {
   const tlsOptions = loadTlsOptions(config);
-  const identity = await identityApp(config, { sendRecoveryMail, recoveryNow });
+  const identity = modules.identity = await identityApp(config, { sendRecoveryMail, recoveryNow, mysqlClient });
   // Phiên và role được xác nhận từ Identity module tại mỗi request, kể cả sau khi logout.
   const resolveUser = async (req, _secret, required = true) => {
     const user = await identity.sessions.find(sessionToken(req));
     if (!user && required) throw localizedError(401, 'errors.unauthorized');
     return user;
   };
-  const catalog = await catalogApp(config, { resolveUser });
-  const checkout = await checkoutApp(config, {
-    resolveUser,
+  const catalog = modules.catalog = await catalogApp(config, { resolveUser, mysqlClient });
+  const checkout = modules.checkout = await checkoutApp(config, {
+    resolveUser, mysqlClient,
     paymentProviders, paymentEnv,
     catalog: { getTemplate: async id => catalog.service.publicOne(id) },
   });
-  const designs = await designsApp(config, {
-    resolveUser,
+  const designs = modules.designs = await designsApp(config, {
+    resolveUser, mysqlClient,
     catalog: { getTemplate: id => catalog.service.publicOne(id),
       approvedVersion: (id, version) => catalog.service.creatorTemplates.approved(id, version),
       reusableVersion: (id, version) => catalog.service.creatorTemplates.reusable(id, version) },
@@ -71,13 +97,13 @@ export async function createHttpApp(config = environment(), { paymentProviders, 
   });
   catalog.service.creatorTemplates = creatorTemplates;
   registerCreatorRoutes(catalog.router, { service: creatorTemplates, user: req => resolveUser(req), designs: designs.service, streamAsset });
-  const gifts = await giftsApp(config, {
-    resolveUser,
+  const gifts = modules.gifts = await giftsApp(config, {
+    resolveUser, mysqlClient,
     canvas: designs,
     catalog: { getTemplate: async id => catalog.service.publicOne(id) },
     checkout: { hasLicense: async (userId, templateId) => checkout.service.hasLicense(userId, templateId) },
   });
-  const support = supportApp(config, { resolveUser, async resolveReport(kind, id, invite) {
+  modules.support = supportApp(config, { resolveUser, mysqlClient, async resolveReport(kind, id, invite) {
     if (kind === 'template') return (await catalog.service.publicOne(id)).id;
     const gift = await gifts.service.validateSlug(id);
     requireGiftPermission(gift, invite);
@@ -94,9 +120,9 @@ export async function createHttpApp(config = environment(), { paymentProviders, 
     if (!asset || asset.status !== 'ready' || !designs.service.assetExists(asset)) throw canvasError(404, 'ASSET_NOT_FOUND', 'Không tìm thấy ảnh.');
     streamAsset(res, { filePath: designs.service.assetPath(asset), contentType: asset.mime });
   });
-  const modules = { identity, catalog, checkout, gifts, support, designs };
 
   const server = (tlsOptions ? https : http).createServer({ ...serverTimeouts, ...tlsOptions }, async (req, res) => {
+    const classify = monitor?.observeResponse(res);
     try {
       res.setHeader('x-content-type-options', 'nosniff');
       res.setHeader('referrer-policy', 'no-referrer');
@@ -107,6 +133,7 @@ export async function createHttpApp(config = environment(), { paymentProviders, 
       const matching = prefixes.find(([prefix]) => url.pathname === prefix || url.pathname.startsWith(`${prefix}/`));
       if (matching) {
         const [prefix, name] = matching;
+        classify?.(name);
         const pathname = url.pathname.slice(prefix.length) || '/';
         // Từ chối public API nội bộ, kể cả khi người gọi biết khóa service cũ.
         if (isInternalRoute(pathname)) {
@@ -123,6 +150,7 @@ export async function createHttpApp(config = environment(), { paymentProviders, 
         }
         return modules[name].router.handle(req, res, { pathname, url });
       }
+      classify?.('static');
       if (!['GET', 'HEAD'].includes(req.method)) {
         res.writeHead(405); return res.end();
       }
@@ -147,6 +175,6 @@ export async function createHttpApp(config = environment(), { paymentProviders, 
       server.listen(port, host, () => console.log(`[Momevia] ${tlsOptions ? 'https' : 'http'}://${host}:${port} — một backend process`));
       return server;
     },
-    async close() { await Promise.all(Object.values(modules).map(module => module.close?.())); },
+    close,
   };
 }

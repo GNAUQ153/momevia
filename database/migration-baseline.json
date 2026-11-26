@@ -1,0 +1,78 @@
+[
+  {
+    "version": "001_initial",
+    "sha256": "8e2086dd02750c2399ef722cf16bec06ca8fc2f5e5a2d4cc1a7ee1769ec8493b"
+  },
+  {
+    "version": "002_support_user_bridge",
+    "sha256": "bf3239f73dd4595c5ef8509e3332a42d2b423f825c5d770b97ebace74717b812"
+  },
+  {
+    "version": "003_identity_catalog",
+    "sha256": "2c7cdf175ab7a9a7344c8cd82c7cfb24eb79edb2bdc5ddb9678bb33952386ff8"
+  },
+  {
+    "version": "004_gifts_checkout",
+    "sha256": "fb2f146751770919f45b336f659e3758930da9e84187d0441eb8d7a5c76c6001"
+  },
+  {
+    "version": "005_payment_receipts",
+    "sha256": "d89cd52d4be817e68d50652a9e1a8494698b070d494bd09545bbe65ecf936e24"
+  },
+  {
+    "version": "006_canvas",
+    "sha256": "6d7efea6ec46779d4f5f5399c58cdd1a5e9eec33042d08606bc7c3f65d62c9e0"
+  },
+  {
+    "version": "007_support_reports",
+    "sha256": "11c5a5a0b6c2c01e252ec255055b51336f3f489c3e25125807b14b9b0f488ba0"
+  },
+  {
+    "version": "008_gift_reply_read_state",
+    "sha256": "e2f0a001a258c88a8b22b0ddf029846ab14473debd587880161ff94589949180"
+  },
+  {
+    "version": "009_payment_reconciliation_audit",
+    "sha256": "32cbe8245124451c5b727c2c4d0cb74905950dcb0af7aef62e6441b1406ebd75"
+  },
+  {
+    "version": "010_refund_review",
+    "sha256": "9431c55a5ed5b2364f9a38804c65f9f27bc7e038eb6816cce8949f4984b0f8f1"
+  },
+  {
+    "version": "011_json_storage_imports",
+    "sha256": "d443909a57d99c5d1fb51c7ae47ea383295cb26a667cc7fdfafa579735289221"
+  },
+  {
+    "version": "012_canvas_lossless_json",
+    "sha256": "29c9019727b0d33846de9c298e20501ecff8e5d41aa324c3bb4867028dddf9ad"
+  },
+  {
+    "version": "013_canvas_library",
+    "sha256": "0e5029198cbb9a2dd30f9039b074d2a1e4d61d8a3e5bffd78ccef98e187a9aa6"
+  },
+  {
+    "version": "014_canvas_audio",
+    "sha256": "436fe9c268c8d3b327af26f7d7a8c121ad447ee643467124361a92dc3a7bd22b"
+  },
+  {
+    "version": "015_music_library",
+    "sha256": "edd9d8c4963e43ab067d9497ecb197910efa729cd8ae5822cd602f0b737af51c"
+  },
+  {
+    "version": "016_recipient_naming",
+    "sha256": "2836a75ba6e6527dd2c3ec2fa035f3e6ebdc90549e66a0a0b6bae15d626bc62d"
+  },
+  {
+    "version": "017_payment_scope_keys",
+    "sha256": "a03f75b9434bb1f9f9afc2b8c9a82f853768fa9369f90038224b6441ff618777"
+  },
+  {
+    "version": "018_publication_credits",
+    "sha256": "ee47382dba9de7f9851a3a38eed5038b35410c212227d8991c5c86833b6ba9a9"
+  },
+  {
+    "version": "019_publication_repurchases",
+    "sha256": "9f3510f5de740449df914beac71dfa42f8d83f4f2bf37d1460bc054a750f9843"
+  }
+]

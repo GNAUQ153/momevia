@@ -27,6 +27,7 @@ const roots = [
   '.github',
   'database/compose.yml',
   'database/migrations',
+  'database/migration-baseline.json',
   'database/scripts',
   'database/verify.sql',
   // Dữ liệu phát hành cần cho library rollout và unit test trong release-smoke.

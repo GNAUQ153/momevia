@@ -45,3 +45,59 @@ test('self-hosted variable fonts retain exact approved binaries and all script f
  for(const font of manifest.fonts){const bytes=fs.readFileSync(new URL('../../web/assets/fonts/app/'+font.file,import.meta.url));assert.equal(createHash('sha256').update(bytes).digest('hex'),font.sha256);assert.equal(font.weight,'400 800');assert(css.includes(font.file));}
  for(const family of ['Inter','Plus Jakarta Sans']){assert(css.indexOf(`/* ${family} / vietnamese */`)>css.indexOf(`/* ${family} / latin-ext */`));assert(css.includes(`/* ${family} / latin */`));}
 });
+
+function preloadFixture(t, { saveData = false, reducedData = false, locale = 'vi', search = '' } = {}) {
+ const keys = ['navigator', 'matchMedia', 'location', 'localStorage', 'document'];
+ const saved = Object.fromEntries(keys.map(key => [key, Object.getOwnPropertyDescriptor(globalThis, key)]));
+ t.after(() => {
+  for (const key of keys) {
+   if (saved[key]) Object.defineProperty(globalThis, key, saved[key]);
+   else delete globalThis[key];
+  }
+ });
+ const links = [];
+ const value = { endpoint: '/catalog/templates', data: { templates: [
+  { id: 'birthday-radiance', systemOwned: true, coverRevision: 'rev-1' },
+  { id: 'hai-phong-bi', systemOwned: true }
+ ] } };
+ const globals = {
+  navigator: { connection: { saveData } },
+  matchMedia: query => ({ matches: query === '(prefers-reduced-data: reduce)' && reducedData }),
+  location: { pathname: '/explore', search },
+  localStorage: { getItem: () => locale },
+  document: {
+   getElementById: () => ({ textContent: JSON.stringify(value) }),
+   createElement: () => ({}), head: { append: link => links.push(link) },
+  },
+ };
+ for (const [key, val] of Object.entries(globals)) Object.defineProperty(globalThis, key, { configurable: true, writable: true, value: val });
+ return links;
+}
+
+test('Không preload Catalog khi bật Save-Data', async t => {
+ const links = preloadFixture(t, { saveData: true });
+ const { startCatalogBootstrap } = await import('../../web/js/core/catalog-bootstrap.js');
+ startCatalogBootstrap();
+ assert.deepEqual(links, []);
+});
+
+test('Không preload Catalog khi bật reduced-data', async t => {
+ const links = preloadFixture(t, { reducedData: true });
+ const { startCatalogBootstrap } = await import('../../web/js/core/catalog-bootstrap.js');
+ startCatalogBootstrap();
+ assert.deepEqual(links, []);
+});
+
+test('Preload thông thường giữ hai ảnh responsive và locale tiếng Anh', async t => {
+ const links = preloadFixture(t, { locale: 'en' });
+ const { startCatalogBootstrap } = await import('../../web/js/core/catalog-bootstrap.js');
+ startCatalogBootstrap();
+ assert.equal(links.length, 2);
+ for (const link of links) {
+  assert.equal(link.rel, 'preload');
+  assert.equal(link.as, 'image');
+  assert.equal(link.fetchPriority, 'high');
+  assert.match(link.href, /locale=en/);
+  assert.equal(link.imageSrcset.split(', ').length, 5);
+ }
+});

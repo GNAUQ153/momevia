@@ -2,7 +2,7 @@
 export const RECIPIENT_TOKEN = '{người nhận}';
 export const RECIPIENT_MODES = ['manual', 'list', 'self'];
 export const RECIPIENT_LIMIT = 1000;
-export const NAME_LIMIT = 60;
+const NAME_LIMIT = 60;
 export function validRecipientName(value) {
   return typeof value === 'string' && value.trim().length > 0 && value.length <= NAME_LIMIT && !/[\u0000-\u001f\u007f-\u009f]/u.test(value);
 }

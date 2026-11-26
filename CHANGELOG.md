@@ -10,6 +10,55 @@
 - Chi tiết mẫu trên mobile theo thứ tự tên, giá, bìa, hành động; desktop giữ hai cột. Gom toolbar preview, giữ phát lại, dùng mẫu, đóng và ngôn ngữ; nút nổi nhường chỗ khi CTA trong nội dung còn nhìn thấy.
 - Nút tải danh sách XLSX giới hạn theo vùng chứa và xuống dòng ở màn nhỏ. Bổ sung kiểm tra Chrome VI/EN, chữ lớn, đúng phiên bản, retry, focus và quay lại bộ lọc; không đổi API, giá, dữ liệu hoặc dependency.
 
+## Unreleased — Phase 3.7A Rà soát mã dư thừa (2026-11-26)
+
+- Bổ sung audit AST chỉ đọc cho export và module chưa thấy consumer; phân biệt test/tool, giữ module tương thích, thu hẹp hai hằng nội bộ. Không xóa tính năng, đổi API HTTP hoặc schema.
+
+## Unreleased — Phase 3.6E Đo tải Backend local (2026-11-26)
+
+- Bổ sung benchmark GET loopback opt-in cho Catalog VI/EN và thumbnail 200/304, giới hạn tải, timeout, báo cáo tổng hợp và quy trình đánh giá chi phí Railway. Không đổi runtime, dữ liệu hoặc schema.
+
+## Unreleased — Phase 3.6D Tối ưu tải ảnh Frontend (2026-11-26)
+
+- Chặn callback lazy loading cũ và giữ ưu tiên tải ảnh Carousel; không preload dự đoán Catalog khi bật tiết kiệm dữ liệu. Giữ giao diện, bản dịch, font, API và schema hiện tại.
+
+## Unreleased — Phase 3.6C Cache và luồng tài nguyên (2026-11-26)
+
+- Bổ sung ETag/HTTP 304 cho thumbnail mẫu tĩnh công khai, luôn xác thực lại; giữ no-store cho cover động và tài nguyên riêng tư. Dùng pipeline để đóng file stream khi client ngắt kết nối, không đổi quyền truy cập hoặc schema.
+
+## Unreleased — Phase 3.6B Giới hạn tài nguyên thumbnail (2026-11-26)
+
+- Giới hạn render thumbnail đồng thời, tách tác vụ đang xử lý khỏi LRU, giới hạn số tác vụ và dung lượng input/cache; từ chối quá tải rõ ràng và giải phóng slot khi lỗi. Giữ định dạng ảnh và schema.
+
+## Unreleased — Phase 3.6A Giám sát hiệu năng Backend (2026-11-26)
+
+- Bổ sung log hiệu năng tổng hợp opt-in theo cửa sổ, histogram cố định cho HTTP và MySQL, CPU/RAM và event loop; không ghi URL, SQL hoặc dữ liệu khách hàng. Không thay đổi schema hay API.
+
+## Unreleased — Phase 3.5D Kiểm tra toàn vẹn dữ liệu (2026-11-26)
+
+- Bổ sung audit 11 invariant liên bảng chỉ đọc theo opt-in, trả số lượng bất thường và không xuất ID khách hàng; kiểm thử rollback và phát hiện sai chủ/quyền, sai bằng chứng biên nhận. Không đổi schema hoặc dữ liệu.
+
+## Unreleased — Phase 3.5C Quản lý kết nối MySQL (2026-11-26)
+
+- Dùng chung MySqlClient tại Composition Root, giữ client riêng cho service độc lập; đóng pool một lần sau khi dừng module, kể cả startup lỗi. Chờ thao tác SQL đang chạy, hủy kết nối nếu rollback lỗi và chặn transaction đã kết thúc. Không thay đổi migration hoặc cấu hình kết nối.
+
+## Unreleased — Phase 3.5B Tối ưu truy vấn và audit index (2026-11-26)
+
+- Gom INSERT liên kết tài sản Canvas thành batch tối đa 100 dòng, giữ transaction và quyền sở hữu; bổ sung kiểm tra prefix index MySQL chỉ đọc và kiểm thử rollback. Không thay đổi migration.
+
+## Unreleased — Phase 3.5A Sửa đóng gói release (2026-11-26)
+
+- Đưa migration baseline vào allowlist release và kiểm thử nội dung, checksum manifest; tiếp tục loại dữ liệu xuất riêng tư. Không thay đổi SQL hoặc schema.
+
+## Unreleased — Phase 3.5A Kiểm tra schema và migration (2026-11-26)
+
+- Bổ sung audit migration offline, checksum lịch sử và kiểm tra metadata MySQL chỉ đọc theo prefix đã áp dụng. Không thay đổi migration, schema hoặc dữ liệu.
+
+## Unreleased — Phase 3.4E Hồi quy kiến trúc Frontend (2026-11-26)
+
+- Bổ sung kiểm thử vòng đời Featured Carousel sau PR #29, bao gồm focus, visibility, tiết kiệm dữ liệu, dispose và mount lại.
+- Không tải trước ảnh ngoài cửa sổ khi carousel dừng; chặn observer trễ và cleanup lặp. Giữ API, schema, giá, giao diện và dependency hiện tại.
+
 ## Unreleased — Phase 3.4D Vòng đời Canvas Editor (2026-11-26)
 
 - Cô lập listener theo dialog; giải phóng khi đóng, Escape hoặc hủy route, không giữ callback cũ. Chặn mở Fabric/Sound Editor muộn; hủy fetch âm thanh khi đóng.

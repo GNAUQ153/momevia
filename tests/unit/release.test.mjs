@@ -31,6 +31,10 @@ test('Gói nguồn loại secret/data/dependency và phát hiện file bị sử
     // The release allowlist also includes MySQL schema and tooling.
     write('database/compose.yml', 'services: {}\n');
     write('database/verify.sql', 'SELECT 1;\n');
+    const migrationBaseline = 'database/migration-baseline.json';
+    const baselineContents = '{"formatVersion":1,"migrations":[]}\n';
+    write(migrationBaseline, baselineContents);
+    write('database/private-export.json', 'PRIVATE_SENTINEL');
     // Chỉ đóng gói bundle update được duyệt; không gom cả thư mục updates.
     write('database/updates/interactive-cards-20261122-v1.json', '{"formatVersion":1,"changes":[]}\n');
     // Dữ liệu mẫu phục vụ kiểm thử các bundle thư viện mới.
@@ -74,6 +78,13 @@ test('Gói nguồn loại secret/data/dependency và phát hiện file bị sử
     assert(fs.existsSync(path.join(release, 'deploy/https/Caddyfile')));
     assert(fs.existsSync(path.join(release, 'deploy/https/momevia.service')));
     assert(fs.existsSync(path.join(release, 'database/compose.yml')));
+    // Baseline là dữ liệu schema bắt buộc, không phải dữ liệu vận hành.
+    assert.equal(fs.readFileSync(path.join(release, migrationBaseline), 'utf8'), baselineContents);
+    assert.deepEqual(manifest.files.find(entry => entry.path === migrationBaseline), {
+      path: migrationBaseline, sha256: createHash('sha256').update(baselineContents).digest('hex'),
+    });
+    assert(!fs.existsSync(path.join(release, 'database/private-export.json')));
+    assert(!manifest.files.some(entry => entry.path === 'database/private-export.json'));
     const updateBundle = 'database/updates/interactive-cards-20261122-v1.json';
     assert(fs.existsSync(path.join(release, updateBundle)), 'Thiếu bundle rollout trong gói phát hành');
     assert(manifest.files.some(entry => entry.path === updateBundle), 'Bundle rollout không có trong manifest');

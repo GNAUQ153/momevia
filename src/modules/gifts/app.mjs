@@ -8,8 +8,8 @@ import { createCatalogClient } from '../catalog/client.mjs';
 import { createCheckoutClient } from '../checkout/client.mjs';
 import { requireCreditSchema } from '../checkout/publication-credit.mjs';
 
-export async function createApp(config = environment(), { catalog = createCatalogClient(config.internalKey), checkout = createCheckoutClient(config.internalKey), resolveUser, canvas } = {}) {
-  const { gifts: giftsRepo, replies: repliesRepo, media, client, mode } = createRepositories();
+export async function createApp(config = environment(), { catalog = createCatalogClient(config.internalKey), checkout = createCheckoutClient(config.internalKey), resolveUser, canvas, mysqlClient } = {}) {
+  const { gifts: giftsRepo, replies: repliesRepo, media, client, mode } = createRepositories(mysqlClient);
   if (mode === 'mysql') await giftsRepo.allForUser('00000000-0000-0000-0000-000000000000');
   if (giftsRepo.quotaEnabled) await requireCreditSchema(client);
   const repliesLimit = new RateLimiter({ limit: 3, windowMs: 60_000 });
@@ -21,6 +21,6 @@ export async function createApp(config = environment(), { catalog = createCatalo
   registerRoutes(router, { config, creationLimit, globalReplies, service, resolveUser });
   return { router, service, close: async () => {
     [repliesLimit, globalReplies, creationLimit].forEach(limiter => limiter.close());
-    await client?.close();
+    if (!mysqlClient) await client?.close();
   } };
 }

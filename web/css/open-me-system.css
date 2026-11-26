@@ -293,3 +293,140 @@ body.is-designing {
     transform: translateY(-2px);
   }
 }
+
+/* Điều khiển marketing và danh mục; không áp vào Auth hoặc Canvas. */
+:is(.catalog-compact, .pricing-page) .btn {
+  min-height: var(--control-height);
+  padding-inline: var(--control-padding-x);
+  gap: var(--control-gap);
+  border-radius: var(--layout-radius-control);
+  font-size: var(--ui-text-small);
+  line-height: 1.5;
+  white-space: normal;
+  text-align: center;
+}
+
+:is(.catalog-compact, .pricing-page) .btn--outline {
+  border-color: var(--color-control-border);
+  color: var(--color-primary);
+}
+
+:is(.catalog-compact, .pricing-page) .btn--outline:hover:not(:disabled) {
+  background: var(--color-lavender);
+  color: var(--color-primary-hover);
+}
+
+.catalog-compact .search-field {
+  min-height: var(--control-height);
+  min-width: 0;
+  padding-inline: var(--space-3) var(--space-1);
+  gap: var(--control-gap);
+  border-color: var(--color-control-border);
+  border-radius: var(--layout-radius-control);
+  background: var(--color-white);
+  color: var(--color-muted);
+}
+
+.catalog-compact .search-field__label {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: var(--control-gap);
+  min-width: 0;
+}
+
+.catalog-compact .search-field input {
+  flex: 1;
+  min-width: 0;
+  min-height: calc(var(--control-height) - 2px);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-ink);
+  font-size: var(--control-font-size);
+  outline: none;
+}
+
+.catalog-compact .search-field input::placeholder {
+  color: var(--color-muted);
+  opacity: 1;
+}
+
+/* Nút xóa riêng dùng chung cho VI/EN, tránh trùng nút mặc định của WebKit. */
+.catalog-compact .search-field input::-webkit-search-cancel-button {
+  display: none;
+}
+
+.catalog-compact .search-field__clear {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--ui-control-min-height);
+  height: var(--ui-control-min-height);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-primary);
+}
+
+.catalog-compact .search-field__clear:hover:not(:disabled) {
+  background: var(--color-lavender);
+  color: var(--color-primary-hover);
+}
+
+.catalog-compact .search-field__clear:disabled {
+  color: var(--color-muted);
+  opacity: 0.5;
+}
+
+.catalog-compact .catalog-style-select select,
+.catalog-compact .catalog-advanced-filters summary {
+  min-height: var(--control-height);
+  border-color: var(--color-control-border);
+  border-radius: var(--layout-radius-control);
+  background-color: var(--color-white);
+  color: var(--color-ink);
+  font-size: var(--control-font-size);
+  line-height: 1.5;
+}
+
+.catalog-compact .catalog-style-select > span {
+  flex-shrink: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.catalog-compact .catalog-reset {
+  min-height: var(--ui-control-min-height);
+  padding-inline: var(--space-3);
+  border-radius: var(--layout-radius-control);
+  font-size: var(--ui-text-small);
+}
+
+.catalog-compact .catalog-free-filter input {
+  accent-color: var(--color-primary);
+}
+
+.catalog-compact .search-field:focus-within,
+.catalog-compact :is(.catalog-style-select select, .catalog-free-filter input, .catalog-advanced-filters summary, .catalog-reset, .search-field__clear):focus-visible,
+:is(.catalog-compact, .pricing-page, .is-home .mkt-actions) .btn:focus-visible {
+  outline: var(--control-focus-width) solid var(--color-focus);
+  outline-offset: var(--control-focus-offset);
+}
+
+:is(.catalog-compact, .pricing-page) button.btn:disabled {
+  opacity: 0.58;
+  box-shadow: none;
+  transform: none;
+  cursor: not-allowed;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :is(.catalog-compact, .pricing-page, .is-home .mkt-actions) .btn,
+  .catalog-compact .search-field__clear {
+    transition: none;
+    transform: none;
+  }
+}

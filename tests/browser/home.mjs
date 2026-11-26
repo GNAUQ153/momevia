@@ -320,7 +320,15 @@ async function verifyCatalog(context, page, base) {
   await page.goBack();
   assert.equal(await search.inputValue(), 'sunny wishes');
   assert.equal(await free.isChecked(), true);
-  await search.fill('');
+  const clearSearch = page.locator('#template-search-clear');
+  assert.equal(await clearSearch.isEnabled(), true);
+  await clearSearch.click();
+  assert.equal(await search.inputValue(), '');
+  assert.equal(await free.isChecked(), true, 'Clear search preserves other filters');
+  assert.equal(await clearSearch.isDisabled(), true);
+  assert.equal(await search.evaluate(input => input === document.activeElement), true);
+  assert.equal(new URL(page.url()).searchParams.has('q'), false);
+  assert.equal(new URL(page.url()).searchParams.get('free'), '1');
   await page.locator('.catalog-reset').click();
   await page.waitForURL('**/explore');
   assert.equal(await free.isChecked(), false);

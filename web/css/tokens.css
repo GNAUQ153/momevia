@@ -134,6 +134,13 @@
   --layout-hero-gap-compact: var(--space-6);
   --layout-card-gap: var(--space-6);
   --layout-card-gap-mobile: var(--space-4);
+  /* Kích thước điều khiển cho giao diện marketing và danh mục. */
+  --control-height: 48px;
+  --control-padding-x: var(--space-4);
+  --control-gap: var(--space-2);
+  --control-font-size: max(16px, 1rem);
+  --control-focus-width: 2px;
+  --control-focus-offset: 2px;
   --layout-radius-control: 12px;
   --layout-radius-card: 20px;
   --layout-radius-card-inner: calc(var(--layout-radius-card) - 1px);

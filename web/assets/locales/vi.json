@@ -461,6 +461,7 @@
   "catalog.scenes": {
     "other": "{count} cảnh"
   },
+  "catalog.search.clear": "Xóa từ khóa tìm kiếm",
   "catalog.search.label": "Tìm kiếm mẫu",
   "catalog.search.placeholder": "Tìm tên mẫu, dịp, phong cách…",
   "catalog.seasonal.action": "Xem mẫu lễ hội",

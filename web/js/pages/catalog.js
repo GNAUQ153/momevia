@@ -55,6 +55,8 @@ export function createCatalogViews({
     const count = document.getElementById("catalog-count");
     const navigation = document.getElementById("catalog-pagination");
     const range = document.getElementById("catalog-range");
+    const clear = document.getElementById("template-search-clear");
+    if (clear) clear.disabled = !state.search.length;
     if (!grid) return;
     const shelf = document.querySelector('.seasonal-shelf');
     if (shelf) shelf.hidden = hasFilters();
@@ -109,7 +111,7 @@ export function createCatalogViews({
     });
     return `<section class="section catalog-section catalog-compact"><div class="container">
       <div class="catalog-toolbar"><div class="catalog-title"><h1>${text("shell.pages.catalog")}</h1>${catalogFailed ? '' : `<span id="catalog-count" aria-live="polite" aria-atomic="true">${text('catalog.results.count', { count: result.total })}</span>`}<p class="catalog-intro">${text('catalog.intro')}</p></div>
-        <div class="catalog-toolbar__actions"><label class="search-field">${icon("search", 19)}<span class="visually-hidden">${text("catalog.search.label")}</span><input type="search" id="template-search" ${attr("placeholder", "catalog.search.placeholder")} value="${e(state.search)}"/></label>
+        <div class="catalog-toolbar__actions"><div class="search-field"><label class="search-field__label">${icon("search", 19)}<span class="visually-hidden">${text("catalog.search.label")}</span><input type="search" id="template-search" ${attr("placeholder", "catalog.search.placeholder")} value="${e(state.search)}"/></label><button type="button" id="template-search-clear" class="search-field__clear" data-action="clear-catalog-search" ${attr("aria-label", "catalog.search.clear")} ${state.search.length ? "" : "disabled"}>${icon("close", 18)}</button></div>
           <a class="btn btn--dark catalog-create-cta" href="/design/new" data-link data-catalog-create-cta referrerpolicy="no-referrer">${icon('pencil', 18)} ${text('floatingCta.create')}</a></div></div>
       <div class="catalog-filters" role="group" ${attr("aria-label", "catalog.filters.group")}>
         <label class="catalog-style-select"><span>${text('catalog.cardType.label')}</span><select id="card-type-filter" ${attr('aria-label','catalog.cardType.label')}>

@@ -1,3 +1,7 @@
+## Unreleased — Phase 4.3B Interactive Controls (2026-11-27)
+
+- Chuẩn hóa nút marketing, trường tìm kiếm và bộ lọc danh mục bằng token chung; bổ sung nút xóa riêng từ khóa có nhãn VI/EN, giữ bộ lọc và focus. Giữ nguyên Auth, Canvas, thanh toán và database.
+
 ## Unreleased — Phase 4.3A Layout Foundation (2026-11-27)
 
 - Chuẩn hóa thang khoảng cách, container responsive, độ bo góc và bóng đổ marketing; giữ breakpoint, hình học Canvas và bố cục Auth hiện tại. Đồng bộ Hero, carousel, hành trình và hộp thoại tạo thiệp qua token chung.

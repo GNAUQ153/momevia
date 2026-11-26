@@ -62,12 +62,13 @@
   padding: 10px 16px;
   border: 1px solid var(--color-control-border);
   border-radius: var(--layout-radius-control);
-  background: #ffffffbd;
+  background: var(--color-white);
   color: var(--mkt-ink);
   cursor: pointer;
   font: inherit;
   font-weight: 680;
   text-align: left;
+  overflow-wrap: anywhere;
   transition: border-color 220ms ease, transform 220ms ease, box-shadow 220ms ease, background 220ms ease;
 }
 
@@ -81,15 +82,16 @@
   color: var(--mkt-action);
 }
 
-.is-home .mkt-journey__step:hover {
-  transform: translateX(4px);
-  border-color: var(--mkt-action);
+@media (hover: hover) and (pointer: fine) {
+  .is-home .mkt-journey__step:hover {
+    border-color: var(--mkt-action);
+  }
 }
 
 .is-home .mkt-journey__step[aria-pressed="true"] {
   border-color: var(--mkt-action);
   background: var(--color-lavender);
-  box-shadow: var(--layout-shadow-card);
+  box-shadow: inset 0 0 0 1px var(--mkt-action), var(--layout-shadow-card);
   color: var(--mkt-action-hover);
 }
 
@@ -285,6 +287,78 @@
   grid-area: footer;
   display: flex;
   justify-content: flex-start;
+}
+
+/* Bento: giữ thứ tự DOM và nhóm nút hiện có, không tạo thêm controller. */
+@media (min-width: 901px) {
+  .is-home .mkt-journey__steps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-3);
+  }
+
+  .is-home .mkt-journey__step {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: "symbol index" "label label";
+    align-content: space-between;
+    gap: var(--space-3);
+    min-width: 0;
+    min-height: 92px;
+    padding: var(--space-4);
+    border-radius: var(--layout-radius-card);
+    font-size: var(--type-body);
+    line-height: var(--type-line-heading);
+  }
+
+  .is-home .mkt-journey__step[data-mkt-step="create"] {
+    grid-column: 1 / -1;
+    grid-template-areas: "symbol index" "label label";
+    min-height: 108px;
+    background: var(--color-lavender);
+  }
+
+  .is-home .mkt-journey__step[data-mkt-step="open"] {
+    background: var(--color-pink-soft);
+  }
+
+  .is-home .mkt-journey__step[data-mkt-step="reply"] {
+    background: var(--color-peach-soft);
+  }
+
+  .is-home .mkt-journey__step-index {
+    grid-area: index;
+    justify-self: end;
+  }
+
+  .is-home .mkt-journey__step .icon {
+    grid-area: symbol;
+    width: 26px;
+    height: 26px;
+  }
+
+  .is-home .mkt-journey__step-label {
+    grid-area: label;
+    min-width: 0;
+  }
+
+  .is-home .mkt-journey__step[aria-pressed="true"] {
+    background: var(--color-lavender);
+  }
+}
+
+/* Chuyển động ngắn chỉ trên thiết bị có con trỏ chính xác. */
+@media (min-width: 901px) and (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .is-home .mkt-journey__step:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--layout-shadow-card-hover);
+  }
+
+  .is-home .mkt-journey__step[aria-pressed="true"]:hover {
+    box-shadow: inset 0 0 0 1px var(--mkt-action), var(--layout-shadow-card-hover);
+  }
+
+  .is-home .mkt-journey__step:active {
+    transform: none;
+  }
 }
 
 @media (max-width: 900px) {

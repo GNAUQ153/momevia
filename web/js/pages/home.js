@@ -130,11 +130,12 @@ export function createHomeViews({ state, buttonLink, templateCard }) {
           <h2 id="mkt-journey-title">${text("home.journey.title")}</h2>
           <p>${text("home.journey.intro")}</p>
         </div>
-        <div class="mkt-journey__steps" role="group" ${attr("aria-label", "home.journey.stepsLabel")}>
-          ${steps.map(({ id, symbol }, index) => `<button type="button" class="mkt-journey__step" data-mkt-step="${id}" aria-pressed="${id === 'create'}">
+        <p id="mkt-journey-keyboard-hint" class="visually-hidden">${text("home.journey.keyboardHint")}</p>
+        <div class="mkt-journey__steps" role="group" aria-describedby="mkt-journey-keyboard-hint" ${attr("aria-label", "home.journey.stepsLabel")}>
+          ${steps.map(({ id, symbol }, index) => `<button type="button" class="mkt-journey__step" data-mkt-step="${id}" aria-pressed="${id === 'create'}" aria-controls="mkt-journey-panel-${id}">
             <span class="mkt-journey__step-index">0${index + 1}</span>
             ${icon(symbol, 21)}
-            <span>${text(`home.journey.${id}.title`)}</span>
+            <span class="mkt-journey__step-label">${text(`home.journey.${id}.title`)}</span>
           </button>`).join('')}
         </div>
         <div class="mkt-journey__showcase">
@@ -158,7 +159,7 @@ export function createHomeViews({ state, buttonLink, templateCard }) {
             <span class="mkt-journey__spark mkt-journey__spark--two"></span>
           </div>
           <div class="mkt-journey__details" aria-live="polite" aria-atomic="true">
-            ${steps.map(({ id }) => `<div data-mkt-panel="${id}" ${id === 'create' ? '' : 'hidden'}>
+            ${steps.map(({ id }) => `<div id="mkt-journey-panel-${id}" data-mkt-panel="${id}" ${id === 'create' ? '' : 'hidden'}>
               <h3>${text(`home.journey.${id}.title`)}</h3>
               <p>${text(`home.journey.${id}.body`)}</p>
             </div>`).join('')}

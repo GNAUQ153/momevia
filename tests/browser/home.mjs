@@ -150,6 +150,31 @@ export async function runHomeBrowser(base) {
             await selector.selectOption(language);
             await page.waitForFunction(value => globalThis.document.documentElement.lang === value, language);
           }
+          // Bento desktop giữ thứ tự DOM, vùng chạm và điều khiển cảnh thật.
+          if (width >= 901) {
+            const journey = page.locator('main > .mkt-journey');
+            const buttons = journey.locator('[data-mkt-step]');
+            const boxes = await buttons.evaluateAll(nodes => nodes.map(node => {
+              const rect = node.getBoundingClientRect();
+              return { x: rect.x, y: rect.y, width: rect.width, height: rect.height, overflow: node.scrollWidth > node.clientWidth };
+            }));
+            assert(boxes.every(box => box.height >= 44 && !box.overflow), `${width}: bento controls fit`);
+            assert(boxes[0].width > boxes[1].width * 1.8, `${width}: create spans both columns`);
+            assert(Math.abs(boxes[1].y - boxes[2].y) <= 1, `${width}: share and open share a row`);
+            assert(Math.abs(boxes[3].y - boxes[4].y) <= 1, `${width}: reply and keep share a row`);
+            assert(boxes[3].y > boxes[1].y, `${width}: row order is preserved`);
+            if (width === 1440) {
+              await buttons.first().focus();
+              await buttons.first().press('ArrowRight');
+              const selected = buttons.nth(1);
+              assert.equal(await selected.getAttribute('aria-pressed'), 'true');
+              assert.equal(await selected.evaluate(node => node === node.ownerDocument.activeElement), true);
+              assert.equal(await journey.locator('[data-mkt-journey-scene]').getAttribute('data-stage'), 'share');
+              assert.equal(await journey.locator('#mkt-journey-panel-share').isVisible(), true);
+              await selected.press('Home');
+              assert.equal(await buttons.first().getAttribute('aria-pressed'), 'true');
+            }
+          }
           if (width !== 390) continue;
           const journey = page.locator('main > .mkt-journey');
           for (const step of ['create', 'share', 'open', 'reply', 'keep']) {

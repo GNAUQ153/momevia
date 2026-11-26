@@ -73,7 +73,7 @@ test('Catalog, Pricing và marketing dùng cùng thang chữ; không đổi toke
 test('CSS mới được tải theo cùng thứ tự và không có thang chữ riêng theo locale', () => {
   const html = read('web/index.html');
   for (const name of ['tokens', ...styles, 'marketing-journey', 'brand-system', 'template-library', 'ui-polish']) {
-    assert(html.includes(`/css/${name}.css?v=${name === "marketing" ? "20261127-hero-spacing" : name === "marketing-immersive" ? "20261127-scroll-reveal" : name === "open-me-website" ? "20261127-hero-mesh" : "20261127-type-scale"}`), name);
+    assert(html.includes(`/css/${name}.css?v=${name === "marketing-journey" ? "20261127-journey-bento" : name === "marketing" ? "20261127-hero-spacing" : name === "marketing-immersive" ? "20261127-scroll-reveal" : name === "open-me-website" ? "20261127-hero-mesh" : "20261127-type-scale"}`), name);
     assert.doesNotMatch(css(name), /(?:\[lang[^\]]*\]|:lang\([^)]*\))[^{}]*\{[^}]*var\(--type-/);
   }
 });

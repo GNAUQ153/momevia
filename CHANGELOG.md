@@ -1,3 +1,7 @@
+## Unreleased — Phase 4.4D Interactive Bento (2026-11-27)
+
+- Chuyển nhóm điều khiển hành trình thành Bento hai cột trên desktop, làm nổi bật bước tạo thiệp; giữ rail vuốt trên mobile, cảnh 3D, nội dung VI/EN và nghiệp vụ hiện có. Bổ sung liên kết ARIA, hướng dẫn bàn phím và kiểm thử bố cục.
+
 ## Unreleased — Phase 4.4C Scroll Reveal (2026-11-27)
 
 - Thay reveal ẩn toàn section bằng hiệu ứng tiêu đề và chi tiết theo viewport, giới hạn stagger trên desktop; giữ nội dung luôn đọc được, bỏ chuyển động khi tab ẩn hoặc chế độ tĩnh, không dịch chuyển bố cục và CTA.

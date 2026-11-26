@@ -66,7 +66,7 @@ test('Marketing dùng cùng token ở cả stylesheet thường và immersive', 
 test('Cache bust cho toàn bộ stylesheet đổi màu', () => {
   const html = read('web/index.html');
   for (const name of ['tokens', 'marketing', 'marketing-immersive', 'marketing-journey', 'open-me-website', 'open-me-system']) {
-    assert(html.includes(`/css/${name}.css?v=${name === "marketing" ? "20261127-hero-spacing" : name === "marketing-immersive" ? "20261127-scroll-reveal" : name === "open-me-website" ? "20261127-hero-mesh" : name === "open-me-system" ? "20261127-feedback" : "20261127-type-scale"}`), name);
+    assert(html.includes(`/css/${name}.css?v=${name === "marketing-journey" ? "20261127-journey-bento" : name === "marketing" ? "20261127-hero-spacing" : name === "marketing-immersive" ? "20261127-scroll-reveal" : name === "open-me-website" ? "20261127-hero-mesh" : name === "open-me-system" ? "20261127-feedback" : "20261127-type-scale"}`), name);
   }
 });
 

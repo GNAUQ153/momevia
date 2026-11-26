@@ -16,6 +16,9 @@ export function takeCatalogBootstrap(endpoint){
 export function startCatalogBootstrap(){
  const match=location.pathname.match(/^\/template\/([^/]+)\/?$/),catalog=/^\/explore\/?$/.test(location.pathname);
  if(!catalog&&!match)return;
+ // Chỉ bỏ preload dự đoán; ảnh hiển thị vẫn được tải theo luồng bình thường.
+ const connection=globalThis.navigator?.connection||globalThis.navigator?.mozConnection||globalThis.navigator?.webkitConnection;
+ if(connection?.saveData||globalThis.matchMedia?.('(prefers-reduced-data: reduce)')?.matches)return;
  let locale='vi';try{if(localStorage.getItem('momevia-locale')==='en')locale='en';}catch{/* Storage may be blocked. */}
  const endpoint=match?`/catalog/templates/${match[1]}`:'/catalog/templates';
  try{

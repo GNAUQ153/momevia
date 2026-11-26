@@ -1,3 +1,7 @@
+## Unreleased — Phase 3.6D Tối ưu tải ảnh Frontend (2026-11-26)
+
+- Chặn callback lazy loading cũ và giữ ưu tiên tải ảnh Carousel; không preload dự đoán Catalog khi bật tiết kiệm dữ liệu. Giữ giao diện, bản dịch, font, API và schema hiện tại.
+
 ## Unreleased — Phase 3.6C Cache và luồng tài nguyên (2026-11-26)
 
 - Bổ sung ETag/HTTP 304 cho thumbnail mẫu tĩnh công khai, luôn xác thực lại; giữ no-store cho cover động và tài nguyên riêng tư. Dùng pipeline để đóng file stream khi client ngắt kết nối, không đổi quyền truy cập hoặc schema.

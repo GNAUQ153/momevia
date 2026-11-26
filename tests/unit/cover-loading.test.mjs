@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mountCoverLoading, preserveLoadedCovers } from '../../web/js/core/cover-loading.js';
+import { loadCoverImage, mountCoverLoading, preserveLoadedCovers } from '../../web/js/core/cover-loading.js';
 
 function image(values, top = 0) {
   const attrs = new Map(Object.entries(values));
@@ -23,7 +23,7 @@ test('deferred cover promotion keeps later rows lazy and transfers responsive lo
     globalThis.innerHeight = 800; globalThis.scrollY = 0;
     globalThis.IntersectionObserver = class { constructor(callback) { promote = callback; } observe() {} unobserve() {} disconnect() {} };
     globalThis.MutationObserver = class { observe() {} disconnect() {} };
-    const dispose = mountCoverLoading({ querySelectorAll: () => [first, later] });
+    const dispose = mountCoverLoading({ querySelectorAll: () => [first, later], contains: img => [first, later].includes(img) });
     promote([{ target: first, isIntersecting: true }]);
     assert.equal(first.loading, 'eager');
     globalThis.scrollY = 1000;
@@ -52,4 +52,101 @@ test('filtering reuses loaded responsive covers but rejects stale revisions and 
   const resized = candidate(); resized.setAttribute('sizes', '380px');
   preserveLoadedCovers(current, { querySelectorAll: () => [resized] });
   assert.equal(resized.hasAttribute('data-cover-lazy'), true);
+});
+
+function observerFixture(t, initial, { native = true } = {}) {
+  const keys = ['IntersectionObserver', 'MutationObserver', 'innerHeight', 'scrollY'];
+  const saved = Object.fromEntries(keys.map(key => [key, Object.getOwnPropertyDescriptor(globalThis, key)]));
+  t.after(() => {
+    for (const key of keys) {
+      if (saved[key]) Object.defineProperty(globalThis, key, saved[key]);
+      else delete globalThis[key];
+    }
+  });
+  const members = new Set(initial), watched = new Set();
+  let intersect, mutate, disconnected = 0;
+  globalThis.innerHeight = 800;
+  globalThis.scrollY = 0;
+  globalThis.IntersectionObserver = native ? class {
+    constructor(callback) { intersect = callback; }
+    observe(img) { watched.add(img); }
+    unobserve(img) { watched.delete(img); }
+    disconnect() { disconnected++; watched.clear(); }
+  } : undefined;
+  globalThis.MutationObserver = class {
+    constructor(callback) { mutate = callback; }
+    observe() {}
+    disconnect() { disconnected++; }
+  };
+  const root = { contains: img => members.has(img), querySelectorAll: () => [...members] };
+  const dispose = mountCoverLoading(root);
+  t.after(dispose);
+  return { members, watched, dispose, disconnected: () => disconnected,
+    intersect: (...imgs) => intersect(imgs.map(target => ({ target, isIntersecting: true }))),
+    mutate: (...imgs) => mutate([{ addedNodes: imgs.map(img => ({ querySelectorAll: () => [img] })) }]),
+  };
+}
+
+const deferred = name => image({ 'data-src': `${name}.webp`, 'data-cover-lazy': '', loading: 'lazy' }, 100);
+
+test('Observer không tải ảnh đã rời root, kể cả khi ảnh vẫn nối với DOM', t => {
+  const old = deferred('old'), moved = deferred('moved'), fresh = deferred('fresh');
+  const f = observerFixture(t, [old, moved]);
+  old.isConnected = false;
+  f.members.delete(old);
+  f.members.delete(moved);
+  f.members.add(fresh);
+  // Callback cũ đến trước MutationObserver của route mới.
+  f.intersect(old, moved);
+  f.mutate(old, moved, fresh);
+  assert.equal(old.getAttribute('src'), null);
+  assert.equal(moved.getAttribute('src'), null);
+  assert.deepEqual([...f.watched], [fresh]);
+  f.intersect(fresh);
+  assert.equal(fresh.getAttribute('src'), 'fresh.webp');
+});
+
+test('Không ghi đè ưu tiên ảnh Carousel đã tải, kể cả callback lặp', t => {
+  const img = deferred('carousel');
+  const f = observerFixture(t, [img]);
+  loadCoverImage(img);
+  img.fetchPriority = 'low';
+  f.intersect(img, img);
+  loadCoverImage(img);
+  assert.equal(img.fetchPriority, 'low');
+  assert.equal(img.getAttribute('src'), 'carousel.webp');
+  assert.equal(f.watched.size, 0);
+});
+
+test('Dispose chặn callback IntersectionObserver và MutationObserver đến muộn', t => {
+  const img = deferred('old'), next = deferred('next');
+  const f = observerFixture(t, [img]);
+  f.dispose();
+  f.dispose();
+  f.members.add(next);
+  f.intersect(img);
+  f.mutate(next);
+  assert.equal(img.getAttribute('src'), null);
+  assert.equal(next.getAttribute('src'), null);
+  assert.equal(f.watched.size, 0);
+  assert.equal(f.disconnected(), 2);
+});
+
+test('Mutation bỏ ảnh đã được tải chủ động và vẫn theo dõi ảnh mới', t => {
+  const img = deferred('active'), next = deferred('next');
+  const f = observerFixture(t, [img]);
+  loadCoverImage(img);
+  f.members.add(next);
+  f.mutate(img, next);
+  assert.deepEqual([...f.watched], [next]);
+});
+
+test('Không có IntersectionObserver vẫn tải ảnh mới trong root', t => {
+  const img = deferred('first'), next = deferred('next'), old = deferred('old');
+  const f = observerFixture(t, [img], { native: false });
+  assert.equal(img.getAttribute('src'), 'first.webp');
+  f.members.add(next);
+  f.mutate(next, old);
+  assert.equal(next.getAttribute('src'), 'next.webp');
+  assert.equal(old.getAttribute('src'), null);
 });

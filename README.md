@@ -91,16 +91,16 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Phối hợp khóa inert giữa modal và animation CTA; giữ khóa còn hiệu lực khi animation dừng hoặc hoàn tất. Bổ sung regression, không bỏ assertion browser smoke.
+- Dùng token khoảng đệm 24px cho mục mẫu thiệp từ 681px, đồng nhất VI/EN và giữ ngưỡng kiểm thử khoảng cách Hero–Featured hiện tại.
 
 **Các commit gần nhất trên `main`:**
 
+- `881b299` — fix(ui): stabilize responsive spacing between hero and featured templates (2026-11-27)
+- `5786d37` — feat(ui): redesign hero artwork with layered CSS 3D envelope and responsive depth (2026-11-27)
 - `601dc6e` — fix(ui): coordinate modal and CTA animation inert locks (2026-11-27)
 - `8e8e8d7` — feat(ui): improve keyboard accessibility modal isolation and reduced motion (2026-11-27)
 - `5ee4871` — feat(ui): introduce fluid typography scale and responsive text sizing (2026-11-27)
 - `5195caa` — feat(ui): standardize template cards modal focus and toast feedback (2026-11-27)
-- `a1e5b85` — fix(ci): resolve browser focus assertion lint error (2026-11-27)
-- `a56250b` — feat(ui): standardize interactive controls and improve catalog search experience (2026-11-27)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

@@ -44,6 +44,16 @@ export async function runHomeBrowser(base) {
           assert(coverBox.width >= 100, `${width}: each complete thumbnail is at least 100px wide`);
           const frame = await hero.locator('.open-me-stack').boundingBox();
           assert(coverBox.x >= frame.x && coverBox.x + coverBox.width <= frame.x + frame.width, `${width}: featured cover stays within its frame`);
+          // Phong bì chỉ trang trí; không che thao tác xem thiệp hay nhận focus.
+          const envelope = hero.locator('.mkt-stage__envelope');
+          assert.equal(await envelope.count(), 1);
+          assert.equal(await hero.locator('.mkt-stage__atmosphere').getAttribute('aria-hidden'), 'true');
+          assert.equal(await envelope.evaluate(node => node.ownerDocument.defaultView.getComputedStyle(node).pointerEvents), 'none');
+          assert.equal(await cover.evaluate(node => node.ownerDocument.defaultView.getComputedStyle(node).transform), 'none');
+          const showDecorativeLabels = !(width <= 520 || (width >= 768 && width <= 1100));
+          for (const selector of ['.mkt-stage__note', '.mkt-stage__reply', '.open-me-posters__stamp']) {
+            assert.equal(await hero.locator(selector).isVisible(), showDecorativeLabels);
+          }
           assert.equal(await hero.locator('[data-hero-image][data-active="true"]').count(),1,'Exactly one featured sample');
           assert.equal(await hero.locator('[data-hero-image]').count(),5,'Five distinct sample layers');
           if (width < 768) assert(previewBox.y + previewBox.height <= frame.y, `${width}: mobile actions precede the artwork`);

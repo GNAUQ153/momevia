@@ -50,7 +50,7 @@ export function createHomeViews({ state, buttonLink, templateCard }) {
       </div>
       <div class="mkt-hero__artwork open-me-hero__showcase">
       <div class="mkt-hero__frame mkt-stage open-me-stack" data-visual data-enter-media data-mkt-tilt data-mkt-tilt-strength="0.15">
-        <div class="mkt-stage__atmosphere" aria-hidden="true"><span class="mkt-stage__orb mkt-stage__orb--first"></span><span class="mkt-stage__orb mkt-stage__orb--second"></span><span class="mkt-stage__ring"></span></div>
+        <div class="mkt-stage__atmosphere" aria-hidden="true"><span class="mkt-stage__orb mkt-stage__orb--first"></span><span class="mkt-stage__orb mkt-stage__orb--second"></span><span class="mkt-stage__ring"></span><span class="mkt-stage__envelope"></span></div>
         <span class="open-me-posters__stamp" aria-hidden="true">${text('home.openMe.stamp')}</span>
         <div class="mkt-stage__note" aria-hidden="true"><span>${text('home.hero.note.caption')}</span><strong>${text('home.hero.note.title')}</strong></div>
         <div class="mkt-stage__cards"><button type="button" class="mkt-hero__cover" data-template-preview aria-haspopup="dialog" ${attr('aria-label','home.hero.preview')}>${heroImages(demos)}</button></div>

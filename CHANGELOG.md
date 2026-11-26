@@ -1,3 +1,7 @@
+## Unreleased — Phase 4.4A Hero Visual Depth (2026-11-27)
+
+- Làm mới sân khấu thiệp với phong bì CSS 3D, ánh sáng và màu nhận diện; giới hạn lớp trang trí trên màn hình hẹp, tôn trọng reduced motion và giữ preview, CTA, VI/EN, Canvas cùng nghiệp vụ hiện tại.
+
 ## Unreleased — Phase 4.3E.1 Accessibility Hotfix (2026-11-27)
 
 - Phối hợp khóa inert giữa modal và animation CTA; giữ khóa còn hiệu lực khi animation dừng hoặc hoàn tất. Bổ sung regression, không bỏ assertion browser smoke.

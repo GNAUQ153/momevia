@@ -61,6 +61,9 @@ export async function runBrowserSmoke(base) {
     await page.setViewportSize({ width: 390, height: 844 });
     const qrDialog = page.locator('#modal-root .dialog');
     const close = qrDialog.locator('.dialog-close');
+    for (const selector of ['#main', '#site-header', '#site-footer', '.site-tools', '[data-floating-cta]']) {
+      assert.equal(await page.locator(selector).evaluate(node => node.inert), true, selector);
+    }
     await close.focus();
     await page.keyboard.press('Shift+Tab');
     assert.equal(await qrDialog.evaluate(node => node.contains(node.ownerDocument.activeElement)), true);
@@ -70,6 +73,11 @@ export async function runBrowserSmoke(base) {
       const directory = path.resolve(process.env.BROWSER_ARTIFACT_DIR);
       fs.mkdirSync(directory, { recursive: true });
       await page.screenshot({ path: path.join(directory, 'qr-mobile.png'), fullPage: true });
+    }
+    await page.keyboard.press('Escape');
+    await qrDialog.waitFor({ state: 'detached' });
+    for (const selector of ['#main', '#site-header', '#site-footer', '.site-tools', '[data-floating-cta]']) {
+      assert.equal(await page.locator(selector).evaluate(node => node.inert), false, selector);
     }
     await page.request.post(base + '/api/auth/logout');
     await page.goto(base + '/login');

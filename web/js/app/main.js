@@ -23,6 +23,7 @@ import { templateValue } from "../features/catalog/template-copy.js";
 import { createComponents } from "../ui/components.js";
 import { createToast } from "../ui/feedback.js";
 import { focusDialog, trapDialogTab } from "../ui/dialog-focus.js";
+import { createModalIsolation, skipToMain } from '../ui/accessibility.js';
 import { createLayout } from "../ui/layout.js";
 import { createHomeViews, homeDemo, selectHomeDemos } from "../pages/home.js";
 import { mountMarketingMotion } from "../features/marketing/scene-motion.js";
@@ -45,6 +46,8 @@ const modal = document.getElementById("modal-root");
 const toast = createToast(document.getElementById("toast-host"));
 const header = document.getElementById("site-header");
 const footer = document.getElementById("site-footer");
+const modalIsolation = createModalIsolation(() => [main, header, footer,
+  document.querySelector('.site-tools'), document.querySelector('[data-floating-cta]')]);
 let routeController = null,
   renderGeneration = 0,
   canvasCheckout = null,
@@ -865,9 +868,7 @@ function closeModal() {
   const wasOpen = modal.hasChildNodes();
   modal.replaceChildren();
   document.body.classList.remove("no-scroll");
-  main.inert = false;
-  header.inert = false;
-  footer.inert = false;
+  modalIsolation.restore();
   canvasCheckout = null;
   if (wasOpen && modalReturnFocus?.isConnected) modalReturnFocus.focus();
   modalReturnFocus = null;
@@ -883,9 +884,7 @@ function openModal(content, { showLocaleControl = true } = {}) {
     modal.querySelector('.dialog').setAttribute('aria-labelledby', heading.id);
   }
   document.body.classList.add("no-scroll");
-  main.inert = true;
-  header.inert = true;
-  footer.inert = true;
+  modalIsolation.activate();
   focusDialog(modal.querySelector('.dialog'));
 }
 function openSupport(report) {
@@ -1034,6 +1033,7 @@ const handleAction = createActionDispatcher(
 );
 
 document.addEventListener("click", async (event) => {
+  if (event.target.closest('a.skip-link[href="#main"]') && skipToMain(event, main)) return;
   if (!event.target.closest('#account-menu, [data-action="account-menu"]')) setAccountMenu(false);
   const actionEl = event.target.closest("[data-action]");
   if (actionEl && !actionEl.disabled) {

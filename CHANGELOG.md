@@ -1,3 +1,7 @@
+## Unreleased — Phase 4.3E Accessibility (2026-11-27)
+
+- Củng cố skip link, focus và cô lập vùng nền modal, tắt cuộn mượt khi giảm chuyển động; bổ sung regression VI/EN, giữ nguyên nghiệp vụ và Canvas.
+
 ## Unreleased — Phase 4.3D Typography Scale (2026-11-27)
 
 - Chuẩn hóa cỡ chữ responsive cho Hero, Catalog và Pricing bằng token rem/clamp, đồng bộ cascade và chiều cao dòng; giữ typography Canvas, Auth và Workspace.

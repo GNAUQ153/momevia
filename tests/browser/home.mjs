@@ -229,6 +229,14 @@ export async function runHomeBrowser(base) {
           await page.goto(base);
           await page.locator('.mkt-hero h1').waitFor();
           const homeHeader = await headerSnapshot(page);
+          // Bỏ qua điều hướng bằng bàn phím, không tạo history/hash phụ.
+          const skip = page.locator('#site-header .skip-link');
+          await skip.focus();
+          assert.equal(await skip.evaluate(node => node === node.ownerDocument.activeElement), true);
+          await page.keyboard.press('Enter');
+          assert.equal(await page.locator('#main').evaluate(node => node === node.ownerDocument.activeElement), true);
+          assert.equal(page.url(), new URL('/', base).href);
+          assert.equal(await page.locator('html').evaluate(node => node.ownerDocument.defaultView.getComputedStyle(node).scrollBehavior), 'auto');
           await page.goto(base + '/explore');
           await page.locator('#template-search').waitFor();
           assert.deepEqual(await headerSnapshot(page), homeHeader, `${language} ${width}: shared header styling and links`);

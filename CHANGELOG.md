@@ -1,3 +1,7 @@
+## Unreleased — Phase 4.4E Interactive Product Showcase (2026-11-27)
+
+- Bổ sung mở/đóng quà mẫu tại bước Open của Interactive Journey, đồng bộ trạng thái ARIA và VI/EN; không gọi API, giữ chức năng vuốt và reduced motion.
+
 ## Unreleased — Phase 4.4D Interactive Bento (2026-11-27)
 
 - Chuyển nhóm điều khiển hành trình thành Bento hai cột trên desktop, làm nổi bật bước tạo thiệp; giữ rail vuốt trên mobile, cảnh 3D, nội dung VI/EN và nghiệp vụ hiện có. Bổ sung liên kết ARIA, hướng dẫn bàn phím và kiểm thử bố cục.

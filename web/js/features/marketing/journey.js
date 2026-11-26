@@ -17,16 +17,33 @@ export function mountJourney(root, { signal } = {}) {
   const buttons = [...host.querySelectorAll('[data-mkt-step]')];
   const panels = [...host.querySelectorAll('[data-mkt-panel]')];
   const scene = host.querySelector('[data-mkt-journey-scene]');
+  const openPanel = panels.find(panel => panel.dataset.mktPanel === 'open');
+  const giftToggle = openPanel?.querySelector?.('[data-mkt-gift-toggle]');
+  const giftClosedLabel = giftToggle?.querySelector?.('[data-mkt-gift-label-closed]');
+  const giftOpenLabel = giftToggle?.querySelector?.('[data-mkt-gift-label-open]');
+  const giftMessage = openPanel?.querySelector?.('[data-mkt-gift-message]');
+  let giftOpened = false;
   let activeIndex = 0;
   let touchStart = null;
   const lifetime = new AbortController();
   let disposed = false;
 
+  // Demo chỉ quản lý trạng thái hiển thị, không tạo quà hoặc gọi API.
+  function setGiftOpened(opened) {
+    giftOpened = opened;
+    if (scene) scene.dataset.giftOpen = String(opened);
+    giftToggle?.setAttribute('aria-expanded', String(opened));
+    if (giftClosedLabel) giftClosedLabel.hidden = opened;
+    if (giftOpenLabel) giftOpenLabel.hidden = !opened;
+    if (giftMessage) giftMessage.hidden = !opened;
+  }
+
   function activate(step, { focus = false } = {}) {
-    if (!journeySteps.includes(step)) return false;
+    if (disposed || !journeySteps.includes(step)) return false;
     const selected = buttons.find(button => button.dataset.mktStep === step);
     if (!selected) return false;
 
+    if (step !== 'open' || journeySteps[activeIndex] !== 'open') setGiftOpened(false);
     activeIndex = journeySteps.indexOf(step);
     for (const button of buttons) {
       const current = button === selected;
@@ -52,12 +69,18 @@ export function mountJourney(root, { signal } = {}) {
   }
 
   function onClick(event) {
+    if (disposed) return;
+    const toggle = event.target.closest?.('[data-mkt-gift-toggle]');
+    if (giftToggle && toggle === giftToggle) {
+      if (journeySteps[activeIndex] === 'open') setGiftOpened(!giftOpened);
+      return;
+    }
     const button = event.target.closest?.('[data-mkt-step]');
     if (button && host.contains(button)) activate(button.dataset.mktStep);
   }
 
   function onKeydown(event) {
-    if (!['ArrowRight', 'ArrowLeft', 'Home', 'End'].includes(event.key)) return;
+    if (disposed || !['ArrowRight', 'ArrowLeft', 'Home', 'End'].includes(event.key)) return;
     const button = event.target.closest?.('[data-mkt-step]');
     if (!button || !host.contains(button)) return;
     const current = journeySteps.indexOf(button.dataset.mktStep);

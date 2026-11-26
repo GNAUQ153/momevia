@@ -175,6 +175,28 @@ export async function runHomeBrowser(base) {
               assert.equal(await buttons.first().getAttribute('aria-pressed'), 'true');
             }
           }
+          // Demo mở quà: kiểm tra nút thật, trạng thái và quay lại bước trước.
+          if (width === 390 || width === 1440) {
+            const showcase = page.locator('main > .mkt-journey');
+            const scene = showcase.locator('[data-mkt-journey-scene]');
+            const toggle = showcase.locator('[data-mkt-gift-toggle]');
+            const message = showcase.locator('[data-mkt-gift-message]');
+            await showcase.locator('[data-mkt-step="open"]').click();
+            assert.equal(await toggle.getAttribute('aria-expanded'), 'false');
+            assert.equal(await message.isVisible(), false);
+            await toggle.press('Enter');
+            assert.equal(await scene.getAttribute('data-gift-open'), 'true');
+            assert.equal(await toggle.getAttribute('aria-expanded'), 'true');
+            assert.equal(await message.isVisible(), true);
+            await toggle.click();
+            assert.equal(await scene.getAttribute('data-gift-open'), 'false');
+            await toggle.click();
+            await showcase.locator('[data-mkt-step="reply"]').click();
+            await showcase.locator('[data-mkt-step="open"]').click();
+            assert.equal(await toggle.getAttribute('aria-expanded'), 'false');
+            assert.equal(await message.isVisible(), false);
+            await showcase.locator('[data-mkt-step="create"]').click();
+          }
           if (width !== 390) continue;
           const journey = page.locator('main > .mkt-journey');
           for (const step of ['create', 'share', 'open', 'reply', 'keep']) {

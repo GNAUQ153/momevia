@@ -37,5 +37,5 @@ test('Hover giới hạn thiết bị và giảm chuyển động, hướng dẫ
     const locale = JSON.parse(read(`web/assets/locales/${lang}.json`));
     assert(locale['home.journey.keyboardHint']?.length > 20);
   }
-  assert.match(read('web/index.html'), /marketing-journey\.css\?v=20261127-journey-bento/);
+  assert.match(read('web/index.html'), /marketing-journey\.css\?v=20261127-gift-showcase/);
 });

@@ -139,7 +139,7 @@ export function createHomeViews({ state, buttonLink, templateCard }) {
           </button>`).join('')}
         </div>
         <div class="mkt-journey__showcase">
-          <div class="mkt-journey__scene" data-mkt-journey-scene data-stage="create" aria-hidden="true">
+          <div class="mkt-journey__scene" data-mkt-journey-scene data-stage="create" data-gift-open="false" aria-hidden="true">
             <div class="mkt-journey__halo"></div>
             <div class="mkt-journey__orbit mkt-journey__orbit--first"></div>
             <div class="mkt-journey__orbit mkt-journey__orbit--second"></div>
@@ -155,6 +155,10 @@ export function createHomeViews({ state, buttonLink, templateCard }) {
                 <span>${text("home.journey.scene.reply")}</span>
               </div>
             </div>
+            <div class="mkt-journey__gift" aria-hidden="true">
+              <div class="mkt-journey__gift-base"></div>
+              <div class="mkt-journey__gift-lid">${icon('gift', 32)}</div>
+            </div>
             <span class="mkt-journey__spark mkt-journey__spark--one"></span>
             <span class="mkt-journey__spark mkt-journey__spark--two"></span>
           </div>
@@ -162,6 +166,12 @@ export function createHomeViews({ state, buttonLink, templateCard }) {
             ${steps.map(({ id }) => `<div id="mkt-journey-panel-${id}" data-mkt-panel="${id}" ${id === 'create' ? '' : 'hidden'}>
               <h3>${text(`home.journey.${id}.title`)}</h3>
               <p>${text(`home.journey.${id}.body`)}</p>
+              ${id === 'open' ? `<div class="mkt-journey__gift-controls">
+                <button type="button" class="btn mkt-primary mkt-journey__gift-toggle" data-mkt-gift-toggle aria-expanded="false" aria-controls="mkt-journey-gift-message">
+                  ${icon('gift', 18)}<span data-mkt-gift-label-closed>${text('home.journey.gift.open')}</span><span data-mkt-gift-label-open hidden>${text('home.journey.gift.close')}</span>
+                </button>
+                <p id="mkt-journey-gift-message" data-mkt-gift-message hidden>${text('home.journey.gift.message')}</p>
+              </div>` : ''}
             </div>`).join('')}
           </div>
           <p class="mkt-journey__swipe-hint">${text('home.journey.swipeHint')}</p>

@@ -91,16 +91,16 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Chặn callback lazy loading cũ và giữ ưu tiên tải ảnh Carousel; không preload dự đoán Catalog khi bật tiết kiệm dữ liệu. Giữ giao diện, bản dịch, font, API và schema hiện tại.
+- Bổ sung benchmark GET loopback opt-in cho Catalog VI/EN và thumbnail 200/304, giới hạn tải, timeout, báo cáo tổng hợp và quy trình đánh giá chi phí Railway. Không đổi runtime, dữ liệu hoặc schema.
 
 **Các commit gần nhất trên `main`:**
 
+- `9755479` — feat(performance): add bounded local backend load testing and cost evaluation guide (2026-11-26)
 - `b5a7c21` — perf(frontend): optimize cover loading lifecycle and data-aware preloading (2026-11-26)
 - `d5f78fa` — perf(backend): add conditional thumbnail responses and safe asset streaming (2026-11-26)
 - `85bdf56` — perf(backend): bound thumbnail rendering concurrency and memory cache (2026-11-26)
 - `24c974a` — feat(performance): add privacy-safe backend and mysql performance monitoring (2026-11-26)
 - `7cdd8c3` — feat(database): add cross-table integrity audit and shared pool regression coverage (2026-11-26)
-- `eadedb9` — refactor(database): share mysql connection pool and harden transaction lifecycle (2026-11-26)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

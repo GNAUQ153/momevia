@@ -91,17 +91,16 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Bổ sung kiểm thử vòng đời Featured Carousel sau PR #29, bao gồm focus, visibility, tiết kiệm dữ liệu, dispose và mount lại.
-- Không tải trước ảnh ngoài cửa sổ khi carousel dừng; chặn observer trễ và cleanup lặp. Giữ API, schema, giá, giao diện và dependency hiện tại.
+- Đưa migration baseline vào allowlist release và kiểm thử nội dung, checksum manifest; tiếp tục loại dữ liệu xuất riêng tư. Không thay đổi SQL hoặc schema.
 
 **Các commit gần nhất trên `main`:**
 
+- `bd6f4d6` — fix(ci): include migration baseline in verified release package (2026-11-26)
+- `ed33199` — feat(database): add migration integrity audit and read-only schema verification (2026-11-26)
 - `144f396` — fix(frontend): harden carousel lifecycle and add frontend regression coverage (2026-11-26)
 - `7b74cdc` — Merge pull request #29 from GNAUQ153/fix/responsive-home-pricing-cta-20261125 (2026-11-26)
 - `abb9c85` — refactor(frontend): isolate editor component lifecycles and release resources (2026-11-26)
 - `f35c663` — refactor(frontend): modularize canvas keyboard selection and clipboard actions (2026-11-26)
-- `2c4c8d6` — refactor(frontend): separate canvas inspector and asset panel responsibilities (2026-11-25)
-- `8565cb0` — refactor(frontend): modularize application actions and introduce action dispatcher (2026-11-25)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { createModalIsolation } from '../../web/js/ui/accessibility.js';
 import { createHeroCtaMotion } from '../../web/js/ui/hero-cta-motion.js';
 
 function fixture(reduce = false) {
@@ -76,5 +77,32 @@ test('restored scroll positions start below the header while retaining the hero 
     assert.equal(f.flights.length, 2);
     assert.match(f.flights[0].frames[0].transform, /translate\(-950px, -504px\)/);
     f.motion.sync(false);
+  } finally { f.restore(); }
+});
+
+
+test('Dừng và hoàn tất Hero flight không nhả khóa của modal', async () => {
+  const f = fixture();
+  try {
+    const modal = createModalIsolation(() => [f.panel]);
+    modal.activate();
+    f.motion.prepare(f.source, 84);
+    f.motion.sync(false);
+    assert.equal(f.panel.inert, true);
+    f.scrollTo(-60); f.motion.prepare(f.source, 84); f.motion.sync(true);
+    for (const flight of f.flights) flight.resolve();
+    await Promise.allSettled(f.flights.map(flight => flight.finished));
+    await Promise.resolve();
+    assert.equal(f.panel.inert, true);
+    modal.restore();
+    assert.equal(f.panel.inert, false);
+    f.scrollTo(300); f.motion.prepare(f.source, 84);
+    f.scrollTo(-60); f.motion.prepare(f.source, 84); f.motion.sync(true);
+    modal.activate();
+    f.motion.sync(false);
+    assert.equal(f.panel.inert, true);
+    modal.restore();
+    await Promise.allSettled(f.flights.map(flight => flight.finished));
+    assert.equal(f.panel.inert, false);
   } finally { f.restore(); }
 });

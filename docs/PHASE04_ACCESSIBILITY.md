@@ -21,3 +21,8 @@ Browser home kiểm tra skip link VI/EN ở desktop và mobile, focus main, URL 
 - Tab/Shift+Tab/Escape, focus không bị header che, focus trả về nơi mở dialog; kiểm tra cả native Canvas dialog riêng.
 - Chrome/Edge/Safari, 320px trở lên, browser zoom thật 200%, reflow, dấu tiếng Việt và bố cục EN. Kiểm tra NVDA/VoiceOver, các cặp màu có gradient và chế độ giảm chuyển động bật/tắt.
 - Không coi kiểm tra tự động là chứng nhận WCAG 2.2 AA. Chưa nghiệm thu mọi route, thiết bị và assistive technology.
+
+## Hotfix 4.3E.1
+
+- Modal, animation di chuyển từ Hero và animation ra/vào CTA dùng khóa inert theo từng chủ sở hữu. Chỉ khôi phục trạng thái ban đầu khi tất cả đã nhả khóa.
+- Giữ assertion Browser Smoke cho CTA và bổ sung unit test về thứ tự mở/đóng modal, hủy và hoàn tất animation.

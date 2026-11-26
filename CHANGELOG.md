@@ -1,3 +1,7 @@
+## Unreleased — Phase 4.3E.1 Accessibility Hotfix (2026-11-27)
+
+- Phối hợp khóa inert giữa modal và animation CTA; giữ khóa còn hiệu lực khi animation dừng hoặc hoàn tất. Bổ sung regression, không bỏ assertion browser smoke.
+
 ## Unreleased — Phase 4.3E Accessibility (2026-11-27)
 
 - Củng cố skip link, focus và cô lập vùng nền modal, tắt cuộn mượt khi giảm chuyển động; bổ sung regression VI/EN, giữ nguyên nghiệp vụ và Canvas.

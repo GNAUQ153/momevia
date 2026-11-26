@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { createModalIsolation } from '../../web/js/ui/accessibility.js';
 import { createCtaExitMotion } from '../../web/js/ui/cta-exit-motion.js';
 
 function fixture(reduce = false) {
@@ -85,5 +86,28 @@ test('showing an already visible panel preserves the hero arrival interaction lo
   try {
     f.panel.inert = true; f.controller.sync(true);
     assert.equal(f.panel.inert, true); assert.equal(f.motions.length, 0);
+  } finally { f.restore(); }
+});
+
+
+test('Modal giữ khóa khi animation CTA hoàn tất hoặc bị thay thế', async () => {
+  const f = fixture();
+  try {
+    const modal = createModalIsolation(() => [f.panel]);
+    f.controller.sync(false);
+    modal.activate();
+    f.controller.sync(true);
+    await Promise.allSettled([f.motions[0].finished]);
+    assert.equal(f.panel.inert, true);
+    f.motions[1].resolve(); await f.motions[1].finished;
+    assert.equal(f.panel.inert, true);
+    modal.restore();
+    assert.equal(f.panel.inert, false);
+    modal.activate();
+    f.controller.sync(false);
+    modal.restore();
+    assert.equal(f.panel.inert, true);
+    f.motions[2].resolve(); await f.motions[2].finished;
+    assert.equal(f.panel.inert, false);
   } finally { f.restore(); }
 });

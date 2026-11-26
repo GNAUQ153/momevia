@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { createModalIsolation, skipToMain } from '../../web/js/ui/accessibility.js';
+import { createInertLock } from '../../web/js/ui/inert-lock.js';
 
 const read = file => fs.readFileSync(new URL(`../../${file}`, import.meta.url), 'utf8');
 function fixture() {
@@ -59,4 +60,17 @@ test('Skip link ẩn khi không focus, giữ focus rõ và tắt cuộn mượt 
   assert.match(css, /\.skip-link:not\(:focus\) \{[^}]*clip-path: inset\(50%\);[^}]*pointer-events: none;/);
   assert.match(css, /\.skip-link:focus \{[^}]*outline: 2px solid var\(--color-focus\)/);
   assert.match(css, /@media \(prefers-reduced-motion: reduce\) \{\s*html \{\s*scroll-behavior: auto;/);
+});
+
+
+test('Ba chủ sở hữu độc lập giữ khóa đến lần nhả cuối và bảo toàn inert ban đầu', () => {
+  for (const initial of [true, false]) {
+    const node = { inert: initial };
+    const a = createInertLock(node), b = createInertLock(node), c = createInertLock(node);
+    a(false); a(true); a(true); b(true); c(true);
+    b(false); b(false); a(false);
+    assert.equal(node.inert, true);
+    c(false);
+    assert.equal(node.inert, initial);
+  }
 });

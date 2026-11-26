@@ -4,7 +4,9 @@ import { createSoundPlayer } from '../gift-runtime/audio.js';
 import { soundUrl } from '../../shared/canvas/sound.js';
 
 export const normalizeSoundSearch=value=>value.toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu,'').replaceAll('đ','d');
-export async function openSoundEditor({current,assetUrl,upload,onApply,onRemove,registerDialog=()=>{},onClose=()=>{}}={}){
+export async function openSoundEditor({current,assetUrl,upload,onApply,onRemove,registerDialog=()=>{},onClose=()=>{},signal}={}){
+ if(signal?.aborted)return;
+ const lifetime=new AbortController();
  const dialog=node('dialog',{class:'sfx-dialog','aria-label':t('sfx.title')}),status=node('p',{role:'status'}),list=node('div',{class:'sfx-list'}),details=node('section',{class:'sfx-details'}),trimHost=node('section',{class:'sfx-trim'});
  let selected=current?structuredClone(current):null,trimmer,disposed=false,busy=false,close,sourcePcm=null;
  const audio=createSoundPlayer({assetUrl,onError:()=>{status.textContent=t('sfx.playError');}});
@@ -13,11 +15,12 @@ export async function openSoundEditor({current,assetUrl,upload,onApply,onRemove,
  const header=node('div',{class:'sfx-heading'},node('h2',{},t('sfx.title'))),exit=node('button',{type:'button'},t('sfx.close'));
  header.append(exit);dialog.append(header,node('p',{class:'editor-help'},t('sfx.hint')),field(t('sfx.search'),search),field(t('sfx.group'),group),list,field(t('sfx.upload'),file),status,details,trimHost);document.body.append(dialog);registerDialog(dialog);
  function dispose(){if(disposed)return;disposed=true;audio.dispose();trimmer?.dispose();onClose();}
- close=trapDialog(dialog,dispose);dialog.addEventListener('close',dispose,{once:true});exit.onclick=()=>{if(!busy)close();};
- const response=await fetch('/api/designs/sfx',{credentials:'same-origin'}).catch(()=>null);
+ close=trapDialog(dialog,dispose,{signal,lifetime});exit.onclick=()=>{if(!busy)close();};
+ const response=await fetch('/api/designs/sfx',{credentials:'same-origin',signal:lifetime.signal}).catch(()=>null);
  if(disposed)return;
  if(!response?.ok){status.textContent=t('sfx.catalogError');return;}
- const catalog=await response.json();
+ let catalog;
+ try{catalog=await response.json();}catch(error){if(disposed)return;close();throw error;}
  if(disposed)return;
  const locale=currentLocale(),name=a=>a.name[locale]||a.name.vi;
  for(const a of catalog.assets)if(![...group.options].some(o=>o.value===a.group))group.append(node('option',{value:a.group},a.groupName[locale]));
@@ -56,7 +59,8 @@ export async function openSoundEditor({current,assetUrl,upload,onApply,onRemove,
    audio.stop();busy=true;status.textContent=t('sfx.decoding');
    try{
     const {decodeSource}=await import('./audio-trimmer.js');let bytes;
-    if(sourcePcm)bytes=sourcePcm.bytes;else{const r=await fetch(soundUrl(selected,assetUrl));if(!r.ok)throw new Error(t('sfx.playError'));bytes=await r.arrayBuffer();}
+    if(sourcePcm)bytes=sourcePcm.bytes;else{const r=await fetch(soundUrl(selected,assetUrl),{signal:lifetime.signal});if(!r.ok)throw new Error(t('sfx.playError'));bytes=await r.arrayBuffer();}
+    if(disposed)return;
     const buffer=await decodeSource(new File([bytes],'segment.wav',{type:'audio/wav'}));if(!disposed)await openTrim(buffer,selected.kind==='audio');status.textContent='';
    }catch(error){status.textContent=error.message;}finally{busy=false;}
   }
@@ -76,11 +80,11 @@ export async function openSoundEditor({current,assetUrl,upload,onApply,onRemove,
  file.onchange=async()=>{
   if(!file.files?.[0]||busy)return;
   busy=true;status.textContent=t('sfx.decoding');
-  try{const {decodeSource}=await import('./audio-trimmer.js');const buffer=await decodeSource(file.files[0]);if(disposed)return;await openTrim(buffer,true);status.textContent='';}
+  try{const {decodeSource}=await import('./audio-trimmer.js');if(disposed)return;const buffer=await decodeSource(file.files[0]);if(disposed)return;await openTrim(buffer,true);status.textContent='';}
   catch(error){status.textContent=error.message;}finally{busy=false;file.value='';}
  };
  search.oninput=renderList;group.onchange=renderList;file.disabled=!catalog.createEnabled;
  if(!catalog.createEnabled)status.textContent=t('sfx.createDisabled');
  renderList();renderDetails();
- return {dialog,dispose:()=>{dispose();dialog.close();dialog.remove();}};
+ return {dialog,dispose:close};
 }

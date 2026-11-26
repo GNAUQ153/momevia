@@ -33,6 +33,7 @@ export function giftAccessDescriptions(access) {
 export function openGiftAccessDialog({ message, signal, dialogs }) {
   // Khi route đã đóng, không mở modal hoặc giữ Promise chưa giải quyết.
   if (signal?.aborted) return Promise.resolve(null);
+  const lifetime = new AbortController();
   const choose = ["", message("editor.access.choose")];
   const link = ["link", message("editor.access.link")];
   const invite = ["invite", message("editor.access.invite")];
@@ -53,7 +54,7 @@ export function openGiftAccessDialog({ message, signal, dialogs }) {
   form.addEventListener("change", () => {
     descriptions.replaceChildren(...giftAccessDescriptions(selection()).map(item =>
       node("p", {}, message(item.key, { description: item.description }))));
-  }, { signal });
+  }, { signal: lifetime.signal });
   const dialog = node("dialog", {
     class: "editor-preview-dialog",
     "aria-label": message("editor.access.title"),
@@ -67,21 +68,19 @@ export function openGiftAccessDialog({ message, signal, dialogs }) {
     const closeDialog = trapDialog(dialog, () => {
       if (closed) return;
       closed = true;
-      signal?.removeEventListener("abort", close);
       dialogs.delete(dialog);
       resolve(result);
-    });
+    }, { signal, lifetime });
     const close = () => {
       if (!closed) closeDialog();
     };
-    signal?.addEventListener("abort", close, { once: true });
-    form.querySelector('button[type="button"]').addEventListener("click", close, { signal });
+    form.querySelector('button[type="button"]').addEventListener("click", close, { signal: lifetime.signal });
     form.addEventListener("submit", event => {
       event.preventDefault();
       const access = selection();
       if (!isValidGiftAccess(access)) return;
       result = access;
       close();
-    }, { signal });
+    }, { signal: lifetime.signal });
   });
 }

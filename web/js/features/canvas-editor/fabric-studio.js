@@ -186,6 +186,8 @@ export async function openFabricStudio({ snapshot, sceneId, policy, assetUrl, on
   }
   if (signal?.aborted) return;
   await document.fonts.ready;
+  // Route có thể đã đóng trong lúc chờ font tải xong.
+  if (signal?.aborted) return;
   if (!fabric.Canvas || !fabric.Rect || !fabric.Textbox) throw new Error(t("editor.fabric.errors.version"));
   if (policy?.kind === 'creator-template') throw new Error(t("editor.fabric.errors.locked"));
   // Chỉ cho nhúng Fabric vào vùng artboard của Canvas Designer, không nhúng vào trang công khai.
@@ -336,7 +338,11 @@ export async function openFabricStudio({ snapshot, sceneId, policy, assetUrl, on
     canvas.upperCanvasEl.tabIndex=0;
     setAttr(canvas.upperCanvasEl,'aria-label',message('editor.fabric.title'));
     canvas.on('mouse:down',()=>{if(!canvas.getActiveObject()?.isEditing)canvas.upperCanvasEl.focus({preventScroll:true});});
-    if(view.effects?.surface?.definition?.animation?.styles?.texture==='paper-grain-v1')canvas.backgroundColor=await paperPattern(fabric,view.background,work.signal);
+    if (view.effects?.surface?.definition?.animation?.styles?.texture === 'paper-grain-v1') {
+      const pattern = await paperPattern(fabric, view.background, work.signal);
+      if (closed || signal?.aborted) return { dialog, close };
+      canvas.backgroundColor = pattern;
+    }
     for (const element of view.elements) {
       const object = await makeFabricObject(fabric, element, assetUrl, work.signal);
       if (closed || signal?.aborted) {

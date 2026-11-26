@@ -155,3 +155,23 @@ test('Clipboard đọc policy và mode hiện hành, Cut chỉ xóa layer đư�
   assert.deepEqual(f.clipboard.getClipboard().models.map(e => e.id), ['a']);
   f.store.undo(); assert.deepEqual(f.store.get().document.elements.map(e => e.id), ['a', 'b', 'c']);
 });
+
+test('Clipboard giải phóng dữ liệu khi reload và từ chối thao tác sau dispose', () => {
+  const f = fixture();
+  f.clipboard.handle('element-copy', {});
+  assert.ok(f.clipboard.getClipboard());
+  f.clipboard.clear();
+  assert.equal(f.clipboard.getClipboard(), null);
+  f.clipboard.handle('element-copy', {});
+  assert.ok(f.clipboard.getClipboard());
+  const before = structuredClone(f.store.get().document);
+  const count = f.calls.length;
+  f.clipboard.dispose();
+  f.clipboard.dispose();
+  for (const name of ['element-copy', 'element-cut', 'element-paste', 'element-delete', 'element-duplicate']) {
+    f.clipboard.handle(name, {});
+  }
+  assert.equal(f.clipboard.getClipboard(), null);
+  assert.deepEqual(f.store.get().document, before);
+  assert.equal(f.calls.length, count);
+});

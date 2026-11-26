@@ -320,8 +320,12 @@ export function mountDesigner(
     const model=newButton?null:selected(),elementId=model?.id;
     if(model&&(!SOUND_TYPES.includes(model.type)||model.locked||design.policy?.lockedElements?.[model.id]||design.policy?.kind==='creator-template'))return;
     const {openSoundEditor}=await import('../features/canvas-editor/sound-editor.js');
+    if (disposed) return;
+    let soundDialog;
     let uploadMutation=newId(),uploadBytes=null;
-    await openSoundEditor({current:model?.sound,assetUrl,registerDialog:dialog=>dialogs.add(dialog),
+    await openSoundEditor({current:model?.sound,assetUrl,signal,
+      registerDialog:dialog=>{soundDialog=dialog;dialogs.add(dialog);},
+      onClose:()=>dialogs.delete(soundDialog),
       upload:async bytes=>{
         if(bytes!==uploadBytes){uploadMutation=newId();uploadBytes=bytes;}
         assetPending=true;
@@ -698,7 +702,7 @@ export function mountDesigner(
       onGesture: (active) => main.classList.toggle("editor-dragging", active),
     });
     stageObserver?.disconnect();
-    stageObserver = new ResizeObserver(() => { if (fitted && !sheet && !inlineFabricSession && !inlineFabricOpening) fit(); });
+    stageObserver = new ResizeObserver(() => { if (!disposed && fitted && !sheet && !inlineFabricSession && !inlineFabricOpening) fit(); });
     stageObserver.observe(main.querySelector(".editor-stage-scroll"));
     renderAll();
   }
@@ -784,6 +788,8 @@ export function mountDesigner(
   async function initialize(loaded) {
     if (disposed) return;
     sceneLayerPanel.clear();
+    clipboardActions.clear();
+    libraryMediaCache.clear();
     unsubscribe?.();
     session?.dispose();
     stage?.dispose();
@@ -1058,12 +1064,13 @@ export function mountDesigner(
         ? t("editor.interface.reviewIdentity") : "";
       changes.replaceChildren(...submissionChanges(previous, selection).map(change => node("li", {}, change)));
     };
-    form.addEventListener("input", updateChanges, { signal });
+    const dialogLifetime = new AbortController();
+    form.addEventListener("input", updateChanges, { signal: dialogLifetime.signal });
     updateChanges();
     document.body.append(dialog);
     dialogs.add(dialog);
-    const close = trapDialog(dialog, () => dialogs.delete(dialog));
-    form.querySelector('button[type="button"]').addEventListener("click", close);
+    const close = trapDialog(dialog, () => dialogs.delete(dialog), { signal, lifetime: dialogLifetime });
+    form.querySelector('button[type="button"]').addEventListener("click", close, { signal: dialogLifetime.signal });
     form.addEventListener("submit", async event => {
       event.preventDefault();
       const submit = form.querySelector('button[type="submit"]');
@@ -1076,10 +1083,12 @@ export function mountDesigner(
         close();
         navigate("/creator");
       } catch (error) {
-        form.querySelector('[role="alert"]').textContent = error.message;
-        submit.disabled = false;
+        if (!dialogLifetime.signal.aborted) {
+          form.querySelector('[role="alert"]').textContent = error.message;
+          submit.disabled = false;
+        }
       }
-    }, { signal });
+    }, { signal: dialogLifetime.signal });
   }
   function chooseGiftAccess() {
     // Hộp thoại chỉ thu lựa chọn; API vẫn xác minh quyền ở phía máy chủ.
@@ -1492,7 +1501,7 @@ export function mountDesigner(
       });
       document.body.append(dialog);
       dialogs.add(dialog);
-      const close = trapDialog(dialog, () => dialogs.delete(dialog));
+      const close = trapDialog(dialog, () => dialogs.delete(dialog), { signal });
       dialog
         .querySelector("button")
         .addEventListener("click", close, { once: true });
@@ -2322,6 +2331,9 @@ export function mountDesigner(
       // Hoàn nguyên inert của phần nền trước khi rời màn hình thiết kế.
       closeSheet(false);
       lifecycle.abort();
+      clipboardActions.dispose();
+      sceneLayerPanel.clear();
+      libraryMediaCache.clear();
       musicPreview?.dispose();
       session?.dispose();
       unsubscribe?.();

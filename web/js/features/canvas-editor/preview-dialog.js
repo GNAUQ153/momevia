@@ -13,6 +13,8 @@ export function openCanvasPreview({
   onSend,
   onClose,
 }) {
+  if (signal?.aborted) return () => {};
+  const lifetime = new AbortController();
   const title = message(quickMode ? "editor.mode.recipientPreview" : "editor.preview.title");
   const dialog = node("dialog", {
     class: "editor-preview-dialog",
@@ -38,7 +40,7 @@ export function openCanvasPreview({
     player = null;
     dialogs.delete(dialog);
     onClose?.();
-  });
+  }, { signal, lifetime });
   const close = () => {
     if (!closed) closeDialog();
   };
@@ -61,6 +63,6 @@ export function openCanvasPreview({
       close();
       onSend?.();
     }
-  }, { signal });
+  }, { signal: lifetime.signal });
   return close;
 }

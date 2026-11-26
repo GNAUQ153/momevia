@@ -1,3 +1,7 @@
+## Unreleased — Phase 3.5A Kiểm tra schema và migration (2026-11-26)
+
+- Bổ sung audit migration offline, checksum lịch sử và kiểm tra metadata MySQL chỉ đọc theo prefix đã áp dụng. Không thay đổi migration, schema hoặc dữ liệu.
+
 ## Unreleased — Phase 3.4E Hồi quy kiến trúc Frontend (2026-11-26)
 
 - Bổ sung kiểm thử vòng đời Featured Carousel sau PR #29, bao gồm focus, visibility, tiết kiệm dữ liệu, dispose và mount lại.

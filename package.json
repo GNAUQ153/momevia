@@ -41,6 +41,7 @@
     "db:prepare": "node database/scripts/prepare-import.mjs",
     "db:migrate": "node database/scripts/mysql-migrate.mjs",
     "db:ping": "node database/scripts/mysql-ping.mjs",
+    "db:audit": "node database/scripts/mysql-audit.mjs",
     "db:verify": "node database/scripts/mysql-verify.mjs",
     "test:database": "node --test tests/unit/mysql-*.test.mjs",
     "db:import:identity-catalog": "node database/scripts/import-identity-catalog.mjs",

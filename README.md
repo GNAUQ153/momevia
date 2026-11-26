@@ -91,16 +91,16 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Dùng token khoảng đệm 24px cho mục mẫu thiệp từ 681px, đồng nhất VI/EN và giữ ngưỡng kiểm thử khoảng cách Hero–Featured hiện tại.
+- Bổ sung nền mesh gradient sau thiệp Hero, một lượt chuyển động 4,4 giây trên desktop; dùng chung vòng đời ambient, giữ nền tĩnh trên mobile và reduced motion, không thay đổi bố cục hoặc nghiệp vụ.
 
 **Các commit gần nhất trên `main`:**
 
+- `d5f25c9` — feat(ui): introduce animated hero mesh gradient with bounded motion lifecycle (2026-11-27)
 - `881b299` — fix(ui): stabilize responsive spacing between hero and featured templates (2026-11-27)
 - `5786d37` — feat(ui): redesign hero artwork with layered CSS 3D envelope and responsive depth (2026-11-27)
 - `601dc6e` — fix(ui): coordinate modal and CTA animation inert locks (2026-11-27)
 - `8e8e8d7` — feat(ui): improve keyboard accessibility modal isolation and reduced motion (2026-11-27)
 - `5ee4871` — feat(ui): introduce fluid typography scale and responsive text sizing (2026-11-27)
-- `5195caa` — feat(ui): standardize template cards modal focus and toast feedback (2026-11-27)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

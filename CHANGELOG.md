@@ -1,3 +1,8 @@
+## Unreleased — Đồng bộ hệ màu giao diện (2026-11-26)
+
+- Dùng token chung cho nền giấy, bảng trắng, chữ, nút, trạng thái chọn và focus trên website, tài khoản và các vai trò.
+- Giữ màu của canvas/thiệp và các animation; bổ sung stylesheet vào bundle đầy đủ và Catalog. Bỏ qua profile/đầu ra đánh giá giao diện cục bộ trong Git.
+
 ## Unreleased — Bố cục trải nghiệm và CTA responsive (2026-11-25)
 
 - Gom tiêu đề, các bước và nút khám phá của phần trải nghiệm trang chủ vào cùng bố cục; xếp dọc trên tablet/điện thoại và giữ bước đang chọn trong thanh cuộn ngang.

@@ -255,7 +255,7 @@ body.is-designing #main {
   overflow-wrap: anywhere;
 }
 .editor-block-grid .editor-thumbnail {
-  background: #faf7ff;
+  background: var(--app-accent-soft);
   box-shadow: none;
 }
 .editor-workspace button[data-block]:not(:has(.editor-thumbnail)) {
@@ -348,7 +348,7 @@ body.is-designing #main {
   padding: 8px 14px;
   border: 1px solid #cbb8e8;
   border-radius: 9px;
-  background: #f7f2ff;
+  background: var(--app-accent-soft);
   color: var(--purple-deep);
   font-size: 12px;
   font-weight: 700;

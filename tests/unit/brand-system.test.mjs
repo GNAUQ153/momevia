@@ -39,7 +39,8 @@ test('CSS hoàn thiện được tách thành từng thuộc tính rõ ràng', (
     // Mỗi dòng khai báo tối đa một dấu chấm phẩy; không minify nhiều thuộc tính.
     assert((line.match(/;/g) || []).length <= 1, `CSS line ${index + 1} contains multiple declarations`);
   }
-  assert.match(css, /--brand-text-muted: #594e68;/);
+  assert.match(css, /--brand-text-muted: var\(--app-text-muted\);/);
+  assert.match(tokens,/--app-text-muted: #[0-9a-f]{6};/);
   assert.match(css, /--ui-text-lead/);
 });
 

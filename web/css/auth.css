@@ -65,7 +65,7 @@
   font-size: 13px;
 }
 .auth-form .field input:focus {
-  border-color: #7650db;
+  border-color: var(--purple);
   outline: 2px solid #e8dfff;
 }
 .auth-password {

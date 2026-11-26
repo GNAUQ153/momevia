@@ -23,20 +23,34 @@
 }
 
 :root {
-  /* Bảng màu mới: tím điện, hồng san hô và kem ấm. */
-  --ink: #221a39;
-  --ink-deep: #150e2b;
-  --muted: #686078;
-  --muted-light: #817992;
-  --paper: #ffffff;
-  --cream: #fff7f6;
-  --cream-deep: #f7edff;
-  --purple: #6136df;
-  --purple-deep: #4924ac;
+  --app-page: #faf8f2;
+  --app-surface: #ffffff;
+  --app-surface-muted: #f1eee7;
+  --app-workspace: #f3f3f5;
+  --app-text: #222137;
+  --app-text-muted: #625b70;
+  --app-text-subtle: #746b80;
+  --app-border: #e4dfd5;
+  --app-control-border: #c8c0d0;
+  --app-accent: #5939d0;
+  --app-accent-hover: #4327a8;
+  --app-accent-soft: #f0ebff;
+  --app-highlight: #ffdc54;
+  /* Giấy, mực và màu hành động; màu thiệp thuộc tài liệu canvas. */
+  --ink: var(--app-text);
+  --ink-deep: var(--app-text);
+  --muted: var(--app-text-muted);
+  --muted-light: var(--app-text-subtle);
+  --paper: var(--app-surface);
+  --cream: var(--app-page);
+  --cream-deep: var(--app-surface-muted);
+  --purple: var(--app-accent);
+  --purple-deep: var(--app-accent-hover);
+  --yellow: var(--app-highlight);
   --lavender: #d9c8ff;
   --peach: #ffcfb7;
   --coral: #f45278;
-  --line: #eae5f0;
+  --line: var(--app-border);
   --white: #ffffff;
   --success: #167957;
   --error: #ba3053;
@@ -47,8 +61,8 @@
   --ui-text-caption: 0.8125rem;
   --ui-text-lead: clamp(1rem, 1.3vw, 1.125rem);
   --ui-transition: 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
-  --ui-panel-border: #dfd7ec;
-  --ui-focus-ring: #7247c8;
+  --ui-panel-border: var(--app-border);
+  --ui-focus-ring: var(--app-accent);
   --ui-control-ease: 160ms ease;
   --radius-sm: 10px;
   --radius-md: 18px;

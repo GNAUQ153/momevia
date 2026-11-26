@@ -1,0 +1,283 @@
+/* Application chrome shares the paper palette; canvas colors stay in documents. */
+:root {
+  --brand-surface-soft: var(--app-accent-soft);
+  --brand-surface-warm: var(--app-page);
+  --brand-text: var(--app-text);
+  --brand-text-muted: var(--app-text-muted);
+  --brand-outline: var(--app-border);
+  --brand-focus: var(--app-accent);
+}
+
+.site-header {
+  background: var(--cream);
+  border-bottom-color: var(--brand-outline);
+}
+
+.site-footer {
+  background: var(--cream);
+  color: var(--ink);
+}
+
+/* Application surfaces share roles across routes, including lazy-loaded pages. */
+body:not(.is-playing-gift):not(.is-designing),
+.page-banner,
+.about-hero,
+.auth-page,
+.legal-hero,
+.pricing-page,
+.catalog-section.catalog-compact,
+.creator-space,
+.creator-space .creator-hero,
+.studio-space__hero,
+.role-workspace__header {
+  background: var(--cream);
+  color: var(--ink);
+}
+
+.studio-space,
+.studio-space > .section,
+.studio-space .studio-space__toolbar {
+  background: var(--cream);
+}
+
+.auth-showcase__story {
+  background: var(--paper);
+  border-color: var(--line);
+  box-shadow: var(--shadow-soft);
+}
+
+.section--white,
+.template-card,
+.pricing-card,
+.about-value,
+.account-menu,
+.studio-space__section,
+.role-workspace__metric {
+  background-color: var(--paper);
+  border-color: var(--line);
+}
+
+.nav-links a.is-active,
+.nav-studio.is-current,
+.mobile-nav a.is-active {
+  color: var(--purple);
+}
+
+.nav-links a.is-active::after {
+  background: var(--purple);
+}
+
+.mobile-nav a.is-active {
+  background: var(--app-accent-soft);
+}
+
+.btn--dark,
+.floating-cta__create {
+  background: var(--purple);
+  color: var(--white);
+}
+
+.is-home .btn.mkt-primary,
+.auth-panel .auth-submit,
+.studio-space__hero-actions .btn--dark,
+.creator-space .btn--dark {
+  background: var(--purple);
+  border-color: var(--purple);
+  color: var(--white);
+}
+
+/* Yellow is the explicit highlighted action, with ink text in every context. */
+.is-home .open-me-hero .btn.mkt-primary {
+  background: var(--yellow);
+  border-color: #b79b2d;
+  color: var(--ink);
+}
+
+.btn--outline,
+.btn--light,
+.is-home .btn.mkt-secondary,
+.auth-panel .auth-support,
+.floating-cta__explore {
+  background: var(--paper);
+  border-color: var(--app-control-border);
+  color: var(--purple);
+}
+
+.btn--dark:hover,
+.is-home .btn.mkt-primary:hover,
+.auth-panel .auth-submit:hover:not(:disabled) {
+  background: var(--purple-deep);
+  color: var(--white);
+}
+
+.is-home .open-me-hero .btn.mkt-primary:hover {
+  background: #f0ca39;
+  color: var(--ink);
+}
+
+.btn--outline:hover,
+.is-home .btn.mkt-secondary:hover,
+.auth-panel .auth-social:hover:not(:disabled) {
+  background: var(--app-accent-soft);
+  border-color: var(--purple);
+  color: var(--purple-deep);
+}
+
+.catalog-compact .catalog-filters,
+.catalog-advanced-filters summary,
+.catalog-style-select select,
+.search-input,
+.field input,
+.field textarea,
+.field select,
+.search-field,
+.search-field input,
+.studio-space__search input,
+.auth-panel .auth-input input,
+.auth-panel .auth-social {
+  background-color: var(--paper);
+  border-color: var(--app-control-border);
+  color: var(--ink);
+}
+
+.eyebrow,
+.eyebrow--outlined,
+.catalog-reset,
+.catalog-title #catalog-count {
+  color: var(--purple);
+}
+
+.eyebrow--outlined {
+  border-color: var(--app-control-border);
+  background: var(--app-accent-soft);
+}
+
+.auth-panel .auth-input input:focus-visible,
+.field input:focus,
+.field textarea:focus,
+.field select:focus,
+.search-field:focus-within,
+.catalog-style-select select:focus-visible {
+  border-color: var(--purple);
+  outline: 2px solid var(--purple);
+  outline-offset: 2px;
+}
+
+.filter-tab.is-active,
+.studio-space__filter.is-active,
+.studio-space__filter[aria-pressed="true"] {
+  background: var(--purple);
+  border-color: var(--purple);
+  color: var(--white);
+}
+
+.template-card__view,
+.about-value__icon,
+.about-value:nth-child(2) .about-value__icon,
+.about-value:nth-child(3) .about-value__icon,
+.favorite-button.is-saved,
+.auth-signed-in__icon {
+  background: var(--app-accent-soft);
+  color: var(--purple);
+}
+
+.role-workspace__header h1,
+.studio-space__hero h1,
+.about-hero h1 {
+  color: var(--ink);
+}
+
+.role-workspace__header p,
+.studio-space__hero p,
+.about-hero p {
+  color: var(--muted);
+}
+
+.is-home .mkt-stage__note,
+.is-home .mkt-stage__reply {
+  background: var(--paper);
+  border-color: var(--line);
+}
+
+.is-home .mkt-stage__note strong,
+.is-home .mkt-stage__reply strong {
+  color: var(--ink);
+}
+
+.is-home .mkt-stage__note span,
+.is-home .mkt-stage__reply span {
+  color: var(--muted);
+}
+
+.is-home .mkt-stage__reply .icon {
+  color: var(--purple);
+}
+
+body.is-auth-entry .site-header,
+body.is-auth-entry .locale-control select {
+  background: var(--cream);
+  border-color: var(--line);
+  color: var(--ink);
+}
+
+body.is-auth-entry .brand-name,
+.auth-panel .auth-panel__brand,
+.auth-panel .auth-field__label {
+  color: var(--ink);
+}
+
+.auth-panel .auth-toggle-password,
+.auth-panel .auth-divider,
+.auth-panel .auth-provider-note {
+  color: var(--muted);
+}
+
+.auth-panel .auth-social--disabled {
+  background: var(--app-surface-muted);
+  color: var(--muted);
+}
+
+.auth-panel .auth-switch a,
+.auth-panel .auth-recovery-link a,
+.auth-panel .auth-policy-note a,
+.auth-panel .auth-support,
+.auth-panel .auth-back {
+  color: var(--purple);
+  border-color: var(--app-control-border);
+}
+
+.editor-main {
+  --editor-ux-border: var(--line);
+  --editor-ux-ink: var(--ink);
+  --editor-ux-muted: var(--muted);
+  background: var(--app-workspace);
+}
+
+body.is-designing {
+  background: var(--app-workspace);
+}
+
+.editor-main:not(.editor-inline-active) .editor-workspace,
+.editor-main .editor-artboard-wrap {
+  background: var(--app-workspace);
+}
+
+.template-card__type {
+  display: inline-block;
+  margin-bottom: 8px;
+  color: var(--purple-deep);
+  font-size: var(--ui-text-caption);
+  font-weight: 700;
+}
+
+.template-card__visual:focus-visible,
+.template-card__title:focus-visible {
+  outline: 3px solid var(--ui-focus-ring);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .template-card:hover {
+    transform: translateY(-2px);
+  }
+}

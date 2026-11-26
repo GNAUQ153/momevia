@@ -14,7 +14,7 @@
 .is-home .mkt-journey__eyebrow {
   display: inline-block;
   margin-bottom: 12px;
-  color: #633eaa;
+  color: var(--purple);
   font-size: 12px;
   font-weight: 750;
   letter-spacing: 0.12em;
@@ -23,7 +23,7 @@
 
 .is-home .mkt-journey__heading h2 {
   margin: 0;
-  color: #291a45;
+  color: var(--ink);
   font-size: clamp(30px, 3.2vw, 44px);
   line-height: 1.16;
   letter-spacing: -0.04em;
@@ -60,7 +60,7 @@
   width: 100%;
   min-height: 48px;
   padding: 10px 16px;
-  border: 1px solid #dcd1eb;
+  border: 1px solid var(--app-control-border);
   border-radius: 12px;
   background: #ffffffbd;
   color: #4c4062;
@@ -94,7 +94,7 @@
 }
 
 .is-home .mkt-journey__step:focus-visible {
-  outline: 3px solid #5e35b8;
+  outline: 3px solid var(--purple);
   outline-offset: 3px;
 }
 
@@ -266,7 +266,7 @@
 .is-home .mkt-journey__details p {
   max-width: 53ch;
   margin: 0;
-  color: #6a5f77;
+  color: var(--muted);
   line-height: 1.6;
 }
 

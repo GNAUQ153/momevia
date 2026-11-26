@@ -1,3 +1,8 @@
+## Unreleased — Không gian quản lý thiệp (2026-11-26)
+
+- Gom phần giới thiệu Studio, giữ liên kết đến đúng mục nháp/quà/biên nhận và bộ lọc hiện có.
+- Thẻ quà đã gửi dùng bố cục riêng để nhiều hành động không ép cột tên/nội dung quá hẹp. Không đổi API hay dữ liệu.
+
 ## Unreleased — Khám phá và mẫu nổi bật chuyển động (2026-11-26)
 
 - Hero xoay vòng năm mẫu, mẫu tiếp theo hé sau; giữ hai tab nổi, góc 5° và khung gọn. Tạo thiệp chọn đúng loại và preview giữ nguồn/phiên bản.

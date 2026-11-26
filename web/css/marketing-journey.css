@@ -2,7 +2,7 @@
 .is-home .mkt-journey {
   padding-block: clamp(40px, 5vw, 72px);
   overflow: hidden;
-  background: linear-gradient(162deg, #f4eeff 0%, #fff9f6 55%, #f7f4ff 100%);
+  background: var(--color-gradient-journey);
 }
 
 .is-home .mkt-journey__heading {
@@ -23,7 +23,7 @@
 
 .is-home .mkt-journey__heading h2 {
   margin: 0;
-  color: var(--ink);
+  color: var(--mkt-ink);
   font-size: clamp(30px, 3.2vw, 44px);
   line-height: 1.16;
   letter-spacing: -0.04em;
@@ -32,7 +32,7 @@
 .is-home .mkt-journey__heading p {
   max-width: 56ch;
   margin: 16px 0 0;
-  color: #655974;
+  color: var(--mkt-muted);
   font-size: clamp(15px, 1.5vw, 18px);
   line-height: 1.65;
 }
@@ -60,10 +60,10 @@
   width: 100%;
   min-height: 48px;
   padding: 10px 16px;
-  border: 1px solid var(--app-control-border);
+  border: 1px solid var(--color-control-border);
   border-radius: 12px;
   background: #ffffffbd;
-  color: #4c4062;
+  color: var(--mkt-ink);
   cursor: pointer;
   font: inherit;
   font-weight: 680;
@@ -72,25 +72,25 @@
 }
 
 .is-home .mkt-journey__step-index {
-  color: #77618f;
+  color: var(--mkt-muted);
   font-size: 13px;
   font-variant-numeric: tabular-nums;
 }
 
 .is-home .mkt-journey__step .icon {
-  color: #8865c2;
+  color: var(--mkt-action);
 }
 
 .is-home .mkt-journey__step:hover {
   transform: translateX(4px);
-  border-color: #aa91d6;
+  border-color: var(--mkt-action);
 }
 
 .is-home .mkt-journey__step[aria-pressed="true"] {
-  border-color: #9573d2;
-  background: #ffffff;
+  border-color: var(--mkt-action);
+  background: var(--color-lavender);
   box-shadow: 0 14px 35px #553b8520;
-  color: #34204e;
+  color: var(--mkt-action-hover);
 }
 
 .is-home .mkt-journey__step:focus-visible {
@@ -275,7 +275,7 @@
   display: none;
   margin: 0;
   padding: 0 18px 18px;
-  color: #655974;
+  color: var(--mkt-muted);
   font-size: 13px;
   line-height: 1.5;
   text-align: center;

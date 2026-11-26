@@ -22,7 +22,37 @@
   font-display: swap;
 }
 
+/* Bảng màu nhận diện; màu trang trí không mặc định là màu chữ. */
 :root {
+  --color-primary: #5939d0;
+  --color-primary-hover: #4327a8;
+  --color-primary-light: #6940c8;
+  --color-on-primary: #ffffff;
+  --color-ink: #30243b;
+  --color-muted: #62566d;
+  --color-page: #faf7fc;
+  --color-white: #ffffff;
+  --color-lavender: #ede5ff;
+  --color-pink: #e879a9;
+  --color-pink-soft: #fce4ef;
+  --color-peach: #f4ba72;
+  --color-peach-soft: #fff1e3;
+  --color-border: #dfd3ee;
+  --color-control-border: #806d9d;
+  --color-focus: #5939d0;
+  --color-success: #167957;
+  --color-success-soft: #e2f5ec;
+  --color-warning: #8a5210;
+  --color-warning-soft: #fff1d6;
+  --color-error: #ba3053;
+  --color-error-soft: #fce4ef;
+  --color-info: #285a9c;
+  --color-info-soft: #e4efff;
+  --color-gradient-action: linear-gradient(135deg, var(--color-primary-light), var(--color-primary-hover));
+  --color-gradient-hero: radial-gradient(ellipse at 91% 11%, var(--color-lavender) 0%, transparent 48%), radial-gradient(ellipse at 0% 88%, var(--color-peach-soft) 0%, transparent 43%), var(--color-pink-soft);
+  --color-gradient-journey: linear-gradient(162deg, var(--color-lavender), var(--color-peach-soft) 55%, var(--color-page));
+  --color-gradient-section: linear-gradient(165deg, var(--color-lavender), var(--color-peach-soft));
+  /* Token ứng dụng cũ giữ giá trị để không đổi Auth và nội dung Canvas. */
   --app-page: #faf8f2;
   --app-surface: #ffffff;
   --app-surface-muted: #f1eee7;
@@ -32,8 +62,8 @@
   --app-text-subtle: #746b80;
   --app-border: #e4dfd5;
   --app-control-border: #c8c0d0;
-  --app-accent: #5939d0;
-  --app-accent-hover: #4327a8;
+  --app-accent: var(--color-primary);
+  --app-accent-hover: var(--color-primary-hover);
   --app-accent-soft: #f0ebff;
   --app-highlight: #ffdc54;
   /* Giấy, mực và màu hành động; màu thiệp thuộc tài liệu canvas. */
@@ -52,8 +82,8 @@
   --coral: #f45278;
   --line: var(--app-border);
   --white: #ffffff;
-  --success: #167957;
-  --error: #ba3053;
+  --success: var(--color-success);
+  --error: var(--color-error);
   /* Token điều khiển chung cho Canvas/Creator/Admin: một nguồn cấu hình. */
   --ui-control-min-height: 44px;
   --ui-text-base: 1rem;

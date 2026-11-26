@@ -79,11 +79,11 @@ body:not(.is-auth-entry) .auth-panel .auth-submit,
   color: var(--white);
 }
 
-/* Yellow is the explicit highlighted action, with ink text in every context. */
+/* CTA chính dùng tím nhận diện; màu sáng chỉ làm điểm nhấn trang trí. */
 .is-home .open-me-hero .btn.mkt-primary {
-  background: var(--yellow);
-  border-color: #b79b2d;
-  color: var(--ink);
+  background: var(--color-gradient-action);
+  border-color: var(--color-primary);
+  color: var(--color-on-primary);
 }
 
 .btn--outline,
@@ -96,6 +96,20 @@ body:not(.is-auth-entry) .auth-panel .auth-support,
   color: var(--purple);
 }
 
+/* Quy tắc marketing riêng để không ảnh hưởng Auth hoặc Workspace. */
+.is-home .btn.mkt-primary {
+  background: var(--color-gradient-action);
+  border-color: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+.is-home .btn.mkt-secondary {
+  background: var(--color-white);
+  border-color: var(--color-control-border);
+  color: var(--color-primary);
+}
+
+
 .btn--dark:hover,
 .is-home .btn.mkt-primary:hover,
 body:not(.is-auth-entry) .auth-panel .auth-submit:hover:not(:disabled) {
@@ -104,8 +118,8 @@ body:not(.is-auth-entry) .auth-panel .auth-submit:hover:not(:disabled) {
 }
 
 .is-home .open-me-hero .btn.mkt-primary:hover {
-  background: #f0ca39;
-  color: var(--ink);
+  background: var(--color-primary-hover);
+  color: var(--color-on-primary);
 }
 
 .btn--outline:hover,

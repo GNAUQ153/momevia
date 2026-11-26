@@ -1,3 +1,7 @@
+## Unreleased — Phase 4.2 Hệ màu nhận diện (2026-11-27)
+
+- Chuẩn hóa token màu thương hiệu, trạng thái, gradient và CTA marketing; tăng tương phản viền điều khiển và khoảng cách dòng tiêu đề. Giữ màu Auth, Workspace và Canvas cũ. Bổ sung kiểm thử tương phản và nghiệm thu VI/EN.
+
 ## Unreleased — Phase 4.1.1 Bảo toàn giấy phép font (2026-11-26)
 
 - Giữ nguyên byte ba giấy phép OFL mới, miễn kiểm tra khoảng trắng cuối dòng riêng ba file license; cập nhật tài liệu nguồn font self-hosted. Không đổi font, CSS, nghiệp vụ hoặc database.

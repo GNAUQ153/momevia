@@ -1,3 +1,8 @@
+## Unreleased — Điều khiển tên người nhận canvas (2026-11-26)
+
+- Thêm vị trí gắn bộ chọn ngôn ngữ/đổi tên cho quà canvas ở chế độ người nhận tự điền tên.
+- Giữ giao diện nhập tên và hồi đáp theo mã nhận riêng; kiểm thử đi qua hành động thật của thiệp, không dùng thanh cảnh của preview.
+
 ## Unreleased — Bố cục trình sửa canvas (2026-11-26)
 
 - Tách rail công cụ/thư viện khối, tên cảnh hiện hành, canvas/thuộc tính và thumbnail cảnh; giữ hành động chính trên mobile.

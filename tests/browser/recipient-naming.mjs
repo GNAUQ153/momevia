@@ -45,7 +45,9 @@ export async function runRecipientBrowser(base,{owner,manual,old,list,self,roste
         await person.page.getByRole('heading',{name:'Gửi '+name,exact:true}).waitFor();
       }
       await shot(first.page,'self-lan-390.png');await shot(second.page,'self-minh-390.png');
-      await second.page.locator('[data-scene-id="scene-message"]').click();
+      // Public gifts follow document actions; the scene picker belongs to editor preview.
+      await second.page.locator('[data-runtime-element="open-gift"]').click();
+      await second.page.locator('[data-runtime-element="to-message"]').click();
       await second.page.locator('.gift-runtime-reply input[name="name"]').fill('Minh ký tên riêng');
       await second.page.locator('.gift-runtime-reply textarea').fill('Lời nhắn từ phiên Minh trong trình duyệt');
       await second.page.locator('.gift-runtime-submit').click();

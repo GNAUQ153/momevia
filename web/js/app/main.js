@@ -551,7 +551,7 @@ async function render({ transition = false, resetScroll = false } = {}) {
         const { mountPlayer } =
           await import("../features/gift-runtime/index.js");
         if (generation !== renderGeneration) return;
-        main.innerHTML = `<section class="section recipient-section"><div class="container recipient-shell"><div id="canvas-public-player" class="recipient-player-host"></div>${gift.rsvp ? '<div data-rsvp-host></div>' : ''}</div></section>`;
+        main.innerHTML = `<section class="section recipient-section"><div class="container recipient-shell">${gift.recipientMode === 'self' ? `<div class="recipient-preferences">${localeControl()}</div>` : ''}<div id="canvas-public-player" class="recipient-player-host"></div>${gift.rsvp ? '<div data-rsvp-host></div>' : ''}</div></section>`;
         const player = mountPlayer(
           document.getElementById("canvas-public-player"),
           {

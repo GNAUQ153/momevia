@@ -91,16 +91,18 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Bổ sung benchmark GET loopback opt-in cho Catalog VI/EN và thumbnail 200/304, giới hạn tải, timeout, báo cáo tổng hợp và quy trình đánh giá chi phí Railway. Không đổi runtime, dữ liệu hoặc schema.
+- Khôi phục nguyên stylesheet Auth tại `d36c664` cho nền tím–mận có lưới, thẻ kính, chữ sáng và nút gradient hồng–tím của Login/Register, gồm logo Zalo nội bộ đã có.
+- Giới hạn lớp màu sáng dùng chung để không ghi đè Auth; giữ nền sáng cho các trang khác và recovery. Đổi phiên bản URL CSS để tránh cache cũ.
+- Bổ sung kiểm tra Chrome trên 24 màn VI/EN từ 320–1920 px, xác nhận màu sau cascade, responsive, toggle mật khẩu, ngôn ngữ, đăng ký và đăng nhập email. Không đổi logic xác thực, OAuth, mật khẩu hoặc dữ liệu.
 
 **Các commit gần nhất trên `main`:**
 
+- `197a5f3` — Merge pull request #30 from GNAUQ153/fix/ui-ux-audit-20261126 (2026-11-26)
+- `605013c` — refactor(quality): add unused export audit and tighten module encapsulation (2026-11-26)
 - `9755479` — feat(performance): add bounded local backend load testing and cost evaluation guide (2026-11-26)
 - `b5a7c21` — perf(frontend): optimize cover loading lifecycle and data-aware preloading (2026-11-26)
 - `d5f78fa` — perf(backend): add conditional thumbnail responses and safe asset streaming (2026-11-26)
 - `85bdf56` — perf(backend): bound thumbnail rendering concurrency and memory cache (2026-11-26)
-- `24c974a` — feat(performance): add privacy-safe backend and mysql performance monitoring (2026-11-26)
-- `7cdd8c3` — feat(database): add cross-table integrity audit and shared pool regression coverage (2026-11-26)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

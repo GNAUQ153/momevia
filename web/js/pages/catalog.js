@@ -108,7 +108,7 @@ export function createCatalogViews({
       })}</option>`;
     });
     return `<section class="section catalog-section catalog-compact"><div class="container">
-      <div class="catalog-toolbar"><div class="catalog-title"><h1>${text("shell.pages.catalog")}</h1>${catalogFailed ? '' : `<span id="catalog-count" aria-live="polite" aria-atomic="true">${text('catalog.results.count', { count: result.total })}</span>`}</div>
+      <div class="catalog-toolbar"><div class="catalog-title"><h1>${text("shell.pages.catalog")}</h1>${catalogFailed ? '' : `<span id="catalog-count" aria-live="polite" aria-atomic="true">${text('catalog.results.count', { count: result.total })}</span>`}<p class="catalog-intro">${text('catalog.intro')}</p></div>
         <div class="catalog-toolbar__actions"><label class="search-field">${icon("search", 19)}<span class="visually-hidden">${text("catalog.search.label")}</span><input type="search" id="template-search" ${attr("placeholder", "catalog.search.placeholder")} value="${e(state.search)}"/></label>
           <a class="btn btn--dark catalog-create-cta" href="/design/new" data-link data-catalog-create-cta referrerpolicy="no-referrer">${icon('pencil', 18)} ${text('floatingCta.create')}</a></div></div>
       <div class="catalog-filters" role="group" ${attr("aria-label", "catalog.filters.group")}>
@@ -116,14 +116,18 @@ export function createCatalogViews({
           <option value="all" ${!state.cardType || state.cardType === 'all' ? 'selected' : ''}>${text('catalog.cardType.all')}</option>
           ${CARD_TYPES.map(type => `<option value="${type}" ${state.cardType === type ? 'selected' : ''}>${text(`catalog.cardType.${type}`)}</option>`).join('')}
         </select>${icon('chevron-down', 18)}</label>
-        <label class="catalog-style-select"><span>${icon("filter", 17)} ${text("catalog.filters.style")}</span><select id="style-filter" ${attr("aria-label", "catalog.filters.byStyle")}>
+        <details class="catalog-advanced-filters" ${state.filter !== 'all' || state.photoOnly || (state.occasion && state.occasion !== 'all') || (state.palette && state.palette !== 'all') ? 'open' : ''}>
+        <summary>${icon('filter', 17)} ${text('catalog.filters.more')} ${icon('chevron-down', 17)}</summary>
+        <div class="catalog-advanced-filters__body">
+        <label class="catalog-style-select"><span>${text("catalog.filters.style")}</span><select id="style-filter" ${attr("aria-label", "catalog.filters.byStyle")}>
           <option value="all" ${state.filter === "all" ? "selected" : ""}>${text('catalog.filters.all', { count: state.templates.length })}</option>
           ${options.join('')}
         </select>${icon("chevron-down", 18)}</label>
         <label class="catalog-style-select"><span>${text('catalog.filters.occasion')}</span><select id="occasion-filter" ${attr('aria-label','catalog.filters.occasion')}><option value="all">${text('catalog.filters.allOccasions')}</option>${[...new Set(state.templates.map(t=>t.category))].map(value=>`<option value="${e(value)}" ${state.occasion===value?'selected':''}>${templateMetaKey('category',value)?text(templateMetaKey('category',value)):e(value)}</option>`).join('')}</select></label>
         <label class="catalog-style-select"><span>${text('catalog.filters.palette')}</span><select id="palette-filter" ${attr('aria-label','catalog.filters.palette')}><option value="all">${text('catalog.filters.allPalettes')}</option>${[...new Map(state.templates.filter(t=>t.palette).map(t=>[t.palette,t.paletteLabel])).entries()].map(([value,label])=>`<option value="${e(value)}" ${state.palette===value?'selected':''}>${text(`templates.meta.palette.${value}`)||e(label)}</option>`).join('')}</select></label>
-        <label class="catalog-free-filter"><input id="free-filter" type="checkbox" ${state.freeOnly ? "checked" : ""}/><span>${text("common.price.free")}</span></label>
         <label class="catalog-free-filter"><input id="photo-filter" type="checkbox" ${state.photoOnly ? "checked" : ""}/><span>${text("catalog.filters.photo")}</span></label>
+        </div></details>
+        <label class="catalog-free-filter"><input id="free-filter" type="checkbox" ${state.freeOnly ? "checked" : ""}/><span>${text("common.price.free")}</span></label>
         <button type="button" class="catalog-reset" data-action="clear-filters">${icon("close", 15)} ${text("catalog.filters.reset")}</button>
       </div>
       ${catalogFailed ? `<div role="alert"><p>${text('catalog.results.failed')}</p><button class="btn btn--outline" type="button" data-action="retry-catalog">${text('common.actions.retry')}</button></div>` : `

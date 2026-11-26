@@ -6,9 +6,9 @@
   gap: 15px;
   margin: 27px 0 34px;
   padding: 17px 19px;
-  border: 1px solid #e9e2f2;
+  border: 1px solid var(--line);
   border-radius: 17px;
-  background: #fbf9ff;
+  background: var(--app-accent-soft);
 }
 .catalog-style-select {
   position: relative;
@@ -23,7 +23,7 @@
   align-items: center;
   gap: 7px;
   flex: none;
-  color: #574b70;
+  color: var(--muted);
   font-size: 12px;
   font-weight: 750;
 }
@@ -33,10 +33,10 @@
   min-height: 45px;
   padding: 10px 40px 10px 14px;
   appearance: none;
-  border: 1px solid #dcd1eb;
+  border: 1px solid var(--app-control-border);
   border-radius: 11px;
   background: white;
-  color: #291b45;
+  color: var(--ink);
   font-size: 13px;
   font-weight: 650;
   cursor: pointer;
@@ -45,7 +45,7 @@
   position: absolute;
   right: 12px;
   pointer-events: none;
-  color: #7d6a9d;
+  color: var(--muted);
 }
 .catalog-style-select select:focus-visible,
 .catalog-free-filter input:focus-visible,
@@ -57,7 +57,7 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  color: #4e4261;
+  color: var(--muted);
   font-size: 13px;
   font-weight: 650;
   cursor: pointer;
@@ -65,7 +65,7 @@
 .catalog-free-filter input {
   width: 18px;
   height: 18px;
-  accent-color: #6136df;
+  accent-color: var(--purple);
   cursor: pointer;
 }
 .catalog-reset {
@@ -76,7 +76,7 @@
   padding: 8px;
   border: none;
   background: transparent;
-  color: #6041a1;
+  color: var(--muted);
   font-size: 12px;
   font-weight: 700;
   cursor: pointer;

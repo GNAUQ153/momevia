@@ -221,6 +221,7 @@
 }
 .template-preview-toolbar {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 8px;
   position: sticky;
@@ -230,16 +231,21 @@
   background: var(--paper);
 }
 .template-preview-toolbar h2 {
-  flex: 1;
+  flex: 1 1 200px;
+  min-width: 0;
+  overflow-wrap: anywhere;
   font: 600 20px var(--font-display);
   margin: 0;
 }
 .template-preview-toolbar .btn {
   min-height: 44px;
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 .template-preview-toolbar .template-preview-use {
   flex: 0 0 auto;
-  white-space: nowrap;
+  white-space: normal;
   text-align: center;
 }
 .template-preview-note {

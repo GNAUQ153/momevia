@@ -158,7 +158,7 @@
 .studio-space__main {
   padding-top: 22px;
   padding-bottom: 90px;
-  background: linear-gradient(#fbf9ff, #fff 340px);
+  background: linear-gradient(var(--app-accent-soft), #fff 340px);
 }
 
 .studio-space__content {
@@ -328,7 +328,7 @@
   padding: 30px 18px;
   border: 1px dashed #cbb9f1;
   border-radius: 20px;
-  background: #faf7ff;
+  background: var(--app-accent-soft);
   color: #5d43aa;
   text-align: center;
 }

@@ -217,7 +217,7 @@
   border: 1px solid var(--ui-panel-border, #dbcdec);
   border-left: 4px solid var(--purple);
   border-radius: var(--radius-md);
-  background: #faf7ff;
+  background: var(--app-accent-soft);
   box-shadow: var(--shadow-soft);
 }
 
@@ -262,7 +262,7 @@
 }
 
 .role-workspace__review-header a:focus-visible {
-  outline: 3px solid var(--ui-focus-ring, #6136df);
+  outline: 3px solid var(--ui-focus-ring, var(--purple));
   outline-offset: 3px;
 }
 

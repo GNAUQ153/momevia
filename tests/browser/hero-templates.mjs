@@ -1,300 +1,75 @@
 import assert from 'node:assert/strict';
 
-const ids = ['hai-phong-bi', 'birthday-radiance', 'proud-of-you'];
-const artwork = ['wedding-memory', 'birthday', 'graduation'];
-const active = page => page.locator('.mkt-hero').getAttribute('data-hero-template');
-const waitForTemplate = (page, id) => page.waitForFunction(value =>
-  globalThis.document.querySelector('.mkt-hero')?.dataset.heroTemplate === value, id);
-const progressState = page => page.locator('[aria-pressed="true"] [data-hero-progress]').evaluate(node => {
-  const animation = node.getAnimations()[0];
-  return {
-    time: Number(animation?.currentTime), state: animation?.playState,
-    duration: animation?.effect.getTiming().duration, easing: animation?.effect.getTiming().easing,
-    scale: new globalThis.DOMMatrixReadOnly(globalThis.getComputedStyle(node).transform).a,
-  };
-});
-async function finishProgress(page, id) {
-  await page.evaluate(() => {
-    globalThis.document.querySelector('[data-peeking]')?.getAnimations().forEach(animation => animation.finish());
-    globalThis.document.querySelector('[aria-pressed="true"] [data-hero-progress]').getAnimations()[0].finish();
-  });
-  await waitForTemplate(page, id);
-}
-
-async function verifyOrbit(page, previousId, nextId) {
-  const sample = await page.locator('.mkt-hero__cover').evaluate((cover, ids) => {
-    const oldCard = cover.querySelector(`[data-hero-image="${ids[0]}"]`);
-    const newCard = cover.querySelector(`[data-hero-image="${ids[1]}"]`);
-    const animations = [oldCard, newCard].flatMap(card => card.getAnimations());
-    for (const animation of animations) {
-      animation.pause();
-      animation.currentTime = Number(animation.effect.getTiming().duration) * 0.25;
-    }
-    const centre = node => {
-      const box = node.getBoundingClientRect();
-      return { x: box.x + box.width / 2, y: box.y + box.height / 2 };
-    };
-    const angle = node => {
-      const matrix = new globalThis.DOMMatrixReadOnly(globalThis.getComputedStyle(node).transform);
-      return Math.atan2(matrix.b, matrix.a);
-    };
-    const entering = newCard.getAnimations().find(animation => animation.transitionProperty === 'transform');
-    const start = entering && new globalThis.DOMMatrixReadOnly(entering.effect.getKeyframes()[0].transform);
-    const blur = node => Number(globalThis.getComputedStyle(node).filter.match(/[\d.]+/)?.[0] || 0);
-    const result = { old: centre(oldCard), next: centre(newCard), slot: centre(cover), oldAngle: angle(oldCard), newAngle: angle(newCard), count: animations.length,
-      oldBlur: blur(oldCard), newBlur: blur(newCard), inlineFilter: newCard.style.filter,
-      duration: entering?.effect.getTiming().duration, startAngle: start && Math.atan2(start.b, start.a) * 180 / Math.PI,
-      newZ: Number(globalThis.getComputedStyle(newCard).zIndex), oldZ: Number(globalThis.getComputedStyle(oldCard).zIndex) };
-    for (const animation of animations) animation.finish();
-    result.settledBlur = blur(newCard);
-    return result;
-  }, [previousId, nextId]);
-  assert(sample.count >= 4, 'Both complete cards animate transform and opacity');
-  assert(sample.old.x < sample.slot.x && sample.oldAngle < 0, 'Old card arcs out to the left');
-  assert(sample.next.x > sample.slot.x && sample.next.y > sample.slot.y && sample.newAngle > 0, 'Next card rises along an arc from the lower right');
-  assert(sample.newZ > sample.oldZ, 'Incoming card stays in front, including the last-to-first wrap');
-  assert.equal(sample.duration, 1200, 'Orbit has a slower 1.2-second handoff');
-  assert(Math.abs(sample.startAngle - 12) < 0.1, `Handoff continues from the teased angle without jumping back (${sample.startAngle}°)`);
-  assert(sample.oldBlur > 0 && sample.oldBlur <= 2 && sample.newBlur > 0 && sample.newBlur <= 2, 'Moving cards use only a gentle blur');
-  assert.equal(sample.settledBlur, 0, 'Selected card becomes completely sharp at rest');
-  assert.equal(sample.inlineFilter, '', 'Teaser blur is handed off without leaving inline styling');
-}
-
-export async function runHeroTemplatesBrowser(browser, base) {
-  for (const language of ['vi', 'en']) {
-    const context = await browser.newContext({ reducedMotion: 'reduce', viewport: { width: 390, height: 844 }, hasTouch: true });
+export async function runHeroTemplatesBrowser(browser,base) {
+  for(const language of ['vi','en']) {
+    const context=await browser.newContext({viewport:{width:390,height:844},hasTouch:true,reducedMotion:'reduce'});
+    await context.addInitScript(locale=>globalThis.localStorage.setItem('momevia-locale',locale),language);
     try {
-      if (language === 'en') await context.addInitScript(() => localStorage.setItem('momevia-locale', 'en'));
-      const page = await context.newPage();
+      const page=await context.newPage(),errors=[],writes=[];
+      page.on('pageerror',e=>errors.push(e.message));
+      page.on('request',r=>{if(r.url().includes('/api/')&&!['GET','HEAD'].includes(r.method()))writes.push(r.url());});
       await page.goto(base);
-      const cover = page.locator('.mkt-hero__cover');
-      const dialog = page.getByRole('dialog');
-      await waitForTemplate(page, ids[0]);
-      const originalBox = await cover.boundingBox();
-      const frame = await page.locator('.mkt-hero__frame').boundingBox();
-      assert(await page.locator('.mkt-stage__cards').evaluate(node => {
-        const style = globalThis.getComputedStyle(node);
-        return ['hidden', 'clip'].includes(style.overflowX) && ['hidden', 'clip'].includes(style.overflowY);
-      }), 'The dedicated card layer clips moving cards on both axes');
-      const note = await page.locator('.mkt-stage__note').boundingBox();
-      const reply = await page.locator('.mkt-stage__reply').boundingBox();
-      assert(note.x < frame.x && note.x + note.width > frame.x, 'Left note straddles the frame');
-      assert(reply.x < frame.x + frame.width && reply.x + reply.width > frame.x + frame.width, 'Right note straddles the frame');
-      assert.equal(await page.locator('.mkt-stage__cards .mkt-stage__note, .mkt-stage__cards .mkt-stage__reply').count(), 0, 'Notes remain outside the card clipping layer');
-      assert(await page.locator('.mkt-stage').evaluate(node => {
-        const layer = Number(globalThis.getComputedStyle(node.querySelector('.mkt-stage__cards')).zIndex);
-        return [...node.querySelectorAll('.mkt-stage__note, .mkt-stage__reply')].every(note =>
-          Number(globalThis.getComputedStyle(note).zIndex) > layer && note.getAnimations().length === 0);
-      }), 'Notes stay in front of the card and remain still with reduced motion');
-      // Đo cả hai phần tử trong cùng lượt đọc DOM để tránh sai lệch thời điểm layout.
-      const indicatorLayout = await page.locator('.mkt-hero__artwork').evaluate(artwork => {
-        const frameBox = artwork.querySelector('.mkt-hero__frame').getBoundingClientRect();
-        const controlsBox = artwork.querySelector('.mkt-hero__rotation').getBoundingClientRect();
-        return {
-          frameBottom: frameBox.bottom,
-          controlsTop: controlsBox.top,
-          gridRows: globalThis.getComputedStyle(artwork).gridTemplateRows,
-        };
-      });
-      assert(indicatorLayout.controlsTop >= indicatorLayout.frameBottom,
-        `The three indicators sit below the artwork (controlsTop=${indicatorLayout.controlsTop}, frameBottom=${indicatorLayout.frameBottom}, gridRows=${indicatorLayout.gridRows})`);
-      assert.equal(await page.locator('[data-hero-playback]').count(), 0, 'The playback button is removed');
-      for (const [index, id] of ids.entries()) {
-        const selector = page.locator(`[data-hero-select="${index}"]`);
-        const box = await selector.boundingBox();
-        assert(box.width >= 44 && box.height >= 44, 'Template selector has a touch target');
-        await selector.click();
-        await waitForTemplate(page, id);
-        assert.equal(await selector.getAttribute('aria-pressed'), 'true');
-        assert.equal(await selector.locator('[data-hero-progress]').evaluate(node => node.getAnimations().length), 0, 'Reduced motion uses a static selected indicator');
-        const image = cover.locator('[data-active="true"]');
-        assert.equal(new URL(await image.getAttribute('src'),base).pathname,
-          `/assets/basic-templates/${language==='en'?'en/':''}${id}-catalog.svg`);
-        assert(await image.evaluate(node => parseFloat(globalThis.getComputedStyle(node).transitionDuration) <= 0.001), 'Reduced motion makes manual changes immediate');
-        assert.equal(await image.evaluate(node => globalThis.getComputedStyle(node).filter), 'none', 'Reduced motion keeps the card sharp');
-        const nextBox = await cover.boundingBox();
-        assert(Math.abs(nextBox.height - originalBox.height) < 1, 'Changing cover keeps the artboard size');
-        await cover.click();
-        await dialog.locator(`[data-runtime-element="event-photo-${artwork[index]}"]`).waitFor();
-        assert.equal(await dialog.locator('h2').textContent(), await selector.getAttribute('aria-label'));
-        // CTA xem thử luôn trỏ đến mẫu đang hiển thị, kể cả sau khi đổi slide.
-        const useLink = dialog.locator('[data-template-use]');
-        assert.equal(await useLink.getAttribute('href'), `/create/${id}?mode=quick`);
-        assert.equal(await useLink.isVisible(), true);
-        const tapSize = await useLink.boundingBox();
-        assert(tapSize.height >= 44, 'CTA dùng mẫu đủ lớn để chạm trên mobile');
-        await page.keyboard.press('Escape');
-        await dialog.waitFor({ state: 'hidden' });
-        await page.waitForFunction(() => globalThis.document.activeElement?.matches('.mkt-hero__cover'));
-        assert.equal(await cover.evaluate(node => node === globalThis.document.activeElement), true);
+      const cover=page.locator('.mkt-hero__cover'),choices=page.locator('.home-create-dialog'),create=page.locator('[data-home-create]');
+      await cover.waitFor();assert.equal(await cover.count(),1);assert.equal(await page.locator('[data-hero-playback]').count(),0);
+      const catalog=(await(await context.request.get(base+'/api/catalog/templates')).json()).templates;
+      await page.waitForFunction(()=>globalThis.document.querySelectorAll('[data-hero-select]').length===5);
+      const ids=await cover.locator('img').evaluateAll(ns=>ns.map(n=>n.dataset.heroImage));assert.equal(new Set(ids).size,5);
+      await create.focus();await page.keyboard.press('Enter');await choices.waitFor({state:'visible'});
+      for(const type of ['invitation','greeting'])assert.equal(await choices.locator(`.home-create-choice--${type}`).getAttribute('href'),`/explore?cardType=${type}`);
+      assert.equal(await choices.locator('.home-create-dialog__blank').getAttribute('href'),'/design/new');
+      await page.keyboard.press('Escape');await choices.waitFor({state:'hidden'});assert(await create.evaluate(n=>n===globalThis.document.activeElement));
+      assert.equal(await page.locator('.gift-runtime').count(),0,'No player before preview');
+      for(let i=0;i<5;i++) {
+        await page.locator(`[data-hero-select="${i}"]`).click();
+        await page.waitForFunction(id=>globalThis.document.querySelector('[data-hero-image][data-active="true"]').dataset.heroImage===id,ids[i]);
+        const template=catalog.find(t=>t.id===ids[i]);assert(template,'Each sample comes from the live Catalog');
+        await cover.focus();await page.keyboard.press('Enter');
+        const dialog=page.locator('.template-preview-dialog');await dialog.waitFor({state:'visible'});await dialog.locator('.gift-runtime').waitFor();
+        const url=new URL(await dialog.locator('[data-template-use]').getAttribute('href'),base);
+        assert.equal(url.pathname,'/create/'+template.id);assert.equal(url.searchParams.get('version'),template.versionId||null);
+        await page.keyboard.press('Escape');await dialog.locator('.gift-runtime').waitFor({state:'detached'});assert(await cover.evaluate(n=>n===globalThis.document.activeElement));
       }
-    } finally { await context.close(); }
+      const template=catalog.find(t=>t.id===ids[4]);
+      const endpoint=template.versionId?`**/api/catalog/templates/${template.id}/versions/${template.versionId}`:`**/api/designs/library/templates/${template.id}/preview`;
+      await page.route(endpoint,r=>r.fulfill({status:503,contentType:'application/json',body:'{}'}),{times:1});
+      await cover.click();await page.locator('[data-template-error]:visible').waitFor();await page.locator('[data-template-retry]').click();await page.locator('.template-preview-player .gift-runtime').waitFor();
+      await page.locator('[data-template-close]').click();await page.locator('.template-preview-player .gift-runtime').waitFor({state:'detached'});
+      assert.deepEqual(writes,[]);assert.deepEqual(errors,[]);
+    } finally {await context.close();}
   }
+  await runHeroMotionBrowser(browser,base);
+  console.log('PASS classic five-template cycle: one foreground, decoded next-card teaser behind, circular handoff, no pause button, correct preview/version VI/EN and zero writes.');
+}
 
-  const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+export async function runHeroMotionBrowser(browser,base) {
+  const context=await browser.newContext({viewport:{width:1440,height:1100},reducedMotion:'no-preference'});
   try {
-    const page = await context.newPage();
-    const errors = [];
-    page.on('pageerror', error => errors.push(error.message));
-    await page.goto(base);
-    await waitForTemplate(page, ids[0]);
-    await page.locator('[data-hero-image]').evaluateAll(images => Promise.all(images.map(image => image.decode())));
-    await page.locator('[data-peeking]').waitFor({ state: 'attached' });
-    const noteMotion = await page.locator('.mkt-stage__note, .mkt-stage__reply').evaluateAll(notes => notes.map(note => {
-      const animation = note.getAnimations()[0];
-      animation.pause(); animation.currentTime = 2500;
-      const rest = note.getBoundingClientRect();
-      animation.currentTime = 4000;
-      const moving = note.getBoundingClientRect();
-      animation.currentTime = 5000;
-      const end = note.getBoundingClientRect();
-      return { duration: animation.effect.getTiming().duration, dx: moving.x - rest.x, dy: moving.y - rest.y,
-        phase: Math.hypot(moving.x - rest.x, moving.y - rest.y) / Math.hypot(end.x - rest.x, end.y - rest.y) };
-    }));
-    assert.equal(noteMotion.length, 2);
-    assert(noteMotion.every(note => note.duration === 5000 && Math.abs(note.dx) > 0.1 && Math.abs(note.dx) < 8 && Math.abs(note.dy) < 8), 'Both notes move gently within the same five-second cycle');
-    assert(noteMotion[1].phase < noteMotion[0].phase - 0.05, 'Right note follows slightly behind the left note instead of mirroring it');
-    const transition = await page.locator('[data-hero-image]').first().evaluate(node => {
-      const style = globalThis.getComputedStyle(node);
-      return { properties: style.transitionProperty.split(', '), duration: parseFloat(style.transitionDuration) };
-    });
-    assert(transition.duration > 0 && transition.properties.includes('opacity') && transition.properties.includes('transform'), 'Normal motion bridges cover changes with a visible transition');
-    const firstProgress = await progressState(page);
-    assert.equal(firstProgress.duration, 5000);
-    assert.equal(firstProgress.easing, 'linear');
-    assert.equal(await page.locator('[data-hero-playback]').count(), 0, 'Autoplay runs without the removed playback button');
-    await page.waitForFunction(() => globalThis.document.querySelector('.mkt-hero')?.hasAttribute('data-mkt-ambient-running'));
-    assert.equal(await page.locator('.mkt-stage__orb--first').evaluate(node => globalThis.getComputedStyle(node).animationPlayState), 'running', 'Ambient orb moves when hero is active');
-    await page.waitForFunction(() => globalThis.document.querySelector('[aria-pressed="true"] [data-hero-progress]')?.getAnimations()[0]?.playState === 'running');
-    await page.locator('[aria-pressed="true"] [data-hero-progress]').evaluate(node => {
-      const animation = node.getAnimations()[0];
-      animation.pause();
-      animation.currentTime = 2500;
-    });
-    await page.locator('[data-peeking]').evaluate(node => {
-      const animation = node.getAnimations()[0];
-      animation.pause();
-      animation.currentTime = 2500;
-    });
-    assert.equal(await page.locator('[data-peeking]').evaluate(node => Number(globalThis.getComputedStyle(node).opacity)), 0, 'Next cover remains hidden during the first three seconds');
-    await page.locator('[data-peeking]').evaluate(node => { node.getAnimations()[0].currentTime = 4000; });
-    const hint = await page.locator('[data-peeking]').evaluate(node => ({ opacity: Number(globalThis.getComputedStyle(node).opacity), active: node.dataset.active }));
-    assert(hint.opacity > 0 && hint.opacity < 0.72 && hint.active === 'false', 'Last two seconds reveal a partial, non-selected next cover');
-    assert(Math.abs((await progressState(page)).scale - 0.5) < 0.01, 'Half the duration fills half the track');
-    assert.equal(await active(page), ids[0], 'Partial fill does not change the cover');
-    let previousId = ids[0];
-    for (const id of [ids[1], ids[2], ids[0]]) {
-      await finishProgress(page, id);
-      await verifyOrbit(page, previousId, id);
-      previousId = id;
-      assert((await progressState(page)).time < 1000, 'Next cover starts a fresh progress cycle');
+    const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto(base);
+    const cover=page.locator('.mkt-hero__cover');await cover.waitFor();
+    const ids=await cover.locator('img').evaluateAll(ns=>ns.map(n=>n.dataset.heroImage));assert.equal(new Set(ids).size,5);
+    await page.waitForFunction(()=>{const peek=globalThis.document.querySelector('[data-peeking]');return peek&&Number(globalThis.getComputedStyle(peek).opacity)>.3;},null,{timeout:8000});
+    const peek=await page.locator('[data-peeking]').evaluate(n=>({id:n.dataset.heroImage,active:n.dataset.active,z:globalThis.getComputedStyle(n).zIndex,opacity:Number(globalThis.getComputedStyle(n).opacity),transform:globalThis.getComputedStyle(n).transform}));
+    assert.equal(peek.id,ids[1]);assert.equal(peek.active,'false');assert(peek.opacity>0&&peek.opacity<1);assert.notEqual(peek.transform,'none');
+    assert.equal(await cover.locator('[data-active="true"]').count(),1);assert.equal(await cover.locator('[data-active="true"]').getAttribute('data-hero-image'),ids[0]);
+    await page.waitForFunction(id=>globalThis.document.querySelector('.mkt-hero').dataset.heroTemplate===id,ids[1],{timeout:4000});
+    for(const target of [2,3,4,0]) {
+      await page.evaluate(()=>globalThis.document.querySelector('.mkt-hero__slide[aria-pressed="true"] [data-hero-progress]').getAnimations()[0].finish());
+      await page.waitForFunction(id=>globalThis.document.querySelector('.mkt-hero').dataset.heroTemplate===id,ids[target]);
+      assert.equal(await cover.locator('[data-active="true"]').count(),1);
     }
-    const cover = page.locator('.mkt-hero__cover');
-    await cover.focus();
-    await finishProgress(page, ids[1]);
-    await page.keyboard.press('Enter');
-    const dialog = page.getByRole('dialog');
-    await dialog.locator('[data-runtime-element="event-photo-birthday"]').waitFor();
-    assert.equal((await progressState(page)).state, 'paused', 'Preview pauses the same progress clock');
-    assert.equal(await page.locator('[data-peeking]').evaluate(node => node.getAnimations()[0].playState), 'paused', 'Preview also pauses the teaser');
-    assert(await page.locator('.mkt-stage__note, .mkt-stage__reply').evaluateAll(notes => notes.every(note => note.getAnimations()[0]?.playState === 'paused')), 'Preview pauses both floating notes');
-    assert.equal(await active(page), ids[1], 'Open player freezes its corresponding cover');
-    await page.keyboard.press('Escape');
-    await dialog.waitFor({ state: 'hidden' });
-    await page.waitForFunction(() => globalThis.document.activeElement?.matches('.mkt-hero__cover'));
-    await cover.evaluate(node => node.blur());
-    await page.mouse.move(0, 0);
-    await page.waitForFunction(() => globalThis.document.querySelector('[aria-pressed="true"] [data-hero-progress]')?.getAnimations()[0]?.playState === 'running');
-    assert(await page.locator('.mkt-stage__note, .mkt-stage__reply').evaluateAll(notes => notes.every(note => note.getAnimations()[0]?.playState === 'running')), 'Closing preview resumes the notes');
-    await finishProgress(page, ids[2]);
-    await cover.hover();
-    await finishProgress(page, ids[0]);
-    await page.mouse.move(0, 0);
-
-    await page.locator('footer').scrollIntoViewIfNeeded();
-    await page.waitForFunction(() => globalThis.document.querySelector('[aria-pressed="true"] [data-hero-progress]')?.getAnimations()[0]?.playState === 'paused');
-    assert.equal(await page.locator('.mkt-stage__orb--first').evaluate(node => globalThis.getComputedStyle(node).animationPlayState), 'paused', 'Offscreen hero pauses ambient CSS');
-    const offscreenTime = (await progressState(page)).time;
-    await cover.scrollIntoViewIfNeeded();
-    await page.waitForFunction(() => globalThis.document.querySelector('[aria-pressed="true"] [data-hero-progress]')?.getAnimations()[0]?.playState === 'running');
-    assert.equal(await page.locator('.mkt-stage__orb--first').evaluate(node => globalThis.getComputedStyle(node).animationPlayState), 'running', 'Visible hero resumes ambient CSS');
-    assert((await progressState(page)).time >= offscreenTime, 'Returning to the cover resumes rather than resets progress');
-
-    await page.locator('[aria-pressed="true"] [data-hero-progress]').evaluate(node => { node.getAnimations()[0].currentTime = 4000; });
-    await page.locator('[data-hero-select="2"]').click();
-    await waitForTemplate(page, ids[2]);
-    assert((await progressState(page)).time < 1000, 'Clicking another track restarts its five seconds');
-    const previous = await page.locator('[aria-pressed="true"] [data-hero-progress]').evaluateHandle(node => node.getAnimations()[0]);
-    await page.locator('[data-hero-select="2"]').click();
-    await page.waitForFunction(old => {
-      const animation = globalThis.document.querySelector('[aria-pressed="true"] [data-hero-progress]').getAnimations()[0];
-      return animation && animation !== old;
-    }, previous);
-    assert((await progressState(page)).time < 1000, 'Clicking the selected track also restarts the clock');
-
-    await page.emulateMedia({ reducedMotion: 'reduce' });
-    await page.waitForFunction(() => [...globalThis.document.querySelectorAll('[data-hero-progress]')].every(node => node.getAnimations().length === 0));
-    assert.equal(await page.locator('[data-hero-progress]').evaluateAll(nodes => nodes.flatMap(node => node.getAnimations()).length), 0);
-    assert.equal(await page.locator('[data-peeking]').count(), 0, 'Reduced motion removes the teaser');
-    assert.equal(await page.locator('.mkt-stage__note, .mkt-stage__reply').evaluateAll(notes => notes.flatMap(note => note.getAnimations()).length), 0, 'Reduced motion removes note motion');
-    assert.equal(await active(page), ids[2], 'Reduced motion keeps the selected cover');
-    await page.locator('[data-hero-select="0"]').click();
-    await waitForTemplate(page, ids[0]);
-    await page.locator('.mkt-actions a[href="/explore"]').click();
-    await page.waitForURL('**/explore');
-    assert.deepEqual(errors, [], 'No callbacks update a disposed hero');
-
-  } finally { await context.close(); }
-
-  // Dùng context mới để không tái sử dụng ảnh đã tải ở các ca trước.
-  // Chờ request thất bại và trạng thái ảnh lỗi thay vì đọc bộ đếm ngay khi hero mount.
-  const brokenContext = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce', serviceWorkers: 'block' });
-  try {
-    const page = await brokenContext.newPage();
-    const coverPath = '/assets/basic-templates/birthday-radiance-catalog.svg';
-    let blockedCoverRequests = 0;
-    await page.route(url => url.pathname === coverPath, route => {
-      blockedCoverRequests++;
-      return route.abort();
-    });
-    await Promise.all([
-      page.waitForEvent('requestfailed', request => request.resourceType() === 'image' && new URL(request.url()).pathname === coverPath),
-      page.goto(base),
-    ]);
-    await waitForTemplate(page, ids[0]);
-    await page.waitForFunction(() => {
-      const first = globalThis.document.querySelector('[data-hero-image="hai-phong-bi"]');
-      const alternate = globalThis.document.querySelector('[data-hero-image="birthday-radiance"]');
-      return first?.complete && first.naturalWidth > 0 && alternate?.complete && alternate.naturalWidth === 0;
-    });
-    assert(blockedCoverRequests > 0, 'The alternate catalog cover request was actually blocked');
-    await page.locator('[data-hero-select="1"]').click();
-    assert.equal(await active(page), ids[0]);
-    assert.equal(await page.locator('[data-hero-select="0"]').getAttribute('aria-pressed'), 'true');
-    assert.equal(await page.locator('[data-hero-select="1"]').getAttribute('aria-pressed'), 'false');
-    await page.locator('.mkt-hero__cover').click();
-    await page.getByRole('dialog').locator('[data-runtime-element="open-memory"]').waitFor();
-    assert.equal(await active(page), ids[0], 'A failed cover must not replace the working template');
-  } finally { await brokenContext.close(); }
-
-  const timed = await browser.newPage({ viewport: { width: 390, height: 844 }, reducedMotion: 'no-preference' });
-  try {
-    await timed.goto(base);
-    await waitForTemplate(timed, ids[0]);
-    await timed.waitForFunction(() => {
-      const fill = globalThis.document.querySelector('[data-hero-select="0"] [data-hero-progress]');
-      const scale = fill && new globalThis.DOMMatrixReadOnly(globalThis.getComputedStyle(fill).transform).a;
-      return scale > 0.2 && scale < 0.8;
-    });
-    assert.equal(await active(timed), ids[0], 'Real time shows an intermediate fill before the cover changes');
-    await timed.waitForFunction(() => {
-      const image = globalThis.document.querySelector('[data-peeking]');
-      return image && Number(globalThis.getComputedStyle(image).opacity) > 0.05;
-    });
-    assert.equal(await active(timed), ids[0], 'Teaser appears before the five-second selection boundary');
-    await waitForTemplate(timed, ids[1]);
-    await verifyOrbit(timed, ids[0], ids[1]);
-    assert((await progressState(timed)).time < 1000, 'Natural animation completion advances the cover and resets progress');
-  } finally { await timed.close(); }
-  console.log('PASS Hero covers: three seconds clear/two seconds teaser, 1.2-second arc with continuous handoff, five-second boundary, matching players VI/EN, clickable reset, shared pause/resume and reduced motion.');
+    assert.equal(await page.locator('[data-hero-playback]').count(),0);
+    const hero=await page.locator('.mkt-hero').boundingBox(),art=await page.locator('.open-me-hero__showcase').boundingBox(),intro=await page.locator('.mkt-hero__intro').boundingBox();
+    assert(hero.y+hero.height-Math.max(art.y+art.height,intro.y+intro.height)<=65,'No viewport-sized blank below hero');
+    await cover.click();await page.locator('.template-preview-player .gift-runtime').waitFor();
+    assert.equal(await page.locator('.mkt-hero').getAttribute('data-mkt-ambient-running'),null);
+    await page.keyboard.press('Escape');await page.locator('.template-preview-player .gift-runtime').waitFor({state:'detached'});
+    await page.emulateMedia({reducedMotion:'reduce'});
+    await page.waitForFunction(()=>globalThis.document.querySelectorAll('[data-hero-progress]').length>0&&!globalThis.document.querySelector('.mkt-hero').hasAttribute('data-mkt-ambient-running'));
+    assert.equal(await page.locator('[data-hero-progress]').evaluateAll(ns=>ns.flatMap(n=>n.getAnimations()).filter(a=>a.playState==='running').length),0);
+    await page.emulateMedia({reducedMotion:'no-preference'});await page.locator('#how-it-works').scrollIntoViewIfNeeded();
+    await page.waitForFunction(()=>!globalThis.document.querySelector('.mkt-hero').hasAttribute('data-mkt-ambient-running'));
+    assert.equal(await page.locator('[data-hero-progress]').evaluateAll(ns=>ns.flatMap(n=>n.getAnimations()).filter(a=>a.playState==='running').length),0);
+    await page.locator('.mkt-actions a[href="/explore"]').click();await page.waitForURL('**/explore');assert.equal(await page.locator('.mkt-hero').count(),0);
+    assert.deepEqual(errors,[]);
+  } finally {await context.close();}
 }

@@ -52,3 +52,6 @@ skills-lock.json
 *.key
 *.pfx
 *.p12
+
+# Local visual review profiles and generated QA/QC evidence.
+/.taste-skill/

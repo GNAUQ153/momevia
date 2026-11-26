@@ -7,7 +7,7 @@
   border: 1px solid #ded4ea;
   border-radius: 20px;
   padding: clamp(14px, 3vw, 24px);
-  background: #fbf9ff;
+  background: var(--app-accent-soft);
   color: #2f2640;
   box-shadow: 0 22px 70px rgba(34, 18, 56, 0.23);
   overflow: auto;

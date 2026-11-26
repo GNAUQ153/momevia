@@ -15,6 +15,9 @@ export const monitoredStylesheets = Object.freeze([
   'upgrade.css',
   'auth-pages.css',
   'ui-polish.css',
+  'open-me-system.css',
+  'open-me-website.css',
+  'featured-carousel.css',
 ]);
 
 /**

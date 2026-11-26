@@ -29,19 +29,9 @@ export function filterStudioEntries(entries, { type = 'all', query = '' } = {}) 
   return entries.filter((item) => (type === 'all' || item.type === type) && matchStudioItem(item.text, query));
 }
 
-function createSpaceVisual() {
-  return `<div class="studio-space__visual" aria-hidden="true">
-    <div class="studio-space__orbit studio-space__orbit--one"></div>
-    <div class="studio-space__orbit studio-space__orbit--two"></div>
-    <div class="studio-space__visual-card studio-space__visual-card--back">${icon('heart', 24)}<span>${text("studio.space.visual.memo")}</span></div>
-    <div class="studio-space__visual-card studio-space__visual-card--front">${icon('gift', 36)}<span>${text("studio.space.visual.brand")}</span></div>
-    <div class="studio-space__visual-spark">${icon('sparkles', 27)}</div>
-  </div>`;
-}
-
 function heroContent() {
   return `<div class="studio-space__hero-bottom">
-    <p>${text("studio.space.hero.lead")}</p>
+    <p>${text("studio.workspaceHint")}</p>
     <div class="studio-space__hero-actions">
       <a class="btn btn--dark" href="/design/new" data-link>${icon('pencil', 18)} ${text("studio.space.hero.create")}</a>
       <a class="btn btn--outline" href="/explore" data-link>${icon('layers', 18)} ${text("studio.space.hero.explore")}</a>
@@ -50,12 +40,7 @@ function heroContent() {
 }
 
 function toolbarContent() {
-  return `<nav class="studio-space__jump" ${attr("aria-label", "studio.space.jump.label")}>
-    <a href="#studio-space-drafts">${icon('pencil', 17)} ${text("studio.space.filter.drafts")}</a>
-    <a href="#studio-space-gifts">${icon('gift', 17)} ${text("studio.space.jump.gifts")}</a>
-    <a href="#studio-space-orders">${icon('credit-card', 17)} ${text("studio.space.filter.orders")}</a>
-  </nav>
-  <div class="studio-space__toolbar">
+  return `<div class="studio-space__toolbar">
     <div class="studio-space__toolbar-copy">
       <span class="studio-space__eyebrow">${text("studio.space.toolbar.badge")}</span>
       <h2>${text("studio.space.toolbar.title")}</h2>
@@ -93,7 +78,7 @@ export function mountStudioSpace(root) {
   hero.classList.add('studio-space__hero');
   heroInner.classList.add('studio-space__hero-inner');
   heroInner.insertAdjacentHTML('afterbegin', `<span class="studio-space__eyebrow studio-space__eyebrow--light">${icon('sparkles', 16)} ${text("studio.space.hero.badge")}</span>`);
-  heroInner.insertAdjacentHTML('beforeend', heroContent() + createSpaceVisual());
+  heroInner.insertAdjacentHTML('beforeend', heroContent());
 
   root.querySelector('.dashboard-section')?.classList.add('studio-space__main');
   section.classList.add('studio-space__content');
@@ -112,7 +97,6 @@ export function mountStudioSpace(root) {
     const wrapper = data?.closest('section');
     if (wrapper) {
       wrapper.classList.add('studio-space__section');
-      wrapper.id = `studio-space-${type.id}`;
     }
     return { ...type, data, wrapper };
   });

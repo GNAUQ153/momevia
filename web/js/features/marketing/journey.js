@@ -39,6 +39,15 @@ export function mountJourney(root, { signal } = {}) {
     }
     if (scene) scene.dataset.stage = step;
     if (focus) selected.focus();
+    // Keep keyboard and swipe selections visible inside the mobile step strip.
+    if (selected.parentElement?.scrollWidth > selected.parentElement?.clientWidth) {
+      const strip = selected.parentElement;
+      const left = selected.offsetLeft - strip.offsetLeft;
+      if (left < strip.scrollLeft) strip.scrollLeft = left;
+      else if (left + selected.offsetWidth > strip.scrollLeft + strip.clientWidth) {
+        strip.scrollLeft = left + selected.offsetWidth - strip.clientWidth;
+      }
+    }
     return true;
   }
 

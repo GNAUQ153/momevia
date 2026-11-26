@@ -170,7 +170,7 @@
   font-size: 12px;
   line-height: 1.55;
   color: #5f5176;
-  background: #faf7ff;
+  background: var(--app-accent-soft);
   border: 1px solid #eee5fc;
   border-radius: 10px;
   margin: 0 0 10px;

@@ -112,7 +112,7 @@
   height: 18px;
   min-height: 18px;
   flex: 0 0 18px;
-  accent-color: var(--purple, #6136df);
+  accent-color: var(--purple, var(--purple));
   margin: 0;
 }
 .library-admin input[readonly] {

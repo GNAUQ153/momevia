@@ -76,7 +76,7 @@ test('CTA xem thử hiển thị trên mobile với focus và chiều cao tối 
 // Guard chống hồi quy: modal đang đóng sẽ không có role=dialog hiển thị trong Playwright.
 test('Browser test chỉ kiểm tra CTA sau khi mở Preview modal bằng bàn phím', () => {
   const browser = source('tests/browser/home.mjs');
-  const begin = browser.indexOf("const dialog = page.getByRole('dialog');");
+  const begin = browser.indexOf("const dialog = page.locator('.template-preview-dialog');");
   const open = browser.indexOf("await page.keyboard.press('Enter');", begin);
   const visible = browser.indexOf("await dialog.waitFor({ state: 'visible' });", open);
   const href = browser.indexOf("useTemplate.getAttribute('href')", visible);

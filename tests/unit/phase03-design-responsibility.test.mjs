@@ -5,6 +5,7 @@ import { DesignsService, hash, designView, designSummary, giftSummary, publicGif
 import { hash as documentHash } from '../../src/modules/designs/document-hash.mjs';
 import * as views from '../../src/modules/designs/design-views.mjs';
 import { createDocument, createElement } from '../../web/js/shared/canvas/index.js';
+import { createOpenMeTemplate } from '../../web/js/shared/canvas/open-me-templates.js';
 
 const user = { sub: randomUUID(), role: 'sender' };
 function design({ price = 59000 } = {}) {
@@ -41,6 +42,25 @@ test('projection không sửa bản ghi và không xuất metadata riêng tư c�
   const publicView = publicGiftView(gift);
   for (const key of ['inviteToken', 'senderArchivedAt', 'userId']) assert.equal(Object.hasOwn(publicView, key), false);
   assert.deepEqual(gift, before);
+});
+
+test('existing invitation drafts keep editable event slots across projection and save policy', () => {
+  for (const templateId of ['club-22-invitation', 'cozy-christmas-invitation']) {
+    const record = design();
+    record.source.templateId = templateId;
+    record.document = createOpenMeTemplate(templateId);
+    const before = structuredClone(record);
+    const view = designView(record);
+    assert.deepEqual(view.invitationSlotIds, {
+      dateElementId: record.document.invitation.dateElementId,
+      venueElementId: record.document.invitation.venueElementId,
+    });
+    const editor = service(record);
+    assert.doesNotThrow(() => editor.enforcePolicy(record, view.document));
+    view.document.invitation.venueElementId = 'unapproved-slot';
+    assert.throws(() => editor.enforcePolicy(record, view.document), { code: 'INVITATION_SOURCE_UNSUPPORTED' });
+    assert.deepEqual(record, before);
+  }
 });
 
 test('khóa chỉnh sửa được kiểm tra trên revision trong callback repository.save', async () => {

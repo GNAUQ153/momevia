@@ -44,7 +44,7 @@ test('floating dock hides at the footer and returns on scroll without overriding
   globalThis.ResizeObserver=class{observe(){}};
   globalThis.IntersectionObserver=class{constructor(callback){notifyFooter=callback;}observe(target){observed=target;}};
   const dock=mountFloatingCta();assert.equal(observed,footer);
-  dock.sync('/');assert.equal(panel.hidden,false);assert.equal(hasDock,true);
+  dock.sync('/about');assert.equal(panel.hidden,false);assert.equal(hasDock,true);
   globalThis.document.activeElement=link;
   notifyFooter([{target:footer,isIntersecting:true}]);
   assert.equal(panel.hidden,true);assert.equal(hasDock,false);assert.equal(focused,true);assert.equal(footer.tabIndex,-1);
@@ -54,7 +54,7 @@ test('floating dock hides at the footer and returns on scroll without overriding
    assert.equal(panel.hidden,true,route);assert.equal(hasDock,false,route);
   }
   dock.sync('/explore');assert.equal(panel.hidden,false);
-  notifyFooter([{target:footer,isIntersecting:true}]);dock.sync('/');assert.equal(panel.hidden,true);
+  notifyFooter([{target:footer,isIntersecting:true}]);dock.sync('/');assert.equal(panel.hidden,true,'Home also hides its actions at the footer');
  }finally{globalThis.document=previousDocument;globalThis.ResizeObserver=previousResize;globalThis.IntersectionObserver=previousIntersection;}
 });
 
@@ -111,16 +111,17 @@ test('catalog has a single floating create action only after its top CTA becomes
  }finally{Object.assign(globalThis,saved);}
 });
 
-test('home CTA remains through content and FAQ, and follows the real footer after re-render',()=>{
+test('home and pricing CTAs stay visible after their intro, but hide at the footer and dialogs',()=>{
  const keys=['document','ResizeObserver','IntersectionObserver','requestAnimationFrame','getComputedStyle'];
  const saved=Object.fromEntries(keys.map(key=>[key,globalThis[key]]));
- let notify,observed;
+ let notify,observed,journeyTop=1000,controlTop=0,heroTop=-100,dialogOpen=false;
  const box=(top,height=50)=>({left:1000,right:1200,top,bottom:top+height,width:200,height});
  let grid={getBoundingClientRect:()=>box(900,200),focus(){}};
  const footer={querySelector:()=>grid,getBoundingClientRect:()=>box(500,700),focus(){}};
- const source={getBoundingClientRect:()=>box(-100),querySelectorAll:()=>[]};
- const control={getBoundingClientRect:()=>box(680)};
- const main={querySelector:selector=>selector.includes('.mkt-hero')?source:null,querySelectorAll:()=>[control]};
+ const source={getBoundingClientRect:()=>box(heroTop),querySelectorAll:()=>[]};
+ const control={getBoundingClientRect:()=>box(controlTop)};
+ const journey={getBoundingClientRect:()=>box(journeyTop,600)};
+ const main={querySelector:selector=>selector.includes('.mkt-hero')||selector==='.pricing-intro'?source:selector==='[data-mkt-journey]'?journey:selector==='dialog[open]'&&dialogOpen?{}:null,querySelectorAll:()=>[control]};
  const panel={hidden:true,dataset:{},contains:()=>false,querySelector:()=>null,querySelectorAll:()=>[],getBoundingClientRect:()=>box(650,122)};
  try{
   globalThis.document={documentElement:{clientHeight:800},createElement:()=>panel,
@@ -132,13 +133,29 @@ test('home CTA remains through content and FAQ, and follows the real footer afte
   globalThis.getComputedStyle=()=>({visibility:'visible',display:'block'});
   const dock=mountFloatingCta();dock.sync('/');
   assert.equal(observed,grid,'Observe the logo/link grid rather than the FAQ wrapper');
-  assert.equal(panel.hidden,false,'Content beneath the home CTA does not hide it');
+  assert.equal(panel.hidden,false,'Show when home content leaves room for the dock');
+  heroTop=120;dock.sync('/');assert.equal(panel.hidden,true,'Hide while the hero actions are still visible');
+  heroTop=-100;dock.sync('/');assert.equal(panel.hidden,false,'Show as soon as the hero actions leave');
+  journeyTop=700;dock.sync('/');assert.equal(panel.hidden,false,'Journey entering the viewport must not dismiss the dock');
+  journeyTop=-200;dock.sync('/');assert.equal(panel.hidden,false,'Keep actions available through the journey');
+  journeyTop=-700;dock.sync('/');assert.equal(panel.hidden,false,'Return after leaving the journey');
+  controlTop=680;dock.sync('/');assert.equal(panel.hidden,false,'Passing home content must not make the dock blink away');
+  controlTop=0;dock.sync('/');assert.equal(panel.hidden,false,'Return when home content clears the dock');
   notify([{target:footer,isIntersecting:true}]);assert.equal(panel.hidden,false,'The FAQ wrapper is not the footer boundary');
-  notify([{target:grid,isIntersecting:true}]);assert.equal(panel.hidden,true);
+  notify([{target:grid,isIntersecting:true}]);assert.equal(panel.hidden,true,'Home actions hide at the actual footer');
+  notify([{target:grid,isIntersecting:false}]);assert.equal(panel.hidden,false,'Return when scrolling back above the footer');
+  dialogOpen=true;dock.sync('/');assert.equal(panel.hidden,true,'An open preview still takes priority');
+  dialogOpen=false;dock.sync('/');assert.equal(panel.hidden,false,'Return after the dialog closes');
   const oldGrid=grid;grid={getBoundingClientRect:()=>box(1000,200),focus(){}};
   dock.sync('/');assert.equal(observed,grid);assert.equal(panel.hidden,false);
   notify([{target:oldGrid,isIntersecting:true}]);assert.equal(panel.hidden,false,'Ignore stale observer entries');
-  dock.sync('/about');assert.equal(panel.hidden,true,'Other pages retain collision protection');
+  controlTop=680;dock.sync('/about');assert.equal(panel.hidden,true,'Other pages retain collision protection');
+  heroTop=120;dock.sync('/pricing');assert.equal(panel.hidden,true,'Pricing starts with its intro unobstructed');
+  heroTop=-100;dock.sync('/pricing/');assert.equal(panel.hidden,false,'Pricing cards do not repeatedly dismiss the dock');
+  notify([{target:grid,isIntersecting:true}]);assert.equal(panel.hidden,true,'Pricing also hides at the footer');
+  notify([{target:grid,isIntersecting:false}]);assert.equal(panel.hidden,false,'Pricing returns above the footer');
+  dialogOpen=true;dock.sync('/pricing');assert.equal(panel.hidden,true,'Pricing yields to dialogs');
+  dialogOpen=false;dock.sync('/pricing');assert.equal(panel.hidden,false);
  }finally{Object.assign(globalThis,saved);}
 });
 

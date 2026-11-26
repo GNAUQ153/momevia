@@ -1,0 +1,52 @@
+/* The viewport clips only the moving row; the page never hides overflow. */
+.featured-carousel {
+  --featured-columns: 3;
+  --featured-gap: 24px;
+  min-width: 0;
+}
+
+.featured-carousel__viewport {
+  overflow: hidden;
+  padding: 8px 0 26px;
+}
+
+.featured-carousel__track {
+  display: flex;
+  gap: var(--featured-gap);
+  align-items: stretch;
+  min-width: 0;
+}
+
+.featured-carousel__track > .template-card--home {
+  flex: 0 0 calc((100% - (var(--featured-columns) - 1) * var(--featured-gap)) / var(--featured-columns));
+  min-width: 0;
+  animation: none;
+}
+
+@media (max-width: 1023px) {
+  .featured-carousel {
+    --featured-columns: 2;
+  }
+}
+
+@media (max-width: 767px) {
+  .featured-carousel {
+    --featured-columns: 1;
+    --featured-gap: 16px;
+  }
+
+  .featured-carousel__track > .template-card--home {
+    grid-template-columns: clamp(132px, 37.5vw, 180px) minmax(0, 1fr);
+  }
+
+  .featured-carousel__track .template-card__visual {
+    aspect-ratio: auto;
+    min-height: 170px;
+    border-radius: 17px 0 0 17px;
+  }
+
+  .featured-carousel__track .template-card__info {
+    align-self: center;
+    padding: 34px 14px 14px;
+  }
+}

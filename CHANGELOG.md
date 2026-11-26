@@ -56,6 +56,44 @@
 - Admin xem dữ liệu đối soát quyền, credit và số bút toán Creator; chưa có migration 018 thì báo chưa có dữ liệu credit. Không trả thêm dữ liệu giao dịch cho Buyer.
 - Không thực hiện hoàn tiền, sửa ledger, thu hồi quyền hoặc kích hoạt quota; bổ sung unit và MySQL QA regression, VI/EN.
 
+## Unreleased — Bộ bố cục thiệp Open Me (2026-11-26)
+
+- Thêm ba tài liệu canvas VI/EN chỉnh sửa được với ID ổn định: club-22-invitation, cozy-christmas-invitation, tet-phong-thu; sinh bìa qua pipeline hiện hữu.
+- Giữ binding, ngày/nơi hẹn, tương tác bàn phím, hồi đáp và nhạc chủ động. Nhận đúng slot sự kiện và focus RSVP của bố cục mới.
+- Không thêm sản phẩm vào Catalog/seed, không gán giá, không migration hoặc cập nhật đè nháp/quà cũ. Đã loại đăng ký dữ liệu thử/cờ QA khỏi luồng sản phẩm.
+
+## Unreleased — Điều khiển tên người nhận canvas (2026-11-26)
+
+- Thêm vị trí gắn bộ chọn ngôn ngữ/đổi tên cho quà canvas ở chế độ người nhận tự điền tên.
+- Giữ giao diện nhập tên và hồi đáp theo mã nhận riêng; kiểm thử đi qua hành động thật của thiệp, không dùng thanh cảnh của preview.
+
+## Unreleased — Bố cục trình sửa canvas (2026-11-26)
+
+- Tách rail công cụ/thư viện khối, tên cảnh hiện hành, canvas/thuộc tính và thumbnail cảnh; giữ hành động chính trên mobile.
+- Giữ vị trí cuộn lớp khi chọn/đổi tên; quick mode không lộ công cụ layout. Hướng dẫn RSVP theo cấu hình sự kiện, không đổi quyền/lưu/Fabric.
+
+## Unreleased — Không gian quản lý thiệp (2026-11-26)
+
+- Gom phần giới thiệu Studio, giữ liên kết đến đúng mục nháp/quà/biên nhận và bộ lọc hiện có.
+- Thẻ quà đã gửi dùng bố cục riêng để nhiều hành động không ép cột tên/nội dung quá hẹp. Không đổi API hay dữ liệu.
+
+## Unreleased — Khám phá và mẫu nổi bật chuyển động (2026-11-26)
+
+- Hero xoay vòng năm mẫu, mẫu tiếp theo hé sau; giữ hai tab nổi, góc 5° và khung gọn. Tạo thiệp chọn đúng loại và preview giữ nguồn/phiên bản.
+- Mẫu nổi bật chọn tối đa 15 bản ghi Catalog, trượt trái từng thẻ mỗi 5 giây; giữ giá, yêu thích, Tab và vòng đời. Thu gọn bộ lọc và sửa wrap/focus toolbar preview ở cỡ chữ lớn.
+
+## Unreleased — Đồng bộ hệ màu giao diện (2026-11-26)
+
+- Dùng token chung cho nền giấy, bảng trắng, chữ, nút, trạng thái chọn và focus trên website, tài khoản và các vai trò.
+- Giữ màu của canvas/thiệp và các animation; bổ sung stylesheet vào bundle đầy đủ và Catalog. Bỏ qua profile/đầu ra đánh giá giao diện cục bộ trong Git.
+
+## Unreleased — Bố cục trải nghiệm và CTA responsive (2026-11-25)
+
+- Gom tiêu đề, các bước và nút khám phá của phần trải nghiệm trang chủ vào cùng bố cục; xếp dọc trên tablet/điện thoại và giữ bước đang chọn trong thanh cuộn ngang.
+- CTA nổi chuyển từ hàng ngang sang hai nút xếp dọc ở màn hình tối đa 600 px; giữ cỡ chữ, icon và vùng chạm trên điện thoại, căn cụm công cụ phía trên CTA.
+- CTA trang Bảng giá hiện ổn định sau phần giới thiệu; giữ logic ẩn ở footer, hiện lại khi cuộn lên và nhường chỗ cho hộp thoại. Bổ sung kiểm thử hồi quy điều kiện hiển thị.
+
+
 ## Unreleased — Phase 2.6B Bằng chứng thanh toán (2026-11-25)
 
 - Chuẩn hóa reference của payOS giữa inquiry và webhook; kiểm tra ID link, không tự xác nhận khoản chuyển nhiều lần.

@@ -6,6 +6,7 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { projectRoot } from '../../shared/paths.mjs';
 import { BASIC_TEMPLATES } from '../../../web/js/shared/canvas/basic-templates.js';
+import { OPEN_ME_TEMPLATE_IDS } from '../../../web/js/shared/canvas/open-me-templates.js';
 
 const cache = new Map();
 const cacheLimit = 128;
@@ -44,7 +45,8 @@ export function coverThumbnail(svg, width) {
 }
 
 export async function builtinCoverThumbnail(id, locale, variant, width) {
-  if (!Object.hasOwn(BASIC_TEMPLATES, id)) throw canvasError(404, 'TEMPLATE_NOT_FOUND', 'Template unavailable.');
+  if (!Object.hasOwn(BASIC_TEMPLATES, id) && !OPEN_ME_TEMPLATE_IDS.includes(id))
+    throw canvasError(404, 'TEMPLATE_NOT_FOUND', 'Template unavailable.');
   if (!['catalog', 'seasonal'].includes(variant)) throw canvasError(400, 'INVALID_COVER_VARIANT', 'Unsupported cover image layout.');
   const directory = path.join(projectRoot, 'web/assets/basic-templates', locale === 'en' ? 'en' : '');
   const svg = await readFile(path.join(directory, `${id}-${variant}.svg`));

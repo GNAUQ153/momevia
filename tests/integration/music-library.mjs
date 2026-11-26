@@ -102,14 +102,20 @@ try {
   assert.equal((await request('/designs/designs/'+saved.id+'/save',{cookie:sender.cookie,body:{title:freshDraft.title,document:freshDraft.document,expectedRevision:freshDraft.revision,mutationId:randomUUID()}})).status,200);
   const studio=await senderContext.newPage();await studio.goto(base+'/design/'+saved.id);await studio.locator('.editor-artboard').waitFor();
   await studio.locator('[data-editor-action="library-tab"][data-tab="layers"]').click();
-  const layerList=studio.locator('.editor-layers'),libraryPanel=studio.locator('.editor-library');
+  // Desktop keeps the tool rail fixed while the selected panel scrolls independently.
+  const layerList=studio.locator('.editor-layers'),libraryPanel=studio.locator('#editor-panel-layers');
   await libraryPanel.evaluate(node=>{node.scrollTop=500;});
-  const layerId=await layerList.evaluate(node=>{const bounds=node.closest('.editor-library').getBoundingClientRect();const button=[...node.querySelectorAll('button')].find(control=>{const r=control.getBoundingClientRect();return r.top>=bounds.top+5&&r.bottom<bounds.bottom-5;});globalThis.__selectedLayerButton=button;return button.dataset.id;});
+  const layerId=await layerList.evaluate(node=>{const bounds=node.getBoundingClientRect();const button=[...node.querySelectorAll('button')].find(control=>{const r=control.getBoundingClientRect();return r.top>=bounds.top+5&&r.bottom<bounds.bottom-5;});globalThis.__selectedLayerButton=button;return button.dataset.id;});
   const layerTop=await libraryPanel.evaluate(node=>node.scrollTop);assert(layerTop>0);
   await layerList.locator(`[data-id="${layerId}"]`).click();
   assert(await layerList.locator(`[data-id="${layerId}"]`).evaluate(node=>node===globalThis.__selectedLayerButton),'Designer layer selection must retain its existing button');
   assert(Math.abs((await libraryPanel.evaluate(node=>node.scrollTop))-layerTop)<=1);
+  await studio.locator('[data-editor-field="element.name"]').fill('Panel QA renamed without moving the list');
+  await studio.locator('[data-editor-field="element.name"]').dispatchEvent('change');
+  assert.equal(await layerList.locator(`[data-id="${layerId}"]`).innerText(),'Panel QA renamed without moving the list');
+  assert(Math.abs((await libraryPanel.evaluate(node=>node.scrollTop))-layerTop)<=1,'Renaming rebuilds layer labels without moving the inner panel');
   await studio.locator('[data-editor-action="library-tab"][data-tab="content"]').click();
+  await studio.locator('.editor-music-card > summary').click();
   async function checkCards(){
     const cards=await studio.locator('.editor-music-grid').evaluate(grid=>[...grid.querySelectorAll('button[data-track-id]')].filter(button=>button.dataset.trackId).map(button=>{
       const bounds=button.getBoundingClientRect();return {height:bounds.height,inside:[...button.children].every(child=>{const b=child.getBoundingClientRect();return b.left>=bounds.left-1&&b.right<=bounds.right+1&&b.top>=bounds.top-1&&b.bottom<=bounds.bottom+1;})};

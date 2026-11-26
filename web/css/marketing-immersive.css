@@ -9,7 +9,7 @@
   position: relative;
   overflow: clip;
   padding-block: clamp(38px, 6vw, 92px);
-  background: radial-gradient(ellipse at 91% 11%, #e6dafa 0%, transparent 48%), radial-gradient(ellipse at 0% 88%, #ffe6df 0%, transparent 43%), #faf6ff;
+  background: radial-gradient(ellipse at 91% 11%, #e6dafa 0%, transparent 48%), radial-gradient(ellipse at 0% 88%, #ffe6df 0%, transparent 43%), var(--app-accent-soft);
 }
 
 .is-home .mkt-hero::before {
@@ -50,7 +50,7 @@
   border: 1px solid #d9c8f4;
   border-radius: 100px;
   background: #ffffffa8;
-  color: #623ea4;
+  color: var(--purple);
   font-size: 12px;
   font-weight: 750;
   letter-spacing: 0.03em;
@@ -67,7 +67,7 @@
   font-weight: 750;
   line-height: 1.04;
   letter-spacing: -0.058em;
-  color: #241744;
+  color: var(--ink);
 }
 
 .is-home .mkt-hero__intro > p {
@@ -75,7 +75,7 @@
   margin-top: 22px;
   font-size: clamp(16px, 1.45vw, 20px);
   line-height: 1.66;
-  color: #5c5270;
+  color: var(--muted);
 }
 
 .is-home .mkt-hero__benefits {
@@ -91,14 +91,14 @@
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  color: #4e4962;
+  color: var(--muted);
   font-size: 13px;
   font-weight: 650;
 }
 
 .is-home .mkt-hero__benefits .icon {
   flex: none;
-  color: #7250c7;
+  color: var(--purple);
 }
 
 .is-home .mkt-hero__scroll {
@@ -106,7 +106,7 @@
   align-items: center;
   gap: 9px;
   margin-top: 26px;
-  color: #6744a7;
+  color: var(--purple);
   font-size: 14px;
   font-weight: 700;
   text-decoration: none;
@@ -235,7 +235,7 @@
   line-height: 1.3;
   font-weight: 700;
   letter-spacing: 0.04em;
-  color: #7a6896;
+  color: var(--muted);
 }
 
 .is-home .mkt-stage__note strong,
@@ -243,7 +243,7 @@
   font-size: clamp(12px, 1.2vw, 16px);
   line-height: 1.32;
   font-weight: 750;
-  color: #362355;
+  color: var(--ink);
 }
 
 .is-home .mkt-stage__note {
@@ -282,12 +282,12 @@
 .is-home .mkt-featured__heading h2,
 .is-home .mkt-how h2 {
   font-weight: 750;
-  color: #291a45;
+  color: var(--ink);
 }
 
 .is-home .mkt-gift-grid .template-card--home {
   overflow: hidden;
-  border: 1px solid #e9dfed;
+  border: 1px solid var(--line);
   border-radius: 22px;
   box-shadow: 0 13px 28px #3e25410f;
   transition: transform 240ms ease, box-shadow 240ms ease;
@@ -299,7 +299,7 @@
 }
 
 .is-home .mkt-how {
-  background: linear-gradient(165deg, #faf6ff, #fff9f6);
+  background: linear-gradient(165deg, var(--app-accent-soft), #fff9f6);
 }
 
 .is-home #main[data-mkt-motion-ready] [data-mkt-reveal] {
@@ -316,7 +316,7 @@
 /* Trạng thái điều khiển bằng bàn phím và người dùng ít chuyển động */
 .is-home .mkt-hero__scroll:focus-visible,
 .is-home .mkt-stage__note:focus-visible {
-  outline: 3px solid #5e35b8;
+  outline: 3px solid var(--purple);
   outline-offset: 4px;
 }
 
@@ -502,7 +502,7 @@
   padding: 0;
   border: 0;
   border-radius: 50%;
-  color: #6039a5;
+  color: var(--purple);
   background: transparent;
   cursor: pointer;
 }
@@ -520,7 +520,7 @@
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background: #6039a5;
+  background: var(--purple);
   transform: scaleX(0);
   transform-origin: left center;
 }
@@ -530,7 +530,7 @@
 }
 
 .mkt-hero__rotation button:focus-visible {
-  outline: 3px solid #6039a5;
+  outline: 3px solid var(--purple);
   outline-offset: 2px;
 }
 
@@ -550,7 +550,7 @@
   border: 1px solid #cbb5e3;
   border-radius: 999px;
   background: #ffffffed;
-  color: #48257f;
+  color: var(--purple-deep);
   font-family: var(--font-body);
   font-size: 13px;
   font-weight: 700;
@@ -558,7 +558,7 @@
 }
 
 .mkt-hero__rotation .mkt-hero__playback:hover {
-  background: #f0e9fc;
+  background: var(--app-accent-soft);
 }
 
 .mkt-hero__playback[data-state="playing"] .mkt-hero__playback-play,
@@ -619,7 +619,7 @@
 
 /* Cho người dùng bàn phím biết rõ đang chọn nút xem thiệp. */
 .is-home .mkt-stage .mkt-hero__cover:focus-visible {
-  outline: 3px solid #5e35b8;
+  outline: 3px solid var(--purple);
   outline-offset: 6px;
 }
 

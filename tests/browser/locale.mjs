@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import path from 'node:path';
 import { chromium } from 'playwright';
+import en from '../../web/assets/locales/en.json' with { type: 'json' };
 
 export async function runLocaleBrowser(base) {
   const browser = await chromium.launch({ channel: process.env.BROWSER_CHANNEL || undefined });
@@ -64,7 +65,9 @@ export async function runLocaleBrowser(base) {
     await locale.selectOption('en');
     await page.getByRole('heading', { name: 'Welcome back!' }).waitFor();
     await page.goto(base);
-    await page.getByRole('heading', { name: 'Make an interactive gift for someone you love' }).waitFor();
+    const homeHeading = page.locator('.mkt-hero h1');
+    await homeHeading.waitFor();
+    assert.equal((await homeHeading.innerText()).replace(/\s+/g, ' ').trim(), `${en['home.openMe.title']} ${en['home.openMe.emphasis']}`);
     await capture(page, 'locale-home-en-desktop.png');
     await page.goto(base + '/explore');
     await page.getByRole('heading', { name: 'Gift template library' }).waitFor();

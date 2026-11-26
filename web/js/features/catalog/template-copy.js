@@ -15,6 +15,10 @@ export function templateValue(template, field) {
   return key ? { format: 'message', key } : template[field];
 }
 
+export function heroTemplateCover(template) {
+  return template.thumbnail ? `src="${e(template.thumbnail)}"` : templateCover(template, {variant:'portrait'});
+}
+
 export function templateSearchFields(template) {
   return ['title', 'subtitle', 'style', 'category', 'paletteLabel']
     .map(field => templateFieldKey(template, field)).filter(Boolean).map(key => t(key));

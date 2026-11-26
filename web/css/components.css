@@ -29,7 +29,7 @@
   box-shadow: 0 14px 30px rgba(97, 54, 223, 0.28);
 }
 .btn--outline {
-  border-color: #d8d0d9;
+  border-color: var(--app-control-border);
   background: white;
   color: var(--purple);
 }

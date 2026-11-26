@@ -11,7 +11,7 @@ import {mountCoverLoading} from '../core/cover-loading.js';
 import {ensureFullStyles} from '../core/client-styles.js';
 import { attr, initializeLocale, localeControl, message, onLocaleChange, setAttr, setText, t, text } from "../core/i18n.js";
 import { clearAuthReturn, rememberAuthReturn, takeAuthReturn } from "../core/auth-return.js";
-import { scrollBehavior } from "../core/motion.js";
+import { focusVisibleTarget, scrollBehavior } from "../core/motion.js";
 import { canTransitionPage, createPageTransition, sameDocument } from '../core/page-transition.js';
 import { icon } from "../ui/icons.js";
 import { normalizeCardTypeFilter } from '../shared/card-type.js';
@@ -22,9 +22,10 @@ import { state } from "../core/state.js";
 import { templateValue } from "../features/catalog/template-copy.js";
 import { createComponents } from "../ui/components.js";
 import { createLayout } from "../ui/layout.js";
-import { createHomeViews, homeDemo, homeDemos } from "../pages/home.js";
+import { createHomeViews, homeDemo, selectHomeDemos } from "../pages/home.js";
 import { mountMarketingMotion } from "../features/marketing/scene-motion.js";
-import { mountHeroTemplates } from "../features/marketing/hero-templates.js";
+import { mountHeroTemplates, mountHomeChoices } from "../features/marketing/hero-templates.js";
+import { mountFeaturedCarousel } from '../features/marketing/featured-carousel.js';
 import { mountTemplatePreview } from "../features/catalog/template-preview.js";
 import { createCatalogViews } from "../pages/catalog.js";
 import { pricingPage } from '../pages/pricing.js';
@@ -338,16 +339,25 @@ function mountHome() {
     sheen.play();
   }, { signal });
   const disposeMarketingMotion = mountMarketingMotion(main, { signal });
-  const rotation = mountHeroTemplates(main, homeDemos);
+  const rotation = mountHeroTemplates(main, selectHomeDemos(state.templates));
+  const disposeChoices = mountHomeChoices(main);
   const preview = mountTemplatePreview(main, homeDemo, { api, onOpen: loadAppFonts, getTemplate: () => rotation.template });
   const featured = main.querySelector('#home-featured-gifts');
+  let featuredCarousel=null;
+  function showFeatured(status){
+    featuredCarousel?.dispose();featured.innerHTML=featuredGifts(status);
+    featuredCarousel=status==='ready'?mountFeaturedCarousel(featured):null;
+  }
   async function loadFeatured() {
-    featured.innerHTML = featuredGifts('loading');
+    showFeatured('loading');
     try {
       await Promise.all([loadCatalog(), loadIdentity().then(loadFavorites, () => {})]);
-      if (!signal.aborted) featured.innerHTML = featuredGifts('ready');
+      if (!signal.aborted) {
+        rotation.updateTemplates(selectHomeDemos(state.templates));
+        showFeatured('ready');
+      }
     } catch {
-      if (!signal.aborted) featured.innerHTML = featuredGifts('error');
+      if (!signal.aborted) showFeatured('error');
     }
   }
   featured.addEventListener('click', event => {
@@ -380,7 +390,9 @@ function mountHome() {
     lifetime.abort();
     disposeMarketingMotion();
     rotation.dispose();
+    disposeChoices();
     preview.dispose();
+    featuredCarousel?.dispose();
     removeLocaleListener();
     moment.__moment?.destroy?.();
   } };
@@ -539,16 +551,36 @@ async function render({ transition = false, resetScroll = false } = {}) {
       lifetime.signal.addEventListener("abort", () => clearInterval(poll), { once: true });
       if (gift.documentSnapshot) {
         document.body.classList.add("is-playing-gift");
+        const openMeRecipient = ['club-22-invitation', 'cozy-christmas-invitation', 'tet-phong-thu'].includes(gift.templateId);
         const { mountPlayer } =
           await import("../features/gift-runtime/index.js");
         if (generation !== renderGeneration) return;
-        main.innerHTML = `<section class="section recipient-section"><div class="container recipient-shell"><div id="canvas-public-player" class="recipient-player-host"></div>${gift.rsvp ? '<div data-rsvp-host></div>' : ''}</div></section>`;
+        main.innerHTML = `<section class="section recipient-section"><div class="container recipient-shell">${gift.recipientMode === 'self' ? `<div class="recipient-preferences">${localeControl()}</div>` : ''}<div id="canvas-public-player" class="recipient-player-host"></div>${gift.rsvp ? '<div data-rsvp-host></div>' : ''}</div></section>`;
         const player = mountPlayer(
           document.getElementById("canvas-public-player"),
           {
             document: gift.documentSnapshot,
             runtimeVersion: gift.runtimeVersion,
             mode: "public",
+            onSceneChange: sceneId => {
+              if (openMeRecipient) {
+                const dedication = main.querySelector('.recipient-dedication');
+                if (dedication) {
+                  dedication.hidden = sceneId !== gift.documentSnapshot.entrySceneId;
+                  const scene = gift.documentSnapshot.scenes.find(item => item.id === sceneId);
+                  const heading = gift.documentSnapshot.elements.find(item => scene.elementIds.includes(item.id) && item.type === 'text' && item.accessibility.role === 'heading');
+                  if (heading) dedication.style.color = heading.props.color;
+                }
+              }
+              if (sceneId !== 'scene-reply' || !gift.rsvp || ![
+                'club-22-invitation', 'cozy-christmas-invitation',
+              ].includes(gift.templateId)) return;
+              // The canvas action selects its reply scene; Gifts owns RSVP and
+              // its existing permission/storage contract outside the canvas.
+              queueMicrotask(() => {
+                if (!lifetime.signal.aborted) focusVisibleTarget(main.querySelector('[data-rsvp-host] h2'));
+              });
+            },
             assetUrl: (assetId) =>
               `/api/gifts/gifts/${encodeURIComponent(id)}/assets/${encodeURIComponent(assetId)}${query}`,
             replyAdapter: {

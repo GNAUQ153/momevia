@@ -1,7 +1,8 @@
 // Loại thiệp khác với dịp sử dụng; không suy đoán từ tên hoặc danh mục.
 export const CARD_TYPES = Object.freeze(['invitation', 'greeting', 'unspecified']);
-const invitationIds = new Set(['loi-moi-ben-hien']);
+const invitationIds = new Set(['loi-moi-ben-hien', 'club-22-invitation', 'cozy-christmas-invitation']);
 const greetingIds = new Set([
+  'tet-phong-thu',
   'midnight-bloom', 'sunny-wishes', 'love-letter', 'starlight', 'peachy-day',
   'greenhouse', 'confetti', 'cloud-nine', 'lavender', 'polaroid', 'afterglow',
   'tiny-celebration', 'mot-ky-niem', 'hai-phong-bi', 'winter-wishes-2026',

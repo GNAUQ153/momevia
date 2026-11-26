@@ -13,7 +13,8 @@ export function mountRecipientOptions(host, { store, commit, policy, signal }) {
       next.document.personalization = { ...(next.document.personalization || { version: 1 }), mode };
     }, t('recipient.title')), { signal });
   }
-  group.append(choices, node('details', { class: 'editor-help-disclosure' },
+  const rsvpHint = node('p', { class: 'editor-help', 'data-recipient-rsvp-hint': '', hidden: !store.get().document.invitation }, message('recipient.invitationRsvpHint'));
+  group.append(choices, rsvpHint, node('details', { class: 'editor-help-disclosure' },
     node('summary', {}, message('recipient.variableHelp')),
     node('p', { class: 'editor-help' }, message('recipient.variableHint', { nameToken: '{người nhận}' })),
   ));
@@ -51,6 +52,7 @@ export function mountRecipientOptions(host, { store, commit, policy, signal }) {
   }, { signal });
   function sync() {
     const settings = store.get().document.personalization || { mode: 'manual' };
+    rsvpHint.hidden = !store.get().document.invitation;
     for (const radio of choices.querySelectorAll('input')) radio.checked = radio.value === settings.mode;
     list.hidden = settings.mode !== 'list'; self.hidden = settings.mode !== 'self';
     const recipient = host.querySelector('[data-editor-field="binding.recipientName"]');

@@ -41,7 +41,7 @@ export function mountFloatingCta() {
   const createAction = panel.querySelector?.('[data-floating-action="create"]');
   const heroMotion = createHeroCtaMotion(panel);
   const exitMotion = createCtaExitMotion(panel);
-  let routeHidden = true, toolsRouteHidden = false, footerInView = false, queued = false, dirty = true, home = false, catalog = false, detail = false;
+  let routeHidden = true, toolsRouteHidden = false, footerInView = false, queued = false, dirty = true, home = false, pricing = false, catalog = false, detail = false;
   let heroActions = null, catalogCreate = null;
   let content = [];
   let footerTarget = null, footerObserver = null;
@@ -82,8 +82,10 @@ export function mountFloatingCta() {
     if (createAction && createAction.getAttribute('href') !== createUrl) createAction.setAttribute('href', createUrl);
     const headerBottom = document.getElementById('site-header')?.getBoundingClientRect().bottom || 0;
     const heroPassed = heroMotion.prepare(heroActions, headerBottom);
+    const pricingIntro = pricing ? main?.querySelector('.pricing-intro')?.getBoundingClientRect() : null;
+    const pricingPassed = pricingIntro && pricingIntro.bottom <= headerBottom + 8;
     const catalogPassed = catalogCreate && visibleCtaRatio(catalogCreate.getBoundingClientRect(), document.documentElement.clientWidth, document.documentElement.clientHeight, headerBottom) <= 0.5;
-    const disabled = footerInView || dialogOpen || (home && main && !heroPassed) || (catalog && main && !catalogPassed) || (detail && !templateCreate);
+    const disabled = footerInView || dialogOpen || (home && main && !heroPassed) || (pricing && main && !pricingPassed) || (catalog && main && !catalogPassed) || (detail && !templateCreate);
     // Probe fixed overlays synchronously, then settle visibility before painting.
     // Changing visibility never changes document padding or scroll position.
     const eligible = !(routeHidden || disabled);
@@ -100,7 +102,7 @@ export function mountFloatingCta() {
     if (desiredVisible) {
       measure();
       const box = panel.getBoundingClientRect();
-      desiredVisible = home || catalog || detail || !boxes.some(contentBox => overlapsContent(box, contentBox));
+      desiredVisible = home || pricing || catalog || detail || !boxes.some(contentBox => overlapsContent(box, contentBox));
     }
     panel.hidden = previousHidden;
     hide(panel, !desiredVisible);
@@ -145,7 +147,7 @@ export function mountFloatingCta() {
   document.addEventListener('focusin', event => {
     // Keep pointer targets stationary between pointerdown and pointerup.
     const control = event.target;
-    if (home || catalog || detail || pointerActivation || panel.hidden || panel.contains(control) || !control.matches?.('input,textarea,select,button,a[href]')) return;
+    if (home || pricing || catalog || detail || pointerActivation || panel.hidden || panel.contains(control) || !control.matches?.('input,textarea,select,button,a[href]')) return;
     if (overlapsContent(panel.getBoundingClientRect(), control.getBoundingClientRect(), 12)) {
       hide(panel, true);
       document.body.classList.toggle('has-floating-cta', false);
@@ -154,6 +156,7 @@ export function mountFloatingCta() {
   });
   return { sync(pathname) {
     home = pathname === '/';
+    pricing = /^\/pricing\/?$/.test(pathname);
     catalog = /^\/explore\/?$/.test(pathname);
     detail = /^\/template\/[^/]+\/?$/.test(pathname);
     panel.classList?.toggle('floating-cta--catalog', catalog || detail);

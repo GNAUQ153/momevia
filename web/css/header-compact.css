@@ -34,7 +34,7 @@
     overflow-y: auto;
     overscroll-behavior: contain;
     padding: 14px max(24px, calc((100vw - 880px) / 2)) 20px;
-    border-top: 1px solid var(--brand-outline, #dcd0eb);
+    border-top: 1px solid var(--brand-outline, var(--line));
     background: #ffffff;
     box-shadow: 0 16px 32px rgb(38 28 61 / 9%);
   }
@@ -56,7 +56,7 @@
 /* Mở rộng vùng chạm và hỗ trợ điều hướng bằng bàn phím. */
 .site-header .nav-toggle:focus-visible,
 .site-header .mobile-nav :is(a, button, select):focus-visible {
-  outline: 3px solid var(--brand-focus, #5e35c2);
+  outline: 3px solid var(--brand-focus, var(--purple));
   outline-offset: 3px;
 }
 

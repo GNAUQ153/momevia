@@ -1,5 +1,5 @@
 .floating-cta {
-  --cta-width: 248px;
+  --cta-width: 440px;
   --cta-frame-background: var(--white, #fff);
   --cta-frame-border: var(--line, #e6d9fb);
   --cta-frame-shadow: 0 12px 32px rgb(69 35 132 / 18%);
@@ -7,10 +7,10 @@
   z-index: 55;
   right: 22px;
   bottom: calc(24px + env(safe-area-inset-bottom, 0px));
-  width: var(--cta-width);
-  padding: 10px;
+  width: min(var(--cta-width), calc(100% - 44px));
+  padding: 8px;
   border: 1px solid var(--cta-frame-border);
-  border-radius: 20px;
+  border-radius: 16px;
   background: var(--cta-frame-background);
   box-shadow: var(--cta-frame-shadow);
   font-family: var(--font-shell, sans-serif);
@@ -20,6 +20,7 @@
 }
 .floating-cta nav {
   display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
 }
 
@@ -28,6 +29,7 @@
 }
 
 .floating-cta.floating-cta--catalog {
+  --cta-width: 220px;
   --cta-frame-background: transparent;
   --cta-frame-border: transparent;
   --cta-frame-shadow: none;
@@ -82,30 +84,42 @@
   color: var(--purple-deep, #4e27bd);
 }
 body.has-floating-cta {
-  --floating-cta-height: 122px;
+  --floating-cta-height: 64px;
 }
 body.has-floating-cta .site-tools {
-  right: 284px;
+  right: 22px;
+  bottom: calc(var(--floating-cta-height) + 36px + env(safe-area-inset-bottom, 0px));
+  flex-direction: row;
+  gap: 8px;
+}
+body.has-floating-cta .floating-tool {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
 }
 @media (max-width: 600px) {
   .floating-cta {
     right: 12px;
     bottom: calc(12px + env(safe-area-inset-bottom, 0px));
-    width: calc(100% - 24px);
+    width: min(280px, calc(100% - 24px));
     padding: 8px;
     border-radius: 16px;
   }
   .floating-cta nav {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .floating-cta.floating-cta--catalog {
+    right: 12px;
+    width: calc(100% - 24px);
   }
   .floating-cta a {
     min-height: 48px;
     padding: 8px;
     gap: 6px;
-    font-size: 13px;
+    font-size: 14px;
   }
   body.has-floating-cta {
-    --floating-cta-height: 66px;
+    --floating-cta-height: 122px;
   }
   body.has-floating-cta .site-tools {
     right: 12px;

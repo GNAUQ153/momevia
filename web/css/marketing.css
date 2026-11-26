@@ -103,7 +103,7 @@
 
 .is-home .btn.mkt-primary {
   color: white;
-  background: linear-gradient(135deg, #7147f4 0%, #4b21bb 100%);
+  background: linear-gradient(135deg, #7147f4 0%, var(--purple-deep) 100%);
   box-shadow: 0 13px 28px rgba(93, 47, 208, .2);
 }
 
@@ -570,7 +570,7 @@
 @media (hover: hover) and (pointer: fine) {
   .mkt-occasion__link:hover {
     border-color: #a88acb;
-    background: #faf7ff;
+    background: var(--app-accent-soft);
   }
 }
 

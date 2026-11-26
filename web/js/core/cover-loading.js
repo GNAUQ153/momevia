@@ -19,9 +19,7 @@ export function preserveLoadedCovers(current, candidate) {
  }
 }
 
-export function mountCoverLoading(root){
- const selector='img[data-cover-lazy]',observed=new Set();
- const promote=img=>{
+export function loadCoverImage(img){
   const initialFold=img.getBoundingClientRect().top+scrollY<innerHeight;
   img.loading=initialFold?'eager':'lazy';img.fetchPriority=initialFold?'high':'auto';
   for(const name of ['srcset','src']){
@@ -31,6 +29,12 @@ export function mountCoverLoading(root){
    img.removeAttribute('data-'+name);
   }
   img.removeAttribute('data-cover-lazy');
+}
+
+export function mountCoverLoading(root){
+ const selector='img[data-cover-lazy]',observed=new Set();
+ const promote=img=>{
+  loadCoverImage(img);
   observed.delete(img);intersection?.unobserve(img);
  };
  const intersection=typeof IntersectionObserver==='function'?new IntersectionObserver(entries=>{for(const entry of entries)if(entry.isIntersecting)promote(entry.target);},{rootMargin:'100px 0px'}):null;

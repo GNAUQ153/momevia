@@ -68,6 +68,7 @@ import { soundtrackById } from '../shared/canvas/soundtracks.js';
 import { createMusicPanel, filterMusicPanel, syncMusicPanel } from '../features/canvas-editor/music-panel.js';
 import { openCanvasPreview } from "../features/canvas-editor/preview-dialog.js";
 import { openGiftAccessDialog } from "../features/canvas-editor/gift-access-dialog.js";
+import { icon } from "../ui/icons.js";
 import { createSceneLayerPanel } from "../features/canvas-editor/scene-layer-panel.js";
 import { mountSceneMenus } from '../features/canvas-editor/scene-menu.js';
 import { createInspectorPanel } from "../features/canvas-editor/inspector-panel.js";
@@ -287,8 +288,10 @@ export function mountDesigner(
     if (!store || !design) return;
     const document = store.get().document;
     const sceneStatus = main.querySelector('[data-editor-scene-progress]');
+    const sceneName = main.querySelector('[data-editor-current-scene]');
     const selectionStatus = main.querySelector('[data-editor-selection]');
     if (sceneStatus) setText(sceneStatus, scenePositionLabel(document, sceneId, message));
+    if (sceneName) sceneName.textContent = currentScene()?.name || '';
     if (selectionStatus) setText(selectionStatus, selectionDescription(document, sceneId, selection, design.policy, message));
   }
   function commit(mutate, label, options) {
@@ -438,6 +441,10 @@ export function mountDesigner(
       panel.hidden = panel.dataset.libraryPanel !== (quickMode ? "content" : tab);
     for (const control of library.querySelectorAll('[data-editor-action="library-tab"]'))
       control.setAttribute("aria-pressed", control.dataset.tab === tab);
+    const heading = library.querySelector('[data-editor-library-heading]');
+    const hint = library.querySelector('[data-editor-library-hint]');
+    if (heading) setText(heading, message(tab === 'add' ? 'editor.workspace.blocks' : `editor.interface.tab.${tab}`));
+    if (hint) setText(hint, message(tab === 'add' ? 'editor.workspace.blocksHint' : 'editor.workspace.toolsHint'));
   }
 
   function blockLibrary() {
@@ -511,14 +518,25 @@ export function mountDesigner(
       node(
         "div",
         { class: "editor-panel-heading editor-layout-only" },
-        node("h2", {}, message("editor.tools")),
+        node('div', { class: 'editor-library-heading' },
+          node("h2", { 'data-editor-library-heading': '' }, message("editor.tools")),
+          node('p', { 'data-editor-library-hint': '' }, message('editor.workspace.toolsHint')),
+        ),
         iconButton(message("editor.actions.closeTools"), "close-sheet", "close", { class: "editor-sheet-close" }),
       ),
       node(
         "nav",
         { class: "editor-library-tabs editor-layout-only", "aria-label": message("editor.tools") },
-        ...Object.entries(libraryTabs).map(([key, label]) =>
-          button(message(`editor.interface.tab.${key}`), "library-tab", { "data-tab": key, "aria-controls": `editor-panel-${key}` })),
+        ...Object.keys(libraryTabs).map(key => {
+          const control = button('', 'library-tab', {
+            'data-tab': key, 'aria-controls': `editor-panel-${key}`,
+            title: message(`editor.interface.tab.${key}`),
+          });
+          const symbol = node('span', { class: 'editor-tool-icon', 'aria-hidden': 'true' });
+          symbol.innerHTML = icon({ add: 'layers', content: 'pencil', assets: 'image', layers: 'menu', sounds: 'music' }[key], 20);
+          control.append(symbol, node('span', {}, message(`editor.interface.tab.${key}`)));
+          return control;
+        }),
       ),
       node(
         "div",
@@ -598,7 +616,10 @@ export function mountDesigner(
       node(
         "div",
         { class: "editor-stage-tools editor-layout-only" },
-        node("span", { class: "editor-scene-progress", "data-editor-scene-progress": "" }, message("editor.stage.initialScene")),
+        node('div', { class: 'editor-stage-context' },
+          node('h2', { class: 'editor-current-scene', 'data-editor-current-scene': '' }, currentScene().name),
+          node("span", { class: "editor-scene-progress", "data-editor-scene-progress": "" }, message("editor.stage.initialScene")),
+        ),
         iconButton(message("editor.zoom.out"), "zoom-out", "zoom-out"),
         zoomControl,
         iconButton(message("editor.zoom.in"), "zoom-in", "zoom-in"),

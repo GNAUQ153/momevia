@@ -2,12 +2,15 @@ import { publicDocument } from '../../../web/js/shared/canvas/index.js';
 import { publicInvitation, invitationSlots } from '../../../web/js/shared/canvas/invitation.js';
 import { clearTemplateBindingDefaults } from '../../../web/js/shared/canvas/personalization.js';
 import { giftStatus } from '../gifts/access.mjs';
+import { systemCardType } from '../../../web/js/shared/card-type.js';
 
 const copy = value => structuredClone(value);
 
 // Vai trò vùng nội dung của mẫu được giữ khi nhân bản và đổi ID Canvas.
 export function invitationSlotIds(d) {
-  if (d.source?.templateId !== 'loi-moi-ben-hien' || d.policy?.kind !== 'sender-basic') return undefined;
+  // Catalog admits only published sources. Keep their supported event slots
+  // editable in saved drafts even after a source stops being advertised.
+  if (systemCardType(d.source?.templateId) !== 'invitation' || d.policy?.kind !== 'sender-basic') return undefined;
   const mapped = d.provenance?.slotMap?.elements;
   const slots = invitationSlots(d.document, { dateElementId: mapped?.['event-date'], venueElementId: mapped?.['event-location'] });
   return slots ? { dateElementId: slots.date.id, venueElementId: slots.venue.id } : undefined;

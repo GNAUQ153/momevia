@@ -1,6 +1,7 @@
 import { createElement } from './registry.js';
 import { validateDocument } from './schema.js';
 import { createBasicTemplate } from './basic-templates.js';
+import { OPEN_ME_TEMPLATE_IDS } from './open-me-templates.js';
 import { canonicalText } from '../locale.js';
 import { EVENT_CARD_IDS } from './event-cards.js';
 import { predictionCard, predictionFields } from './prediction.js';
@@ -60,6 +61,10 @@ export function templatePreviewDocument(template, localize = canonicalText) {
   doc.bindings.recipientName.value = localize('templates.preview.recipient');
   doc.bindings.senderName.value = localize('templates.preview.sender');
   doc.bindings.message.value = localize('templates.preview.greeting');
+  if (OPEN_ME_TEMPLATE_IDS.includes(template?.id)) {
+    for (const [binding, field] of [['recipientName', 'previewRecipient'], ['senderName', 'previewSender'], ['message', 'previewMessage']])
+      doc.bindings[binding].value = localize(`templates.${template.id}.${field}`);
+  }
   const prediction = predictionCard(doc);
   if (prediction) {
     doc.bindings.senderName.value = 'Minh'; doc.bindings.recipientName.value = 'An';

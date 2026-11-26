@@ -1,32 +1,46 @@
 import { attr, text } from "../core/i18n.js";
 import { templatePreviewDialog } from "../features/catalog/template-preview.js";
-import { isInSeason, vietnamDay } from "../features/catalog/seasonal.js";
-import { templateCover } from "../features/catalog/template-copy.js";
+import { selectFeaturedTemplates } from '../features/marketing/featured-carousel.js';
+import { heroImages, heroSelectors } from '../features/marketing/hero-templates.js';
 import { canonicalText } from "../shared/locale.js";
 import { icon } from "../ui/icons.js";
-import { prioritizeTemplates } from '../shared/template-order.js';
 import { occasionExploreUrl, occasionShortcuts } from '../features/marketing/occasion-shortcuts.js';
+import { templateCardType } from '../shared/card-type.js';
 
 // The covers and player use the same public, built-in templates.
 export const homeDemo = {
-  id: "hai-phong-bi",
+  id: "loi-moi-ben-hien",
   creator: "Momevia Originals",
-  title: canonicalText("templates.hai-phong-bi.title"),
+  title: canonicalText("templates.loi-moi-ben-hien.title"),
 };
-export const homeDemos = [homeDemo, ...['birthday-radiance', 'proud-of-you'].map(id => ({
-  id, creator: 'Momevia Originals', title: canonicalText(`templates.${id}.title`),
+export const homeDemos = [homeDemo, ...['birthday-radiance','hai-phong-bi','proud-of-you','mot-ky-niem'].map(id => ({
+  id, creator: 'Momevia Originals', systemOwned:true, title: canonicalText(`templates.${id}.title`),
 }))];
+
+// Only select records supplied by Catalog once it has loaded; keep the complete
+// record so preview and creation retain a Creator version or server policy.
+export function selectHomeDemos(templates = []) {
+  if (!templates.length) return homeDemos;
+  const chosen=[];
+  const add=template=>{if(template&&!chosen.some(t=>t.id===template.id)&&chosen.length<5)chosen.push(template);};
+  add(templates.find(t=>templateCardType(t)==='invitation'));
+  for(const id of ['birthday-radiance','hai-phong-bi','proud-of-you','mot-ky-niem'])add(templates.find(t=>t.id===id));
+  templates.forEach(add);
+  return chosen;
+}
 
 export function createHomeViews({ state, buttonLink, templateCard }) {
   function hero() {
-    return `<section class="hero hero--split mkt-hero" data-enter><div class="container wrap"><div class="hero-text mkt-hero__layout">
+    const demos = selectHomeDemos(state.templates);
+    return `<section class="hero hero--split mkt-hero open-me-hero" data-enter><div class="container wrap"><div class="hero-text mkt-hero__layout">
       <div class="mkt-hero__intro">
-        <span class="mkt-hero__eyebrow">${icon("sparkles", 17)} ${text("home.hero.eyebrow")}</span>
-        <h1>${text("home.hero.title")}</h1>
-        <p class="hero__lead">${text("home.hero.description")}</p>
+        <span class="open-me-intro-sheen" aria-hidden="true"></span>
+        <span class="mkt-hero__eyebrow">${icon("sparkles", 17)} ${text("home.openMe.eyebrow")}</span>
+        <h1>${text("home.openMe.title")}<br><em>${text("home.openMe.emphasis")}</em></h1>
+        <p class="hero__lead">${text("home.openMe.description")}</p>
         <div class="mkt-actions">
-          ${buttonLink("/explore", text("home.hero.cta"), "mkt-primary")}
-          <button type="button" class="btn mkt-secondary" data-template-preview aria-haspopup="dialog">${icon("eye", 18)} ${text("home.hero.preview")}</button>
+          <button type="button" class="btn mkt-primary" data-home-create aria-haspopup="dialog">${text("home.openMe.create")} ${icon("arrow-up-right", 18)}</button>
+          ${buttonLink("/explore", text("home.openMe.browse"), "mkt-secondary")}
         </div>
         <ul class="mkt-hero__benefits">
           <li>${icon("check-circle", 17)} ${text("home.hero.proof.design")}</li>
@@ -34,33 +48,26 @@ export function createHomeViews({ state, buttonLink, templateCard }) {
         </ul>
         <a class="mkt-hero__scroll" href="#how-it-works">${text("home.hero.how")} ${icon("chevron-down", 17)}</a>
       </div>
-      <div class="mkt-hero__artwork">
-      <div class="mkt-hero__frame hero__window mkt-stage" data-visual data-enter-media data-mkt-tilt>
-        <div class="mkt-stage__atmosphere" aria-hidden="true">
-          <span class="mkt-stage__orb mkt-stage__orb--first"></span>
-          <span class="mkt-stage__orb mkt-stage__orb--second"></span>
-          <span class="mkt-stage__ring"></span>
-        </div>
-        <div class="mkt-stage__note" aria-hidden="true">
-          <span>${text("home.hero.note.caption")}</span>
-          <strong>${text("home.hero.note.title")}</strong>
-        </div>
-        <div class="mkt-stage__cards">
-        <button type="button" class="mkt-hero__cover" data-template-preview aria-haspopup="dialog" ${attr("aria-label", "home.hero.preview")}>
-          ${homeDemos.map((template, index) => `<img ${templateCover(template.id)} data-hero-image="${template.id}" data-active="${index === 0}" alt="" width="390" height="844" ${index === 0 ? 'fetchpriority="high"' : 'decoding="async"'} />`).join('')}
-        </button>
-        </div>
-        <div class="mkt-stage__reply" aria-hidden="true">
-          <span>${text("home.hero.reply.caption")}</span>
-          <strong>${icon("heart", 15)} ${text("home.hero.reply.title")}</strong>
-        </div>
+      <div class="mkt-hero__artwork open-me-hero__showcase">
+      <div class="mkt-hero__frame mkt-stage open-me-stack" data-visual data-enter-media data-mkt-tilt data-mkt-tilt-strength="0.15">
+        <div class="mkt-stage__atmosphere" aria-hidden="true"><span class="mkt-stage__orb mkt-stage__orb--first"></span><span class="mkt-stage__orb mkt-stage__orb--second"></span><span class="mkt-stage__ring"></span></div>
+        <span class="open-me-posters__stamp" aria-hidden="true">${text('home.openMe.stamp')}</span>
+        <div class="mkt-stage__note" aria-hidden="true"><span>${text('home.hero.note.caption')}</span><strong>${text('home.hero.note.title')}</strong></div>
+        <div class="mkt-stage__cards"><button type="button" class="mkt-hero__cover" data-template-preview aria-haspopup="dialog" ${attr('aria-label','home.hero.preview')}>${heroImages(demos)}</button></div>
+        <div class="mkt-stage__reply" aria-hidden="true"><span>${text('home.hero.reply.caption')}</span><strong>${icon('heart',15)} ${text('home.hero.reply.title')}</strong></div>
       </div>
-      <div class="mkt-hero__rotation" role="group" ${attr('aria-label', 'home.hero.slides')}>
-        ${homeDemos.map((template, index) => `<button type="button" class="mkt-hero__slide" data-hero-select="${index}" aria-pressed="${index === 0}" ${attr('aria-label', `templates.${template.id}.title`)}><span aria-hidden="true"><span data-hero-progress></span></span></button>`).join('')}
+      <div class="mkt-hero__rotation open-me-hero__controls" role="group" ${attr('aria-label','home.hero.slides')}>
+        ${heroSelectors(demos)}
       </div>
       </div>
       </div>
-      ${templatePreviewDialog(homeDemo)}
+      ${templatePreviewDialog(demos[0])}
+      <dialog class="home-create-dialog" aria-labelledby="home-create-title">
+        <div class="home-create-dialog__heading"><h2 id="home-create-title">${text('home.openMe.choose')}</h2><button type="button" class="icon-button" data-home-create-close ${attr('aria-label','common.actions.close')}>${icon('close', 22)}</button></div>
+        <p>${text('home.openMe.chooseHint')}</p>
+        <div class="home-create-dialog__choices">${['invitation','greeting'].map(type => `<a href="/explore?cardType=${type}" data-link class="home-create-choice home-create-choice--${type}">${icon(type === 'invitation' ? 'calendar' : 'heart', 28)}<strong>${text(`home.openMe.${type}`)}</strong><span>${text(`home.openMe.${type}Hint`)}</span>${icon('arrow', 20)}</a>`).join('')}</div>
+        <a href="/design/new" data-link class="home-create-dialog__blank">${text('home.openMe.blank')} ${icon('arrow', 16)}</a>
+      </dialog>
     </div></section>`;
   }
 
@@ -80,16 +87,9 @@ export function createHomeViews({ state, buttonLink, templateCard }) {
     if (status === "loading") return `<p role="status">${text("home.featured.loading")}</p>`;
     if (status === "error") return `<p role="alert">${text("home.featured.error")}</p>
       <button class="btn mkt-secondary" type="button" data-home-catalog-retry>${text("common.actions.retry")}</button>`;
-    const day = vietnamDay();
-    const ranked = prioritizeTemplates(state.templates.slice().sort((a, b) => Number(isInSeason(b, day)) - Number(isInSeason(a, day)) || Number(Boolean(b.featured)) - Number(Boolean(a.featured))));
-    const selections = new Map();
-    for (const template of ranked) {
-      const occasion = template.category || template.style || template.id;
-      if (!selections.has(occasion)) selections.set(occasion, template);
-      if (selections.size === 3) break;
-    }
-    return selections.size
-      ? `${occasionBrowse()}<div class="mkt-gift-grid" data-visual>${[...selections.values()].map(template => templateCard(template, { compact: true })).join("")}</div>`
+    const selections=selectFeaturedTemplates(state.templates);
+    return selections.length
+      ? `${occasionBrowse()}<div class="featured-carousel" data-featured-carousel data-featured-count="${selections.length}" role="group" ${attr('aria-label','home.featured.title')}><div class="featured-carousel__viewport" data-featured-viewport><div class="mkt-gift-grid featured-carousel__track" data-featured-track data-visual>${selections.map(template=>templateCard(template,{compact:true})).join('')}</div></div></div>`
       : `<p role="status">${text("home.featured.empty")}</p>`;
   }
 
@@ -124,48 +124,46 @@ export function createHomeViews({ state, buttonLink, templateCard }) {
       { id: 'keep', symbol: 'bookmark' },
     ];
     return `<section class="mkt-section mkt-journey" data-mkt-journey data-mkt-reveal aria-labelledby="mkt-journey-title">
-      <div class="container wrap">
+      <div class="container wrap mkt-journey__layout">
         <div class="mkt-journey__heading">
           <span class="mkt-journey__eyebrow">${text("home.journey.eyebrow")}</span>
           <h2 id="mkt-journey-title">${text("home.journey.title")}</h2>
           <p>${text("home.journey.intro")}</p>
         </div>
-        <div class="mkt-journey__layout">
-          <div class="mkt-journey__steps" role="group" ${attr("aria-label", "home.journey.stepsLabel")}>
-            ${steps.map(({ id, symbol }, index) => `<button type="button" class="mkt-journey__step" data-mkt-step="${id}" aria-pressed="${id === 'create'}">
-              <span class="mkt-journey__step-index">0${index + 1}</span>
-              ${icon(symbol, 21)}
-              <span>${text(`home.journey.${id}.title`)}</span>
-            </button>`).join('')}
-          </div>
-          <div class="mkt-journey__showcase">
-            <div class="mkt-journey__scene" data-mkt-journey-scene data-stage="create" aria-hidden="true">
-              <div class="mkt-journey__halo"></div>
-              <div class="mkt-journey__orbit mkt-journey__orbit--first"></div>
-              <div class="mkt-journey__orbit mkt-journey__orbit--second"></div>
-              <div class="mkt-journey__postcard">
-                <div class="mkt-journey__face mkt-journey__face--front">
-                  <span class="mkt-journey__stamp">${icon('heart', 25)}</span>
-                  <strong>${text("home.journey.scene.front")}</strong>
-                  <span>${text("home.journey.scene.subtitle")}</span>
-                </div>
-                <div class="mkt-journey__face mkt-journey__face--back">
-                  <span class="mkt-journey__stamp">${icon('message-circle', 25)}</span>
-                  <strong>${text("home.journey.scene.back")}</strong>
-                  <span>${text("home.journey.scene.reply")}</span>
-                </div>
+        <div class="mkt-journey__steps" role="group" ${attr("aria-label", "home.journey.stepsLabel")}>
+          ${steps.map(({ id, symbol }, index) => `<button type="button" class="mkt-journey__step" data-mkt-step="${id}" aria-pressed="${id === 'create'}">
+            <span class="mkt-journey__step-index">0${index + 1}</span>
+            ${icon(symbol, 21)}
+            <span>${text(`home.journey.${id}.title`)}</span>
+          </button>`).join('')}
+        </div>
+        <div class="mkt-journey__showcase">
+          <div class="mkt-journey__scene" data-mkt-journey-scene data-stage="create" aria-hidden="true">
+            <div class="mkt-journey__halo"></div>
+            <div class="mkt-journey__orbit mkt-journey__orbit--first"></div>
+            <div class="mkt-journey__orbit mkt-journey__orbit--second"></div>
+            <div class="mkt-journey__postcard">
+              <div class="mkt-journey__face mkt-journey__face--front">
+                <span class="mkt-journey__stamp">${icon('heart', 25)}</span>
+                <strong>${text("home.journey.scene.front")}</strong>
+                <span>${text("home.journey.scene.subtitle")}</span>
               </div>
-              <span class="mkt-journey__spark mkt-journey__spark--one"></span>
-              <span class="mkt-journey__spark mkt-journey__spark--two"></span>
+              <div class="mkt-journey__face mkt-journey__face--back">
+                <span class="mkt-journey__stamp">${icon('message-circle', 25)}</span>
+                <strong>${text("home.journey.scene.back")}</strong>
+                <span>${text("home.journey.scene.reply")}</span>
+              </div>
             </div>
-            <div class="mkt-journey__details" aria-live="polite" aria-atomic="true">
-              ${steps.map(({ id }) => `<div data-mkt-panel="${id}" ${id === 'create' ? '' : 'hidden'}>
-                <h3>${text(`home.journey.${id}.title`)}</h3>
-                <p>${text(`home.journey.${id}.body`)}</p>
-              </div>`).join('')}
-            </div>
-            <p class="mkt-journey__swipe-hint">${text('home.journey.swipeHint')}</p>
+            <span class="mkt-journey__spark mkt-journey__spark--one"></span>
+            <span class="mkt-journey__spark mkt-journey__spark--two"></span>
           </div>
+          <div class="mkt-journey__details" aria-live="polite" aria-atomic="true">
+            ${steps.map(({ id }) => `<div data-mkt-panel="${id}" ${id === 'create' ? '' : 'hidden'}>
+              <h3>${text(`home.journey.${id}.title`)}</h3>
+              <p>${text(`home.journey.${id}.body`)}</p>
+            </div>`).join('')}
+          </div>
+          <p class="mkt-journey__swipe-hint">${text('home.journey.swipeHint')}</p>
         </div>
         <div class="mkt-journey__footer">${buttonLink('/explore', text('home.journey.cta'), 'mkt-primary')}</div>
       </div>

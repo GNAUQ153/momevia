@@ -1,4 +1,5 @@
 import { createInteractiveTemplate } from './interactive-templates.js';
+import { createOpenMeTemplate } from './open-me-templates.js';
 import { canonicalText } from '../locale.js';
 import { templateCopyKey } from '../template-copy.js';
 import { createElement } from './registry.js';
@@ -52,6 +53,8 @@ const LAYER_NAMES = {
 export function createBasicTemplate(template, localize = canonicalText) {
   const configured = libraryDocument('template', template?.id, localize);
   if (configured) return validateDocument(pinDocumentArtwork(configured));
+  const openMe = createOpenMeTemplate(template?.id, localize);
+  if (openMe) return openMe;
   const interactive = createInteractiveTemplate(template?.id, localize);
   if (interactive) return interactive;
   const definition = basicTemplateDefinition(template?.id);

@@ -21,9 +21,12 @@ function renderHome() {
   }).home();
 }
 
-test('Trang chủ có preview thật, CTA và phần 3D không bắt buộc', () => {
+test('Trang chủ có hai preview thật, CTA chọn loại và hành trình tương tác tùy chọn', () => {
   const html = renderHome();
   assert.match(html, /data-template-preview/);
+  assert.equal((html.match(/data-template-preview/g) || []).length, 1);
+  assert.equal((html.match(/data-hero-image=/g)||[]).length,5);
+  assert.match(html, /data-home-create/);
   assert.match(html, /data-mkt-tilt/);
   assert.match(html, /data-mkt-reveal/);
   assert.match(html, /href="\/explore"/);

@@ -85,13 +85,15 @@ test('Mở sheet tập trung nút đóng và trả focus về trigger sau Escape
   assert.match(designer, /closeControl\?\.getClientRects\(\)\.length \? closeControl : target\)\.focus\(\{ preventScroll: true \}\)/);
   assert.match(designer, /if \(restoreFocus\) \{\s*const candidate = previous/);
   assert.match(designer, /candidate\.focus\(\{ preventScroll: true \}\)/);
-  assert.match(designer, /if \(sheet\) \{\s*event\.preventDefault\(\);\s*closeSheet\(\);\s*return;/);
+  const keyboard = source('web/js/features/canvas-editor/keyboard-handler.js');
+  assert.match(keyboard, /if \(sheet\) \{\s*event\.preventDefault\(\);\s*closeSheet\(\);\s*return;/);
 });
 
 test('Sheet chặn shortcut thao tác với Canvas phía sau, đồng thời khóa Tab', () => {
   const designer = source('web/js/pages/designer.js');
-  assert.match(designer, /nextSheetFocus\(sheet\.target, document\.activeElement, event\.shiftKey\)/);
-  const gate=designer.indexOf('if (sheet) return;'),typing=designer.indexOf('if (stopKeys(event.target)',gate),commands=designer.indexOf('const chord=event.ctrlKey',gate);
+  const keyboard = source('web/js/features/canvas-editor/keyboard-handler.js');
+  assert.match(keyboard, /nextSheetFocus\(sheet\.target, document\.activeElement, event\.shiftKey\)/);
+  const gate=keyboard.indexOf('if (sheet) return;'),typing=keyboard.indexOf('if (stopKeys(event.target)',gate),commands=keyboard.indexOf('const chord = event.ctrlKey',gate);
   assert(gate>=0&&typing>gate&&commands>typing,'object shortcuts must remain behind both sheet and typing guards');
   assert.match(designer, /closeSheet\(false\);/);
   assert.match(designer, /if \(!mobile\.matches\) closeSheet\(\);/);

@@ -1,3 +1,56 @@
+## Unreleased — Phase 3.4C Tách xử lý sự kiện và Clipboard Canvas (2026-11-25)
+
+- Tách keyboard handler, helper selection và clipboard action theo từng lần mount; giữ Store, commit, history, session, Fabric và API hiện có.
+- Chặn phím đổi thứ tự layer rơi vào nhánh xóa khi bị khóa; xóa selection cũ khi chuyển cảnh trực tiếp hoặc khởi tạo lại. Mở rộng audit i18n và thêm kiểm thử hồi quy; không đổi CSS, schema hay dependency.
+
+## Unreleased — Phase 3.4B Tách panel Canvas Designer (2026-11-25)
+
+- Tách Inspector và bảng tài sản khỏi Designer; dùng getter lấy document, quyền, selection và clipboard hiện hành, giữ commit và event handler tại controller.
+- Giữ cấu trúc control, focus, cache thumbnail và cơ chế khóa mẫu; mở rộng kiểm tra i18n sang hai file mới và bổ sung kiểm thử panel. Không đổi API, schema, CSS hoặc dependency.
+
+## Unreleased — Phase 3.4A Điều phối hành động frontend (2026-11-25)
+
+- Tách 56 action thành năm nhóm chuyên biệt, giữ listener và trạng thái hiện hành tại Application Controller; bổ sung dispatcher chống đăng ký trùng.
+- Giữ API, guard bất đồng bộ và lazy loading; mở rộng kiểm tra i18n và thêm tám ca hồi quy. Không thay đổi UI, schema hay dependency.
+
+## Unreleased — Phase 3.3 Chuẩn hóa Designs Repository (2026-11-25)
+
+- Tách mapping SQL, helper transaction, tài sản và checkout context khỏi MySqlDesignsRepository; giữ class, export cũ, SQL và phạm vi transaction.
+- JSON Repository chờ callback validation bất đồng bộ trước khi lưu, đồng nhất với MySQL; bổ sung kiểm thử contract và MySQL QA. Không đổi API, schema, dependency hoặc giao diện.
+
+## Unreleased — Phase 3.2B Tách trách nhiệm thiết kế (2026-11-25)
+
+- Tách hash, projection, chính sách khóa chỉnh sửa và preflight khỏi DesignsService; giữ constructor, method, export và callback transaction cũ.
+- Bổ sung sáu ca hồi quy về quyền xuất bản, tài sản, projection và khóa mẫu; không đổi API, schema, GUI hoặc chính sách production.
+
+## Unreleased — Phase 3.2A Tách phụ thuộc cấu hình (2026-11-25)
+
+- Đưa policy cấu hình quota, gia hạn và validation thông tin đăng nhập về shared, giữ method và đường import cũ; sửa thông báo mật khẩu tài khoản test cho khớp giới hạn hiện hành.
+- Loại bỏ vòng import tĩnh và ba cạnh phụ thuộc ngược đã ghi nhận; thu hẹp architecture baseline về rỗng, bổ sung sáu ca kiểm thử. Không đổi API, schema, frontend hoặc chính sách production.
+
+## Unreleased — Phase 3.1 Kiểm tra kiến trúc (2026-11-25)
+
+- Bổ sung audit AST, baseline cạnh phụ thuộc hiện hữu và quality gate chống phát sinh vòng import tĩnh/phụ thuộc ngược.
+- Ghi nhận hotspot OOP, frontend, repository và pool MySQL; bổ sung sáu ca kiểm thử, không thay đổi runtime hoặc GUI.
+
+## Unreleased — Phase 2.8 Nghiệm thu hồi quy nghiệp vụ (2026-11-25)
+
+- Bổ sung năm ca liên kết service/repository JSON: duyệt mẫu, Free, Premium, RSVP/gia hạn/lưu trữ, hạ quyền Creator. Tất cả fixture dùng thư mục tạm và không gọi nhà cung cấp thanh toán.
+- Bổ sung ma trận quyền Guest/Sender/Creator/Admin trên HTTP fixture hiện có; kiểm tra từ chối sai role trước khi xử lý báo cáo tài chính MySQL.
+- Tài liệu nghiệm thu phân biệt kết quả CI, QA mô phỏng và điều kiện release production. Không thay đổi nghiệp vụ, schema, cấu hình triển khai hoặc GUI.
+
+## Unreleased — Phase 2.7B Mô phỏng nhất quán hoàn tiền (2026-11-25)
+
+- Bổ sung module nội bộ chỉ dành cho MySQL QA cô lập; mặc định tắt, không đăng ký API hoàn tiền hoặc gọi provider.
+- Mô phỏng hoàn toàn phần cho đơn Sandbox có credit chưa tiêu hao, đối soát giao dịch gốc và đảo đúng bút toán Creator trong cùng transaction; giữ biên nhận gốc, khóa checkout và hồ sơ chờ provider.
+- Bổ sung kiểm thử replay, rollback, dữ liệu sai, credit đã dùng và cạnh tranh hai kết nối. Không migration hoặc thay đổi production.
+
+## Unreleased — Phase 2.7A Rà soát hoàn tiền (2026-11-25)
+
+- Dùng chung chính sách biên nhận với yêu cầu hoàn tiền; từ chối hồ sơ mới khi đơn và bằng chứng nội bộ không nhất quán.
+- Admin xem dữ liệu đối soát quyền, credit và số bút toán Creator; chưa có migration 018 thì báo chưa có dữ liệu credit. Không trả thêm dữ liệu giao dịch cho Buyer.
+- Không thực hiện hoàn tiền, sửa ledger, thu hồi quyền hoặc kích hoạt quota; bổ sung unit và MySQL QA regression, VI/EN.
+
 ## Unreleased — Bộ bố cục thiệp Open Me (2026-11-26)
 
 - Thêm ba tài liệu canvas VI/EN chỉnh sửa được với ID ổn định: club-22-invitation, cozy-christmas-invitation, tet-phong-thu; sinh bìa qua pipeline hiện hữu.
@@ -34,6 +87,7 @@
 - Gom tiêu đề, các bước và nút khám phá của phần trải nghiệm trang chủ vào cùng bố cục; xếp dọc trên tablet/điện thoại và giữ bước đang chọn trong thanh cuộn ngang.
 - CTA nổi chuyển từ hàng ngang sang hai nút xếp dọc ở màn hình tối đa 600 px; giữ cỡ chữ, icon và vùng chạm trên điện thoại, căn cụm công cụ phía trên CTA.
 - CTA trang Bảng giá hiện ổn định sau phần giới thiệu; giữ logic ẩn ở footer, hiện lại khi cuộn lên và nhường chỗ cho hộp thoại. Bổ sung kiểm thử hồi quy điều kiện hiển thị.
+
 
 ## Unreleased — Phase 2.6B Bằng chứng thanh toán (2026-11-25)
 

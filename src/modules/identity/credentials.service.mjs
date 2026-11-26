@@ -1,6 +1,7 @@
 import { randomBytes, scrypt as scryptCallback, timingSafeEqual } from 'node:crypto';
 import { promisify } from 'node:util';
 import { HttpError, localizedError } from '../../shared/http.mjs';
+import { normalizeEmail, validatePassword } from '../../shared/credential-policy.mjs';
 
 const scrypt = promisify(scryptCallback);
 
@@ -11,23 +12,9 @@ export class CredentialsService {
     this.activeHashes = 0;
   }
 
-  normalizeEmail(value) {
-    if (typeof value !== 'string') throw localizedError(400, 'errors.auth.invalidEmail');
-    const email = value.trim().toLowerCase();
-    if (email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      throw localizedError(400, 'errors.auth.emailRequired');
-    }
-    return email;
-  }
+  normalizeEmail(value) { return normalizeEmail(value); }
 
-  validatePassword(value) {
-    if (typeof value !== 'string' || value.length < 8 || value.length > 128) {
-      throw localizedError(400, 'errors.auth.passwordLength');
-    }
-    if (!/[a-zA-Z]/.test(value) || !/[0-9]/.test(value)) {
-      throw localizedError(400, 'errors.auth.passwordComposition');
-    }
-  }
+  validatePassword(value) { return validatePassword(value); }
 
   async hashPassword(password) {
     const salt = randomBytes(16);

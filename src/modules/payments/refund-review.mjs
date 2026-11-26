@@ -1,6 +1,8 @@
 import { randomUUID } from 'node:crypto';
 import { localizedError } from '../../shared/http.mjs';
 import { sanitizeText } from '../../shared/security.mjs';
+import { verifiedReceiptSql } from './receipt-policy.mjs';
+import { refundAssessmentQuery, refundAssessment } from './refund-assessment.mjs';
 
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 export const refundReasons = Object.freeze([
@@ -79,7 +81,7 @@ export function publicRefundRow(row, { admin = false } = {}) {
     provider: ['momo', 'payos'].includes(row.payment_provider) ? row.payment_provider : 'unknown',
     sandbox: Boolean(row.is_test), amountVnd: Number(row.gross_vnd),
     createdAt: row.created_at, updatedAt: row.updated_at,
-    ...(admin ? { requesterId: row.requester_id } : {}),
+    ...(admin ? { requesterId: row.requester_id, ...(row.receipt_consistent == null ? {} : { assessment: refundAssessment(row) }) } : {}),
     // Không trả về mã ngân hàng, nội dung webhook hoặc dữ liệu khóa thanh toán.
     canRefund: false,
   };
@@ -103,8 +105,9 @@ export class RefundReviewRepository {
         const [orders] = await tx.execute(`SELECT o.id,o.user_id,o.status,o.payment_provider,o.is_test,
           o.gross_vnd,r.order_id AS receipt_order
           FROM orders o JOIN payment_receipts r ON r.order_id=o.id
+          JOIN payment_intents p ON p.order_id=o.id
           WHERE o.id=? AND o.user_id=? AND o.status='paid'
-            AND o.payment_provider IN ('momo','payos') FOR UPDATE`, [orderId, requesterId]);
+            AND (${verifiedReceiptSql}) FOR UPDATE`, [orderId, requesterId]);
         if (!orders.length) throw localizedError(404, 'refund.errors.notEligible');
         await tx.execute(`INSERT INTO refund_review_requests
           (id,order_id,requester_id,reason_code,reason_detail,status)
@@ -131,8 +134,9 @@ export class RefundReviewRepository {
   }
 
   async listAdmin(limit) {
-    const [rows] = await this.client.execute(`SELECT r.*,o.payment_provider,o.is_test,o.gross_vnd
-      FROM refund_review_requests r JOIN orders o ON o.id=r.order_id
+    const { projection, joins } = await refundAssessmentQuery(this.client);
+    const [rows] = await this.client.execute(`SELECT r.*,o.payment_provider,o.is_test,o.gross_vnd,${projection}
+      FROM refund_review_requests r JOIN orders o ON o.id=r.order_id ${joins}
       ORDER BY r.created_at DESC,r.id DESC LIMIT ?`, [limit]);
     return rows.map(row => publicRefundRow(row, { admin: true }));
   }
@@ -151,9 +155,10 @@ export class RefundReviewRepository {
     }
     const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
     // LIMIT + 1 chỉ dùng để xác định còn trang sau, không trả thừa dữ liệu ra client.
-    const [rows] = await this.client.execute(`SELECT r.*,o.payment_provider,o.is_test,o.gross_vnd,
+    const { projection, joins } = await refundAssessmentQuery(this.client);
+    const [rows] = await this.client.execute(`SELECT r.*,o.payment_provider,o.is_test,o.gross_vnd,${projection},
       DATE_FORMAT(r.created_at,'%Y-%m-%d %H:%i:%s.%f') AS page_created
-      FROM refund_review_requests r JOIN orders o ON o.id=r.order_id
+      FROM refund_review_requests r JOIN orders o ON o.id=r.order_id ${joins}
       ${where} ORDER BY r.created_at DESC,r.id DESC LIMIT ?`, [...params, limit + 1]);
     const page = rows.slice(0, limit);
     return {

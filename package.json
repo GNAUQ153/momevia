@@ -8,7 +8,7 @@
   },
   "scripts": {
     "build": "node scripts/build/web.mjs",
-    "check": "node scripts/quality/check-source.mjs && node scripts/quality/check-ui-i18n.mjs --check && node scripts/quality/check-css-style.mjs",
+    "check": "node scripts/quality/check-source.mjs && node scripts/quality/check-ui-i18n.mjs --check && node scripts/quality/check-css-style.mjs && npm run check:architecture",
     "changelog:check": "node scripts/quality/check-changelog.mjs --staged",
     "package": "node scripts/release/package.mjs",
     "verify:package": "node scripts/release/verify.mjs dist/release",
@@ -62,7 +62,9 @@
     "test:recipients:mysql": "node tests/integration/recipient-naming.mjs --mysql-local",
     "perf:recipients:before": "node tests/integration/recipient-naming.mjs --baseline --perf-only",
     "perf:recipients:after": "node tests/integration/recipient-naming.mjs --perf-only",
-    "check:production": "node scripts/quality/check-production.mjs"
+    "check:production": "node scripts/quality/check-production.mjs",
+    "audit:architecture": "node scripts/quality/audit-architecture.mjs",
+    "check:architecture": "node scripts/quality/audit-architecture.mjs --check"
   },
   "dependencies": {
     "@payos/node": "2.0.6",
@@ -74,6 +76,7 @@
     "sharp": "0.35.5"
   },
   "devDependencies": {
+    "acorn": "8.19.0",
     "esbuild": "0.28.2",
     "eslint": "10.15.0",
     "globals": "17.14.0",

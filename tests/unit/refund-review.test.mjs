@@ -20,6 +20,7 @@ class StubClient {
     this.statements = [];
     this.order = { id: orderId, user_id: buyer.sub, status: 'paid', payment_provider: 'payos',
       is_test: 1, gross_vnd: 59000 };
+    this.receiptConsistent = true;
   }
   row(request) {
     return { ...request, payment_provider: this.order.payment_provider,
@@ -27,9 +28,10 @@ class StubClient {
   }
   async execute(sql, params = []) {
     this.statements.push({ sql, params });
+    if (sql.includes('FROM schema_migrations')) return [[]];
     if (sql.includes('FROM orders o JOIN payment_receipts r')) {
       const [id, requester] = params;
-      return [[id === this.order.id && requester === this.order.user_id && this.order.status === 'paid'
+      return [[id === this.order.id && requester === this.order.user_id && this.order.status === 'paid' && this.receiptConsistent
         ? { ...this.order, receipt_order: orderId } : []].flat()];
     }
     if (sql.includes('INSERT INTO refund_review_requests')) {
@@ -121,6 +123,8 @@ test('Chỉ nhận đơn verified paid có receipt; không tự ghi ledger, enti
   assert.equal(client.events[0].to_status, 'submitted');
   const sql = client.statements.map(x => x.sql).join('\n');
   assert.match(sql, /JOIN payment_receipts r/);
+  assert.match(sql, /JOIN payment_intents p/);
+  assert.match(sql, /BINARY r.provider_reference=BINARY p.provider_reference/);
   assert.doesNotMatch(sql, /UPDATE orders|UPDATE creator_ledger|UPDATE payment_intents|UPDATE template_entitlements/i);
 });
 
@@ -210,4 +214,12 @@ test('Migration, routes và front-end có đầy đủ luồng và không thêm 
   const adminView = await readFile(new URL('../../web/js/pages/admin-payments.js', import.meta.url), 'utf8');
   assert.match(adminView, /refundAdminPanel\(refunds, refundPage\)/);
   assert.doesNotMatch(routes, /refund-execute|refund-provider|payout-execute/);
+});
+
+test('Biên nhận sai lệch không tạo hồ sơ hoặc nhật ký', async () => {
+  const { service, client } = setup();
+  client.receiptConsistent = false;
+  await assert.rejects(service.buyerCreate(buyer, orderId, payload), { status: 404 });
+  assert.equal(client.requests.length, 0);
+  assert.equal(client.events.length, 0);
 });

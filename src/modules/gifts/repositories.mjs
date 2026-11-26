@@ -3,7 +3,7 @@ import { dataPath } from '../../shared/paths.mjs';
 import { MediaRepository } from './media.repository.mjs';
 import { MySqlClient } from '../../infrastructure/mysql/client.mjs';
 import { MySqlGiftsRepository, MySqlRepliesRepository } from './mysql.repositories.mjs';
-import { quotaQaEnabled } from '../checkout/quota-config.mjs';
+import { quotaQaEnabled } from '../../shared/feature-config.mjs';
 
 export function createRepositories() {
   const quotaEnabled = quotaQaEnabled();

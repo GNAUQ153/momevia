@@ -91,18 +91,17 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Chuẩn hóa reference của payOS giữa inquiry và webhook; kiểm tra ID link, không tự xác nhận khoản chuyển nhiều lần.
-- Chặn dữ liệu MoMo bị ép kiểu thành thành công; replay khác reference bị từ chối trước khi ghi. Hỗ trợ đối soát đơn bị mất ACK tạo link.
-- Không migration, không mở khóa checkout hoặc kích hoạt quota production; thêm unit và MySQL QA regression.
+- Tách keyboard handler, helper selection và clipboard action theo từng lần mount; giữ Store, commit, history, session, Fabric và API hiện có.
+- Chặn phím đổi thứ tự layer rơi vào nhánh xóa khi bị khóa; xóa selection cũ khi chuyển cảnh trực tiếp hoặc khởi tạo lại. Mở rộng audit i18n và thêm kiểm thử hồi quy; không đổi CSS, schema hay dependency.
 
 **Các commit gần nhất trên `main`:**
 
-- `a3a7a60` — feat(payment): strengthen settlement evidence and reconciliation lifecycle (2026-11-25)
-- `8ac74d5` — fix(ci): isolate hero cover failure scenario and await request rejection (2026-11-25)
-- `fad91e2` — feat(payment): validate receipt integrity and improve bilingual payment details (2026-11-25)
-- `6cdb9c3` — feat(gifts): add expiration warnings and idempotent gift renewal (2026-11-25)
-- `4107fce` — feat(gifts): add sender archive management and harden gift lifecycle access (2026-11-25)
-- `23ee34e` — feat(checkout): support additional premium publication credits in isolated QA (2026-11-25)
+- `f35c663` — refactor(frontend): modularize canvas keyboard selection and clipboard actions (2026-11-26)
+- `2c4c8d6` — refactor(frontend): separate canvas inspector and asset panel responsibilities (2026-11-25)
+- `8565cb0` — refactor(frontend): modularize application actions and introduce action dispatcher (2026-11-25)
+- `230866e` — refactor(designs): modularize repository queries and standardize validation contracts (2026-11-25)
+- `e18d9a1` — refactor(designs): separate publication checks edit policies and API projections (2026-11-25)
+- `bacfcd6` — refactor(architecture): decouple shared configuration and credential policies (2026-11-25)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

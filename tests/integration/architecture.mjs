@@ -314,12 +314,32 @@ async function runMonolith({ base, env }) {
   assert.equal(creatorLogin.status,200);
   const creatorCookie=creatorLogin.headers['set-cookie'][0].split(';')[0];
   assert.equal((await request(base,'/api/catalog/creator/templates',{cookie:creatorCookie})).status,200);
+  // BR06: kiểm tra cùng một session qua Identity, Catalog, Checkout và Support.
+  // JSON fixture không có tài chính MySQL: 503 với đúng quyền, 403 với sai quyền.
+  const actors = [undefined, cookie, creatorCookie, adminCookie];
+  const roleMatrix = [
+    ['/api/catalog/creator/templates', [401, 403, 200, 200]],
+    ['/api/catalog/admin/pending', [401, 403, 403, 200]],
+    ['/api/support/admin/requests', [401, 403, 403, 200]],
+    ['/api/checkout/admin/entitlements/summary', [401, 403, 403, 200]],
+    ['/api/checkout/payments/creator/statement', [401, 403, 503, 503]],
+    ['/api/checkout/payments/admin/finance', [401, 403, 403, 503]],
+    ['/api/checkout/payments/admin/refund-queue', [401, 403, 403, 503]],
+  ];
+  for (const [route, expected] of roleMatrix) {
+    for (const [index, session] of actors.entries()) {
+      const result = await request(base, route, { cookie: session });
+      assert.equal(result.status, expected[index], `BR06 ${route}: actor ${index}`);
+    }
+  }
+  console.log('PASS  BR06 cross-module role matrix: Guest / Sender / Creator / Admin');
   assert.equal((await request(base,'/api/auth/creator',{method:'POST',cookie:creatorCookie,body:{userId:roleId}})).status,403);
   assert.equal((await request(base,rolePath,{method:'POST',cookie:creatorCookie,body:{role:'admin'}})).status,403);
   assert.equal((await request(base,rolePath,{method:'POST',cookie:adminCookie,body:{role:'owner'}})).status,400);
   assert.equal((await request(base,'/api/auth/admin/users/missing/role',{method:'POST',cookie:adminCookie,body:{role:'creator'}})).status,404);
   assert.equal((await request(base,rolePath,{method:'POST',cookie:adminCookie,body:{role:'sender'}})).status,200);
   assert.equal((await request(base,'/api/catalog/creator/templates',{cookie:creatorCookie})).status,403);
+  assert.equal((await request(base,'/api/checkout/payments/creator/statement',{cookie:creatorCookie})).status,403);
   assert.equal((await request(base,'/api/catalog/creator/templates',{method:'POST',cookie:creatorCookie,body:{title:'Blocked role',subtitle:'Denied after demotion',theme:'rose',price:0}})).status,403);
   const compatibility=await request(base,'/api/auth/creator',{method:'POST',cookie:adminCookie,body:{userId:roleId}});
   assert.equal(compatibility.status,200);

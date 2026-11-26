@@ -1,9 +1,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { CredentialsService } from '../modules/identity/credentials.service.mjs';
+import { normalizeEmail, validatePassword } from './credential-policy.mjs';
 import { parseAllowedOrigins } from './request-origin.mjs';
-import { quotaQaEnabled } from '../modules/checkout/quota-config.mjs';
-import { giftRenewalDays } from '../modules/gifts/renewal.mjs';
+import { quotaQaEnabled, giftRenewalDays } from './feature-config.mjs';
 
 // Tải biến môi trường từ tệp .env ở thư mục gốc mà không cần thư viện ngoài.
 export function loadEnvironment() {
@@ -53,14 +52,13 @@ export function environment() {
 export function testAccountConfig(env) {
   if (env.TEST_ACCOUNT_ENABLED !== 'true') return null;
   if (env.NODE_ENV === 'production') throw new Error('TEST_ACCOUNT_ENABLED không được bật trong production.');
-  const credentials = new CredentialsService();
   const name = env.TEST_ACCOUNT_NAME?.trim() || 'Tài khoản kiểm thử';
   if (name.length < 2 || name.length > 50) throw new Error('TEST_ACCOUNT_NAME phải từ 2 đến 50 ký tự.');
   let email;
-  try { email = credentials.normalizeEmail(env.TEST_ACCOUNT_EMAIL); }
+  try { email = normalizeEmail(env.TEST_ACCOUNT_EMAIL); }
   catch { throw new Error('TEST_ACCOUNT_EMAIL phải là địa chỉ email hợp lệ.'); }
-  try { credentials.validatePassword(env.TEST_ACCOUNT_PASSWORD); }
-  catch { throw new Error('TEST_ACCOUNT_PASSWORD phải từ 10 đến 128 ký tự, gồm chữ cái và chữ số.'); }
+  try { validatePassword(env.TEST_ACCOUNT_PASSWORD); }
+  catch { throw new Error('TEST_ACCOUNT_PASSWORD phải từ 8 đến 128 ký tự, gồm chữ cái và chữ số.'); }
   const role = env.TEST_ACCOUNT_ROLE || 'sender';
   if (!['sender', 'creator', 'admin'].includes(role)) throw new Error('TEST_ACCOUNT_ROLE phải là sender, creator hoặc admin.');
   return { name, email, password: env.TEST_ACCOUNT_PASSWORD, role };

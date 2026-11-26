@@ -5,7 +5,7 @@ import { previewRestyle, createRestyle } from './restyle.mjs';
 import fs from 'node:fs';
 import { parseJson, sendJson } from '../../shared/http.mjs';
 import { canvasError } from './errors.mjs';
-import { designView, giftSummary } from './designs.service.mjs';
+import { designView, giftSummary } from './design-views.mjs';
 import { imageBody } from './assets.service.mjs';
 import { giftOwnerLinks } from '../gifts/links.mjs';
 import { requestLocale } from '../../shared/locale.mjs';

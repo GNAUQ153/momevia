@@ -1,71 +1,37 @@
-import { createRecipients, requireNamingEnabled } from '../gifts/recipients.mjs';
+import { createRecipients } from '../gifts/recipients.mjs';
 import { SEMANTIC_TEMPLATE_IDS, captureSemanticRoles } from '../../../web/js/shared/canvas/template-slots.js';
-import { createHash, randomUUID } from 'node:crypto';
+import { randomUUID } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { validateDocument, canonicalStringify, createDocument, duplicateDocument, assetIds, publicDocument } from '../../../web/js/shared/canvas/index.js';
-import { runtimeVersionFor, requiresCanvasV2 } from '../../../web/js/shared/canvas/schema.js';
-import { PREDICTION_KIND } from '../../../web/js/shared/canvas/prediction.js';
+import { runtimeVersionFor } from '../../../web/js/shared/canvas/schema.js';
 import { photoSlots } from '../../../web/js/shared/canvas/interactions.js';
-import { publicInvitation, invitationTimingIssue, invitationSlots } from '../../../web/js/shared/canvas/invitation.js';
-import { clearTemplateBindingDefaults, lockedVisibleNames, visibleBindingKeys } from '../../../web/js/shared/canvas/personalization.js';
+import { clearTemplateBindingDefaults } from '../../../web/js/shared/canvas/personalization.js';
 import { cleanGiftLayout } from '../../../web/js/shared/canvas/clean-layout.js';
 import { randomId } from '../../shared/security.mjs';
 import { canvasError, fields, owned, revision, uuid } from './errors.mjs';
-import { createGiftAccess, giftStatus } from '../gifts/access.mjs';
+import { createGiftAccess } from '../gifts/access.mjs';
 import { serverText } from '../../shared/locale.mjs';
 import { isSystemTemplate, templateFieldKey } from '../../../web/js/shared/template-copy.js';
 import { materializeBuiltinMedia } from './builtin-media.mjs';
 import { EVENT_MEDIA } from '../../../web/js/shared/canvas/event-media.js';
 import { libraryEntry, librarySnapshot } from '../../../web/js/shared/canvas/library-state.js';
-import { systemCardType } from '../../../web/js/shared/card-type.js';
 
-export const hash = value => `sha256:${createHash('sha256').update(canonicalStringify(value)).digest('hex')}`;
+import { hash } from './document-hash.mjs';
+import { designView, designSummary } from './design-views.mjs';
+import { enforceEditPolicy } from './edit-policy.mjs';
+import { checkPublication } from './publication-check.mjs';
+
+// Giữ contract import cũ cho các module và bài kiểm thử hiện hữu.
+export { hash } from './document-hash.mjs';
+export { designView, designSummary, giftSummary, publicGiftView } from './design-views.mjs';
+
 const copy = value => structuredClone(value);
-const preflightCopy = (path, code, messageKey, messageParams) => ({
-  path, code, message: serverText('vi', messageKey, messageParams), messageKey, messageParams,
-});
 function title(value) {
   if (typeof value !== 'string' || !value.trim() || value.length > 120) throw canvasError(422, 'INVALID_TITLE', 'Tên thiết kế từ 1–120 ký tự.');
   return value.trim();
 }
-// Vai trò vùng nội dung của mẫu được giữ khi nhân bản và đổi ID Canvas.
-function invitationSlotIds(d) {
-  // Catalog admits only published sources. Keep their supported event slots
-  // editable in saved drafts even after a source stops being advertised.
-  if (systemCardType(d.source?.templateId) !== 'invitation' || d.policy?.kind !== 'sender-basic') return undefined;
-  const mapped = d.provenance?.slotMap?.elements;
-  const slots = invitationSlots(d.document, { dateElementId: mapped?.['event-date'], venueElementId: mapped?.['event-location'] });
-  return slots ? { dateElementId: slots.date.id, venueElementId: slots.venue.id } : undefined;
-}
-export function designView(d) {
-  const document = copy(d.document);
-  const reviewTemplateDefaults = d.source.kind === 'template' && d.source.templateVersionId && d.provenance?.adapter === 'creator-v1'
-    && d.policy?.kind === 'creator-template' && clearTemplateBindingDefaults(document, d.policy.editableBindings);
-  const slots = invitationSlotIds(d);
-  return { ...(slots ? { invitationSlotIds: slots } : {}), ...(d.provenance?.restyledFrom ? {restyledFrom:copy(d.provenance.restyledFrom)} : {}), id: d.id, title: d.title, source: copy(d.source), policy: copy(d.policy), purpose: d.provenance?.purpose, revision: d.revision, schemaVersion: document.schemaVersion, document, documentHash: d.documentHash,
-    ...(reviewTemplateDefaults ? { reviewTemplateDefaults } : {}),
-    ...(d.provenance?.startingLocale ? { startingLocale: d.provenance.startingLocale } : {}),
-    createdAt: d.createdAt, updatedAt: d.updatedAt };
-}
-export const designSummary = d => ({ id: d.id, title: d.title, revision: d.revision, sourceKind: d.source.kind, updatedAt: d.updatedAt, createdAt: d.createdAt });
-export function giftSummary(gift) {
-  return { id: gift.id, slug: gift.slug, title: gift.title || gift.templateTitle, templateId: gift.templateId, templateTitle: gift.title || gift.templateTitle,
-    theme: gift.theme, recipientMode: gift.recipientMode || 'manual', recipientCount: gift.recipients?.length || 0, recipientName: gift.recipientName, senderName: gift.senderName, replyCount: gift.replyCount,
-    createdAt: gift.createdAt, expiresAt: gift.expiresAt, status: giftStatus(gift) };
-}
-export function publicGiftView(gift) {
-  const base = { ...giftSummary(gift), message: gift.message, photoUrl: gift.imageFile ? `/api/gifts/gifts/${gift.slug}/photo` : null };
-  if (gift.documentSnapshot) {
-    base.runtimeVersion = gift.runtimeVersion; base.schemaVersion = gift.documentSnapshot.schemaVersion;
-    base.documentSnapshot = publicDocument(gift.documentSnapshot);
-    // Reader cũ vẫn đọc được Canvas: dữ liệu sự kiện có contract riêng ở API.
-    const invitation = publicInvitation(base.documentSnapshot);
-    if (invitation) base.invitation = invitation;
-    delete base.documentSnapshot.invitation;
-  }
-  return base;
-}
+
 export class DesignsService {
   constructor({ repository, publication, catalog, checkout, orders, config, flags, mediaRoot, profile }) {
     Object.assign(this, { repository, publication, catalog, checkout, orders, config, flags, mediaRoot, profile });
@@ -196,52 +162,7 @@ export class DesignsService {
       },
     });
   }
-  enforcePolicy(current, document) {
-    if (document.invitation && current.provenance?.purpose === 'creator')
-      throw canvasError(403, 'INVITATION_CREATOR_DRAFT', 'invitation.error.creator');
-    if (document.invitation) {
-      const slots = invitationSlotIds(current);
-      if (!slots || slots.dateElementId !== document.invitation.dateElementId || slots.venueElementId !== document.invitation.venueElementId)
-        throw canvasError(403, 'INVITATION_SOURCE_UNSUPPORTED', 'invitation.error.source');
-    }
-    if (current.policy?.kind === 'creator-template') {
-      if (document.personalization?.mode !== 'manual' && document.personalization && !current.policy.editableBindings.includes('recipientName'))
-        throw canvasError(403, 'RECIPIENT_LOCKED', 'Mẫu không cho phép đổi tên người nhận.');
-      const normalize = input => {
-        const comparable = copy(input);
-        comparable.assets = [];
-        delete comparable.personalization;
-        // Nhạc từ danh mục được phép cá nhân hóa, không mở khóa cấu trúc mẫu.
-        delete comparable.soundtrack;
-        // Với mẫu Canvas V1, chỉ chấp nhận lên V2 nếu thay đổi là nhạc nền.
-        if (current.document.schemaVersion === 1 && comparable.schemaVersion === 2 && !requiresCanvasV2(comparable)) {
-          comparable.schemaVersion = 1;
-          comparable.registryVersion = 1;
-        }
-        for (const key of current.policy.editableBindings) comparable.bindings[key].value = '';
-        const photo = comparable.elements.find(element => element.id === current.policy.photoId);
-        if (photo) photo.props.assetId = null;
-        return canonicalStringify(comparable);
-      };
-      const before = copy(current.document);
-      clearTemplateBindingDefaults(before, current.policy.editableBindings);
-      if (normalize(before) !== normalize(document) || document.assets.length !== assetIds(document).length)
-        throw canvasError(403, 'LOCKED_ELEMENT', 'Mẫu chỉ cho chỉnh các vùng cá nhân hóa đã duyệt.');
-      return;
-    }
-    // Locks are authoritative server policy. UI lock toggles cannot relax them.
-    for (const [id, rule] of Object.entries(current.policy?.lockedElements || {})) {
-      const before = current.document.elements.find(e => e.id === id); const after = document.elements.find(e => e.id === id);
-      const permitted = Array.isArray(rule.editableProps) ? rule.editableProps : [];
-      if (!before || !after) throw canvasError(403, 'LOCKED_ELEMENT', 'Không được xóa vùng khóa của mẫu.');
-      const beforeScene = current.document.scenes.find(scene => scene.elementIds.includes(id));
-      const afterScene = document.scenes.find(scene => scene.elementIds.includes(id));
-      if (beforeScene?.id !== afterScene?.id) throw canvasError(403, 'LOCKED_ELEMENT', 'Không được chuyển vùng khóa sang cảnh khác.');
-      const a = copy(before); const b = copy(after);
-      for (const key of permitted) { delete a.props[key]; delete b.props[key]; }
-      if (canonicalStringify(a) !== canonicalStringify(b)) throw canvasError(403, 'LOCKED_ELEMENT', 'Vùng này không được phép chỉnh sửa.');
-    }
-  }
+  enforcePolicy(current, document) { return enforceEditPolicy(current, document); }
   async assetsFor(ownerId, document, creator = false) {
     for (const id of document.assets.map(a => a.assetId)) {
       const a = await this.repository.getAsset(ownerId, id);
@@ -285,83 +206,7 @@ export class DesignsService {
     return { ...result, design: designView(result.design) };
   }
   async check(design, { getAsset = id => this.repository.getAsset(design.ownerId, id), hasLicense = (owner, template) => this.checkout.hasLicense(owner, template), getTemplate = id => this.catalog.getTemplate(id) } = {}) {
-    if (design.provenance?.purpose === 'creator') throw canvasError(403, 'CREATOR_DRAFT', 'Gửi bản mẫu qua Creator Studio để Admin duyệt.');
-    const blockers = []; let authorization = { status: 'allowed', reasonCodes: [] }; let template = null;
-    const { document, reviewTemplateDefaults } = designView(design);
-    const editable = design.policy?.kind === 'creator-template' ? design.policy.editableBindings : null;
-    if (document.personalization?.mode !== 'manual' && document.personalization) {
-      try { requireNamingEnabled(document.personalization, design.ownerId); } catch { blockers.push(preflightCopy('personalization', 'RECIPIENT_DISABLED', 'recipient.error.disabled')); }
-      if (editable && !editable.includes('recipientName')) blockers.push(preflightCopy('personalization', 'RECIPIENT_LOCKED', 'recipient.locked'));
-      if (document.personalization.mode === 'list' && !document.personalization.names?.length) blockers.push(preflightCopy('personalization.names', 'RECIPIENT_LIST_REQUIRED', 'recipient.error.list'));
-    }
-    if (reviewTemplateDefaults) blockers.push(preflightCopy('document.bindings', 'REVIEW_TEMPLATE_DEFAULTS', 'editor.preflight.reviewDefaults'));
-    try { validateDocument(document, { mode: 'publish', requiredBindings: [] }); }
-    catch (error) {
-      for (const detail of error.details || [{ path: 'document', code: 'INVALID_DOCUMENT', message: error.message }]) {
-        const index = /^elements\.(\d+)\.props\.(\w+)$/.exec(detail.path || '');
-        if (index && document.elements[Number(index[1])]?.props.kind === PREDICTION_KIND &&
-          (index[2] === 'prediction' || ['PREDICTION_CONTENT_REQUIRED', 'PREDICTION_DUPLICATE_CHOICES'].includes(detail.code))) {
-          const field = index[2];
-          blockers.push(preflightCopy(detail.path, detail.code, detail.code === 'PREDICTION_DUPLICATE_CHOICES' ? 'prediction.duplicate'
-            : field === 'prediction' ? 'prediction.chooseRequired' : 'prediction.required',
-          { field: { format: 'message', key: `prediction.${field}` } }));
-        } else if (detail.code === 'INVALID_INVITATION') {
-          blockers.push(preflightCopy(detail.path, detail.code, detail.message));
-        } else blockers.push(detail);
-      }
-    }
-    if (document.invitation) {
-      const now = Date.now();
-      const eventIssue = invitationTimingIssue(document, now, now + this.config.giftTtlDays * 86400000);
-      if (eventIssue) blockers.push(preflightCopy('invitation', 'INVITATION_TIME', `invitation.error.${eventIssue}`));
-    }
-    // Apply this rule to new publications. Existing gift snapshots use the reader's structural validation.
-    const { bindings, elements } = document;
-    const hasContent = elements.some(element => {
-      if (element.visible === false || element.opacity === 0) return false;
-      if (element.type === 'text') {
-        const text = element.props.textBinding ? bindings[element.props.textBinding]?.value : element.props.text;
-        return Boolean(text?.trim());
-      }
-      return element.type !== 'image' || Boolean(element.props.assetId || element.props.caption?.trim());
-    });
-    if (!hasContent) blockers.push(preflightCopy('document.elements', 'EMPTY_DESIGN', 'editor.preflight.empty'));
-    if (design.source.kind === 'template') {
-      try {
-        template = design.provenance?.adapter === 'creator-v1'
-          ? { id: design.source.templateId, title: design.title, price: design.provenance.price, status: 'published' }
-          : await getTemplate(design.source.templateId);
-        if (template?.price > 0 && this.profile.mode && this.profile.checkoutMode && this.profile.mode !== this.profile.checkoutMode) throw canvasError(503, 'CHECKOUT_PROFILE_UNSUPPORTED', 'Quyền mẫu trả phí cần Checkout cùng profile dữ liệu.');
-        if (!template || template.status === 'rejected') authorization = { status: 'denied', reasonCodes: ['TEMPLATE_UNAVAILABLE'] };
-        else if (template.price > 0 && !await hasLicense(design.ownerId, design.source.templateId)) authorization = { status: 'needs_template_license', reasonCodes: ['TEMPLATE_LICENSE_REQUIRED'] };
-      } catch (error) {
-        if (error.status === 404) authorization = { status: 'denied', reasonCodes: ['TEMPLATE_UNAVAILABLE'] };
-        else throw Object.assign(canvasError(503, 'AUTHORIZATION_UNAVAILABLE', 'Không kiểm tra được quyền mẫu. Thử lại sau.', [{ path: 'authorization', status: 'unavailable' }]), { authorization: { status: 'unavailable', reasonCodes: [error.code || 'AUTHORIZATION_UNAVAILABLE'] } });
-      }
-    }
-    for (const id of assetIds(design.document)) {
-      const a = await getAsset(id);
-      if (!a || a.ownerId !== design.ownerId || a.status !== 'ready' || !this.assetExists(a))
-        blockers.push(preflightCopy(`assets.${id}`, 'ASSET_NOT_READY', 'editor.preflight.asset'));
-    }
-    if (authorization.status !== 'allowed') blockers.push(preflightCopy('source', authorization.reasonCodes[0], 'editor.preflight.permission'));
-    const values = design.document.bindings;
-    const predictionStory = elements.some(e => e.type === 'interaction' && e.props.kind === PREDICTION_KIND && e.visible !== false && e.opacity !== 0);
-    const visibleBindings = visibleBindingKeys(document);
-    for (const [key, max] of [['recipientName', 60], ['senderName', 60], ['message', 1000]]) {
-      if (key === 'recipientName' && document.personalization && document.personalization.mode !== 'manual') continue;
-      if (editable && !editable.includes(key)) continue;
-      // This interaction supplies two endings instead of an unused general greeting.
-      if (key === 'message' && predictionStory && !visibleBindings.has(key)) continue;
-      const v = values[key]?.value;
-      if (typeof v !== 'string' || !v.trim() || v.length > max)
-        blockers.push(preflightCopy(`bindings.${key}`, 'BINDING_REQUIRED', 'editor.preflight.binding',
-          { binding: { format: 'message', key: `catalog.personalization.${key}` }, max }));
-    }
-    return { designId: design.id, revision: design.revision, documentHash: hash(design.document), authorization, canPublish: authorization.status === 'allowed' && blockers.length === 0,
-      blockers, warnings: editable && lockedVisibleNames(document, editable).length
-        ? [preflightCopy('document.bindings', 'LOCKED_NAMES_OMITTED', 'editor.preflight.lockedNames')] : [],
-      summary: { sceneCount: document.scenes.length, assetCount: assetIds(document).length }, ...(template ? { template: { id: template.id, title: template.title, price: template.price } } : {}) };
+    return checkPublication(design, { getAsset, hasLicense, getTemplate, assetExists: asset => this.assetExists(asset), config: this.config, profile: this.profile });
   }
   assetPath(asset) {
     if (!/^[\da-f-]{36}\.(png|jpg|webp|wav)$/.test(asset.storageKey)) throw canvasError(404, 'ASSET_NOT_FOUND', 'Không tìm thấy tài sản.');

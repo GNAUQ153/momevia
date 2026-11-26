@@ -91,16 +91,16 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Chuyển nhóm điều khiển hành trình thành Bento hai cột trên desktop, làm nổi bật bước tạo thiệp; giữ rail vuốt trên mobile, cảnh 3D, nội dung VI/EN và nghiệp vụ hiện có. Bổ sung liên kết ARIA, hướng dẫn bàn phím và kiểm thử bố cục.
+- Bổ sung mở/đóng quà mẫu tại bước Open của Interactive Journey, đồng bộ trạng thái ARIA và VI/EN; không gọi API, giữ chức năng vuốt và reduced motion.
 
 **Các commit gần nhất trên `main`:**
 
+- `af9c0ef` — feat(ui): introduce interactive gift opening showcase and replay (2026-11-27)
 - `b75905e` — feat(ui): introduce responsive interactive journey bento layout (2026-11-27)
 - `f3d9d77` — feat(ui): improve scroll reveal with staggered motion and stable section layout (2026-11-27)
 - `d5f25c9` — feat(ui): introduce animated hero mesh gradient with bounded motion lifecycle (2026-11-27)
 - `881b299` — fix(ui): stabilize responsive spacing between hero and featured templates (2026-11-27)
 - `5786d37` — feat(ui): redesign hero artwork with layered CSS 3D envelope and responsive depth (2026-11-27)
-- `601dc6e` — fix(ui): coordinate modal and CTA animation inert locks (2026-11-27)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

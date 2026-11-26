@@ -12,6 +12,7 @@ import { MySqlCheckoutRepository } from '../../src/modules/checkout/mysql.reposi
 import { CheckoutService } from '../../src/modules/checkout/checkout.service.mjs';
 import { MySqlPaymentRepository } from '../../src/modules/payments/mysql.repository.mjs';
 import { RefundSettlementQa } from '../../src/modules/payments/refund-settlement-qa.mjs';
+import { readIntegrityCounts } from '../../database/scripts/integrity-audit.mjs';
 
 const require = createRequire(import.meta.url);
 const driver = require('mysql2/promise');
@@ -408,7 +409,7 @@ try {
     const [[rights]] = await admin.execute('SELECT COUNT(*) AS total FROM template_entitlements WHERE order_id=?', [a.orderId]);
     assert.equal(Number(rights.total), 0);
   });
-  await check('Phase 2.4B3/B4: credit grant, rollback, cross-flow competition, repurchase and replay', async () => {
+  await check('Phase 2.4B3/B4: credit grant, rollback, shared-pool cross-flow competition, repurchase and replay', async () => {
     await admin.query(await fs.readFile(new URL('../../database/migrations/018_publication_credits.sql', import.meta.url), 'utf8'));
     const quotaTemplate = 'canvas-quota-qa-template';
     await admin.execute(`INSERT INTO templates(id,title,style,theme,price_vnd,status,created_at,payload)
@@ -440,7 +441,7 @@ try {
     const request = publishRequest(d);
     const [canvasResult, legacyResult] = await Promise.allSettled([
       qaUow.publish(owner, request, 'quota-race', builder()),
-      new MySqlGiftsRepository(db2, { quotaEnabled: true }).insert(legacyGift),
+      new MySqlGiftsRepository(db, { quotaEnabled: true }).insert(legacyGift),
     ]);
     assert.equal([canvasResult, legacyResult].filter(result => result.status === 'fulfilled').length, 1);
     const rejected = [canvasResult, legacyResult].find(result => result.status === 'rejected');
@@ -545,6 +546,31 @@ try {
     await assert.rejects(simulation.simulate(used.args), { status: 409 });
     const [[unchanged]] = await admin.execute('SELECT status FROM orders WHERE id=?', [used.intent.orderId]);
     assert.equal(unchanged.status, 'paid');
+  });
+  await check('Phase 3.5D: detect cross-owner entitlement and receipt evidence corruption; rollback restores audit counts', async () => {
+    const baseline = await readIntegrityCounts(db);
+    const counts = report => new Map(report.checks.map(row => [row.id, BigInt(row.violations)]));
+    const before = counts(baseline);
+    const rollback = new Error('QA integrity rollback');
+    await assert.rejects(db.withTransaction(async tx => {
+      const [[row]] = await tx.execute(`SELECT e.id,e.user_id,r.order_id FROM template_entitlements e
+        JOIN orders o ON o.id=e.order_id JOIN payment_receipts r ON r.order_id=o.id
+        JOIN payment_intents p ON p.order_id=o.id
+        WHERE e.user_id=o.user_id AND e.template_id=o.template_id AND r.amount_vnd=o.gross_vnd
+        AND r.amount_vnd=p.amount_vnd AND p.status='paid' AND BINARY r.provider_reference=BINARY p.provider_reference
+        AND BINARY r.provider=BINARY p.provider AND BINARY p.provider=BINARY o.payment_provider
+        AND o.currency='VND' AND o.is_test IN (0,1) AND o.payment_provider IN ('momo','payos')
+        AND CHAR_LENGTH(TRIM(r.provider_reference))>0 AND r.amount_vnd>0 LIMIT 1 FOR UPDATE`);
+      assert(row, 'Fixture must have an internally consistent paid receipt');
+      const wrongOwner = row.user_id === owner ? other : owner;
+      await tx.execute('UPDATE template_entitlements SET user_id=? WHERE id=?', [wrongOwner, row.id]);
+      await tx.execute('UPDATE payment_receipts SET amount_vnd=amount_vnd+1 WHERE order_id=?', [row.order_id]);
+      const after = counts(await readIntegrityCounts(tx));
+      assert.equal(after.get('entitlement_order'), before.get('entitlement_order') + 1n);
+      assert.equal(after.get('receipt_evidence'), before.get('receipt_evidence') + 1n);
+      throw rollback;
+    }), error => error === rollback);
+    assert.deepEqual(await readIntegrityCounts(db), baseline);
   });
   console.log(`RESULT PASS ${count} isolated MySQL integration cases; mocks are not included.`);
 } finally {

@@ -1,3 +1,7 @@
+## Unreleased — Phase 3.5D Kiểm tra toàn vẹn dữ liệu (2026-11-26)
+
+- Bổ sung audit 11 invariant liên bảng chỉ đọc theo opt-in, trả số lượng bất thường và không xuất ID khách hàng; kiểm thử rollback và phát hiện sai chủ/quyền, sai bằng chứng biên nhận. Không đổi schema hoặc dữ liệu.
+
 ## Unreleased — Phase 3.5C Quản lý kết nối MySQL (2026-11-26)
 
 - Dùng chung MySqlClient tại Composition Root, giữ client riêng cho service độc lập; đóng pool một lần sau khi dừng module, kể cả startup lỗi. Chờ thao tác SQL đang chạy, hủy kết nối nếu rollback lỗi và chặn transaction đã kết thúc. Không thay đổi migration hoặc cấu hình kết nối.

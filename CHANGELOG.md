@@ -1,3 +1,7 @@
+## Unreleased — Phase 3.6B Giới hạn tài nguyên thumbnail (2026-11-26)
+
+- Giới hạn render thumbnail đồng thời, tách tác vụ đang xử lý khỏi LRU, giới hạn số tác vụ và dung lượng input/cache; từ chối quá tải rõ ràng và giải phóng slot khi lỗi. Giữ định dạng ảnh và schema.
+
 ## Unreleased — Phase 3.6A Giám sát hiệu năng Backend (2026-11-26)
 
 - Bổ sung log hiệu năng tổng hợp opt-in theo cửa sổ, histogram cố định cho HTTP và MySQL, CPU/RAM và event loop; không ghi URL, SQL hoặc dữ liệu khách hàng. Không thay đổi schema hay API.

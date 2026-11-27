@@ -1,5 +1,7 @@
 // Momevia Originals · 2026-11-23. Coordinates describe the editable portrait,
 // not a second cover image. Cover variants crop the same pinned layers.
+import { ORIGINAL_IDS } from './originals-data.js';
+
 export const REFRESH_21 = Object.freeze({
   afterglow: { wave:1, object:'train-window', open:['Mở chốt cửa','Open the window latch'], reply:['Mặt sau tấm vé','The back of your ticket'], light:'Horizon, left → right; wooden sill', material:'glass / wood / ticket', wish:[38,355,314,390], response:[32,256,326,438], crop:185 },
   'tiny-celebration': { wave:1, object:'drawer', open:['Chạm tai kéo','Pull the ribbon tab'], reply:['Nhãn dưới đáy hộp','A note under the drawer'], light:'Upper left; kraft tabletop', material:'kraft / woven ribbon', wish:[39,195,312,478], response:[46,270,298,420], crop:210 },
@@ -27,6 +29,29 @@ export const REFRESH_21 = Object.freeze({
 export const refreshedTemplateId = doc => Object.keys(REFRESH_21).find(id => doc.elements.some(e => e.id === `refresh-${id}`));
 
 export function coverVariant(document, variant = 'portrait') {
+  const original = ORIGINAL_IDS.find(id => document.elements.some(element => element.id === 'originals-' + id));
+  if (original && ['catalog', 'seasonal'].includes(variant)) {
+    const doc = structuredClone(document);
+    const scene = doc.scenes.find(item => item.id === doc.entrySceneId);
+    const seasonal = variant === 'seasonal';
+    const boxes = {
+      ['originals-' + original]: [24, 18, 342, 3],
+      'cover-title': seasonal ? [24, 36, 342, 98] : [24, 30, 342, 76],
+      'cover-shadow': seasonal ? [54, 154, 294, 284] : [66, 122, 270, 186],
+      'cover-paper': seasonal ? [42, 142, 294, 284] : [54, 110, 270, 186],
+      'cover-art': seasonal ? [80, 156, 230, 250] : [110, 120, 170, 166],
+    };
+    doc.artboard.baseSize = { width: 390, height: seasonal ? 466 : 330 };
+    scene.elementIds = scene.elementIds.filter(id => Object.hasOwn(boxes, id));
+    doc.scenes = [scene];
+    doc.elements = doc.elements.filter(element => scene.elementIds.includes(element.id));
+    for (const element of doc.elements) {
+      const [x, y, width, height] = boxes[element.id];
+      element.layout = { x, y, width, height, rotation: 0 };
+      if (element.type === 'text') element.props.fontSize = seasonal ? 30 : 24;
+    }
+    return doc;
+  }
   const id = refreshedTemplateId(document);
   if (!id || !['catalog','seasonal'].includes(variant)) return document;
   const doc = structuredClone(document), scene = doc.scenes.find(s => s.id === doc.entrySceneId);

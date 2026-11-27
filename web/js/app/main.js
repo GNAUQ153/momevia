@@ -28,6 +28,7 @@ import { createModalIsolation, skipToMain } from '../ui/accessibility.js';
 import { createLayout } from "../ui/layout.js";
 import { createHomeViews, homeDemo, selectHomeDemos } from "../pages/home.js";
 import { mountMarketingMotion } from "../features/marketing/scene-motion.js";
+import { mountSeasonCampaign } from '../features/marketing/season-campaign.js';
 import { mountHomeConstruction } from '../features/marketing/home-construction.js';
 import { mountHeroTemplates, mountHomeChoices } from "../features/marketing/hero-templates.js";
 import { mountFeaturedCarousel } from '../features/marketing/featured-carousel.js';
@@ -330,7 +331,11 @@ function mountHome() {
     sheen.play();
   }, { signal });
   const disposeMarketingMotion = mountMarketingMotion(main, { signal });
-  const construction = mountHomeConstruction(main, { signal, catalogPending: true });
+  const disposeSeason = mountSeasonCampaign(main, { signal });
+  // Landing mới luôn hiển thị sẵn nội dung; animation xây trang cũ chỉ dùng cho bố cục cũ.
+  const construction = main.querySelector('.moments-hero')
+    ? { refresh() {}, dispose() {} }
+    : mountHomeConstruction(main, { signal, catalogPending: true });
   const rotation = mountHeroTemplates(main, selectHomeDemos(state.templates));
   const disposeChoices = mountHomeChoices(main);
   const preview = mountTemplatePreview(main, homeDemo, { api, onOpen: loadAppFonts, getTemplate: () => rotation.template });
@@ -382,6 +387,7 @@ function mountHome() {
   return { dispose() {
     lifetime.abort();
     disposeMarketingMotion();
+    disposeSeason();
     construction.dispose();
     rotation.dispose();
     disposeChoices();

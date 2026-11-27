@@ -73,7 +73,8 @@
     "audit:assets": "node scripts/quality/audit-assets.mjs",
     "audit:unused": "node scripts/quality/audit-unused.mjs",
     "audit:architecture": "node scripts/quality/audit-architecture.mjs",
-    "check:architecture": "node scripts/quality/audit-architecture.mjs --check"
+    "check:architecture": "node scripts/quality/audit-architecture.mjs --check",
+    "build:hostinger": "npm run build && node scripts/build/hostinger.mjs"
   },
   "dependencies": {
     "@payos/node": "2.0.6",

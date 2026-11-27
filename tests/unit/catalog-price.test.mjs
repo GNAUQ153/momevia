@@ -49,7 +49,7 @@ test('Chi tiết và Preview giữ giá, phạm vi quyền và tuyến tạo thi
   for (const html of [views.templateDetail(template), templatePreviewDialog(template)]) {
     assert.match(html, /Giá mẫu/);
     assert(html.includes(priceText(59000)));
-    assert.match(html, /không phải xác nhận quyền sử dụng hoặc hạn mức xuất bản/);
+    assert.match(html, /Quyền lợi và thời hạn được hiển thị trước khi xuất bản/);
     assert.match(html, /\/create\/sample-price\?mode=quick(?:&amp;|&)version=v2/);
   }
   assert.match(templatePreviewDialog({ ...template, price: null }), /data-price-tier="unknown"/);

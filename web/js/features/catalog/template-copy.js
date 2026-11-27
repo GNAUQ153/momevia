@@ -24,7 +24,7 @@ export function templateSearchFields(template) {
     .map(field => templateFieldKey(template, field)).filter(Boolean).map(key => t(key));
 }
 
-const coverRevision = 9;
+const coverRevision = 10;
 export function templateCover(template,{defer=false,variant='catalog',responsive=false,sizes=CATALOG_COVER_SIZES}={}) {
   const id=typeof template==='string'?template:template.id;
   const target=defer?'data-src':'src',marker=defer?' data-cover-lazy':'';

@@ -1,3 +1,12 @@
+## Unreleased - UI theo mùa và bộ 16 thiệp (2026-11-27)
+
+- Làm lại hero, chữ, màu và chuyển động CSS 3D; dùng cùng bố cục VI/EN.
+- Thêm chiến dịch Giáng sinh, năm mới, đoàn viên, có tắt hiệu ứng và hỗ trợ giảm chuyển động/tiết kiệm dữ liệu.
+- Thiết kế lại 16 Originals với lời dẫn riêng, 4 cảnh nối tiếp, đường bỏ qua hiệu ứng và ảnh cover phù hợp Catalog.
+- Ưu tiên 16 mẫu hệ thống, giữ nguyên giá, quyền, nháp và quà đã phát hành.
+- Bổ sung nguồn cấu hình và build Hostinger, đề xuất cập nhật thư viện có revision, cùng báo cáo kỹ thuật/nghiệp vụ.
+- Chưa triển khai lên Hostinger/Railway hoặc áp dụng cập nhật MySQL.
+
 ## Unreleased — Signature S5B (2026-11-27)
 
 - Thêm sáu hiệu ứng mở thiệp riêng trên layer Signature, sử dụng nút chạm/bàn phím và lifecycle motion hiện có.

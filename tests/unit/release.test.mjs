@@ -26,6 +26,8 @@ test('Gói nguồn loại secret/data/dependency và phát hiện file bị sử
     for (const file of ['gateway.mjs', 'dev.mjs', 'start-local.bat', 'package-lock.json', 'README.md', 'CHANGELOG.md', '.env.example', '.gitignore', 'eslint.config.mjs']) write(file);
     write('package.json', JSON.stringify({ version: 'test' }));
     write('web/js/vendor/qrcode.js');
+    write('deploy/hostinger/.htaccess', 'RewriteEngine On\n');
+    write('deploy/hostinger/api-relay.php', '<?php // public relay config');
     write('deploy/https/Caddyfile', '{$MOMEVIA_DOMAIN} { reverse_proxy 127.0.0.1:4100 }');
     write('deploy/https/momevia.service', '[Service]\nExecStart=/usr/bin/node /opt/momevia/dev.mjs');
     // The release allowlist also includes MySQL schema and tooling.
@@ -56,6 +58,7 @@ test('Gói nguồn loại secret/data/dependency và phát hiện file bị sử
       'docs/Thumbs.db', 'docs/.eslintcache',
       'web/.npmrc', 'services/secrets/server.pem', 'services/secrets/server.key',
       'deploy/https/privkey.pem', 'deploy/https/server.key',
+      'deploy/hostinger/.env', 'deploy/hostinger/server.key',
       'docs/credentials.json', 'docs/service-account.prod.json', 'database/backup.sql.gz',
       'web/.git/config'];
     for (const file of excludedFiles) write(file, 'PRIVATE_SENTINEL');
@@ -76,6 +79,8 @@ test('Gói nguồn loại secret/data/dependency và phát hiện file bị sử
     assert(fs.existsSync(path.join(release, 'docs/licenses/example-MIT.txt')));
     assert(fs.existsSync(path.join(release, 'web/js/vendor/qrcode.js')));
     assert(fs.existsSync(path.join(release, 'deploy/https/Caddyfile')));
+    assert(fs.existsSync(path.join(release, 'deploy/hostinger/.htaccess')));
+    assert(fs.existsSync(path.join(release, 'deploy/hostinger/api-relay.php')));
     assert(fs.existsSync(path.join(release, 'deploy/https/momevia.service')));
     assert(fs.existsSync(path.join(release, 'database/compose.yml')));
     // Baseline là dữ liệu schema bắt buộc, không phải dữ liệu vận hành.

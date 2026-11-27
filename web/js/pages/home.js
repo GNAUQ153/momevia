@@ -5,15 +5,16 @@ import { heroImages, heroSelectors } from '../features/marketing/hero-templates.
 import { canonicalText } from "../shared/locale.js";
 import { icon } from "../ui/icons.js";
 import { occasionExploreUrl, occasionShortcuts } from '../features/marketing/occasion-shortcuts.js';
+import { renderSeasonBanner } from '../features/marketing/season-campaign.js';
 import { templateCardType } from '../shared/card-type.js';
 
 // The covers and player use the same public, built-in templates.
 export const homeDemo = {
-  id: "loi-moi-ben-hien",
+  id: "snowglobe-countdown",
   creator: "Momevia Originals",
-  title: canonicalText("templates.loi-moi-ben-hien.title"),
+  title: canonicalText("templates.snowglobe-countdown.title"),
 };
-export const homeDemos = [homeDemo, ...['birthday-radiance','hai-phong-bi','proud-of-you','mot-ky-niem'].map(id => ({
+export const homeDemos = [homeDemo, ...['candle-wish-box','tassel-lift','coffee-catchup','sealed-garden'].map(id => ({
   id, creator: 'Momevia Originals', systemOwned:true, title: canonicalText(`templates.${id}.title`),
 }))];
 
@@ -23,8 +24,8 @@ export function selectHomeDemos(templates = []) {
   if (!templates.length) return homeDemos;
   const chosen=[];
   const add=template=>{if(template&&!chosen.some(t=>t.id===template.id)&&chosen.length<5)chosen.push(template);};
-  add(templates.find(t=>templateCardType(t)==='invitation'));
-  for(const id of ['birthday-radiance','hai-phong-bi','proud-of-you','mot-ky-niem'])add(templates.find(t=>t.id===id));
+  add(templates.find(t=>t.id==='snowglobe-countdown') || templates.find(t=>templateCardType(t)==='invitation'));
+  for(const id of ['candle-wish-box','tassel-lift','coffee-catchup','sealed-garden'])add(templates.find(t=>t.id===id));
   templates.forEach(add);
   return chosen;
 }
@@ -32,14 +33,16 @@ export function selectHomeDemos(templates = []) {
 export function createHomeViews({ state, buttonLink, templateCard }) {
   function hero() {
     const demos = selectHomeDemos(state.templates);
-    return `<section class="hero hero--split mkt-hero open-me-hero" data-enter><div class="container wrap"><div class="hero-text mkt-hero__layout">
+    return `<section class="hero hero--split mkt-hero open-me-hero moments-hero" data-enter><div class="container wrap">
+      ${renderSeasonBanner()}
+      <div class="hero-text mkt-hero__layout">
       <div class="mkt-hero__intro">
         <span class="open-me-intro-sheen" aria-hidden="true"></span>
         <span class="mkt-hero__eyebrow">${icon("sparkles", 17)} ${text("home.openMe.eyebrow")}</span>
         <h1>${text("home.openMe.title")}<br><em>${text("home.openMe.emphasis")}</em></h1>
         <p class="hero__lead">${text("home.openMe.description")}</p>
         <div class="mkt-actions">
-          <button type="button" class="btn mkt-primary" data-home-create aria-haspopup="dialog">${text("home.openMe.create")} ${icon("arrow-up-right", 18)}</button>
+          <button type="button" class="btn mkt-primary" data-home-create aria-haspopup="dialog">${text("home.openMe.create")}</button>
           ${buttonLink("/explore", text("home.openMe.browse"), "mkt-secondary")}
         </div>
         <ul class="mkt-hero__benefits">

@@ -28,6 +28,7 @@ export function materializeModels(source) {
   const ids = new Map(models.map(e => [e.id, globalThis.crypto.randomUUID()]));
   for (const e of models) {
     e.id = ids.get(e.id);
+    if (e.groupId) e.groupId = ids.get(e.groupId);
     for (const action of e.actions || []) if (action.targetSceneId && ids.has(action.targetSceneId)) action.targetSceneId = ids.get(action.targetSceneId);
   }
   return models;

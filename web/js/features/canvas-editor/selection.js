@@ -1,4 +1,4 @@
-import { editableElement } from './clipboard.js';
+import { editableSelection } from './clipboard.js';
 
 // Selection chỉ là trạng thái giao diện; không sửa document hoặc lịch sử.
 export function activeSelectionIds(document, sceneId, selectedSet, selection) {
@@ -7,20 +7,21 @@ export function activeSelectionIds(document, sceneId, selectedSet, selection) {
     .filter(id => scene?.elementIds.includes(id) && document.elements.some(item => item.id === id));
 }
 
-export function toggleSelection(previous, id, additive = false) {
-  const selectedSet = new Set(additive && id ? previous : id ? [id] : []);
-  if (additive && id) {
-    if (selectedSet.has(id)) selectedSet.delete(id);
-    else selectedSet.add(id);
+export function toggleSelection(previous, id, additive = false, members = [id]) {
+  if (!id) return { selection: null, selectedSet: new Set() };
+  const selectedSet = new Set(additive ? previous : []);
+  const remove = additive && members.every(member => selectedSet.has(member));
+  for (const member of members) {
+    if (remove) selectedSet.delete(member);
+    else selectedSet.add(member);
   }
-  return { selection: additive && id ? [...selectedSet].at(-1) || null : id, selectedSet };
+  return { selection: remove ? [...selectedSet].at(-1) || null : id, selectedSet };
 }
 
 export function editableSceneIds(document, scene, policy) {
-  return scene.elementIds.filter(id => {
-    const element = document.elements.find(item => item.id === id);
-    return editableElement(element, policy) && element.visible !== false;
-  });
+  const editable = new Set(editableSelection(document.elements, scene.elementIds, policy)
+    .filter(element => element.visible !== false).map(element => element.id));
+  return scene.elementIds.filter(id => editable.has(id));
 }
 
 export function restoredSelectionIds(document, scene, beforeIds) {

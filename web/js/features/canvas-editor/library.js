@@ -8,6 +8,8 @@ import { decorativeGroups, decorativeNames } from "./decorations.js";
 import { createElement } from "../../shared/canvas/registry.js";
 import { originalStickerIds } from "../../shared/canvas/artwork.js";
 import { createDocument } from "../../shared/canvas/presets.js";
+import { bounds } from "./group-layout.js";
+export { bounds };
 import { decorations, geometry, illustratedStickers, interactions, lettering, photoLayouts, stories } from "./library-presets.js";
 
 export const stickerNames = {
@@ -44,6 +46,7 @@ export function isPolaroidPlaceholder(model) {
 export function fillPolaroid(model, assetId) {
   return createElement("image", {
     id: model.id,
+    ...(model.groupId ? { groupId: model.groupId } : {}),
     name: model.name || polaroidLabel,
     layout: model.layout,
     props: { assetId, radius: model.props.radius },
@@ -138,19 +141,6 @@ export function sampleBindings(document) {
   document.bindings.senderName.value = "Thương mến, An";
   document.bindings.message.value = "Chúc bạn một ngày thật dịu dàng!";
   return document;
-}
-
-export function bounds(models) {
-  const boxes = models.map(({ layout }) => {
-    const { x, y, width, height, rotation } = layout;
-    const angle = rotation * Math.PI / 180;
-    const horizontal = (Math.abs(Math.cos(angle)) * width + Math.abs(Math.sin(angle)) * height) / 2;
-    const vertical = (Math.abs(Math.sin(angle)) * width + Math.abs(Math.cos(angle)) * height) / 2;
-    return { left: x + width / 2 - horizontal, top: y + height / 2 - vertical,
-      right: x + width / 2 + horizontal, bottom: y + height / 2 + vertical };
-  });
-  return { left: Math.min(...boxes.map(box => box.left)), top: Math.min(...boxes.map(box => box.top)),
-    right: Math.max(...boxes.map(box => box.right)), bottom: Math.max(...boxes.map(box => box.bottom)) };
 }
 
 function overlap(a, b) {

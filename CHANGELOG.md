@@ -1,3 +1,7 @@
+## Unreleased — Nhóm khối trên canvas (2026-11-27)
+
+- Khi thêm một khối nhiều lớp từ thư viện, người gửi có thể di chuyển, xoay, đổi kích thước hoặc nhân bản cả khối và vẫn chỉnh được từng ảnh, đoạn chữ. Các lớp rời trong nháp cũ có thể nhóm lại bằng thao tác chọn nhiều lớp.
+
 ## Unreleased — Phase 4.4F CTA Conversion (2026-11-27)
 
 - Bổ sung CTA tạo thiệp sau khi mở quà mẫu, dùng chung hộp thoại chọn loại thiệp với Hero; chuyển replay thành hành động phụ, giữ focus, giao diện VI/EN và reduced motion. Không phát sinh giao dịch hoặc dữ liệu nghiệp vụ.

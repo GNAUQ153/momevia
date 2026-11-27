@@ -164,7 +164,9 @@ export async function checkContextualCanvas({ page, base, browser, context, arti
   await selectLayer(second);
   const geometry = page.locator('.editor-geometry');
   await geometry.locator('summary').click();
-  const firstLayout = saved.document.elements.find(model => model.id === first).layout;
+  const firstGroup = saved.document.elements.find(model => model.id === first).groupId;
+  assert(firstGroup);
+  const firstLayout = saved.document.elements.find(model => model.id === firstGroup).layout;
   let movedAxes = 0;
   for (const coordinate of ['x', 'y']) {
     const control = field('layout.' + coordinate);
@@ -181,10 +183,10 @@ export async function checkContextualCanvas({ page, base, browser, context, arti
   assert.equal(await hit(), second, 'Selecting the lower image does not paint it in front');
   const documentOrder = () => board.locator('.editor-stage-element').evaluateAll(nodes => nodes.map(node => node.dataset.elementId));
   const originalOrder = await documentOrder();
-  for (let step = 0; step < 3; step++) await control('layer-up').click();
+  await control('layer-up').click();
   assert.equal(await hit(), first);
   assert.deepEqual(await documentOrder(), originalOrder, 'Stack changes preserve document order');
-  for (let step = 0; step < 3 + movedAxes; step++) await control('undo').click();
+  for (let step = 0; step < 1 + movedAxes; step++) await control('undo').click();
   assert.equal(await layer(second).locator('img').getAttribute('src'), secondImage);
 
   const priorFirst = firstImage;

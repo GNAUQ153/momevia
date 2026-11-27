@@ -20,7 +20,7 @@ function elementOf(document, scene, id) {
 }
 
 export function canManageFabricLayer(element, policy = null) {
-  return Boolean(element && FABRIC_EDITABLE_TYPES.includes(element.type) &&
+  return Boolean(element && !element.groupId && FABRIC_EDITABLE_TYPES.includes(element.type) &&
     element.locked !== true && !policy?.lockedElements?.[element.id] &&
     policy?.kind !== 'creator-template');
 }
@@ -35,7 +35,7 @@ export function fabricLayerList(document, sceneId, policy = null) {
       title: element.name || element.accessibility?.label || element.type,
       visible: element.visible !== false,
       protected: !canManageFabricLayer(element, policy),
-      locked: element.locked === true || Boolean(policy?.lockedElements?.[id]),
+      locked: Boolean(element.groupId) || element.locked === true || Boolean(policy?.lockedElements?.[id]),
     };
   });
 }

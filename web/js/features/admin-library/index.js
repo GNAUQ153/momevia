@@ -3,6 +3,7 @@ import { node } from '../canvas-editor/dom.js';
 import { mountPlayer } from '../gift-runtime/index.js';
 import { eventMediaUrl } from '../../shared/canvas/event-media.js';
 import { installLibrary } from '../../shared/canvas/library-state.js';
+import { repairElementGroups } from '../../shared/canvas/element-groups.js';
 import { eventTimeFromLocal } from '../../shared/canvas/interactions.js';
 import { libraryFields } from './fields.js';
 import { preserveScroll, captureFieldFocus, restoreFieldFocus } from '../../ui/scroll-state.js';
@@ -357,7 +358,9 @@ export function mountAdminLibrary(host, { api, initialCategory = 'element' }) {
       if (action === 'remove-scene') { removeScene(doc, sceneIndex); sceneIndex = Math.max(0, sceneIndex - 1); layerIndex = 0; }
       if (action === 'add-layer') { const added = makeLayer(addType, t); if (doc) { doc.elements.push(added); doc.scenes[sceneIndex].elementIds.push(added.id); } else draft.definition.elements.push(added); layerIndex = list.length; }
       if (action === 'remove-layer' && e) { if (doc) { doc.elements = doc.elements.filter(layer => layer.id !== e.id); doc.scenes[sceneIndex].elementIds = doc.scenes[sceneIndex].elementIds.filter(id => id !== e.id); }
-        else draft.definition.elements = draft.definition.elements.filter(layer => layer.id !== e.id); layerIndex = Math.max(0, layerIndex - 1); }
+        else draft.definition.elements = draft.definition.elements.filter(layer => layer.id !== e.id);
+        if (e.groupId) repairElementGroups(doc ? doc.elements : draft.definition.elements);
+        layerIndex = Math.max(0, layerIndex - 1); }
       if (['layer-up','layer-down'].includes(action)) { const next = layerIndex + (action === 'layer-up' ? -1 : 1), target = doc ? doc.scenes[sceneIndex].elementIds : draft.definition.elements;
         if (next >= 0 && next < target.length) { [target[layerIndex], target[next]] = [target[next], target[layerIndex]]; layerIndex = next; } }
     }, true);

@@ -1,6 +1,6 @@
 import { createLocaleControl, message, setAttr, setText, t } from "../../core/i18n.js";
 import { node, button } from './dom.js';
-import { fabricView, fabricDiff } from './fabric-adapter.js';
+import { canFabricEdit, fabricView, fabricDiff } from './fabric-adapter.js';
 import { arrangeFabricBoxes } from './fabric-align.js';
 import { mountFabricInspector } from './fabric-inspector.js';
 import { mountFabricQuickbar } from './fabric-quickbar.js';
@@ -44,6 +44,11 @@ function shapeOptions(element) {
     cornerStyle: 'circle',
     transparentCorners: false,
   };
+}
+
+function lockGroupGeometry(object) {
+  object.set({ lockMovementX: true, lockMovementY: true, lockRotation: true,
+    lockScalingX: true, lockScalingY: true, lockSkewingX: true, lockSkewingY: true, hasControls: false });
 }
 
 function staticPreview(fabric, model) {
@@ -154,6 +159,8 @@ async function makeFabricObject(fabric, model, assetUrl, signal) {
   if(styles?.texture==='paper-grain-v1'&&model.type==='shape'&&!vector){object.set('fill',await paperPattern(fabric,props.color,signal));}
   object.set('opacity', model.opacity);
   object.set('visible', !model.hidden);
+  if (!model.editable) object.set({ selectable: false, evented: false });
+  if (model.groupId) lockGroupGeometry(object);
   return object;
 }
 
@@ -357,6 +364,10 @@ export async function openFabricStudio({ snapshot, sceneId, policy, assetUrl, on
     const byId = new Map(canvas.getObjects().map(item => [item.momeviaId, item]));
     const layerList = layersPanel.querySelector('.fabric-layer-list');
     const isMovable = id => canManage(id) && !temporaryLocks.has(id);
+    const canEditContent = id => {
+      const model = layerModels.get(id);
+      return Boolean(model && canFabricEdit({ ...model, visible: visibility.get(id) }, policy) && !temporaryLocks.has(id));
+    };
     const availableForBatch = id => isMovable(id) && visibility.get(id) !== false &&
       Boolean(byId.get(id)?.selectable) && !byId.get(id)?.momeviaMissingImage;
     const currentSelection = () => canvas.getActiveObject()?.momeviaId || null;
@@ -370,7 +381,7 @@ export async function openFabricStudio({ snapshot, sceneId, policy, assetUrl, on
     layersPanel.insertBefore(inspector.panel, batchSummary);
     // Kiểu dáng dùng state tạm, chỉ đưa vào document khi người dùng bấm Áp dụng.
     properties = mountFabricProperties({
-      canvas, layerModels, canEdit: id => isMovable(id) && visibility.get(id) !== false,
+      canvas, layerModels, canEdit: canEditContent,
     });
     layersPanel.insertBefore(properties.panel, batchSummary);
     // Quickbar đặt cạnh artboard, chỉ điều khiển đối tượng Fabric tạm.
@@ -390,7 +401,14 @@ export async function openFabricStudio({ snapshot, sceneId, policy, assetUrl, on
       getState:()=>({commands:structuredClone(compositionCommands),order:[...layerOrder],visibility:[...visibility],locks:[...temporaryLocks],styles:properties.draft()}),
       restoreState:state=>{compositionCommands.splice(0,compositionCommands.length,...state.commands);layerOrder.splice(0,layerOrder.length,...state.order);visibility.clear();for(const entry of state.visibility)visibility.set(...entry);temporaryLocks.clear();for(const id of state.locks)temporaryLocks.add(id);refreshModels();byId.clear();for(const object of canvas.getObjects())byId.set(object.momeviaId,object);properties.restoreDraft(state.styles);},
       onCloneStyle:(id,fields)=>properties.setDraft(id,fields),
-      refresh:()=>{byId.clear();for(const object of canvas.getObjects())byId.set(object.momeviaId,object);renderLayers();properties.refresh();inspector?.refresh?.();},
+      refresh:()=>{
+        byId.clear();
+        for(const object of canvas.getObjects()){
+          if (layerModels.get(object.momeviaId)?.groupId) lockGroupGeometry(object);
+          byId.set(object.momeviaId,object);
+        }
+        renderLayers();properties.refresh();inspector?.refresh?.();
+      },
       onSave:()=>dialog.querySelector('[data-editor-action="fabric-apply"]:enabled')?.click(),
     });
     dialog.addEventListener('fabric-shortcut-error',event=>setText(help,event.detail),{signal:work.signal});
@@ -429,7 +447,7 @@ export async function openFabricStudio({ snapshot, sceneId, policy, assetUrl, on
           }),
           button(model.name || model.accessibility?.label || model.type, 'fabric-layer-select', {
             class: 'fabric-layer-select', 'data-layer-id': id,
-            'aria-pressed': String(active === id), disabled: !shown || lockedNow,
+            'aria-pressed': String(active === id), disabled: !canEditContent(id),
             title: model.type,
           }),
           button(shown ? message("editor.fabric.layer.hide") : message("editor.fabric.layer.show"), 'fabric-layer-visible', {
@@ -438,7 +456,7 @@ export async function openFabricStudio({ snapshot, sceneId, policy, assetUrl, on
           }),
           button(lockedNow ? message("editor.fabric.layer.unlockTemp") : message("editor.fabric.layer.lockTemp"), 'fabric-layer-lock', {
             'data-layer-id': id, 'aria-pressed': String(lockedNow),
-            disabled: protectedLayer, title: protectedLayer ? message("editor.fabric.layer.protected") : message("editor.fabric.layer.lockHint"),
+            disabled: protectedLayer, title: model.groupId ? message("editor.fabric.layer.grouped") : protectedLayer ? message("editor.fabric.layer.protected") : message("editor.fabric.layer.lockHint"),
           }),
           button(message("editor.fabric.layer.up"), 'fabric-layer-up', {
             'data-layer-id': id,
@@ -594,7 +612,10 @@ export async function openFabricStudio({ snapshot, sceneId, policy, assetUrl, on
       if (closed || !canvas) return;
       const selected = canvas.getActiveObject();
       if (action?.startsWith('align-')) {
-        if (!selected || !selected.selectable) { setText(help, message("editor.fabric.chooseEditable")); return; }
+        if (!selected?.selectable || canvas.getActiveObjects().some(object => !isMovable(object.momeviaId))) {
+          setText(help, message("editor.fabric.chooseEditable"));
+          return;
+        }
         const width = selected.getScaledWidth();
         const height = selected.getScaledHeight();
         const left = action === 'align-left' ? width / 2 : action === 'align-center' ? view.width / 2 :

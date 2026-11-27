@@ -31,6 +31,7 @@ export function fabricView(document, sceneId, policy = null, { includeHidden = f
       .filter(item => item && (includeHidden || item.visible !== false))
       .map(item => ({
         id: item.id,
+        ...(item.groupId ? { groupId: item.groupId } : {}),
         name: item.name || item.accessibility?.label || item.type,
         type: item.type,
         layout: structuredClone(item.layout),
@@ -91,7 +92,7 @@ export function fabricDiff(document, sceneId, shapes, policy = null) {
     if (typeof shape.momeviaId !== 'string' || !scene.elementIds.includes(shape.momeviaId)) continue;
     const element = document.elements.find(item => item.id === shape.momeviaId);
     if (!element || !canFabricEdit(element, policy)) continue;
-    const layout = layoutFromFabric(element, shape);
+    const layout = element.groupId ? element.layout : layoutFromFabric(element, shape);
     const text = element.type === 'text' && !element.props.textBinding &&
       typeof shape.text === 'string' && !(document.personalization && element.props.text?.includes('{người nhận}')) ? shape.text.slice(0, 4000) : null;
     const changed = JSON.stringify(layout) !== JSON.stringify(element.layout) ||
@@ -110,7 +111,10 @@ export function applyFabricDiff(document, sceneId, updates, policy = null) {
     if (!element || !scene.elementIds.includes(update.id) || !canFabricEdit(element, policy)) {
       throw new Error('Thao tác không hợp lệ hoặc element đã bị khóa.');
     }
-    element.layout = normalizedLayout(element, update.layout);
+    const layout = normalizedLayout(element, update.layout);
+    if (element.groupId && Object.keys(element.layout).some(key => layout[key] !== element.layout[key]))
+      throw new Error(t('editor.fabric.layer.grouped'));
+    element.layout = layout;
     if ('text' in update) {
       if (element.type !== 'text' || element.props.textBinding || typeof update.text !== 'string' || update.text.length > 4000) {
         throw new Error('Không được sửa nội dung cá nhân hóa bị khóa.');

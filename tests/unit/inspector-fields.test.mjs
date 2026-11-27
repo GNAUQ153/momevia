@@ -138,7 +138,7 @@ test("Designer kết nối module Inspector, không tự sao chép luật khóa"
   const source = readFileSync("web/js/features/canvas-editor/inspector-panel.js", "utf8");
   assert.match(designer, /createInspectorPanel\(\{/);
   assert.match(source, /buildInspectorPropertyFields\(element\)/);
-  assert.match(source, /buildInspectorGeometryFields\(element, store\.get\(\)\.document\.artboard\.baseSize\)/);
+  assert.match(source, /buildInspectorGeometryFields\(element, store\.get\(\)\.document\.artboard\.baseSize, \{\s*layout: groupLayout\(members\), locked: members\.some/);
   assert.match(source, /lockInspectorControls\(host, policy/);
   assert.match(source, /host\.querySelectorAll\("\[data-editor-field\], \[data-editor-action='effect-remove'\]"\)/);
   assert.doesNotMatch(source, /for \(const key of element\.type === "interaction" \? \[\] : registry\[element\.type\]\.inspector\)/);

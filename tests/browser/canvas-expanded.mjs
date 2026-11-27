@@ -181,8 +181,18 @@ export async function runExpandedBrowser(base, cookie, {cards, controls}, artifa
         await card.scrollIntoViewIfNeeded();
         await card.locator('.editor-thumbnail-surface > *').first().waitFor();
         await card.click();
-        await page.waitForFunction(count=>globalThis.document.querySelectorAll('.editor-artboard .editor-stage-element').length===count,item.create().length);
-        assert.equal(await active().count(),item.create().length,item.id);
+        const count = item.create().length;
+        await page.waitForFunction(count=>globalThis.document.querySelectorAll('.editor-artboard .editor-stage-element').length===count,count);
+        assert.equal(await active().count(),count,item.id);
+        assert.equal(await stage.locator('.editor-selection-outline').count(), 1, item.id);
+        if (count > 1) {
+          const positions = () => active().evaluateAll(nodes => nodes.map(node => parseFloat(node.style.left)));
+          const before = await positions();
+          await stage.press('ArrowRight');
+          assert.deepEqual(await positions(), before.map(x => Math.round((x + 1) * 100) / 100), item.id);
+          await control('undo').click();
+          assert.deepEqual(await positions(), before, item.id);
+        }
         await control('undo').click();
         assert.equal(await active().count(),0,item.id);
         assert.equal(await page.locator('[data-block-group-select]').inputValue(),String(i));

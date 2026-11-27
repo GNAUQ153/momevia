@@ -11,7 +11,9 @@ import { PREDICTION_KIND } from "../../shared/canvas/prediction.js";
 import { createPredictionFields } from "./prediction-fields.js";
 import { celebrationFields } from "./celebration-fields.js";
 import { motionInspector } from "./motion-inspector.js";
-import { editableElement } from "./clipboard.js";
+import { editableElement, editableSelection } from "./clipboard.js";
+import { groupMembers } from "../../shared/canvas/element-groups.js";
+import { groupLayout } from "./group-layout.js";
 import { toPercent, imagePicker } from "./designer-helpers.js";
 import { sceneThumbnail } from "./thumbnail.js";
 import { catalog, isPolaroidPlaceholder } from "./library.js";
@@ -291,12 +293,20 @@ export function createInspectorPanel({
         const loopCard=catalog.flatMap(g=>g.items).find(b=>b.id.startsWith('natural-motion-')&&b.create()[0]?.name===element.name);
         if(loopCard)children.push(button(message('editor.celebrations.loop'),'motion-loop-enable',{'data-motion-card':loopCard.id,disabled:!editableElement(element,design.policy)}));
       }
-      children.push(...buildInspectorGeometryFields(element, store.get().document.artboard.baseSize));
+      const members = groupMembers(store.get().document.elements, element);
+      children.push(...buildInspectorGeometryFields(element, store.get().document.artboard.baseSize, {
+        layout: groupLayout(members), locked: members.some(member => member.locked || design.policy?.lockedElements?.[member.id]),
+      }));
     }
-    if(!quickMode&&design.policy?.kind!=='creator-template')children.push(node('div',{class:'editor-control-row'},
-      button(message('editor.interface.copyElements'),'element-copy',{disabled:!selectedIds().some(id=>editableElement(store.get().document.elements.find(e=>e.id===id),design.policy)),'aria-keyshortcuts':'Control+c Meta+c'}),
-      button(message('editor.interface.cutElements'),'element-cut',{disabled:!selectedIds().some(id=>editableElement(store.get().document.elements.find(e=>e.id===id),design.policy)),'aria-keyshortcuts':'Control+x Meta+x'}),
-      button(message('editor.interface.pasteElements'),'element-paste',{disabled:!getClipboard()?.models.length,'aria-keyshortcuts':'Control+v Meta+v'})));
+    if(!quickMode&&design.policy?.kind!=='creator-template'){
+      const ids = selectedIds(), editable = editableSelection(store.get().document.elements, ids, design.policy);
+      if (ids.length > 1 && editable.length === ids.length && editable.every(item => !item.groupId))
+        children.push(button(message('editor.interface.groupLayers'), 'element-group'));
+      children.push(node('div',{class:'editor-control-row'},
+        button(message('editor.interface.copyElements'),'element-copy',{disabled:!editable.length,'aria-keyshortcuts':'Control+c Meta+c'}),
+        button(message('editor.interface.cutElements'),'element-cut',{disabled:!editable.length,'aria-keyshortcuts':'Control+x Meta+x'}),
+        button(message('editor.interface.pasteElements'),'element-paste',{disabled:!getClipboard()?.models.length,'aria-keyshortcuts':'Control+v Meta+v'})));
+    }
     host.replaceChildren(...children.filter(child => child != null));
     if (keepGeometry) host.querySelector(".editor-geometry").open = true;
     if (!element && design.policy?.kind === "creator-template")

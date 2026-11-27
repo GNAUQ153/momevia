@@ -253,6 +253,7 @@ export function insertPhotoFrame(document, assetId, frameId = 'photo-window') {
   if (photo) photo.props.assetId = assetId;
   else {
     photo = createElement('image', { id: photoId, name: 'Ảnh kỷ niệm', layout: { ...frame.layout }, props: { assetId, radius: frame.props.radius || 0 }, accessibility: { alt: 'Ảnh kỷ niệm người gửi chọn' } });
+    if (frame.groupId) photo.groupId = frame.groupId;
     doc.elements.push(photo);
     const illustrationIds = doc.elements.filter(element => ['Mặt trời trong ảnh', 'Cảnh minh họa'].includes(element.name)).map(element => element.id);
     const at = Math.max(...[frame.id, ...illustrationIds].map(id => scene.elementIds.indexOf(id)));

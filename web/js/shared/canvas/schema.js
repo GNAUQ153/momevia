@@ -204,7 +204,8 @@ export function validateDocument(document, { mode = 'draft', requiredBindings = 
   }
   id(document.entrySceneId, 'entrySceneId'); if (!sceneIds.has(document.entrySceneId)) fail('entrySceneId', 'Cảnh mở đầu không tồn tại.');
   for (const [i, e] of document.elements.entries()) {
-    const p = `elements.${i}`; object(e, p, ['id', 'type', 'elementVersion', 'layout', 'props', 'accessibility', 'actions', 'name', 'visible', 'locked', 'opacity', 'effects', 'artwork', 'sound', 'assembly', 'motions'], ['id', 'type', 'elementVersion', 'layout', 'props', 'accessibility']);
+    const p = `elements.${i}`; object(e, p, ['id', 'groupId', 'type', 'elementVersion', 'layout', 'props', 'accessibility', 'actions', 'name', 'visible', 'locked', 'opacity', 'effects', 'artwork', 'sound', 'assembly', 'motions'], ['id', 'type', 'elementVersion', 'layout', 'props', 'accessibility']);
+    if (own(e, 'groupId')) id(e.groupId, `${p}.groupId`);
     try {
       if(e.assembly){if(e.type!=='shape'&&!(e.type==='image'&&e.assembly.version===2))fail(p,'Assembly requires a decorative shape or an internal image assembly.');validateAssembly(e.assembly);}
       if(e.motions)validateMotions(e.motions,e);
@@ -270,6 +271,16 @@ export function validateDocument(document, { mode = 'draft', requiredBindings = 
   }
   for (const e of assigned) if (!elementIds.has(e)) fail('scenes.elementIds', 'Element không tồn tại.');
   for (const e of elementIds) if (!assigned.has(e)) fail(`elements.${e}`, 'Element chưa thuộc cảnh nào.');
+  const grouped = document.elements.filter(element => element.groupId);
+  if (grouped.length) {
+    const owners = new Map(document.scenes.flatMap(scene => scene.elementIds.map(key => [key, scene.id])));
+    const anchors = new Set(grouped.filter(e => e.id === e.groupId).map(e => e.id));
+    const hasSibling = new Set(grouped.filter(e => e.id !== e.groupId).map(e => e.groupId));
+    for (const e of grouped) {
+      if (!anchors.has(e.groupId) || !hasSibling.has(e.groupId) || owners.get(e.id) !== owners.get(e.groupId))
+        fail(`elements.${e.id}.groupId`, 'Các lớp trong một nhóm phải thuộc cùng một cảnh.');
+    }
+  }
   const eventIssue = invitationIssue(document, mode === 'publish');
   if (eventIssue) fail('invitation', `invitation.error.${eventIssue}`, 'INVALID_INVITATION');
   if (document.schemaVersion === 1 && requiresCanvasV2(document)) fail('schemaVersion', 'Khối này cần tài liệu Canvas phiên bản 2.');
@@ -289,7 +300,7 @@ export function duplicateDocument(document, { idFactory = () => globalThis.crypt
   for (const node of [...result.scenes, ...result.elements]) ids.set(node.id, idFactory());
   result.entrySceneId = ids.get(result.entrySceneId);
   for (const s of result.scenes) { s.id = ids.get(s.id); s.elementIds = s.elementIds.map(id => ids.get(id)); }
-  for (const e of result.elements) { e.id = ids.get(e.id); for (const a of e.actions || []) if (a.targetSceneId) a.targetSceneId = ids.get(a.targetSceneId); }
+  for (const e of result.elements) { e.id = ids.get(e.id); if (e.groupId) e.groupId = ids.get(e.groupId); for (const a of e.actions || []) if (a.targetSceneId) a.targetSceneId = ids.get(a.targetSceneId); }
   if (result.invitation) {
     result.invitation.dateElementId = ids.get(result.invitation.dateElementId);
     result.invitation.venueElementId = ids.get(result.invitation.venueElementId);
@@ -307,7 +318,7 @@ export function publicDocument(document) {
     ...(d.personalization ? { personalization: { version: 1, mode: d.personalization.mode, ...(d.personalization.resolved ? { resolved: true } : {}) } } : {}),
     ...(d.soundtrack ? { soundtrack: d.soundtrack } : {}),
     ...(d.invitation ? { invitation: d.invitation } : {}),
-    elements: d.elements.map(e => ({ id: e.id, type: e.type, elementVersion: e.elementVersion, layout: e.layout, props: e.props, accessibility: e.accessibility, ...(e.motions ? {motions:e.motions} : {}), ...(e.assembly ? {assembly:e.assembly} : {}), ...(e.sound ? {sound:e.sound} : {}), ...(e.actions ? { actions: e.actions } : {}), ...(e.effects ? { effects: e.effects } : {}), ...(e.artwork ? { artwork: e.artwork } : {}), ...(own(e, 'visible') ? { visible: e.visible } : {}), ...(own(e, 'opacity') ? { opacity: e.opacity } : {}) })),
+    elements: d.elements.map(e => ({ id: e.id, ...(e.groupId ? {groupId:e.groupId} : {}), type: e.type, elementVersion: e.elementVersion, layout: e.layout, props: e.props, accessibility: e.accessibility, ...(e.motions ? {motions:e.motions} : {}), ...(e.assembly ? {assembly:e.assembly} : {}), ...(e.sound ? {sound:e.sound} : {}), ...(e.actions ? { actions: e.actions } : {}), ...(e.effects ? { effects: e.effects } : {}), ...(e.artwork ? { artwork: e.artwork } : {}), ...(own(e, 'visible') ? { visible: e.visible } : {}), ...(own(e, 'opacity') ? { opacity: e.opacity } : {}) })),
     responsive: d.responsive,
   };
 }

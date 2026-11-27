@@ -8,6 +8,7 @@ import sharp from 'sharp';
 import { confirmGiftAccess } from './gift-access.mjs';
 import { clickEditorTool, selectEditorLocale } from './editor-tools.mjs';
 import { checkContextualCanvas } from './canvas-contextual.mjs';
+import { checkCanvasGroups } from './canvas-element-groups.mjs';
 import {catalog} from '../../web/js/features/canvas-editor/library.js';
 import {filteredIds} from '../../web/js/features/canvas-editor/library-discovery.js';
 
@@ -575,6 +576,7 @@ export async function runCanvasBrowser(base, expiredSlug) {
     await save();
     completed.push('three visual starters; Vietnamese search, exact star, staggered insertion, one undo for a motif, blocking incomplete action and choosing a scene by thumbnail');
     completed.push(await checkContextualCanvas({ page, base, browser, context, artifacts }));
+    completed.push(await checkCanvasGroups(page, base));
 
     csp.push(...await page.evaluate(() => globalThis.__csp)); assert.deepEqual(csp, []); assert.deepEqual(errors, []);
     if (artifacts) fs.writeFileSync(path.join(artifacts, 'canvas-browser.json'), JSON.stringify({

@@ -65,11 +65,10 @@ export function geometryOutsideCanvas(layout, size) {
     layout.x + layout.width > size.width || layout.y + layout.height > size.height;
 }
 
-export function buildInspectorGeometryFields(element, artboardSize) {
-  const { layout } = element;
+export function buildInspectorGeometryFields(element, artboardSize, { layout = element.layout, locked = element.locked } = {}) {
   const children = [
     node("details", { class: "editor-geometry" },
-      node("summary", {}, message("editor.interface.geometry")),
+      node("summary", {}, message(element.groupId ? "editor.interface.groupGeometry" : "editor.interface.geometry")),
       node("div", { class: "editor-layout-fields" },
         ...[["x", "X"], ["y", "Y"], ["width", message("editor.interface.geometry.width")],
           ["height", message("editor.interface.geometry.height")], ["rotation", message("editor.interface.geometry.rotation")]]
@@ -78,10 +77,11 @@ export function buildInspectorGeometryFields(element, artboardSize) {
             min: key === "width" || key === "height" ? 1 : key === "rotation" ? -360 : -LIMITS.coordinate,
             max: key === "rotation" ? 360 : LIMITS.coordinate,
             step: 1,
+            disabled: Boolean(locked),
           }))),
       node("div", { class: "editor-control-row", role: "group", "aria-label": message("editor.interface.positionGroup") },
-        button(message("editor.interface.centerHorizontal"), "center"),
-        button(message("editor.interface.inside"), "inside"))),
+        button(message("editor.interface.centerHorizontal"), "center", { disabled: Boolean(locked) }),
+        button(message("editor.interface.inside"), "inside", { disabled: Boolean(locked) }))),
     input(message("editor.interface.opacity"), "element.opacity", toPercent(1 - (element.opacity ?? 1)), {
       type: "number", min: 0, max: 100, step: 1, title: message("editor.interface.opacityHint"),
     }),
@@ -89,8 +89,8 @@ export function buildInspectorGeometryFields(element, artboardSize) {
       iconButton(message("editor.interface.layerShow"), "layer-visibility", element.visible === false ? "eye-off" : "eye", {
         "aria-pressed": element.visible !== false,
       }),
-      iconButton(message("editor.interface.layerLock"), "layer-lock", element.locked ? "lock" : "unlock", {
-        "aria-pressed": Boolean(element.locked),
+      iconButton(message("editor.interface.layerLock"), "layer-lock", locked ? "lock" : "unlock", {
+        "aria-pressed": Boolean(locked),
       }),
       button(message("editor.interface.layerUp"), "layer-up"),
       button(message("editor.interface.layerDown"), "layer-down"),

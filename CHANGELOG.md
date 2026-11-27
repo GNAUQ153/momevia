@@ -1,3 +1,8 @@
+## Unreleased - Khắc phục browser CI (2026-11-28)
+
+- Thu gọn khoảng cách giữa bộ mẫu và phần hành trình trên desktop, giữ kiểm tra giới hạn khoảng trắng hiện có.
+- Đồng bộ kỳ vọng Catalog/MySQL với bộ 16 Originals và kiểm tra carousel quay vòng đủ 16 mẫu.
+
 ## Unreleased - UI theo mùa và bộ 16 thiệp (2026-11-27)
 
 - Làm lại hero, chữ, màu và chuyển động CSS 3D; dùng cùng bố cục VI/EN.

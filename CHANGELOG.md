@@ -5,6 +5,7 @@
 - Thư viện và trang chủ chỉ liệt kê 16 Originals và mẫu Creator; mẫu hệ thống cũ vẫn mở, tạo và xuất bản được qua link trực tiếp.
 - Nút trong thiệp tự chọn màu chữ đọc được theo nền; bỏ chữ "(minh họa)" trên bản xem thử; ẩn chữ alt khi ảnh bìa đang tải.
 - Nội dung VI/EN cùng khóa, cùng bố cục (scripts/build/originals-copy.mjs); cập nhật báo cáo docs/danh-gia-ma-nguon.md.
+- Dữ liệu demo lấy mẫu trả phí qua link trực tiếp khi Thư viện không còn mẫu trả phí (sửa CI demo:web --prepare).
 - Lưu ý: cả 16 mẫu hiện miễn phí; cần quyết định mẫu Premium. Thư viện MySQL production cần áp dụng đề xuất originals-update để thấy thiết kế mới.
 
 ## Unreleased - Khắc phục browser CI (2026-11-28)

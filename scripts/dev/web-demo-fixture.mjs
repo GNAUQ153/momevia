@@ -146,7 +146,8 @@ export async function seedWebDemo({ base, accounts, appDir }) {
   await post(admin, `/support/admin/requests/${ticket.id}/resolve`, { action: 'claim' });
   await post(admin, `/support/admin/requests/${ticket.id}/resolve`, { action: 'resolve', resolution: 'Đã xác minh phạm vi hiển thị của mẫu demo.' });
 
-  const paid = catalog.find(item => item.id === 'polaroid' && item.price > 0) || catalog.find(item => item.price > 0);
+  // 16 mẫu Originals trong Thư viện đang miễn phí; mẫu trả phí cũ vẫn mở được qua link trực tiếp.
+  const paid = catalog.find(item => item.price > 0) || (await guest('/catalog/templates/polaroid')).template;
   const paidDraft = (await post(sender, '/designs/designs', { source: { kind: 'template', templateId: paid.id }, title: 'Nháp demo · Thử cấp quyền mẫu có giá', mutationId: randomUUID() }, 201)).design;
   for (const [key, value] of Object.entries({ recipientName: 'Châu Anh', senderName: 'Minh Khôi', message: 'Thử cấp quyền mô phỏng rồi gửi thiệp sinh nhật này.' })) {
     paidDraft.document.bindings[key].value = value;

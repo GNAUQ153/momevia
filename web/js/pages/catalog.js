@@ -130,7 +130,7 @@ export function createCatalogViews({
       <div class="seasonal-shelf__grid">${seasonal.map(template => {
         const status = seasonStatus(template, day);
         return `<a class="seasonal-shelf__card" data-season-status="${status}" href="/template/${encodeURIComponent(template.id)}" data-link>
-        <img ${templateCover(template,{variant:'seasonal',responsive:true,sizes:SEASONAL_COVER_SIZES})} width="390" height="466" loading="lazy" ${attr('alt', 'catalog.seasonal.cover', { title: templateValue(template, 'title') })}/>
+        <img ${templateCover(template,{defer:true,variant:'seasonal',responsive:true,sizes:SEASONAL_COVER_SIZES})} width="390" height="466" loading="lazy" ${attr('alt', 'catalog.seasonal.cover', { title: templateValue(template, 'title') })}/>
         <div class="seasonal-shelf__meta">
           <span class="seasonal-shelf__status">${text(`catalog.seasonal.${status}`)}</span>
           ${template.season ? `<span class="seasonal-shelf__occasion">${templateField(template, 'season')}</span>` : ''}

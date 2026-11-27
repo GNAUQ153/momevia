@@ -10,7 +10,13 @@ export function createComponents({ state }) {
   function artwork(template, variant = "", { eager = false, responsive = false } = {}) {
     const loading = eager ? 'eager' : 'lazy';
     if (isSystemTemplate(template)) return `<div class="artwork artwork--${e(template.theme)} artwork--canvas ${variant}"><img ${templateCover(template,{defer:!eager,variant:variant.includes('detail')?'portrait':'catalog',responsive})} ${attr('alt', 'catalog.artwork.systemAlt', { title: templateValue(template, 'title') })} width="390" height="${variant.includes('detail')?'844':'330'}" loading="${loading}" ${eager?'fetchpriority="high"':''}/></div>`;
-    if (template.thumbnail) return `<div class="artwork artwork--${e(template.theme)} artwork--canvas ${variant}"><img src="${e(template.thumbnail)}" ${attr('alt', 'catalog.artwork.creatorAlt', { title: template.title })} width="390" height="844" loading="${loading}"/></div>`;
+    if (template.thumbnail) {
+      // Danh mục và yêu thích dùng cùng bộ tải ảnh trì hoãn; không đổi Hero hoặc chi tiết.
+      const deferred = responsive && !eager;
+      const source = deferred ? 'data-src' : 'src';
+      const marker = deferred ? ' data-cover-lazy' : '';
+      return `<div class="artwork artwork--${e(template.theme)} artwork--canvas ${variant}"><img ${source}="${e(template.thumbnail)}"${marker} ${attr('alt', 'catalog.artwork.creatorAlt', { title: template.title })} width="390" height="844" loading="${loading}"/></div>`;
+    }
     const theme = e(template.theme || "violet");
     const title = template.title ? e(template.title) : text('catalog.artwork.fallbackTitle');
     const small = template.subtitle ? e(template.subtitle) : text('catalog.artwork.fallbackSubtitle');

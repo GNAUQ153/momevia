@@ -1,3 +1,9 @@
+## Unreleased — Phase 4.5G Catalog Cover Loading (2026-11-27)
+
+- Trì hoãn ảnh bộ sưu tập theo mùa và ảnh Creator trong lưới danh mục/yêu thích bằng bộ tải ảnh theo viewport hiện có.
+- Giữ nguyên URL, kích thước ảnh, giá, bản dịch, ảnh Hero và ảnh trang chi tiết; không thêm cache dữ liệu người dùng hoặc dependency.
+- Bổ sung kiểm thử markup, chuyển trạng thái tải ảnh và tái sử dụng ảnh khi lọc.
+
 ## Unreleased — Phase 4.5F.1 Preview Price Marker (2026-11-27)
 
 - Đổi marker giá Preview để tránh trùng tiền tố với nút mở Preview; giữ nguyên giá và luồng tạo thiệp.

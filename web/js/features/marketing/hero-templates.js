@@ -108,11 +108,8 @@ export function mountHeroTemplates(host, initialTemplates) {
   function canRotate() {
     return !lifetime.signal.aborted &&
       !reduce.matches &&
+      !dataPaused && !document.hidden && visible && !dialog.open &&
       fullMotion.matches &&
-      !dataPaused &&
-      !document.hidden &&
-      visible &&
-      !dialog.open &&
       !host.hasAttribute('data-home-construction-running');
   }
 

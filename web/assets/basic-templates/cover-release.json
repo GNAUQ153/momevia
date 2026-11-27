@@ -2,6 +2,81 @@
   "version": 1,
   "source": "builtin-seed",
   "templates": {
+    "secret-santa-invitation": {
+      "revision": 1,
+      "covers": {
+        "vi": {
+          "portrait": "381af98e9e9d652ae5e3cc2fc7fc0c6d4941091a16f059e3724aea31a47e2b2d",
+          "catalog": "74495121c203746404465a4d971908bff6e679649097115a3a9e08b9cc9f34e8",
+          "seasonal": "b683689fb54856ede0995b38afdee269e09afb38e7269f3df3745b4c23b6fddd"
+        },
+        "en": {
+          "portrait": "c9b02e185fec46338d191f1508d5171ba33dacc0c52adadbd54c29989ba021e8",
+          "catalog": "fb9acbbdcb500edbe0cba5bb06cd785771d231452a992f3af94f100d4dffc999",
+          "seasonal": "385a822f428ab8e2efc3b8ff9601fa0abc3e21552c22fbddf56efe0a1f746f7b"
+        }
+      }
+    },
+    "midnight-soiree": {
+      "revision": 1,
+      "covers": {
+        "vi": {
+          "portrait": "7d7ba3bb0822051ded7a701a6421fea87db6ed296a955693678d7c8f8f246cbe",
+          "catalog": "a640b7a1a2d427cf0974fec8d5506b010a94b0706f24a741fcd644946276bcb5",
+          "seasonal": "d8b8d534a34fd60053c3cf8bea202ff8e883feb2a74d2ecdf5d2f99763ecec41"
+        },
+        "en": {
+          "portrait": "e8e4a2c22a5127daecb4f0ee5644006c9dcdeff2c3bf76b0d417c6ee183f26e3",
+          "catalog": "0d47209d9bff1e9cc420d07822b75d415ae4053135becd29fb08ac5bd6f1aaa6",
+          "seasonal": "52e645b1403af6b041d90c0d18af69650111276f699799a4592577bca75f874b"
+        }
+      }
+    },
+    "graduation-countdown": {
+      "revision": 1,
+      "covers": {
+        "vi": {
+          "portrait": "9a56573204241aec1bf22e65501e3b65183526734d6834c9f57c8fe0c2d53329",
+          "catalog": "a96613996fe586654d5331f6b7735b147cb365c2a675d61ddb145a331364e916",
+          "seasonal": "4a0560ad2b573538814bd1882dc085aa40fffc6022cfec6c96d6f4650181ed5b"
+        },
+        "en": {
+          "portrait": "d3d104d1c08272eeac5245ca7927e534b3ddfa205bc111ddd914862b8ba49b2b",
+          "catalog": "0ac68c91ebff79f34d71bafa339258f0400d3cd7a3bf0179e6a9430564619b10",
+          "seasonal": "c6ea9b62195965022f9842c451d35a8e09e8183f85036c95b646590a0d6512ac"
+        }
+      }
+    },
+    "graduation-mixtape": {
+      "revision": 1,
+      "covers": {
+        "vi": {
+          "portrait": "f9b72b2b75435e10d18a5e50ecb8753902d8742717d9200c41b897aee5201f77",
+          "catalog": "53d48299311cfcb48b6bf4d7e85832f615f4ec5196b47f5549181c73ac4abf9f",
+          "seasonal": "db3dea10f86a95105656f6d9581b2cdbe567d98d2de353c2d5549a0adeee6c75"
+        },
+        "en": {
+          "portrait": "86c82d02327fc9f2f3d62aedf090b7e7b4698619acd3dd8969b4f5937c9d682a",
+          "catalog": "b866e58ff170e966b7788c5f000ec739ee27a0591fd100f605a2d1220a715ed1",
+          "seasonal": "9273bb0f9d04987111ba16c2697ca9a041f13c3231b19a3e6a97f03281e95689"
+        }
+      }
+    },
+    "the-last-chapter-v2": {
+      "revision": 1,
+      "covers": {
+        "vi": {
+          "portrait": "f74aa2f8bb7985a62fce1145ab6112eb3905a7eb3028488dcf44c3c076d5ec44",
+          "catalog": "b06d0f5692c455df2872e1535ddf877cccf13567e9291f7c23418c78a26d6d19",
+          "seasonal": "57b3a3ee5f2d285e0b4bee7db827eec3f6b59de60709c652ec3824d6f2f11867"
+        },
+        "en": {
+          "portrait": "ecaa95d3a563191aee15e6bdcab32756e7fa4cfa79394d3b46ebf20baf4b929d",
+          "catalog": "b36ffa34615d79641d406471c017aa5d804cd943785eb27f375454aebea8afd5",
+          "seasonal": "ddf334bd19a73f8f709fd91d00bd40ca307975e3e06ed900abfd240f7b88ed73"
+        }
+      }
+    },
     "garden-tea": {
       "revision": 1,
       "covers": {

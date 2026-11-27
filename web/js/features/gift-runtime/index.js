@@ -17,6 +17,7 @@ import { applySurface, createMotion, playAmbience, playElement, playReaction, sc
 import { playCelebrations } from './celebrations.js';
 import { createSceneNavigation } from './scene-navigation.js';
 import { createSoundPlayer } from './audio.js';
+import { DRIVE_BLOCKS } from '../../shared/canvas/drive-elements.js';
 import { createSoundtrackPlayback } from './soundtrack.js';
 import { stationeryFlow } from '../../shared/canvas/stationery-flow.js';
 export { renderElement, applyLayout, resolveText } from "./renderer.js";
@@ -63,6 +64,8 @@ export function mountPlayer(
     navigationIntent = null;
   const shell = globalThis.document.createElement("div");
   shell.className = `gift-runtime gift-runtime-mode-${mode}`;
+  const driveDocument=document.elements.some(e=>DRIVE_BLOCKS.some(([id])=>id===e.props.kind)||['lid-card-v1','wax-letter-v1'].includes(e.props.preset));
+  if(driveDocument){shell.classList.add('gift-runtime-drive');recipientContainer?.classList.add('recipient-shell-drive');recipientContainer?.closest('.recipient-section')?.classList.add('recipient-section--drive');}
   if (isGardenDocument(document)) shell.classList.add('gift-runtime-garden');
   if (document.personalization) shell.classList.add('gift-runtime-personalized');
   if (document.personalization && document.personalization.mode !== 'manual' && !coverHasRecipient(document)) {
@@ -129,6 +132,7 @@ export function mountPlayer(
   const typewriters = new Set();
   skip.addEventListener("click", () => typewriters.forEach(finish => finish()), { signal: lifetime.signal });
   toolbar.append(motionControl, skip);
+  const drivePlayback=driveDocument||isGardenDocument(document);
   let soundtrackPlayback = null;
   if (document.soundtrack) {
     toolbar.classList.add('gift-motion-toolbar--music');
@@ -157,6 +161,7 @@ export function mountPlayer(
     musicStatus.className = 'gift-soundtrack-status';
     musicStatus.setAttribute('role', 'status');
     const syncMusic = ({ playing, error = false }) => {
+      if(drivePlayback)shell.dataset.driveMusic=playing?'playing':'paused';
       musicButton.setAttribute('aria-pressed', String(playing));
       setText(musicButton, message(playing ? 'gift.music.pause' : 'gift.music.play'));
       setText(musicStatus, error ? message('gift.music.error') : message('gift.music.optIn'));
@@ -180,6 +185,12 @@ export function mountPlayer(
       const license=globalThis.document.createElement('a');license.href=track.licenseUrl||'https://creativecommons.org/publicdomain/zero/1.0/';license.target='_blank';license.rel='noopener noreferrer';license.textContent=track.license;credit.append(license,` - `);
       const source=globalThis.document.createElement('a');source.href=track.sourceUrl;source.target='_blank';source.rel='noopener noreferrer';setText(source,message('editor.music.source'));credit.append(source);musicGroup.append(credit);
       const changes=globalThis.document.createElement('span');setText(changes,message('musicLibrary.mediaChanges'));credit.append(' - ',changes);
+    }
+    if(driveDocument){
+      const options=globalThis.document.createElement('details');options.className='gift-drive-music-options';
+      const summary=globalThis.document.createElement('summary');setText(summary,message('drive.audioOptions'));options.append(summary);
+      for(const child of [...musicGroup.children])if(child!==musicButton)options.append(child);
+      musicGroup.append(options);
     }
     toolbar.append(musicGroup);
   }
@@ -234,6 +245,7 @@ export function mountPlayer(
   const render = ({ focus = true,direction=1,transitionEnabled=focus } = {}) => {
     if (disposed) return;
     sceneController?.abort();
+    if(drivePlayback){audio.stop();soundtrackPlayback?.pause();}
     const signal = (sceneController = new AbortController()).signal;
     prepareSceneSound();
     stage.inert = false;
@@ -271,6 +283,7 @@ export function mountPlayer(
       if (imagePriority) firstContentPhoto = false;
       const node = renderElement(model, {
         document,
+        invitation,
         imagePriority,
         assetUrl,
         mode,
@@ -458,6 +471,7 @@ export function mountPlayer(
     dispose() {
       if (disposed) return;
       disposed = true;
+      if(driveDocument){recipientContainer?.classList.remove('recipient-shell-drive');recipientContainer?.closest('.recipient-section')?.classList.remove('recipient-section--drive');}
       if (gardenFrame) globalThis.document.documentElement.classList.remove('has-garden-gift');
       audio.dispose();
       lifetime.abort();

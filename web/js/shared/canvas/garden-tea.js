@@ -71,6 +71,7 @@ export function createGardenTea(localize) {
   binding(message, 'text-message', 'message', [32, 380, 326, 225], 21, p.ink, 'center');
   go(message, 'message-next', 'details', 'scene-details', [70, 744, 250, 58]);
 
+  add(message,'sound-button','garden-voice',[50,645,290,54],{label:c('voice'),color:p.accent,optional:true});
   const details = scene('scene-details', 'scene.details');
   title(details, 'details-heading', c('details'), 66, 31);
   doc.invitation = { dateElementId: 'event-date', venueElementId: 'event-location', eventAt: null, timeZone: 'Asia/Ho_Chi_Minh' };

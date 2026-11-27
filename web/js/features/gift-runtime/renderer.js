@@ -1,3 +1,4 @@
+import { decorateDriveOpening, playDriveOpening } from './drive-interactions.js';
 import { reflowSceneNodes } from './reflow.js';
 import { scenePresentation } from '../../shared/canvas/scene-presentation.js';
 import { isSceneFooter, sceneFooterLayout } from '../../shared/canvas/scene-footer.js';
@@ -86,11 +87,16 @@ export function resolveText(node, document) {
 // The system preview regenerates the same document structure with translated copy.
 export function updateElementCopy(node, model, document) {
   const { type, props: p, accessibility: a = {} } = model;
+  if(node.updateDriveCopy){node.updateDriveCopy(model,document);return;}
   if (type === "text") {
     finishTypewriter(node);
     node.textContent = resolveText(model, document);
   } else if (["button", "envelope", "gift-box", "sound-button"].includes(type)) {
-    setText(node.querySelector(".gift-runtime-control-label"), p.label || a.label || label("gift.runtime.continue"));
+    if(['lid-card-v1','wax-letter-v1'].includes(p.preset)){
+      node.querySelector('.gift-drive-bow').textContent=p.preset==='lid-card-v1'?'∞':p.label;
+      node.querySelector('.gift-drive-sliding-card').textContent=p.label;
+      node.querySelector('.gift-drive-opening-label').textContent=p.preset==='wax-letter-v1'?t('drive.openNow'):p.label;
+    }else setText(node.querySelector(".gift-runtime-control-label"), p.label || a.label || label("gift.runtime.continue"));
     setAttr(node, "aria-label", a.label || p.label || label("gift.runtime.continue"));
     if(model.id==='open-gift'&&document.elements.some(e=>e.id.startsWith('refresh-')))node.classList.add('gift-runtime-object-control');
   } else if (type === 'reply' && p.replyMode === 'attendance') {
@@ -188,6 +194,7 @@ export function renderElement(
   model,
   {
     document,
+    invitation,
     assetUrl = () => null,
     mode = "preview",
     onAction = () => {},
@@ -210,7 +217,7 @@ export function renderElement(
     const reactionTarget=model.motions?control.querySelector('[data-motion-family="reaction"]')||control:control;
     if (actions?.length) {
       onAction(actions, intentSignal => {
-        const played = type === 'envelope' && p.preset === 'garden-gate-v1'
+        const played = ['lid-card-v1','wax-letter-v1'].includes(p.preset) ? playDriveOpening(control,motion,signal ? AbortSignal.any([intentSignal,signal]) : intentSignal) : type === 'envelope' && p.preset === 'garden-gate-v1'
           ? playGardenGate(control, document, motion, signal ? AbortSignal.any([intentSignal, signal]) : intentSignal, () => {
             const scene = document.scenes.find(s => s.id === actions[0]?.targetSceneId);
             if (!scene) return null;
@@ -368,6 +375,7 @@ export function renderElement(
       ),
     );
     setAttr(node, "aria-label", a.label || p.label || label("gift.runtime.continue"));
+    if(['lid-card-v1','wax-letter-v1'].includes(p.preset))decorateDriveOpening(node,p.preset,p.label,p.color,p.sealColor,p.paperColor,mode,signal);
     if (mode === "editor") node.tabIndex = -1;
     else if (mode !== "thumbnail")
       node.addEventListener(
@@ -378,7 +386,7 @@ export function renderElement(
   } else if (type === "interaction") {
     const interactionModel = p.clockSource === 'invitation' ? { ...model, props: { ...p, eventAt: document.invitation?.eventAt || null, timeZone: document.invitation?.timeZone || p.timeZone } } : model;
     node = renderInteraction(interactionModel, {
-      mode, signal, motion, bindings: document.bindings, activate, renderArt: drawVector,
+      mode, signal, motion, document, invitation, bindings: document.bindings, activate, renderArt: drawVector,
       renderPhoto: photo => renderElement({
         id: photo.id, type: "image",
         props: { assetId: photo.assetId, fit: "cover", focalPoint: photo.focalPoint, optional: true },
@@ -389,7 +397,7 @@ export function renderElement(
     node = element('section', 'gift-runtime-reply gift-garden-rsvp');
     const attendance = replyAdapter?.attendance;
     mountGardenRsvp(node, attendance || { status: null, updatedAt: null, canRespond: mode === 'preview' }, {
-      signal, recipientName: displayRecipient(document), title: p.title, color: p.color,
+      signal, recipientName: displayRecipient(document), title: p.title, color: p.color, appearance:p.appearance,
       eventAt: attendance?.eventAt || document.invitation?.eventAt, timeZone: attendance?.timeZone || document.invitation?.timeZone,
       submit: mode === 'preview' ? async body => ({ ...body, canRespond: true, updatedAt: new Date().toISOString() }) : attendance?.submit,
       onClosed: attendance?.onClosed || (() => {}),
@@ -441,6 +449,14 @@ export function renderElement(
     messageLabel.append(message);
     form.append(nameLabel, messageLabel, submit, status);
     node.append(form);
+    let foldedNote,foldedMessage,foldedHeading;
+    if(p.replyMode==='message'){
+      foldedNote=element('section','gift-drive-folded-note');foldedNote.hidden=true;foldedNote.setAttribute('role','status');
+      foldedHeading=element('h3');foldedHeading.tabIndex=-1;foldedMessage=element('p','gift-drive-note-copy');
+      const again=element('button','gift-drive-button',label('drive.writeAnother'));again.type='button';
+      again.addEventListener('click',()=>{foldedNote.hidden=true;form.hidden=false;node.classList.remove('is-note-sent');message.focus();},signal?{signal}:{});
+      foldedNote.append(foldedHeading,foldedMessage,again);node.append(foldedNote);
+    }
     if (mode === "public" && !replyAdapter?.canSend) {
       form.hidden = true;
       node.append(element("p", "", label(replyAdapter?.repliesDisabled
@@ -489,6 +505,7 @@ export function renderElement(
             appendReply(reply);
             message.value = "";
             setText(status, label(mode === "preview" ? "gift.reply.previewSent" : "gift.reply.sent"));
+            if(foldedNote){setText(foldedHeading,label(mode==='preview'?'gift.reply.previewSent':'drive.noteSent'));foldedMessage.textContent=reply.message;form.hidden=true;foldedNote.hidden=false;node.classList.add('is-note-sent');foldedHeading.focus();}
             onReply(reply);
           } catch (error) {
             if (!signal?.aborted)
@@ -511,6 +528,7 @@ export function renderElement(
         });
   } else throw new Error(t("gift.runtime.unsupportedElement"));
   prepareMotionLayers(node,model);
+  if(model.accessibility?.label==='Momevia Drive vinyl v1')node.classList.add('gift-drive-vinyl');
   node.dataset.runtimeElement = model.id;
   applySurface(node, model.effects?.surface);
   if (model.visible === false) node.hidden = true;

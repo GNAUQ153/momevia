@@ -1,3 +1,4 @@
+import { renderDriveInteraction } from './drive-interactions.js';
 import { mountProgressScratch } from './scratch-progress.js';
 import { CANDLE_SKINS } from '../../shared/canvas/candle-skins.js';
 import { eventMediaUrl } from '../../shared/canvas/event-media.js';
@@ -13,7 +14,8 @@ function node(tag, css, text) {
   return element;
 }
 
-export function renderInteraction(model, { mode, signal, motion, bindings, renderPhoto, renderArt, activate }) {
+export function renderInteraction(model, { mode, signal, motion, bindings, renderPhoto, renderArt, activate, document, invitation }) {
+  if(interactionKinds[model.props.kind]?.drive)return renderDriveInteraction(model,{mode,signal,motion,renderPhoto,document,invitation});
   const { kind, color, entries, photos, eventAt, timeZone } = model.props;
   const spec = interactionKinds[kind];
   const root = node("section", `gift-runtime-interaction gift-runtime-${kind}`);
@@ -249,6 +251,17 @@ export function renderInteraction(model, { mode, signal, motion, bindings, rende
     pager.hidden = pages.length < 2;
     pager.append(before,indicator,after);
     root.append(frame,pager);
+    if(model.props.zoom && live){
+      const zoom=button(label('drive.zoomPhoto'),()=>{
+        if(!available.length)return;
+        const dialog=node('dialog','gift-drive-photo-dialog');
+        const close=button(label('drive.closePhoto'),()=>dialog.close());
+        dialog.append(renderPhoto(available[index]),node('p','',available[index].caption),close);
+        globalThis.document.body.append(dialog);dialog.showModal();close.focus();
+        const cleanup=()=>{dialog.remove();if(!signal?.aborted)zoom.focus();};
+        dialog.addEventListener('close',cleanup,{once:true});signal?.addEventListener('abort',()=>dialog.close(),{once:true});
+      });zoom.hidden=!available.length;root.append(zoom);
+    }
     if (play) { play.hidden = available.length < 2; root.append(play); }
     setPage(0);
     if (model.props.autoplay && live) {

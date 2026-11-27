@@ -22,7 +22,8 @@ export async function startSfxFixture({sql=false,externalSql=false,port=0,label=
    if(!originalFiles.has(file)){if(fs.existsSync(target))fs.unlinkSync(target);continue;}
    fs.mkdirSync(path.dirname(target),{recursive:true});fs.writeFileSync(target,execFileSync('git',['show',`${baselineCommit}:${file}`],{cwd:root,maxBuffer:16*1024*1024}));
   }
-  fs.mkdirSync(path.join(directory,'scripts/build'),{recursive:true});fs.copyFileSync(path.join(root,'scripts/build/client-bundles.mjs'),path.join(directory,'scripts/build/client-bundles.mjs'));
+  fs.mkdirSync(path.join(directory,'scripts/build'),{recursive:true});
+  for(const file of ['client-bundles.mjs','client-output.mjs'])fs.copyFileSync(path.join(root,'scripts/build',file),path.join(directory,'scripts/build',file));
   const {buildClientBundles}=await import(pathToFileURL(path.join(directory,'scripts/build/client-bundles.mjs')));await buildClientBundles();
  }
  const docker=(args)=>execFileSync('docker',args,{encoding:'utf8',windowsHide:true,stdio:['ignore','pipe','pipe']}).trim();

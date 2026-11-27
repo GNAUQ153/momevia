@@ -464,7 +464,8 @@ export async function runCanvasBrowser(base, expiredSlug) {
     await page.locator(`.editor-artboard [data-element-id="photo-window-image"] img[src$="/${uploadedAsset.id}"]`).waitFor();
     await control('preview').click();
     const quickPreview = page.locator('dialog[open]');
-    await quickPreview.getByRole('button', { name: /Lời chúc/ }).click();
+    const messageScene=quickInitial.document.scenes.find(scene=>scene.elementIds.some(id=>quickInitial.document.elements.some(e=>e.id===id&&e.props.textBinding==='message')));
+    await quickPreview.locator('.gift-runtime-scene-select').selectOption(messageScene.id);
     await quickPreview.getByText(quickGreeting, { exact: true }).waitFor();
     await control('preview-close').click();
     const quickPersisted = (await api(`/designs/designs/${quickId}`)).data.design;

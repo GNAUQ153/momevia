@@ -2,7 +2,7 @@
 // Resolve a view without changing the saved layouts, media or published snapshot.
 export function scenePresentation(document, scene) {
   const elements=document.elements.filter(e=>scene.elementIds.includes(e.id)&&e.visible!==false);
-  const empty=elements.filter(e=>e.type==='image'&&e.props.optional&&e.props.placeholder==='collapse'&&!e.props.assetId);
+  const empty=elements.filter(e=>(e.type==='image'&&e.props.optional&&e.props.placeholder==='collapse'&&!e.props.assetId)||(e.type==='sound-button'&&e.props.optional&&!e.sound));
   const hidden=new Set(),regions=[];
   for(const photo of empty){
     const members=elements.filter(e=>e.id===photo.id||(photo.groupId&&e.groupId===photo.groupId));

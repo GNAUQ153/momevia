@@ -17,9 +17,9 @@ function customItems() {
       definition: { family: 'entrance', title: { vi: 'Nghiêng nhẹ', en: 'Gentle tilt' }, animationId: 'db-motion', targets: { types: ['text'] }, defaults: { speed: 'slow', delay: 150 } } },
   ];
 }
-test('550 complete builtin definitions validate and contain no executable factories', () => {
+test('568 complete builtin definitions validate and contain no executable factories', () => {
   const rows = builtinLibraryItems(); validateLibrary(rows);
-  assert.equal(rows.length, 550); assert.equal(rows.filter(r => r.kind === 'element').length, 306);
+  assert.equal(rows.length, 568); assert.equal(rows.filter(r => r.kind === 'element').length, 319);
   assert.equal(rows.filter(r => r.kind === 'animation').length, 44);
   assert.deepEqual(JSON.parse(JSON.stringify(rows)), rows);
 });

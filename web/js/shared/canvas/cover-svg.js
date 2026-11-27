@@ -4,6 +4,7 @@ import { isSceneFooter, sceneFooterLayout } from './scene-footer.js';
 import { PAPER_GRAIN_SVG } from './paper-grain.js';
 import { STICKERS } from './registry.js';
 import { validateDocument } from './schema.js';
+import { driveInteractionSvg,driveOpeningSvg } from './drive-cover.js';
 import { heartPieces, masks, vectorParts } from './artwork.js';
 import { interactionKinds } from './interactions.js';
 import {EVENT_MEDIA} from './event-media.js';
@@ -116,7 +117,8 @@ function labelSvg(text, x, y, w, size = 16, color = '#32243B') {
     `<tspan x="${x}" dy="${i*size}">${escape(line)}</tspan>`).join('')}</text>`;
 }
 
-function interactionSvg(node, images) {
+function interactionSvg(node, images, event) {
+  if(interactionKinds[node.props.kind]?.drive)return driveInteractionSvg(node,images,photoSvg,labelSvg,event);
   const p = node.props, {width:w,height:h} = node.layout;
   const { label, icon } = interactionKinds[p.kind];
   const background = `<rect width="${w}" height="${h}" rx="14" fill="${p.color}"/>`;
@@ -201,6 +203,7 @@ export function previewSvg(document, sceneId = document.entrySceneId, images = n
         const vector = paths => paths.map(q => `<path d="${q.d}" fill="${q.fill || 'none'}" stroke="${q.stroke || 'none'}" stroke-width="${q.strokeWidth || 0}" stroke-linecap="round"/>`).join('');
         body = `<rect width="${w}" height="${h}" rx="12" fill="${p.color}"/><path d="M${w/2} 0V${h}" stroke="#D4D5B4"/><rect x="10" y="10" width="${w-20}" height="${h-20}" rx="8" fill="none" stroke="#D4D5B4"/><svg x="0" y="0" width="${w*.5}" height="${h}" viewBox="0 0 100 100">${vector(gardenSprigPaths())}</svg><svg x="${w*.5}" y="0" width="${w*.5}" height="${h}" viewBox="0 0 100 100">${vector(gardenSprigPaths())}</svg><circle cx="${w/2}" cy="${h/2}" r="${w*.21}" fill="#FFF3E9" stroke="#BB8584"/><svg x="${w/2-16}" y="${h/2-33}" width="32" height="32" viewBox="0 0 100 100">${vector(gardenFlowerPaths())}</svg><text x="${w/2}" y="${h/2+19}" text-anchor="middle" fill="#854C50" font-family="Georgia,serif" font-size="17">${escape(p.label)}</text>`;
       }
+      if(['lid-card-v1','wax-letter-v1'].includes(p.preset))body=driveOpeningSvg(p,w,h);
       if (p.preset === 'garden-gate-v1') body = `<circle cx="${w/2}" cy="${h/2}" r="${Math.min(w,h)/2-3}" fill="#F8EBE6" stroke="${p.color}"/><circle cx="${w/2}" cy="${h/2}" r="${Math.min(w,h)/2-7}" fill="none" stroke="${p.color}"/><text x="${w/2}" y="${h/2+7}" text-anchor="middle" fill="${p.color}" font-family="Georgia,serif" font-style="italic" font-size="22">${escape(p.label)}</text>`;
       if (node.type==='button'&&p.variant==='text')body=`<text x="${w/2}" y="${h/2+6}" text-anchor="middle" fill="${p.color}" font-family="Arial,sans-serif" font-size="16">${escape(p.label)}</text>`;
     } else if (node.type === 'image') {
@@ -210,7 +213,7 @@ export function previewSvg(document, sceneId = document.entrySceneId, images = n
         ? paperSlices(media.width,media.height,w,photoHeight).map(s=>`<svg x="${s.x}" y="${s.y}" width="${s.width}" height="${s.height}" viewBox="${s.sx} ${s.sy} ${s.sw} ${s.sh}" preserveAspectRatio="none"><image href="${escape(media.url)}" width="${media.width}" height="${media.height}"/></svg>`).join('')
         : photoSvg(p, media, w, photoHeight, node.id);
       if (p.caption) body += `<rect y="${photoHeight}" width="${w}" height="32" fill="#FFF7EE"/><text x="6" y="${photoHeight+16}" font-family="Arial,sans-serif" font-size="14" fill="#32243B">${wrap(p.caption,w-12,14,'body').slice(0,2).map((line,i)=>`<tspan x="6" dy="${i*14}">${escape(line)}</tspan>`).join('')}</text>`;
-    } else if (node.type === 'interaction') body = interactionSvg(node, images);
+    } else if (node.type === 'interaction') body = interactionSvg(node, images, document.invitation);
     else if (node.type === 'reply') body = `<rect width="${w}" height="${h}" rx="20" fill="#FFFFFF"/><text x="18" y="35" fill="#32243B" font-size="20" font-family="Arial,sans-serif">${escape(p.title)}</text><rect x="18" y="70" width="${w - 36}" height="42" rx="8" fill="#F7F4FA"/><rect x="18" y="130" width="${w - 36}" height="88" rx="8" fill="#F7F4FA"/>`;
     const surface = node.effects?.surface;
     if (surface?.id === 'S01' || surface?.id === 'S04') {

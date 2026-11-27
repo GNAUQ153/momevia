@@ -1,3 +1,4 @@
+import { driveElementCards } from '../../shared/canvas/drive-elements.js';
 import { gardenElementCards } from '../../shared/canvas/garden-elements.js';
 import {ANIMATED_GROUPS,animatedElementCards} from '../../shared/canvas/animated-elements.js';
 import { EVENT_CLUSTER_IDS, eventCluster } from '../../shared/canvas/event-clusters.js';
@@ -135,12 +136,13 @@ if(naturalStories.length)catalog.push({label:'Cụm thiệp tự nhiên',items:n
 
 for(const [group,titles]of ANIMATED_GROUPS.entries())catalog.push({label:titles[0],titleTexts:{vi:titles[0],en:titles[1]},items:animatedElementCards(group).map(card=>({...card,group:titles[0]}))});
 catalog.push({ label: 'Vườn trà Garden Tea', titleTexts: { vi: 'Vườn trà Garden Tea', en: 'Garden Tea collection' }, items: gardenElementCards(canonicalText).map(card => ({...card, group: 'Vườn trà Garden Tea'})) });
+catalog.push({label:'Thiệp Drive',titleTexts:{vi:'Thiệp Drive',en:'Drive cards'},items:driveElementCards(canonicalText).map(card=>({...card,group:'Thiệp Drive'}))});
 const normalized = value => value.toLowerCase().normalize("NFD").replace(/\p{Diacritic}/gu, "").replaceAll("đ", "d");
 const searchIndex = new Map(catalog.flatMap(({ items }) => items.map(block => [
-  block.id, normalized(`${block.title} ${block.group} ${block.keywords}`),
+  block.id, normalized(`${block.id} ${block.title} ${block.group} ${block.keywords}`),
 ])));
 export function matchesBlock(block, query) {
-  const label = block.database ? normalized(`${block.title} ${block.group} ${block.keywords}`) : searchIndex.get(block.id);
+  const label = block.database ? normalized(`${block.id} ${block.title} ${block.group} ${block.keywords}`) : searchIndex.get(block.id);
   return normalized(query).trim().split(/\s+/).every(word => label.includes(word));
 }
 export function replaceCatalog(groups) { catalog.splice(0, catalog.length, ...groups); }

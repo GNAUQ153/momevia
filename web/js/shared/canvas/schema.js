@@ -53,12 +53,15 @@ function validateInteraction(p, path, assets, publishing) {
   const keys = ['kind', 'color', ...(spec.fields ? ['entries'] : []),
     ...(spec.prediction ? [...Object.keys(predictionFields), 'prediction'] : []),
     ...(spec.slots ? ['photos'] : []), ...(spec.clock ? ['eventAt', 'timeZone'] : [])];
-  const extras = [...(['light-a-candle','foldout-letter','scratch-ticket'].includes(p.kind) ? ['appearance'] : []), ...(p.kind === 'swipe-album' ? ['optional', 'autoplay'] : []), ...(spec.clock ? ['optional', 'clockMode', 'clockSource'] : [])];
+  const extras = [...(spec.drive?['bodyBinding']:[]),...(p.kind==='four-choice-quiz'?['question']:[]), ...(['light-a-candle','foldout-letter','scratch-ticket'].includes(p.kind) ? ['appearance'] : []), ...((p.kind === 'swipe-album' || spec.slots) ? ['optional', ...(p.kind === 'swipe-album' ? ['autoplay','zoom'] : [])] : []), ...(spec.clock ? ['optional', 'clockMode', 'clockSource'] : [])];
   object(p, path, [...keys, ...extras], keys);
   if (own(p, 'optional')) boolean(p.optional, `${path}.optional`);
   if (own(p, 'autoplay')) boolean(p.autoplay, `${path}.autoplay`);
+  if (own(p, 'zoom')) boolean(p.zoom, `${path}.zoom`);
   if (own(p, 'clockSource')) enumeration(p.clockSource, `${path}.clockSource`, ['invitation']);
   if (own(p, 'clockMode')) enumeration(p.clockMode, `${path}.clockMode`, ['countdown', 'elapsed']);
+  if(p.kind==='four-choice-quiz'&&own(p,'question'))string(p.question,`${path}.question`,240);
+  if(own(p,'bodyBinding'))enumeration(p.bodyBinding,`${path}.bodyBinding`,['message']);
   color(p.color, `${path}.color`);
   if (own(p,'appearance')) enumeration(p.appearance,`${path}.appearance`,p.kind==='foldout-letter'?['classic','paper-fold-v2']:p.kind==='scratch-ticket'?['classic','scratch-progress-v1']:['classic','cake-overlay-v1','cake-photo-v2']);
   if (spec.prediction) {
@@ -247,14 +250,14 @@ export function validateDocument(document, { mode = 'draft', requiredBindings = 
       else if (k === 'mask') { if (!e.props.maskPath) enumeration(v, q, Object.keys(masks)); else id(v, q); }
       else if (k === 'maskPath') { try { validateVector({ paths: [{ d: v }] }); } catch (error) { fail(q, error.message); } }
       else if (k === 'optional') boolean(v, q);
-      else if (k === 'replyMode') enumeration(v, q, ['attendance']);
+      else if (k === 'replyMode') enumeration(v, q, ['attendance','message','classic']);
       else if (k === 'placeholder') { enumeration(v, q, ['portrait','collapse']); if(v==='collapse'&&!e.props.optional)fail(q,'Chỉ thu gọn khối ảnh tùy chọn.'); }
       else if (k === 'variant') enumeration(v,q,['filled','text']);
       else if (k === 'placement') enumeration(v,q,['canvas','footer']);
       else if (k === 'caption') string(v, q, LIMITS.text);
       else if (k === 'pattern') { if (!e.artwork) enumeration(v, q, Object.keys(lines)); else id(v, q); }
       else if (k === 'align') enumeration(v, q, ['left', 'center', 'right']);
-      else if (k === 'color' || k === 'strokeColor') color(v, q);
+      else if (['color','strokeColor','paperColor','sealColor'].includes(k)) color(v, q);
       else if (k === 'radius') number(v, q, 0, 512);
       else if (k === 'strokeWidth') number(v, q, 0, 40);
       else if (k === 'kind') { if (!e.artwork) enumeration(v, q, ['rectangle', 'ellipse', 'line', ...Object.keys(shapes)]); else id(v, q); }
@@ -262,7 +265,8 @@ export function validateDocument(document, { mode = 'draft', requiredBindings = 
       else if (k === 'focalPoint') { object(v, q, ['x', 'y'], ['x', 'y']); number(v.x, `${q}.x`, 0, 1); number(v.y, `${q}.y`, 0, 1); }
       else if (k === 'assetId') { if (v === null && (mode === 'draft' || e.props.optional)) continue; id(v, q); if (!imageAssets.has(v)) fail(q, 'Ảnh chưa được khai báo.', 'ASSET_REFERENCE'); }
       else if (k === 'stickerId') { if (!e.artwork) enumeration(v, q, Object.keys(STICKERS)); else id(v, q); }
-      else if (k === 'preset') enumeration(v, q, e.type === 'envelope' ? ['classic','compact-v2','photo-caption-v3','garden-gate-v1','botanical-gate-v2'] : ['classic']);
+      else if(k==='appearance')enumeration(v,q,['garden','paper-v1']);
+      else if (k === 'preset') enumeration(v, q, e.type === 'envelope' ? ['classic','compact-v2','photo-caption-v3','garden-gate-v1','botanical-gate-v2','wax-letter-v1'] : ['classic','lid-card-v1']);
     }
     if (e.type === 'text' && !own(e.props, 'text') && !own(e.props, 'textBinding')) fail(`${p}.props`, 'Văn bản cần literal hoặc binding.');
     if (e.type === 'text' && own(e.props, 'text') && own(e.props, 'textBinding')) fail(`${p}.props`, 'Chỉ chọn literal hoặc binding.');

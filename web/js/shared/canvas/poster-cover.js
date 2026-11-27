@@ -1,3 +1,4 @@
+import { DRIVE_TEMPLATE_META } from './drive-templates.js';
 import { createElement } from './registry.js';
 
 // Short cover editions use the actual entry-scene layers, including Admin artwork
@@ -24,6 +25,11 @@ function fitLayers(layers, reference, box) {
 }
 
 export function posterCover(document, variant, id) {
+  if(DRIVE_TEMPLATE_META.some(t=>t.id===id)&&variant!=='portrait'){
+    const doc=structuredClone(document),height=variant==='seasonal'?466:330,scale=height/doc.artboard.baseSize.height,offset=(390-390*scale)/2;
+    for(const e of doc.elements){e.layout.x=offset+e.layout.x*scale;e.layout.y*=scale;e.layout.width=Math.max(1,e.layout.width*scale);e.layout.height=Math.max(1,e.layout.height*scale);if(e.type==='text')e.props.fontSize=Math.max(10,e.props.fontSize*scale);}
+    doc.artboard.baseSize.height=height;return doc;
+  }
   if (!photoCovers.has(id) && !letterCovers.has(id) && id !== 'hai-phong-bi' && id !== 'to-doan-cau-se-chon' && id !== 'garden-tea') return document;
   if (id === 'garden-tea' && variant !== 'portrait') {
     const doc = structuredClone(document), height = variant === 'seasonal' ? 466 : 330;

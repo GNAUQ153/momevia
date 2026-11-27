@@ -158,15 +158,15 @@ export async function runExpandedBrowser(base, cookie, {cards, controls}, artifa
     await addTab.click();
     // Không giảm bộ cũ: 100 khối gốc + 24 họa tiết Phase 5.4 + 48 vector Phase 5.5.
     const catalogIds = catalog.flatMap(group => group.items.map(item => item.id));
-    assert.equal(catalogIds.filter(id => !/^m5[45]-/.test(id) && !id.startsWith('object-') && !id.startsWith('natural-') && !id.startsWith('motion-') && !EVENT_CLUSTER_IDS.includes(id) && id!=='sound-button').length, 100, 'Không được thiếu 100 elements gốc');
+    assert.equal(catalogIds.filter(id => !/^m5[45]-/.test(id) && !id.startsWith('object-') && !id.startsWith('natural-') && !id.startsWith('motion-') && !id.startsWith('garden-') && !id.startsWith('drive-') && !EVENT_CLUSTER_IDS.includes(id) && id!=='sound-button').length, 100, 'Không được thiếu 100 elements gốc');
     assert.equal(catalogIds.filter(id=>id.startsWith('object-')).length,21,'All 21 refreshed objects are reusable insertions');
     assert.equal(catalogIds.filter(id => id.startsWith('m54-')).length, 24, 'Không được mất sticker Phase 5.4');
     assert.equal(catalogIds.filter(id => id.startsWith('m55-')).length, 48, 'Phải có đủ 48 hình trang trí mới');
-    assert.equal(new Set(catalogIds).size, 293, 'Không được trùng ID element');
+    assert.equal(new Set(catalogIds).size, 319, 'Không được trùng ID element');
     const visibleIds = await page.locator('[data-block]:visible').evaluateAll(nodes => nodes.map(node => node.dataset.block));
     assert.deepEqual(visibleIds.slice().sort(), catalogIds.slice().sort(),
-      'Thư viện phải hiển thị đủ 293 elements, không thiếu hoặc trùng mục');
-    assert.match(await page.locator('#editor-block-count').innerText(), /293/);
+      'Thư viện phải hiển thị đủ 319 elements, không thiếu hoặc trùng mục');
+    assert.match(await page.locator('#editor-block-count').innerText(), /319/);
     await shot(page,'library-1440.png');
     const search = page.locator('[data-block-search]');
     await search.fill('con dau');
@@ -177,12 +177,28 @@ export async function runExpandedBrowser(base, cookie, {cards, controls}, artifa
       await page.locator('[data-block-group-select]').selectOption(String(i));
       assert.equal(await page.locator('[data-block]:visible').count(),group.items.length);
       for (const item of group.items) {
+        if(item.id==='garden-attendance'){
+          // RSVP requires a real invitation source. Exercise it on a cleared event
+          // canvas, retaining only the two server-recognized event slots.
+          const created=await desktop.request.post(base+'/api/designs/designs',{data:{source:{kind:'template',templateId:'garden-tea'},mutationId:crypto.randomUUID()}});
+          assert.equal(created.status(),201);const {design}=await created.json(),doc=design.document;
+          const ids=new Set([doc.invitation.dateElementId,doc.invitation.venueElementId]);
+          doc.elements=doc.elements.filter(e=>ids.has(e.id));doc.scenes=doc.scenes.filter(s=>s.elementIds.some(id=>ids.has(id)));
+          doc.scenes[0].elementIds=[...ids];doc.entrySceneId=doc.scenes[0].id;
+          const saved=await desktop.request.post(base+'/api/designs/designs/'+design.id+'/save',{data:{title:design.title,document:doc,expectedRevision:design.revision,mutationId:crypto.randomUUID()}});assert.equal(saved.status(),200);
+          const eventPage=await pageFor(desktop);await eventPage.goto(base+'/design/'+design.id+'?mode=layout');
+          await eventPage.locator('[data-editor-action="library-tab"][data-tab="add"]').click();await eventPage.locator('[data-block-search]').fill(item.id);
+          await eventPage.locator('[data-block="garden-attendance"]').click();await eventPage.waitForFunction(()=>globalThis.document.querySelectorAll('.editor-artboard .editor-stage-element').length===3);
+          await eventPage.locator('[data-editor-action="save"]').click();await eventPage.waitForTimeout(500);await eventPage.reload();await eventPage.locator('.editor-artboard .gift-runtime-reply').waitFor();
+          const reloaded=await desktop.request.get(base+'/api/designs/designs/'+design.id);assert.equal((await reloaded.json()).design.document.elements.filter(e=>e.type==='reply').length,1);
+          await eventPage.close();continue;
+        }
         const card = page.locator(`[data-block="${item.id}"]`);
         await card.scrollIntoViewIfNeeded();
         await card.locator('.editor-thumbnail-surface > *').first().waitFor();
         await card.click();
         const count = item.create().length;
-        await page.waitForFunction(count=>globalThis.document.querySelectorAll('.editor-artboard .editor-stage-element').length===count,count);
+        try{await page.waitForFunction(count=>globalThis.document.querySelectorAll('.editor-artboard .editor-stage-element').length===count,count);}catch(error){throw new Error('Insertion failed for '+item.id,{cause:error});}
         assert.equal(await active().count(),count,item.id);
         assert.equal(await stage.locator('.editor-selection-outline').count(), 1, item.id);
         if (count > 1) {
@@ -205,7 +221,7 @@ export async function runExpandedBrowser(base, cookie, {cards, controls}, artifa
     await control('filter-blocks').filter({hasText:'Vừa dùng'}).click();
     assert.equal(await page.locator('[data-block]:visible').count(), 12);
     await control('filter-blocks').filter({hasText:'Tất cả'}).click();
-    assert.equal(await page.locator('[data-block]:visible').count(), 293);
+    assert.equal(await page.locator('[data-block]:visible').count(), 319);
     if (artifacts) {
       await page.evaluate(() => {
         const doc = globalThis.document;

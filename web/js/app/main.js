@@ -1,6 +1,7 @@
 import { createActionDispatcher } from './action-dispatcher.js';
 import { createFinanceActions } from './finance-actions.js';
 import { createCatalogActions } from './catalog-actions.js';
+import { hasCanvasResponse } from '../shared/rsvp.js';
 import { createShellActions } from './shell-actions.js';
 import { createPaymentActions } from './payment-actions.js';
 import { createStudioActions } from './studio-actions.js';
@@ -548,7 +549,7 @@ async function render({ transition = false, resetScroll = false } = {}) {
         const { mountPlayer } =
           await import("../features/gift-runtime/index.js");
         if (generation !== renderGeneration) return;
-        main.innerHTML = `<section class="section recipient-section"><div class="container recipient-shell">${gift.recipientMode === 'self' ? `<div class="recipient-preferences">${localeControl()}</div>` : ''}<div id="canvas-public-player" class="recipient-player-host"></div>${gift.rsvp && gift.templateId !== 'garden-tea' ? '<div data-rsvp-host></div>' : ''}</div></section>`;
+        main.innerHTML = `<section class="section recipient-section"><div class="container recipient-shell">${gift.recipientMode === 'self' ? `<div class="recipient-preferences">${localeControl()}</div>` : ''}<div id="canvas-public-player" class="recipient-player-host"></div>${gift.rsvp && !hasCanvasResponse(gift.documentSnapshot) ? '<div data-rsvp-host></div>' : ''}</div></section>`;
         const player = mountPlayer(
           document.getElementById("canvas-public-player"),
           {
@@ -606,7 +607,7 @@ async function render({ transition = false, resetScroll = false } = {}) {
             player.dispose();
           },
         };
-        if (gift.rsvp && gift.templateId !== 'garden-tea') {
+        if (gift.rsvp && !hasCanvasResponse(gift.documentSnapshot)) {
           const { mountRsvp } = await import('../features/gifts/rsvp.js');
           const mount = mountRsvp;
           if (generation !== renderGeneration || lifetime.signal.aborted) return;

@@ -15,7 +15,7 @@ function ornament(className, paths) {
   }
   return svg;
 }
-export function mountGardenRsvp(host, initial, { submit, signal, onClosed, recipientName, eventAt, timeZone, title, color }) {
+export function mountGardenRsvp(host, initial, { submit, signal, onClosed, recipientName, eventAt, timeZone, title, color, appearance='garden' }) {
   let state = initial, saving = false, timer;
   const instance = ++instanceSequence, headingId = `garden-rsvp-heading-${instance}`, partyId = `garden-party-size-${instance}`;
   host.innerHTML = `<section class="garden-rsvp-panel" aria-labelledby="${headingId}">
@@ -46,6 +46,7 @@ export function mountGardenRsvp(host, initial, { submit, signal, onClosed, recip
     </form>
     <footer class="garden-rsvp-footer"><span aria-hidden="true">❧</span><p>${text('rsvp.garden.footer')}</p></footer>
   </section>`;
+  if(appearance==='paper-v1'){host.classList.add('gift-rsvp-paper');setText(host.querySelector('.garden-rsvp-intro'),message('drive.rsvpIntro'));setText(host.querySelector('.garden-rsvp-footer p'),message('drive.rsvpFooter'));host.querySelector('textarea').setAttribute('placeholder','');}
   const panel = host.querySelector('.garden-rsvp-panel'), art = host.querySelector('.garden-rsvp-art');
   panel.style.setProperty('--garden-rsvp-primary', color || '#3D6045');
   art.append(ornament('garden-rsvp-sprig garden-rsvp-sprig--left', gardenSprigPaths({ leaf: '#789267', shade: '#A0B38B', stem: '#536E46', vein: '#D6E1C6' })),

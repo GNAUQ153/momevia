@@ -1,3 +1,4 @@
+import { editInvitation } from '../../web/js/shared/canvas/invitation.js';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
@@ -59,14 +60,14 @@ async function fixture(name, legacy = false, existingTemplates) {
 try {
   const current = await fixture('current');
   const catalog = (await current.request('/catalog/templates', undefined, 200, false)).templates;
-  assert.equal(catalog.length, 28); let published = 0;
+  assert.equal(catalog.length, 34); let published = 0;
   for (const template of catalog) {
     const mutationId = randomUUID(); const created = await current.request('/designs/designs', { source: { kind: 'template', templateId: template.id }, presetId: 'envelope-basic', mutationId }, 201);
     let d = created.design;
     const expectedPreset = createDocument({ template });
     // A new Sender draft opts into versioned manual recipient naming; the
     // template factory and historical documents remain unchanged.
-    expectedPreset.personalization = { version: 1, mode: 'manual' };
+    expectedPreset.personalization = { version: 1, mode: expectedPreset.invitation && expectedPreset.elements.some(e=>e.type==='reply'&&e.props.replyMode==='attendance')?'self':'manual' };
     assert.equal(d.document.assets.length, expectedPreset.assets.length);
     for (const [index, ref] of expectedPreset.assets.entries()) {
       const media = builtinMedia(ref.assetId), original = ref.assetId, owned = d.document.assets[index].assetId;
@@ -80,6 +81,8 @@ try {
     }
     assert.deepEqual(d.document, expectedPreset); assert.equal(d.source.templateId, template.id); assert.equal(d.source.kind, 'template');
     const originalSource = structuredClone(d.source);
+    if(d.document.invitation){editInvitation(d.document,'date','2027-01-03T09:45');editInvitation(d.document,'venue','QA event hall');}
+    d.document.personalization={version:1,mode:'manual'};
     const prediction = d.document.elements.find(e => e.props.kind === 'prediction-choice');
     if (prediction) Object.assign(prediction.props, { question: 'Bữa tối nào?', optionA: 'Quán mì', optionB: 'Vào bếp', prediction: 'A', reason: 'Kỷ niệm năm nhất.', endingA: 'Hẹn ở quán.', endingB: 'Tớ sẽ nấu.' });
     d.document.bindings.recipientName.value = 'Nguyễn Mai'; d.document.bindings.senderName.value = 'Trần An'; d.document.bindings.message.value = `Lời chúc thử nghiệm mẫu ${template.title}, giữ đầy đủ dấu tiếng Việt.`;
@@ -104,7 +107,9 @@ try {
       const result = await current.request('/gifts/gifts/from-design', publish, 201); const replay = await current.request('/gifts/gifts/from-design', publish);
       assert.equal(replay.gift.slug, result.gift.slug);
       const view = (await current.request(`/gifts/gifts/${result.gift.slug}`, undefined, 200, false)).gift;
-      assert.deepEqual(view.documentSnapshot, publicDocument(expected)); published++;
+      const projected=publicDocument(expected);
+      if(projected.invitation){assert.deepEqual(view.invitation,{eventAt:projected.invitation.eventAt,timeZone:projected.invitation.timeZone,venue:expected.elements.find(e=>e.id===projected.invitation.venueElementId).props.text});delete projected.invitation;}
+      assert.deepEqual(view.documentSnapshot, projected); published++;
     }
     const image = await fetch(`${current.base}/assets/basic-templates/${template.id}.svg`); assert.equal(image.status, 200); assert.equal(image.headers.get('content-type'), 'image/svg+xml');
     assert.equal(await image.text(), fs.readFileSync(path.join(root, `web/assets/basic-templates/${template.id}.svg`), 'utf8'));
@@ -155,7 +160,7 @@ try {
   recovered.document.bindings.message.value = 'Nội dung ở một tab khác';
   await legacy.request(`/designs/designs/${recovered.id}/save`, { expectedRevision: 2, mutationId: randomUUID(), title: recovered.title, document: recovered.document });
   const latest = await materializeTemplateStart(original, { template, createMutationId: key, request,...initializerMedia }); assert.equal(latest.revision, 3); assert.equal(latest.document.bindings.message.value, 'Nội dung ở một tab khác');
-  assert.equal(Object.keys(BASIC_TEMPLATES).length, 28);
+  assert.equal(Object.keys(BASIC_TEMPLATES).length, 34);
   console.log('PASS Cached-v1 fixture: updated client materializes template through real CAS; lost ACK retries identical key/body; latest draft edits/source/policy survive.');
 } finally {
   for (const app of apps) { await new Promise(resolve => app.server.close(resolve)); await app.close(); }

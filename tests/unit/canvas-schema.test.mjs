@@ -16,7 +16,7 @@ test('canvas schema is lossless, Unicode-safe and accepts all 25 presets without
   for (const template of templates) {
     const d = createDocument({ template }); assert.equal(d.scenes.length, template.scenes);
     for (const [key, b] of Object.entries(complete().bindings)) d.bindings[key] = b;
-    const completed = ['to-doan-cau-se-chon', 'garden-tea'].includes(template.id) ? templatePreviewDocument(template) : d;
+    const completed = (['to-doan-cau-se-chon', 'garden-tea'].includes(template.id) || Boolean(d.invitation)) ? templatePreviewDocument(template) : d;
     assert.deepEqual(validateDocument(JSON.parse(JSON.stringify(completed)), { mode: 'publish' }), completed);
   }
   assert.deepEqual(templates, original);

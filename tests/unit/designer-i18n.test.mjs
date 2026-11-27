@@ -17,7 +17,7 @@ const matchesEnglish = (block, query) => matchesLocalizedBlock(block, query, eng
 const vietnameseLetters = /[ăâđêôơưĂÂĐÊÔƠƯáàảãạấầẩẫậắằẳẵặéèẻẽẹếềểễệíìỉĩịóòỏõọốồổỗộớờởỡợúùủũụứừửữựýỳỷỹỵ]/iu;
 
 test('all Canvas library IDs and group names have independent English display copy', () => {
-  assert.equal(catalog.reduce((count, group) => count + group.items.length, 0), 306);
+  assert.equal(catalog.reduce((count, group) => count + group.items.length, 0), 319);
   for (const [index, group] of catalog.entries()) {
     assert.equal(translate(vi, 'vi', `editor.library.group.${index}`), group.label);
     assert(!vietnameseLetters.test(english(`editor.library.group.${index}`)));

@@ -1,3 +1,4 @@
+import { DRIVE_TEMPLATE_META } from './drive-templates.js';
 import { editInvitation } from './invitation.js';
 import { createElement } from './registry.js';
 import { validateDocument } from './schema.js';
@@ -69,6 +70,7 @@ export function templatePreviewDocument(template, localize = canonicalText) {
     for (const [binding, field] of [['recipientName', 'previewRecipient'], ['senderName', 'previewSender'], ['message', 'previewMessage']])
       doc.bindings[binding].value = localize(`templates.${template.id}.${field}`);
   }
+  if(DRIVE_TEMPLATE_META.some(t=>t.id===template?.id)){doc.personalization={version:1,mode:'manual'};editInvitation(doc,'date','2027-06-20T09:45');editInvitation(doc,'venue',localize('drive.previewVenue'));}
   if (template?.id === 'garden-tea') {
     doc.personalization = { version: 1, mode: 'manual' };
     for (const [binding, field] of [['recipientName','previewRecipient'],['senderName','previewSender'],['message','previewMessage']]) doc.bindings[binding].value = localize(`templates.garden-tea.${field}`);

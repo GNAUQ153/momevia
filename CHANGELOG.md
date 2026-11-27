@@ -1,3 +1,11 @@
+## Unreleased — Bộ sáu thiệp Drive, local QA (2026-11-28)
+
+- Thêm Secret Santa, Midnight Soirée, Graduation Countdown, Graduation Mixtape và The Last Chapter V2 bằng tài liệu Canvas VI/EN; nâng Garden Tea với âm thanh tùy chọn, giữ ID hiện có.
+- Thêm 13 mục Canvas tái dùng: lịch bóc ngày theo múi giờ, máy ảnh thay ảnh, lấy nét, học bạ, bằng tháo nơ, quiz bốn đáp án/câu hỏi độc lập, thư bóc, vé SVG, tung mũ, hai kiểu mở thiệp, đĩa theo nhạc và cụm nhánh thông. Tìm thư viện được bằng ID, tên VI/EN và từ khóa.
+- RSVP có kiểu giấy tùy chọn; lời hồi đáp có kiểu gấp sau khi máy chủ xác nhận. Preview mô phỏng, gửi lỗi giữ chữ; các biểu mẫu Canvas chủ động thay thế biểu mẫu ngoài để tránh trùng. Kiểu cũ vẫn là mặc định.
+- Nhạc chỉ phát sau thao tác, đĩa chỉ quay lúc thực phát, dừng âm thanh khi rời cảnh của các mẫu thuộc phạm vi; tôn trọng tắt/giảm chuyển động, có đường chạm và bàn phím thay cử chỉ.
+- Có gói thư viện theo ID/fingerprint/revision, retry và rollback; kiểm JSON và MySQL QA cô lập, giữ Admin edits, nháp và snapshot. Giá 0 của năm ID mới chỉ là fixture local; chưa push, merge, deploy hoặc ghi DB phục vụ. Video tùy chọn còn thiếu hợp đồng asset/quyền và chưa hoàn thành.
+
 ## Unreleased — Đồng bộ UI và responsive Momevia (2026-11-27)
 
 - Dùng chung bo góc điều khiển 12 px, khối nội dung 20 px, khoảng cách lưới và thang chữ co giãn cho các màn công khai, Studio, Creator, Admin, form và hộp thoại. Gói CSS rút gọn của Catalog cũng nhận quy chuẩn này.

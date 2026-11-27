@@ -70,6 +70,8 @@ export function createInspectorPanel({
     if(p.kind==='foldout-letter')fields.push(select(message('interactive.foldPaper'),'props.appearance',p.appearance || 'classic',[['classic',message('interactive.foldClassic')],['paper-fold-v2',message('interactive.foldPaper')]]));
     if (p.kind === 'scratch-ticket') fields.push(select(message('gift.interactions.scratchProgress'), 'props.appearance', p.appearance || 'classic', [['classic', message('gift.interactions.scratchClassic')], ['scratch-progress-v1', message('gift.interactions.scratchProgress')]]));
     if (p.kind === PREDICTION_KIND) return [...fields, createPredictionFields(model, 'inspector')];
+    if(p.kind==='four-choice-quiz')fields.push(input(message('drive.question'),'props.question',p.question||'',{maxlength:240}));
+    if(p.bodyBinding==='message')fields.push(field(message('editor.binding.message'),node('textarea',{'data-editor-field':'binding.message',maxlength:LIMITS.text,rows:4},doc.bindings.message.value)));
     for (const [i, entry] of (p.entries || []).entries()) {
       fields.push(input(message(`editor.interactionField.${p.kind}.${i}.0`), `entry.${i}.heading`, entry.heading, { maxlength: 120 }));
       if (spec.fields[i][1]) fields.push(field(message(`editor.interactionField.${p.kind}.${i}.1`), node("textarea", {
@@ -117,6 +119,7 @@ export function createInspectorPanel({
       fields.push(select(message("editor.interface.timezone"), "props.timeZone", p.timeZone, [...zones].map(zone => [zone, zone])),
         input(message("editor.interface.eventAt"), "event-time", p.eventAt ? localEventTime(p.eventAt, p.timeZone) : "", { type: "datetime-local" }));
     }
+    if (Object.hasOwn(p, 'zoom')) fields.push(field(message('drive.zoomPhoto'),node('input',{type:'checkbox',checked:p.zoom,'data-editor-field':'props.zoom'})));
     if (Object.hasOwn(p, 'autoplay')) fields.push(field(message('templates.story.autoplay'), node('input', { type: 'checkbox', checked: p.autoplay, 'data-editor-field': 'props.autoplay' })));
     return fields;
   }

@@ -1,7 +1,9 @@
+import { DRIVE_TEMPLATE_META } from '../../../web/js/shared/canvas/drive-templates.js';
 import { canonicalText } from '../../../web/js/shared/locale.js';
 
 // Mẫu hệ thống có scene/element chỉnh sửa được; nguồn/quyền artwork theo manifest từng bộ.
 export const templates = [
+  // New IDs are local QA fixtures. Existing price/permission records are never updated here.
   { id: 'midnight-bloom', title: canonicalText('templates.midnight-bloom.title'), subtitle: canonicalText('templates.midnight-bloom.subtitle'), theme: 'violet', style: canonicalText('templates.meta.style.romantic'), price: 59000, scenes: 3, effect: canonicalText('templates.meta.effect.bloom'), creator: 'Momevia Originals', featured: true },
   { id: 'sunny-wishes', title: canonicalText('templates.sunny-wishes.title'), subtitle: canonicalText('templates.sunny-wishes.subtitle'), theme: 'sunshine', style: canonicalText('templates.meta.style.playful'), price: 0, scenes: 3, effect: canonicalText('templates.meta.effect.cardFlip'), creator: 'Momevia Originals', featured: true },
   { id: 'love-letter', title: canonicalText('templates.love-letter.title'), subtitle: canonicalText('templates.love-letter.subtitle'), theme: 'rose', style: canonicalText('templates.meta.style.affectionate'), price: 79000, scenes: 3, effect: canonicalText('templates.meta.effect.openLetter'), creator: 'Momevia Originals', featured: true },
@@ -36,6 +38,7 @@ export const templates = [
   { id: 'ban-do-ngay-ra-truong', title: canonicalText('templates.ban-do-ngay-ra-truong.title'), subtitle: canonicalText('templates.ban-do-ngay-ra-truong.subtitle'), theme: 'sky', style: canonicalText('templates.meta.style.elegant'), category: canonicalText('templates.meta.category.graduation'), price: 0, scenes: 5, effect: canonicalText('templates.meta.effect.openLetter'), creator: 'Momevia Originals' },
   // Garden Tea pilot: free in local fixtures; no running Catalog is modified by source edits.
   { id: 'garden-tea', title: canonicalText('templates.garden-tea.title'), subtitle: canonicalText('templates.garden-tea.subtitle'), theme: 'sage', style: canonicalText('templates.meta.style.nature'), category: canonicalText('templates.garden-tea.category'), cardType: 'invitation', price: 0, scenes: 9, effect: canonicalText('templates.garden-tea.effect'), creator: 'Momevia Originals' },
+  ...DRIVE_TEMPLATE_META.map(({id,theme,scenes,category})=>({id,title:canonicalText('templates.'+id+'.title'),subtitle:canonicalText('templates.'+id+'.subtitle'),theme,scenes,category:canonicalText(category==='graduation'?'templates.meta.category.graduation':'templates.'+id+'.category'),style:canonicalText('templates.meta.style.elegant'),price:0,cardType:'invitation',effect:canonicalText('templates.'+id+'.effect'),creator:'Momevia Originals'})),
 ].map(template => ({
   ...template,
   category: template.category || canonicalText('templates.meta.category.birthday'),
@@ -44,4 +47,4 @@ export const templates = [
   createdAt: '2026-11-01T00:00:00.000Z',
 }));
 // Chỉ chèn mẫu hệ thống chưa tồn tại; không cập nhật đè giá, trạng thái hay snapshot cũ.
-export const addedSystemTemplates = templates.filter(template => ['garden-tea','loi-moi-ben-hien','cuon-phim-ngay-ay','ban-do-ngay-ra-truong','mot-ky-niem', 'hai-phong-bi', 'to-doan-cau-se-chon'].includes(template.id) || template.isSeasonal || ['birthday-radiance', 'thank-you-bloom', 'proud-of-you', 'faraway-hug', 'gentle-apology', 'calm-light'].includes(template.id));
+export const addedSystemTemplates = templates.filter(template => [...DRIVE_TEMPLATE_META.map(t=>t.id),'garden-tea','loi-moi-ben-hien','cuon-phim-ngay-ay','ban-do-ngay-ra-truong','mot-ky-niem', 'hai-phong-bi', 'to-doan-cau-se-chon'].includes(template.id) || template.isSeasonal || ['birthday-radiance', 'thank-you-bloom', 'proud-of-you', 'faraway-hug', 'gentle-apology', 'calm-light'].includes(template.id));

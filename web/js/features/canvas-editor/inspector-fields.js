@@ -16,11 +16,12 @@ export function buildInspectorPropertyFields(element) {
   const { props } = element;
   const fields = [];
   for (const key of element.type === "interaction" ? [] : registry[element.type].inspector) {
+    if(['sealColor','paperColor'].includes(key)&&props.preset!=='wax-letter-v1')continue;
     if(element.assembly && key!=='color')continue;
     if (dedicatedInspectorProperties.includes(key)) continue;
-    if (["color", "strokeColor"].includes(key)) {
+    if (["color", "strokeColor", "sealColor", "paperColor"].includes(key)) {
       const colorControl = node('input', { type: 'color', 'data-editor-field': `props.${key}`, value: props[key] || '#514463' });
-      fields.push(field(message(key === "color" ? "editor.interface.color" : "editor.interface.stroke"), colorControl));
+      fields.push(field(message(key === "color" ? "editor.interface.color" : key==='sealColor'?'drive.sealColor':key==='paperColor'?'drive.paperColor':"editor.interface.stroke"), colorControl));
       if ((element.type === 'text' && key === 'color') || (element.type === 'sticker' && key === 'strokeColor')) {
         const palette = node('select', { 'data-editor-color-preset': `props.${key}` },
           node('option', { value: '' }, message('editor.interface.customColor')),
@@ -47,6 +48,8 @@ export function buildInspectorPropertyFields(element) {
     } else if (key === "mask" && props.mask) {
       fields.push(select(message("editor.interface.imageMask"), "props.mask", props.mask,
         artworkChoices("mask", Object.keys(masks).map((id, i) => [id, message(`editor.interface.mask.${["round", "arch", "heart", "torn"][i]}`)]), currentLocale())));
+     } else if(key==='preset'&&['lid-card-v1','wax-letter-v1'].includes(props.preset)) {
+      fields.push(select(message('drive.openingStyle'),'props.preset',props.preset,element.type==='gift-box'?[['lid-card-v1',message('drive.block.santa-gift-box')],['classic',message('interactive.foldClassic')]]:[['wax-letter-v1',message('drive.block.soiree-envelope')],['classic',message('interactive.foldClassic')]]));
     } else if (key === "caption" && Object.hasOwn(props, key)) {
       fields.push(field(message("editor.interface.caption"), node("textarea", {
         "data-editor-field": "props.caption", maxlength: LIMITS.text, rows: 3,
@@ -54,6 +57,10 @@ export function buildInspectorPropertyFields(element) {
     } else if (key === "pattern" && props.pattern) {
       fields.push(select(message("editor.interface.linePattern"), "props.pattern", props.pattern,
         artworkChoices("line", Object.keys(lines).map((id, i) => [id, message(`editor.interface.pattern.${["arc", "stitch", "arrow", "wave", "brace", "corners"][i]}`)]), currentLocale())));
+    } else if(key==='replyMode'&&element.type==='reply'&&props.replyMode!=='attendance'){
+      fields.push(select(message('drive.replyStyle'),'props.replyMode',props.replyMode||'classic',[['classic',message('drive.replyClassic')],['message',message('drive.replyFolded')]]));
+    } else if(key==='appearance'&&element.type==='reply'&&props.replyMode==='attendance'){
+      fields.push(select(message('drive.rsvpStyle'),'props.appearance',props.appearance||'garden',[['garden',message('drive.rsvpGarden')],['paper-v1',message('drive.rsvpPaper')]]));
     } else if (key === "variant") {
       fields.push(select(message('editor.buttonVariant.label'),'props.variant',props.variant||'filled',[
         ['filled',message('editor.buttonVariant.filled')],['text',message('editor.buttonVariant.text')],
@@ -76,7 +83,7 @@ export function buildInspectorPropertyFields(element) {
     } else if (key === "stickerId") {
       fields.push(select(message("editor.interface.sticker"), "props.stickerId", props.stickerId,
         artworkChoices("sticker", Object.keys(stickerNames).map(id => [id, message(`editor.library.item.${id}`)]), currentLocale())));
-    } else if (!["preset", "pattern", "mask", "maskPath", "caption", "optional", "placeholder", "replyMode"].includes(key)) {
+    } else if (!["preset", "pattern", "mask", "maskPath", "caption", "optional", "placeholder", "replyMode", "appearance"].includes(key)) {
       fields.push(input({
         label: message("editor.interface.label.button"),
         title: message("editor.interface.label.title"),

@@ -1,0 +1,402 @@
+/* Opt-in Canvas blocks. Existing cards retain their renderers and styles. */.gift-drive-block  {
+   display: flex;
+   flex-direction: column;
+   align-items: stretch;
+   gap: 14px;
+   padding: 20px;
+   color: #27394b;
+   font: 16px/1.5 var(--font-body, sans-serif);
+   overflow: visible;
+}
+.gift-drive-block h3, .gift-drive-block p, .gift-drive-block figure  {
+   margin: 0;
+}
+.gift-drive-title  {
+   font: italic 500 27px/1.2 var(--font-serif, Georgia, serif);
+   text-align: center;
+   overflow-wrap: anywhere;
+}
+.gift-drive-button  {
+   min-height: 44px;
+   padding: 10px 14px;
+   border: 1px solid #7d3854;
+   border-radius: 5px;
+   background: #7d3854;
+   color: #fff8e8;
+   font: inherit;
+   cursor: pointer;
+   text-align: center;
+}
+.gift-drive-button:focus-visible, .gift-drive-block input:focus-visible  {
+   outline: 3px solid #29445d;
+   outline-offset: 3px;
+}
+.gift-drive-status  {
+   min-height: 24px;
+   text-align: center;
+   overflow-wrap: anywhere;
+}
+.gift-drive-calendar  {
+   text-align: center;
+}
+.gift-drive-month  {
+   margin-bottom: 12px !important;
+   font-size: 22px;
+   text-transform: capitalize;
+}
+.gift-drive-calendar-grid  {
+   display: grid;
+   grid-template-columns: repeat(7, minmax(0, 1fr));
+   gap: 3px;
+   align-items: center;
+}
+.gift-drive-day, .gift-drive-weekday  {
+   display: grid;
+   min-height: 34px;
+   place-items: center;
+   font-size: 15px;
+}
+.gift-drive-weekday  {
+   font-size: 12px;
+}
+.gift-drive-date-sticker  {
+   min-height: 44px;
+   padding: 4px;
+   color: #27394b;
+   background: #eac572;
+   border-color: #7d3854;
+   transform: rotate(-7deg);
+   box-shadow: 2px 3px 0 #d8a8be;
+   transition: transform .5s;
+}
+.gift-drive-date-sticker.is-peeled  {
+   transform: rotate(8deg) scale(.88);
+   background: #fff8e8;
+}
+.gift-drive-camera  {
+   position: relative;
+   display: grid;
+   place-items: center;
+   height: 120px;
+   border-radius: 22px 22px 10px 10px;
+   border: 7px solid #a8b9c9;
+   background: #272936;
+}
+.gift-drive-camera::before  {
+   content: '';
+   position: absolute;
+   bottom: 8px;
+   width: 80%;
+   height: 5px;
+   background: #0c1724;
+}
+.gift-drive-lens  {
+   display: block;
+   width: 70px;
+   height: 70px;
+   border-radius: 50%;
+   border: 10px solid #a8b9c9;
+   background: radial-gradient(circle at 35% 30%, #d8a8be 0 8%, #27394b 9% 38%, #090e18 40%);
+}
+.gift-drive-print  {
+   background: #fffaf2;
+   padding: 10px 10px 22px;
+   border: 1px solid #a8b9c9;
+   max-width: 220px;
+   width: 90%;
+   align-self: center;
+   position: relative;
+   z-index: 1;
+   transform: translateY(-75px) scale(.85);
+   opacity: 0;
+   transition: transform .7s, opacity .7s;
+}
+.gift-drive-print .gift-runtime-image  {
+   height: 150px;
+   width: 100%;
+}
+.gift-drive-print.is-expanded, .is-printed .gift-drive-print  {
+   transform: translateY(0) rotate(-4deg);
+   opacity: 1;
+}
+.gift-drive-photo-empty  {
+   display: grid;
+   place-items: center;
+   min-height: 100px;
+   padding: 12px;
+   background: #f4e6e8;
+   color: #67324d;
+   font-size: 14px;
+   text-align: center;
+}
+.gift-drive-focus-lens  {
+   width: 220px;
+   height: 220px;
+   max-width: 100%;
+   border-radius: 50%;
+   border: 14px solid #29445d;
+   overflow: hidden;
+   align-self: center;
+}
+.gift-drive-focus-lens > *  {
+   width: 100%;
+   height: 100%;
+}
+.gift-drive-focus-range  {
+   width: 100%;
+   min-height: 44px;
+}
+.gift-drive-quiz  {
+   display: grid;
+   gap: 10px;
+}
+.gift-drive-quiz [aria-pressed=true]  {
+   background: #29445d;
+   box-shadow: inset 0 0 0 3px #eac572;
+}
+.gift-drive-name  {
+   display: grid;
+   gap: 8px;
+}
+.gift-drive-name input  {
+   width: 100%;
+   min-height: 44px;
+   box-sizing: border-box;
+   padding: 8px;
+   font: inherit;
+   color: #29445d;
+   background: #fff;
+   border: 1px solid #29445d;
+}
+.gift-drive-pass  {
+   position: relative;
+   display: grid;
+   gap: 10px;
+   background: #eef3f6;
+   padding: 18px 30px 18px 16px;
+   border: 1px solid #29445d;
+   transition: transform .4s;
+   overflow-wrap: anywhere;
+}
+.gift-drive-pass::after  {
+   content: '';
+   position: absolute;
+   right: 15px;
+   top: 0;
+   bottom: 0;
+   border-right: 2px dashed #a84540;
+}
+.is-pulled .gift-drive-pass  {
+   transform: rotate(-2deg);
+}
+.gift-drive-pass.is-torn::after  {
+   transform: translateX(15px);
+   opacity: .3;
+}
+.gift-drive-paper  {
+   position: relative;
+   min-height: 120px;
+   display: grid;
+   place-items: center;
+   padding: 22px;
+   border: 1px solid #d8ae63;
+   background: #eef3f6;
+}
+.gift-drive-reveal-body  {
+   opacity: 0;
+   transition: opacity .35s;
+   white-space: pre-wrap;
+   overflow-wrap: anywhere;
+}
+.is-revealed .gift-drive-reveal-body  {
+   opacity: 1;
+}
+.gift-drive-ribbon  {
+   font-size: 80px;
+   color: #a84540;
+   transition: transform .5s, opacity .5s;
+}
+.gift-drive-tape  {
+   position: absolute;
+   top: 0;
+   width: 100px;
+   height: 30px;
+   background: #d8ae63;
+   transform: rotate(-7deg);
+   transition: transform .5s;
+}
+.is-revealed .gift-drive-tape  {
+   transform: translate(70px, -30px) rotate(40deg);
+}
+.is-revealed .gift-drive-ribbon  {
+   transform: translateX(60px);
+   opacity: 0;
+}
+.gift-drive-stamp  {
+   border: 3px solid #a84540;
+   color: #a84540;
+   padding: 7px;
+   transform: rotate(-12deg) scale(1.3);
+   opacity: 0;
+   transition: opacity .25s, transform .25s;
+}
+.is-revealed .gift-drive-stamp  {
+   opacity: 1;
+   transform: rotate(-12deg) scale(1);
+}
+.gift-drive-cap  {
+   font-size: 90px;
+   color: #272936;
+   transition: transform .8s;
+}
+.is-revealed .gift-drive-cap  {
+   transform: translateY(-70px) rotate(190deg);
+}
+.gift-drive-opening  {
+   position: relative;
+   display: block;
+   overflow: hidden;
+   background: transparent !important;
+   isolation: isolate;
+   color: #fff3dc;
+   border: 0;
+}
+.gift-drive-box-body  {
+   position: absolute;
+   inset: 40% 8% 13%;
+   background: currentColor;
+   border: 2px solid #bb8050;
+   border-radius: 4px;
+   z-index: 2;
+}
+.gift-drive-box .gift-drive-box-body  {
+   background: #183e35;
+}
+.gift-drive-flap  {
+   position: absolute;
+   inset: 32% 5% 56%;
+   background: #357463;
+   border: 2px solid #bb8050;
+   z-index: 4;
+   transform-origin: top left;
+   transition: transform .8s;
+}
+.gift-drive-bow  {
+   position: absolute;
+   top: 20%;
+   left: 34%;
+   width: 32%;
+   z-index: 5;
+   font: 70px/1 Georgia, serif;
+   color: #bb8050;
+   transition: transform .6s, opacity .4s;
+}
+.gift-drive-sliding-card  {
+   position: absolute;
+   inset: 40% 16% 15%;
+   background: #fff3dc;
+   color: #183e35;
+   padding: 18px 8px;
+   font: italic 24px/1.3 Georgia, serif;
+   transition: transform .8s;
+   z-index: 1;
+}
+.gift-drive-opening-label  {
+   position: absolute;
+   bottom: 0;
+   left: 8%;
+   right: 8%;
+   min-height: 44px;
+   display: grid;
+   place-items: center;
+   font-size: 16px;
+   color: #fff3dc;
+   background: #773447;
+   border-radius: 5px;
+}
+.is-opening .gift-drive-flap  {
+   transform: translateY(-60px) rotate(-20deg);
+}
+.is-opening .gift-drive-bow  {
+   transform: translateY(-80px) rotate(30deg);
+   opacity: 0;
+}
+.is-opening .gift-drive-sliding-card  {
+   transform: translateY(-65%);
+}
+.gift-drive-envelope .gift-drive-box-body  {
+   background: #773447;
+}
+.gift-drive-envelope .gift-drive-flap  {
+   inset: 40% 8% 32%;
+   background: #773447;
+   clip-path: polygon(0 0, 100% 0, 50% 100%);
+   transform-origin: top;
+}
+.gift-drive-envelope .gift-drive-bow  {
+   top: 51%;
+   left: 37%;
+   width: 26%;
+   min-height: 52px;
+   display: grid;
+   place-items: center;
+   border-radius: 50%;
+   font: italic 18px/1.2 Georgia, serif;
+   color: #141b32;
+   background: #d7b67c;
+   padding: 5px;
+   overflow-wrap: anywhere;
+}
+.gift-drive-envelope.is-opening .gift-drive-flap  {
+   transform: rotateX(170deg);
+}
+.gift-drive-vinyl  {
+   animation: drive-vinyl-spin 6s linear infinite paused;
+}
+[data-drive-music=playing] .gift-drive-vinyl  {
+   animation-play-state: running;
+}
+@keyframes drive-vinyl-spin  {
+   to  {
+     transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce)  {
+   .gift-drive-block *, .gift-drive-opening *  {
+     transition: none !important;
+     animation: none !important;
+  }
+}
+.gift-drive-block .gift-drive-button  {
+   color:#fff8e8;
+   background:#7d3854;
+   border:1px solid #7d3854;
+}
+.gift-drive-block .gift-drive-date-sticker  {
+   background:#eac572;
+   color:#27394b;
+}
+.gift-drive-photo-dialog  {
+   width:min(90vw,800px);
+   max-height:90dvh;
+   padding:20px;
+   background:#fff8e8;
+   color:#27394b;
+   border:1px solid #7d3854;
+}
+.gift-drive-photo-dialog .gift-runtime-image  {
+   width:100%;
+   height:65dvh;
+}
+.gift-drive-photo-dialog img  {
+   object-fit:contain !important;
+}
+.gift-drive-box .gift-drive-box-body,.gift-drive-envelope .gift-drive-box-body,.gift-drive-envelope .gift-drive-flap  {
+   background:var(--drive-opening-color);
+}
+.gift-drive-envelope .gift-drive-bow  {
+   background:var(--drive-seal-color);
+}
+.gift-drive-sliding-card  {
+   background:var(--drive-paper-color);
+}

@@ -53,7 +53,7 @@ test("Inspector chỉ dựng trường chung của từng loại, không nhân �
     sticker: ["props.stickerId", "props.color", "props.strokeColor"],
     image: ["props.fit", "props.radius"],
     button: ["props.label", "props.color", "props.variant", "props.placement", "props.radius"],
-    reply: ["props.title", "props.submitLabel", "props.color"],
+    reply: ["props.title", "props.submitLabel", "props.color", "props.replyMode"],
     interaction: [],
   };
   for (const [type, expected] of Object.entries(cases)) {

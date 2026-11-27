@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { filterTemplates, styleOptions, countLabel, paginateTemplates, PAGE_SIZE } from '../../web/js/features/catalog/filter.js';
+import { activeCatalogFilters, clearCatalogFilter, filterTemplates, styleOptions, countLabel, paginateTemplates, PAGE_SIZE } from '../../web/js/features/catalog/filter.js';
 
 const templates = [
   { id: 'a', title: 'Love', subtitle: 'Hi', style: 'Lãng mạn', creator: 'A', price: 59000 },
@@ -82,4 +82,35 @@ test('Có thể áp dụng phân trang cho danh sách yêu thích', () => {
   const favorites = paginationTemplates.filter((_, index) => index % 2 === 0);
   assert.equal(paginateTemplates(favorites, 1).items.length, 9);
   assert.equal(paginateTemplates(favorites, 2).items.length, 3);
+});
+
+const selected = () => ({
+  search: 'sinh nhật', cardType: 'invitation', filter: 'Lãng mạn',
+  occasion: 'Sinh nhật', palette: 'pink', freeOnly: true, photoOnly: true, catalogPage: 3,
+});
+
+test('Nhận biết đủ bảy điều kiện và bỏ qua giá trị mặc định', () => {
+  assert.deepEqual(activeCatalogFilters(selected()), ['search', 'cardType', 'filter', 'occasion', 'palette', 'freeOnly', 'photoOnly']);
+  assert.deepEqual(activeCatalogFilters({ search: '   ', filter: 'all', freeOnly: false }), []);
+});
+
+test('Xóa từng điều kiện độc lập và luôn quay lại trang đầu', () => {
+  const resets = { search: '', cardType: 'all', filter: 'all', occasion: 'all', palette: 'all', freeOnly: false, photoOnly: false };
+  for (const [key, value] of Object.entries(resets)) {
+    const state = selected();
+    const before = { ...state };
+    assert.equal(clearCatalogFilter(state, key).value, value);
+    assert.deepEqual(state, { ...before, [key]: value, catalogPage: 1 });
+    assert(!activeCatalogFilters(state).includes(key));
+  }
+});
+
+test('Không chấp nhận tên điều kiện tùy ý hoặc thay đổi trạng thái không liên quan', () => {
+  const state = selected();
+  const before = { ...state };
+  for (const key of ['__proto__', 'constructor', 'catalogPage', 'user', 'price', undefined]) {
+    assert.equal(clearCatalogFilter(state, key), null);
+  }
+  assert.deepEqual(state, before);
+  assert.equal(clearCatalogFilter({ filter: 'all', catalogPage: 2 }, 'filter'), null);
 });

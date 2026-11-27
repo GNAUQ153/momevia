@@ -416,6 +416,8 @@
   "catalog.filters.byStyle": "Lọc theo phong cách",
   "catalog.filters.clear": "Xóa bộ lọc",
   "catalog.filters.group": "Bộ lọc thư viện",
+  "catalog.filters.active": "Bộ lọc đang áp dụng",
+  "catalog.filters.remove": "Xóa điều kiện:",
   "catalog.filters.option": "{style} ({count})",
   "catalog.filters.photo": "Thay được ảnh",
   "catalog.filters.reset": "Bỏ lọc",

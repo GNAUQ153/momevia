@@ -1,3 +1,9 @@
+## Unreleased — Phase 4.5B Catalog Active Filters (2026-11-27)
+
+- Hiển thị điều kiện đang áp dụng, xóa từng chip và giữ các điều kiện còn lại; đồng bộ control, URL, focus và phân trang.
+- Dùng nhãn VI/EN và token giao diện hiện có, escape dữ liệu; giữ API, giá, quyền và thuật toán lọc.
+- Bổ sung sáu kiểm thử hồi quy, không thêm dependency hoặc migration.
+
 ## Unreleased — Phase 4.5A Catalog Layout (2026-11-27)
 
 - Làm mới bố cục Catalog bằng token màu, spacing, radius và elevation hiện có.

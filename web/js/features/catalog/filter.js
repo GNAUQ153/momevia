@@ -44,6 +44,35 @@ export function filterTemplates(
   });
 }
 
+// Một danh sách điều kiện dùng chung cho chip và thao tác xóa từng bộ lọc.
+const catalogFilterControls = [
+  ['search', 'template-search', ''],
+  ['cardType', 'card-type-filter', 'all'],
+  ['filter', 'style-filter', 'all'],
+  ['occasion', 'occasion-filter', 'all'],
+  ['palette', 'palette-filter', 'all'],
+  ['freeOnly', 'free-filter', false],
+  ['photoOnly', 'photo-filter', false],
+];
+
+export function activeCatalogFilters(state) {
+  return catalogFilterControls.filter(([key, , reset]) => {
+    const value = state[key];
+    if (key === 'search') return Boolean(value?.trim());
+    if (typeof reset === 'boolean') return value === true;
+    return Boolean(value && value !== reset);
+  }).map(([key]) => key);
+}
+
+export function clearCatalogFilter(state, key) {
+  const entry = catalogFilterControls.find(([name]) => name === key);
+  if (!entry || !activeCatalogFilters(state).includes(key)) return null;
+  const [, controlId, value] = entry;
+  state[key] = value;
+  state.catalogPage = 1;
+  return { controlId, value };
+}
+
 export function countLabel(count) {
   return canonicalText('catalog.results.count', { count });
 }

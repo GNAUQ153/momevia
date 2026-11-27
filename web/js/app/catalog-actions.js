@@ -2,7 +2,7 @@ import { attr, message, t, text } from '../core/i18n.js';
 import { escapeHtml as e } from '../core/api.js';
 import { icon } from '../ui/icons.js';
 import { focusVisibleTarget } from '../core/motion.js';
-import { paginateTemplates } from '../features/catalog/filter.js';
+import { clearCatalogFilter, paginateTemplates } from '../features/catalog/filter.js';
 
 // Nhóm hành động catalog; nhận dependency từ Application Controller.
 export function createCatalogActions({
@@ -87,6 +87,18 @@ export function createCatalogActions({
       search.value = state.search = "";
       state.catalogPage = 1;
       search.focus();
+      commitCatalogFilters();
+    }],
+    [["remove-catalog-filter"], async (action, element) => {
+      const change = clearCatalogFilter(state, element.dataset.filter);
+      if (!change) return;
+      const control = document.getElementById(change.controlId);
+      if (control) {
+        if (typeof change.value === 'boolean') control.checked = change.value;
+        else control.value = change.value;
+      }
+      // Chuyển focus trước khi chip biến mất; không mở bàn phím ảo khi xóa bộ lọc khác.
+      document.querySelector('.catalog-reset')?.focus();
       commitCatalogFilters();
     }],
     [["clear-filters"], async (action, element) => {

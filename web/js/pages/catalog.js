@@ -11,6 +11,7 @@ import { prioritizeTemplates } from '../shared/template-order.js';
 import { preserveLoadedCovers } from '../core/cover-loading.js';
 import { SEASONAL_COVER_SIZES } from '../shared/cover-images.js';
 import {
+  activeCatalogFilters,
   filterTemplates,
   styleOptions,
   paginateTemplates,
@@ -47,7 +48,28 @@ export function createCatalogViews({
   }
 
   function hasFilters() {
-    return Boolean(state.search.trim() || (state.cardType && state.cardType !== 'all') || state.freeOnly || state.photoOnly || state.filter !== 'all' || (state.occasion && state.occasion !== 'all') || (state.palette && state.palette !== 'all'));
+    return activeCatalogFilters(state).length > 0;
+  }
+
+  function filterChipLabel(key) {
+    const value = state[key];
+    if (key === 'search') return `${text('catalog.search.label')}: ${e(value.trim())}`;
+    if (key === 'cardType') return `${text('catalog.cardType.label')}: ${text(`catalog.cardType.${value}`)}`;
+    if (key === 'freeOnly') return text('common.price.free');
+    if (key === 'photoOnly') return text('catalog.filters.photo');
+    if (key === 'palette') {
+      const template = state.templates.find(item => item.palette === value);
+      return `${text('catalog.filters.palette')}: ${template ? templateField(template, 'paletteLabel') : e(value)}`;
+    }
+    const style = key === 'filter';
+    const translation = templateMetaKey(style ? 'style' : 'category', value);
+    return `${text(style ? 'catalog.filters.style' : 'catalog.filters.occasion')}: ${translation ? text(translation) : e(value)}`;
+  }
+
+  function activeFilterMarkup() {
+    return activeCatalogFilters(state).map(key =>
+      `<button type="button" class="catalog-filter-chip" data-action="remove-catalog-filter" data-filter="${key}"><span class="visually-hidden">${text('catalog.filters.remove')} </span><span class="catalog-filter-chip__label">${filterChipLabel(key)}</span>${icon('close', 16)}</button>`
+    ).join('');
   }
 
   function syncCatalogResults() {
@@ -58,6 +80,12 @@ export function createCatalogViews({
     const clear = document.getElementById("template-search-clear");
     if (clear) clear.disabled = !state.search.length;
     if (!grid) return;
+    const active = document.getElementById('catalog-active-filters');
+    if (active) {
+      const markup = activeFilterMarkup();
+      if (active.innerHTML !== markup) active.innerHTML = markup;
+      active.hidden = !markup;
+    }
     const shelf = document.querySelector('.seasonal-shelf');
     if (shelf) shelf.hidden = hasFilters();
     const { result, cards } = catalogResultMarkup();
@@ -133,6 +161,7 @@ export function createCatalogViews({
         <button type="button" class="catalog-reset" data-action="clear-filters">${icon("close", 15)} ${text("catalog.filters.reset")}</button>
       </div>
       ${catalogFailed ? `<div role="alert"><p>${text('catalog.results.failed')}</p><button class="btn btn--outline" type="button" data-action="retry-catalog">${text('common.actions.retry')}</button></div>` : `
+      <div class="catalog-active-filters" id="catalog-active-filters" role="group" ${attr('aria-label', 'catalog.filters.active')} ${hasFilters() ? '' : 'hidden'}>${activeFilterMarkup()}</div>
       <div class="catalog-range" id="catalog-range" tabindex="-1">${result.total ? text('catalog.results.range', result) : text('catalog.results.empty')}</div>
       <div class="template-grid catalog-grid" id="catalog-grid">${cards}</div>
       <div id="catalog-pagination">${paginationMarkup(result, "catalog")}</div>

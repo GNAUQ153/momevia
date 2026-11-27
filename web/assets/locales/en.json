@@ -417,6 +417,8 @@
   "catalog.filters.byStyle": "Filter by style",
   "catalog.filters.clear": "Clear filters",
   "catalog.filters.group": "Template filters",
+  "catalog.filters.active": "Active filters",
+  "catalog.filters.remove": "Remove filter:",
   "catalog.filters.option": "{style} ({count})",
   "catalog.filters.photo": "Replaceable photo",
   "catalog.filters.reset": "Reset filters",

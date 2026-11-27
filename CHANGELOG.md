@@ -1,3 +1,9 @@
+## Unreleased — Signature S2 (2026-11-27)
+
+- Đăng ký sáu cụm artwork Signature vào thư viện Elements, hỗ trợ chèn 34 layer độc lập và tìm kiếm VI/EN.
+- Bổ sung các mục thiếu trong MySQL theo giao dịch, giữ nguyên chỉnh sửa và trạng thái Admin; không tạo template công khai hoặc migration mới.
+- Cập nhật kiểm thử số lượng Elements, giữ nguyên 293 mục cũ.
+
 ## Unreleased — Momevia Originals 16 (2026-11-27)
 
 - Thêm 16 mẫu Canvas gốc VI/EN, 4 scene tương tác, artwork SVG và khung ảnh cá nhân hóa; giữ nguyên 28 mẫu cũ.

@@ -6,8 +6,8 @@ import { addRecent, discoveryModes, filteredIds, readRecent } from "../../web/js
 const ids = () => [...filteredIds(catalog)];
 
 test("Thư viện giữ 172 mục, tìm kiếm không dấu và lọc nhóm không làm mất ID", () => {
-  assert.equal(ids().length, 293);
-  assert.deepEqual([...filteredIds(catalog, {mode:"new"})].length, 159);
+  assert.equal(ids().length, 299);
+  assert.deepEqual([...filteredIds(catalog, {mode:"new"})].length, 165);
   assert.equal([...filteredIds(catalog, {mode:"season"})].length > 24, true);
   const search = filteredIds(catalog, {query:"huong duong"});
   assert.deepEqual([...search], ["m55-sunflower"]);

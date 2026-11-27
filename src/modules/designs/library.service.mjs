@@ -1,3 +1,4 @@
+import { signatureElementIds } from '../../../web/js/shared/canvas/signature/registry.js';
 import { ORIGINAL_IDS } from '../../../web/js/shared/canvas/originals-data.js';
 import { createHash } from 'node:crypto';
 import { builtinLibraryItems } from './library.seed.mjs';
@@ -101,7 +102,7 @@ export class CanvasLibraryService {
     if (!Number(row.n)) await this.seed();
     else {
       await this.seedSound();
-      await this.seedOriginals();
+      await this.seedCollections();
     }
     await this.refresh();
   }
@@ -120,9 +121,11 @@ export class CanvasLibraryService {
       for(const row of rows)await tx.execute(`INSERT INTO canvas_library_items(kind,id,revision,status,sort_order,definition) VALUES (?,?,?,?,?,?) ON DUPLICATE KEY UPDATE id=id`,[row.kind,row.id,row.revision,row.status,row.sortOrder,JSON.stringify(row.definition)]);
     });
   }
-  // Chỉ thêm mẫu thiếu; không ghi đè bản sửa hoặc mẫu đã bị Admin vô hiệu hóa.
-  async seedOriginals() {
-    const rows = builtinLibraryItems().filter(row => row.kind === 'template' && ORIGINAL_IDS.includes(row.id));
+  // Chỉ thêm mẫu và cụm Signature thiếu; giữ nguyên mọi chỉnh sửa của Admin.
+  async seedCollections() {
+    const rows = builtinLibraryItems().filter(row =>
+      (row.kind === 'template' && ORIGINAL_IDS.includes(row.id)) ||
+      (row.kind === 'element' && signatureElementIds.includes(row.id)));
     await this.client.withTransaction(async tx => {
       await tx.execute("SELECT version FROM schema_migrations WHERE version='013_canvas_library' FOR UPDATE");
       const current = await this.rows(tx);

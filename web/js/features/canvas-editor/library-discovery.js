@@ -36,7 +36,7 @@ export function filteredIds(catalog, { query = "", group = "", mode = "all", rec
     if (selected !== null && index !== selected) return [];
     return items.filter(block => {
       if (!matches(block, query)) return false;
-      if (mode === "new") return /^(?:m55-|natural-|object-|motion-)/.test(block.id);
+      if (mode === "new") return /^(?:m55-|natural-|object-|motion-|signature-)/.test(block.id);
       if (mode === "recent") return recentSet.has(block.id);
       if (mode === "season") return seasonalWords.some(word => label.includes(word));
       return true;

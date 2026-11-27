@@ -1,3 +1,4 @@
+import { signatureElementIds } from '../../../web/js/shared/canvas/signature/registry.js';
 import { eventRecipes } from '../../../web/js/shared/canvas/event-recipes.js';
 import { registry } from '../../../web/js/shared/canvas/registry.js';
 import { catalog } from '../../../web/js/features/canvas-editor/library.js';
@@ -46,7 +47,7 @@ export function builtinLibraryItems() {
     }
     // Capture the complete compositions, not names pointing back to JS factories.
     for (const [index, group] of catalog.entries()) for (const card of group.items){
-      const elements=card.create();if(card.titleTexts||card.id==='natural-motion-heart')elements.forEach((e,i)=>{e.id=card.id+'-subject'+(i?'-'+i:'');});const assets=[...new Set(elements.filter(e=>e.type==='image'&&e.props.assetId).map(e=>e.props.assetId))].map(assetId=>({assetId,kind:'image'}));
+      const elements=card.create();if(card.titleTexts||card.id==='natural-motion-heart'||signatureElementIds.includes(card.id))elements.forEach((e,i)=>{e.id=card.id+'-subject'+(i?'-'+i:'');});const assets=[...new Set(elements.filter(e=>e.type==='image'&&e.props.assetId).map(e=>e.props.assetId))].map(assetId=>({assetId,kind:'image'}));
       add('element',card.id,{title:card.titleTexts||words(`editor.library.item.${card.id}`),group:group.titleTexts||words(`editor.library.group.${index}`),keywords:card.keywords||'',elements,...(assets.length?{assets}:{}),...(card.visualKind?{visualKind:card.visualKind}:{})});
     }
     // Pin path data into the DB documents; old source definitions remain solely

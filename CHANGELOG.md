@@ -1,3 +1,9 @@
+## Unreleased — Phase 4.5E Seasonal Collections (2026-11-27)
+
+- Ưu tiên chiến dịch đang diễn ra, mùa sắp tới, sau đó các mùa đã qua; dữ liệu lịch thiếu không làm lỗi danh mục.
+- Hiển thị nhãn theo mùa, tên dịp, giá thật và số mẫu; đồng bộ VI/EN, token, responsive, focus và reduced motion.
+- Giữ danh sách chính, bộ lọc, quyền sử dụng mẫu và dữ liệu seed; không thêm dependency hoặc migration.
+
 ## Unreleased — Phase 4.5D Template Preview Experience (2026-11-27)
 
 - Chuẩn hóa giao diện xem thử theo token, ưu tiên CTA dùng mẫu, trạng thái tải/lỗi rõ ràng và bố cục responsive.

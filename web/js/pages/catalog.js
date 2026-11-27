@@ -3,7 +3,7 @@ import { escapeHtml as e } from "../core/api.js";
 import { icon } from "../ui/icons.js";
 import { templateMetaKey } from "../shared/template-copy.js";
 import { personalizationText, templateCover, templateField, templateSearchFields, templateValue } from "../features/catalog/template-copy.js";
-import { featuredSeasons, isInSeason } from "../features/catalog/seasonal.js";
+import { featuredSeasons, seasonStatus, vietnamDay } from "../features/catalog/seasonal.js";
 import { templatePreviewDialog } from "../features/catalog/template-preview.js";
 import { templateCreateUrl } from "../features/catalog/template-create-url.js";
 import { CARD_TYPES, templateCardType } from '../shared/card-type.js';
@@ -112,18 +112,32 @@ export function createCatalogViews({
   }
 
   function seasonalShelf() {
-    const seasonal = featuredSeasons(state.templates);
+    // Dùng cùng một ngày cho cả thứ tự và nhãn, kể cả khi render qua nửa đêm.
+    const day = vietnamDay();
+    const seasonal = featuredSeasons(state.templates, day);
     if (!seasonal.length) return '';
     return `<details class="seasonal-shelf" aria-labelledby="seasonal-shelf-title" ${hasFilters() ? 'hidden' : ''} ${globalThis.matchMedia?.('(max-width: 680px)').matches ? '' : 'open'}>
       <summary class="seasonal-shelf__heading">
-        <h2 id="seasonal-shelf-title">${text("catalog.seasonal.title")}</h2>
+        <h2 id="seasonal-shelf-title" class="seasonal-shelf__summary">
+          ${text("catalog.seasonal.title")}
+          <span class="seasonal-shelf__summary-copy">${text('catalog.seasonal.count', { count: seasonal.length })}</span>
+        </h2>
         ${icon("chevron-down", 18)}
       </summary>
+      <p class="seasonal-shelf__intro">${text('catalog.seasonal.intro')}</p>
       <button type="button" class="seasonal-shelf__hint" data-action="filter-seasonal">${text("catalog.seasonal.action")}</button>
-      <div class="seasonal-shelf__grid">${seasonal.map(template => `<a class="seasonal-shelf__card" href="/template/${encodeURIComponent(template.id)}" data-link>
+      <div class="seasonal-shelf__grid">${seasonal.map(template => {
+        const status = seasonStatus(template, day);
+        return `<a class="seasonal-shelf__card" data-season-status="${status}" href="/template/${encodeURIComponent(template.id)}" data-link>
         <img ${templateCover(template,{variant:'seasonal',responsive:true,sizes:SEASONAL_COVER_SIZES})} width="390" height="466" loading="lazy" ${attr('alt', 'catalog.seasonal.cover', { title: templateValue(template, 'title') })}/>
-        <div><span>${isInSeason(template) ? text('catalog.seasonal.inSeason') : template.season ? templateField(template, 'season') : text('catalog.seasonal.collection')}</span><strong>${templateField(template, 'title')}</strong></div>
-      </a>`).join('')}</div>
+        <div class="seasonal-shelf__meta">
+          <span class="seasonal-shelf__status">${text(`catalog.seasonal.${status}`)}</span>
+          ${template.season ? `<span class="seasonal-shelf__occasion">${templateField(template, 'season')}</span>` : ''}
+          <strong>${templateField(template, 'title')}</strong>
+          <span class="seasonal-shelf__price">${priceText(template.price)}</span>
+        </div>
+      </a>`;
+      }).join('')}</div>
     </details>`;
   }
 

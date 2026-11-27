@@ -1,18 +1,18 @@
-/* Momevia: bộ sưu tập theo mùa. CSS riêng, không phụ thuộc framework. */
+/* Bộ sưu tập mùa lễ dùng chung hệ thống thiết kế VI/EN. */
 .seasonal-shelf {
-  margin-bottom: clamp(28px, 5vw, 54px);
-  padding: clamp(20px, 4vw, 32px);
-  border-radius: 28px;
-  background: linear-gradient(140deg, #f7efff, #fff8f4 65%, #f4fbf8);
-  border: 1px solid #eee3f2;
+  margin-bottom: clamp(24px, 5vw, 48px);
+  padding: clamp(var(--space-4), 4vw, var(--space-8));
+  border-radius: var(--layout-radius-stage);
+  background: var(--color-gradient-section);
+  border: 1px solid var(--color-border);
+  color: var(--color-ink);
 }
 
 .seasonal-shelf__heading {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 14px;
+  gap: var(--space-3);
   list-style: none;
   min-height: 44px;
   cursor: pointer;
@@ -21,127 +21,177 @@
 .seasonal-shelf__heading::-webkit-details-marker {
   display: none;
 }
+
+.seasonal-shelf__heading svg {
+  flex-shrink: 0;
+}
+
 .seasonal-shelf[open] .seasonal-shelf__heading svg {
   rotate: 180deg;
 }
-.seasonal-shelf__grid {
-  margin-top: 14px;
-}
-.seasonal-shelf__hint {
-  min-height: 44px;
-}
 
-.seasonal-shelf__eyebrow {
-  display: block;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.13em;
-  color: #6347a9;
+.seasonal-shelf__summary {
+  min-width: 0;
 }
 
 .seasonal-shelf__heading h2 {
   font-family: var(--font-display);
-  font-size: clamp(26px, 4vw, 38px);
-  margin: 8px 0;
-  color: #291940;
+  font-size: var(--type-h2);
+  margin: 0;
+  color: var(--color-ink);
+  overflow-wrap: anywhere;
 }
 
-.seasonal-shelf__heading p {
-  margin: 0;
-  color: #65596d;
+.seasonal-shelf__summary-copy,
+.seasonal-shelf__intro {
+  color: var(--color-muted);
+  font-size: var(--type-small);
+  overflow-wrap: anywhere;
+}
+
+.seasonal-shelf__summary-copy {
+  display: block;
+  font-family: var(--font-body);
+  font-weight: 400;
+  margin-top: var(--space-1);
+}
+
+.seasonal-shelf__intro {
+  margin-block: var(--space-3) 0;
 }
 
 .seasonal-shelf__hint {
-  font-size: 13px;
+  min-height: 44px;
+  font-size: var(--type-small);
   font-weight: 700;
-  color: #5234a7;
+  color: var(--color-primary-hover);
   text-decoration: underline;
   text-underline-offset: 4px;
   background: none;
   border: 0;
-  padding: 8px 0;
+  padding: var(--space-2) 0;
   cursor: pointer;
 }
 
 .seasonal-shelf__grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: clamp(10px, 2vw, 18px);
+  gap: var(--layout-card-gap-mobile);
+  margin-top: var(--space-3);
 }
 
 .seasonal-shelf__card {
-  display: block;
+  display: flex;
+  flex-direction: column;
   min-width: 0;
   overflow: hidden;
-  border-radius: 18px;
-  background: #ffffff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--layout-radius-card);
+  background: var(--color-white);
   text-decoration: none;
-  box-shadow: 0 7px 24px rgba(36, 19, 65, 0.07);
-  transition: transform 180ms ease, box-shadow 180ms ease;
+  box-shadow: var(--layout-shadow-card);
 }
 
 .seasonal-shelf__card img {
   display: block;
   width: 100%;
-  height: clamp(180px, 25vw, 320px);
+  height: auto;
+  aspect-ratio: 390 / 466;
   object-fit: cover;
   object-position: center top;
-  background: #eee9f0;
+  background: var(--color-page);
 }
 
-.seasonal-shelf__card div {
+.seasonal-shelf__meta {
   display: grid;
-  gap: 5px;
-  padding: 13px 12px 16px;
-}
-
-.seasonal-shelf__card span {
-  color: #75667a;
-  font-size: 11px;
-}
-
-.seasonal-shelf__card strong {
-  color: #38254a;
-  font-size: 14px;
+  align-content: start;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  flex: 1;
+  min-width: 0;
   overflow-wrap: anywhere;
 }
 
+.seasonal-shelf__status {
+  justify-self: start;
+  max-width: 100%;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--layout-radius-card);
+  background: var(--color-page);
+  color: var(--color-muted);
+  font-size: var(--type-small);
+  font-weight: 700;
+}
+
+.seasonal-shelf__card[data-season-status="inSeason"] .seasonal-shelf__status {
+  background: var(--color-success-soft);
+  color: var(--color-success);
+}
+
+.seasonal-shelf__card[data-season-status="upcoming"] .seasonal-shelf__status {
+  background: var(--color-lavender);
+  color: var(--color-primary-hover);
+}
+
+.seasonal-shelf__occasion,
+.seasonal-shelf__price {
+  color: var(--color-muted);
+  font-size: var(--type-small);
+}
+
+.seasonal-shelf__card strong {
+  color: var(--color-ink);
+  font-size: var(--type-body);
+  overflow-wrap: anywhere;
+}
+
+/* Chỉ đổi chiều sâu hình ảnh khi hover; không dịch chuyển vùng bấm. */
 @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .seasonal-shelf__card {
+    transition: box-shadow var(--ui-transition), border-color var(--ui-transition);
+  }
+
   .seasonal-shelf__card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 30px rgba(36, 19, 65, 0.12);
+    border-color: var(--color-primary-hover);
+    box-shadow: var(--layout-shadow-card-hover);
   }
 }
 
+.seasonal-shelf__heading:focus-visible,
 .seasonal-shelf__card:focus-visible,
 .seasonal-shelf__hint:focus-visible {
-  outline: 3px solid #6948c4;
-  outline-offset: 4px;
+  outline: 3px solid var(--color-focus);
+  outline-offset: 3px;
 }
 
 @media (max-width: 820px) {
   .seasonal-shelf__grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-
-  .seasonal-shelf__card img {
-    height: 225px;
-  }
 }
 
 @media (max-width: 480px) {
   .seasonal-shelf {
-    margin-bottom: 16px;
-    padding: 3px 14px;
-    border-radius: 18px;
+    margin-bottom: var(--space-4);
+    padding: var(--space-2) var(--space-3);
   }
 
   .seasonal-shelf[open] {
-    padding-bottom: 14px;
+    padding-bottom: var(--space-4);
   }
 
-  .seasonal-shelf__card img {
-    height: 170px;
+  .seasonal-shelf__grid {
+    gap: var(--space-2);
+  }
+
+  .seasonal-shelf__meta {
+    padding: var(--space-2);
+  }
+}
+
+@media (max-width: 370px) {
+  .seasonal-shelf__grid {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 

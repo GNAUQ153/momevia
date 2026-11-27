@@ -6,7 +6,8 @@ import fs from 'node:fs';
 // Container Linux trên Railway không có font: thiếu hai gói này thì chữ thành ô vuông.
 test('Railway cài fontconfig và font có dấu tiếng Việt cho ảnh bìa vẽ ở server', () => {
   const config = JSON.parse(fs.readFileSync(new URL('../../railpack.json', import.meta.url), 'utf8'));
-  for (const name of ['fontconfig', 'fonts-dejavu-core']) {
+  // "..." giữ các gói hệ thống mặc định của Railpack; thiếu nó, danh sách này thay thế toàn bộ.
+  for (const name of ['...', 'fontconfig', 'fonts-dejavu-core']) {
     assert(config.deploy?.aptPackages?.includes(name), `railpack.json thiếu gói ${name}`);
   }
 });

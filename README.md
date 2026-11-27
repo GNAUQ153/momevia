@@ -91,18 +91,19 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Bổ sung nghiệm thu báo cáo local-lab v2 theo ngân sách p75, kiểm tra đủ dữ liệu VI/EN và viewport.
-- Phát hiện lỗi JavaScript, tràn ngang và cảnh báo suy giảm so với baseline; không thay đổi runtime hoặc database.
-- Bổ sung 13 Unit Test; chưa đo INP và không suy diễn kết quả production từ lab.
+- Làm mới bố cục Catalog bằng token màu, spacing, radius và elevation hiện có.
+- Chuẩn hóa lưới ba, hai và một cột; giữ focus, reduced motion và giao diện VI/EN.
+- Giữ renderer, bộ lọc, phân trang, artwork, giá và quyền sử dụng mẫu. Không thêm dependency hoặc migration.
+- Bổ sung năm kiểm thử hợp đồng CSS và cập nhật phiên bản stylesheet.
 
 **Các commit gần nhất trên `main`:**
 
+- `57813cb` — feat(ui): redesign responsive catalog layout using shared design tokens (2026-11-27)
 - `eaea20d` — feat(performance): add marketing acceptance gate and regression budgets (2026-11-27)
 - `36b50a5` — perf(ui): optimize floating CTA viewport awareness and DOM measurement (2026-11-27)
 - `673d677` — feat(ui): add accessible hero carousel playback and contextual floating CTA (2026-11-27)
 - `06bf1f4` — fix(ci): align hero motion and journey swipe regression contracts (2026-11-27)
 - `a126199` — perf(ui): optimize mobile motion and journey touch interactions (2026-11-27)
-- `954155f` — Merge pull request #31 from GNAUQ153:feat/homepage-cursor-construction (2026-11-27)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

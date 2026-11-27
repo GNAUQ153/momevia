@@ -91,18 +91,18 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Tạo sáu Canvas template nghiệm thu nội bộ VI/EN với artwork Signature riêng, bốn cảnh và slot sự kiện, ảnh tùy chọn.
-- Bổ sung factory và công cụ xuất JSON/SVG local; chưa kích hoạt Catalog hoặc MySQL seed, chưa triển khai opening riêng.
-- Không thêm dependency, migration hoặc ảnh cá nhân.
+- Cho phép xem và tạo nháp sáu mẫu Signature trong Catalog profile demo JSON riêng qua `--signature`; giữ production mặc định tắt.
+- Nạp ảnh cover từ Canvas renderer theo quyền đọc Catalog, bổ sung metadata VI/EN và slot sự kiện cho Sender.
+- Không chèn mẫu vào seed thương mại hoặc MySQL; chưa khôi phục animation đặc trưng.
 
 **Các commit gần nhất trên `main`:**
 
+- `0e6790a` — feat(signature): enable isolated local catalog and canvas review (2026-11-27)
 - `3f1bb7c` — feat(signature): introduce six editable bilingual template documents (2026-11-27)
 - `bb8ca53` — feat(signature): improve editable vector inspector and optional photo layout (2026-11-27)
 - `adb1872` — feat(signature): register six editable artwork collections in canvas library (2026-11-27)
 - `7292608` — feat(signature): introduce independent editable vector artwork (2026-11-27)
 - `f19e37f` — feat(templates): introduce 16 editable interactive Momevia Originals (2026-11-27)
-- `ec93b5a` — feat(ui): refine authentication aurora layout and accessible 3D motion (2026-11-27)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

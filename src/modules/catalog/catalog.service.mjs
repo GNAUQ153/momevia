@@ -1,3 +1,4 @@
+import { ORIGINAL_IDS, originalDefinition } from '../../../web/js/shared/canvas/originals-data.js';
 import { librarySnapshot } from '../../../web/js/shared/canvas/library-state.js';
 import { randomUUID } from 'node:crypto';
 import { HttpError } from '../../shared/http.mjs';
@@ -19,7 +20,9 @@ export function publicTemplate(template) {
     'hai-phong-bi':['weddingPaper',['#FFF8EB','#442638','#F4C9C4','#47715C']],
     'proud-of-you':['nightPaper',['#172849','#FFF8E7','#FFC857','#315B82']],
   };
-  const palette=ownPalettes[template.id] || {sage:['greenPaper',['#F8F1E6','#263C32','#59705B','#AA5744']],cream:['warmPaper',['#F6EBD9','#352B30','#825943','#DEA99C']],sky:['bluePaper',['#E6EFF1','#21394C','#375B6A','#E9BA63']],navy:['bluePaper',['#E6EFF1','#21394C','#375B6A','#E9BA63']],lilac:['pinkPaper',['#F5EFFF','#7757A2','#F4C9C4','#263C32']]}[template.theme];
+  const original = originalDefinition(template.id);
+  const originalPalette = original && [{sage:'greenPaper',cream:'warmPaper',sky:'bluePaper',navy:'bluePaper',lilac:'pinkPaper',rose:'pinkPaper',peach:'warmPaper',amber:'warmPaper',violet:'pinkPaper'}[original.theme], [original.bg,original.ink,original.button,original.detail]];
+  const palette=originalPalette || ownPalettes[template.id] || {sage:['greenPaper',['#F8F1E6','#263C32','#59705B','#AA5744']],cream:['warmPaper',['#F6EBD9','#352B30','#825943','#DEA99C']],sky:['bluePaper',['#E6EFF1','#21394C','#375B6A','#E9BA63']],navy:['bluePaper',['#E6EFF1','#21394C','#375B6A','#E9BA63']],lilac:['pinkPaper',['#F5EFFF','#7757A2','#F4C9C4','#263C32']]}[template.theme];
   if(palette && template.creatorId==='system')template={...template,palette:palette[0],paletteLabel:serverText('vi',`templates.meta.palette.${palette[0]}`),paletteColors:palette[1]};
   const view = Object.fromEntries(publicFields.filter(key => Object.hasOwn(template, key)).map(key => [key, template[key]]));
   if (template.creatorId === 'system' && template.creator === 'Momevia Originals' && !template.versionId && !template.creatorDesignId)
@@ -47,7 +50,7 @@ export class CatalogService {
 
   async isPublic(template) {
     if (template?.creatorId==='system' && librarySnapshot() && librarySnapshot().items.some(r=>r.kind==='template'&&r.id===template.id&&r.status!=='active')) return false;
-    if (['loi-moi-ben-hien','cuon-phim-ngay-ay','ban-do-ngay-ra-truong'].includes(template?.id) && librarySnapshot() && !librarySnapshot().items.some(r=>r.kind==='template'&&r.id===template.id&&r.status==='active')) return false;
+    if (['loi-moi-ben-hien','cuon-phim-ngay-ay','ban-do-ngay-ra-truong', ...ORIGINAL_IDS].includes(template?.id) && librarySnapshot() && !librarySnapshot().items.some(r=>r.kind==='template'&&r.id===template.id&&r.status==='active')) return false;
     return template?.status === 'published' && (!template.creatorDesignId || Boolean(template.versionId && await this.creatorTemplates.canCreate(template.creatorId)));
   }
   async publicList() {

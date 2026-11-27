@@ -1,3 +1,10 @@
+## Unreleased — Momevia Originals 16 (2026-11-27)
+
+- Thêm 16 mẫu Canvas gốc VI/EN, 4 scene tương tác, artwork SVG và khung ảnh cá nhân hóa; giữ nguyên 28 mẫu cũ.
+- Thêm dữ liệu thư viện thiếu theo giao dịch, không ghi đè bản sửa Admin; giá mẫu mới mặc định 0 VND để nghiệm thu.
+- Bổ sung đếm ngược, bản đồ và lịch sự kiện theo thông tin công khai đã xác thực; tạm dừng nhạc khi phát bản ghi cá nhân.
+- Không thêm dependency hoặc migration.
+
 ## Unreleased — Phase 4.6A Auth Aurora (2026-11-27)
 
 - Làm mới bố cục Login/Register tối với artwork 3D tách khỏi nội dung, nút dùng gradient thương hiệu và typography tự xuống dòng.

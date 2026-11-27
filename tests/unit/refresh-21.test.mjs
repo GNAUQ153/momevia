@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import { ORIGINAL_IDS } from '../../web/js/shared/canvas/originals-data.js';
 import { builtinLibraryItems } from '../../src/modules/designs/library.seed.mjs';
 import { REFRESH_21,coverVariant } from '../../web/js/shared/canvas/refresh-21-config.js';
 import { canonicalStringify,validateDocument,duplicateDocument } from '../../web/js/shared/canvas/schema.js';
@@ -14,7 +15,7 @@ const before=JSON.parse(fs.readFileSync(new URL('../fixtures/refresh-21-before.j
 test('21 designs have three distinct editable scenes in VI/EN, while all seven controls retain exact documents',()=>{
  assert.equal(Object.keys(REFRESH_21).length,21);
  const signatures=[new Set(),new Set(),new Set()];
- for(const row of current.filter(r=>r.kind==='template')){
+ for(const row of current.filter(r=>r.kind==='template'&&!ORIGINAL_IDS.includes(r.id))){
   if(!REFRESH_21[row.id]){assert.deepEqual(row.definition.documents,before.find(r=>r.kind==='template'&&r.id===row.id).definition.documents,row.id);continue;}
   for(const [locale,doc]of Object.entries(row.definition.documents)){
    assert.equal(doc.scenes.length,3);assert(doc.assets.length>0,'natural artwork is real immutable media');assert(doc.assets.every(ref=>Object.hasOwn(EVENT_MEDIA,ref.assetId)&&!EVENT_MEDIA[ref.assetId].previewOnly));assert.equal(personalPhotos(doc).length,0);assert.doesNotThrow(()=>validateDocument(doc));

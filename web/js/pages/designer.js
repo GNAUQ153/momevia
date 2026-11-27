@@ -1,3 +1,4 @@
+import { ORIGINAL_IDS } from '../shared/canvas/originals-data.js';
 import { mountRecipientOptions } from '../features/canvas-editor/recipient-options.js';
 import { RECIPIENT_TOKEN } from '../shared/recipient-naming.js';
 import { RESTYLE_PAIRS } from '../shared/canvas/template-slots.js';
@@ -568,12 +569,12 @@ export function mountDesigner(
               ),
           ),
         design.purpose !== 'creator' ? button(message('recipient.insert'), 'insert-recipient', { disabled: design.policy?.kind === 'creator-template' && (!design.policy.editableBindings.includes('recipientName') || !design.policy.editableBindings.includes('message')), title: message('recipient.insertHint') }) : null,
-        design.policy?.kind === 'sender-basic' && design.purpose !== 'creator' && (design.source.templateId === 'loi-moi-ben-hien' || store.get().document.invitation)
+        design.policy?.kind === 'sender-basic' && design.purpose !== 'creator' && (design.invitationSlotIds || store.get().document.invitation)
           ? createInvitationFields(store.get().document, design.invitationSlotIds) : null,
         node("div", { class: "editor-quick-only" },
           design.policy?.kind === 'sender-basic' ? createStoryTextFields(store.get().document) : null,
           predictionCard(store.get().document) ? createPredictionFields(predictionCard(store.get().document)) : null,
-          design.policy?.kind === 'sender-basic' && ['birthday-radiance','hai-phong-bi','proud-of-you','loi-moi-ben-hien','cuon-phim-ngay-ay'].includes(design.source.templateId) ? createEventFields(store.get().document) : null,
+          design.policy?.kind === 'sender-basic' && ['birthday-radiance','hai-phong-bi','proud-of-you','loi-moi-ben-hien','cuon-phim-ngay-ay', ...ORIGINAL_IDS].includes(design.source.templateId) ? createEventFields(store.get().document) : null,
           design.source.templateId === MEMORY_TEMPLATE_ID ? node("div", { class: "editor-greeting-starters" },
             node("p", { class: "editor-help" }, message("editor.quick.startGreeting")),
             ...memoryGreetingStarterKeys.map((key, index) => button(message(key), "greeting-starter", { "data-index": index })),

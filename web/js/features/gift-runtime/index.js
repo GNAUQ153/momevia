@@ -44,6 +44,7 @@ export function mountPlayer(
     navigationIntent = null;
   const shell = globalThis.document.createElement("div");
   shell.className = `gift-runtime gift-runtime-mode-${mode}`;
+  if (document.elements.some(e => e.type === 'sticker' && e.props.stickerId === 'originals-illustration')) shell.classList.add('gift-runtime-originals');
   if (document.personalization) shell.classList.add('gift-runtime-personalized');
   if (document.personalization && document.personalization.mode !== 'manual' && !coverHasRecipient(document)) {
     const dedication = globalThis.document.createElement('h1');
@@ -142,7 +143,7 @@ export function mountPlayer(
     };
     soundtrackPlayback = createSoundtrackPlayback(document.soundtrack, { onState: syncMusic });
     syncMusic({ playing: false });
-    musicButton.addEventListener('click', () => { void soundtrackPlayback.toggle(); }, { signal: lifetime.signal });
+    musicButton.addEventListener('click', () => { audio.stop(); void soundtrackPlayback.toggle(); }, { signal: lifetime.signal });
     musicVolume.addEventListener('input', () => {
       const percent = Number(musicVolume.value);
       if (!Number.isFinite(percent)) return;
@@ -233,7 +234,7 @@ export function mountPlayer(
         replyAdapter,
         signal, motion,
         previewFamily: family,
-        onSound:(sound,options)=>{void audio.play(sound,options);},
+        onSound:(sound,options)=>{if(options?.explicit && sound.kind==='audio') soundtrackPlayback?.pause(); void audio.play(sound,options);},
         onAction: (actions, react) => {
           const [action] = actions;
           if (action?.type === "replay") requestScene(document.entrySceneId, model.sound ? undefined : react);

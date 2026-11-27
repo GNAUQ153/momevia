@@ -1,3 +1,4 @@
+import { originalDefinition } from './canvas/originals-data.js';
 // Loại thiệp khác với dịp sử dụng; không suy đoán từ tên hoặc danh mục.
 export const CARD_TYPES = Object.freeze(['invitation', 'greeting', 'unspecified']);
 const invitationIds = new Set(['loi-moi-ben-hien', 'club-22-invitation', 'cozy-christmas-invitation']);
@@ -14,6 +15,8 @@ const greetingIds = new Set([
 
 // Chỉ phân loại tự động các mẫu hệ thống đã rà soát, không gán loại cho Creator.
 export function systemCardType(id) {
+  const original = originalDefinition(id);
+  if (original) return original.cardType;
   if (invitationIds.has(id)) return 'invitation';
   if (greetingIds.has(id)) return 'greeting';
   return 'unspecified';

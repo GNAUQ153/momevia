@@ -306,3 +306,6 @@ export const ORIGINALS = Object.freeze([
 export const ORIGINAL_IDS = Object.freeze(ORIGINALS.map(item => item.id));
 
 export const originalDefinition = id => ORIGINALS.find(item => item.id === id) || null;
+
+// Số cảnh hiển thị ở Catalog: bìa, lời mời/lời chúc, khám phá, hồi đáp (+2 cảnh nhánh).
+export const originalSceneCount = item => item.branch ? 6 : 4;

@@ -123,3 +123,13 @@ test('lịch, URL bản đồ và đếm ngược không chèn thêm nội dung 
   assert.deepEqual(eventRemaining(event.eventAt, Date.parse(event.eventAt) - 90061000), [1,1,1,1]);
   assert.deepEqual(eventRemaining(event.eventAt, Date.parse(event.eventAt) + 1000), [0,0,0,0]);
 });
+
+test('Catalog lấy số cảnh và hiệu ứng theo thiết kế, kể cả khi bản ghi MySQL cũ còn ghi 4 cảnh', () => {
+  for (const p of ORIGINALS) {
+    const stale = { ...templates.find(t => t.id === p.id), scenes: 4, effect: 'Mở thư' };
+    const view = publicTemplate(stale);
+    assert.equal(view.scenes, p.branch ? 6 : 4, p.id);
+    assert.equal(view.scenes, templatePreviewDocument(p, (key, params) => serverText('vi', key, params)).scenes.length, p.id);
+    assert.notEqual(view.effect, '', p.id);
+  }
+});

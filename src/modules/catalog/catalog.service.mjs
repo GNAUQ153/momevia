@@ -1,5 +1,6 @@
 import { signatureTemplateDefinition } from '../../../web/js/shared/canvas/signature/templates.js';
-import { ORIGINAL_IDS, originalDefinition } from '../../../web/js/shared/canvas/originals-data.js';
+import { ORIGINAL_IDS, originalDefinition, originalSceneCount } from '../../../web/js/shared/canvas/originals-data.js';
+import { rigEffect } from '../../../web/js/shared/canvas/originals-rigs.js';
 import { librarySnapshot } from '../../../web/js/shared/canvas/library-state.js';
 import { randomUUID } from 'node:crypto';
 import { HttpError } from '../../shared/http.mjs';
@@ -29,6 +30,11 @@ export function publicTemplate(template) {
   if (template.creatorId === 'system' && template.creator === 'Momevia Originals' && !template.versionId && !template.creatorDesignId)
     view.systemOwned = true;
   view.cardType = view.systemOwned ? systemCardType(template.id) : 'unspecified';
+  // Bản ghi Catalog cũ trong MySQL giữ số cảnh/hiệu ứng lúc khởi tạo; 16 Originals lấy theo thiết kế hiện tại.
+  if (view.systemOwned && original) {
+    view.scenes = originalSceneCount(original);
+    view.effect = serverText('vi', `templates.meta.effect.${rigEffect(original.rig)}`);
+  }
   if (view.systemOwned && signatureTemplateDefinition(template.id)) {
     view.coverRevision = 'signature-qa-v1';
     // Không suy đoán bảng màu thực tế từ theme Classic.

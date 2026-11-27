@@ -2,6 +2,12 @@
 # Only upload this file to the intended Momevia site's public_html.
 Options -MultiViews
 DirectoryIndex index.html
+
+# Hostinger trả .mjs là text/plain; kèm nosniff, trình duyệt sẽ từ chối chạy module
+# (Fabric Studio, đọc file Excel danh sách người nhận). Khai báo đúng kiểu JavaScript.
+<IfModule mod_mime.c>
+  AddType text/javascript .mjs
+</IfModule>
 RewriteEngine On
 
 # One canonical origin is important for session cookies and shared links.

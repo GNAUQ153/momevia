@@ -23,7 +23,7 @@ const runner = async PROPOSALS => {
     return body;
   };
   const download = (name, text) => {
-    const link = document.createElement('a');
+    const link = globalThis.document.createElement('a');
     link.href = URL.createObjectURL(new Blob([text], { type: 'application/json' }));
     link.download = name;
     link.click();

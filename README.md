@@ -91,18 +91,19 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Đăng ký sáu cụm artwork Signature vào thư viện Elements, hỗ trợ chèn 34 layer độc lập và tìm kiếm VI/EN.
-- Bổ sung các mục thiếu trong MySQL theo giao dịch, giữ nguyên chỉnh sửa và trạng thái Admin; không tạo template công khai hoặc migration mới.
-- Cập nhật kiểm thử số lượng Elements, giữ nguyên 293 mục cũ.
+- Cho phép đổi màu vector Signature chỉ có nét viền, giữ màu cố định và đường nét khi áp dụng Fabric.
+- Giới hạn Inspector của vector Signature ở các thuộc tính có tác dụng; giữ điều khiển hình học và ảnh hiện tại.
+- Cho phép sắp xếp ô ảnh tùy chọn chưa tải ảnh trong Fabric Studio, không thay đổi quyền Creator hoặc cho phép xuất ảnh placeholder.
+- Bổ sung kiểm thử hồi quy theo 6 concept; không thêm dependency hoặc migration.
 
 **Các commit gần nhất trên `main`:**
 
+- `bb8ca53` — feat(signature): improve editable vector inspector and optional photo layout (2026-11-27)
 - `adb1872` — feat(signature): register six editable artwork collections in canvas library (2026-11-27)
 - `7292608` — feat(signature): introduce independent editable vector artwork (2026-11-27)
 - `f19e37f` — feat(templates): introduce 16 editable interactive Momevia Originals (2026-11-27)
 - `ec93b5a` — feat(ui): refine authentication aurora layout and accessible 3D motion (2026-11-27)
 - `5e19e91` — test(ui): add catalog business and responsive acceptance coverage (2026-11-27)
-- `43c9294` — perf(ui): defer seasonal and creator catalog cover loading (2026-11-27)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

@@ -1,3 +1,8 @@
+## Unreleased — Tách và hợp con trỏ dựng trang chủ (2026-11-27)
+
+- Các con trỏ ảo tách ra từ vị trí chuột khi bắt đầu dựng trang; sau khi hết phần tử và nội dung đang tải, trang cuộn lên đầu rồi các con trỏ hội tụ về vị trí chuột hiện tại.
+- Giữ cơ chế chia việc cho 15 con trỏ, hủy hiệu ứng theo vòng đời trang và tùy chọn giảm chuyển động; kiểm thử hội tụ khi chuột di chuyển và hủy giữa chừng.
+
 ## Unreleased — Hiệu ứng con trỏ dựng trang chủ (2026-11-26)
 
 - Thêm 15 con trỏ dựng từng phần tử trên trang chủ, nhận việc từ hàng đợi chung theo vùng hiển thị và cập nhật khi đổi kích thước cửa sổ hoặc tải xong danh mục.

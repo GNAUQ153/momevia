@@ -1,5 +1,6 @@
 import { marketingConnection, marketingShouldShowStatic } from './motion-preferences.js';
 import { constructionTargetInViewport, createConstructionScheduler } from './construction-scheduler.js';
+import { handoffConstructionCursors, trackConstructionPointer } from './construction-handoff.js';
 
 const colors = ['#7954dc', '#159ab3', '#df568a', '#dc9b24', '#28a47a', '#6381dc', '#e57544', '#b65ec7', '#559931', '#dc5771'];
 
@@ -80,6 +81,7 @@ export function mountHomeConstruction(root, { signal, catalogPending = false } =
 
   const lifetime = new AbortController();
   const options = { signal: lifetime.signal };
+  const pointer = trackConstructionPointer(view, lifetime.signal);
   const pending = new Set();
   const built = new WeakSet();
   const motions = new Set();
@@ -91,6 +93,7 @@ export function mountHomeConstruction(root, { signal, catalogPending = false } =
   let idleController = null;
   let scheduler = null;
   let awaitingCatalog = catalogPending;
+  let phase = 'splitting';
   const overlay = doc.createElement('div');
   overlay.className = 'home-construction';
   overlay.setAttribute('aria-hidden', 'true');
@@ -159,11 +162,13 @@ export function mountHomeConstruction(root, { signal, catalogPending = false } =
     scheduler?.notify();
     idleController?.stop();
     cancelScroll?.();
+    lifetime.abort();
     for (const animation of [...motions]) animation.cancel();
     for (const target of pending) target.classList.remove('home-construction-pending');
     pending.clear();
     overlay.remove();
     root.removeAttribute('data-home-construction-running');
+    root.setAttribute('data-home-construction-phase', phase === 'merged' ? 'complete' : 'cancelled');
     doc.body.classList.remove('is-home-constructing');
     root.dispatchEvent(new view.Event('home-construction:complete'));
   }
@@ -224,8 +229,7 @@ export function mountHomeConstruction(root, { signal, catalogPending = false } =
     scheduler?.notify();
   }
 
-  function startIdle(index) {
-    const worker = workerAt(index);
+  function viewportWorker(worker) {
     if (worker.documentSpace) {
       worker.y -= view.scrollY;
       worker.documentSpace = false;
@@ -233,6 +237,12 @@ export function mountHomeConstruction(root, { signal, catalogPending = false } =
       worker.element.style.transform = 'none';
       worker.cursor.style.transform = `translate3d(${worker.x}px, ${worker.y}px, 0)`;
     }
+    return worker;
+  }
+
+  function startIdle(index) {
+    if (phase !== 'building' || !running()) return;
+    const worker = viewportWorker(workerAt(index));
     idleController.start(worker);
   }
 
@@ -245,9 +255,9 @@ export function mountHomeConstruction(root, { signal, catalogPending = false } =
     element.style.setProperty('--construction-color', colors[index % colors.length]);
     element.innerHTML = '<div class="home-construction__selection"><i></i><i></i><i></i><i></i></div><div class="home-construction__cursor"><svg viewBox="0 0 20 24" width="19" height="23"><path d="M2 2 17 14 10 15 7 22Z" fill="currentColor" stroke="white" stroke-width="1.5" stroke-linejoin="round"/></svg></div>';
     overlay.append(element);
-    const worker = { element, frame: element.querySelector('.home-construction__selection'), cursor: element.querySelector('.home-construction__cursor'), x: view.innerWidth / 2, y: view.innerHeight * 0.3 };
+    const worker = { element, frame: element.querySelector('.home-construction__selection'), cursor: element.querySelector('.home-construction__cursor'), ...pointer() };
     worker.frame.style.opacity = '0';
-    worker.cursor.style.opacity = '1';
+    worker.cursor.style.opacity = '0';
     worker.cursor.style.transform = `translate3d(${worker.x}px, ${worker.y}px, 0)`;
     workers[index] = worker;
     return worker;
@@ -311,11 +321,13 @@ export function mountHomeConstruction(root, { signal, catalogPending = false } =
     finish();
     lifetime.abort();
     root.removeAttribute('data-home-construction');
+    root.removeAttribute('data-home-construction-phase');
     signal?.removeEventListener('abort', dispose);
   }
 
   root.setAttribute('data-home-construction', '');
   root.setAttribute('data-home-construction-running', '');
+  root.setAttribute('data-home-construction-phase', phase);
   doc.body.classList.add('is-home-constructing');
   doc.body.append(overlay);
   idleController = createConstructionIdleLoop({
@@ -361,9 +373,24 @@ export function mountHomeConstruction(root, { signal, catalogPending = false } =
       const anchor = rect.bottom <= headerOffset() ? headerOffset() : Math.max(headerOffset(), view.innerHeight * 0.6);
       return scrollToY(view.scrollY + rect.top - anchor, 600);
     },
-    complete: () => scrollToY(0, 1100),
+    complete: async () => {
+      phase = 'returning';
+      root.setAttribute('data-home-construction-phase', phase);
+      idleController.stop();
+      for (const worker of workers) {
+        viewportWorker(worker);
+        worker.frame.getAnimations().forEach(animation => animation.cancel());
+        worker.frame.style.opacity = '0';
+      }
+      await scrollToY(0, 1100);
+      if (!running()) return;
+      phase = 'merging';
+      root.setAttribute('data-home-construction-phase', phase);
+      const merged = await handoffConstructionCursors({ view, workers, pointer, signal: lifetime.signal, running, mode: 'merge' });
+      if (merged) phase = 'merged';
+    },
   });
-  for (let index = 0; index < constructionWorkerCount; index++) startIdle(index);
+  for (let index = 0; index < constructionWorkerCount; index++) workerAt(index);
   refresh();
   // The tour owns scrolling until completion; clicking no longer skips the construction.
   const keepTourScroll = event => { if (running()) event.preventDefault(); };
@@ -378,6 +405,13 @@ export function mountHomeConstruction(root, { signal, catalogPending = false } =
   doc.addEventListener('visibilitychange', () => { if (doc.hidden) finish(); }, options);
   for (const media of [reduced, reducedData, connection]) media?.addEventListener('change', () => { if (staticPreferred()) finish(); }, options);
   signal?.addEventListener('abort', dispose, { once: true });
-  void scrollToY(0).then(() => scheduler.run()).catch(() => {}).finally(finish);
+  void scrollToY(0).then(async () => {
+    const split = await handoffConstructionCursors({ view, workers, pointer, signal: lifetime.signal, running, mode: 'split', duration: 500 });
+    if (!split || !running()) return;
+    phase = 'building';
+    root.setAttribute('data-home-construction-phase', phase);
+    for (let index = 0; index < constructionWorkerCount; index++) startIdle(index);
+    return scheduler.run();
+  }).catch(() => {}).finally(finish);
   return { refresh, dispose };
 }

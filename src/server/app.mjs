@@ -1,3 +1,4 @@
+import {requireLocalVideo} from '../modules/designs/local-video.service.mjs';
 import { createPerformanceMonitor, performanceInterval } from '../shared/performance-monitor.mjs';
 import { MySqlClient } from '../infrastructure/mysql/client.mjs';
 import { receiptFor } from '../modules/gifts/recipients.mjs';
@@ -111,14 +112,15 @@ async function assembleHttpApp(config, { paymentProviders, paymentEnv, sendRecov
   } });
   registerPublicationRoutes(gifts.router, { service: designs.service, resolveUser, config, writeLimit: designs.writeLimit });
   registerContextRoutes(checkout.router, { service: designs.service, resolveUser, config });
-  gifts.router.on('GET', '/gifts/:slug/assets/:assetId', async ({ res, params, url }) => {
+  gifts.router.on('GET', '/gifts/:slug/assets/:assetId', async ({ req, res, params, url }) => {
     const gift = await gifts.service.validateSlug(params.slug);
     requireGiftPermission(gift, url.searchParams.get('invite'));
     receiptFor(gift, url.searchParams.get('r'));
     if (!designs.flags.read || !gift.documentSnapshot || !gift.assetIds?.includes(params.assetId)) throw canvasError(404, 'ASSET_NOT_FOUND', 'Không tìm thấy ảnh.');
     const asset = designs.profile.mode === 'mysql' ? await designs.publication.pinnedAsset(params.slug, params.assetId) : await designs.repository.getAsset(gift.userId, params.assetId);
     if (!asset || asset.status !== 'ready' || !designs.service.assetExists(asset)) throw canvasError(404, 'ASSET_NOT_FOUND', 'Không tìm thấy ảnh.');
-    streamAsset(res, { filePath: designs.service.assetPath(asset), contentType: asset.mime });
+    if(asset.mediaKind==='video')requireLocalVideo(req);
+    streamAsset(res, { filePath: designs.service.assetPath(asset), contentType: asset.mime,range:req.headers.range });
   });
 
   const server = (tlsOptions ? https : http).createServer({ ...serverTimeouts, ...tlsOptions }, async (req, res) => {

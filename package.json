@@ -21,6 +21,7 @@
     "test:canvas": "node tests/integration/canvas.mjs",
     "test:motion:browser": "node tests/browser/motion-stack.mjs",
     "test:canvas:browser": "node tests/integration/canvas.mjs --browser",
+    "test:video:local": "node tests/integration/local-video.mjs",
     "test:canvas:mysql": "node tests/integration/canvas-mysql.mjs",
     "test:canvas:storage": "node tests/integration/canvas-storage-roundtrip.mjs",
     "test:canvas:mysql:api": "node tests/integration/canvas-mysql-api.mjs --browser",

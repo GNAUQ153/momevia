@@ -1,4 +1,5 @@
 import { enrichGardenScenes } from './garden-scenes.js';
+import { polishDriveDocument } from './drive-polish.js';
 import { gardenSprigPaths, gardenFlowerPaths } from './garden-botanical.js';
 import { openMeDocument } from './open-me-document.js';
 
@@ -119,5 +120,5 @@ export function createGardenTea(localize) {
   }
   // Human-readable names are copy, never executable markup or identity references.
   for (const e of doc.elements) if (e.name.startsWith('templates.garden-tea.layer.')) e.name = localize(`editor.element.${e.type}`);
-  return enrichGardenScenes(doc, localize);
+  return polishDriveDocument(enrichGardenScenes(doc, localize),GARDEN_TEA_ID,p,localize);
 }

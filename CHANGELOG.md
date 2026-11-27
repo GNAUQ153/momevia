@@ -1,3 +1,11 @@
+## Unreleased — Video local và hoàn thiện tương tác Drive (2026-11-28)
+
+- Thêm khối video WebM chọn được trong Canvas khi bật QA local JSON: tải/thay/gỡ, nhân bản, lưu và mở lại; tệp bất biến có chủ sở hữu, snapshot pins, invite/revoke và đọc Range để tua. Không lưu video vào Git, public assets, MySQL hoặc profile production.
+- Thêm biến thể mềm opt-in cho chín tương tác Drive, hộp quà/phong bì, thư gấp, album, vé cào và RSVP; chỉnh được bo góc, nhịp chuyển động, màu chữ/nhấn/chi tiết. Bản đã lưu kiểu cũ giữ nguyên.
+- Làm nơ, khung ảnh, lưới lịch, cuống vé và mũ sống động hơn; có nút thử lại tương tác, vẫn giữ tên trên vé và dữ liệu media. Nối reaction đã chọn trong Canvas vào thao tác của khối Drive; sửa/tắt reaction được lưu và phản ánh khi xem.
+- Phối các sắc độ theo từng cảnh, dùng lại chuyển trang T07/T08, E02, giấy cotton, bóng giấy và chuyển động ảnh đã có trong thư viện; chuyển động dừng theo vòng đời cảnh và chế độ giảm chuyển động.
+- Các mẫu mới tạo có video tùy chọn, bỏ trống thì thu gọn. Các quà QA bản trước được giữ để đối chiếu; không push, merge, deploy hoặc sửa cơ sở dữ liệu phục vụ.
+
 ## Unreleased — Bộ sáu thiệp Drive, local QA (2026-11-28)
 
 - Thêm Secret Santa, Midnight Soirée, Graduation Countdown, Graduation Mixtape và The Last Chapter V2 bằng tài liệu Canvas VI/EN; nâng Garden Tea với âm thanh tùy chọn, giữ ID hiện có.

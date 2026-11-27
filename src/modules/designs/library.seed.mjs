@@ -37,7 +37,7 @@ export function builtinLibraryItems() {
       add('effect', id, { title: words(`editor.effects.preset.${id}`), family, animationId: id,
         targets: { scenes: ['surface','transition','ambience'].includes(family) && effectsFor(family, null, { builtin: true }).some(([key]) => key === id),
           types: ['transition','ambience'].includes(family) ? [] : types,
-          ...(id === 'R04' ? { kinds: ['light-a-candle'] } : {}), ...(id === 'R03' ? { excludeKinds: ['event-countdown','photo-comparison'] } : {}) },
+          ...(id === 'R04' ? { kinds: ['light-a-candle'] } : {}), ...(id === 'R03' ? { excludeKinds: ['event-countdown','photo-comparison','local-video'] } : {}) },
         defaults: { ...(family !== 'surface' ? { speed: 'normal' } : {}), ...(family === 'entrance' ? { delay: 0 } : {}), ...(family === 'ambience' ? { density: 'normal' } : {}) },
       });
     }

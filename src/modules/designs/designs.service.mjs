@@ -3,6 +3,7 @@ import { SEMANTIC_TEMPLATE_IDS, captureSemanticRoles } from '../../../web/js/sha
 import { randomUUID } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
+import { requireLocalVideo } from './local-video.service.mjs';
 import { validateDocument, canonicalStringify, createDocument, duplicateDocument, assetIds, publicDocument } from '../../../web/js/shared/canvas/index.js';
 import { runtimeVersionFor } from '../../../web/js/shared/canvas/schema.js';
 import { photoSlots } from '../../../web/js/shared/canvas/interactions.js';
@@ -164,6 +165,7 @@ export class DesignsService {
   }
   enforcePolicy(current, document) { return enforceEditPolicy(current, document); }
   async assetsFor(ownerId, document, creator = false) {
+    if(document.assets.some(a=>a.kind==='video')){requireLocalVideo();if(creator)throw canvasError(403,'VIDEO_SENDER_ONLY','Video local chỉ dùng cho thiệp cá nhân.');}
     for (const id of document.assets.map(a => a.assetId)) {
       const a = await this.repository.getAsset(ownerId, id);
       if (!a || a.status !== 'ready') throw canvasError(422, 'ASSET_NOT_READY', 'Ảnh không thuộc tài khoản hoặc chưa sẵn sàng.', [{ path: `assets.${id}`, code: 'ASSET_NOT_READY' }]);
@@ -209,12 +211,13 @@ export class DesignsService {
     return checkPublication(design, { getAsset, hasLicense, getTemplate, assetExists: asset => this.assetExists(asset), config: this.config, profile: this.profile });
   }
   assetPath(asset) {
-    if (!/^[\da-f-]{36}\.(png|jpg|webp|wav)$/.test(asset.storageKey)) throw canvasError(404, 'ASSET_NOT_FOUND', 'Không tìm thấy tài sản.');
+    if (!/^[\da-f-]{36}\.(png|jpg|webp|wav|webm)$/.test(asset.storageKey)) throw canvasError(404, 'ASSET_NOT_FOUND', 'Không tìm thấy tài sản.');
     return path.join(this.mediaRoot, asset.storageKey);
   }
   assetExists(asset) { return fs.existsSync(this.assetPath(asset)); }
   async preflight(user, id, input) {
     fields(input, ['expectedRevision']); revision(input.expectedRevision); const d = await this.get(user, id);
+    if(d.document.assets.some(a=>a.kind==='video'))requireLocalVideo();
     if (d.revision !== input.expectedRevision) throw canvasError(409, 'REVISION_CONFLICT', 'Thiết kế đã thay đổi. Tải lại để kiểm tra bản mới.');
     return this.check(d);
   }
@@ -227,6 +230,7 @@ export class DesignsService {
     if (!/^sha256:[a-f0-9]{64}$/.test(input.expectedDocumentHash || '')) throw canvasError(422, 'INVALID_HASH', 'Document hash không hợp lệ.');
     return this.publication.publish(user.sub, input, hash(input), async context => {
       const d = context.design;
+      if(d.document.assets.some(a=>a.kind==='video'))requireLocalVideo();
       const actualHash = hash(validateDocument(d.document, { mode: 'draft' }));
       if (actualHash !== input.expectedDocumentHash) throw canvasError(409, 'DOCUMENT_HASH_CONFLICT', 'Nội dung không khớp revision yêu cầu.');
       const p = await this.check(d, context);

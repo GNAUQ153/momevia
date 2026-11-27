@@ -119,7 +119,7 @@ test('35 effect IDs have compatible validated, persisted and public configuratio
     }
   }
   assert.equal(ids.size,35);
-  assert.equal(Object.keys(interactionKinds).length,20);
+  assert.equal(Object.keys(interactionKinds).length,21);
 });
 
 test('countdown accepts a real absolute local time, including DST gap and overlap', () => {

@@ -46,7 +46,8 @@ export function mountGardenRsvp(host, initial, { submit, signal, onClosed, recip
     </form>
     <footer class="garden-rsvp-footer"><span aria-hidden="true">❧</span><p>${text('rsvp.garden.footer')}</p></footer>
   </section>`;
-  if(appearance==='paper-v1'){host.classList.add('gift-rsvp-paper');setText(host.querySelector('.garden-rsvp-intro'),message('drive.rsvpIntro'));setText(host.querySelector('.garden-rsvp-footer p'),message('drive.rsvpFooter'));host.querySelector('textarea').setAttribute('placeholder','');}
+  if(['paper-soft-v2','garden-soft-v2'].includes(appearance))host.classList.add('gift-rsvp-soft-v2');
+  if(['paper-v1','paper-soft-v2'].includes(appearance)){host.classList.add('gift-rsvp-paper');setText(host.querySelector('.garden-rsvp-intro'),message('drive.rsvpIntro'));setText(host.querySelector('.garden-rsvp-footer p'),message('drive.rsvpFooter'));host.querySelector('textarea').setAttribute('placeholder','');}
   const panel = host.querySelector('.garden-rsvp-panel'), art = host.querySelector('.garden-rsvp-art');
   panel.style.setProperty('--garden-rsvp-primary', color || '#3D6045');
   art.append(ornament('garden-rsvp-sprig garden-rsvp-sprig--left', gardenSprigPaths({ leaf: '#789267', shade: '#A0B38B', stem: '#536E46', vein: '#D6E1C6' })),

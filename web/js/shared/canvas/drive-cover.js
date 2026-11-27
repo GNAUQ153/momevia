@@ -6,7 +6,7 @@ export function driveInteractionSvg(node,images,photoSvg,labelSvg,event){
 }
 function driveContentSvg(node,images,photoSvg,labelSvg,event){
  const p=node.props,{width:w,height:h}=node.layout;
- const background=`<rect width="${w}" height="${h}" rx="8" fill="${p.color}"/>`;
+ const background=`<rect width="${w}" height="${h}" rx="${p.appearance==='soft-v2'?(p.cornerRadius??24):8}" fill="${p.color}"/>`;
  if(p.kind==='calendar-peel'){
   const month=calendarMonth(p.clockSource==='invitation'?event?.eventAt:p.eventAt,p.clockSource==='invitation'?event?.timeZone:p.timeZone);
   if(!month)return background+labelSvg(p.entries[0].heading,16,45,w-32,24);
@@ -20,6 +20,6 @@ function driveContentSvg(node,images,photoSvg,labelSvg,event){
  return background+labelSvg(p.entries[0].heading,18,42,w-36,24)+labelSvg(p.entries[0].body,18,110,w-36,18);
 }
 export function driveOpeningSvg(p,w,h){
- const box=p.preset==='lid-card-v1',body=p.color,seal=p.sealColor||'#D7B67C';
+ const box=p.preset.startsWith('lid-card'),body=p.color,seal=p.sealColor||'#D7B67C';
  return `<rect x="${w*.08}" y="${h*.4}" width="${w*.84}" height="${h*.47}" rx="4" fill="${body}" stroke="#BB8050"/>`+(box?`<rect x="${w*.05}" y="${h*.32}" width="${w*.9}" height="${h*.12}" fill="${body}" stroke="#BB8050"/><path d="M${w*.5} ${h*.34}C${w*.14} ${h*.1} ${w*.3} ${h*.1} ${w*.5} ${h*.33}C${w*.7} ${h*.1} ${w*.88} ${h*.1} ${w*.5} ${h*.34}V${h*.87}" fill="none" stroke="#BB8050" stroke-width="12"/>`:`<path d="M${w*.08} ${h*.4}L${w*.5} ${h*.68}L${w*.92} ${h*.4}" fill="none" stroke="${seal}"/><circle cx="${w*.5}" cy="${h*.64}" r="${w*.085}" fill="${seal}"/><text x="${w*.5}" y="${h*.66}" text-anchor="middle" fill="#141B32" font-family="serif" font-size="18">${escape(p.label)}</text>`);
 }

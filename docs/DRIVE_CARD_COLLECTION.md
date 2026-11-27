@@ -29,7 +29,7 @@ Phạm vi được triển khai trong bản làm việc độc lập. Garden Tea
 | RSVP | `scene-reply` | Một form trong Canvas; lưu đúng receipt |
 | Outro / replay | `scene-outro` | Lời kết và mở lại |
 
-Video chưa được triển khai: schema asset và các endpoint/quyền hiện có chỉ chấp nhận ảnh/audio. Không nới storage, MIME hoặc quyền để giả lập video. Phần video cần hạng mục riêng trước khi có thể nghiệm thu.
+Video WebM đã có trong bản local JSON với flag chủ động, asset sở hữu và quyền đọc theo quà; không đưa tệp lên Git, MySQL hoặc production. Thiếu tệp thì khối thu gọn. Xem [Video local và biến thể mềm](LOCAL_VIDEO_QA.md) để biết giới hạn và kiểm thử; trạng thái video chưa hoàn thành trong báo cáo v1 là trạng thái lịch sử trước đợt này.
 
 ## Dùng trong Canvas
 
@@ -58,7 +58,7 @@ Native browser zoom, thiết bị vật lý và Safari không được suy ra t�
 
 ## English
 
-The six cards are editable Canvas documents, not embedded Drive HTML. Five independent IDs are added and Garden Tea keeps its existing ID. The invitation module mapping above also applies to the English documents. Empty optional audio collapses; personal images remain editable. Video is unfinished because the current asset/storage/permission contract does not support it.
+The six cards are editable Canvas documents, not embedded Drive HTML. Five independent IDs are added and Garden Tea keeps its existing ID. The invitation module mapping above also applies to the English documents. Empty optional audio collapses; personal images remain editable. WebM video is now supported in explicitly enabled local JSON QA with owned assets and gift permissions; files remain outside Git, MySQL and production. See LOCAL_VIDEO_QA.md.
 
 Canvas offers 13 reusable additions, an optional paper RSVP surface and a folded-reply style. A reply folds only after the real server confirms; failures retain its text. Preview responses are simulated. All event views use one invitation date/time/zone. Explicit Canvas response blocks prevent duplicate Gifts-level forms; legacy reply defaults remain unchanged.
 

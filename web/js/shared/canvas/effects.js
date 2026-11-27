@@ -18,6 +18,7 @@ export const elementEffectFamilies = Object.freeze(['surface','entrance','emphas
 export const sceneEffectFamilies = Object.freeze(['surface','transition','ambience']);
 
 export function effectsFor(family, element, { builtin = false } = {}) {
+  if(family==='reaction'&&element?.type==='interaction'&&element.props.kind==='local-video')return [];
   const configured = !builtin && libraryEntries('effect');
   if (configured) return configured.filter(row => row.definition.family === family && allowsEffect(row.definition.targets, element))
     .map(row => [row.id, libraryText(row.definition.title)]);

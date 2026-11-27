@@ -1,3 +1,4 @@
+import {localVideoAvailable} from '../../shared/canvas/local-video.js';
 import { currentLocale, message, t } from "../../core/i18n.js";
 import { createElement, registry, LIMITS } from "../../shared/canvas/index.js";
 import { SOUND_TYPES } from "../../shared/canvas/sound.js";
@@ -24,7 +25,7 @@ import { node, button, field, input, iconButton, select } from "./dom.js";
 // Panel chỉ dựng giao diện; mọi chỉnh sửa vẫn đi qua commit của Designer.
 // Getter tránh giữ store, design, stage hoặc clipboard cũ sau khi tải lại nháp.
 export function createInspectorPanel({
-  main, getStore, getDesign, getStage, getClipboard, isQuickMode, isComposing,
+  main, getStore, getDesign, getStage, getClipboard, isQuickMode, isComposing,isAssetPending=()=>false,
   selected, selectedIds, currentScene, textOptions, isLegacyFrame, assetUrl, commit, safe,
 }) {
   function effectFields(model, element) {
@@ -66,9 +67,20 @@ export function createInspectorPanel({
   function interactionFields(model) {
     const p = model.props, spec = interactionKinds[p.kind], doc = getStore().get().document;
     const fields = [input(message("editor.interface.blockBackground"), "props.color", p.color, { type: "color" })];
+    if(spec.drive||p.appearance&&['soft-v2','album-soft-v2','paper-fold-soft-v3','scratch-progress-soft-v2'].includes(p.appearance)){
+      fields.push(select(message('soft.style'),'props.appearance',p.appearance||'classic',[[spec.drive?'soft-v2':p.appearance,message('soft.soft')],['classic',message('soft.classic')]]));if(p.appearance&&p.appearance!=='classic'){fields.push(select(message('soft.speed'),'props.motionSpeed',p.motionSpeed||'normal',[['fast',message('soft.fast')],['normal',message('soft.normal')],['slow',message('soft.slow')]]),input(message('soft.radius'),'props.cornerRadius',p.cornerRadius??24,{type:'number',min:0,max:48}));
+      for(const[key,label]of [['inkColor','ink'],['accentColor','accent'],['detailColor','detail']])fields.push(input(message('soft.'+label),'props.'+key,p[key]||({inkColor:'#27394B',accentColor:'#7D3854',detailColor:'#EAC572'}[key]),{type:'color'}));}
+    }
+    if(p.kind==='swipe-album')fields.push(select(message('soft.style'),'props.appearance',p.appearance||'classic',[['classic',message('soft.classic')],['album-soft-v2',message('soft.soft')]]));
+    if(p.kind==='local-video'){
+      if(localVideoAvailable())fields.push(field(message('video.choose'),node('input',{type:'file',disabled:isAssetPending(),accept:'.webm,video/webm','data-editor-field':'local-video-upload'})),node('p',{class:'editor-help'},message('video.limits')),
+       select(message('video.uploaded'),'local-video-select',p.videoAssetId||'',[['',message('video.none')],...doc.assets.filter(a=>a.kind==='video').map((a,i)=>[a.assetId,message('editor.interface.assetNumber',{index:i+1})])]),button(message('video.remove'),'local-video-remove',{disabled:isAssetPending()}));
+      else fields.push(node('p',{class:'editor-help'},message('video.localOnly')));
+      if(isAssetPending())for(const item of fields)for(const control of item?.querySelectorAll?.('[data-editor-field="local-video-select"]')||[])control.disabled=true;
+    }
     if (p.kind === 'light-a-candle') fields.push(select(message('interactive.candleAppearance'),'props.appearance',p.appearance || 'classic',[['classic',message('interactive.candleClassic')],['cake-overlay-v1',message('interactive.candleOverlay')],['cake-photo-v2',message('interactive.candlePhoto')]]));
-    if(p.kind==='foldout-letter')fields.push(select(message('interactive.foldPaper'),'props.appearance',p.appearance || 'classic',[['classic',message('interactive.foldClassic')],['paper-fold-v2',message('interactive.foldPaper')]]));
-    if (p.kind === 'scratch-ticket') fields.push(select(message('gift.interactions.scratchProgress'), 'props.appearance', p.appearance || 'classic', [['classic', message('gift.interactions.scratchClassic')], ['scratch-progress-v1', message('gift.interactions.scratchProgress')]]));
+    if(p.kind==='foldout-letter')fields.push(select(message('interactive.foldPaper'),'props.appearance',p.appearance || 'classic',[['classic',message('interactive.foldClassic')],['paper-fold-v2',message('interactive.foldPaper')],['paper-fold-soft-v3',message('soft.soft')]]));
+    if (p.kind === 'scratch-ticket') fields.push(select(message('gift.interactions.scratchProgress'), 'props.appearance', p.appearance || 'classic', [['classic', message('gift.interactions.scratchClassic')], ['scratch-progress-v1', message('gift.interactions.scratchProgress')],['scratch-progress-soft-v2',message('soft.soft')]]));
     if (p.kind === PREDICTION_KIND) return [...fields, createPredictionFields(model, 'inspector')];
     if(p.kind==='four-choice-quiz')fields.push(input(message('drive.question'),'props.question',p.question||'',{maxlength:240}));
     if(p.bodyBinding==='message')fields.push(field(message('editor.binding.message'),node('textarea',{'data-editor-field':'binding.message',maxlength:LIMITS.text,rows:4},doc.bindings.message.value)));

@@ -92,10 +92,10 @@ export function updateElementCopy(node, model, document) {
     finishTypewriter(node);
     node.textContent = resolveText(model, document);
   } else if (["button", "envelope", "gift-box", "sound-button"].includes(type)) {
-    if(['lid-card-v1','wax-letter-v1'].includes(p.preset)){
-      node.querySelector('.gift-drive-bow').textContent=p.preset==='lid-card-v1'?'∞':p.label;
+    if(['lid-card-v1','wax-letter-v1','lid-card-v2','wax-letter-v2'].includes(p.preset)){
+      if(p.preset!=='lid-card-v2')node.querySelector('.gift-drive-bow').textContent=p.preset.startsWith('lid-card')?'∞':p.label;
       node.querySelector('.gift-drive-sliding-card').textContent=p.label;
-      node.querySelector('.gift-drive-opening-label').textContent=p.preset==='wax-letter-v1'?t('drive.openNow'):p.label;
+      node.querySelector('.gift-drive-opening-label').textContent=p.preset.startsWith('wax-letter')?t('drive.openNow'):p.label;
     }else setText(node.querySelector(".gift-runtime-control-label"), p.label || a.label || label("gift.runtime.continue"));
     setAttr(node, "aria-label", a.label || p.label || label("gift.runtime.continue"));
     if(model.id==='open-gift'&&document.elements.some(e=>e.id.startsWith('refresh-')))node.classList.add('gift-runtime-object-control');
@@ -217,7 +217,15 @@ export function renderElement(
     const reactionTarget=model.motions?control.querySelector('[data-motion-family="reaction"]')||control:control;
     if (actions?.length) {
       onAction(actions, intentSignal => {
-        const played = ['lid-card-v1','wax-letter-v1'].includes(p.preset) ? playDriveOpening(control,motion,signal ? AbortSignal.any([intentSignal,signal]) : intentSignal) : type === 'envelope' && p.preset === 'garden-gate-v1'
+        if(['lid-card-v2','wax-letter-v2'].includes(p.preset)){
+          if(!preset)return;
+          const combined=signal?AbortSignal.any([intentSignal,signal]):intentSignal;
+          const base={fast:480,normal:800,slow:1200}[p.motionSpeed]||800,duration=Math.round(base*({fast:.7,normal:1,slow:1.3}[preset.speed||'normal']));
+          control.style.setProperty('--drive-duration',duration+'ms');
+          const opening=playDriveOpening(control,motion,combined,duration),extra=['R01','R02'].includes(preset.id)?null:playReaction(control,preset,motion,combined,event);
+          const played=extra?Promise.all([opening,extra]):opening;pendingControls.add(control);return played.finally(()=>pendingControls.delete(control));
+        }
+        const played = ['lid-card-v1','wax-letter-v1','lid-card-v2','wax-letter-v2'].includes(p.preset) ? playDriveOpening(control,motion,signal ? AbortSignal.any([intentSignal,signal]) : intentSignal,p.preset.endsWith('-v2')?({fast:480,normal:800,slow:1200}[p.motionSpeed]||800):850) : type === 'envelope' && p.preset === 'garden-gate-v1'
           ? playGardenGate(control, document, motion, signal ? AbortSignal.any([intentSignal, signal]) : intentSignal, () => {
             const scene = document.scenes.find(s => s.id === actions[0]?.targetSceneId);
             if (!scene) return null;
@@ -375,7 +383,7 @@ export function renderElement(
       ),
     );
     setAttr(node, "aria-label", a.label || p.label || label("gift.runtime.continue"));
-    if(['lid-card-v1','wax-letter-v1'].includes(p.preset))decorateDriveOpening(node,p.preset,p.label,p.color,p.sealColor,p.paperColor,mode,signal);
+    if(['lid-card-v1','wax-letter-v1','lid-card-v2','wax-letter-v2'].includes(p.preset))decorateDriveOpening(node,p.preset,p.label,p.color,p.sealColor,p.paperColor,mode,signal,p);
     if (mode === "editor") node.tabIndex = -1;
     else if (mode !== "thumbnail")
       node.addEventListener(
@@ -386,7 +394,7 @@ export function renderElement(
   } else if (type === "interaction") {
     const interactionModel = p.clockSource === 'invitation' ? { ...model, props: { ...p, eventAt: document.invitation?.eventAt || null, timeZone: document.invitation?.timeZone || p.timeZone } } : model;
     node = renderInteraction(interactionModel, {
-      mode, signal, motion, document, invitation, bindings: document.bindings, activate, renderArt: drawVector,
+      mode, signal, motion, document, invitation,videoUrl:p.videoAssetId?imageUrl(assetUrl(p.videoAssetId),mode):null, bindings: document.bindings, activate, renderArt: drawVector,
       renderPhoto: photo => renderElement({
         id: photo.id, type: "image",
         props: { assetId: photo.assetId, fit: "cover", focalPoint: photo.focalPoint, optional: true },
@@ -527,6 +535,7 @@ export function renderElement(
             setText(status, label("gift.reply.loadFailed"));
         });
   } else throw new Error(t("gift.runtime.unsupportedElement"));
+  if(['paper-soft-v2','garden-soft-v2'].includes(p.appearance)&&type==='reply'){if(p.appearance==='paper-soft-v2')node.classList.add('gift-drive-note-soft');node.style.setProperty('--drive-radius',(p.cornerRadius??24)+'px');}
   prepareMotionLayers(node,model);
   if(model.accessibility?.label==='Momevia Drive vinyl v1')node.classList.add('gift-drive-vinyl');
   node.dataset.runtimeElement = model.id;

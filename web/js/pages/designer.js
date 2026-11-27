@@ -753,6 +753,7 @@ export function mountDesigner(
   });
   const { renderInspector } = createInspectorPanel({
     main,
+    isAssetPending:()=>assetPending,
     getStore: () => store,
     getDesign: () => design,
     getStage: () => stage,
@@ -979,6 +980,18 @@ export function mountDesigner(
       const used = new Set(assetIds(value.document));
       value.document.assets = value.document.assets.filter(ref => used.has(ref.assetId));
     }
+  }
+  const videoMutations=new Map();
+  async function uploadVideo(file,elementId){
+    if(!file||assetPending)return;if(file.size>128*1024*1024||!['video/webm',''].includes(file.type))throw new Error(t('video.limits'));
+    const targetDesign=design.id;assetPending=true;markStatus('video.uploading','pending');renderInspector();
+    try{const bytes=await file.arrayBuffer(),fingerprint=[...new Uint8Array(await crypto.subtle.digest('SHA-256',bytes))].map(v=>v.toString(16).padStart(2,'0')).join(''),key=targetDesign+':'+elementId+':'+fingerprint;
+      if(!videoMutations.has(key))videoMutations.set(key,newId());
+      if(disposed||signal.aborted||design.id!==targetDesign)return;
+      const result=await request('/designs/designs/'+encodeURIComponent(targetDesign)+'/video',undefined,{method:'POST',headers:{'content-type':'video/webm','x-mutation-id':videoMutations.get(key)},body:bytes});
+      if(disposed||signal.aborted||design.id!==targetDesign)return;
+      commit(next=>{const model=next.document.elements.find(e=>e.id===elementId&&e.props.kind==='local-video');if(!model)return;if(!next.document.assets.some(a=>a.assetId===result.asset.id))next.document.assets.push({assetId:result.asset.id,kind:'video'});model.props.videoAssetId=result.asset.id;if(next.document.schemaVersion<3)next.document.schemaVersion=next.document.registryVersion=3;},t('video.replaced'));renderInspector();
+    }finally{assetPending=false;if(!disposed){renderInspector();renderSaveFeedback(describeSaveFeedback(session,message));}}
   }
   async function upload(file, elementId, slotId) {
     if (!file || assetPending) return;
@@ -1698,6 +1711,7 @@ export function mountDesigner(
       renderInspector();
       return;
     }
+    if(name==='local-video-remove'){if(assetPending)return;commit(next=>{const e=next.document.elements.find(e=>e.id===selection&&e.props.kind==='local-video');if(e)e.props.videoAssetId=null;},t('video.removed'));renderInspector();return;}
     if (name === "publish") {
       await publish();
       return;
@@ -1970,6 +1984,8 @@ export function mountDesigner(
     const control = event.target.closest("[data-editor-field]");
     if (!control || !store || composing) return;
     const key = control.dataset.editorField;
+    if(key==='local-video-upload'){await uploadVideo(control.files?.[0],selection);return;}
+    if(key==='local-video-select'){if(assetPending)return;commit(next=>{const e=next.document.elements.find(e=>e.id===selection&&e.props.kind==='local-video');if(e)e.props.videoAssetId=control.value||null;},t('video.replaced'));renderInspector();return;}
     if (key.startsWith('invitation.')) {
       const field = key.slice('invitation.'.length);
       try {

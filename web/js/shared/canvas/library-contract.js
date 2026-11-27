@@ -69,7 +69,7 @@ export function builtinEffectApplies(id, model) {
     E03: type === 'text', E04: type === 'line', E05: type === 'image', E06: type === 'image',
     A02: ['image','shape','interaction'].includes(type), A04: type === 'text', A05: type === 'image',
     R01: type === 'envelope', R02: type === 'gift-box', R04: type === 'interaction' && props.kind === 'light-a-candle',
-    R03: ['button','envelope','gift-box','interaction'].includes(type) && !['event-countdown','photo-comparison'].includes(props.kind),
+    R03: ['button','envelope','gift-box','interaction'].includes(type) && !['event-countdown','photo-comparison','local-video'].includes(props.kind),
   };
   return rules[id] ?? true;
 }

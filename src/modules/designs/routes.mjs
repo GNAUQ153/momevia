@@ -1,3 +1,4 @@
+import {LocalVideoAssetsService,localVideoBody,localVideoEnabled,requireLocalVideo} from './local-video.service.mjs';
 import { createDocument,templatePreviewDocument } from '../../../web/js/shared/canvas/presets.js';
 import { serverText } from '../../shared/locale.mjs';
 import { RESTYLE_PAIRS } from '../../../web/js/shared/canvas/template-slots.js';
@@ -16,11 +17,11 @@ export function streamAsset(res, file) {
   return streamPrivateAsset(res, file);
 }
 export function registerDesignRoutes(router, { service, assets, resolveUser, config, writeLimit }) {
-  const audio=new AudioAssetsService(service);
+  const audio=new AudioAssetsService(service),video=new LocalVideoAssetsService(service);
   const user = req => resolveUser(req, config.jwtSecret);
   const writeUser = async req => { const actor = await user(req); if (!writeLimit.consume(actor.sub)) throw canvasError(429, 'CANVAS_RATE_LIMIT', 'Bạn thao tác quá nhanh. Thử lại sau.'); return actor; };
   router.on('GET', '/health', ({ res }) => sendJson(res, 200, { name: 'designs', ok: true, profile: service.profile, capabilities: service.flags }));
-  router.on('GET', '/library', async ({ res }) => sendJson(res, 200, { library: await service.library.refresh(), audioLibrary: await service.musicLibrary.list() }));
+  router.on('GET', '/library', async ({ res }) => sendJson(res, 200, { library: await service.library.refresh(), audioLibrary: await service.musicLibrary.list(),localVideoEnabled:localVideoEnabled() }));
   router.on('GET', '/sfx', async ({res})=>{
     const curated=new Map((await service.musicLibrary.list()).items.map(row=>[row.key,row]));
     const catalog=sfxCatalog();
@@ -39,6 +40,7 @@ export function registerDesignRoutes(router, { service, assets, resolveUser, con
     sendJson(res,200,{audioLibrary:await service.musicLibrary.put(actor,params.key,await parseJson(req,8192))});
   });
   router.on('GET', '/sfx/:version/:id', async ({res,params})=>streamAsset(res,librarySound(params.version,params.id)));
+  router.on('POST','/designs/:id/video',async({req,res,params})=>{requireLocalVideo(req);const actor=await writeUser(req);await service.get(actor,params.id);sendJson(res,201,{asset:await video.upload(actor,params.id,req.headers['x-mutation-id'],await localVideoBody(req))});});
   router.on('POST','/designs/:id/audio',async ({req,res,params})=>{
     const actor=await writeUser(req);await service.get(actor,params.id);
     sendJson(res,201,{asset:await audio.upload(actor,params.id,req.headers['x-mutation-id'],await audioBody(req))});
@@ -119,7 +121,7 @@ export function registerDesignRoutes(router, { service, assets, resolveUser, con
     const actor = await writeUser(req); await service.get(actor, params.id);
     const image = await imageBody(req); sendJson(res, 201, { asset: await assets.upload(actor, params.id, req.headers['x-mutation-id'], image) });
   });
-  router.on('GET', '/designs/:id/assets/:assetId', async ({ req, res, params }) => streamAsset(res, await assets.owner(await user(req), params.id, params.assetId)));
+  router.on('GET', '/designs/:id/assets/:assetId', async ({ req, res, params }) => {const file=await assets.owner(await user(req),params.id,params.assetId);if(file.contentType==='video/webm')requireLocalVideo(req);return streamAsset(res,{...file,range:req.headers.range});});
 }
 export function registerPublicationRoutes(router, { service, resolveUser, config, writeLimit }) {
   router.on('POST', '/gifts/from-design', async ({ req, res }) => {

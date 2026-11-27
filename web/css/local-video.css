@@ -1,0 +1,30 @@
+.gift-local-video {
+  display: grid;
+  gap: 12px;
+  box-sizing: border-box;
+  padding: 16px;
+  border: 1px solid #d8c9b4;
+  border-radius: 20px;
+  color: #27394b;
+  font: 16px/1.5 var(--canvas-font-body);
+}
+.gift-local-video h3,
+.gift-local-video p {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.gift-local-video video {
+  display: block;
+  width: 100%;
+  max-height: 280px;
+  border-radius: 14px;
+  background: #141b32;
+  object-fit: contain;
+}
+.gift-local-video-placeholder {
+  display: grid;
+  place-items: center;
+  min-height: 120px;
+  border-radius: 14px;
+  background: #ece6dc;
+}

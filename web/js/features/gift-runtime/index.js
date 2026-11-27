@@ -64,7 +64,7 @@ export function mountPlayer(
     navigationIntent = null;
   const shell = globalThis.document.createElement("div");
   shell.className = `gift-runtime gift-runtime-mode-${mode}`;
-  const driveDocument=document.elements.some(e=>DRIVE_BLOCKS.some(([id])=>id===e.props.kind)||['lid-card-v1','wax-letter-v1'].includes(e.props.preset)||e.accessibility?.label==='Momevia Drive vinyl v1');
+  const driveDocument=document.elements.some(e=>DRIVE_BLOCKS.some(([id])=>id===e.props.kind)||['lid-card-v1','wax-letter-v1','lid-card-v2','wax-letter-v2'].includes(e.props.preset)||e.accessibility?.label==='Momevia Drive vinyl v1');
   if(driveDocument){shell.classList.add('gift-runtime-drive');recipientContainer?.classList.add('recipient-shell-drive');recipientContainer?.closest('.recipient-section')?.classList.add('recipient-section--drive');}
   if (isGardenDocument(document)) shell.classList.add('gift-runtime-garden');
   if (document.personalization) shell.classList.add('gift-runtime-personalized');
@@ -134,6 +134,7 @@ export function mountPlayer(
   toolbar.append(motionControl, skip);
   const drivePlayback=driveDocument||isGardenDocument(document);
   let soundtrackPlayback = null;
+  stage.addEventListener('play',event=>{if(event.target.tagName==='VIDEO'&&event.target.closest('.gift-local-video')){audio.stop();soundtrackPlayback?.pause();}},{capture:true,signal:lifetime.signal});
   if (document.soundtrack) {
     toolbar.classList.add('gift-motion-toolbar--music');
     const musicGroup = globalThis.document.createElement('div');

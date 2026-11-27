@@ -3,6 +3,7 @@
 export function scenePresentation(document, scene) {
   const elements=document.elements.filter(e=>scene.elementIds.includes(e.id)&&e.visible!==false);
   const empty=elements.filter(e=>(e.type==='image'&&e.props.optional&&e.props.placeholder==='collapse'&&!e.props.assetId)||(e.type==='sound-button'&&e.props.optional&&!e.sound));
+  for(const e of elements)if(e.type==='interaction'&&e.props.kind==='local-video'&&e.props.optional&&!e.props.videoAssetId)empty.push(e);
   const hidden=new Set(),regions=[];
   for(const photo of empty){
     const members=elements.filter(e=>e.id===photo.id||(photo.groupId&&e.groupId===photo.groupId));

@@ -1,5 +1,6 @@
 import { DRIVE_BLOCKS } from './drive-elements.js';
 export const interactionKinds = Object.freeze({
+  'local-video':{label:'Video',video:true,icon:'▶',size:[326,260],fields:[['Tiêu đề','Chú thích']]},
   ...Object.fromEntries(DRIVE_BLOCKS.map(([id,label,,clock,slots])=>[id,{label,drive:true,icon:'✦',size:[338,450],fields:Array.from({length:id==='four-choice-quiz'?4:1},()=>['Nhãn','Nội dung']),...(clock?{clock:true}:{}),...(slots?{slots,minimumPhotos:0}: {})}])),
   "prediction-choice": { label: "Tớ đoán cậu sẽ chọn…", prediction: true, icon: "?", size: [342, 550] },
   "flip-card": { label: "Thẻ lật hai mặt", fields: [["Mặt trước", "Mặt sau"]], icon: "↺", size: [320, 178] },

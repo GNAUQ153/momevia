@@ -51,7 +51,7 @@ export function pinDocumentArtwork(document) {
     } else scene.effects[family] = pinEffect(preset, family);
   }
   if (usesMotions(document)) document.schemaVersion = document.registryVersion = 4;
-  else if (usesSound(document) && document.schemaVersion < 3) document.schemaVersion = document.registryVersion = 3;
+  else if ((usesSound(document)||document.assets.some(a=>a.kind==='video')) && document.schemaVersion < 3) document.schemaVersion = document.registryVersion = 3;
   else if (requiresCanvasV2(document) && document.schemaVersion < 2) document.schemaVersion = document.registryVersion = 2;
   return document;
 }

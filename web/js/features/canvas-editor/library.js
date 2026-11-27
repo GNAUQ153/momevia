@@ -1,3 +1,4 @@
+import {localVideoModels,setLocalVideoAvailable} from '../../shared/canvas/local-video.js';
 import { driveElementCards } from '../../shared/canvas/drive-elements.js';
 import { gardenElementCards } from '../../shared/canvas/garden-elements.js';
 import {ANIMATED_GROUPS,animatedElementCards} from '../../shared/canvas/animated-elements.js';
@@ -141,8 +142,12 @@ const normalized = value => value.toLowerCase().normalize("NFD").replace(/\p{Dia
 const searchIndex = new Map(catalog.flatMap(({ items }) => items.map(block => [
   block.id, normalized(`${block.id} ${block.title} ${block.group} ${block.keywords}`),
 ])));
+export function configureLocalVideo(enabled){
+ setLocalVideoAvailable(enabled);for(const group of catalog)group.items=group.items.filter(item=>item.id!=='local-video-message');
+ if(enabled){const group=catalog.find(g=>g.items.some(i=>i.id.startsWith('drive-')))||catalog.at(-1);group.items.push({id:'local-video-message',title:canonicalText('video.title'),titleTexts:{vi:'Video',en:'Video'},group:group.label,visualKind:'interactive',keywords:'local video phim clip WebM',create:()=>localVideoModels()});}
+}
 export function matchesBlock(block, query) {
-  const label = block.database ? normalized(`${block.id} ${block.title} ${block.group} ${block.keywords}`) : searchIndex.get(block.id);
+  const label = block.database ? normalized(`${block.id} ${block.title} ${block.group} ${block.keywords}`) : (searchIndex.get(block.id)||normalized(`${block.id} ${block.title} ${block.group} ${block.keywords}`));
   return normalized(query).trim().split(/\s+/).every(word => label.includes(word));
 }
 export function replaceCatalog(groups) { catalog.splice(0, catalog.length, ...groups); }

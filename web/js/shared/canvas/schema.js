@@ -47,13 +47,13 @@ function preflightTree(value, path = 'document', depth = 0, ancestors = new Set(
   }
 }
 
-function validateInteraction(p, path, assets, publishing) {
+function validateInteraction(p, path, assets, publishing, videos) {
   enumeration(p.kind, `${path}.kind`, Object.keys(interactionKinds));
   const spec = interactionKinds[p.kind];
   const keys = ['kind', 'color', ...(spec.fields ? ['entries'] : []),
     ...(spec.prediction ? [...Object.keys(predictionFields), 'prediction'] : []),
     ...(spec.slots ? ['photos'] : []), ...(spec.clock ? ['eventAt', 'timeZone'] : [])];
-  const extras = [...(spec.drive?['bodyBinding']:[]),...(p.kind==='four-choice-quiz'?['question']:[]), ...(['light-a-candle','foldout-letter','scratch-ticket'].includes(p.kind) ? ['appearance'] : []), ...((p.kind === 'swipe-album' || spec.slots) ? ['optional', ...(p.kind === 'swipe-album' ? ['autoplay','zoom'] : [])] : []), ...(spec.clock ? ['optional', 'clockMode', 'clockSource'] : [])];
+  const extras = [...((spec.drive||['swipe-album','foldout-letter','scratch-ticket'].includes(p.kind))?['appearance','cornerRadius','motionSpeed','inkColor','accentColor','detailColor']:[]), ...(spec.video?['videoAssetId','optional']:[]), ...(spec.drive?['bodyBinding']:[]),...(p.kind==='four-choice-quiz'?['question']:[]), ...(['light-a-candle','foldout-letter','scratch-ticket'].includes(p.kind) ? ['appearance'] : []), ...((p.kind === 'swipe-album' || spec.slots) ? ['optional', ...(p.kind === 'swipe-album' ? ['autoplay','zoom'] : [])] : []), ...(spec.clock ? ['optional', 'clockMode', 'clockSource'] : [])];
   object(p, path, [...keys, ...extras], keys);
   if (own(p, 'optional')) boolean(p.optional, `${path}.optional`);
   if (own(p, 'autoplay')) boolean(p.autoplay, `${path}.autoplay`);
@@ -62,8 +62,11 @@ function validateInteraction(p, path, assets, publishing) {
   if (own(p, 'clockMode')) enumeration(p.clockMode, `${path}.clockMode`, ['countdown', 'elapsed']);
   if(p.kind==='four-choice-quiz'&&own(p,'question'))string(p.question,`${path}.question`,240);
   if(own(p,'bodyBinding'))enumeration(p.bodyBinding,`${path}.bodyBinding`,['message']);
+  if(spec.video){if(p.videoAssetId!==null){id(p.videoAssetId,`${path}.videoAssetId`);if(!videos.has(p.videoAssetId))fail(`${path}.videoAssetId`,'Video chưa được khai báo.','ASSET_REFERENCE');}else if(publishing&&!p.optional)fail(path,'Chọn video.','VIDEO_REQUIRED');}
   color(p.color, `${path}.color`);
-  if (own(p,'appearance')) enumeration(p.appearance,`${path}.appearance`,p.kind==='foldout-letter'?['classic','paper-fold-v2']:p.kind==='scratch-ticket'?['classic','scratch-progress-v1']:['classic','cake-overlay-v1','cake-photo-v2']);
+  for(const key of ['inkColor','accentColor','detailColor'])if(own(p,key))color(p[key],`${path}.${key}`);
+  if(own(p,'cornerRadius'))number(p.cornerRadius,`${path}.cornerRadius`,0,48);if(own(p,'motionSpeed'))enumeration(p.motionSpeed,`${path}.motionSpeed`,['fast','normal','slow']);
+  if (own(p,'appearance')) enumeration(p.appearance,`${path}.appearance`,spec.drive?['classic','soft-v2']:p.kind==='swipe-album'?['classic','album-soft-v2']:p.kind==='foldout-letter'?['classic','paper-fold-v2','paper-fold-soft-v3']:p.kind==='scratch-ticket'?['classic','scratch-progress-v1','scratch-progress-soft-v2']:['classic','cake-overlay-v1','cake-photo-v2']);
   if (spec.prediction) {
     for (const [key, max] of Object.entries(predictionFields)) {
       string(p[key], `${path}.${key}`, max);
@@ -74,15 +77,17 @@ function validateInteraction(p, path, assets, publishing) {
       fail(`${path}.optionB`, 'Hai lựa chọn cần khác nhau sau khi bỏ khoảng trắng thừa.', 'PREDICTION_DUPLICATE_CHOICES');
   }
   if (spec.fields) {
+    const requiredContent=publishing&&!(spec.video&&p.optional&&p.videoAssetId===null);
     array(p.entries, `${path}.entries`, spec.fields.length);
     if (p.entries.length !== spec.fields.length) fail(`${path}.entries`, 'Thiếu vùng nội dung tương tác.');
     for (const [i, entry] of p.entries.entries()) {
       const fields = spec.fields[i].length === 2 ? ['heading', 'body'] : ['heading'];
       const q = `${path}.entries.${i}`;
       object(entry, q, fields, fields);
-      string(entry.heading, `${q}.heading`, 120, publishing ? 1 : 0);
-      if (fields.includes('body')) string(entry.body, `${q}.body`, LIMITS.text, publishing ? 1 : 0);
-      if (publishing) for (const [index, field] of fields.entries())
+      string(entry.heading, `${q}.heading`, 120, requiredContent ? 1 : 0);
+      if (fields.includes('body')) string(entry.body, `${q}.body`, LIMITS.text, requiredContent&&!spec.video ? 1 : 0);
+      if (requiredContent) for (const [index, field] of fields.entries())
+        if(!(spec.video&&field==='body'))
         if (!entry[field].trim()) fail(`${q}.${field}`, `Nhập ${spec.fields[i][index].toLowerCase()} cho ${spec.label}.`, 'INTERACTION_CONTENT_REQUIRED');
     }
   }
@@ -193,7 +198,8 @@ export function validateDocument(document, { mode = 'draft', requiredBindings = 
       fail(`${p}.value`, 'Nội dung bắt buộc chưa được nhập.', 'BINDING_REQUIRED');
   }
   array(document.assets, 'assets', LIMITS.assets); const assets = new Set();
-  for (const [i, a] of document.assets.entries()) { const p = `assets.${i}`; object(a, p, ['assetId', 'kind'], ['assetId', 'kind']); id(a.assetId, `${p}.assetId`); enumeration(a.kind, `${p}.kind`, document.schemaVersion >= 3 ? ['image','audio'] : ['image']); if (assets.has(a.assetId)) fail(p, 'Asset trùng ID.'); assets.add(a.assetId); }
+  for (const [i, a] of document.assets.entries()) { const p = `assets.${i}`; object(a, p, ['assetId', 'kind'], ['assetId', 'kind']); id(a.assetId, `${p}.assetId`); enumeration(a.kind, `${p}.kind`, document.schemaVersion >= 3 ? ['image','audio','video'] : ['image']); if (assets.has(a.assetId)) fail(p, 'Asset trùng ID.'); assets.add(a.assetId); }
+  const videoAssets=new Set(document.assets.filter(a=>a.kind==='video').map(a=>a.assetId));
   const imageAssets = new Set(document.assets.filter(a=>a.kind==='image').map(a=>a.assetId));
   array(document.scenes, 'scenes', LIMITS.scenes); array(document.elements, 'elements', LIMITS.elements);
   if (!document.scenes.length) fail('scenes', 'Cần ít nhất một cảnh.');
@@ -236,7 +242,7 @@ export function validateDocument(document, { mode = 'draft', requiredBindings = 
     number(e.layout.rotation, `${p}.layout.rotation`, -360, 360);
     const propKeys = e.type === 'text' ? ['text', 'textBinding', 'fontToken', 'fontSize', 'align', 'color', 'lineHeight', 'dropCap', 'fontStyle', 'fontWeight'] : registry[e.type].inspector;
     object(e.props, `${p}.props`, propKeys);
-    if (e.type === 'interaction') validateInteraction(e.props, `${p}.props`, imageAssets, mode === 'publish');
+    if (e.type === 'interaction') validateInteraction(e.props, `${p}.props`, imageAssets, mode === 'publish', videoAssets);
     for (const [k, v] of e.type === 'interaction' ? [] : Object.entries(e.props)) {
       const q = `${p}.props.${k}`;
       if (['text', 'label', 'title', 'submitLabel'].includes(k)) string(v, q, k === 'text' ? LIMITS.text : 120);
@@ -258,6 +264,8 @@ export function validateDocument(document, { mode = 'draft', requiredBindings = 
       else if (k === 'pattern') { if (!e.artwork) enumeration(v, q, Object.keys(lines)); else id(v, q); }
       else if (k === 'align') enumeration(v, q, ['left', 'center', 'right']);
       else if (['color','strokeColor','paperColor','sealColor'].includes(k)) color(v, q);
+      else if(k==='cornerRadius')number(v,q,0,48);
+      else if(k==='motionSpeed')enumeration(v,q,['fast','normal','slow']);
       else if (k === 'radius') number(v, q, 0, 512);
       else if (k === 'strokeWidth') number(v, q, 0, 40);
       else if (k === 'kind') { if (!e.artwork) enumeration(v, q, ['rectangle', 'ellipse', 'line', ...Object.keys(shapes)]); else id(v, q); }
@@ -265,8 +273,8 @@ export function validateDocument(document, { mode = 'draft', requiredBindings = 
       else if (k === 'focalPoint') { object(v, q, ['x', 'y'], ['x', 'y']); number(v.x, `${q}.x`, 0, 1); number(v.y, `${q}.y`, 0, 1); }
       else if (k === 'assetId') { if (v === null && (mode === 'draft' || e.props.optional)) continue; id(v, q); if (!imageAssets.has(v)) fail(q, 'Ảnh chưa được khai báo.', 'ASSET_REFERENCE'); }
       else if (k === 'stickerId') { if (!e.artwork) enumeration(v, q, Object.keys(STICKERS)); else id(v, q); }
-      else if(k==='appearance')enumeration(v,q,['garden','paper-v1']);
-      else if (k === 'preset') enumeration(v, q, e.type === 'envelope' ? ['classic','compact-v2','photo-caption-v3','garden-gate-v1','botanical-gate-v2','wax-letter-v1'] : ['classic','lid-card-v1']);
+      else if(k==='appearance')enumeration(v,q,['garden','paper-v1','garden-soft-v2','paper-soft-v2']);
+      else if (k === 'preset') enumeration(v, q, e.type === 'envelope' ? ['classic','compact-v2','photo-caption-v3','garden-gate-v1','botanical-gate-v2','wax-letter-v1','wax-letter-v2'] : ['classic','lid-card-v1','lid-card-v2']);
     }
     if (e.type === 'text' && !own(e.props, 'text') && !own(e.props, 'textBinding')) fail(`${p}.props`, 'Văn bản cần literal hoặc binding.');
     if (e.type === 'text' && own(e.props, 'text') && own(e.props, 'textBinding')) fail(`${p}.props`, 'Chỉ chọn literal hoặc binding.');
@@ -313,7 +321,7 @@ export function validateDocument(document, { mode = 'draft', requiredBindings = 
 }
 
 export function imageAssetIds(document) { return [...new Set(document.elements.flatMap(photoSlots).map(photo => photo.assetId).filter(Boolean))]; }
-export function assetIds(document) { return [...new Set([...imageAssetIds(document),...document.elements.filter(e=>e.sound?.kind==='audio').map(e=>e.sound.assetId)])]; }
+export function assetIds(document) { return [...new Set([...imageAssetIds(document),...document.elements.filter(e=>e.type==='interaction'&&e.props.kind==='local-video'&&e.props.videoAssetId).map(e=>e.props.videoAssetId),...document.elements.filter(e=>e.sound?.kind==='audio').map(e=>e.sound.assetId)])]; }
 
 export function duplicateDocument(document, { idFactory = () => globalThis.crypto.randomUUID() } = {}) {
   const result = validateDocument(document); const ids = new Map();

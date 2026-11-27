@@ -1,4 +1,5 @@
 import { openMeDocument } from './open-me-document.js';
+import { polishDriveDocument } from './drive-polish.js';
 import { driveBlockModels } from './drive-elements.js';
 import { pinDocumentArtwork } from './library-materialize.js';
 
@@ -93,5 +94,5 @@ export function createDriveTemplate(id,localize){
  }
  h.music(id==='secret-santa-invitation'?'christmas':'general');
  for(const e of doc.elements)if(e.name.startsWith(`templates.${id}.layer.`))e.name=(e.props.textBinding?localize('editor.binding.'+e.props.textBinding):e.props.text||e.accessibility.label||e.props.title||localize('editor.element.'+e.type)).slice(0,100);
- return pinDocumentArtwork(doc);
+ return pinDocumentArtwork(polishDriveDocument(doc,id,p,localize));
 }

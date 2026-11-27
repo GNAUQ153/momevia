@@ -1,3 +1,5 @@
+import {applySoftAppearance} from './soft-appearance.js';
+import {renderLocalVideo} from './local-video.js';
 import { renderDriveInteraction } from './drive-interactions.js';
 import { mountProgressScratch } from './scratch-progress.js';
 import { CANDLE_SKINS } from '../../shared/canvas/candle-skins.js';
@@ -14,12 +16,13 @@ function node(tag, css, text) {
   return element;
 }
 
-export function renderInteraction(model, { mode, signal, motion, bindings, renderPhoto, renderArt, activate, document, invitation }) {
-  if(interactionKinds[model.props.kind]?.drive)return renderDriveInteraction(model,{mode,signal,motion,renderPhoto,document,invitation});
+export function renderInteraction(model, { mode, signal, motion, bindings, renderPhoto, renderArt, activate, document, invitation,videoUrl }) {
+  if(model.props.kind==='local-video')return renderLocalVideo(model,{mode,signal,url:videoUrl});
+  if(interactionKinds[model.props.kind]?.drive)return renderDriveInteraction(model,{mode,signal,motion,renderPhoto,document,invitation,activate});
   const { kind, color, entries, photos, eventAt, timeZone } = model.props;
   const spec = interactionKinds[kind];
   const root = node("section", `gift-runtime-interaction gift-runtime-${kind}`);
-  root.style.backgroundColor = color;
+  root.style.backgroundColor = color;applySoftAppearance(root,model.props);
   setAttr(root, "aria-label", label(`gift.interactions.kind.${kind}`));
   if (kind === 'event-countdown' && model.props.clockMode === 'elapsed') setAttr(root, 'aria-label', label('templates.story.elapsed'));
   const live = mode === "preview" || mode === "public";
@@ -128,7 +131,7 @@ export function renderInteraction(model, { mode, signal, motion, bindings, rende
       bypass.setAttribute("aria-disabled", "true");
     };
     const bypass = button(label("gift.interactions.openNow"), reveal);
-    if (live && model.props.appearance === 'scratch-progress-v1') {
+    if (live && ['scratch-progress-v1','scratch-progress-soft-v2'].includes(model.props.appearance)) {
       root.append(covered, bypass);
       progressScratch = mountProgressScratch({ root, scratch, cover, message, bypass, color, signal, motion });
     } else if (live) {
@@ -166,7 +169,7 @@ export function renderInteraction(model, { mode, signal, motion, bindings, rende
     }
     if (!progressScratch) root.append(covered, bypass);
   } else if (kind === "foldout-letter") {
-    if(model.props.appearance==='paper-fold-v2'){root.classList.add('gift-paper-fold-v2');root.style.setProperty('--gift-letter-paper',color); }
+    if(['paper-fold-v2','paper-fold-soft-v3'].includes(model.props.appearance)){root.classList.add('gift-paper-fold-v2');root.style.setProperty('--gift-letter-paper',color); }
     for (const [index, entry] of entries.entries()) {
       const fold = node(live ? "details" : "div", "gift-letter-fold");
       const label = node(live ? "summary" : "span", "", entry.heading);

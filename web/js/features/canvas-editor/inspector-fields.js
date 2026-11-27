@@ -16,9 +16,14 @@ export function buildInspectorPropertyFields(element) {
   const { props } = element;
   const fields = [];
   for (const key of element.type === "interaction" ? [] : registry[element.type].inspector) {
-    if(['sealColor','paperColor'].includes(key)&&props.preset!=='wax-letter-v1')continue;
+    if(['sealColor','paperColor'].includes(key)&&!props.preset?.startsWith('wax-letter'))continue;
+    if(['cornerRadius','motionSpeed'].includes(key)&&!Object.hasOwn(props,key)&&!['lid-card-v2','wax-letter-v2'].includes(props.preset)&&!['paper-soft-v2','garden-soft-v2'].includes(props.appearance))continue;
+    if(['cornerRadius','motionSpeed'].includes(key)&&['envelope','gift-box'].includes(element.type)&&!['lid-card-v2','wax-letter-v2'].includes(props.preset))continue;
+    if(key==='cornerRadius'&&element.type==='reply'&&!['paper-soft-v2','garden-soft-v2'].includes(props.appearance))continue;
     if(element.assembly && key!=='color')continue;
     if (dedicatedInspectorProperties.includes(key)) continue;
+    if(key==='cornerRadius'){fields.push(input(message('soft.radius'),'props.cornerRadius',props.cornerRadius??24,{type:'number',min:0,max:48}));continue;}
+    if(key==='motionSpeed'){fields.push(select(message('soft.speed'),'props.motionSpeed',props.motionSpeed||'normal',[['fast',message('soft.fast')],['normal',message('soft.normal')],['slow',message('soft.slow')]]));continue;}
     if (["color", "strokeColor", "sealColor", "paperColor"].includes(key)) {
       const colorControl = node('input', { type: 'color', 'data-editor-field': `props.${key}`, value: props[key] || '#514463' });
       fields.push(field(message(key === "color" ? "editor.interface.color" : key==='sealColor'?'drive.sealColor':key==='paperColor'?'drive.paperColor':"editor.interface.stroke"), colorControl));
@@ -48,8 +53,8 @@ export function buildInspectorPropertyFields(element) {
     } else if (key === "mask" && props.mask) {
       fields.push(select(message("editor.interface.imageMask"), "props.mask", props.mask,
         artworkChoices("mask", Object.keys(masks).map((id, i) => [id, message(`editor.interface.mask.${["round", "arch", "heart", "torn"][i]}`)]), currentLocale())));
-     } else if(key==='preset'&&['lid-card-v1','wax-letter-v1'].includes(props.preset)) {
-      fields.push(select(message('drive.openingStyle'),'props.preset',props.preset,element.type==='gift-box'?[['lid-card-v1',message('drive.block.santa-gift-box')],['classic',message('interactive.foldClassic')]]:[['wax-letter-v1',message('drive.block.soiree-envelope')],['classic',message('interactive.foldClassic')]]));
+     } else if(key==='preset'&&['lid-card-v1','wax-letter-v1','lid-card-v2','wax-letter-v2'].includes(props.preset)) {
+      fields.push(select(message('drive.openingStyle'),'props.preset',props.preset,element.type==='gift-box'?[['lid-card-v2',message('soft.soft')],['lid-card-v1',message('drive.block.santa-gift-box')],['classic',message('interactive.foldClassic')]]:[['wax-letter-v2',message('soft.soft')],['wax-letter-v1',message('drive.block.soiree-envelope')],['classic',message('interactive.foldClassic')]]));
     } else if (key === "caption" && Object.hasOwn(props, key)) {
       fields.push(field(message("editor.interface.caption"), node("textarea", {
         "data-editor-field": "props.caption", maxlength: LIMITS.text, rows: 3,
@@ -60,7 +65,7 @@ export function buildInspectorPropertyFields(element) {
     } else if(key==='replyMode'&&element.type==='reply'&&props.replyMode!=='attendance'){
       fields.push(select(message('drive.replyStyle'),'props.replyMode',props.replyMode||'classic',[['classic',message('drive.replyClassic')],['message',message('drive.replyFolded')]]));
     } else if(key==='appearance'&&element.type==='reply'&&props.replyMode==='attendance'){
-      fields.push(select(message('drive.rsvpStyle'),'props.appearance',props.appearance||'garden',[['garden',message('drive.rsvpGarden')],['paper-v1',message('drive.rsvpPaper')]]));
+      fields.push(select(message('drive.rsvpStyle'),'props.appearance',props.appearance||'garden',[['garden',message('drive.rsvpGarden')],['paper-v1',message('drive.rsvpPaper')],['garden-soft-v2',message('soft.gardenRsvp')],['paper-soft-v2',message('soft.paperRsvp')]]));
     } else if (key === "variant") {
       fields.push(select(message('editor.buttonVariant.label'),'props.variant',props.variant||'filled',[
         ['filled',message('editor.buttonVariant.filled')],['text',message('editor.buttonVariant.text')],

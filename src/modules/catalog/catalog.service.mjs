@@ -1,3 +1,4 @@
+import { signatureTemplateDefinition } from '../../../web/js/shared/canvas/signature/templates.js';
 import { ORIGINAL_IDS, originalDefinition } from '../../../web/js/shared/canvas/originals-data.js';
 import { librarySnapshot } from '../../../web/js/shared/canvas/library-state.js';
 import { randomUUID } from 'node:crypto';
@@ -28,6 +29,11 @@ export function publicTemplate(template) {
   if (template.creatorId === 'system' && template.creator === 'Momevia Originals' && !template.versionId && !template.creatorDesignId)
     view.systemOwned = true;
   view.cardType = view.systemOwned ? systemCardType(template.id) : 'unspecified';
+  if (view.systemOwned && signatureTemplateDefinition(template.id)) {
+    view.coverRevision = 'signature-qa-v1';
+    // Không suy đoán bảng màu thực tế từ theme Classic.
+    delete view.palette; delete view.paletteLabel; delete view.paletteColors;
+  }
   if (view.systemOwned && librarySnapshot()?.items.some(row=>row.kind==='template'&&row.id===template.id&&row.status==='active')) view.coverRevision=librarySnapshot().revision;
   if (template.versionId) {
     view.versionId = template.versionId;
@@ -40,15 +46,20 @@ export function publicTemplate(template) {
     const document = createDocument({ template });
     const albumSlots = document.elements.filter(e => e.type === 'interaction' && e.props.kind === 'swipe-album' && e.props.optional)
       .reduce((count, e) => count + e.props.photos.length, 0);
-    view.personalization = { bindings: [...visibleBindingKeys(document)], photoFrames: document.elements.filter(isPhotoFrame).length + albumSlots, layout: true };
+    const photoFrames = signatureTemplateDefinition(template.id)
+      ? document.elements.filter(e => e.type === 'image' && e.props.optional).length
+      : document.elements.filter(isPhotoFrame).length + albumSlots;
+    view.personalization = { bindings: [...visibleBindingKeys(document)], photoFrames, layout: true };
   }
   return view;
 }
 
 export class CatalogService {
-  constructor(repository, favorites) { this.repo = repository; this.favorites = favorites; }
+  constructor(repository, favorites, { signatureQa = false } = {}) { this.repo = repository; this.favorites = favorites; this.signatureQa = signatureQa; }
 
   async isPublic(template) {
+    // Kể cả khi vô tình sao chép JSON demo, mẫu Signature không được quảng bá ở production.
+    if (signatureTemplateDefinition(template?.id) && (!this.signatureQa || template.creatorId !== 'system')) return false;
     if (template?.creatorId==='system' && librarySnapshot() && librarySnapshot().items.some(r=>r.kind==='template'&&r.id===template.id&&r.status!=='active')) return false;
     if (['loi-moi-ben-hien','cuon-phim-ngay-ay','ban-do-ngay-ra-truong', ...ORIGINAL_IDS].includes(template?.id) && librarySnapshot() && !librarySnapshot().items.some(r=>r.kind==='template'&&r.id===template.id&&r.status==='active')) return false;
     return template?.status === 'published' && (!template.creatorDesignId || Boolean(template.versionId && await this.creatorTemplates.canCreate(template.creatorId)));

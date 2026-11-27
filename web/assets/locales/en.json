@@ -3710,5 +3710,17 @@
   "signature.templates.layer.graduation-countdown.1": "Calendar paper",
   "signature.templates.layer.graduation-countdown.2": "Calendar grid",
   "signature.templates.layer.graduation-countdown.3": "Peel sticker",
-  "signature.templates.layer.graduation-countdown.4": "Disco ball"
+  "signature.templates.layer.graduation-countdown.4": "Disco ball",
+  "templates.signature-secret-santa.title": "Secret Santa",
+  "templates.signature-secret-santa.subtitle": "Signature · Local review template (QA)",
+  "templates.signature-midnight-soiree.title": "Midnight Soirée",
+  "templates.signature-midnight-soiree.subtitle": "Signature · Local review template (QA)",
+  "templates.signature-garden-tea.title": "Garden Tea",
+  "templates.signature-garden-tea.subtitle": "Signature · Local review template (QA)",
+  "templates.signature-last-chapter.title": "The Last Chapter V2",
+  "templates.signature-last-chapter.subtitle": "Signature · Local review template (QA)",
+  "templates.signature-graduation-mixtape.title": "Graduation Mixtape",
+  "templates.signature-graduation-mixtape.subtitle": "Signature · Local review template (QA)",
+  "templates.signature-graduation-countdown.title": "Graduation Countdown",
+  "templates.signature-graduation-countdown.subtitle": "Signature · Local review template (QA)"
 }

@@ -3,7 +3,10 @@ import { pathToFileURL } from 'node:url';
 import { demoStorage } from './web-demo-config.mjs';
 
 // Load after a stopped-writer cutover even when an older watch launcher is alive.
-Object.assign(process.env, demoStorage(path.resolve('..')).env);
+const storage = demoStorage(path.resolve('..'));
+if (process.env.MOMEVIA_SIGNATURE_QA === 'true' && storage.mode !== 'json')
+  throw new Error('Signature QA không kết nối MySQL.');
+Object.assign(process.env, storage.env);
 
 // Run code from the isolated profile, not from the developer's live data.
 const { createHttpApp } = await import(pathToFileURL(path.resolve('src/server/app.mjs')));

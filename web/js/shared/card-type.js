@@ -1,3 +1,4 @@
+import { signatureTemplateDefinition } from './canvas/signature/templates.js';
 import { originalDefinition } from './canvas/originals-data.js';
 // Loại thiệp khác với dịp sử dụng; không suy đoán từ tên hoặc danh mục.
 export const CARD_TYPES = Object.freeze(['invitation', 'greeting', 'unspecified']);
@@ -15,6 +16,7 @@ const greetingIds = new Set([
 
 // Chỉ phân loại tự động các mẫu hệ thống đã rà soát, không gán loại cho Creator.
 export function systemCardType(id) {
+  if (signatureTemplateDefinition(id)) return 'invitation';
   const original = originalDefinition(id);
   if (original) return original.cardType;
   if (invitationIds.has(id)) return 'invitation';

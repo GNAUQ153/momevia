@@ -1,3 +1,9 @@
+## Unreleased — Signature S5A Local Review (2026-11-27)
+
+- Cho phép xem và tạo nháp sáu mẫu Signature trong Catalog profile demo JSON riêng qua `--signature`; giữ production mặc định tắt.
+- Nạp ảnh cover từ Canvas renderer theo quyền đọc Catalog, bổ sung metadata VI/EN và slot sự kiện cho Sender.
+- Không chèn mẫu vào seed thương mại hoặc MySQL; chưa khôi phục animation đặc trưng.
+
 ## Unreleased — Signature S4 (2026-11-27)
 
 - Tạo sáu Canvas template nghiệm thu nội bộ VI/EN với artwork Signature riêng, bốn cảnh và slot sự kiện, ảnh tùy chọn.

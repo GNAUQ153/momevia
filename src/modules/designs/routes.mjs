@@ -1,3 +1,5 @@
+import { signatureTemplateDefinition } from '../../../web/js/shared/canvas/signature/templates.js';
+import { previewSvg } from '../../../web/js/shared/canvas/cover-svg.js';
 import { createDocument,templatePreviewDocument } from '../../../web/js/shared/canvas/presets.js';
 import { serverText } from '../../shared/locale.mjs';
 import { RESTYLE_PAIRS } from '../../../web/js/shared/canvas/template-slots.js';
@@ -57,7 +59,13 @@ export function registerDesignRoutes(router, { service, assets, resolveUser, con
   });
   router.on('GET', '/library/templates/:id/cover', async ({ res, params, url }) => {
     const width = coverThumbnailWidth(url.searchParams.get('width'));
-    const svg = await service.library.cover(params.id, url.searchParams.get('locale') === 'en' ? 'en' : 'vi', url.searchParams.get('variant'));
+    const locale = url.searchParams.get('locale') === 'en' ? 'en' : 'vi';
+    let svg;
+    if (signatureTemplateDefinition(params.id)) {
+      // Dùng cùng quyền đọc Catalog; không mở đường dẫn cover khi QA đã tắt.
+      const template = await service.catalog.getTemplate(params.id);
+      svg = previewSvg(templatePreviewDocument(template, (key, values) => serverText(locale, key, values)));
+    } else svg = await service.library.cover(params.id, locale, url.searchParams.get('variant'));
     if (width) {
       const bytes = await coverThumbnail(svg, width);
       res.writeHead(200, { 'content-type': 'image/webp', 'content-length': bytes.length, 'cache-control': 'no-store', 'x-content-type-options': 'nosniff' });

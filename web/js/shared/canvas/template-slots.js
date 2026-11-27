@@ -1,10 +1,11 @@
+import { signatureTemplateIds } from './signature/templates.js';
 import { ORIGINAL_IDS } from './originals-data.js';
 // Semantic role IDs are independent of locale, scene order, position and name.
 import {EVENT_ARTWORK_LABEL,ORIGINAL_ARTWORK_LABEL,REALISTIC_ARTWORK_LABEL,NATURAL_ARTWORK_LABEL} from './event-media.js';
 import {canonicalStringify} from './schema.js';
 // This pilot opens only the two birthday paper compositions with the same graph.
 export {RESTYLE_PAIRS} from './restyle-pairs.js';
-export const SEMANTIC_TEMPLATE_IDS=['sunny-wishes','confetti','hai-phong-bi','birthday-radiance','proud-of-you','loi-moi-ben-hien','cuon-phim-ngay-ay','ban-do-ngay-ra-truong', ...ORIGINAL_IDS];
+export const SEMANTIC_TEMPLATE_IDS=['sunny-wishes','confetti','hai-phong-bi','birthday-radiance','proud-of-you','loi-moi-ben-hien','cuon-phim-ngay-ay','ban-do-ngay-ra-truong', ...ORIGINAL_IDS, ...signatureTemplateIds];
 export function captureSemanticRoles(doc, previous = {}, remap = new Map()) {
  const inverse=new Map(Object.entries(previous).map(([role,id])=>[id,role]));
  return Object.fromEntries(doc.elements.map(e=>[inverse.get(e.id)||e.id,remap.get(e.id)||e.id]));

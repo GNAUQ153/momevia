@@ -3697,5 +3697,17 @@
   "signature.templates.layer.graduation-countdown.1": "Giấy lịch",
   "signature.templates.layer.graduation-countdown.2": "Lưới lịch",
   "signature.templates.layer.graduation-countdown.3": "Sticker lịch",
-  "signature.templates.layer.graduation-countdown.4": "Quả cầu disco"
+  "signature.templates.layer.graduation-countdown.4": "Quả cầu disco",
+  "templates.signature-secret-santa.title": "Secret Santa",
+  "templates.signature-secret-santa.subtitle": "Signature · Mẫu đang nghiệm thu local (QA)",
+  "templates.signature-midnight-soiree.title": "Midnight Soirée",
+  "templates.signature-midnight-soiree.subtitle": "Signature · Mẫu đang nghiệm thu local (QA)",
+  "templates.signature-garden-tea.title": "Garden Tea",
+  "templates.signature-garden-tea.subtitle": "Signature · Mẫu đang nghiệm thu local (QA)",
+  "templates.signature-last-chapter.title": "The Last Chapter V2",
+  "templates.signature-last-chapter.subtitle": "Signature · Mẫu đang nghiệm thu local (QA)",
+  "templates.signature-graduation-mixtape.title": "Graduation Mixtape",
+  "templates.signature-graduation-mixtape.subtitle": "Signature · Mẫu đang nghiệm thu local (QA)",
+  "templates.signature-graduation-countdown.title": "Graduation Countdown",
+  "templates.signature-graduation-countdown.subtitle": "Signature · Mẫu đang nghiệm thu local (QA)"
 }

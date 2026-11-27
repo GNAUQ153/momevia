@@ -91,19 +91,18 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Thêm 16 mẫu Canvas gốc VI/EN, 4 scene tương tác, artwork SVG và khung ảnh cá nhân hóa; giữ nguyên 28 mẫu cũ.
-- Thêm dữ liệu thư viện thiếu theo giao dịch, không ghi đè bản sửa Admin; giá mẫu mới mặc định 0 VND để nghiệm thu.
-- Bổ sung đếm ngược, bản đồ và lịch sự kiện theo thông tin công khai đã xác thực; tạm dừng nhạc khi phát bản ghi cá nhân.
-- Không thêm dependency hoặc migration.
+- Đăng ký sáu cụm artwork Signature vào thư viện Elements, hỗ trợ chèn 34 layer độc lập và tìm kiếm VI/EN.
+- Bổ sung các mục thiếu trong MySQL theo giao dịch, giữ nguyên chỉnh sửa và trạng thái Admin; không tạo template công khai hoặc migration mới.
+- Cập nhật kiểm thử số lượng Elements, giữ nguyên 293 mục cũ.
 
 **Các commit gần nhất trên `main`:**
 
+- `adb1872` — feat(signature): register six editable artwork collections in canvas library (2026-11-27)
 - `7292608` — feat(signature): introduce independent editable vector artwork (2026-11-27)
 - `f19e37f` — feat(templates): introduce 16 editable interactive Momevia Originals (2026-11-27)
 - `ec93b5a` — feat(ui): refine authentication aurora layout and accessible 3D motion (2026-11-27)
 - `5e19e91` — test(ui): add catalog business and responsive acceptance coverage (2026-11-27)
 - `43c9294` — perf(ui): defer seasonal and creator catalog cover loading (2026-11-27)
-- `e42575f` — fix(ui): isolate preview price marker from hero trigger contract (2026-11-27)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

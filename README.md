@@ -91,18 +91,18 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Thêm điều khiển tạm dừng và tiếp tục Hero Carousel trên desktop; giữ chọn mẫu thủ công trên mobile và hỗ trợ bàn phím, VI/EN, reduced motion.
-- CTA nổi nhường chỗ cho CTA sau khi mở quà và trong hiệu ứng dựng trang chủ. Giữ cơ chế animation, phân quyền và nghiệp vụ hiện có.
-- Cập nhật kiểm thử Hero Carousel và CTA; không thêm dependency hoặc migration.
+- Tạm ẩn Floating CTA khi nhập liệu trên thiết bị cảm ứng.
+- Hạn chế đo DOM khi không cần kiểm tra va chạm.
+- Bảo toàn Home Construction, Hero Carousel và reduced motion.
 
 **Các commit gần nhất trên `main`:**
 
+- `36b50a5` — perf(ui): optimize floating CTA viewport awareness and DOM measurement (2026-11-27)
 - `673d677` — feat(ui): add accessible hero carousel playback and contextual floating CTA (2026-11-27)
 - `06bf1f4` — fix(ci): align hero motion and journey swipe regression contracts (2026-11-27)
 - `a126199` — perf(ui): optimize mobile motion and journey touch interactions (2026-11-27)
 - `954155f` — Merge pull request #31 from GNAUQ153:feat/homepage-cursor-construction (2026-11-27)
 - `5dd6c55` — feat(ui): introduce contextual gift showcase CTA and shared creation dialog (2026-11-27)
-- `af9c0ef` — feat(ui): introduce interactive gift opening showcase and replay (2026-11-27)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

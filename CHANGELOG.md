@@ -78,6 +78,18 @@
 
 - Gom chuyển đổi thời gian UTC vào tầng Infrastructure, giảm phụ thuộc Repository vào Identity; giữ export tương thích, hành vi null và lỗi hiện tại. Không đổi SQL, schema, API hoặc giao diện.
 
+## Unreleased — Tách và hợp con trỏ dựng trang chủ (2026-11-27)
+
+- Các con trỏ ảo tách ra từ vị trí chuột khi bắt đầu dựng trang; sau khi hết phần tử và nội dung đang tải, trang cuộn lên đầu rồi các con trỏ hội tụ về vị trí chuột hiện tại.
+- Giữ cơ chế chia việc cho 15 con trỏ, hủy hiệu ứng theo vòng đời trang và tùy chọn giảm chuyển động; kiểm thử hội tụ khi chuột di chuyển và hủy giữa chừng.
+
+## Unreleased — Hiệu ứng con trỏ dựng trang chủ (2026-11-26)
+
+- Thêm 15 con trỏ dựng từng phần tử trên trang chủ, nhận việc từ hàng đợi chung theo vùng hiển thị và cập nhật khi đổi kích thước cửa sổ hoặc tải xong danh mục.
+- Giữ chuyển động liên tục giữa các phần tử và khu vực; tự cuộn để mở thêm nội dung rồi quay lại đầu trang khi hoàn tất. Tạm dừng vòng quay thiệp và carousel trong lượt dựng.
+- Hỗ trợ giảm chuyển động, tiết kiệm dữ liệu và dọn animation khi rời trang; bổ sung kiểm thử phân việc, phụ thuộc khung cha, nhiều khu vực cùng hiển thị, resize và hủy route.
+
+
 ## Unreleased — Khôi phục giao diện Auth tối từ d36c664 (2026-11-26)
 
 - Khôi phục nguyên stylesheet Auth tại `d36c664` cho nền tím–mận có lưới, thẻ kính, chữ sáng và nút gradient hồng–tím của Login/Register, gồm logo Zalo nội bộ đã có.

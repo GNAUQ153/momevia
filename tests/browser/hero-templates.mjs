@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { waitForHomeConstruction } from './home-construction.mjs';
 
 export async function runHeroTemplatesBrowser(browser,base) {
   for(const language of ['vi','en']) {
@@ -46,6 +47,7 @@ export async function runHeroMotionBrowser(browser,base) {
   try {
     const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto(base);
     const cover=page.locator('.mkt-hero__cover');await cover.waitFor();
+    await waitForHomeConstruction(page);
     const mesh = page.locator('.mkt-stage__atmosphere');
     const meshStyle = () => mesh.evaluate(node => {
       const style = node.ownerDocument.defaultView.getComputedStyle(node, '::before');

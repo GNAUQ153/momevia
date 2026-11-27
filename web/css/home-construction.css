@@ -1,0 +1,95 @@
+/* Temporary collaborators draw the homepage; they never intercept real input. */
+.is-home #main[data-home-construction][data-mkt-motion-ready] [data-mkt-reveal] {
+  opacity: 1;
+  transform: none;
+  transition: none;
+}
+
+.is-home #main[data-home-construction] .mkt-hero[data-enter] :is(.mkt-hero__intro, .mkt-hero__frame) {
+  animation: none;
+}
+
+.is-home #main[data-home-construction-running] .template-card--home {
+  animation: none;
+}
+
+.is-home-constructing .home-construction-pending {
+  opacity: 0 !important;
+  pointer-events: none;
+}
+
+.is-home-constructing .floating-cta {
+  visibility: hidden;
+}
+
+.home-construction {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+  contain: strict;
+}
+
+.home-construction * {
+  pointer-events: none;
+}
+
+.home-construction__worker {
+  position: absolute;
+  inset: 0;
+}
+
+.home-construction__selection {
+  position: absolute;
+  border: 1px solid var(--construction-color);
+  background: transparent;
+}
+
+.home-construction__selection i {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border: 1px solid var(--construction-color);
+  background: #fff;
+}
+
+.home-construction__selection i:nth-child(1) {
+  top: -3px;
+  left: -3px;
+}
+
+.home-construction__selection i:nth-child(2) {
+  top: -3px;
+  right: -3px;
+}
+
+.home-construction__selection i:nth-child(3) {
+  right: -3px;
+  bottom: -3px;
+}
+
+.home-construction__selection i:nth-child(4) {
+  bottom: -3px;
+  left: -3px;
+}
+
+.home-construction__cursor {
+  position: absolute;
+  top: 0;
+  left: 0;
+  color: var(--construction-color);
+  filter: drop-shadow(0 2px 2px #22213726);
+}
+
+.home-construction__cursor svg {
+  display: block;
+  overflow: visible;
+}
+
+@media (prefers-reduced-motion: reduce), (prefers-reduced-data: reduce) {
+  .home-construction {
+    display: none;
+  }
+}

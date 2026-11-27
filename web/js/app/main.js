@@ -27,6 +27,7 @@ import { createModalIsolation, skipToMain } from '../ui/accessibility.js';
 import { createLayout } from "../ui/layout.js";
 import { createHomeViews, homeDemo, selectHomeDemos } from "../pages/home.js";
 import { mountMarketingMotion } from "../features/marketing/scene-motion.js";
+import { mountHomeConstruction } from '../features/marketing/home-construction.js';
 import { mountHeroTemplates, mountHomeChoices } from "../features/marketing/hero-templates.js";
 import { mountFeaturedCarousel } from '../features/marketing/featured-carousel.js';
 import { mountTemplatePreview } from "../features/catalog/template-preview.js";
@@ -328,6 +329,7 @@ function mountHome() {
     sheen.play();
   }, { signal });
   const disposeMarketingMotion = mountMarketingMotion(main, { signal });
+  const construction = mountHomeConstruction(main, { signal, catalogPending: true });
   const rotation = mountHeroTemplates(main, selectHomeDemos(state.templates));
   const disposeChoices = mountHomeChoices(main);
   const preview = mountTemplatePreview(main, homeDemo, { api, onOpen: loadAppFonts, getTemplate: () => rotation.template });
@@ -336,6 +338,7 @@ function mountHome() {
   function showFeatured(status){
     featuredCarousel?.dispose();featured.innerHTML=featuredGifts(status);
     featuredCarousel=status==='ready'?mountFeaturedCarousel(featured):null;
+    construction.refresh({ catalogReady: status !== 'loading' });
   }
   async function loadFeatured() {
     showFeatured('loading');
@@ -378,6 +381,7 @@ function mountHome() {
   return { dispose() {
     lifetime.abort();
     disposeMarketingMotion();
+    construction.dispose();
     rotation.dispose();
     disposeChoices();
     preview.dispose();

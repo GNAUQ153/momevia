@@ -1,3 +1,9 @@
+## Unreleased — Phase 4.4H.2 Marketing Performance Gate (2026-11-27)
+
+- Bổ sung nghiệm thu báo cáo local-lab v2 theo ngân sách p75, kiểm tra đủ dữ liệu VI/EN và viewport.
+- Phát hiện lỗi JavaScript, tràn ngang và cảnh báo suy giảm so với baseline; không thay đổi runtime hoặc database.
+- Bổ sung 13 Unit Test; chưa đo INP và không suy diễn kết quả production từ lab.
+
 ## Unreleased — Phase 4.4H.1 Landing Performance (2026-11-27)
 
 - Tạm ẩn Floating CTA khi nhập liệu trên thiết bị cảm ứng.

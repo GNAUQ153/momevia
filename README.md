@@ -91,18 +91,18 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Chuẩn hóa giao diện xem thử theo token, ưu tiên CTA dùng mẫu, trạng thái tải/lỗi rõ ràng và bố cục responsive.
-- Giữ ghi chú mô phỏng trong suốt phiên xem; đặt lại trạng thái tải và vị trí cuộn khi mở lại, giữ cơ chế hủy request và dispose player.
-- Giữ URL tạo thiệp, phiên bản mẫu, quyền truy cập và runtime hiện có; không thêm dependency hoặc migration.
+- Ưu tiên chiến dịch đang diễn ra, mùa sắp tới, sau đó các mùa đã qua; dữ liệu lịch thiếu không làm lỗi danh mục.
+- Hiển thị nhãn theo mùa, tên dịp, giá thật và số mẫu; đồng bộ VI/EN, token, responsive, focus và reduced motion.
+- Giữ danh sách chính, bộ lọc, quyền sử dụng mẫu và dữ liệu seed; không thêm dependency hoặc migration.
 
 **Các commit gần nhất trên `main`:**
 
+- `a08f2c3` — feat(ui): enhance seasonal collections and holiday discovery (2026-11-27)
 - `5736edf` — feat(ui): improve template preview experience and player lifecycle (2026-11-27)
 - `fb06df1` — feat(ui): introduce accessible catalog card depth and motion (2026-11-27)
 - `2606610` — feat(ui): add accessible active catalog filters and independent removal (2026-11-27)
 - `57813cb` — feat(ui): redesign responsive catalog layout using shared design tokens (2026-11-27)
 - `eaea20d` — feat(performance): add marketing acceptance gate and regression budgets (2026-11-27)
-- `36b50a5` — perf(ui): optimize floating CTA viewport awareness and DOM measurement (2026-11-27)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

@@ -3,6 +3,7 @@ import path from 'node:path';
 import { chromium } from 'playwright';
 import { runHeroTemplatesBrowser } from './hero-templates.mjs';
 import { runFeaturedCarousel } from './featured-carousel.mjs';
+import { runCatalogCardMotion } from './catalog-card-motion.mjs';
 
 const screens = [[1614, 1040], [1440, 900], [1024, 768], [820, 1180], [768, 1024], [390, 844], [320, 740]];
 
@@ -366,6 +367,7 @@ export async function runHomeBrowser(base) {
     await motionPage.close();
     await runHeroTemplatesBrowser(browser, base);
     await runFeaturedCarousel(browser,base);
+    await runCatalogCardMotion(browser, base);
     console.log('PASS Browser home VI/EN: seven viewports, compact section gaps, first-screen actions, preview, Escape and focus, Back and how-it-works, reduced motion.');
   } finally { await browser.close(); }
 }

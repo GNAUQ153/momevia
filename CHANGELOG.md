@@ -1,3 +1,9 @@
+## Unreleased — Phase 4.5C Catalog Card Motion (2026-11-27)
+
+- Hiệu ứng nghiêng CSS 3D chỉ trên artwork khi dùng chuột, giữ nguyên vị trí nút yêu thích, vùng xem mẫu và metadata.
+- Nhãn xem mẫu luôn hiện; tăng vùng chạm yêu thích, giữ focus và tắt chuyển động trên thiết bị cảm ứng hoặc khi giảm chuyển động.
+- Đăng ký CSS trong cả gói đầy đủ và gói Catalog; bổ sung kiểm thử hợp đồng và hồi quy trình duyệt. Không thêm dependency hoặc migration.
+
 ## Unreleased — Phase 4.5B Catalog Active Filters (2026-11-27)
 
 - Hiển thị điều kiện đang áp dụng, xóa từng chip và giữ các điều kiện còn lại; đồng bộ control, URL, focus và phân trang.

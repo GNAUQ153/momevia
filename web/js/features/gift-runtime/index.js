@@ -9,6 +9,7 @@ import { playCelebrations } from './celebrations.js';
 import { createSceneNavigation } from './scene-navigation.js';
 import { createSoundPlayer } from './audio.js';
 import { createSoundtrackPlayback } from './soundtrack.js';
+import { signatureOpening, playSignatureOpening } from './signature-opening.js';
 export { renderElement, applyLayout, resolveText } from "./renderer.js";
 
 export function mountPlayer(
@@ -181,7 +182,7 @@ export function mountPlayer(
   if (mode === 'preview') shell.append(marker, stage, progress, navigation, status);
   else shell.append(stage, status);
   if (hasSound) shell.insertBefore(soundControl,stage);
-  if (document.soundtrack || (document.schemaVersion >= 2 && (document.scenes.some(scene => scene.effects) || document.elements.some(element => element.effects || element.motions))))
+  if (document.soundtrack || document.scenes.some(scene => signatureOpening(document, scene)) || (document.schemaVersion >= 2 && (document.scenes.some(scene => scene.effects) || document.elements.some(element => element.effects || element.motions))))
     shell.insertBefore(toolbar, stage);
   root.replaceChildren(shell);
   const size = document.artboard.baseSize;
@@ -218,6 +219,7 @@ export function mountPlayer(
     stage.style.backgroundColor = scene.background.color;
     applySurface(stage, scene.effects?.surface);
     const nodes = [];
+    const opening = !family ? signatureOpening(document, scene) : null;
     let firstContentPhoto = true;
     // Layer order changes stacking, while document order preserves reading and Tab.
     const sceneIds = new Set(scene.elementIds);
@@ -238,7 +240,12 @@ export function mountPlayer(
         onAction: (actions, react) => {
           const [action] = actions;
           if (action?.type === "replay") requestScene(document.entrySceneId, model.sound ? undefined : react);
-          else if (action?.targetSceneId) requestScene(action.targetSceneId, model.sound ? undefined : react);
+          else if (action?.targetSceneId) {
+            const signature = opening?.controlId === model.id;
+            requestScene(action.targetSceneId, signature
+              ? intentSignal => playSignatureOpening(opening, nodes, motion, AbortSignal.any([signal, intentSignal]))
+              : model.sound ? undefined : react);
+          }
         },
       });
       node.style.zIndex = String(scene.elementIds.indexOf(model.id));

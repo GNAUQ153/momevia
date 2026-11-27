@@ -87,7 +87,7 @@ export function createSignatureTemplate(id, localize = canonicalText) {
     if (element.type === 'image') element.accessibility.alt = t('photo');
     append(cover, element);
   }
-  go(cover, 'open-gift', t('open'), 'scene-event');
+  go(cover, 'open-gift', t(`opening.${p.opening}`), 'scene-event');
 
   const event = scene('scene-event', t('event'), paper);
   frame(event, 'event-border', [18, 18, 354, 808], accent);

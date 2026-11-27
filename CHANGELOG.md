@@ -1,3 +1,9 @@
+## Unreleased — Signature S5B (2026-11-27)
+
+- Thêm sáu hiệu ứng mở thiệp riêng trên layer Signature, sử dụng nút chạm/bàn phím và lifecycle motion hiện có.
+- Giữ rotation, opacity và artwork của Sender; nhận diện qua kind để hoạt động khi nhân bản.
+- Bổ sung nhãn VI/EN, giảm chuyển động và hủy animation khi rời cảnh; tiếp tục giữ Catalog QA riêng.
+
 ## Unreleased — Signature S5A Local Review (2026-11-27)
 
 - Cho phép xem và tạo nháp sáu mẫu Signature trong Catalog profile demo JSON riêng qua `--signature`; giữ production mặc định tắt.

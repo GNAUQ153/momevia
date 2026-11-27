@@ -1,3 +1,9 @@
+## Unreleased — Phase 4.5H Catalog Acceptance (2026-11-27)
+
+- Bổ sung kiểm thử liên kết renderer, giá mẫu, phân trang, quyền yêu thích Guest/Customer và phiên bản Creator bằng fixture.
+- Nghiệm thu Catalog trên sáu cấu hình VI/EN bằng Browser E2E, đối chiếu giá API, bộ lọc, Preview, focus và điều hướng Back; lưu ảnh khi có thư mục artifact.
+- Không thay đổi runtime, dữ liệu, dependency hoặc migration.
+
 ## Unreleased — Phase 4.5G Catalog Cover Loading (2026-11-27)
 
 - Trì hoãn ảnh bộ sưu tập theo mùa và ảnh Creator trong lưới danh mục/yêu thích bằng bộ tải ảnh theo viewport hiện có.

@@ -20,6 +20,23 @@ export function visibleCtaRatio(box, width, height, headerBottom = 0) {
   return Math.min(1, visibleWidth * visibleHeight / (box.width * box.height));
 }
 
+// Ưu tiên không gian nhập liệu trên thiết bị cảm ứng.
+export function shouldHideForEditing({
+  editable,
+  coarse,
+  layoutHeight,
+  visualHeight,
+  scale
+}) {
+  if (!editable) return false;
+  if (coarse) return true;
+
+  return scale === 1 &&
+    Number.isFinite(layoutHeight) &&
+    Number.isFinite(visualHeight) &&
+    layoutHeight - visualHeight >= 120;
+}
+
 const contentSelector = 'a,button,input,textarea,select,summary,p,h1,h2,h3,li,img,[role="status"],[role="alert"],.template-card';
 
 // Promotional actions yield to page content, task flows, dialogs and the footer.
@@ -39,6 +56,8 @@ export function mountFloatingCta() {
   const tools = document.querySelector?.('.site-tools');
   const exploreAction = panel.querySelector?.('[data-floating-action="explore"]');
   const createAction = panel.querySelector?.('[data-floating-action="create"]');
+  const coarsePointer = globalThis.matchMedia?.('(any-pointer: coarse)');
+  const visualViewport = globalThis.visualViewport;
   const heroMotion = createHeroCtaMotion(panel);
   const exitMotion = createCtaExitMotion(panel);
   let routeHidden = true, toolsRouteHidden = false, footerInView = false, queued = false, dirty = true, home = false, pricing = false, catalog = false, detail = false;
@@ -110,7 +129,22 @@ export function mountFloatingCta() {
     const constructionRunning = home &&
       main?.hasAttribute?.('data-home-construction-running');
 
+    const active = document.activeElement;
+    const editable = Boolean(active && !active.disabled && !active.readOnly &&
+      (active.isContentEditable || active.matches?.(
+        'textarea,input:not([type]),input[type="text"],input[type="search"],input[type="email"],input[type="password"],input[type="tel"],input[type="url"],input[type="number"]'
+      )));
+
+    const editing = shouldHideForEditing({
+      editable,
+      coarse: coarsePointer?.matches,
+      layoutHeight: document.documentElement?.clientHeight ?? globalThis.innerHeight,
+      visualHeight: visualViewport?.height,
+      scale: visualViewport?.scale
+    });
+
     const eligible = !(
+      editing ||
       routeHidden ||
       disabled ||
       contextualVisible ||
@@ -119,12 +153,17 @@ export function mountFloatingCta() {
     if (eligible) panel.hidden = false;
     document.body.classList.toggle('has-floating-cta', eligible);
     if (dirty) { content = main ? [...main.querySelectorAll(contentSelector)] : []; dirty = false; }
-    const boxes = content.flatMap(element => {
+    // Chỉ đo DOM khi cần kiểm tra va chạm.
+    const toolsDisabled = toolsRouteHidden || disabled || editing;
+    const needsBoxes = (eligible && !(home || pricing || catalog || detail)) ||
+      (tools && !toolsDisabled);
+
+    const boxes = needsBoxes ? content.flatMap(element => {
       const box = element.getBoundingClientRect();
       if (!box.width || !box.height || box.bottom <= 0 || box.top >= document.documentElement.clientHeight) return [];
       const style = getComputedStyle(element);
       return style.visibility === 'hidden' || style.display === 'none' ? [] : [box];
-    });
+    }) : [];
     let desiredVisible = eligible;
     if (desiredVisible) {
       measure();
@@ -135,7 +174,7 @@ export function mountFloatingCta() {
     hide(panel, !desiredVisible);
     document.body.classList.toggle('has-floating-cta', desiredVisible);
     if (tools) {
-      tools.hidden = toolsRouteHidden || disabled;
+      tools.hidden = toolsDisabled;
       const box = tools.getBoundingClientRect();
       hide(tools, tools.hidden || boxes.some(contentBox => overlapsContent(box, contentBox)));
     }
@@ -167,6 +206,10 @@ export function mountFloatingCta() {
   document.addEventListener('scroll', schedule, { capture: true, passive: true });
   document.addEventListener('load', schedule, true);
   globalThis.addEventListener?.('resize', schedule, { passive: true });
+  visualViewport?.addEventListener?.('resize', schedule, { passive: true });
+  coarsePointer?.addEventListener?.('change', schedule);
+  document.addEventListener('focusin', schedule);
+  document.addEventListener('focusout', schedule);
 
   let pointerActivation = false;
   document.addEventListener('pointerdown', () => { pointerActivation = true; }, true);
@@ -181,17 +224,19 @@ export function mountFloatingCta() {
       schedule();
     }
   });
-  return { sync(pathname) {
-    home = pathname === '/';
-    pricing = /^\/pricing\/?$/.test(pathname);
-    catalog = /^\/explore\/?$/.test(pathname);
-    detail = /^\/template\/[^/]+\/?$/.test(pathname);
-    panel.classList?.toggle('floating-cta--catalog', catalog || detail);
-    if (exploreAction) exploreAction.hidden = catalog || detail;
-    routeHidden = isTaskRoute(pathname);
-    toolsRouteHidden = isEditingRoute(pathname) || /^\/(?:login|register|recover|verify-email|creator|g)(?:\/|$)/.test(pathname);
-    dirty = true;
-    syncVisibility();
-    if (main) schedule();
-  } };
+  return {
+    sync(pathname) {
+      home = pathname === '/';
+      pricing = /^\/pricing\/?$/.test(pathname);
+      catalog = /^\/explore\/?$/.test(pathname);
+      detail = /^\/template\/[^/]+\/?$/.test(pathname);
+      panel.classList?.toggle('floating-cta--catalog', catalog || detail);
+      if (exploreAction) exploreAction.hidden = catalog || detail;
+      routeHidden = isTaskRoute(pathname);
+      toolsRouteHidden = isEditingRoute(pathname) || /^\/(?:login|register|recover|verify-email|creator|g)(?:\/|$)/.test(pathname);
+      dirty = true;
+      syncVisibility();
+      if (main) schedule();
+    }
+  };
 }

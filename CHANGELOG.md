@@ -1,3 +1,9 @@
+## Unreleased — Phase 4.4H.1 Landing Performance (2026-11-27)
+
+- Tạm ẩn Floating CTA khi nhập liệu trên thiết bị cảm ứng.
+- Hạn chế đo DOM khi không cần kiểm tra va chạm.
+- Bảo toàn Home Construction, Hero Carousel và reduced motion.
+
 ## Unreleased — Phase 4.4G.2 Carousel Accessibility (2026-11-27)
 
 - Thêm điều khiển tạm dừng và tiếp tục Hero Carousel trên desktop; giữ chọn mẫu thủ công trên mobile và hỗ trợ bàn phím, VI/EN, reduced motion.

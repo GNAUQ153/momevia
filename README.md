@@ -91,19 +91,19 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Dựng lại 16 Originals: mỗi mẫu có bìa tối với một trong sáu cơ chế mở 3D (hộp quà, dấu sáp, cửa đôi, máy ảnh in ảnh, bóc lịch, ống kính), tương tác riêng và lời kết gắn với câu chuyện.
-- Ba mẫu có hai nhánh do người nhận chọn; thiệp mời có vé sự kiện và đồng hồ đếm ngược tự lấy ngày giờ của thiệp mời.
-- Thư viện và trang chủ chỉ liệt kê 16 Originals và mẫu Creator; mẫu hệ thống cũ vẫn mở, tạo và xuất bản được qua link trực tiếp.
-- Nút trong thiệp tự chọn màu chữ đọc được theo nền; bỏ chữ "(minh họa)" trên bản xem thử; ẩn chữ alt khi ảnh bìa đang tải.
+- Hostinger trả .mjs là text/plain; kèm nosniff, trình duyệt chặn Fabric Studio và bộ đọc Excel danh sách người nhận. Thêm AddType text/javascript .mjs vào .htaccess.
+- Catalog tính số cảnh và hiệu ứng của 16 Originals theo thiết kế hiện tại, không dùng giá trị cũ còn lưu trong MySQL (mẫu có nhánh hiển thị 6 cảnh).
+- Sửa lỗi kiểm tra mã (no-undef) trong scripts/build/originals-console.mjs làm CI của hai commit trước thất bại.
+- Thêm test cho kiểu MIME .mjs trên Hostinger và số cảnh Catalog.
 
 **Các commit gần nhất trên `main`:**
 
+- `2af4740` — fix(release): include railpack.json in the verified release package (2026-11-28)
+- `da3eeee` — fix: serve .mjs as JavaScript on Hostinger and derive Originals scene count (2026-11-28)
+- `643ed6c` — fix(deploy): keep Railpack default runtime packages alongside fonts (2026-11-28)
+- `3e0dd79` — fix(deploy): install fonts on Railway for server-rendered covers (2026-11-28)
 - `b7c0622` — fix(ci): seed demo paid draft from direct template link (2026-11-28)
 - `aa78c23` — feat(templates): redesign 16 Originals as recipient-first stories (2026-11-28)
-- `3650c1d` — fix(ci): align 16-card regressions and compact landing spacing (2026-11-28)
-- `46cd9bf` — feat(ui): refresh seasonal landing and 16 interactive cards (2026-11-27)
-- `9af78d4` — feat(signature): introduce six layered opening animations (2026-11-27)
-- `0e6790a` — feat(signature): enable isolated local catalog and canvas review (2026-11-27)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

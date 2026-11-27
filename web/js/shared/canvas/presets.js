@@ -1,3 +1,5 @@
+import { signatureTemplateDefinition } from './signature/templates.js';
+import { originalDefinition } from './originals-data.js';
 import { createElement } from './registry.js';
 import { validateDocument } from './schema.js';
 import { createBasicTemplate } from './basic-templates.js';
@@ -62,6 +64,19 @@ export function templatePreviewDocument(template, localize = canonicalText) {
   doc.bindings.recipientName.value = localize('templates.preview.recipient');
   doc.bindings.senderName.value = localize('templates.preview.sender');
   doc.bindings.message.value = localize('templates.preview.greeting');
+  if (signatureTemplateDefinition(template?.id)) doc.bindings.message.value = localize('signature.templates.sample');
+  const original = originalDefinition(template?.id);
+  if (original) {
+    doc.bindings.recipientName.value = localize('originals.sampleRecipient');
+    doc.bindings.senderName.value = localize('originals.sampleSender');
+    doc.bindings.message.value = localize(`templates.${original.id}.note`);
+    if (original.cardType === 'invitation') {
+      const date = doc.elements.find(e => e.id === 'event-date' && e.type === 'text');
+      const venue = doc.elements.find(e => e.id === 'event-location' && e.type === 'text');
+      if (date) date.props.text = localize('originals.sampleDate');
+      if (venue) venue.props.text = localize('originals.sampleVenue');
+    }
+  }
   if (Object.hasOwn(REFRESH_21, template?.id || '') || ['loi-moi-ben-hien','cuon-phim-ngay-ay','ban-do-ngay-ra-truong'].includes(template?.id))
     doc.bindings.message.value = localize(`templates.${template.id}.previewMessage`);
   if (OPEN_ME_TEMPLATE_IDS.includes(template?.id)) {

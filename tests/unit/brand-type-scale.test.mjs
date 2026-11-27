@@ -73,7 +73,85 @@ test('Catalog, Pricing và marketing dùng cùng thang chữ; không đổi toke
 test('CSS mới được tải theo cùng thứ tự và không có thang chữ riêng theo locale', () => {
   const html = read('web/index.html');
   for (const name of ['tokens', ...styles, 'marketing-journey', 'brand-system', 'template-library', 'ui-polish']) {
-    assert(html.includes(`/css/${name}.css?v=${name === "marketing-journey" ? "20261127-gift-cta" : name === "marketing" ? "20261127-hero-spacing" : name === "marketing-immersive" ? "20261127-scroll-reveal" : name === "open-me-website" ? "20261127-hero-mesh" : "20261127-type-scale"}`), name);
+    assert(html.includes(`/css/${name}.css?v=${name === "marketing-journey" ? "20261127-gift-cta" : name === "marketing" ? "20261127-hero-spacing" : name === "marketing-immersive" ? "20261127-scroll-reveal" : name === "open-me-website" ? "20261127-hero-mesh" : name === "template-library" ? "20261127-catalog-layout" : "20261127-type-scale"}`), name);
     assert.doesNotMatch(css(name), /(?:\[lang[^\]]*\]|:lang\([^)]*\))[^{}]*\{[^}]*var\(--type-/);
   }
+});
+
+test('Catalog dùng token màu, khoảng cách và độ bo chung', () => {
+  const source = css('template-library');
+
+  assert.match(
+    source,
+    /\.catalog-section\.catalog-compact \{[^}]*background: var\(--color-page\)/
+  );
+
+  assert.match(
+    source,
+    /\.catalog-section\.catalog-compact \.catalog-grid \.template-card \{[^}]*border-radius: var\(--layout-radius-card\)/
+  );
+
+  assert.match(
+    source,
+    /\.catalog-section\.catalog-compact \.catalog-grid \{[^}]*gap: var\(--layout-card-gap\)/
+  );
+});
+
+test('Catalog có bố cục ba, hai và một cột theo viewport', () => {
+  const source = css('template-library');
+
+  assert.match(
+    source,
+    /\.catalog-section\.catalog-compact \.catalog-grid \{[^}]*grid-template-columns: repeat\(3, minmax\(0, 1fr\)\)/
+  );
+
+  assert.match(
+    source,
+    /@media \(max-width: 1000px\) \{\s*\.catalog-section\.catalog-compact \.catalog-grid \{[^}]*repeat\(2, minmax\(0, 1fr\)\)/
+  );
+
+  assert.match(
+    source,
+    /@media \(max-width: 370px\) \{\s*\.catalog-section\.catalog-compact \.catalog-grid \{[^}]*grid-template-columns: minmax\(0, 1fr\)/
+  );
+});
+
+test('Catalog giữ focus và hỗ trợ reduced motion', () => {
+  const source = css('template-library');
+
+  assert.match(
+    source,
+    /\.catalog-section\.catalog-compact \.catalog-grid \.template-card:focus-within \{[^}]*var\(--color-focus\)/
+  );
+
+  assert.match(
+    source,
+    /@media \(prefers-reduced-motion: reduce\) \{\s*\.catalog-section\.catalog-compact \.catalog-grid \.template-card \{\s*transition: none/
+  );
+});
+
+test('Catalog giữ trạng thái rỗng trên toàn chiều rộng', () => {
+  assert.match(
+    css('template-library'),
+    /\.catalog-section\.catalog-compact \.catalog-grid \.empty-state \{[^}]*grid-column: 1 \/ -1/
+  );
+});
+
+test('Catalog giữ cùng stylesheet và bộ font VI/EN', () => {
+  const source = css('template-library');
+
+  assert.doesNotMatch(
+    source,
+    /:lang\(|\[lang\s*=/
+  );
+
+  assert.match(
+    source,
+    /\.catalog-section\.catalog-compact \.catalog-title h1 \{[^}]*font-family: var\(--font-display\)/
+  );
+
+  assert.match(
+    read('web/index.html'),
+    /template-library\.css\?v=20261127-catalog-layout/
+  );
 });

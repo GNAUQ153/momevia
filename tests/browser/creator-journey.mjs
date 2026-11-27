@@ -4,6 +4,7 @@ import { chromium } from 'playwright';
 import sharp from 'sharp';
 import jsQR from 'jsqr';
 import path from 'node:path';
+import { ORIGINAL_IDS } from '../../web/js/shared/canvas/originals-data.js';
 import { confirmGiftAccess } from './gift-access.mjs';
 
 const image = color => sharp({ create: { width: 36, height: 24, channels: 3, background: color } }).png().toBuffer();
@@ -140,7 +141,7 @@ export async function runCreatorJourney(base) {
     await firstCard.waitFor();
     assert(await visibleInViewport(phone, firstCard), 'Mẫu sự kiện phải xuất hiện trong màn hình đầu');
     assert.deepEqual(await catalogCards.evaluateAll(cards => cards.slice(0, 3).map(card => card.dataset.templateId)),
-      ['birthday-radiance', 'hai-phong-bi', 'proud-of-you']);
+      ORIGINAL_IDS.slice(0, 3));
     const seasonalShelf = phone.locator('.seasonal-shelf');
     await seasonalShelf.waitFor();
     const catalogBox = await phone.locator('#catalog-grid').boundingBox();

@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import { ORIGINAL_IDS } from '../../web/js/shared/canvas/originals-data.js';
 import { builtinLibraryItems } from '../../src/modules/designs/library.seed.mjs';
 import { REFRESH_21,coverVariant } from '../../web/js/shared/canvas/refresh-21-config.js';
 import { canonicalStringify,validateDocument,duplicateDocument } from '../../web/js/shared/canvas/schema.js';
@@ -14,7 +15,7 @@ const before=JSON.parse(fs.readFileSync(new URL('../fixtures/refresh-21-before.j
 test('21 designs have distinct scenes; control documents retain all fields outside reviewed text spacing',()=>{
  assert.equal(Object.keys(REFRESH_21).length,21);
  const signatures=[new Set(),new Set(),new Set()];
- for(const row of current.filter(r=>r.kind==='template')){
+ for(const row of current.filter(r=>r.kind==='template'&&!ORIGINAL_IDS.includes(r.id))){
   if(!REFRESH_21[row.id]){
    const original=before.find(r=>r.kind==='template'&&r.id===row.id).definition.documents;
    const expected=structuredClone(original);

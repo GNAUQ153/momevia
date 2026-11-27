@@ -56,6 +56,7 @@
     "perf:marketing": "node scripts/quality/measure-marketing.mjs",
     "perf:backend": "node scripts/quality/measure-backend.mjs",
     "perf:marketing:compare": "node scripts/quality/compare-marketing.mjs",
+    "perf:marketing:gate": "node scripts/quality/marketing-gate.mjs",
     "demo:music": "npm run build && node scripts/dev/music-library-local.mjs",
     "test:music:library": "node tests/integration/music-library.mjs --browser",
     "test:music:library:mysql": "node tests/integration/music-library.mjs --mysql-local",
@@ -72,7 +73,8 @@
     "audit:assets": "node scripts/quality/audit-assets.mjs",
     "audit:unused": "node scripts/quality/audit-unused.mjs",
     "audit:architecture": "node scripts/quality/audit-architecture.mjs",
-    "check:architecture": "node scripts/quality/audit-architecture.mjs --check"
+    "check:architecture": "node scripts/quality/audit-architecture.mjs --check",
+    "build:hostinger": "npm run build && node scripts/build/hostinger.mjs"
   },
   "dependencies": {
     "@payos/node": "2.0.6",

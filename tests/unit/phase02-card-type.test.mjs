@@ -12,13 +12,13 @@ const invitation = templates.find(t => t.id === 'loi-moi-ben-hien');
 const greeting = templates.find(t => t.id === 'hai-phong-bi');
 
 test('Phân biệt loại thiệp và dịp; toàn bộ mẫu hệ thống hiện tại có loại rõ ràng', () => {
-  assert.equal(templates.length, 28);
+  assert.equal(templates.length, 44);
   assert.equal(systemCardType(invitation.id), 'invitation');
   assert.equal(systemCardType(greeting.id), 'greeting');
   assert.equal(systemCardType('ban-do-ngay-ra-truong'), 'greeting');
   assert.equal(systemCardType('future-template'), 'unspecified');
-  assert.equal(templates.filter(t => systemCardType(t.id) === 'invitation').length, 1);
-  assert.equal(templates.filter(t => systemCardType(t.id) === 'greeting').length, 27);
+  assert.equal(templates.filter(t => systemCardType(t.id) === 'invitation').length, 11);
+  assert.equal(templates.filter(t => systemCardType(t.id) === 'greeting').length, 33);
 });
 
 test('API chỉ gán loại cho mẫu hệ thống, không sửa bản ghi nguồn', () => {

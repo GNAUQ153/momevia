@@ -11,7 +11,10 @@ export async function runHeroTemplatesBrowser(browser,base) {
       page.on('request',r=>{if(r.url().includes('/api/')&&!['GET','HEAD'].includes(r.method()))writes.push(r.url());});
       await page.goto(base);
       const cover=page.locator('.mkt-hero__cover'),choices=page.locator('.home-create-dialog'),create=page.locator('[data-home-create]');
-      await cover.waitFor();assert.equal(await cover.count(),1);assert.equal(await page.locator('[data-hero-playback]').count(),0);
+      await cover.waitFor();
+      assert.equal(await cover.count(),1);
+      assert.equal(await page.locator('[data-hero-playback]').count(),1);
+      assert.equal(await page.locator('[data-hero-playback]').isVisible(),false);
       const catalog=(await(await context.request.get(base+'/api/catalog/templates')).json()).templates;
       await page.waitForFunction(()=>globalThis.document.querySelectorAll('[data-hero-select]').length===5);
       const ids=await cover.locator('img').evaluateAll(ns=>ns.map(n=>n.dataset.heroImage));assert.equal(new Set(ids).size,5);
@@ -38,8 +41,49 @@ export async function runHeroTemplatesBrowser(browser,base) {
       assert.deepEqual(writes,[]);assert.deepEqual(errors,[]);
     } finally {await context.close();}
   }
+  // Điện thoại không cần bật Reduced Motion để ngăn autoplay.
+  const touchContext = await browser.newContext({
+    viewport: { width: 390, height: 844 }, hasTouch: true, reducedMotion: 'no-preference',
+  });
+  try {
+    const page = await touchContext.newPage();
+    await page.goto(base);
+    const hero = page.locator('.mkt-hero');
+    const selectors = hero.locator('[data-hero-select]');
+    await page.waitForFunction(() => globalThis.document.querySelectorAll('[data-hero-select]').length === 5);
+    assert.equal(await hero.getAttribute('data-mkt-ambient-running'), null);
+    assert.equal(await hero.locator('[data-hero-progress]').evaluateAll(nodes =>
+      nodes.flatMap(node => node.getAnimations()).filter(animation => animation.playState === 'running').length), 0);
+    await selectors.nth(1).click();
+    await selectors.nth(1).and(page.locator('[aria-pressed="true"]')).waitFor();
+    assert.equal(await hero.getAttribute('data-mkt-ambient-running'), null);
+    assert.equal(await hero.locator('[data-hero-playback]').isVisible(),false);
+
+    // CTA nổi không che hành động tạo thiệp sau demo.
+    const openStep = page.locator('[data-mkt-step="open"]');
+    await openStep.evaluate(node =>
+      node.scrollIntoView({block:'center',behavior:'instant'})
+    );
+    await openStep.click();
+
+    const giftToggle = page.locator('[data-mkt-gift-toggle]');
+    await giftToggle.evaluate(node =>
+      node.scrollIntoView({block:'center',behavior:'instant'})
+    );
+    await giftToggle.click();
+
+    const contextual = page.locator('[data-home-create-after-demo]');
+    await contextual.waitFor({state:'visible'});
+    await contextual.evaluate(node =>
+      node.scrollIntoView({block:'center',behavior:'instant'})
+    );
+
+    const floating = page.locator('[data-floating-cta]');
+    assert.equal(await floating.count(),1);
+    await floating.waitFor({state:'hidden'});
+  } finally { await touchContext.close(); }
   await runHeroMotionBrowser(browser,base);
-  console.log('PASS classic five-template cycle: one foreground, decoded next-card teaser behind, circular handoff, no pause button, correct preview/version VI/EN and zero writes.');
+  console.log('PASS classic five-template cycle: one foreground, decoded next-card teaser behind, circular handoff, accessible playback control, correct preview/version VI/EN and zero writes.');
 }
 
 export async function runHeroMotionBrowser(browser,base) {
@@ -66,7 +110,23 @@ export async function runHeroMotionBrowser(browser,base) {
       await page.waitForFunction(id=>globalThis.document.querySelector('.mkt-hero').dataset.heroTemplate===id,ids[target]);
       assert.equal(await cover.locator('[data-active="true"]').count(),1);
     }
-    assert.equal(await page.locator('[data-hero-playback]').count(),0);
+    // Kiểm tra tạm dừng và tiếp tục trên desktop.
+    const playback = page.locator('[data-hero-playback]');
+    await playback.waitFor({state:'visible'});
+    assert.equal(await playback.getAttribute('data-state'),'playing');
+
+    await playback.click();
+    assert.equal(await playback.getAttribute('data-state'),'paused');
+    assert.equal(await page.locator('.mkt-hero').getAttribute('data-mkt-ambient-running'),null);
+
+    await playback.click();
+    assert.equal(await playback.getAttribute('data-state'),'playing');
+
+    // Tab từ nút điều khiển sang nút chọn mẫu phải tạm dừng.
+    await page.keyboard.press('Tab');
+    assert.equal(await playback.getAttribute('data-state'),'paused');
+    await playback.click();
+    assert.equal(await playback.getAttribute('data-state'),'playing');
     const hero=await page.locator('.mkt-hero').boundingBox(),art=await page.locator('.open-me-hero__showcase').boundingBox(),intro=await page.locator('.mkt-hero__intro').boundingBox();
     assert(hero.y+hero.height-Math.max(art.y+art.height,intro.y+intro.height)<=65,'No viewport-sized blank below hero');
     await cover.click();await page.locator('.template-preview-player .gift-runtime').waitFor();

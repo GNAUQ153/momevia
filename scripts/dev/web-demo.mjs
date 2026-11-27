@@ -19,6 +19,7 @@ const { values } = parseArgs({ options: {
   prepare: { type: 'boolean', default: false },
   'no-watch': { type: 'boolean', default: false },
   profile: { type: 'string' },
+  signature: { type: 'boolean', default: false },
   'https-cert': { type: 'string' },
   'https-key': { type: 'string' },
   'public-base-url': { type: 'string' },
@@ -27,7 +28,14 @@ const { values } = parseArgs({ options: {
 const port = Number(values.port);
 if (!Number.isSafeInteger(port) || port < 1024 || port > 65535) throw new Error('Chọn cổng loopback từ 1024 đến 65535.');
 const root = fileURLToPath(new URL('../../', import.meta.url));
-const demoDir = demoProfile(root, port, values.profile);
+if (values.signature && (values.profile || values['https-cert'] || values['https-key'] ||
+    values['public-base-url'] || values['allowed-origin'].length || process.env.ALLOWED_ORIGINS ||
+    Object.keys(process.env).some(key => key.startsWith('RAILWAY_'))))
+  throw new Error('Signature QA chỉ chạy HTTP loopback, dùng profile riêng tự động.');
+const demoDir = values.signature ? path.join(root, 'local', `signature-demo-${port}`) : demoProfile(root, port, values.profile);
+if (values.signature && (demoStorage(demoDir).mode !== 'json' ||
+    (fs.existsSync(demoDir) && fs.lstatSync(demoDir).isSymbolicLink())))
+  throw new Error('Signature QA không sử dụng profile MySQL hoặc liên kết thư mục.');
 const appDir = path.join(demoDir, 'app');
 const certFile = values['https-cert'] ? path.resolve(values['https-cert']) : '';
 const keyFile = values['https-key'] ? path.resolve(values['https-key']) : '';
@@ -78,6 +86,8 @@ const env = {
   TEST_ACCOUNT_EMAIL: accounts.admin.email, TEST_ACCOUNT_PASSWORD: accounts.admin.password,
   CANVAS_EDIT_ENABLED: 'true', CANVAS_PUBLISH_ENABLED: 'true', CANVAS_READ_ENABLED: 'true', GIFT_TTL_DAYS: '365',
   ...storage.env,
+  MOMEVIA_SIGNATURE_QA: values.signature ? 'true' : 'false',
+  ...(values.signature ? { MOMEVIA_DATA_DIR: '' } : {}),
 };
 fs.writeFileSync(path.join(demoDir, 'launcher.pid'), String(process.pid) + '\n');
 let child, exited, stopping = false, finish, disposeWatch, debounce;

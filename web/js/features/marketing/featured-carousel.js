@@ -3,7 +3,15 @@ import {prioritizeTemplates} from '../../shared/template-order.js';
 import {loadCoverImage} from '../../core/cover-loading.js';
 import {marketingConnection,marketingShouldShowStatic} from './motion-preferences.js';
 
+import { ORIGINAL_IDS } from '../../shared/canvas/originals-data.js';
+
 export function selectFeaturedTemplates(templates,day=vietnamDay()) {
+  // Chỉ dùng bản ghi do API trả về, giữ nguyên giá và phiên bản được duyệt.
+  const launch = ORIGINAL_IDS.flatMap(id => {
+    const template = templates.find(item => item.id === id && (item.systemOwned === true || item.creatorId === "system") && !item.versionId && !item.creatorDesignId);
+    return template ? [template] : [];
+  });
+  if (launch.length) return launch;
   const seen=new Set();
   return prioritizeTemplates(templates.slice().sort((a,b)=>Number(isInSeason(b,day))-Number(isInSeason(a,day))||Number(Boolean(b.featured))-Number(Boolean(a.featured))))
     .filter(template=>{if(seen.has(template.id))return false;seen.add(template.id);return true;}).slice(0,15);

@@ -11,7 +11,7 @@ export async function runFeaturedCarousel(browser,base){
     await root.waitFor();await waitForHomeConstruction(page);await viewport.scrollIntoViewIfNeeded();
     await page.waitForFunction(()=>globalThis.document.querySelector('[data-featured-carousel]').dataset.featuredRunning==='true');
     const ids=await page.locator('[data-featured-track] > article').evaluateAll(ns=>ns.map(n=>n.dataset.templateId));
-    assert.equal(ids.length,15);assert.equal(new Set(ids).size,15);assert.equal(await root.getAttribute('data-featured-visible'),'3');
+    assert.equal(ids.length,16);assert.equal(new Set(ids).size,16);assert.equal(await root.getAttribute('data-featured-visible'),'3');
     const read=()=>root.getAttribute('data-featured-window');
     assert.equal(await read(),ids.slice(0,3).join(','));
     const second=await page.locator('[data-featured-track] > article').nth(1).elementHandle();
@@ -20,10 +20,10 @@ export async function runFeaturedCarousel(browser,base){
     await page.waitForFunction(()=>globalThis.document.querySelector('[data-featured-carousel]').dataset.featuredStart==='1');
     assert.equal(await read(),ids.slice(1,4).join(','),'1,2,3 becomes 2,3,4');
     assert(await page.locator('[data-featured-track]').evaluate((n,oldSecond)=>n.firstElementChild===oldSecond,second),'Existing card identity survives the move');
-    for(let start=2;start<=15;start++){
+    for(let start=2;start<=ids.length;start++){
       await page.clock.fastForward(5000);
-      await page.waitForFunction(s=>globalThis.document.querySelector('[data-featured-carousel]').dataset.featuredStart===String(s%15),start);
-      const expected=Array.from({length:3},(_,i)=>ids[(start+i)%15]).join(',');assert.equal(await read(),expected);
+      await page.waitForFunction(s=>globalThis.document.querySelector('[data-featured-carousel]').dataset.featuredStart===String(s%16),start);
+      const expected=Array.from({length:3},(_,i)=>ids[(start+i)%ids.length]).join(',');assert.equal(await read(),expected);
     }
     assert.equal(await page.locator('[data-featured-track] > article:not([inert])').count(),3,'Only visible cards enter the tab order');
     const saved=await read();await page.emulateMedia({reducedMotion:'reduce'});await page.clock.fastForward(10000);assert.equal(await read(),saved);
@@ -36,5 +36,5 @@ export async function runFeaturedCarousel(browser,base){
     await link.click();await page.waitForURL(new URL(href,base).href);await page.locator('.template-preview-player .gift-runtime').waitFor();
     assert.deepEqual(errors,[]);assert.deepEqual(writes,[]);
   }finally{await context.close();}
-  console.log('PASS featured carousel: 15 real cards, three visible, actual left slide after five seconds, circular wrap, stable DOM/preview and no writes.');
+  console.log('PASS featured carousel: 16 real cards, three visible, actual left slide after five seconds, circular wrap, stable DOM/preview and no writes.');
 }

@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "source": "library-export",
+  "source": "builtin-seed",
   "templates": {
     "loi-moi-ben-hien": {
-      "revision": 2,
+      "revision": 1,
       "covers": {
         "vi": {
           "portrait": "920842be71cc25f5f8a4fe89af54279ec630b8426ca9b9b68dbf670bebd5da79",
@@ -18,7 +18,7 @@
       }
     },
     "cuon-phim-ngay-ay": {
-      "revision": 2,
+      "revision": 1,
       "covers": {
         "vi": {
           "portrait": "9ce004c6a241479dc32e6cde5f1c3beba356632b2260034327021890c7fe3eab",
@@ -33,7 +33,7 @@
       }
     },
     "ban-do-ngay-ra-truong": {
-      "revision": 2,
+      "revision": 1,
       "covers": {
         "vi": {
           "portrait": "49fb4639ab0a29862ec2590b14fdde08def875373139bf3479c37709b2f3f62b",
@@ -48,7 +48,7 @@
       }
     },
     "midnight-bloom": {
-      "revision": 4,
+      "revision": 1,
       "covers": {
         "vi": {
           "portrait": "eaadbfbc6aeb9d7bcb65cb7009c1baf247d3e7fd2d3c7b9a62d28a1fe67d33f9",
@@ -63,7 +63,7 @@
       }
     },
     "sunny-wishes": {
-      "revision": 4,
+      "revision": 1,
       "covers": {
         "vi": {
           "portrait": "fad23c0475b32f3e134e278e5f3ca6be8d83c5f5e4c55b8eb2cc65e2b6328895",
@@ -78,7 +78,7 @@
       }
     },
     "love-letter": {
-      "revision": 4,
+      "revision": 1,
       "covers": {
         "vi": {
           "portrait": "f6e3290a8a1a98273c47e7536edf0a7fef33d1a5751b0eed06da9044fe66f3b6",
@@ -93,7 +93,7 @@
       }
     },
     "starlight": {
-      "revision": 4,
+      "revision": 1,
       "covers": {
         "vi": {
           "portrait": "d0e59c111ebc2454f4c79cfe70c84a7fffad704bf6721846b0db5055f0b9c58e",
@@ -108,7 +108,7 @@
       }
     },
     "peachy-day": {
-      "revision": 4,
+      "revision": 1,
       "covers": {
         "vi": {
           "portrait": "41ff4db30f10c179b8d5a4b3b4c942180dd7c6c37cb0321a7a1500d3d560631c",
@@ -123,7 +123,7 @@
       }
     },
     "greenhouse": {
-      "revision": 4,
+      "revision": 1,
       "covers": {
         "vi": {
           "portrait": "126f76452868f5c183dcb53627676c03e0d9dc6eab72494f0127415d8660cf1f",
@@ -138,7 +138,7 @@
       }
     },
     "confetti": {
-      "revision": 4,
+      "revision": 1,
       "covers": {
         "vi": {
           "portrait": "e44d6f250eb91da518cae4c4d9dd20d107674dff6a279db186af59eee454f664",
@@ -153,7 +153,7 @@
       }
     },
     "cloud-nine": {
-      "revision": 4,
+      "revision": 1,
       "covers": {
         "vi": {
           "portrait": "8c6324a9b229e3a7c6b346e56c9ed9f61364ac522777113dad8a2e4c0e560b3c",
@@ -168,7 +168,7 @@
       }
     },
     "lavender": {
-      "revision": 4,
+      "revision": 1,
       "covers": {
         "vi": {
           "portrait": "abbcf569d1371b917db63577c7dc7d523204fa37313e4a80fcaf864848e53975",
@@ -183,7 +183,7 @@
       }
     },
     "polaroid": {
-      "revision": 5,
+      "revision": 1,
       "covers": {
         "vi": {
           "portrait": "68187df6d527f439ea347d222959c82b5db2bd378b0bbfe6a298e7b750b7093f",
@@ -198,7 +198,7 @@
       }
     },
     "afterglow": {
-      "revision": 4,
+      "revision": 1,
       "covers": {
         "vi": {
           "portrait": "6c9323bb8fc6d19ce81589ec35470c6c494bb1f56eb55e94a6b68b5707b4b6c9",
@@ -213,7 +213,7 @@
       }
     },
     "tiny-celebration": {
-      "revision": 4,
+      "revision": 1,
       "covers": {
         "vi": {
           "portrait": "44f2b586dc993972669c49953e378890edb782a3730195ec50a1fc77f0a83860",
@@ -228,7 +228,7 @@
       }
     },
     "mot-ky-niem": {
-      "revision": 4,
+      "revision": 1,
       "covers": {
         "vi": {
           "portrait": "e96e6502d7701179d98330a1217e1ee4f3f69947ac9382654ecc5375e7f060bd",
@@ -243,17 +243,17 @@
       }
     },
     "hai-phong-bi": {
-      "revision": 3,
+      "revision": 1,
       "covers": {
         "vi": {
-          "portrait": "f27bc364b854ab135492f5bea26f7fdd3b3175e8c79b69c456a5ebfcb74d9c65",
-          "catalog": "1f1f3685b5497726284f1c8a9b48bdf449b562f8cb4599fdaafbafe07f075b0e",
-          "seasonal": "4c72fdf23287c3cd2fd33d119cba0b3cafecf6e0793df7aae1f0e878229c0b3b"
+          "portrait": "15fdf6624fb572e335199988b420162e37379f8af1a2b2aa0e2577ecdb62070b",
+          "catalog": "7326331819d1c79c15763f23c2788403bc3e60840a994916eafdf4006734eb92",
+          "seasonal": "cdab97045247a3b93ed430fcf9bafb2ae1611f5e17d1e7f388705aa9163032fd"
         },
         "en": {
-          "portrait": "5eee9dfb908602aa7373d341be48fe2fb5e033dd7b34e2d31179299a43bc5bc6",
-          "catalog": "760de33870ac90a43e694817896dc8756346a53915cf717785a2f496556cfeeb",
-          "seasonal": "0c53f5506675ab2acaa041cfe3b17bc5eb2c6f535f552d123d78a924cc13d36f"
+          "portrait": "a2f74d47d46d683813b6bb5ebdc7adfd37a7a09a94d23a63a39d44648aa3278a",
+          "catalog": "029505c7442eca6c343ff5bc0d845384f949d286f97ca26f24aff3c6bb5412af",
+          "seasonal": "191ab568170bbd181ca5392afe36ca661a5f7d9269c5aa90a8ded794bfe014f0"
         }
       }
     },
@@ -273,7 +273,7 @@
       }
     },
     "winter-wishes-2026": {
-      "revision": 4,
+      "revision": 1,
       "covers": {
         "vi": {
           "portrait": "a2afa7dba632f751e90633a0861b81daf5a1e5120c9645d81e1402301974e2c0",
@@ -288,7 +288,7 @@
       }
     },
     "new-year-spark-2027": {
-      "revision": 4,
+      "revision": 1,
       "covers": {
         "vi": {
           "portrait": "120143d350a8e48c41043c62546497109978e0af058bcab192e08959dc097790",
@@ -303,7 +303,7 @@
       }
     },
     "spring-blessing-2027": {
-      "revision": 4,
+      "revision": 1,
       "covers": {
         "vi": {
           "portrait": "2c046b92737dd14b8887dd802ced31a9cacd2725e3abfdd1ba94e116f187aedd",
@@ -318,7 +318,7 @@
       }
     },
     "velvet-valentine-2027": {
-      "revision": 4,
+      "revision": 1,
       "covers": {
         "vi": {
           "portrait": "d37d156624bab0c490d79053c8e3c6b46a8761cd64361a2dcf5c23f573d3edfb",
@@ -333,22 +333,22 @@
       }
     },
     "birthday-radiance": {
-      "revision": 3,
+      "revision": 1,
       "covers": {
         "vi": {
-          "portrait": "6dfd10a5145205e9d3579905e5bb78004bfae80290bfec8afff15a029e0bb592",
-          "catalog": "038f5eadd71702866dde006653e1c95bc87bda02428de8db00424bfa1391199e",
-          "seasonal": "6b202649c3b1ad5e59b409998794ad89cf93ceebac90589c39f484b780261d8e"
+          "portrait": "71519b31f1fe8412d6e61b0da56bc82a4e085db3cf6727d3d36ed648fbee4868",
+          "catalog": "287dd5ae142c4babc92e8559543b4a4b86873d071a10e1b580eaa5c29b9f6eb2",
+          "seasonal": "38283da0fccdc400abdd516b8002a7f4567ffc65a4bc2030b5895443d5b5222c"
         },
         "en": {
-          "portrait": "ff2efbc6f68dc4503db7f6defd48d5704e73945457df2c4e492b9b3a30368037",
-          "catalog": "de31258391e1be85f587282f9e156acbb8647c211ca4454061dd98aa317df217",
-          "seasonal": "a506009e0308a4ebd0dcec0a547cf26ab46255262cb2fcd578949b725bf9ce8f"
+          "portrait": "8280e8d0503d64925d5fd55cdac4ab85fff17433ff0cec892786c87bc0afdb99",
+          "catalog": "59d97b7cebe4b8e535e3ce595536409660ffd6ae1beac12719a5de9d5fb09a2a",
+          "seasonal": "28948c6cf8a1d68fdd1abcbf407c44aee8ff573554cd4d01d1b13b7dd0683ca2"
         }
       }
     },
     "thank-you-bloom": {
-      "revision": 4,
+      "revision": 1,
       "covers": {
         "vi": {
           "portrait": "2f39fc0f50ba467ad169146aecb9f73f78ebac7a7294fc37a863a28226328252",
@@ -363,22 +363,22 @@
       }
     },
     "proud-of-you": {
-      "revision": 3,
+      "revision": 1,
       "covers": {
         "vi": {
-          "portrait": "82bd6d1d03b6d50eb208fabcf46c77562d542edb66f6cabd34541bcce402dd5d",
-          "catalog": "bb1fe1e0282abcc590abf6197b2ae277153a4e058de74837ee631efe51935695",
-          "seasonal": "6c3d966c092d1eeb3e7545fbdb867d8069a16f7d92bbc5c5aa2520d0fb871356"
+          "portrait": "2f607f97770ebe772ef3d0373c3c75aee86e658d96a41fab9b751003a5e51559",
+          "catalog": "d802f9f8dc65e0151152ef736bd48535e875917e41b2f3161a6a539d7bcf8a18",
+          "seasonal": "a8e16bed5f46a690d5f8ac59a172088acfc3230f9cfa5efa85929fa6a62d833d"
         },
         "en": {
-          "portrait": "0500a77d64ed6f6a99ba52915cef1a4cf21087ed27adc6f3a88c22ec1fc1cffa",
-          "catalog": "a5637b9c02a72c3dffbb0891a9229683cd093542ddf8d3a53d815e50bd1f3203",
-          "seasonal": "44ec8f312c0816ea5cd2fb82a4fb20e496f0a5fa06cd7295fec37db9021aba6b"
+          "portrait": "8c9381b498b6df190a4141f617488b8f9381c538539e9b3bd1e74621913a6c29",
+          "catalog": "d6352048815412a50467b7daa51d161a786ff8e18758fe2d22527db9794738e3",
+          "seasonal": "a513a70182fc2c6355098f8854a2904dcc4f8d9ad529ff7456a9221abb21f7a5"
         }
       }
     },
     "faraway-hug": {
-      "revision": 4,
+      "revision": 1,
       "covers": {
         "vi": {
           "portrait": "38548c03ff38ec9701f3f6c8d6afab3b3350ad52c8af690f42927bb3e0d0c396",
@@ -393,7 +393,7 @@
       }
     },
     "gentle-apology": {
-      "revision": 4,
+      "revision": 1,
       "covers": {
         "vi": {
           "portrait": "b858d708d20c3cd7a6bd6c1f4eca26a355f58486d802df938440310fd70bc859",
@@ -408,7 +408,7 @@
       }
     },
     "calm-light": {
-      "revision": 4,
+      "revision": 1,
       "covers": {
         "vi": {
           "portrait": "3a14e46c7ae7e1b7470e1d4a4b9619beecc0145c8148a576e27ed605f2348ecd",
@@ -419,6 +419,246 @@
           "portrait": "955da60bfc069f72b04bb7a4fff12c02f6819d305bfaf9e4540ff53cfb58d786",
           "catalog": "f2cb92ca530c4d87674e4be174be1bf10ff7cc96f1a52d90d7e11bf25c83f47b",
           "seasonal": "9891f4410340b30364e9831286caa1e6b02dac4a7bd50a2d65570228a57105ea"
+        }
+      }
+    },
+    "snowglobe-countdown": {
+      "revision": 1,
+      "covers": {
+        "vi": {
+          "portrait": "ee9e2af2846788c88c0f40fe27ae9bcf52a591b78116996d3453df873e04cef5",
+          "catalog": "32389c245906f498e8e153f374fc95fb632d4c634e3d3a43043491804203e8fa",
+          "seasonal": "5477a1661a45dc6a8c15e429372b97322fcea448228c7b3338e7c0beb3a1da95"
+        },
+        "en": {
+          "portrait": "c469a015ee036f12d04d4c867d8328d9d47df9cd5bdf8ff8ec349d894167306a",
+          "catalog": "f7e8146e5c1d2a6432870bd6188ed4623866f241f4149db8ec1c32dfd23fb9ba",
+          "seasonal": "e9d33cbd9b95b1eae2dbe7d6ed9816a6bccd19359d8d165b09644d555e3c0b5b"
+        }
+      }
+    },
+    "gift-box-carol": {
+      "revision": 1,
+      "covers": {
+        "vi": {
+          "portrait": "4fe6a3fb697b409b1b938c142fbefbdc3f96bf3a745f362fd4ffc3c6490cbfed",
+          "catalog": "7ac2d9c25e4fae327e90f500373a5b6e89fbaa2ea4020aab97c1f1b9c96eba65",
+          "seasonal": "db3ac6266a174603d4207ea0213549c55a3f8780c7b8181e4bb70de5672b2797"
+        },
+        "en": {
+          "portrait": "b06538960e4cf3e57976f89c2bcecb4cabacc1a96ce7676010885e63ea5ff828",
+          "catalog": "6a51874e20aece242898e5be83002fd98bdecbe89830159b2da7bfd4e47f4f85",
+          "seasonal": "87a31548d5976e2c49b18d6bfd26f0bb0dee0b959f9fcb2c0857dcbd932ba1b3"
+        }
+      }
+    },
+    "north-star-dinner": {
+      "revision": 1,
+      "covers": {
+        "vi": {
+          "portrait": "631a2c071cc058b1c4aa98240e2d8e1ebd31009cc65e4e4ecc9b97ebd3b54feb",
+          "catalog": "39b689df3fc0dae4258679a0f6070a8f35a3a9664f9d5a3f5d42773f985265ab",
+          "seasonal": "8164fff941ebf93aa842f8623cf367adda869c5b421c96356aac6fcb6d3a2713"
+        },
+        "en": {
+          "portrait": "c1396bdd25af8840791c89471f95e39214d57ec6841cbdeac68e607cf160b0a8",
+          "catalog": "044ac42d5f7e750af3b8470b2bdd16615accffdf8688b64f0a3c1c321a628d9d",
+          "seasonal": "65b3c0a660c91bbc79d05b26002640f45d032f5cfcf15c709a0beb65ec9ad7e8"
+        }
+      }
+    },
+    "winter-postbox": {
+      "revision": 1,
+      "covers": {
+        "vi": {
+          "portrait": "86ec4206e4b210dd34865316f130d400c69b824e456e33d677915d606fd55706",
+          "catalog": "b80a2309f64a7f2b16d257da32c29d2628c88a02a4b55f0bcee8f46212be8244",
+          "seasonal": "021728ddf231b14aaa32526dd86ccbfd5ca18fde8f9b848bd700e2fb5d462600"
+        },
+        "en": {
+          "portrait": "86992be2ecc625681530ed45ed56bf608ecc70008f6be676f8af94c92daf26cf",
+          "catalog": "98f2b1279b81d63c54f74c90b50f53a33603380baeea024c23d1514158ed14e6",
+          "seasonal": "b1fdb621bf089124d7d3c3160598e39f58bb86ccd376d5cb6363b9bec8f859f1"
+        }
+      }
+    },
+    "tassel-lift": {
+      "revision": 1,
+      "covers": {
+        "vi": {
+          "portrait": "2133c464174823e0a040c83ce3eb698570bcc58476fc3333961d7cc0d1a1ad0f",
+          "catalog": "6ff6fcfafe4f51b4c37bdea9380614b58b61db56c87bb4692ab22104f75f9bc4",
+          "seasonal": "7251de7970ce7e00f66650a146ae99882b4e2fdf73370ace13773e0c87371dc9"
+        },
+        "en": {
+          "portrait": "d074c2870dd2ea67d27d98484f68cc3a91927baa5c82815074ad18bcca9d8bfb",
+          "catalog": "62e5cd78d037a7e350e59769dc96900569030f67028835934b1208895b79af36",
+          "seasonal": "fac63189d90c308086ea8d96c1ca55396a999e52ee7cf451eda6b416aca27915"
+        }
+      }
+    },
+    "yearbook-tribute": {
+      "revision": 1,
+      "covers": {
+        "vi": {
+          "portrait": "34484a5a0ceb3c405f9c72daba1291d4d13682494f6b4552c8e0cb8bde4a7697",
+          "catalog": "1d02147dd152416924b347146089922ef118f9a929fd8c971c3770207234e5c5",
+          "seasonal": "d42570f8d49c0e3e76f42c63c8cb39bf600ee2dc16151f4bfc8a5495c0679b31"
+        },
+        "en": {
+          "portrait": "10bae90e13a05b9de11f7fa04489ea2e6b8efa55109fa4a999c30933d92cb03b",
+          "catalog": "1a6ac0441a8ee026daecb957565f58ed2b9578f3d4c9b1f668a8094a7aaa6259",
+          "seasonal": "63959354510f24dba6c8ec479b92b4ff5132eaf5bac795a1f28ec733f562ab4a"
+        }
+      }
+    },
+    "coffee-catchup": {
+      "revision": 1,
+      "covers": {
+        "vi": {
+          "portrait": "b0f66944a1da123e4a057e43f4c5681e315a42efb293f6020f393a6e9491f29e",
+          "catalog": "3d027119c461bb1a703a39cac0648db66939edca3f5a8a1864f1d8f3869fc3e1",
+          "seasonal": "a6e956685024e57d1462bbabb00092dfe40cd718670bc76bf7f7b5b58bb20cc2"
+        },
+        "en": {
+          "portrait": "d0687c0ce19401df5bb4c7ac232347ab4cd4c6c775fd5f62914a3c1373cbb48a",
+          "catalog": "f9bffa04fb9059a0bc046eca846ffeb8e51e5ce955018e4d146c1ad97471757a",
+          "seasonal": "426bdb019000f94696684ba82384d5447f4a5b8f4c42a7dcb947e8122d72439b"
+        }
+      }
+    },
+    "night-market-reunion": {
+      "revision": 1,
+      "covers": {
+        "vi": {
+          "portrait": "57de6c45782fc67b0a51c002b6b618226f117b84a8b8b3225f18b7ba6f1e6005",
+          "catalog": "54ce00914da5d5fd49b30e4e3b39c3a66ee69eec8a745e90de17de0dd0f53fbe",
+          "seasonal": "ddab0be3b4904584028891be0fb9c525db288523bb84c65640ed0ab6c8715a9b"
+        },
+        "en": {
+          "portrait": "2b053e562398eaed34727e6a90260b431475c6c38391dba2505f7f17b882bf50",
+          "catalog": "8d22eac479649898c8020d4aa44adfa8cabef03523086dfb60fd37c81b80710a",
+          "seasonal": "bbbf93884f8ffa9a4e2c8f619b33d811d66fdd3af0221d72ba8ac89275f2cc73"
+        }
+      }
+    },
+    "candle-wish-box": {
+      "revision": 1,
+      "covers": {
+        "vi": {
+          "portrait": "2d91e3b20db6ebc30d9403764e9d5944d03cae3c3acc081b0385cdf8963c5798",
+          "catalog": "9b0fb41b228edc51677442f6630b37edd6a47e356aaeea389c7a4ab30e9c3cc9",
+          "seasonal": "e57b9cfe0284a2be2b9f2b83bb367c6e813f7759275889288c02e7b66e02ec69"
+        },
+        "en": {
+          "portrait": "14559b10a507577fc721d9993ffb922a8db29b69b6dd8ffcc290ae79a67f1175",
+          "catalog": "7af2e5148b1de70a32b27562f667f889213a1beb2b39c2b4698194980180a87d",
+          "seasonal": "4bc4d22f19d4e274e39075ec0a8196b1d054d374fbfbab3c92b82b87ec674b4f"
+        }
+      }
+    },
+    "balloon-quest": {
+      "revision": 1,
+      "covers": {
+        "vi": {
+          "portrait": "b1b1d2c857752afc06b3dd09858a5bbc5ed13f8242e476cb9b0b0845273294e3",
+          "catalog": "a7c02f36c512878cbb16037f9708575dfff7f9998475191cfb8770df55d87c5c",
+          "seasonal": "b490910f3442b8cb74df3fc7a65b6af0be950623558a03f817c0c465ce087bc3"
+        },
+        "en": {
+          "portrait": "066d988ee1561a565e84eb8954990a33dfe70db6e962f6fcdae1e23b2b011a4a",
+          "catalog": "ca086a4f247e027ae5f088f50757b0266347005a01062f6cb0c834437f58a8ea",
+          "seasonal": "86af11401d87eb19649aaea01098a3d5b0c34acd4991ea8d1daa8012e73019fc"
+        }
+      }
+    },
+    "surprise-cake": {
+      "revision": 1,
+      "covers": {
+        "vi": {
+          "portrait": "37920aab96b3906fc7d308da1ab81ee6628f682564d1f2252d7aadca81642805",
+          "catalog": "eeae9a9d2f1ea9d94c5725ff883d9d7144df13d1f0babee26d17ed18d49d4db2",
+          "seasonal": "d8d90f0c4d39f12691e5c074ab90b441b0a47c3676776e0a605231b59a4c0ee9"
+        },
+        "en": {
+          "portrait": "eab70e40f5e89aaa5f82f70dd243a78b5ec5463d234db2be1cbec89164b95bdb",
+          "catalog": "426fda07d8aa435fba9cd946cdeb89a03e5a98fe945ae01b9881c1d0f6e0e8da",
+          "seasonal": "ca27f94cb8f30a225165bb2602b6ef6e63ba7c8d3e39293a1823ecfb798d4ce1"
+        }
+      }
+    },
+    "starlight-memory": {
+      "revision": 1,
+      "covers": {
+        "vi": {
+          "portrait": "09a7df294620a33cd9ea147f7928788a95920ceb7c463111903bd9dafd77c1f2",
+          "catalog": "c26dea0282a331a460218a4de49111eb618ce49636c3317463f029a5877b1449",
+          "seasonal": "acdff0fc46885afce2036f75cf070c3423bffb1fc310203debcfe3a0b9b44418"
+        },
+        "en": {
+          "portrait": "e34819956848718d0b8135cf526e8be017d10b130232e65d2aefc97a84748610",
+          "catalog": "13a1057cfa3333cfce3e8ec440daf6bd1337e365a7063861abb7db6bbc99ce0a",
+          "seasonal": "ba702ad3e7b5da5d75e037432c8b9dd2bbf50fe94a6fe43ec94075cc36d8f7d2"
+        }
+      }
+    },
+    "sealed-garden": {
+      "revision": 1,
+      "covers": {
+        "vi": {
+          "portrait": "c0348e6d6f1219b8d89e8834574f5dd95b171a54756238f138bd1af5b015cf62",
+          "catalog": "7f2be5bd78be88daad9787cb6874cc6ce2af1cb14108493872550900e4db56bf",
+          "seasonal": "eba02509d7617805d97e464980f5e7b59209dd4244ed162b141d3e27d9f2bba3"
+        },
+        "en": {
+          "portrait": "b8d5921db9f2eb1fc5614fd59ea70b5416779d9108a23d1d01683dda5d32c814",
+          "catalog": "e1e73e77e0b3a9f3484f83a4f1a71ba9029852f2a68d31182633355d04b75d13",
+          "seasonal": "5a0442c36d184e84aceefaa255a04c85d53a4172d4c2167b48e7e9124a4e6fdb"
+        }
+      }
+    },
+    "polaroid-love": {
+      "revision": 1,
+      "covers": {
+        "vi": {
+          "portrait": "1410ead3e0f7d01bac0378a19f14e2d5caddc65c014d537ed7b4cbc6f9ac429b",
+          "catalog": "018495fa4e56e656af4f7364ffeb6c0f2c19078abcc22bf03f50558253cfeacb",
+          "seasonal": "e0d6925fe4f7c2015a921571531f16d798f9d1e065fff0fb95c87f8fe8b5db2a"
+        },
+        "en": {
+          "portrait": "c6728874cabf069c4622dee83f0835758affe0ddfa4601c1048c16adc80e3730",
+          "catalog": "1248a283123fe00496f3e5a49334b4ed5feb1dacc8839ef9b82d05f2770a2f0b",
+          "seasonal": "3aae6ed7601940fd8f488ab80dc0b700548307b2dd8c44a7acbf223ffad99a34"
+        }
+      }
+    },
+    "moonlit-promise": {
+      "revision": 1,
+      "covers": {
+        "vi": {
+          "portrait": "7e4084b954f3c748a7787a3431af0e1c6e2429a3cebd91edd2f4f04509094041",
+          "catalog": "de019aa46532300d659f090f8037d727257a486dfc07a4473aff1e52462b455c",
+          "seasonal": "69e8b1464db2a833f7cfaa2a25be8fe4f14887d8fd09682f984b59584a019ae1"
+        },
+        "en": {
+          "portrait": "8c4830eaeb98672a90884fb7d24a54a9a232979113d38a4ba4575117aaee5a26",
+          "catalog": "0a72934b67f850591a8edb8c1b7c07f012a47b3f8ad381c1d3e563011dadc360",
+          "seasonal": "d5f29104f7a0c48568354a145b1f1751ee6a6e26945a8bd416d65f00eeec2027"
+        }
+      }
+    },
+    "golden-blossom": {
+      "revision": 1,
+      "covers": {
+        "vi": {
+          "portrait": "fd9d30bb64a4c6c100f7ac6f797cd68fa5628c814cf3047e885f937889afbc00",
+          "catalog": "b4bb08dccf9b7aa32aab509ed9b65023a5bff5890b2bc0694744bfadb93cf589",
+          "seasonal": "bd4321d7bdb4a9ae084d6024c5f462c7531b2b2841b22f5c80eaf14fe7a5ae2f"
+        },
+        "en": {
+          "portrait": "0b157c437fecf0b57beabb2990d84442c0b28e1903ef1f18db8d2f068a38e44c",
+          "catalog": "0ca1094ee72588ccb6fef01691d1bdffbe263cad7fa90c86defd93be71a4c473",
+          "seasonal": "0a54cd28a54e39523c057cfff835a67d49a3081b0acb9e34dab0e0a2775a5a05"
         }
       }
     },

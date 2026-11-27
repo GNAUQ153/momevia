@@ -1299,3 +1299,53 @@ span.gift-comparison-range {
   min-height: 44px;
   font-size: 16px;
 }
+
+/* Tiện ích sự kiện chỉ dành cho thiệp mời có dữ liệu hợp lệ. */
+.gift-event-tools {
+  width: 100%;
+  max-width: 600px;
+  margin: 16px auto;
+  padding: 20px;
+  border: 1px solid #ded9e2;
+  border-radius: 18px;
+  background: #ffffff;
+  color: #30243b;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+.gift-event-tools h2 {
+  font-size: 1.25rem;
+  margin: 0 0 12px;
+}
+.gift-event-tools p {
+  margin: 8px 0;
+}
+.gift-event-countdown {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
+.gift-event-tools a,
+.gift-event-tools button {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 44px;
+  max-width: 100%;
+  margin: 4px;
+  padding: 8px 14px;
+  border: 1px solid #5939a5;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #432680;
+  font: inherit;
+  cursor: pointer;
+}
+.gift-event-tools :is(a, button):focus-visible {
+  outline: 3px solid #5939a5;
+  outline-offset: 2px;
+}
+
+.gift-runtime-originals .gift-runtime-control-label {
+  font-size: clamp(16px, 2.2vw, 20px);
+  line-height: 1.25;
+}

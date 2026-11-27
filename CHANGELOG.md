@@ -1,3 +1,133 @@
+## Unreleased - Khắc phục browser CI (2026-11-28)
+
+- Thu gọn khoảng cách giữa bộ mẫu và phần hành trình trên desktop, giữ kiểm tra giới hạn khoảng trắng hiện có.
+- Đồng bộ kỳ vọng Catalog/MySQL với bộ 16 Originals và kiểm tra carousel quay vòng đủ 16 mẫu.
+
+## Unreleased - UI theo mùa và bộ 16 thiệp (2026-11-27)
+
+- Làm lại hero, chữ, màu và chuyển động CSS 3D; dùng cùng bố cục VI/EN.
+- Thêm chiến dịch Giáng sinh, năm mới, đoàn viên, có tắt hiệu ứng và hỗ trợ giảm chuyển động/tiết kiệm dữ liệu.
+- Thiết kế lại 16 Originals với lời dẫn riêng, 4 cảnh nối tiếp, đường bỏ qua hiệu ứng và ảnh cover phù hợp Catalog.
+- Ưu tiên 16 mẫu hệ thống, giữ nguyên giá, quyền, nháp và quà đã phát hành.
+- Bổ sung nguồn cấu hình và build Hostinger, đề xuất cập nhật thư viện có revision, cùng báo cáo kỹ thuật/nghiệp vụ.
+- Chưa triển khai lên Hostinger/Railway hoặc áp dụng cập nhật MySQL.
+
+## Unreleased — Signature S5B (2026-11-27)
+
+- Thêm sáu hiệu ứng mở thiệp riêng trên layer Signature, sử dụng nút chạm/bàn phím và lifecycle motion hiện có.
+- Giữ rotation, opacity và artwork của Sender; nhận diện qua kind để hoạt động khi nhân bản.
+- Bổ sung nhãn VI/EN, giảm chuyển động và hủy animation khi rời cảnh; tiếp tục giữ Catalog QA riêng.
+
+## Unreleased — Signature S5A Local Review (2026-11-27)
+
+- Cho phép xem và tạo nháp sáu mẫu Signature trong Catalog profile demo JSON riêng qua `--signature`; giữ production mặc định tắt.
+- Nạp ảnh cover từ Canvas renderer theo quyền đọc Catalog, bổ sung metadata VI/EN và slot sự kiện cho Sender.
+- Không chèn mẫu vào seed thương mại hoặc MySQL; chưa khôi phục animation đặc trưng.
+
+## Unreleased — Signature S4 (2026-11-27)
+
+- Tạo sáu Canvas template nghiệm thu nội bộ VI/EN với artwork Signature riêng, bốn cảnh và slot sự kiện, ảnh tùy chọn.
+- Bổ sung factory và công cụ xuất JSON/SVG local; chưa kích hoạt Catalog hoặc MySQL seed, chưa triển khai opening riêng.
+- Không thêm dependency, migration hoặc ảnh cá nhân.
+
+## Unreleased — Signature S3 (2026-11-27)
+
+- Cho phép đổi màu vector Signature chỉ có nét viền, giữ màu cố định và đường nét khi áp dụng Fabric.
+- Giới hạn Inspector của vector Signature ở các thuộc tính có tác dụng; giữ điều khiển hình học và ảnh hiện tại.
+- Cho phép sắp xếp ô ảnh tùy chọn chưa tải ảnh trong Fabric Studio, không thay đổi quyền Creator hoặc cho phép xuất ảnh placeholder.
+- Bổ sung kiểm thử hồi quy theo 6 concept; không thêm dependency hoặc migration.
+
+## Unreleased — Signature S2 (2026-11-27)
+
+- Đăng ký sáu cụm artwork Signature vào thư viện Elements, hỗ trợ chèn 34 layer độc lập và tìm kiếm VI/EN.
+- Bổ sung các mục thiếu trong MySQL theo giao dịch, giữ nguyên chỉnh sửa và trạng thái Admin; không tạo template công khai hoặc migration mới.
+- Cập nhật kiểm thử số lượng Elements, giữ nguyên 293 mục cũ.
+
+## Unreleased — Momevia Originals 16 (2026-11-27)
+
+- Thêm 16 mẫu Canvas gốc VI/EN, 4 scene tương tác, artwork SVG và khung ảnh cá nhân hóa; giữ nguyên 28 mẫu cũ.
+- Thêm dữ liệu thư viện thiếu theo giao dịch, không ghi đè bản sửa Admin; giá mẫu mới mặc định 0 VND để nghiệm thu.
+- Bổ sung đếm ngược, bản đồ và lịch sự kiện theo thông tin công khai đã xác thực; tạm dừng nhạc khi phát bản ghi cá nhân.
+- Không thêm dependency hoặc migration.
+
+## Unreleased — Phase 4.6A Auth Aurora (2026-11-27)
+
+- Làm mới bố cục Login/Register tối với artwork 3D tách khỏi nội dung, nút dùng gradient thương hiệu và typography tự xuống dòng.
+- Giới hạn animation giới thiệu một lần trên desktop, giữ vùng bấm ổn định, focus rõ ràng và hỗ trợ reduced motion.
+- Giữ nguyên OAuth, biểu mẫu, bản dịch VI/EN, tài khoản, phân quyền và dữ liệu; không thêm dependency.
+
+## Unreleased — Phase 4.5H Catalog Acceptance (2026-11-27)
+
+- Bổ sung kiểm thử liên kết renderer, giá mẫu, phân trang, quyền yêu thích Guest/Customer và phiên bản Creator bằng fixture.
+- Nghiệm thu Catalog trên sáu cấu hình VI/EN bằng Browser E2E, đối chiếu giá API, bộ lọc, Preview, focus và điều hướng Back; lưu ảnh khi có thư mục artifact.
+- Không thay đổi runtime, dữ liệu, dependency hoặc migration.
+
+## Unreleased — Phase 4.5G Catalog Cover Loading (2026-11-27)
+
+- Trì hoãn ảnh bộ sưu tập theo mùa và ảnh Creator trong lưới danh mục/yêu thích bằng bộ tải ảnh theo viewport hiện có.
+- Giữ nguyên URL, kích thước ảnh, giá, bản dịch, ảnh Hero và ảnh trang chi tiết; không thêm cache dữ liệu người dùng hoặc dependency.
+- Bổ sung kiểm thử markup, chuyển trạng thái tải ảnh và tái sử dụng ảnh khi lọc.
+
+## Unreleased — Phase 4.5F.1 Preview Price Marker (2026-11-27)
+
+- Đổi marker giá Preview để tránh trùng tiền tố với nút mở Preview; giữ nguyên giá và luồng tạo thiệp.
+- Bổ sung kiểm thử hồi quy marker, không nới lỏng các kiểm thử Hero hiện có.
+
+## Unreleased — Phase 4.5F Catalog Price Discovery (2026-11-27)
+
+- Phân loại giá mẫu theo số nguyên VND hợp lệ; không coi giá thiếu, rỗng hoặc sai kiểu là miễn phí.
+- Hiển thị giá và nhãn trả phí rõ ràng; đồng bộ giá trong Preview khi Hero đổi mẫu, giải thích phạm vi giá và quyền xuất bản bằng VI/EN.
+- Giữ tuyến tạo thiệp, quyền sử dụng, thanh toán, dữ liệu và phân trang; không thêm dependency hoặc migration.
+
+## Unreleased — Phase 4.5E Seasonal Collections (2026-11-27)
+
+- Ưu tiên chiến dịch đang diễn ra, mùa sắp tới, sau đó các mùa đã qua; dữ liệu lịch thiếu không làm lỗi danh mục.
+- Hiển thị nhãn theo mùa, tên dịp, giá thật và số mẫu; đồng bộ VI/EN, token, responsive, focus và reduced motion.
+- Giữ danh sách chính, bộ lọc, quyền sử dụng mẫu và dữ liệu seed; không thêm dependency hoặc migration.
+
+## Unreleased — Phase 4.5D Template Preview Experience (2026-11-27)
+
+- Chuẩn hóa giao diện xem thử theo token, ưu tiên CTA dùng mẫu, trạng thái tải/lỗi rõ ràng và bố cục responsive.
+- Giữ ghi chú mô phỏng trong suốt phiên xem; đặt lại trạng thái tải và vị trí cuộn khi mở lại, giữ cơ chế hủy request và dispose player.
+- Giữ URL tạo thiệp, phiên bản mẫu, quyền truy cập và runtime hiện có; không thêm dependency hoặc migration.
+
+## Unreleased — Phase 4.5C Catalog Card Motion (2026-11-27)
+
+- Hiệu ứng nghiêng CSS 3D chỉ trên artwork khi dùng chuột, giữ nguyên vị trí nút yêu thích, vùng xem mẫu và metadata.
+- Nhãn xem mẫu luôn hiện; tăng vùng chạm yêu thích, giữ focus và tắt chuyển động trên thiết bị cảm ứng hoặc khi giảm chuyển động.
+- Đăng ký CSS trong cả gói đầy đủ và gói Catalog; bổ sung kiểm thử hợp đồng và hồi quy trình duyệt. Không thêm dependency hoặc migration.
+
+## Unreleased — Phase 4.5B Catalog Active Filters (2026-11-27)
+
+- Hiển thị điều kiện đang áp dụng, xóa từng chip và giữ các điều kiện còn lại; đồng bộ control, URL, focus và phân trang.
+- Dùng nhãn VI/EN và token giao diện hiện có, escape dữ liệu; giữ API, giá, quyền và thuật toán lọc.
+- Bổ sung sáu kiểm thử hồi quy, không thêm dependency hoặc migration.
+
+## Unreleased — Phase 4.5A Catalog Layout (2026-11-27)
+
+- Làm mới bố cục Catalog bằng token màu, spacing, radius và elevation hiện có.
+- Chuẩn hóa lưới ba, hai và một cột; giữ focus, reduced motion và giao diện VI/EN.
+- Giữ renderer, bộ lọc, phân trang, artwork, giá và quyền sử dụng mẫu. Không thêm dependency hoặc migration.
+- Bổ sung năm kiểm thử hợp đồng CSS và cập nhật phiên bản stylesheet.
+
+## Unreleased — Phase 4.4H.2 Marketing Performance Gate (2026-11-27)
+
+- Bổ sung nghiệm thu báo cáo local-lab v2 theo ngân sách p75, kiểm tra đủ dữ liệu VI/EN và viewport.
+- Phát hiện lỗi JavaScript, tràn ngang và cảnh báo suy giảm so với baseline; không thay đổi runtime hoặc database.
+- Bổ sung 13 Unit Test; chưa đo INP và không suy diễn kết quả production từ lab.
+
+## Unreleased — Phase 4.4H.1 Landing Performance (2026-11-27)
+
+- Tạm ẩn Floating CTA khi nhập liệu trên thiết bị cảm ứng.
+- Hạn chế đo DOM khi không cần kiểm tra va chạm.
+- Bảo toàn Home Construction, Hero Carousel và reduced motion.
+
+## Unreleased — Phase 4.4G.2 Carousel Accessibility (2026-11-27)
+
+- Thêm điều khiển tạm dừng và tiếp tục Hero Carousel trên desktop; giữ chọn mẫu thủ công trên mobile và hỗ trợ bàn phím, VI/EN, reduced motion.
+- CTA nổi nhường chỗ cho CTA sau khi mở quà và trong hiệu ứng dựng trang chủ. Giữ cơ chế animation, phân quyền và nghiệp vụ hiện có.
+- Cập nhật kiểm thử Hero Carousel và CTA; không thêm dependency hoặc migration.
+
 ## Unreleased — Kiểm định thiết kế Canvas và thư viện thiệp (2026-11-27)
 
 - Sửa bản xuất PNG trong Fabric Studio để giữ chú thích, mặt nạ ảnh, chữ cái mở đoạn và thứ tự các lớp hình. Hoàn tác, làm lại và nhân bản giữ đúng nội dung và kiểu dáng đã chỉnh.
@@ -7,6 +137,7 @@
 ## Unreleased — Nhóm khối trên canvas (2026-11-27)
 
 - Khi thêm một khối nhiều lớp từ thư viện, người gửi có thể di chuyển, xoay, đổi kích thước hoặc nhân bản cả khối và vẫn chỉnh được từng ảnh, đoạn chữ. Các lớp rời trong nháp cũ có thể nhóm lại bằng thao tác chọn nhiều lớp.
+
 
 ## Unreleased — Phase 4.4F CTA Conversion (2026-11-27)
 

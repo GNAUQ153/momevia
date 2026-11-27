@@ -91,16 +91,18 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Bổ sung CTA tạo thiệp sau khi mở quà mẫu, dùng chung hộp thoại chọn loại thiệp với Hero; chuyển replay thành hành động phụ, giữ focus, giao diện VI/EN và reduced motion. Không phát sinh giao dịch hoặc dữ liệu nghiệp vụ.
+- Thêm sáu hiệu ứng mở thiệp riêng trên layer Signature, sử dụng nút chạm/bàn phím và lifecycle motion hiện có.
+- Giữ rotation, opacity và artwork của Sender; nhận diện qua kind để hoạt động khi nhân bản.
+- Bổ sung nhãn VI/EN, giảm chuyển động và hủy animation khi rời cảnh; tiếp tục giữ Catalog QA riêng.
 
 **Các commit gần nhất trên `main`:**
 
-- `5dd6c55` — feat(ui): introduce contextual gift showcase CTA and shared creation dialog (2026-11-27)
-- `af9c0ef` — feat(ui): introduce interactive gift opening showcase and replay (2026-11-27)
-- `b75905e` — feat(ui): introduce responsive interactive journey bento layout (2026-11-27)
-- `f3d9d77` — feat(ui): improve scroll reveal with staggered motion and stable section layout (2026-11-27)
-- `d5f25c9` — feat(ui): introduce animated hero mesh gradient with bounded motion lifecycle (2026-11-27)
-- `881b299` — fix(ui): stabilize responsive spacing between hero and featured templates (2026-11-27)
+- `9af78d4` — feat(signature): introduce six layered opening animations (2026-11-27)
+- `0e6790a` — feat(signature): enable isolated local catalog and canvas review (2026-11-27)
+- `3f1bb7c` — feat(signature): introduce six editable bilingual template documents (2026-11-27)
+- `bb8ca53` — feat(signature): improve editable vector inspector and optional photo layout (2026-11-27)
+- `adb1872` — feat(signature): register six editable artwork collections in canvas library (2026-11-27)
+- `7292608` — feat(signature): introduce independent editable vector artwork (2026-11-27)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

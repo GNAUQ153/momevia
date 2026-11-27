@@ -1,5 +1,6 @@
 import { normalizeCardTypeFilter, templateCardType } from '../../shared/card-type.js';
 import { canonicalText } from '../../shared/locale.js';
+import { templatePriceTier } from './price.js';
 
 // Các phép lọc thuần, dùng chung cho giao diện và unit tests.
 export function searchText(value) {
@@ -25,7 +26,7 @@ export function filterTemplates(
   const type = normalizeCardTypeFilter(cardType);
   return templates.filter((template) => {
     const matchesStyle = style === "all" || style === "Tất cả" || template.style === style;
-    const matchesPrice = !freeOnly || Number(template.price) === 0;
+    const matchesPrice = !freeOnly || templatePriceTier(template.price) === 'free';
     const fields = [
       template.title,
       template.subtitle,
@@ -42,6 +43,35 @@ export function filterTemplates(
       );
     return (type === 'all' || templateCardType(template) === type) && (category === "all" || template.category === category) && (palette === "all" || template.palette === palette) && matchesStyle && matchesPrice && matchesSearch && (!photoOnly || template.personalization?.photoFrames > 0);
   });
+}
+
+// Một danh sách điều kiện dùng chung cho chip và thao tác xóa từng bộ lọc.
+const catalogFilterControls = [
+  ['search', 'template-search', ''],
+  ['cardType', 'card-type-filter', 'all'],
+  ['filter', 'style-filter', 'all'],
+  ['occasion', 'occasion-filter', 'all'],
+  ['palette', 'palette-filter', 'all'],
+  ['freeOnly', 'free-filter', false],
+  ['photoOnly', 'photo-filter', false],
+];
+
+export function activeCatalogFilters(state) {
+  return catalogFilterControls.filter(([key, , reset]) => {
+    const value = state[key];
+    if (key === 'search') return Boolean(value?.trim());
+    if (typeof reset === 'boolean') return value === true;
+    return Boolean(value && value !== reset);
+  }).map(([key]) => key);
+}
+
+export function clearCatalogFilter(state, key) {
+  const entry = catalogFilterControls.find(([name]) => name === key);
+  if (!entry || !activeCatalogFilters(state).includes(key)) return null;
+  const [, controlId, value] = entry;
+  state[key] = value;
+  state.catalogPage = 1;
+  return { controlId, value };
 }
 
 export function countLabel(count) {

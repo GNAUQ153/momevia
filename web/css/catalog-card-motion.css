@@ -1,0 +1,74 @@
+/* Chỉ chuyển động artwork trong Catalog; giữ nguyên vùng bấm và giá. */
+.catalog-section.catalog-compact .catalog-grid .template-card {
+  animation: none;
+  transform: none;
+}
+
+.catalog-section.catalog-compact .catalog-grid .template-card:hover {
+  transform: none;
+}
+
+.catalog-section.catalog-compact .catalog-grid .template-card__visual {
+  background: var(--color-lavender);
+}
+
+.catalog-section.catalog-compact .catalog-grid .template-card__visual .artwork {
+  transform: none;
+  transition: none;
+}
+
+/* Nhãn xem mẫu không phụ thuộc hover, cả trên màn hình cảm ứng. */
+.catalog-section.catalog-compact .catalog-grid .template-card__view {
+  opacity: 1;
+  transform: none;
+  transition: none;
+  max-width: calc(100% - 14px);
+  background: var(--color-white);
+  color: var(--color-ink);
+  font-size: var(--type-small);
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+  pointer-events: none;
+}
+
+.catalog-section.catalog-compact .catalog-grid .template-card__view .icon {
+  flex: none;
+}
+
+.catalog-section.catalog-compact .catalog-grid .template-card__visual:focus-visible {
+  outline: var(--control-focus-width) solid var(--color-focus);
+  outline-offset: calc(-1 * var(--control-focus-width));
+}
+
+.catalog-section.catalog-compact .catalog-grid .template-card .favorite-button {
+  min-width: var(--ui-control-min-height);
+  min-height: var(--ui-control-min-height);
+  transform: none;
+  transition: none;
+}
+
+/* Thu nhẹ trước khi nghiêng để giữ nội dung thiệp trong khung cắt. */
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .catalog-section.catalog-compact .catalog-grid .template-card__visual .artwork {
+    transition: transform var(--ui-transition);
+  }
+
+  .catalog-section.catalog-compact .catalog-grid .template-card__visual:hover .artwork {
+    transform: perspective(900px) rotateX(3deg) rotateY(-5deg) scale(.94);
+  }
+
+  .catalog-section.catalog-compact .catalog-grid .template-card .favorite-button {
+    transition: color var(--ui-transition), background-color var(--ui-transition), border-color var(--ui-transition);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .catalog-section.catalog-compact .catalog-grid .template-card {
+    transition: none;
+  }
+
+  .catalog-section.catalog-compact .catalog-grid .template-card__visual .artwork {
+    transform: none;
+    transition: none;
+  }
+}

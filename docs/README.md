@@ -2,6 +2,7 @@
 
 | Cần làm gì | Tài liệu |
 | --- | --- |
+| Rà soát OOP, bảo mật, nghiệp vụ và bản sửa UI | [Đánh giá mã nguồn](danh-gia-ma-nguon.md) |
 | Chạy demo với Creator, Admin và Sender | [Web demo](DEMO_WEB.md) |
 | Thiết kế, duyệt, cá nhân hóa, gửi và thu hồi quà | [Hướng dẫn canvas](CANVAS_SENDER_GUIDE.md) |
 | Tìm module và hợp đồng HTTP | [Kiến trúc](ARCHITECTURE.md) · [API](ENDPOINTS.md) |

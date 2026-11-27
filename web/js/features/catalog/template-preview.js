@@ -4,10 +4,13 @@ import { attr, createLocaleControl, message, onLocaleChange, setAttr, text, t } 
 import { isSystemTemplate } from '../../shared/template-copy.js';
 import { templateField, templateValue } from './template-copy.js';
 import { templateCreateUrl } from './template-create-url.js';
+import { templatePriceText, templatePriceTier } from './price.js';
 
 export function templatePreviewDialog(template) {
-  return `<dialog class="template-preview-dialog" ${attr('aria-label', 'catalog.detail.previewLabel', { title: templateValue(template, 'title') })}>
+  return `<dialog class="template-preview-dialog" data-preview-state="idle" ${attr('aria-label', 'catalog.detail.previewLabel', { title: templateValue(template, 'title') })}>
     <div class="template-preview-toolbar"><h2>${templateField(template, 'title')}</h2><div class="template-preview-actions"><button class="btn btn--outline" type="button" data-template-reset hidden>${text('catalog.detail.replay')}</button><a class="btn btn--dark template-preview-use" href="${templateCreateUrl(template)}" data-template-use data-link>${text('catalog.detail.use')}</a><button class="btn btn--outline" type="button" data-template-close>${text('common.actions.close')}</button></div></div>
+    <div class="catalog-price-summary" data-preview-price data-price-tier="${templatePriceTier(template.price)}"><small>${text('catalog.price.label')}</small><strong>${templatePriceText(template.price)}</strong></div>
+    <p class="catalog-price-note">${text('catalog.price.scope')}</p>
     <p class="template-preview-note">${text('catalog.detail.previewNote')}</p>
     <p role="status" data-template-loading hidden>${text('catalog.detail.previewLoading')}</p>
     <div data-template-error hidden><p role="alert">${text('catalog.detail.previewError')}</p><button class="btn btn--outline" type="button" data-template-retry>${text('common.actions.retry')}</button></div>
@@ -25,7 +28,7 @@ export function mountTemplatePreview(host, template, { api, onOpen, autoOpen = f
   const close = dialog.querySelector('[data-template-close]');
   const useTemplate = dialog.querySelector('[data-template-use]');
   const reset = dialog.querySelector('[data-template-reset]');
-  const note = dialog.querySelector('.template-preview-note');
+  const previewPrice = dialog.querySelector('[data-preview-price]');
   const loading = dialog.querySelector('[data-template-loading]');
   const errorPanel = dialog.querySelector('[data-template-error]');
   const retry = dialog.querySelector('[data-template-retry]');
@@ -47,12 +50,24 @@ export function mountTemplatePreview(host, template, { api, onOpen, autoOpen = f
   const toolbarSize = globalThis.ResizeObserver ? new ResizeObserver(syncScrollPadding) : null;
   toolbarSize?.observe(toolbar);
 
+  // Một nguồn trạng thái cho giao diện, không để trạng thái tải tồn tại sau khi đóng.
+  function setPreviewState(state) {
+    dialog.dataset.previewState = state;
+    loading.hidden = state !== 'loading';
+    errorPanel.hidden = state !== 'error';
+    reset.hidden = state !== 'ready';
+    if (state === 'loading') playerHost.setAttribute('aria-busy', 'true');
+    else playerHost.removeAttribute('aria-busy');
+  }
+
   function clear() {
     attempt?.abort();
+    attempt = null;
     player?.dispose();
     player = null;
     localizedPreview = null;
     playerHost.replaceChildren();
+    setPreviewState('idle');
   }
 
   async function load() {
@@ -60,11 +75,7 @@ export function mountTemplatePreview(host, template, { api, onOpen, autoOpen = f
     const template = activeTemplate;
     const endpoint = template.versionId && `/catalog/templates/${encodeURIComponent(template.id)}/versions/${encodeURIComponent(template.versionId)}`;
     const { signal } = attempt = new AbortController();
-    loading.hidden = false;
-    note.hidden = false;
-    errorPanel.hidden = true;
-    reset.hidden = true;
-    playerHost.setAttribute('aria-busy', 'true');
+    setPreviewState('loading');
     try {
       const [{ mountPlayer }, source, {eventMediaUrl}] = await Promise.all([
         import('../gift-runtime/index.js'),
@@ -82,17 +93,14 @@ export function mountTemplatePreview(host, template, { api, onOpen, autoOpen = f
         mode: 'preview',
         assetUrl: endpoint ? id => `/api${endpoint}/assets/${encodeURIComponent(id)}` : eventMediaUrl,
       });
-      reset.hidden = false;
-      note.hidden = true;
+      // Ghi chú mô phỏng luôn hiển thị, kể cả khi player đã sẵn sàng.
+      setPreviewState('ready');
       syncScrollPadding();
     } catch {
       if (signal.aborted || !dialog.open) return;
-      errorPanel.hidden = false;
-    } finally {
-      if (!signal.aborted) {
-        loading.hidden = true;
-        playerHost.removeAttribute('aria-busy');
-      }
+      clear();
+      setPreviewState('error');
+      syncScrollPadding();
     }
   }
 
@@ -102,19 +110,27 @@ export function mountTemplatePreview(host, template, { api, onOpen, autoOpen = f
       activeTemplate = getTemplate();
       // Hero tự đổi mẫu: CTA phải trỏ đến mẫu đang mở, không phải mẫu mặc định.
       useTemplate.setAttribute('href', templateCreateUrl(activeTemplate));
+      // Cập nhật giá cùng mẫu đang mở, giữ marker bản dịch của i18n.
+      previewPrice.dataset.priceTier = templatePriceTier(activeTemplate.price);
+      previewPrice.querySelector('strong').innerHTML = templatePriceText(activeTemplate.price);
       dialog.querySelector('.template-preview-toolbar h2').innerHTML = templateField(activeTemplate, 'title');
       setAttr(dialog, 'aria-label', message('catalog.detail.previewLabel', { title: templateValue(activeTemplate, 'title') }));
       opener = trigger;
       onOpen?.();
       dialog.showModal();
       syncScrollPadding();
-      close.focus();
+      dialog.scrollTop = 0;
+      close.focus({ preventScroll: true });
       load();
     }, options);
   }
   close.addEventListener('click', () => dialog.close(), options);
   reset.addEventListener('click', () => player?.reset(), options);
-  retry.addEventListener('click', () => { close.focus(); load(); }, options);
+  retry.addEventListener('click', () => {
+    dialog.scrollTop = 0;
+    close.focus({ preventScroll: true });
+    load();
+  }, options);
   dialog.addEventListener('close', () => {
     if (dialog.open) return;
     clear();

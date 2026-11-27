@@ -518,7 +518,7 @@
 
   .is-home .mkt-journey__scene {
     min-height: 280px;
-    touch-action: pan-y;
+    touch-action: pan-y pinch-zoom;
   }
 
   .is-home .mkt-journey__swipe-hint {

@@ -16,12 +16,30 @@ test('Vuốt chỉ nhận ý định ngang rõ ràng, bỏ qua cuộn dọc và 
 });
 
 test('Vuốt đổi bước, không vòng qua hai đầu, bỏ qua đa chạm và dọn listener', () => {
-  const buttons = journeySteps.map(id => ({
+  // Mô phỏng thanh điều hướng ngang trên thiết bị di động.
+  const rail = {
+    scrollWidth: 600,
+    clientWidth: 112,
+    scrollLeft: 0,
+    offsetLeft: 0,
+  };
+
+  const buttons = journeySteps.map((id, index) => ({
     dataset: { mktStep: id },
     attrs: {},
-    setAttribute(key, value) { this.attrs[key] = value; },
-    focus() { this.focused = true; },
-    scrollIntoView() { this.scrolled = true; },
+    parentElement: rail,
+    offsetLeft: index * 120,
+    offsetWidth: 112,
+    scrolled: false,
+    setAttribute(key, value) {
+      this.attrs[key] = value;
+    },
+    focus() {
+      this.focused = true;
+    },
+    scrollIntoView() {
+      this.scrolled = true;
+    },
   }));
   const panels = journeySteps.map(id => ({ dataset: { mktPanel: id }, hidden: false }));
   const scene = new EventTarget();
@@ -33,6 +51,7 @@ test('Vuốt đổi bước, không vòng qua hai đầu, bỏ qua đa chạm v�
     contains: button => buttons.includes(button),
     addEventListener: (key, callback) => listeners.set(key, callback),
   };
+
   const dispose = mountJourney({ querySelector: () => host });
   const emitTouch = (type, points, id = 10) => {
     const touch = points.map(([x, y], index) => ({ identifier: id + index, clientX: x, clientY: y }));
@@ -40,12 +59,14 @@ test('Vuốt đổi bước, không vòng qua hai đầu, bỏ qua đa chạm v�
     Object.defineProperty(event, type === 'touchstart' ? 'touches' : 'changedTouches', { value: touch });
     scene.dispatchEvent(event);
   };
+
   assert.equal(scene.dataset.stage, 'create');
   assert.deepEqual(buttons.map(b => b.attrs.tabindex), ['0', '-1', '-1', '-1', '-1']);
   emitTouch('touchstart', [[200, 90]]);
   emitTouch('touchend', [[110, 94]]);
   assert.equal(scene.dataset.stage, 'share');
-  assert.equal(buttons[1].scrolled, true);
+  assert.equal(rail.scrollLeft, 120, 'rail cuộn ngang đến bước được chọn');
+  assert.equal(buttons[1].scrolled, false, 'không gọi scrollIntoView');
   assert.deepEqual(buttons.map(b => b.attrs.tabindex), ['-1', '0', '-1', '-1', '-1']);
   emitTouch('touchstart', [[200, 90]]);
   emitTouch('touchend', [[80, 250]]);
@@ -76,7 +97,7 @@ test('Ngôn ngữ và CSS mobile có hướng dẫn vuốt và thanh điều hư
   assert.match(page, /home\.journey\.swipeHint/);
   assert.match(css, /grid-auto-columns: minmax\(112px, 1fr\)/);
   assert.match(css, /font-size: 13px/);
-  assert.match(css, /touch-action: pan-y/);
+  assert.match(css, /touch-action:\s*pan-y\s+pinch-zoom\s*;/);
   assert.match(css, /scroll-snap-type: x proximity/);
   assert.deepEqual(css.split('\n').filter(line => /;\s*[\w-]+\s*:/.test(line)), []);
 });

@@ -1,3 +1,6 @@
+import { createSignatureTemplate } from './signature/templates.js';
+import { ORIGINALS } from './originals-data.js';
+import { createOriginalTemplate } from './originals.js';
 import { createInteractiveTemplate } from './interactive-templates.js';
 import { createOpenMeTemplate } from './open-me-templates.js';
 import { canonicalText } from '../locale.js';
@@ -34,6 +37,7 @@ export const BASIC_TEMPLATES = Object.freeze({
   'hai-phong-bi': { motif: 'two-letters', name: canonicalText('templates.hai-phong-bi.name'), bg: '#FFF8EB', paper: '#FFF8EB', ink: '#442638', accent: '#F4C9C4', detail: '#47715C', button: '#963851', headline: canonicalText('templates.hai-phong-bi.headline'), font: 'serif' },
   'to-doan-cau-se-chon': { motif: 'prediction', name: canonicalText('templates.to-doan-cau-se-chon.title'), bg: '#F5EFFF', paper: '#FFFAF6', ink: '#442638', accent: '#A987C9', detail: '#E8A5BC', button: '#77539B', headline: canonicalText('templates.to-doan-cau-se-chon.title'), font: 'serif' },
   ...COLLECTION_2027,
+  ...Object.fromEntries(ORIGINALS.map(p => [p.id, { ...p, note: true }])),
 });
 export const MEMORY_TEMPLATE_ID = 'mot-ky-niem';
 export const memoryGreetingStarterKeys = ['templates.starter.memory', 'templates.starter.thanks', 'templates.starter.birthday'];
@@ -53,6 +57,10 @@ const LAYER_NAMES = {
 export function createBasicTemplate(template, localize = canonicalText) {
   const configured = libraryDocument('template', template?.id, localize);
   if (configured) return validateDocument(pinDocumentArtwork(configured));
+  const signature = createSignatureTemplate(template?.id, localize);
+  if (signature) return signature;
+  const original = createOriginalTemplate(template?.id, localize);
+  if (original) return original;
   const openMe = createOpenMeTemplate(template?.id, localize);
   if (openMe) return openMe;
   const interactive = createInteractiveTemplate(template?.id, localize);

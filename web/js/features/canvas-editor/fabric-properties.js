@@ -55,7 +55,8 @@ export function propertyToFabric(shape, model, field, value) {
   switch (field) {
     case 'opacity': prop = { opacity: accepted }; break;
     case 'color':
-      prop = { fill: accepted };
+      // Preserve fixed artwork colors and transparent backgrounds; nested bound parts follow the selected color.
+      prop = model.artwork || model.assembly ? { dirty: true } : { fill: accepted };
       paintBoundParts(shape, accepted);
       break;
     case 'strokeColor': prop = { stroke: accepted }; break;

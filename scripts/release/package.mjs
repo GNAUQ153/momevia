@@ -24,6 +24,7 @@ fs.mkdirSync(output, { recursive: true });
 const roots = [
   'src', 'services', 'web', 'scripts', 'tests', 'docs',
   'deploy/https',
+  'deploy/hostinger',
   '.github',
   'database/compose.yml',
   'database/migrations',

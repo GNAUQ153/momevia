@@ -1,3 +1,4 @@
+import { originalDefinition } from '../shared/canvas/originals-data.js';
 import { createActionDispatcher } from './action-dispatcher.js';
 import { createFinanceActions } from './finance-actions.js';
 import { createCatalogActions } from './catalog-actions.js';
@@ -27,6 +28,7 @@ import { createModalIsolation, skipToMain } from '../ui/accessibility.js';
 import { createLayout } from "../ui/layout.js";
 import { createHomeViews, homeDemo, selectHomeDemos } from "../pages/home.js";
 import { mountMarketingMotion } from "../features/marketing/scene-motion.js";
+import { mountSeasonCampaign } from '../features/marketing/season-campaign.js';
 import { mountHomeConstruction } from '../features/marketing/home-construction.js';
 import { mountHeroTemplates, mountHomeChoices } from "../features/marketing/hero-templates.js";
 import { mountFeaturedCarousel } from '../features/marketing/featured-carousel.js';
@@ -329,7 +331,11 @@ function mountHome() {
     sheen.play();
   }, { signal });
   const disposeMarketingMotion = mountMarketingMotion(main, { signal });
-  const construction = mountHomeConstruction(main, { signal, catalogPending: true });
+  const disposeSeason = mountSeasonCampaign(main, { signal });
+  // Landing mới luôn hiển thị sẵn nội dung; animation xây trang cũ chỉ dùng cho bố cục cũ.
+  const construction = main.querySelector('.moments-hero')
+    ? { refresh() {}, dispose() {} }
+    : mountHomeConstruction(main, { signal, catalogPending: true });
   const rotation = mountHeroTemplates(main, selectHomeDemos(state.templates));
   const disposeChoices = mountHomeChoices(main);
   const preview = mountTemplatePreview(main, homeDemo, { api, onOpen: loadAppFonts, getTemplate: () => rotation.template });
@@ -381,6 +387,7 @@ function mountHome() {
   return { dispose() {
     lifetime.abort();
     disposeMarketingMotion();
+    disposeSeason();
     construction.dispose();
     rotation.dispose();
     disposeChoices();
@@ -545,10 +552,11 @@ async function render({ transition = false, resetScroll = false } = {}) {
       if (gift.documentSnapshot) {
         document.body.classList.add("is-playing-gift");
         const openMeRecipient = ['club-22-invitation', 'cozy-christmas-invitation', 'tet-phong-thu'].includes(gift.templateId);
+        const originalInvitation = originalDefinition(gift.templateId)?.cardType === 'invitation' && gift.invitation;
         const { mountPlayer } =
           await import("../features/gift-runtime/index.js");
         if (generation !== renderGeneration) return;
-        main.innerHTML = `<section class="section recipient-section"><div class="container recipient-shell">${gift.recipientMode === 'self' ? `<div class="recipient-preferences">${localeControl()}</div>` : ''}<div id="canvas-public-player" class="recipient-player-host"></div>${gift.rsvp ? '<div data-rsvp-host></div>' : ''}</div></section>`;
+        main.innerHTML = `<section class="section recipient-section"><div class="container recipient-shell">${gift.recipientMode === 'self' ? `<div class="recipient-preferences">${localeControl()}</div>` : ''}<div id="canvas-public-player" class="recipient-player-host"></div>${originalInvitation ? '<div data-event-tools hidden></div>' : ''}${gift.rsvp ? '<div data-rsvp-host></div>' : ''}</div></section>`;
         const player = mountPlayer(
           document.getElementById("canvas-public-player"),
           {
@@ -556,6 +564,8 @@ async function render({ transition = false, resetScroll = false } = {}) {
             runtimeVersion: gift.runtimeVersion,
             mode: "public",
             onSceneChange: sceneId => {
+              const eventTools = main.querySelector('[data-event-tools]');
+              if (eventTools) eventTools.hidden = sceneId === gift.documentSnapshot.entrySceneId;
               if (openMeRecipient) {
                 const dedication = main.querySelector('.recipient-dedication');
                 if (dedication) {
@@ -599,6 +609,11 @@ async function render({ transition = false, resetScroll = false } = {}) {
             player.dispose();
           },
         };
+        if (originalInvitation) {
+          const { mountInvitationTools } = await import('../features/gifts/invitation-tools.js');
+          if (generation !== renderGeneration || lifetime.signal.aborted) return;
+          mountInvitationTools(main.querySelector('[data-event-tools]'), gift.invitation, { title: gift.title, signal: lifetime.signal });
+        }
         if (gift.rsvp) {
           const { mountRsvp } = await import('../features/gifts/rsvp.js');
           if (generation !== renderGeneration || lifetime.signal.aborted) return;

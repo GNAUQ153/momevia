@@ -1,16 +1,18 @@
-import { attr, message, priceText, setText, text } from "../core/i18n.js";
+import { attr, message, setText, text } from "../core/i18n.js";
 import { escapeHtml as e } from "../core/api.js";
 import { icon } from "../ui/icons.js";
 import { templateMetaKey } from "../shared/template-copy.js";
 import { personalizationText, templateCover, templateField, templateSearchFields, templateValue } from "../features/catalog/template-copy.js";
-import { featuredSeasons, isInSeason } from "../features/catalog/seasonal.js";
+import { featuredSeasons, seasonStatus, vietnamDay } from "../features/catalog/seasonal.js";
 import { templatePreviewDialog } from "../features/catalog/template-preview.js";
 import { templateCreateUrl } from "../features/catalog/template-create-url.js";
+import { templatePriceText, templatePriceTier } from "../features/catalog/price.js";
 import { CARD_TYPES, templateCardType } from '../shared/card-type.js';
 import { prioritizeTemplates } from '../shared/template-order.js';
 import { preserveLoadedCovers } from '../core/cover-loading.js';
 import { SEASONAL_COVER_SIZES } from '../shared/cover-images.js';
 import {
+  activeCatalogFilters,
   filterTemplates,
   styleOptions,
   paginateTemplates,
@@ -47,7 +49,28 @@ export function createCatalogViews({
   }
 
   function hasFilters() {
-    return Boolean(state.search.trim() || (state.cardType && state.cardType !== 'all') || state.freeOnly || state.photoOnly || state.filter !== 'all' || (state.occasion && state.occasion !== 'all') || (state.palette && state.palette !== 'all'));
+    return activeCatalogFilters(state).length > 0;
+  }
+
+  function filterChipLabel(key) {
+    const value = state[key];
+    if (key === 'search') return `${text('catalog.search.label')}: ${e(value.trim())}`;
+    if (key === 'cardType') return `${text('catalog.cardType.label')}: ${text(`catalog.cardType.${value}`)}`;
+    if (key === 'freeOnly') return text('catalog.price.freeOnly');
+    if (key === 'photoOnly') return text('catalog.filters.photo');
+    if (key === 'palette') {
+      const template = state.templates.find(item => item.palette === value);
+      return `${text('catalog.filters.palette')}: ${template ? templateField(template, 'paletteLabel') : e(value)}`;
+    }
+    const style = key === 'filter';
+    const translation = templateMetaKey(style ? 'style' : 'category', value);
+    return `${text(style ? 'catalog.filters.style' : 'catalog.filters.occasion')}: ${translation ? text(translation) : e(value)}`;
+  }
+
+  function activeFilterMarkup() {
+    return activeCatalogFilters(state).map(key =>
+      `<button type="button" class="catalog-filter-chip" data-action="remove-catalog-filter" data-filter="${key}"><span class="visually-hidden">${text('catalog.filters.remove')} </span><span class="catalog-filter-chip__label">${filterChipLabel(key)}</span>${icon('close', 16)}</button>`
+    ).join('');
   }
 
   function syncCatalogResults() {
@@ -58,6 +81,12 @@ export function createCatalogViews({
     const clear = document.getElementById("template-search-clear");
     if (clear) clear.disabled = !state.search.length;
     if (!grid) return;
+    const active = document.getElementById('catalog-active-filters');
+    if (active) {
+      const markup = activeFilterMarkup();
+      if (active.innerHTML !== markup) active.innerHTML = markup;
+      active.hidden = !markup;
+    }
     const shelf = document.querySelector('.seasonal-shelf');
     if (shelf) shelf.hidden = hasFilters();
     const { result, cards } = catalogResultMarkup();
@@ -84,18 +113,32 @@ export function createCatalogViews({
   }
 
   function seasonalShelf() {
-    const seasonal = featuredSeasons(state.templates);
+    // Dùng cùng một ngày cho cả thứ tự và nhãn, kể cả khi render qua nửa đêm.
+    const day = vietnamDay();
+    const seasonal = featuredSeasons(state.templates, day);
     if (!seasonal.length) return '';
     return `<details class="seasonal-shelf" aria-labelledby="seasonal-shelf-title" ${hasFilters() ? 'hidden' : ''} ${globalThis.matchMedia?.('(max-width: 680px)').matches ? '' : 'open'}>
       <summary class="seasonal-shelf__heading">
-        <h2 id="seasonal-shelf-title">${text("catalog.seasonal.title")}</h2>
+        <h2 id="seasonal-shelf-title" class="seasonal-shelf__summary">
+          ${text("catalog.seasonal.title")}
+          <span class="seasonal-shelf__summary-copy">${text('catalog.seasonal.count', { count: seasonal.length })}</span>
+        </h2>
         ${icon("chevron-down", 18)}
       </summary>
+      <p class="seasonal-shelf__intro">${text('catalog.seasonal.intro')}</p>
       <button type="button" class="seasonal-shelf__hint" data-action="filter-seasonal">${text("catalog.seasonal.action")}</button>
-      <div class="seasonal-shelf__grid">${seasonal.map(template => `<a class="seasonal-shelf__card" href="/template/${encodeURIComponent(template.id)}" data-link>
-        <img ${templateCover(template,{variant:'seasonal',responsive:true,sizes:SEASONAL_COVER_SIZES})} width="390" height="466" loading="lazy" ${attr('alt', 'catalog.seasonal.cover', { title: templateValue(template, 'title') })}/>
-        <div><span>${isInSeason(template) ? text('catalog.seasonal.inSeason') : template.season ? templateField(template, 'season') : text('catalog.seasonal.collection')}</span><strong>${templateField(template, 'title')}</strong></div>
-      </a>`).join('')}</div>
+      <div class="seasonal-shelf__grid">${seasonal.map(template => {
+        const status = seasonStatus(template, day);
+        return `<a class="seasonal-shelf__card" data-season-status="${status}" href="/template/${encodeURIComponent(template.id)}" data-link>
+        <img ${templateCover(template,{defer:true,variant:'seasonal',responsive:true,sizes:SEASONAL_COVER_SIZES})} width="390" height="466" loading="lazy" ${attr('alt', 'catalog.seasonal.cover', { title: templateValue(template, 'title') })}/>
+        <div class="seasonal-shelf__meta">
+          <span class="seasonal-shelf__status">${text(`catalog.seasonal.${status}`)}</span>
+          ${template.season ? `<span class="seasonal-shelf__occasion">${templateField(template, 'season')}</span>` : ''}
+          <strong>${templateField(template, 'title')}</strong>
+          <span class="seasonal-shelf__price" data-price-tier="${templatePriceTier(template.price)}">${templatePriceText(template.price)}</span>
+        </div>
+      </a>`;
+      }).join('')}</div>
     </details>`;
   }
 
@@ -129,10 +172,11 @@ export function createCatalogViews({
         <label class="catalog-style-select"><span>${text('catalog.filters.palette')}</span><select id="palette-filter" ${attr('aria-label','catalog.filters.palette')}><option value="all">${text('catalog.filters.allPalettes')}</option>${[...new Map(state.templates.filter(t=>t.palette).map(t=>[t.palette,t.paletteLabel])).entries()].map(([value,label])=>`<option value="${e(value)}" ${state.palette===value?'selected':''}>${text(`templates.meta.palette.${value}`)||e(label)}</option>`).join('')}</select></label>
         <label class="catalog-free-filter"><input id="photo-filter" type="checkbox" ${state.photoOnly ? "checked" : ""}/><span>${text("catalog.filters.photo")}</span></label>
         </div></details>
-        <label class="catalog-free-filter"><input id="free-filter" type="checkbox" ${state.freeOnly ? "checked" : ""}/><span>${text("common.price.free")}</span></label>
+        <label class="catalog-free-filter"><input id="free-filter" type="checkbox" ${state.freeOnly ? "checked" : ""}/><span>${text("catalog.price.freeOnly")}</span></label>
         <button type="button" class="catalog-reset" data-action="clear-filters">${icon("close", 15)} ${text("catalog.filters.reset")}</button>
       </div>
       ${catalogFailed ? `<div role="alert"><p>${text('catalog.results.failed')}</p><button class="btn btn--outline" type="button" data-action="retry-catalog">${text('common.actions.retry')}</button></div>` : `
+      <div class="catalog-active-filters" id="catalog-active-filters" role="group" ${attr('aria-label', 'catalog.filters.active')} ${hasFilters() ? '' : 'hidden'}>${activeFilterMarkup()}</div>
       <div class="catalog-range" id="catalog-range" tabindex="-1">${result.total ? text('catalog.results.range', result) : text('catalog.results.empty')}</div>
       <div class="template-grid catalog-grid" id="catalog-grid">${cards}</div>
       <div id="catalog-pagination">${paginationMarkup(result, "catalog")}</div>
@@ -146,9 +190,10 @@ export function createCatalogViews({
       <div class="breadcrumb"><a href="${e(catalogReturn?.startsWith('/explore?') ? catalogReturn : '/explore')}" data-link>${icon("arrow-left", 17)} ${text("shell.footer.library")}</a></div>
       <div class="detail-grid"><div class="detail-info">
         <h1>${templateField(template, 'title')}</h1>
-        <div class="detail-price-row"><strong>${priceText(template.price)}</strong></div>
+        <div class="detail-price-row"><div class="catalog-price-summary" data-price-tier="${templatePriceTier(template.price)}"><small>${text("catalog.price.label")}</small><strong>${templatePriceText(template.price)}</strong></div></div>
         <div class="detail-art">${artwork(template, "artwork--detail",{eager:true})}</div>
         <div class="detail-body">
+        <p class="catalog-price-note">${text("catalog.price.scope")}</p>
         <div class="detail-start-actions">
           <a class="btn btn--dark" href="${e(templateCreateUrl(template))}" data-link data-template-create-cta>${text("catalog.detail.use")}</a>
           <button class="btn btn--outline" type="button" data-template-preview aria-haspopup="dialog">${text("catalog.detail.preview")} ${icon('eye', 17)}</button>

@@ -1,0 +1,568 @@
+/* Giao diện marketing Momevia; cùng một cấu trúc cho VI/EN.
+   Font Bricolage Grotesque, Be Vietnam Pro và Fraunces: SIL OFL, phục vụ nội bộ.
+   Minh họa, hiệu ứng CSS 3D và chuyển động theo mùa do Momevia xây dựng. */
+.is-home .moments-hero {
+  position: relative;
+  overflow: clip;
+  isolation: isolate;
+  padding: 0 0 32px;
+  color: #30243b;
+  background: #f0ebff;
+}
+.is-home .moments-hero > .container {
+  position: relative;
+  z-index: 1;
+  max-width: 1280px;
+}
+.moments-season {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 0;
+  border-bottom: 1px solid #d4c7ec;
+  font-size: .875rem;
+}
+.moments-season__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  color: #453259;
+  text-decoration: none;
+}
+.moments-season__motion {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 8px 14px;
+  border: 1px solid #c5b3dd;
+  border-radius: 999px;
+  color: #453259;
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+}
+.moments-season__motion[aria-pressed="true"] {
+  background: #ffffff;
+}
+.is-home .moments-hero .mkt-hero__layout {
+  display: grid;
+  grid-template-columns: 1.08fr 1fr;
+  align-items: center;
+  gap: 56px;
+  min-height: 650px;
+  padding: 48px 0 16px;
+}
+.is-home .moments-hero .mkt-hero__intro {
+  position: relative;
+  width: auto;
+  max-width: 620px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+.is-home .moments-hero .open-me-intro-sheen {
+  display: none;
+}
+.is-home .moments-hero .mkt-hero__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid #bbaaCE;
+  border-radius: 999px;
+  color: #523477;
+  background: #ffffff80;
+  font-size: .875rem;
+  font-weight: 600;
+}
+.is-home .moments-hero h1 {
+  margin: 24px 0;
+  color: #30243b;
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 1.4rem + 3.3vw, 4.6rem);
+  font-weight: 700;
+  line-height: 1.16;
+  letter-spacing: -.045em;
+  text-wrap: balance;
+}
+.is-home .moments-hero h1 em {
+  color: #6640bc;
+  font-family: var(--font-serif);
+  font-weight: 600;
+  line-height: inherit;
+}
+.is-home .moments-hero .hero__lead {
+  max-width: 510px;
+  margin: 0 0 28px;
+  color: #564563;
+  font-size: clamp(1rem, .94rem + .3vw, 1.125rem);
+  line-height: 1.75;
+}
+.is-home .moments-hero .mkt-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.is-home .moments-hero .mkt-primary {
+  min-height: 54px;
+  padding: 14px 24px;
+  border: 1px solid #48288f;
+  border-radius: 999px;
+  color: #ffffff;
+  background: #5934ab;
+  font-size: 1rem;
+  box-shadow: 0 6px 0 #372065;
+}
+.is-home .moments-hero .mkt-primary:hover {
+  transform: translateY(-2px);
+  background: #48288f;
+}
+.is-home .moments-hero .mkt-secondary {
+  min-height: 54px;
+  padding: 14px 22px;
+  border: 1px solid #b4a0ce;
+  border-radius: 999px;
+  color: #453259;
+  background: #ffffffb3;
+  font-size: 1rem;
+}
+.is-home .moments-hero .mkt-hero__benefits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+  margin-top: 24px;
+  color: #564563;
+  font-size: .875rem;
+}
+.is-home .moments-hero .mkt-hero__scroll {
+  margin-top: 24px;
+  color: #564563;
+}
+.is-home .moments-hero .mkt-hero__artwork {
+  width: 100%;
+  min-width: 0;
+  max-width: 540px;
+  margin: 0;
+}
+.is-home .moments-hero .open-me-stack {
+  position: relative;
+  width: 100%;
+  height: 510px;
+  min-height: 0;
+  overflow: visible;
+  border: 0;
+  border-radius: 48% 48% 38% 38%;
+  background: #dcd0f6;
+  box-shadow: none;
+  perspective: 1100px;
+}
+.is-home .moments-hero .mkt-stage__atmosphere {
+  overflow: visible;
+  border-radius: inherit;
+  background: radial-gradient(circle at 72% 20%, #f9d6cc, transparent 48%);
+}
+.is-home .moments-hero .mkt-stage__atmosphere::before {
+  border-radius: inherit;
+  background: radial-gradient(ellipse at 30% 80%, #b6e2cb99, transparent 60%);
+}
+.is-home .moments-hero .mkt-stage__cards {
+  position: absolute;
+  inset: 20px 24px 32px;
+  display: grid;
+  place-items: center;
+  perspective: 1000px;
+}
+.is-home .moments-hero .mkt-hero__cover {
+  position: relative;
+  inset: auto;
+  width: min(66%, 275px);
+  height: 426px;
+  padding: 0;
+  overflow: hidden;
+  border: 6px solid #ffffff;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 24px 42px #3721512e, 7px 7px 0 #c2afd7;
+  transform: rotate(-6deg) rotateY(-8deg);
+  transition: transform 450ms ease, box-shadow 450ms ease;
+}
+.is-home .moments-hero .mkt-hero__cover:hover {
+  transform: rotate(-1deg) rotateY(0deg) translateY(-8px);
+  box-shadow: 0 32px 48px #37215138, 7px 7px 0 #c2afd7;
+}
+.is-home .moments-hero .mkt-hero__cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.is-home .moments-hero .mkt-stage__envelope {
+  z-index: 0;
+  inset: auto 5% 2% auto;
+  width: 195px;
+  height: 132px;
+  border: 1px solid #dd8b8a;
+  border-radius: 10px;
+  background: linear-gradient(150deg, #ffded4 50%, #f5b8ac 50%);
+  box-shadow: 0 16px 28px #74374a20;
+  transform: rotate(16deg) rotateY(-18deg);
+  pointer-events: none;
+  animation: moments-envelope 7s ease-in-out infinite;
+}
+.is-home .moments-hero .mkt-stage__note {
+  z-index: 3;
+  top: 8%;
+  left: -4%;
+  max-width: 180px;
+  padding: 14px 16px;
+  border: 1px solid #c4d5bc;
+  border-radius: 14px;
+  color: #274c3e;
+  background: #e5f3da;
+  box-shadow: 0 8px 22px #36204b12;
+  transform: rotate(-9deg);
+}
+.is-home .moments-hero .mkt-stage__reply {
+  z-index: 3;
+  right: -1%;
+  bottom: 15%;
+  max-width: 195px;
+  padding: 14px 16px;
+  border: 1px solid #d9a2b2;
+  border-radius: 16px;
+  color: #692e4d;
+  background: #ffe1ec;
+  transform: rotate(7deg);
+}
+.is-home .moments-hero .mkt-stage__note span,
+.is-home .moments-hero .mkt-stage__reply span {
+  font-size: .875rem;
+}
+.is-home .moments-hero .mkt-stage__note strong,
+.is-home .moments-hero .mkt-stage__reply strong {
+  font-size: 1rem;
+}
+.is-home .moments-hero .open-me-posters__stamp {
+  z-index: 4;
+  top: 4%;
+  right: 1%;
+  padding: 12px;
+  border: 1px solid #a98e47;
+  border-radius: 50%;
+  color: #61491a;
+  background: #ffdf86;
+  font-size: .875rem;
+  transform: rotate(12deg);
+}
+.is-home .moments-hero .mkt-hero__rotation {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 26px;
+}
+.is-home .moments-hero .mkt-hero__rotation button {
+  min-height: 44px;
+  color: #453259;
+  font-size: .875rem;
+}
+.moments-season-particles {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.moments-season-particles i {
+  position: absolute;
+  top: -20px;
+  left: 8%;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #ffffff;
+  opacity: 0;
+  animation: moments-snow 11s linear infinite;
+}
+.moments-season-particles i:nth-child(2n) {
+  left: 28%;
+  width: 4px;
+  height: 4px;
+  animation-duration: 14s;
+  animation-delay: -5s;
+}
+.moments-season-particles i:nth-child(3n) {
+  left: 52%;
+  animation-delay: -8s;
+}
+.moments-season-particles i:nth-child(4n) {
+  left: 76%;
+  width: 8px;
+  height: 8px;
+  animation-duration: 18s;
+  animation-delay: -3s;
+}
+.moments-season-particles i:nth-child(5n) {
+  left: 91%;
+  animation-delay: -11s;
+}
+.moments-hero[data-season="tet"] .moments-season-particles i {
+  width: 9px;
+  height: 12px;
+  border-radius: 80% 10% 70% 30%;
+  background: #e9aa9f;
+}
+.moments-hero[data-season="newYear"] .moments-season-particles i {
+  border-radius: 1px;
+  background: #bc9c53;
+}
+.moments-hero[data-season="everyday"] .moments-season-particles {
+  display: none;
+}
+.moments-hero[data-season-still="true"] .moments-season-particles i,
+.is-home .moments-hero[data-season-still="true"] .mkt-stage__envelope {
+  animation-play-state: paused;
+}
+.is-home .moments-hero[data-season-still="true"] .moments-season-particles {
+  visibility: hidden;
+}
+.is-home .mkt-featured {
+  padding: 64px 0;
+  background: #ffffff;
+}
+.is-home .mkt-featured__heading {
+  align-items: end;
+  gap: 24px;
+  margin-bottom: 28px;
+}
+.is-home .mkt-featured__heading h2 {
+  max-width: 640px;
+  color: #30243b;
+  font-family: var(--font-display);
+  font-size: clamp(1.75rem, 1.2rem + 1.7vw, 2.75rem);
+  line-height: 1.25;
+  text-wrap: balance;
+}
+.is-home .mkt-occasion__link {
+  min-height: 48px;
+  border-radius: 999px;
+  background: #f5f1fc;
+}
+.is-home .template-card--home {
+  border: 1px solid #e1d7ec;
+  border-radius: 22px;
+  background: #ffffff;
+  box-shadow: 0 6px 0 #eee8f5;
+}
+.is-home .template-card--home .template-card__title {
+  font-family: var(--font-display);
+  font-size: 1.375rem;
+  line-height: 1.4;
+}
+.is-home .mkt-journey {
+  padding: 64px 0;
+  border-block: 1px solid #d7e4d0;
+  background: #e9f3e4;
+}
+.is-home .mkt-journey__scene {
+  border: 1px solid #bdcdb3;
+  border-radius: 28px;
+  background: radial-gradient(ellipse at 50% 50%, #faffef, #d6e8c9);
+}
+.is-home .mkt-journey__heading h2,
+.is-home .mkt-how h2 {
+  font-family: var(--font-display);
+  font-size: clamp(1.75rem, 1.2rem + 1.7vw, 2.75rem);
+  line-height: 1.25;
+}
+.is-home .mkt-how {
+  padding: 80px 0;
+  background: #fff1e9;
+}
+.is-home .mkt-example {
+  border: 1px solid #e5baad;
+  border-radius: 24px;
+  box-shadow: 8px 8px 0 #f4d4c7;
+}
+.is-home .mkt-step-number {
+  color: #78507b;
+  background: #ffffffb3;
+}
+.moments-season a:focus-visible,
+.moments-season button:focus-visible {
+  outline: 3px solid #5934ab;
+  outline-offset: 4px;
+}
+@keyframes moments-snow {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, -20px, 0);
+  }
+  10% {
+    opacity: .8;
+  }
+  90% {
+    opacity: .7;
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(50px, 780px, 0) rotate(140deg);
+  }
+}
+@keyframes moments-envelope {
+  0%, 100% {
+    transform: rotate(16deg) rotateY(-18deg) translateY(0);
+  }
+  50% {
+    transform: rotate(12deg) rotateY(-12deg) translateY(-12px);
+  }
+}
+@media (max-width: 1100px) {
+  .is-home .moments-hero .mkt-hero__layout {
+    gap: 28px;
+    min-height: 570px;
+  }
+  .is-home .moments-hero .open-me-stack {
+    height: 430px;
+  }
+  .is-home .moments-hero .mkt-hero__cover {
+    height: 355px;
+  }
+  .is-home .moments-hero .mkt-stage__note,
+  .is-home .moments-hero .mkt-stage__reply,
+  .is-home .moments-hero .open-me-posters__stamp {
+    display: none;
+  }
+}
+@media (max-width: 767px) {
+  .moments-season {
+    gap: 8px;
+    padding: 8px 0;
+  }
+  .moments-season__link {
+    max-width: 65%;
+    line-height: 1.5;
+  }
+  .moments-season__motion {
+    max-width: 40%;
+    font-size: .875rem;
+  }
+  .moments-season__motion > svg {
+    display: none;
+  }
+  .is-home .moments-hero {
+    padding-bottom: 36px;
+  }
+  .is-home .moments-hero .mkt-hero__layout {
+    grid-template-columns: 1fr;
+    gap: 32px;
+    padding-top: 28px;
+  }
+  .is-home .moments-hero .mkt-hero__intro {
+    max-width: 620px;
+    text-align: left;
+  }
+  .is-home .moments-hero h1 {
+    margin-block: 20px;
+    font-size: clamp(2.25rem, 7.5vw, 3.25rem);
+  }
+  .is-home .moments-hero .hero__lead {
+    margin-bottom: 24px;
+    font-size: 1rem;
+  }
+  .is-home .moments-hero .mkt-actions {
+    justify-content: flex-start;
+  }
+  .is-home .moments-hero .mkt-actions .btn {
+    flex: 1 1 150px;
+  }
+  .is-home .moments-hero .mkt-hero__benefits {
+    margin-top: 20px;
+    font-size: .875rem;
+  }
+  .is-home .moments-hero .mkt-hero__scroll {
+    display: none;
+  }
+  .is-home .moments-hero .mkt-hero__artwork {
+    width: min(100%, 480px);
+    margin-inline: auto;
+  }
+  .is-home .moments-hero .open-me-stack {
+    height: 425px;
+  }
+  .is-home .moments-hero .mkt-hero__cover {
+    width: 230px;
+    max-width: 72%;
+    height: 355px;
+  }
+  .is-home .moments-hero .mkt-stage__envelope {
+    width: 140px;
+    height: 95px;
+  }
+  .is-home .mkt-featured,
+  .is-home .mkt-journey,
+  .is-home .mkt-how {
+    padding: 48px 0;
+  }
+  .is-home .mkt-featured__heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 16px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .is-home .moments-hero .mkt-hero__cover,
+  .is-home .moments-hero .mkt-hero__cover:hover {
+    transform: none;
+    transition: none;
+  }
+  .is-home .moments-hero .mkt-stage__envelope,
+  .moments-season-particles i {
+    animation: none;
+  }
+}
+
+/* Ghi chú nằm ngoài phần nội dung chính của thiệp xem trước. */
+@media (min-width: 1101px) {
+  .is-home .moments-hero .mkt-stage__note {
+    left: -12%;
+    right: auto;
+    bottom: auto;
+    max-width: 150px;
+  }
+  .is-home .moments-hero .mkt-stage__reply {
+    top: auto;
+    left: auto;
+    right: -8%;
+    bottom: 2%;
+    max-width: 160px;
+  }
+  .is-home .moments-hero .open-me-posters__stamp {
+    top: -2%;
+    left: auto;
+    right: 0;
+    bottom: auto;
+  }
+}
+/* Xem thử ở chiều rộng điện thoại thật; tránh phóng to cả thiệp trên desktop. */
+.template-preview-dialog .template-preview-player .gift-runtime {
+  max-width: 390px;
+}
+
+/* Giữ kích thước vùng ảnh khi chưa tới gần viewport, không hiện biểu tượng ảnh hỏng. */
+.is-home .template-card--home img[data-cover-lazy] {
+  visibility: hidden;
+}
+.moments-season__motion:disabled {
+  cursor: default;
+  color: #62516f;
+  border-style: dashed;
+}

@@ -1,7 +1,7 @@
 import { createLocaleControl, message, setAttr, setText, t } from "../../core/i18n.js";
 import { dropCapFabricObject, bindDropCapFabricObject } from './fabric-drop-cap.js';
 import { node, button } from './dom.js';
-import { canFabricEdit, fabricView, fabricDiff } from './fabric-adapter.js';
+import { canFabricEdit, fabricView, fabricDiff, isOptionalEmptyPhoto } from './fabric-adapter.js';
 import { arrangeFabricBoxes } from './fabric-align.js';
 import { mountFabricInspector } from './fabric-inspector.js';
 import { mountFabricQuickbar } from './fabric-quickbar.js';
@@ -231,7 +231,13 @@ async function makeFabricObject(fabric, model, assetUrl, signal) {
     object=await snapshotFabricElement(fabric,model,signal);object.set({selectable:false,evented:false});
   }
   object ||= staticPreview(fabric, model);
-  if (model.type === 'image' && !(object instanceof fabric.FabricImage) && !(object instanceof fabric.Group)) object.momeviaMissingImage = true;
+  if (model.type === 'image' && !(object instanceof fabric.FabricImage) && !(object instanceof fabric.Group)) {
+    if (isOptionalEmptyPhoto(model)) {
+      // Ô ảnh trống chủ động: cho phép đặt bố cục, vẫn thay ảnh bằng Inspector chính.
+      object.momeviaEmptyPhoto = true;
+      object.set({ selectable: model.editable, evented: model.editable, rx: props.radius || 0, ry: props.radius || 0 });
+    } else object.momeviaMissingImage = true;
+  }
   object.momeviaId = model.id;
   object.momeviaType = model.type;
   const surface=model.effects?.surface,styles=surface?.definition?.animation?.styles;
@@ -702,7 +708,7 @@ export async function openFabricStudio({ snapshot, sceneId, policy, assetUrl, on
     });
     renderLayers();
     const unsupported = view.elements.filter(item => !['text', 'shape', 'image'].includes(item.type) || item.props.kind === 'line');
-    const missingImages = canvas.getObjects().filter(item => item.momeviaMissingImage);
+    const missingImages = canvas.getObjects().filter(item => item.momeviaMissingImage || item.momeviaEmptyPhoto);
     const download = actions.querySelector('[data-editor-action="fabric-download"]');
     if (unsupported.length || missingImages.length) {
       download.disabled = true;

@@ -10,12 +10,18 @@ const vi = JSON.parse(read('../../web/assets/locales/vi.json'));
 const en = JSON.parse(read('../../web/assets/locales/en.json'));
 const html = createHomeViews({state:{templates:[]},buttonLink:(url,label)=>`<a href="${url}">${label}</a>`,templateCard:()=>''}).home();
 
-test('Hero has one featured card and five unique rotating samples without a pause button', () => {
+test('Hero has one featured card and five unique rotating samples with a playback control', () => {
   assert.equal((html.match(/data-template-preview/g)||[]).length, 1);
   assert.equal((html.match(/data-hero-image=/g)||[]).length, 5);
   assert.equal((html.match(/data-hero-progress/g)||[]).length,5);
   assert.equal((html.match(/data-active="true"/g)||[]).length,1);
-  assert.doesNotMatch(html,/data-hero-playback|mkt-hero__playback/);
+  assert.equal((html.match(/data-hero-playback/g)||[]).length, 1);
+  assert.match(html, /mkt-hero__playback/);
+  for (const key of ['home.hero.pauseSlides', 'home.hero.resumeSlides']) {
+    assert(vi[key]?.trim());
+    assert(en[key]?.trim());
+    assert.notEqual(vi[key], en[key]);
+  }
   assert.match(html, /data-i18n-aria-label/);
 });
 

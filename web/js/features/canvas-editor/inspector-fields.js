@@ -17,6 +17,10 @@ export function buildInspectorPropertyFields(element) {
   const fields = [];
   for (const key of element.type === "interaction" ? [] : registry[element.type].inspector) {
     if(element.assembly && key!=='color')continue;
+    // Vector Signature đã lưu đường nét riêng; không đổi sang hình Classic hoặc trường không có tác dụng.
+    if (element.type === 'shape' && element.artwork && props.kind?.startsWith('signature-')) {
+      if (key !== 'color' || !element.artwork.paths.some(path => path.fill === 'color' || path.stroke === 'color')) continue;
+    }
     if (dedicatedInspectorProperties.includes(key)) continue;
     if (["color", "strokeColor"].includes(key)) {
       const colorControl = node('input', { type: 'color', 'data-editor-field': `props.${key}`, value: props[key] || '#514463' });

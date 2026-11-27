@@ -3,6 +3,8 @@ import path from 'node:path';
 import { chromium } from 'playwright';
 import { runHeroTemplatesBrowser } from './hero-templates.mjs';
 import { runFeaturedCarousel } from './featured-carousel.mjs';
+import { runCatalogCardMotion } from './catalog-card-motion.mjs';
+import { runCatalogAcceptance } from './catalog-acceptance.mjs';
 
 const screens = [[1614, 1040], [1440, 900], [1024, 768], [820, 1180], [768, 1024], [390, 844], [320, 740]];
 
@@ -226,7 +228,7 @@ export async function runHomeBrowser(base) {
           assert(await journey.locator('[data-mkt-step="create"]').evaluate(node =>
             parseFloat(globalThis.getComputedStyle(node).fontSize) >= 13), 'mobile step labels remain readable');
           await journey.locator('[data-mkt-step="create"]').click();
-          await journey.locator('[data-mkt-journey-scene]').evaluate(scene => {
+          const afterVertical = await journey.locator('[data-mkt-journey-scene]').evaluate(scene => {
             const makeTouch = (type, x, y) => {
               const touch = new globalThis.Touch({ identifier: 1, target: scene, clientX: x, clientY: y });
               const options = type === 'touchstart'
@@ -235,8 +237,13 @@ export async function runHomeBrowser(base) {
               scene.dispatchEvent(new globalThis.TouchEvent(type, options));
             };
             makeTouch('touchstart', 215, 120);
+            makeTouch('touchend', 212, 240);
+            const stage = scene.dataset.stage;
+            makeTouch('touchstart', 215, 120);
             makeTouch('touchend', 120, 123);
+            return stage;
           });
+          assert.equal(afterVertical, 'create', 'Vertical swipe does not change stage');
           assert.equal(await journey.locator('[data-mkt-journey-scene]').getAttribute('data-stage'), 'share');
           assert.equal(await journey.locator('[data-mkt-step="share"]').getAttribute('aria-pressed'), 'true');
           assert.equal(await journey.locator('[data-mkt-panel="share"]').isVisible(), true);
@@ -361,6 +368,8 @@ export async function runHomeBrowser(base) {
     await motionPage.close();
     await runHeroTemplatesBrowser(browser, base);
     await runFeaturedCarousel(browser,base);
+    await runCatalogCardMotion(browser, base);
+    await runCatalogAcceptance(browser, base);
     console.log('PASS Browser home VI/EN: seven viewports, compact section gaps, first-screen actions, preview, Escape and focus, Back and how-it-works, reduced motion.');
   } finally { await browser.close(); }
 }

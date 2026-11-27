@@ -76,3 +76,46 @@ test('Nhãn tìm kiếm VI/EN và cache CSS đồng bộ', () => {
   assert(html.includes('/css/tokens.css?v=20261127-type-scale'));
   assert(html.includes('/css/open-me-system.css?v=20261127-feedback'));
 });
+
+test('Chip chỉ hiện khi có điều kiện, escape dữ liệu và giữ ID cố định', () => {
+  assert.match(markup(stateFixture()), /id="catalog-active-filters"[^>]*hidden>/);
+  const state = { ...stateFixture(), search: '<img src=x onerror=alert(1)>', freeOnly: true };
+  const html = markup(state);
+  assert.match(html, /data-action="remove-catalog-filter" data-filter="search"/);
+  assert.match(html, /data-action="remove-catalog-filter" data-filter="freeOnly"/);
+  assert.match(html, /&lt;img src=x onerror=alert\(1\)&gt;/);
+  assert.doesNotMatch(html, /<img src=x onerror=/);
+  const failed = createCatalogViews({ state, templateCard: () => '', paginationMarkup: () => '' }).explore({ catalogFailed: true });
+  assert.doesNotMatch(failed, /id="catalog-active-filters"/);
+});
+
+test('Xóa chip đồng bộ control, giữ điều kiện khác và trả focus trước commit', async t => {
+  const state = { ...stateFixture(), search: 'hello', freeOnly: true, photoOnly: true, catalogPage: 3 };
+  const events = [];
+  const control = { checked: true };
+  const original = globalThis.document;
+  t.after(() => { if (original === undefined) delete globalThis.document; else globalThis.document = original; });
+  globalThis.document = {
+    getElementById: id => id === 'free-filter' ? control : null,
+    querySelector: () => ({ focus: () => events.push('focus') }),
+  };
+  const action = createCatalogActions({ state, commitCatalogFilters: () => events.push('commit') }).find(([names]) => names.includes('remove-catalog-filter'))[1];
+  await action('remove-catalog-filter', { dataset: { filter: 'freeOnly' } });
+  assert.deepEqual(state, { ...stateFixture(), search: 'hello', photoOnly: true });
+  assert.equal(control.checked, false);
+  assert.deepEqual(events, ['focus', 'commit']);
+  await action('remove-catalog-filter', { dataset: { filter: 'user' } });
+  assert.deepEqual(events, ['focus', 'commit']);
+});
+
+test('Chip dùng nhãn VI/EN, vùng chạm và cache CSS', () => {
+  for (const locale of ['vi', 'en']) {
+    const dict = JSON.parse(read(`web/assets/locales/${locale}.json`));
+    assert(dict['catalog.filters.active']);
+    assert(dict['catalog.filters.remove']);
+  }
+  const css = read('web/css/catalog-filters.css');
+  assert.match(css, /\.catalog-active-filters \.catalog-filter-chip \{[^}]*min-height: var\(--ui-control-min-height\)/);
+  assert.match(css, /\.catalog-active-filters\[hidden\] \{\s*display: none/);
+  assert.match(read('web/index.html'), /catalog-filters\.css\?v=20261127-active-filters/);
+});

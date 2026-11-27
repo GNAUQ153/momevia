@@ -1,3 +1,5 @@
+import { signatureElementIds } from '../../../web/js/shared/canvas/signature/registry.js';
+import { ORIGINAL_IDS } from '../../../web/js/shared/canvas/originals-data.js';
 import { createHash } from 'node:crypto';
 import { builtinLibraryItems } from './library.seed.mjs';
 import { LIBRARY_KINDS, CORE_EFFECT_IDS, libraryId, validateAnimation, validatePortableEffect, validateVector, builtinEffectApplies } from '../../../web/js/shared/canvas/library-contract.js';
@@ -95,7 +97,10 @@ export class CanvasLibraryService {
     if (!ledger.length) throw canvasError(503, 'CANVAS_MIGRATION_REQUIRED', 'Canvas library requires migration 013.');
     const [[row]] = await this.client.execute('SELECT COUNT(*) n FROM canvas_library_items');
     if (!Number(row.n)) await this.seed();
-    else await this.seedSound();
+    else {
+      await this.seedSound();
+      await this.seedCollections();
+    }
     await this.refresh();
   }
   async seed() {
@@ -111,6 +116,20 @@ export class CanvasLibraryService {
     const rows=builtinLibraryItems().filter(row=>(row.kind==='element_type'&&row.id==='sound-button')||(row.kind==='element'&&row.id==='sound-button'));
     await this.client.withTransaction(async tx=>{
       for(const row of rows)await tx.execute(`INSERT INTO canvas_library_items(kind,id,revision,status,sort_order,definition) VALUES (?,?,?,?,?,?) ON DUPLICATE KEY UPDATE id=id`,[row.kind,row.id,row.revision,row.status,row.sortOrder,JSON.stringify(row.definition)]);
+    });
+  }
+  // Chỉ thêm mẫu và cụm Signature thiếu; giữ nguyên mọi chỉnh sửa của Admin.
+  async seedCollections() {
+    const rows = builtinLibraryItems().filter(row =>
+      (row.kind === 'template' && ORIGINAL_IDS.includes(row.id)) ||
+      (row.kind === 'element' && signatureElementIds.includes(row.id)));
+    await this.client.withTransaction(async tx => {
+      await tx.execute("SELECT version FROM schema_migrations WHERE version='013_canvas_library' FOR UPDATE");
+      const current = await this.rows(tx);
+      const missing = rows.filter(row => !current.some(old => old.kind === row.kind && old.id === row.id));
+      if (!missing.length) return;
+      validateLibrary([...current, ...missing]);
+      for (const row of missing) await tx.execute('INSERT INTO canvas_library_items(kind,id,revision,status,sort_order,definition) VALUES (?,?,?,?,?,?)', [row.kind, row.id, row.revision, row.status, row.sortOrder, JSON.stringify(row.definition)]);
     });
   }
   async rows(tx = this.client) {

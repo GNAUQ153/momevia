@@ -1,16 +1,23 @@
 import { escapeHtml as e } from "../core/api.js";
 import { displayCopy } from '../shared/locale.js';
-import { attr, priceText, text } from "../core/i18n.js";
+import { attr, text } from "../core/i18n.js";
 import { icon } from "../ui/icons.js";
 import { isSystemTemplate } from '../shared/template-copy.js';
 import { templateCardType } from '../shared/card-type.js';
+import { templatePriceText, templatePriceTier } from '../features/catalog/price.js';
 import { personalizationText, templateCover, templateField, templateValue } from '../features/catalog/template-copy.js';
 
 export function createComponents({ state }) {
   function artwork(template, variant = "", { eager = false, responsive = false } = {}) {
     const loading = eager ? 'eager' : 'lazy';
     if (isSystemTemplate(template)) return `<div class="artwork artwork--${e(template.theme)} artwork--canvas ${variant}"><img ${templateCover(template,{defer:!eager,variant:variant.includes('detail')?'portrait':'catalog',responsive})} ${attr('alt', 'catalog.artwork.systemAlt', { title: templateValue(template, 'title') })} width="390" height="${variant.includes('detail')?'844':'330'}" loading="${loading}" ${eager?'fetchpriority="high"':''}/></div>`;
-    if (template.thumbnail) return `<div class="artwork artwork--${e(template.theme)} artwork--canvas ${variant}"><img src="${e(template.thumbnail)}" ${attr('alt', 'catalog.artwork.creatorAlt', { title: template.title })} width="390" height="844" loading="${loading}"/></div>`;
+    if (template.thumbnail) {
+      // Danh mục và yêu thích dùng cùng bộ tải ảnh trì hoãn; không đổi Hero hoặc chi tiết.
+      const deferred = responsive && !eager;
+      const source = deferred ? 'data-src' : 'src';
+      const marker = deferred ? ' data-cover-lazy' : '';
+      return `<div class="artwork artwork--${e(template.theme)} artwork--canvas ${variant}"><img ${source}="${e(template.thumbnail)}"${marker} ${attr('alt', 'catalog.artwork.creatorAlt', { title: template.title })} width="390" height="844" loading="${loading}"/></div>`;
+    }
     const theme = e(template.theme || "violet");
     const title = template.title ? e(displayCopy(template.title)) : text('catalog.artwork.fallbackTitle');
     const small = template.subtitle ? e(displayCopy(template.subtitle)) : text('catalog.artwork.fallbackSubtitle');
@@ -40,6 +47,7 @@ export function createComponents({ state }) {
 
   function templateCard(template, { compact = false } = {}) {
     const title = templateField(template, 'title');
+    const tier = templatePriceTier(template.price);
     return `<article class="template-card${compact ? ' card template-card--home' : ''}" data-template-id="${e(template.id)}">
       <a href="/template/${encodeURIComponent(template.id)}?preview=1" data-link class="template-card__visual" ${attr('aria-label', 'catalog.actions.viewNamed', { title: templateValue(template, 'title') })}>
         ${artwork(template, '', { responsive: !compact })}
@@ -49,7 +57,7 @@ export function createComponents({ state }) {
       <div class="template-card__info"><span class="template-card__type">${text(`catalog.cardType.${templateCardType(template)}`)}</span><div class="template-card__${compact ? 'occasion' : 'caption'}">${templateField(template, template.category ? 'category' : 'style')}${compact ? '' : ` <span class="dot-separator"></span> ${text('catalog.scenes', { count: template.scenes })}`}</div>
         <a href="/template/${encodeURIComponent(template.id)}" data-link class="template-card__title">${compact ? `<span>${title}</span>${icon('arrow-up-right', 16)}` : title}</a>
         ${compact ? '' : `<p${template.personalization ? ' class="template-card__capabilities"' : ''}>${personalizationText(template.personalization) || templateField(template, 'subtitle')}</p>`}
-        <div class="template-card__bottom">${compact ? '' : `<span>${e(template.creator)}</span>`}<strong class="template-card__price${Number(template.price) === 0 ? ' template-card__price--free' : ''}">${priceText(template.price)}</strong></div>
+        <div class="template-card__bottom">${compact ? '' : `<span>${e(template.creator)}</span>`}<strong class="template-card__price${tier === 'free' ? ' template-card__price--free' : ''}" data-price-tier="${tier}">${!compact && tier === 'paid' ? `<small class="template-card__price-kind">${text('catalog.price.paid')}</small>` : ''}${templatePriceText(template.price)}</strong></div>
       </div>
     </article>`;
   }

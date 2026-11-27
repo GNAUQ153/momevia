@@ -91,18 +91,17 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Thêm sáu hiệu ứng mở thiệp riêng trên layer Signature, sử dụng nút chạm/bàn phím và lifecycle motion hiện có.
-- Giữ rotation, opacity và artwork của Sender; nhận diện qua kind để hoạt động khi nhân bản.
-- Bổ sung nhãn VI/EN, giảm chuyển động và hủy animation khi rời cảnh; tiếp tục giữ Catalog QA riêng.
+- Thu gọn khoảng cách giữa bộ mẫu và phần hành trình trên desktop, giữ kiểm tra giới hạn khoảng trắng hiện có.
+- Đồng bộ kỳ vọng Catalog/MySQL với bộ 16 Originals và kiểm tra carousel quay vòng đủ 16 mẫu.
 
 **Các commit gần nhất trên `main`:**
 
+- `3650c1d` — fix(ci): align 16-card regressions and compact landing spacing (2026-11-28)
+- `46cd9bf` — feat(ui): refresh seasonal landing and 16 interactive cards (2026-11-27)
 - `9af78d4` — feat(signature): introduce six layered opening animations (2026-11-27)
 - `0e6790a` — feat(signature): enable isolated local catalog and canvas review (2026-11-27)
 - `3f1bb7c` — feat(signature): introduce six editable bilingual template documents (2026-11-27)
 - `bb8ca53` — feat(signature): improve editable vector inspector and optional photo layout (2026-11-27)
-- `adb1872` — feat(signature): register six editable artwork collections in canvas library (2026-11-27)
-- `7292608` — feat(signature): introduce independent editable vector artwork (2026-11-27)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

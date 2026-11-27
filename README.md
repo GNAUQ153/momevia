@@ -91,17 +91,19 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Thu gọn khoảng cách giữa bộ mẫu và phần hành trình trên desktop, giữ kiểm tra giới hạn khoảng trắng hiện có.
-- Đồng bộ kỳ vọng Catalog/MySQL với bộ 16 Originals và kiểm tra carousel quay vòng đủ 16 mẫu.
+- Dựng lại 16 Originals: mỗi mẫu có bìa tối với một trong sáu cơ chế mở 3D (hộp quà, dấu sáp, cửa đôi, máy ảnh in ảnh, bóc lịch, ống kính), tương tác riêng và lời kết gắn với câu chuyện.
+- Ba mẫu có hai nhánh do người nhận chọn; thiệp mời có vé sự kiện và đồng hồ đếm ngược tự lấy ngày giờ của thiệp mời.
+- Thư viện và trang chủ chỉ liệt kê 16 Originals và mẫu Creator; mẫu hệ thống cũ vẫn mở, tạo và xuất bản được qua link trực tiếp.
+- Nút trong thiệp tự chọn màu chữ đọc được theo nền; bỏ chữ "(minh họa)" trên bản xem thử; ẩn chữ alt khi ảnh bìa đang tải.
 
 **Các commit gần nhất trên `main`:**
 
+- `b7c0622` — fix(ci): seed demo paid draft from direct template link (2026-11-28)
+- `aa78c23` — feat(templates): redesign 16 Originals as recipient-first stories (2026-11-28)
 - `3650c1d` — fix(ci): align 16-card regressions and compact landing spacing (2026-11-28)
 - `46cd9bf` — feat(ui): refresh seasonal landing and 16 interactive cards (2026-11-27)
 - `9af78d4` — feat(signature): introduce six layered opening animations (2026-11-27)
 - `0e6790a` — feat(signature): enable isolated local catalog and canvas review (2026-11-27)
-- `3f1bb7c` — feat(signature): introduce six editable bilingual template documents (2026-11-27)
-- `bb8ca53` — feat(signature): improve editable vector inspector and optional photo layout (2026-11-27)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

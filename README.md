@@ -91,18 +91,18 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Hiệu ứng nghiêng CSS 3D chỉ trên artwork khi dùng chuột, giữ nguyên vị trí nút yêu thích, vùng xem mẫu và metadata.
-- Nhãn xem mẫu luôn hiện; tăng vùng chạm yêu thích, giữ focus và tắt chuyển động trên thiết bị cảm ứng hoặc khi giảm chuyển động.
-- Đăng ký CSS trong cả gói đầy đủ và gói Catalog; bổ sung kiểm thử hợp đồng và hồi quy trình duyệt. Không thêm dependency hoặc migration.
+- Chuẩn hóa giao diện xem thử theo token, ưu tiên CTA dùng mẫu, trạng thái tải/lỗi rõ ràng và bố cục responsive.
+- Giữ ghi chú mô phỏng trong suốt phiên xem; đặt lại trạng thái tải và vị trí cuộn khi mở lại, giữ cơ chế hủy request và dispose player.
+- Giữ URL tạo thiệp, phiên bản mẫu, quyền truy cập và runtime hiện có; không thêm dependency hoặc migration.
 
 **Các commit gần nhất trên `main`:**
 
+- `5736edf` — feat(ui): improve template preview experience and player lifecycle (2026-11-27)
 - `fb06df1` — feat(ui): introduce accessible catalog card depth and motion (2026-11-27)
 - `2606610` — feat(ui): add accessible active catalog filters and independent removal (2026-11-27)
 - `57813cb` — feat(ui): redesign responsive catalog layout using shared design tokens (2026-11-27)
 - `eaea20d` — feat(performance): add marketing acceptance gate and regression budgets (2026-11-27)
 - `36b50a5` — perf(ui): optimize floating CTA viewport awareness and DOM measurement (2026-11-27)
-- `673d677` — feat(ui): add accessible hero carousel playback and contextual floating CTA (2026-11-27)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

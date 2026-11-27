@@ -1,3 +1,9 @@
+## Unreleased — Phase 4.6A Auth Aurora (2026-11-27)
+
+- Làm mới bố cục Login/Register tối với artwork 3D tách khỏi nội dung, nút dùng gradient thương hiệu và typography tự xuống dòng.
+- Giới hạn animation giới thiệu một lần trên desktop, giữ vùng bấm ổn định, focus rõ ràng và hỗ trợ reduced motion.
+- Giữ nguyên OAuth, biểu mẫu, bản dịch VI/EN, tài khoản, phân quyền và dữ liệu; không thêm dependency.
+
 ## Unreleased — Phase 4.5H Catalog Acceptance (2026-11-27)
 
 - Bổ sung kiểm thử liên kết renderer, giá mẫu, phân trang, quyền yêu thích Guest/Customer và phiên bản Creator bằng fixture.

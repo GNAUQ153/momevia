@@ -91,19 +91,18 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Làm mới bố cục Catalog bằng token màu, spacing, radius và elevation hiện có.
-- Chuẩn hóa lưới ba, hai và một cột; giữ focus, reduced motion và giao diện VI/EN.
-- Giữ renderer, bộ lọc, phân trang, artwork, giá và quyền sử dụng mẫu. Không thêm dependency hoặc migration.
-- Bổ sung năm kiểm thử hợp đồng CSS và cập nhật phiên bản stylesheet.
+- Hiển thị điều kiện đang áp dụng, xóa từng chip và giữ các điều kiện còn lại; đồng bộ control, URL, focus và phân trang.
+- Dùng nhãn VI/EN và token giao diện hiện có, escape dữ liệu; giữ API, giá, quyền và thuật toán lọc.
+- Bổ sung sáu kiểm thử hồi quy, không thêm dependency hoặc migration.
 
 **Các commit gần nhất trên `main`:**
 
+- `2606610` — feat(ui): add accessible active catalog filters and independent removal (2026-11-27)
 - `57813cb` — feat(ui): redesign responsive catalog layout using shared design tokens (2026-11-27)
 - `eaea20d` — feat(performance): add marketing acceptance gate and regression budgets (2026-11-27)
 - `36b50a5` — perf(ui): optimize floating CTA viewport awareness and DOM measurement (2026-11-27)
 - `673d677` — feat(ui): add accessible hero carousel playback and contextual floating CTA (2026-11-27)
 - `06bf1f4` — fix(ci): align hero motion and journey swipe regression contracts (2026-11-27)
-- `a126199` — perf(ui): optimize mobile motion and journey touch interactions (2026-11-27)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

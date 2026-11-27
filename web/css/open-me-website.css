@@ -211,6 +211,21 @@
   margin-top: 10px;
 }
 
+/* Điều khiển chuyển mẫu dùng chung cho hai ngôn ngữ. */
+.is-home .mkt-hero__rotation .mkt-hero__playback {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.is-home .mkt-hero__rotation .mkt-hero__playback[hidden] {
+  display: none;
+}
+
+.is-home .mkt-hero__rotation .mkt-hero__playback:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 3px;
+}
+
 /* Nền mesh chỉ nằm trong sân khấu, không đổi màu nền dưới chữ hoặc mặt thiệp. */
 .is-home .open-me-stack .mkt-stage__atmosphere::before {
   position: absolute;

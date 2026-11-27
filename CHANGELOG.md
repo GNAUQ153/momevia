@@ -1,3 +1,9 @@
+## Unreleased — Phase 4.4G.2 Carousel Accessibility (2026-11-27)
+
+- Thêm điều khiển tạm dừng và tiếp tục Hero Carousel trên desktop; giữ chọn mẫu thủ công trên mobile và hỗ trợ bàn phím, VI/EN, reduced motion.
+- CTA nổi nhường chỗ cho CTA sau khi mở quà và trong hiệu ứng dựng trang chủ. Giữ cơ chế animation, phân quyền và nghiệp vụ hiện có.
+- Cập nhật kiểm thử Hero Carousel và CTA; không thêm dependency hoặc migration.
+
 ## Unreleased — Phase 4.4F CTA Conversion (2026-11-27)
 
 - Bổ sung CTA tạo thiệp sau khi mở quà mẫu, dùng chung hộp thoại chọn loại thiệp với Hero; chuyển replay thành hành động phụ, giữ focus, giao diện VI/EN và reduced motion. Không phát sinh giao dịch hoặc dữ liệu nghiệp vụ.

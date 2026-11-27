@@ -1,4 +1,4 @@
-import { attr, message, onLocaleChange, setAttr } from '../../core/i18n.js';
+import { attr, message, onLocaleChange, setAttr, setText } from '../../core/i18n.js';
 import { heroTemplateCover, templateValue } from '../catalog/template-copy.js';
 import { escapeHtml as e } from '../../shared/locale.js';
 import { marketingConnection, marketingDataSaverEnabled } from './motion-preferences.js';
@@ -31,6 +31,27 @@ export function mountHeroTemplates(host, initialTemplates) {
   let index = 0, progress, peek, peekImage, generation = 0, visible = true;
   const savingData = () => marketingDataSaverEnabled({ reducedData: reducedData?.matches, saveData: connection?.saveData });
   let dataPaused = savingData();
+  let userPaused = false;
+  const playback = root.querySelector('[data-hero-playback]');
+
+  // Giữ lựa chọn tạm dừng của người dùng trong vòng đời Hero.
+  function updatePlayback() {
+    if (!playback) return;
+
+    playback.hidden = reduce.matches ||
+      !fullMotion.matches ||
+      dataPaused ||
+      templates.length < 2;
+
+    const state = userPaused ? 'paused' : 'playing';
+
+    if (playback.dataset.state !== state) {
+      playback.dataset.state = state;
+      setText(playback, message(userPaused
+        ? 'home.hero.resumeSlides'
+        : 'home.hero.pauseSlides'));
+    }
+  }
   let noteMotions = [], noteStarts;
 
   function ensureImage(position) {
@@ -48,7 +69,16 @@ export function mountHeroTemplates(host, initialTemplates) {
     if (!next?.length) return;
     ++generation; resetProgress(); templates = next; index = Math.min(index, next.length - 1);
     cover.innerHTML = heroImages(templates, index);
-    rotation.innerHTML = heroSelectors(templates, index);
+    // Giữ nút điều khiển khi danh mục mẫu được cập nhật.
+    if (playback) {
+      selectors.forEach(button => button.remove());
+      rotation.insertAdjacentHTML(
+        'beforeend',
+        heroSelectors(templates, index)
+      );
+    } else {
+      rotation.innerHTML = heroSelectors(templates, index);
+    }
     images = [...cover.querySelectorAll('[data-hero-image]')]; selectors = [...rotation.querySelectorAll('[data-hero-select]')];
     ensureImage(index); update(); schedule();
   }
@@ -109,6 +139,7 @@ export function mountHeroTemplates(host, initialTemplates) {
     return !lifetime.signal.aborted &&
       !reduce.matches &&
       !dataPaused && !document.hidden && visible && !dialog.open &&
+      !userPaused && templates.length > 1 &&
       fullMotion.matches &&
       !host.hasAttribute('data-home-construction-running');
   }
@@ -117,6 +148,7 @@ export function mountHeroTemplates(host, initialTemplates) {
     if (lifetime.signal.aborted) return;
     // Dùng cùng trạng thái với đồng hồ thiệp để tạm dừng quầng sáng CSS.
     // Không để animation chạy ngầm khi hero ngoài viewport, tab ẩn hoặc mở preview.
+    updatePlayback();
     const running = canRotate();
     root.toggleAttribute('data-mkt-ambient-running', running);
     if (!running) {
@@ -186,6 +218,22 @@ export function mountHeroTemplates(host, initialTemplates) {
     } catch { if (request === generation) resetProgress(); }
     finally { if (request === generation) schedule(); }
   }
+  playback?.addEventListener('click', () => {
+    userPaused = !userPaused;
+    schedule();
+  }, options);
+
+  // Không tự đổi thiệp khi người dùng đang điều hướng bằng bàn phím.
+  root.addEventListener('focusin', event => {
+    const control = event.target.closest?.(
+      '[data-hero-select], [data-template-preview]'
+    );
+
+    if (!control?.matches(':focus-visible')) return;
+    userPaused = true;
+    schedule();
+  }, options);
+
   rotation.addEventListener('click', event => {
     const button = event.target.closest('[data-hero-select]');
     if (button) void select(Number(button.dataset.heroSelect));

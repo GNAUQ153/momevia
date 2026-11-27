@@ -57,6 +57,11 @@ export function createHomeViews({ state, buttonLink, templateCard }) {
         <div class="mkt-stage__reply" aria-hidden="true"><span>${text('home.hero.reply.caption')}</span><strong>${icon('heart',15)} ${text('home.hero.reply.title')}</strong></div>
       </div>
       <div class="mkt-hero__rotation open-me-hero__controls" role="group" ${attr('aria-label','home.hero.slides')}>
+        <button type="button"
+          class="mkt-hero__playback"
+          data-hero-playback
+          hidden
+        >${text('home.hero.pauseSlides')}</button>
         ${heroSelectors(demos)}
       </div>
       </div>

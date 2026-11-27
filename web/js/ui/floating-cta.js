@@ -89,7 +89,33 @@ export function mountFloatingCta() {
     const disabled = footerInView || dialogOpen || (home && main && !heroPassed) || (pricing && main && !pricingPassed) || (catalog && main && !catalogPassed) || (detail && !detailPassed);
     // Probe fixed overlays synchronously, then settle visibility before painting.
     // Changing visibility never changes document padding or scroll position.
-    const eligible = !(routeHidden || disabled);
+    // CTA nổi nhường chỗ cho hành động tạo thiệp sau khi mở quà.
+    const contextualCta = home
+      ? main?.querySelector('[data-home-create-after-demo]')
+      : null;
+
+    const contextualBox = contextualCta?.getBoundingClientRect();
+
+    const contextualVisible = Boolean(
+      contextualBox?.width &&
+      contextualBox.height &&
+      visibleCtaRatio(
+        contextualBox,
+        document.documentElement.clientWidth,
+        document.documentElement.clientHeight,
+        headerBottom
+      ) >= 0.5
+    );
+
+    const constructionRunning = home &&
+      main?.hasAttribute?.('data-home-construction-running');
+
+    const eligible = !(
+      routeHidden ||
+      disabled ||
+      contextualVisible ||
+      constructionRunning
+    );
     if (eligible) panel.hidden = false;
     document.body.classList.toggle('has-floating-cta', eligible);
     if (dirty) { content = main ? [...main.querySelectorAll(contentSelector)] : []; dirty = false; }
@@ -134,7 +160,7 @@ export function mountFloatingCta() {
   }
   if (typeof MutationObserver === 'function') {
     const observer = new MutationObserver(() => { dirty = true; schedule(); });
-    if (main) observer.observe(main, { childList: true, subtree: true, attributes: true, attributeFilter: ['open'] });
+    if (main) observer.observe(main, { childList: true, subtree: true, attributes: true, attributeFilter: ['open', 'hidden', 'data-home-construction-running'] });
     if (modal) observer.observe(modal, { childList: true, subtree: true });
     if (footer) observer.observe(footer, { childList: true, subtree: true });
   }

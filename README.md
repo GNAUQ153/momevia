@@ -91,18 +91,18 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Bổ sung kiểm thử liên kết renderer, giá mẫu, phân trang, quyền yêu thích Guest/Customer và phiên bản Creator bằng fixture.
-- Nghiệm thu Catalog trên sáu cấu hình VI/EN bằng Browser E2E, đối chiếu giá API, bộ lọc, Preview, focus và điều hướng Back; lưu ảnh khi có thư mục artifact.
-- Không thay đổi runtime, dữ liệu, dependency hoặc migration.
+- Làm mới bố cục Login/Register tối với artwork 3D tách khỏi nội dung, nút dùng gradient thương hiệu và typography tự xuống dòng.
+- Giới hạn animation giới thiệu một lần trên desktop, giữ vùng bấm ổn định, focus rõ ràng và hỗ trợ reduced motion.
+- Giữ nguyên OAuth, biểu mẫu, bản dịch VI/EN, tài khoản, phân quyền và dữ liệu; không thêm dependency.
 
 **Các commit gần nhất trên `main`:**
 
+- `ec93b5a` — feat(ui): refine authentication aurora layout and accessible 3D motion (2026-11-27)
 - `5e19e91` — test(ui): add catalog business and responsive acceptance coverage (2026-11-27)
 - `43c9294` — perf(ui): defer seasonal and creator catalog cover loading (2026-11-27)
 - `e42575f` — fix(ui): isolate preview price marker from hero trigger contract (2026-11-27)
 - `eb55454` — feat(ui): improve free and premium discovery with consistent price validation (2026-11-27)
 - `a08f2c3` — feat(ui): enhance seasonal collections and holiday discovery (2026-11-27)
-- `5736edf` — feat(ui): improve template preview experience and player lifecycle (2026-11-27)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

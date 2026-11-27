@@ -91,17 +91,18 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Đổi marker giá Preview để tránh trùng tiền tố với nút mở Preview; giữ nguyên giá và luồng tạo thiệp.
-- Bổ sung kiểm thử hồi quy marker, không nới lỏng các kiểm thử Hero hiện có.
+- Trì hoãn ảnh bộ sưu tập theo mùa và ảnh Creator trong lưới danh mục/yêu thích bằng bộ tải ảnh theo viewport hiện có.
+- Giữ nguyên URL, kích thước ảnh, giá, bản dịch, ảnh Hero và ảnh trang chi tiết; không thêm cache dữ liệu người dùng hoặc dependency.
+- Bổ sung kiểm thử markup, chuyển trạng thái tải ảnh và tái sử dụng ảnh khi lọc.
 
 **Các commit gần nhất trên `main`:**
 
+- `43c9294` — perf(ui): defer seasonal and creator catalog cover loading (2026-11-27)
 - `e42575f` — fix(ui): isolate preview price marker from hero trigger contract (2026-11-27)
 - `eb55454` — feat(ui): improve free and premium discovery with consistent price validation (2026-11-27)
 - `a08f2c3` — feat(ui): enhance seasonal collections and holiday discovery (2026-11-27)
 - `5736edf` — feat(ui): improve template preview experience and player lifecycle (2026-11-27)
 - `fb06df1` — feat(ui): introduce accessible catalog card depth and motion (2026-11-27)
-- `2606610` — feat(ui): add accessible active catalog filters and independent removal (2026-11-27)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

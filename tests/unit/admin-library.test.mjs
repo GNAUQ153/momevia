@@ -5,7 +5,26 @@ import { buildLibraryPreview } from '../../src/modules/designs/library-preview.m
 import { installLibrary, librarySnapshot } from '../../web/js/shared/canvas/library-state.js';
 import { validateDocument } from '../../web/js/shared/canvas/schema.js';
 import { CanvasLibraryService, validateLibrary } from '../../src/modules/designs/library.service.mjs';
+import { builtinPreset } from '../../web/js/shared/canvas/effects.js';
 import { makeItem, makeInteraction, duplicateItem, getDocument, editFrame, dependencies, removeScene, setPath, layers, normalizeSelection, sameItemContent } from '../../web/js/features/admin-library/model.js';
+
+test('animation preview keeps linked effect targets and resolves ephemeral candle identity', () => {
+  const previous = librarySnapshot();
+  try {
+    const rows = builtinLibraryItems();
+    installLibrary({ items: rows });
+    const shadow = rows.find(row => row.kind === 'animation' && row.id === 'contact-shadow-v1');
+    const result = buildLibraryPreview(shadow, structuredClone(rows), 'vi');
+    const subject = result.document.elements.find(element => element.effects?.surface);
+    assert.equal(subject.type, 'shape');
+    assert.equal(result.document.scenes[0].effects?.surface, undefined);
+    const candle = rows.find(row => row.kind === 'animation' && row.id === 'R04');
+    const preview = buildLibraryPreview(candle, structuredClone(rows), 'vi');
+    const interaction = preview.document.elements.find(element => element.effects?.reaction);
+    assert.equal(builtinPreset(interaction.effects.reaction).id, 'R04');
+    assert.equal(interaction.props.kind, 'light-a-candle');
+  } finally { installLibrary(previous); }
+});
 
 test('all 266 editable library items render valid previews without changing their source', () => {
   const original = librarySnapshot(), rows = builtinLibraryItems(), before = JSON.stringify(rows);

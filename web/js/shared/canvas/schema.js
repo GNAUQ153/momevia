@@ -12,7 +12,7 @@ import { usesMotions, validateMotions, validateAssembly } from './motion-stack.j
 
 const CANVAS_VERSIONS = Object.freeze([1, 2, 3, 4]);
 export const runtimeVersionFor = document => document.schemaVersion;
-export const requiresCanvasV2 = document => Boolean(document.soundtrack) || document.scenes.some(scene => scene.effects) || document.elements.some(e =>
+export const requiresCanvasV2 = document => Boolean(document.soundtrack) || document.scenes.some(scene => scene.effects || scene.flow) || document.elements.some(e =>
   e.type === 'interaction' || e.effects || e.artwork ||
   ['dropCap', 'pattern', 'mask', 'optional', 'caption'].some(key => own(e.props, key)) ||
   (e.type === 'sticker' && !originalStickerIds.includes(e.props.stickerId)) ||
@@ -195,7 +195,14 @@ export function validateDocument(document, { mode = 'draft', requiredBindings = 
   if (!document.scenes.length) fail('scenes', 'Cần ít nhất một cảnh.');
   const sceneIds = new Set(), elementIds = new Set(), assigned = new Set();
   for (const [i, s] of document.scenes.entries()) {
-    const p = `scenes.${i}`; object(s, p, ['id', 'name', 'background', 'elementIds', 'effects'], ['id', 'name', 'background', 'elementIds']); id(s.id, `${p}.id`); string(s.name, `${p}.name`, 100, 1);
+    const p = `scenes.${i}`; object(s, p, ['id', 'name', 'background', 'elementIds', 'effects', 'flow'], ['id', 'name', 'background', 'elementIds']); id(s.id, `${p}.id`); string(s.name, `${p}.name`, 100, 1);
+    if (own(s, 'flow')) {
+      object(s.flow, `${p}.flow`, ['version', 'region'], ['version', 'region']);
+      enumeration(s.flow.version, `${p}.flow.version`, [1]);
+      object(s.flow.region, `${p}.flow.region`, ['x','y','width','height'], ['x','y','width','height']);
+      for (const key of ['x','y']) number(s.flow.region[key], `${p}.flow.region.${key}`, 0, LIMITS.coordinate);
+      for (const key of ['width','height']) number(s.flow.region[key], `${p}.flow.region.${key}`, 1, LIMITS.coordinate);
+    }
     if (own(s,'effects')) validateEffects(s.effects,`${p}.effects`);
     if (sceneIds.has(s.id)) fail(`${p}.id`, 'Cảnh trùng ID.'); sceneIds.add(s.id);
     object(s.background, `${p}.background`, ['kind', 'color'], ['kind', 'color']); enumeration(s.background.kind, `${p}.background.kind`, ['solid']); color(s.background.color, `${p}.background.color`);

@@ -24,7 +24,7 @@ export function createInteractiveTemplate(id, localize) {
   add(at,'interaction','event-album',[26,330,338,300],{kind:'swipe-album',color:paper,optional:true,autoplay:false,photos:Array.from({length:3},(_,i)=>({id:`event-photo-slot-${i+1}`,assetId:null,alt:'',caption:'',focalPoint:{x:.5,y:.5}}))});
   go(at,'album-next',common('continue'),next);
  };
- const reply=()=>{const at=scene('scene-reply',common('reply'));heading(at,'reply-heading',common('reply'));binding(at,'text-message','message',165,190);binding(at,'text-sender','senderName',375,60);add(at,'reply','reply-card',[24,465,342,260],{title:common('reply'),submitLabel:localize('templates.copy.sendReply')});go(at,'back-cover',common('back'),'scene-cover',755);};
+ const reply=()=>{const at=scene('scene-reply',common('reply'));heading(at,'reply-heading',common('reply'));binding(at,'text-message','message',165,190);binding(at,'text-sender','senderName',375,60);add(at,'reply','reply-card',[24,465,342,260],{title:common('reply'),submitLabel:localize('templates.copy.sendReply'),color:accent});go(at,'back-cover',common('back'),'scene-cover',755);};
  const cover=scene('scene-cover',common('cover'));
  text(cover,'cover-kicker',c('kicker'),32,34,15);heading(cover,'cover-title',c('headline'),92);binding(cover,'text-recipient','recipientName',230,94);
  const assetId=eventMediaId(art);doc.assets.push({assetId,kind:'image'});

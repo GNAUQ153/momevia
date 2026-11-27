@@ -1,3 +1,5 @@
+import { displayCopy } from '../../shared/locale.js';
+
 // Điều hướng cảnh được giữ ổn định giữa các lần render để không làm mất focus.
 // Chỉ thao tác DOM; không thay đổi dữ liệu Canvas hay quy tắc truy cập quà.
 export function sceneProgress(scenes, activeSceneId) {
@@ -49,7 +51,7 @@ export function createSceneNavigation(navigation, progress, { onSelect, signal }
       }
       const { index, total } = sceneProgress(scenes, activeSceneId);
       scenes.forEach((scene, position) => {
-        buttons[position].textContent = `${position + 1}. ${scene.name}`;
+        buttons[position].textContent = displayCopy(`${position + 1}. ${scene.name}`);
         buttons[position].setAttribute('aria-current', position + 1 === index ? 'step' : 'false');
       });
       progress.max = Math.max(1, total);

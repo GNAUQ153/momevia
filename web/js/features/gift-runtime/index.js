@@ -2,13 +2,15 @@ import { coverHasRecipient, displayRecipient } from '../../shared/recipient-nami
 import { validateDocument, runtimeVersionFor } from "../../shared/canvas/schema.js";
 import { message, setAttr, setText, t } from "../../core/i18n.js";
 import { focusVisibleTarget } from "../../core/motion.js";
-import { renderElement, applyLayout, updateElementCopy } from "./renderer.js";
+import { renderElement, applyLayout, updateElementCopy, applyStationerySurface } from "./renderer.js";
 import {NATURAL_ARTWORK_LABEL} from '../../shared/canvas/event-media.js';
+import { builtinPreset } from '../../shared/canvas/effects.js';
 import { applySurface, createMotion, playAmbience, playElement, playReaction, sceneTransition } from "./effects.js";
 import { playCelebrations } from './celebrations.js';
 import { createSceneNavigation } from './scene-navigation.js';
 import { createSoundPlayer } from './audio.js';
 import { createSoundtrackPlayback } from './soundtrack.js';
+import { stationeryFlow } from '../../shared/canvas/stationery-flow.js';
 export { renderElement, applyLayout, resolveText } from "./renderer.js";
 
 export function mountPlayer(
@@ -257,6 +259,7 @@ export function mountPlayer(
         )
         .sort((a, b) => a.model.layout.y - b.model.layout.y);
       for (const { model, node } of nodes) {
+        if(scene.flow)node.style.transitionProperty='none';
         applyLayout(node, model, size, { responsive: true, scale });
         if (model.type === "text") {
           node.style.fontSize = `${Math.max(16, (model.props.fontSize || 24) * scale)}px`;
@@ -264,6 +267,19 @@ export function mountPlayer(
         }
         if (["reply", "interaction"].includes(model.type) || (model.type === "image" && model.props.caption))
           node.style.height = "auto";
+      }
+      if (scene.flow) {
+        const heights = new Map(nodes.filter(({model})=>model.type==='text').map(({model,node})=>[model.id,node.scrollHeight/scale]));
+        const flow = stationeryFlow(scene, document.elements, heights);
+        for (const { model, node } of nodes) {
+          const layout = flow.layouts.get(model.id);
+          if (layout) applyLayout(node, { ...model, layout }, size, { responsive: true, scale });
+          if (flow.surfaces.has(model.id)) applyStationerySurface(node,scale);
+        }
+        const top = stage.getBoundingClientRect().top;
+        const end = Math.max(0, ...nodes.filter(({model})=>!model.accessibility.decorative).map(({node})=>node.getBoundingClientRect().bottom-top));
+        stage.style.minHeight = `${Math.max((size.height+flow.growth)*scale,end+24)}px`;
+        return;
       }
       const cohorts = [];
       for (const item of content) {
@@ -331,7 +347,7 @@ export function mountPlayer(
       if (family === "reaction" && effectPreview.elementId === model.id && model.motions?.enabled!==false) {
         const control = node.matches("button") ? node : node.querySelector("button");
         if (control) {
-          if (model.effects?.reaction?.id === "R04") control.click();
+          if (builtinPreset(model.effects?.reaction)?.id === "R04") control.click();
           else void playReaction(model.motions?control.querySelector('[data-motion-family="reaction"]')||control:control,model.effects?.reaction,motion,signal);
         }
       }

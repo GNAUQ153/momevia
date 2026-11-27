@@ -17,7 +17,7 @@ test('responsive covers defer all candidates, keep locale/revision in every URL 
    assert.equal(sources.length,5);
    for(const source of sources){const[url,width]=source.split(' '),parsed=new URL(url,'http://localhost');
     assert.equal(parsed.searchParams.get('locale'),'vi');assert.equal(parsed.searchParams.get('variant'),'catalog');
-    assert.equal(parsed.searchParams.get('width')+'w',width);assert.equal(parsed.searchParams.get('v'),template.coverRevision||'9');
+    assert.equal(parsed.searchParams.get('width')+'w',width);assert.equal(parsed.searchParams.get('v'),template.coverRevision||'10');
    }
   }
   assert.doesNotMatch(templateCover({id:'afterglow',coverRevision:'revision-2'},{variant:'portrait'}),/srcset|width=/);

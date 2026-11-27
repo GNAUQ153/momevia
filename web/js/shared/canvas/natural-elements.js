@@ -12,7 +12,7 @@ export const NATURAL_ELEMENT_SPECS=[
  ['open-kit-bush','graphics','Bụi lá mềm','A soft leafy bush','cây lá Kitbitz CC0 bush'],
  ['open-kit-pine','graphics','Thông rừng vẽ tay','Hand-drawn forest pine','cây thông Kitbitz CC0 pine'],
  ['open-kit-mushrooms','graphics','Nấm rừng nhỏ','Little forest mushrooms','nấm rừng Kitbitz CC0 mushroom'],
- ['open-kit-cloud','graphics','Mây bồng vẽ tay','Hand-drawn billowing cloud','mây Kitbitz CC0 cloud'],
+ ['open-kit-cloud','graphics','Mây bồng vẽ tay','Hand-drawn billowing cloud','mây cloud vector Momevia bóng đổ Kitbitz'],
  ['open-kit-stones','graphics','Đá xếp cân bằng','Balanced stones','đá Kitbitz CC0 stone'],
  ['open-branch-flowers','graphics','Cành hoa mềm','Flowering branch','cành hoa Openclipart Almeidah CC0'],
  ['open-vintage-flower','graphics','Hoa nét mực cổ điển','Vintage ink blossom','hoa cổ điển Openclipart CC0 ink'],
@@ -30,7 +30,7 @@ export const NATURAL_ELEMENT_SPECS=[
  ['linen-ribbon','materials','Dây lanh thắt nút','Knotted linen ribbon','vải lanh dây linen ribbon thread'],
  ['wax-seal','materials','Dấu sáp tự nhiên','Hand-poured wax seal','con dấu sáp wax seal stamp'],
  ['satin-bow','materials','Nơ lụa mềm','Soft satin bow','nơ ruy băng lụa satin bow ribbon'],
- ...[['gift','Hộp quà','Gift'],['heart','Trái tim','Heart'],['star','Ngôi sao','Star'],['camera','Máy ảnh','Camera'],['moon','Mặt trăng','Moon'],['cup','Cúp','Trophy'],['notebook','Sổ tay','Notebook'],['clock','Đồng hồ','Clock']].map(([id,vi,en])=>['3d-'+id,'three-d',vi+' 3D',en+' 3D','3D khối '+vi+' '+en]),
+ ...[['gift','Hộp quà','Gift'],['heart','Trái tim','Heart'],['star','Ngôi sao','Star'],['camera','Máy ảnh','Camera'],['moon','Mặt trăng','Moon'],['cup','Tách','Mug'],['notebook','Sổ tay','Notebook'],['clock','Đồng hồ','Clock']].map(([id,vi,en])=>['3d-'+id,'three-d',vi+' 3D',en+' 3D','3D khối '+vi+' '+en]),
  ['motion-heart','animation','Tim đập nhẹ','A gentle heartbeat','tim animation chuyển động','element-3d-heart','A01'],
  ['motion-star','animation','Sao nghiêng nhẹ','Gently tilting star','sao 3D animation chuyển động Sao nghiêng theo sáng A star catches the light','element-3d-star','keepsake-sway-v1'],
  ['motion-gift','animation','Quà xuất hiện','A gift arrives','hộp quà 3D animation','element-3d-gift','E02'],
@@ -40,11 +40,12 @@ export const NATURAL_ELEMENT_SPECS=[
 ];
 
 export function naturalElementCards(kind,translate){
- return NATURAL_ELEMENT_SPECS.filter(spec=>spec[1]===kind&&NATURAL_MEDIA_IDS[spec[5]||'element-'+spec[0]]).map(spec=>{
+ const cards = NATURAL_ELEMENT_SPECS.filter(spec=>spec[1]===kind&&NATURAL_MEDIA_IDS[spec[5]||'element-'+spec[0]]).map(spec=>{
   const [id,,vi,,keywords,assetKey,effect]=spec;
   return {id:'natural-'+id,title:translate?.(`editor.library.item.natural-${id}`)||vi,visualKind:kind==='materials'?'graphics':kind,keywords,create:()=>{
    const assetId=NATURAL_MEDIA_IDS[assetKey||'element-'+id],media=NATURAL_MEDIA[assetId],size=kind==='three-d'?220:300,scale=Math.min(size/media.width,size/media.height);
    const model=createElement('image',{name:vi,layout:{x:0,y:0,width:Math.round(media.width*scale),height:Math.round(media.height*scale)},props:{assetId,fit:'contain',radius:0},accessibility:{decorative:true,label:NATURAL_ARTWORK_LABEL}});
+   if (id === 'open-kit-cloud') model.effects = { surface: eventRecipe('paper-shadow-v2') };
    if(kind==='animation'&&id==='motion-heart')model.motions={version:1,enabled:true,rows:[motionRow('pulse','heart-beat'),motionRow('spin','heart-spin')]};
    else if(kind==='animation')model.effects={emphasis:naturalMotion(id,spec[2],spec[3])};
    else if(effect){const family=effect==='E02'||effect==='paper-unfold-natural-v1'?'entrance':'emphasis';model.effects={[family]:effect.includes('-v')?eventRecipe(effect):{id:effect,speed:'normal',...(family==='entrance'?{delay:0}:{})}};}
@@ -52,11 +53,12 @@ export function naturalElementCards(kind,translate){
    return [model];
   }};
  });
+ return kind === 'graphics' ? [...cards, ...openVectorCards(translate)] : cards;
 }
 
 export const NATURAL_COMPOSITION_IDS=['natural-foldout-note','natural-photo-frame',...OPEN_VECTOR_IDS];
 export function naturalCompositionCards(translate){
- const result=openVectorCards(translate);
+ const result=[];
  if(NATURAL_MEDIA_IDS['element-paper-cotton'])result.push({id:'natural-foldout-note',title:translate('editor.library.item.natural-foldout-note'),visualKind:'interactive',keywords:'thư nhiều nếp giấy foldout letter paper interactive',create:()=>[
   createElement('image',{name:translate('editor.library.item.natural-paper-cotton'),layout:{x:0,y:0,width:320,height:430},props:{assetId:NATURAL_MEDIA_IDS['element-paper-cotton'],fit:'cover',radius:0},accessibility:{decorative:true,label:NATURAL_ARTWORK_LABEL}}),
   createElement('interaction',{name:translate('editor.library.item.natural-foldout-note'),layout:{x:18,y:54,width:284,height:318},props:{kind:'foldout-letter',appearance:'paper-fold-v2',color:'#FAF0DC',entries:[1,2,3].map(i=>({heading:translate('interactive.milestone'+i),body:translate('interactive.proudFold'+i)}))},effects:{surface:eventRecipe('cotton-paper-v2')}}),

@@ -28,6 +28,24 @@ test('Fabric leaves subpixel geometry intact when another layer is changed',()=>
  assert.equal(change.layout.x,Math.round((x+3)*100)/100);assert.equal(change.layout.y,y);assert.equal(change.layout.width,width);assert.equal(change.layout.height,height);
 });
 
+test('NFD copy renders identically to NFC without persisting glyph normalization on selection or a move', () => {
+  const doc = source();
+  const layer = doc.elements.find(e => e.id === 'text-intro');
+  const text = 'Ở Huế, gửi Nguyễn một lời chúc.';
+  layer.props.text = text.normalize('NFD');
+  const view = fabricView(doc, doc.entrySceneId).elements.find(e => e.id === layer.id);
+  assert.equal(view.text, text);
+  const { x, y, width, height, rotation } = layer.layout;
+  const shape = { momeviaId: layer.id, text: view.text, left: x + width / 2, top: y + height / 2, width, height, angle: rotation };
+  assert.deepEqual(fabricDiff(doc, doc.entrySceneId, [shape]), []);
+  shape.left += 2;
+  const updates = fabricDiff(doc, doc.entrySceneId, [shape]);
+  assert.equal(updates.length, 1);
+  assert.equal('text' in updates[0], false);
+  const moved = applyFabricDiff(doc, doc.entrySceneId, updates);
+  assert.equal(moved.elements.find(e => e.id === layer.id).props.text, text.normalize('NFD'));
+});
+
 test('Fabric view preserves scene order, bindings, and original document', () => {
   const document = source();
   const before = structuredClone(document);
@@ -46,6 +64,21 @@ test('Fabric uses center coordinates but saves top-left layout without drift', (
   assert.deepEqual(layoutFromFabric(element, { ...geometry, left: 132, top: 132, scaleX: 1.1, angle: 45 }), {
     x: 55, y: 87, width: 154, height: 90, rotation: 45,
   });
+});
+
+test('Caption display reflow does not persist temporary offsets or expanded frame height', () => {
+  const document = source();
+  const element = document.elements.find(item => item.id === 'shape-personal');
+  const shape = {
+    momeviaId: element.id, left: 110, top: 205,
+    width: 140, height: 210, momeviaBaseHeight: 90,
+    momeviaDisplayOffsetY: 100, scaleX: 1, scaleY: 1, angle: 0,
+  };
+  assert.deepEqual(fabricDiff(document, document.entrySceneId, [shape]), []);
+  shape.top += 15;
+  const [update] = fabricDiff(document, document.entrySceneId, [shape]);
+  assert.equal(update.layout.y, element.layout.y + 15);
+  assert.equal(update.layout.height, element.layout.height);
 });
 
 test('Fabric diff updates one editable layer and preserves interactions', () => {

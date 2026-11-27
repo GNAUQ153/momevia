@@ -36,6 +36,13 @@ const motif = (templateId, matches) => () => {
   });
 };
 const vectorInsertion=id=>()=>structuredClone(vectorInsertions[id]).map(e=>({...e,id:crypto.randomUUID()}));
+function flowerCluster() {
+  const bloom = (x, y, size, color) => createElement('sticker', { layout: { x, y, width: size, height: size }, props: { stickerId: 'flower', color } });
+  const stem = (x, y, width, height, color) => createElement('line', { layout: { x, y, width, height }, props: { pattern: 'arc', color, strokeWidth: 2 } });
+  return [stem(42, 58, 45, 108, '#5D816B'), stem(100, 39, 19, 129, '#5D816B'),
+    stem(114, 73, 55, 97, '#5D816B'), bloom(0, 27, 93, '#CE8297'),
+    bloom(68, 0, 88, '#B99ACA'), bloom(126, 57, 75, '#D5A756')];
+}
 const replay = [{ on: "activate", type: "replay" }];
 const polaroidLabel = "Ảnh trong khung Polaroid";
 
@@ -98,7 +105,7 @@ export const catalog = [
   ["Sticker", [...originalStickerIds.map(id =>
     [id, stickerNames[id], sticker(id, 80, id === "star" || id === "sparkles" ? "#A97413" : "#AA5275"), "hình dán sticker"]), ...illustratedStickers]],
   ["Cụm trang trí", [
-    ["flowers", "Cụm hoa", vectorInsertion('flowers'), "cánh hoa"],
+    ["flowers", "Cụm hoa", flowerCluster, "cánh hoa"],
     ["leaves", "Cành lá", vectorInsertion('leaves'), "cây cụm lá"],
     ...Object.entries(REFRESH_21).map(([id,spec])=>[`object-${id}`,canonicalText(`editor.library.item.object-${id}`),motif(id,/^cover-object-/),`${id} ${spec.object} ${spec.material}`]),
     ["stars", "Cụm sao", vectorInsertion('stars'), "chòm sao lấp lánh"],
@@ -151,9 +158,11 @@ function overlap(a, b) {
 export function placeBlock(models, viewport, existing) {
   const box = bounds(models);
   const width = box.right - box.left, height = box.bottom - box.top;
-  const left = viewport.left + 12, top = viewport.top + 12;
-  const right = Math.max(left, viewport.right - width - 12);
-  const bottom = Math.max(top, viewport.bottom - height - 12);
+  const marginX = Math.max(0, Math.min(12, (viewport.right - viewport.left - width) / 2));
+  const marginY = Math.max(0, Math.min(12, (viewport.bottom - viewport.top - height) / 2));
+  const left = viewport.left + marginX, top = viewport.top + marginY;
+  const right = Math.max(left, viewport.right - width - marginX);
+  const bottom = Math.max(top, viewport.bottom - height - marginY);
   const occupied = existing.filter(model => model.visible !== false).map(model => bounds([model]));
   const steps = [0.5, 0.28, 0.72, 0, 1];
   let best;

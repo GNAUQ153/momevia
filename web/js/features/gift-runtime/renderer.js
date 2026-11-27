@@ -1,5 +1,5 @@
 import { renderAssembly, prepareMotionLayers } from './motion-stack.js';
-import { recipientText, displayRecipient } from '../../shared/recipient-naming.js';
+import { displayLayerText } from '../../shared/recipient-naming.js';
 import { STICKERS } from "../../shared/canvas/index.js";
 import { message as label, setAttr, setText, t } from "../../core/i18n.js";
 import { masks, vectorParts } from "../../shared/canvas/artwork.js";
@@ -72,11 +72,7 @@ function imageUrl(value, mode) {
   return null;
 }
 export function resolveText(node, document) {
-  const name = displayRecipient(document);
-  const value = node.props.textBinding === 'recipientName' ? name : node.props.textBinding
-    ? document.bindings[node.props.textBinding]?.value || '' : node.props.text || '';
-  return node.props.textBinding === 'recipientName' && document.personalization?.mode && document.personalization.mode !== 'manual'
-    ? t('recipient.address', { name }) : recipientText(value, name, document.personalization?.version === 1);
+  return displayLayerText(node, document, t);
 }
 
 // The system preview regenerates the same document structure with translated copy.
@@ -95,25 +91,26 @@ export function updateElementCopy(node, model, document) {
     setAttr(node, "aria-label", a.label || p.title || label("gift.reply.title"));
   } else if (type === "image") {
     const caption = node.querySelector(".gift-runtime-photo-caption");
-    if (caption) caption.textContent = p.caption || "";
+    if (caption) setText(caption, p.caption);
     const image = node.querySelector("img");
     if (image) image.alt = a.decorative ? "" : a.alt || "";
   } else if (type === 'interaction' && p.kind === 'foldout-letter') {
     for (const [i,fold] of [...node.querySelectorAll('.gift-letter-fold')].entries()) {
-      fold.querySelector('summary').textContent=p.entries[i].heading;fold.querySelector('p').textContent=p.entries[i].body;
+      setText(fold.querySelector('summary'), p.entries[i].heading);
+      setText(fold.querySelector('p'), p.entries[i].body);
     }
   } else if (type === 'interaction' && p.kind === 'light-a-candle') {
-    node.querySelector('.gift-interaction-button').textContent=p.entries[0].heading;
-    if(node.querySelector('.is-lit'))node.querySelector('.gift-interaction-copy').textContent=p.entries[0].body;
+    setText(node.querySelector('.gift-interaction-button'), p.entries[0].heading);
+    if (node.querySelector('.is-lit')) setText(node.querySelector('.gift-interaction-copy'), p.entries[0].body);
   } else if (type === 'interaction' && p.optional) {
     if (p.kind === 'event-countdown') {
-      node.querySelector('h3').textContent = p.entries[0].heading;
+      setText(node.querySelector('h3'), p.entries[0].heading);
       const arrival = node.querySelector('.gift-interaction-copy');
-      if (arrival?.textContent) arrival.textContent = p.entries[0].body;
+      if (arrival?.textContent) setText(arrival, p.entries[0].body);
     } else if (p.kind === 'swipe-album') {
       const photos = p.photos.filter(photo => photo.assetId);
       const caption = node.querySelector('figcaption');
-      if (caption) caption.textContent = photos[Number(node.dataset.albumIndex || 0)]?.caption || '';
+      if (caption) setText(caption, photos[Number(node.dataset.albumIndex || 0)]?.caption);
     }
   }
 }
@@ -159,6 +156,19 @@ export function applyLayout(
   if(model.type==='shape'&&model.props.kind==='graduation-tassel-v1')node.style.transformOrigin='9% 4%';
   if (model.type === "sticker")
     node.style.fontSize = `${Math.max(20, Math.min(layout.width, layout.height) * scale * 0.8)}px`;
+}
+
+export function applyStationerySurface(node, scale=1) {
+  const image=node.querySelector('img');
+  if(!image)return;
+  image.style.visibility='hidden';
+  node.style.borderStyle='solid';
+  node.style.borderColor='transparent';
+  node.style.borderWidth=`${20*scale}px`;
+  node.style.borderImageSource=`url("${image.getAttribute('src')}")`;
+  node.style.borderImageSlice='120 fill';
+  node.style.borderImageWidth='1';
+  node.style.borderImageRepeat='stretch';
 }
 
 export function renderElement(
@@ -344,6 +354,7 @@ export function renderElement(
         p.submitLabel || label("gift.reply.send"),
       ),
       status = element("p", "gift-runtime-reply-status");
+    if (p.color) submit.style.backgroundColor = p.color;
     name.name = "name";
     name.value = replyAdapter?.cardName?.slice(0, 50) || '';
     name.maxLength = 50;

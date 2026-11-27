@@ -1,3 +1,5 @@
+import { posterCover } from './poster-cover.js';
+
 // Momevia Originals · 2026-11-23. Coordinates describe the editable portrait,
 // not a second cover image. Cover variants crop the same pinned layers.
 export const REFRESH_21 = Object.freeze({
@@ -26,9 +28,10 @@ export const REFRESH_21 = Object.freeze({
 
 export const refreshedTemplateId = doc => Object.keys(REFRESH_21).find(id => doc.elements.some(e => e.id === `refresh-${id}`));
 
-export function coverVariant(document, variant = 'portrait') {
+export function coverVariant(document, variant = 'portrait', templateId) {
   const id = refreshedTemplateId(document);
-  if (!id || !['catalog','seasonal'].includes(variant)) return document;
+  if (!['catalog','seasonal'].includes(variant)) return document;
+  if (!id) return posterCover(document, variant, templateId);
   const doc = structuredClone(document), scene = doc.scenes.find(s => s.id === doc.entrySceneId);
   const height = variant === 'catalog' ? 330 : 466;
   const scale=variant==='catalog'?.84:1;

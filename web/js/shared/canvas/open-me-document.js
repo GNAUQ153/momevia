@@ -50,7 +50,7 @@ export function openMeDocument(id, localize, palette) {
     const at = scene('scene-reply', 'scene.reply', background);
     heading(at, 'reply-heading', c('replyTitle'), [28, 62, 334, 115], 35, color, 'serif');
     text(at, 'reply-note', c('replyNote'), [28, 190, 334, 100], 19, color);
-    add(at, 'reply', 'reply-card', [20, 318, 350, 330], { title: c('replyTitle'), submitLabel: c('sendReply') });
+    add(at, 'reply', 'reply-card', [20, 318, 350, 330], { title: c('replyTitle'), submitLabel: c('sendReply'), color:palette.accent });
     replay(at, [66, 747, 258, 64]);
     return at;
   };

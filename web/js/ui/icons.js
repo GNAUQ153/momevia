@@ -32,7 +32,7 @@ const paths = {
   search: '<circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/>',
   user: '<circle cx="12" cy="8" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/>',
   shield: '<path d="m12 22 7-4V6l-7-4-7 4v12l7 4Z"/><path d="m9 12 2 2 4-4"/>',
-  pencil: '<path d="M12 20H4l2-8L17 1l6 6-11 11-8 2ZM14 4l6 6"/>',
+  pencil: '<path d="M13 20H4l2-7L17 2l5 5-11 11-7 2ZM14 5l5 5"/>',
   image:
     '<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 16-5-5-5 5-2-2-6 6"/>',
   music:
@@ -63,7 +63,7 @@ const paths = {
   globe:
     '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>',
   "upload-cloud":
-    '<path d="M5 17a5 5 0 0 1-.7-9.9A7 7 0 0 1 18 8a4.5 4.5 0 0 1 1 9M12 21V11m-4 4 4-4 4 4"/>',
+    '<path d="M6 17a4 4 0 0 1-1-7.9A7 7 0 0 1 18 9a4 4 0 0 1 0 8M12 21V11m-4 4 4-4 4 4"/>',
 };
 export function icon(name, size = 20, extraClass = "") {
   return `<svg class="icon ${extraClass}" width="${size}" height="${size}" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${paths[name] || paths.sparkles}</svg>`;

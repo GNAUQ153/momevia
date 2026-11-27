@@ -54,6 +54,12 @@ npm run db:verify
 
 ## CI và phát hành
 
+### Dựng bìa theo phiên bản thư viện
+
+Lệnh `npm run build` dựng các bìa đóng gói từ seed. Khi cần phát hành bìa theo các chỉnh sửa của Admin, truyền bản xuất thư viện cùng phiên bản bằng `npm run build -- --cover-library "<đường dẫn bản xuất>.json"`. Có thể dựng riêng vào thư mục kiểm tra bằng `node scripts/build/template-previews.mjs --library "<đường dẫn bản xuất>.json" --output "<thư mục bìa>"`. Trình dựng chỉ đọc snapshot và ghi ảnh cùng `cover-release.json` vào thư mục đích. Manifest lưu revision từng mẫu và SHA-256 của từng bìa VI/EN. Ba bố cục chuẩn bị sẵn vẫn giữ trạng thái phát hành của Catalog.
+
+### Kiểm tra và đóng gói
+
 [Workflow Momevia](../.github/workflows/ci.yml) chạy cho PR vào `main`, push vào `main`, push tag và chạy thủ công. Ma trận Windows/Linux và Node 22/24 kiểm build, lint, audit, unit và HTTP. Linux/Node 24 chạy Chromium, topology legacy và bộ khởi tạo web demo. Job MySQL 8.4 dùng schema cô lập. Browser gate chạy kèm nhóm HTTP cùng phạm vi.
 
 - Job package chờ CI và MySQL, dựng gói, cài lại dependency rồi chạy lại smoke HTTP, thư viện và canvas trong gói. Artifact gồm tar.gz, checksum SHA-256 và manifest theo file.

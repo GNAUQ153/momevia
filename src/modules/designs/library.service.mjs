@@ -1,10 +1,8 @@
 import { createHash } from 'node:crypto';
 import { builtinLibraryItems } from './library.seed.mjs';
 import { LIBRARY_KINDS, CORE_EFFECT_IDS, libraryId, validateAnimation, validatePortableEffect, validateVector, builtinEffectApplies } from '../../../web/js/shared/canvas/library-contract.js';
-import { installLibrary, librarySnapshot, libraryEntry, libraryDocument } from '../../../web/js/shared/canvas/library-state.js';
-import { templatePreviewDocument } from '../../../web/js/shared/canvas/presets.js';
-import { previewSvg } from '../../../web/js/shared/canvas/cover-svg.js';
-import { serverText } from '../../shared/locale.mjs';
+import { installLibrary, librarySnapshot, libraryEntry } from '../../../web/js/shared/canvas/library-state.js';
+import { renderTemplateCover } from './template-cover.mjs';
 import { pinDocumentArtwork } from '../../../web/js/shared/canvas/library-materialize.js';
 import { registry, createElement } from '../../../web/js/shared/canvas/registry.js';
 import { validateDocument, canonicalStringify } from '../../../web/js/shared/canvas/schema.js';
@@ -13,7 +11,6 @@ import { buildLibraryPreview, activatePreviewDependencies } from './library-prev
 import { builtinCoverResources } from './builtin-media.mjs';
 import { builtinMedia } from './builtin-media.mjs';
 import { usesSound } from '../../../web/js/shared/canvas/sound.js';
-import { coverVariant } from '../../../web/js/shared/canvas/refresh-21-config.js';
 
 const check = (ok, message) => { if (!ok) throw canvasError(422, 'INVALID_LIBRARY_DEFINITION', message); };
 const parse = v => typeof v === 'string' ? JSON.parse(v) : v;
@@ -132,16 +129,8 @@ export class CanvasLibraryService {
   async cover(id, locale, variant = 'portrait') {
     await this.refresh();
     if (!libraryEntry('template', id)) throw canvasError(404, 'LIBRARY_ITEM_NOT_FOUND', 'Library template unavailable.');
-    const localize = (key, params) => serverText(locale, key, params);
-    let document;
-    try { document = templatePreviewDocument({ id }, localize); }
-    catch {
-      document = libraryDocument('template', id, localize);
-      for (const [key, name] of [['recipientName','recipient'],['senderName','sender'],['message','greeting']])
-        document.bindings[key].value = localize(`templates.preview.${name}`);
-    }
     this.coverResources ??= builtinCoverResources();
-    return previewSvg(coverVariant(document,variant), undefined, this.coverResources.images, { serifWoff2: this.coverResources.serifWoff2 });
+    return renderTemplateCover(id, locale, variant, this.coverResources);
   }
   async put(user, kind, id, input) {
     check(user?.role === 'admin', 'Admin required.');

@@ -43,3 +43,7 @@ Thư viện mẫu mới bổ sung ảnh và đồ họa có nguồn bên ngoài;
 - Uiverse Galaxy: tham khảo chuyển động lật thẻ của Javierrocadev, commit adbd2adde0a299a3956ea288fb444ec01891ca41. Viết lại thành recipe khai báo hữu hạn của Momevia; giữ thông báo MIT, không dùng tên thương hiệu hay bố cục mặt thẻ.
 
 Các tệp giấy phép đi cùng ở web/assets/event-cards/natural-v4/licenses/. Nguồn, tác giả, phiên bản và các biến đổi của tài nguyên đang dùng nằm trong `web/js/shared/canvas/natural-media.js` và manifest tại `web/assets/event-cards/natural-v4/`. Không sao chép asset Canva, Envato, Freepik, Doory hoặc Grida vào thư viện mới. Không chạy lệnh, ứng dụng hay mã tải từ các trang/repo tham khảo.
+
+## Refined library graphics · 27/11/2026
+
+`web/assets/event-cards/refined-v1/cloud-source.svg` là hình mây vector do Momevia vẽ, có khoảng trong suốt an toàn. Bóng được đặt bằng hiệu ứng Canvas riêng. `vintage-source.svg` giữ toàn bộ đường gốc của johnny_automatic từ The Purple Parasol (1905), bổ sung vùng bao và viền sáng. Openclipart phát hành theo CC0-1.0. Nguồn SVG và hash của các rendition được ghi trong manifest cùng thư mục. [Tác phẩm gốc](https://openclipart.org/detail/8903/branch-with-flower) · [Quyền sửa và sử dụng](https://openclipart.org/share).

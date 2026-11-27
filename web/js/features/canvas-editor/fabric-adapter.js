@@ -1,5 +1,6 @@
 import { t } from '../../core/i18n.js';
-import { recipientText, displayRecipient } from '../../shared/recipient-naming.js';
+import { displayLayerText } from '../../shared/recipient-naming.js';
+import { displayCopy } from '../../shared/locale.js';
 // Bản đồ chuyển đổi tối thiểu từ Canvas schema Momevia sang Fabric.js.
 // Document Momevia luôn là dữ liệu gốc: không lưu Fabric JSON lên máy chủ.
 export const FABRIC_EDITABLE_TYPES = Object.freeze(['text', 'shape', 'image']);
@@ -13,10 +14,7 @@ export function canFabricEdit(element, policy = null) {
 }
 
 export function displayText(element, document) {
-  const name = displayRecipient(document);
-  if (element.props.textBinding === 'recipientName' && document.personalization?.mode && document.personalization.mode !== 'manual') return t('recipient.address', { name });
-  return recipientText(element.props.textBinding === 'recipientName' ? name : element.props.textBinding
-    ? document.bindings[element.props.textBinding]?.value || '' : element.props.text || '', name, document.personalization?.version === 1);
+  return displayLayerText(element, document, t);
 }
 
 export function fabricView(document, sceneId, policy = null, { includeHidden = false } = {}) {
@@ -77,9 +75,11 @@ export function layoutFromFabric(element, shape) {
     : (((angle + 180) % 360 + 360) % 360) - 180;
   return normalizedLayout(element, {
     x: shape.left - width / 2,
-    y: shape.top - height / 2,
+    y: shape.momeviaFlowHeightRatio
+      ? shape.top - Math.abs(shape.height*(shape.scaleY||1))/2 - shape.momeviaFlowOffsetY
+      : shape.top - height / 2 - (shape.momeviaDisplayOffsetY || 0) * (shape.scaleY || 1),
     width,
-    height,
+    height: shape.momeviaFlowHeightRatio && element.type!=='text' ? height/shape.momeviaFlowHeightRatio : height,
     rotation,
   });
 }
@@ -95,9 +95,10 @@ export function fabricDiff(document, sceneId, shapes, policy = null) {
     const layout = element.groupId ? element.layout : layoutFromFabric(element, shape);
     const text = element.type === 'text' && !element.props.textBinding &&
       typeof shape.text === 'string' && !(document.personalization && element.props.text?.includes('{người nhận}')) ? shape.text.slice(0, 4000) : null;
-    const changed = JSON.stringify(layout) !== JSON.stringify(element.layout) ||
-      (text !== null && text !== element.props.text);
-    if (changed) updates.push({ id: element.id, layout, ...(text === null ? {} : { text }) });
+    const textChanged = text !== null && displayCopy(text) !== displayCopy(element.props.text);
+    if (JSON.stringify(layout) !== JSON.stringify(element.layout) || textChanged) {
+      updates.push({ id: element.id, layout, ...(textChanged ? { text } : {}) });
+    }
   }
   return updates;
 }

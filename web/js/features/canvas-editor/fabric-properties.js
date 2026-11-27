@@ -36,19 +36,39 @@ function make(tag, className = '', text = '') {
   return node;
 }
 
+function paintBoundParts(shape, color) {
+  for (const child of shape.getObjects?.() || []) {
+    if (child.momeviaFillBinding) child.set('fill', color);
+    if (child.momeviaStrokeBinding) child.set('stroke', color);
+    paintBoundParts(child, color);
+  }
+}
+
 export function propertyToFabric(shape, model, field, value) {
   if (!shape || typeof shape.set !== 'function') throw new Error('Đối tượng Fabric không hợp lệ.');
   const accepted = validateFabricStyleField(model, field, value);
+  if (shape.momeviaDropCapStyle && ['color', 'fontToken', 'fontSize', 'align', 'lineHeight'].includes(field)) {
+    shape.momeviaDropCapStyle(field, accepted);
+    return accepted;
+  }
   let prop = {};
   switch (field) {
     case 'opacity': prop = { opacity: accepted }; break;
     case 'color':
       prop = { fill: accepted };
-      for(const child of shape.getObjects?.()||[]){if(child.momeviaFillBinding)child.set('fill',accepted);if(child.momeviaStrokeBinding)child.set('stroke',accepted);}
+      paintBoundParts(shape, accepted);
       break;
     case 'strokeColor': prop = { stroke: accepted }; break;
     case 'strokeWidth': prop = { strokeWidth: accepted }; break;
-    case 'radius': prop = { rx: accepted, ry: accepted }; break;
+    case 'radius': {
+      prop = { rx: accepted, ry: accepted };
+      const photo = shape.momeviaPhoto || shape;
+      if (model.type === 'image' && photo.clipPath?.type === 'rect') {
+        photo.clipPath.set(prop);
+        photo.set('dirty', true);
+      }
+      break;
+    }
     case 'fontToken': prop = { fontFamily: accepted === 'serif' ? 'Georgia' : 'Arial' }; break;
     case 'fontSize': prop = { fontSize: accepted }; break;
     case 'align': prop = { textAlign: accepted }; break;
@@ -152,6 +172,7 @@ export function mountFabricProperties({ canvas, layerModels, canEdit }) {
     } else updated.set(field, value);
     if (updated.size) changes.set(model.id, updated);
     else changes.delete(model.id);
+    canvas.fire('object:modified', { target: shape });
     canvas.requestRenderAll();
     setText(summary, message('editor.fabric.properties.changed'));
   }

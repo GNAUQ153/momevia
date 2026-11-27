@@ -12,10 +12,12 @@ import { REFRESH_21 } from '../../web/js/shared/canvas/refresh-21-config.js';
 const before = JSON.parse(fs.readFileSync(new URL('../fixtures/event-cards-before.json', import.meta.url)));
 const ids = Object.keys(before.documents);
 
-test('catalog metadata remains unchanged; presets outside the 21-item refresh retain approved hashes', () => {
+test('catalog metadata preserves identity and commercial fields while reviewed descriptions match their current opening objects', () => {
   for (const old of before.templates.filter(t => !ids.includes(t.id))) {
     const { documentHash, ...metadata } = old;
     const template = templates.find(t => t.id === old.id);
+    if (old.id === 'gentle-apology') metadata.subtitle = 'Một lời xin lỗi trên tờ giấy nhỏ, mở từ đường vá vàng của bát gốm.';
+    if (old.id === 'velvet-valentine-2027') metadata.subtitle = 'Một lời thương trong hộp nhung, mở bằng chiếc chốt nhỏ.';
     assert.deepEqual(template, metadata);
     if(!REFRESH_21[old.id]){
       const hash = createHash('sha256').update(canonicalStringify(createDocument({ template }))).digest('hex');

@@ -1,13 +1,13 @@
 import { attr, t, text } from '../../core/i18n.js';
-import { escapeHtml as e } from '../../shared/locale.js';
+import { displayCopy, escapeHtml as e } from '../../shared/locale.js';
 import { templateFieldKey } from '../../shared/template-copy.js';
 import { libraryEntry, librarySnapshot } from '../../shared/canvas/library-state.js';
 import {catalogCoverRevision} from '../../core/catalog-bootstrap.js';
-import { COVER_WIDTHS, CATALOG_COVER_SIZES } from '../../shared/cover-images.js';
+import { BUILTIN_COVER_REVISION, COVER_WIDTHS, CATALOG_COVER_SIZES } from '../../shared/cover-images.js';
 
 export function templateField(template, field) {
   const key = templateFieldKey(template, field);
-  return key ? text(key) : e(template[field]);
+  return key ? text(key) : e(displayCopy(template[field]));
 }
 
 export function templateValue(template, field) {
@@ -24,7 +24,6 @@ export function templateSearchFields(template) {
     .map(field => templateFieldKey(template, field)).filter(Boolean).map(key => t(key));
 }
 
-const coverRevision = 9;
 export function templateCover(template,{defer=false,variant='catalog',responsive=false,sizes=CATALOG_COVER_SIZES}={}) {
   const id=typeof template==='string'?template:template.id;
   const target=defer?'data-src':'src',marker=defer?' data-cover-lazy':'';
@@ -43,8 +42,8 @@ export function templateCover(template,{defer=false,variant='catalog',responsive
   };
   if(revision)return databaseAttrs(revision);
   if (libraryEntry('template', id)) return databaseAttrs(librarySnapshot().revision);
-  if(responsive&&suffix)return thumbnailAttrs('templates.assets.coverThumbnail',coverRevision);
-  return attr(target, 'templates.assets.cover', { id: encodeURIComponent(id)+(suffix?'-'+suffix:''), revision: coverRevision })+marker;
+  if(responsive&&suffix)return thumbnailAttrs('templates.assets.coverThumbnail',BUILTIN_COVER_REVISION);
+  return attr(target, 'templates.assets.cover', { id: encodeURIComponent(id)+(suffix?'-'+suffix:''), revision: BUILTIN_COVER_REVISION })+marker;
 }
 
 export function personalizationText(personalization) {

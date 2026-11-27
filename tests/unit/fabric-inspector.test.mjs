@@ -31,6 +31,18 @@ test('đọc đúng tọa độ top-left từ Fabric tâm, sử dụng chiều c
   });
 });
 
+test('chỉnh khung có chú thích reflow giữ tọa độ lưu khi đọc và thay kích thước', () => {
+  const target = shape();
+  target.momeviaDisplayOffsetY = 45;
+  target.top += 45;
+  const original = readInspectorGeometry(target);
+  assert.equal(original.y, 70);
+  applyInspectorGeometry(target, { ...original, height: 120 });
+  assert.equal(target.scaleY, 2);
+  assert.equal(target.top, 220);
+  assert.deepEqual(readInspectorGeometry(target), { ...original, height: 120 });
+});
+
 test('thay đổi X/Y không làm thay đổi chiều rộng và chiều cao', () => {
   const original = shape();
   applyInspectorGeometry(original, { ...readInspectorGeometry(original), x: 20, y: 30 });

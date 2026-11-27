@@ -93,7 +93,7 @@ export function renderInteraction(model, { mode, signal, motion, bindings, rende
     let flipped = false;
     const toggle = button(label("gift.interactions.flip"), () => {
       flipped = !flipped;
-      back.textContent = flipped ? first.body : first.heading;
+      setText(back, flipped ? first.body : first.heading);
       toggle.setAttribute("aria-pressed", String(flipped));
       root.classList.toggle("is-flipped", flipped);
     });
@@ -189,7 +189,7 @@ export function renderInteraction(model, { mode, signal, motion, bindings, rende
         const play=()=>{if(signal?.aborted||controller.signal.aborted)return;void motion.run(picture,automatic?[{transform:'perspective(700px) rotateY(-12deg) scale(.98)',opacity:.55},{transform:'perspective(700px) rotateY(0deg) scale(1)',opacity:1}]:[{transform:`translateX(${direction*9}px)`,opacity:.55},{transform:'translateX(0px)',opacity:1}],{duration:automatic?420:240},controller.signal);};
         if(img&&!img.complete)img.decode().then(()=>{if(picture.contains(img))play();}).catch(()=>{});else play();
       }
-      caption.textContent = pages[index].caption;
+      setText(caption, pages[index].caption);
       caption.hidden = !pages[index].caption;
       setText(indicator, label("gift.interactions.albumPage", { index: index + 1, total: pages.length }));
       before.setAttribute("aria-disabled", String(index === 0));
@@ -305,7 +305,7 @@ export function renderInteraction(model, { mode, signal, motion, bindings, rende
       candle.classList.add("is-lit");
       light.setAttribute("aria-pressed","true");
       light.setAttribute("aria-disabled","true");
-      wish.textContent = first.body;
+      setText(wish, first.body);
     });
     if (live) light.setAttribute("aria-pressed","false");
     if (['cake-overlay-v1','cake-photo-v2'].includes(model.props.appearance)) {
@@ -329,7 +329,7 @@ export function renderInteraction(model, { mode, signal, motion, bindings, rende
       }
       pieces.classList.add("is-complete");
       build();
-      message.textContent = first.body;
+      setText(message, first.body);
       skip.setAttribute("aria-disabled","true");
     };
     const controls = Array.from({length:3}, (_, i) => {
@@ -367,7 +367,7 @@ export function renderInteraction(model, { mode, signal, motion, bindings, rende
         const seconds = Math.max(0, elapsed ? Math.floor(delta) : Math.ceil(delta));
         if (!seconds && !elapsed) {
           countdown.hidden = true;
-          arrival.textContent = first.body;
+          setText(arrival, first.body);
           clearInterval(clock);
           return;
         }

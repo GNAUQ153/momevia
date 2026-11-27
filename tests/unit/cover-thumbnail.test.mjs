@@ -45,7 +45,7 @@ test('thumbnail rendering retains embedded WebP photos and their transparency', 
 
 test('Chỉ thumbnail tĩnh hỗ trợ 304; cover động và lỗi giữ no-store', async () => {
   const router = new Router();
-  registerDesignRoutes(router, { service: { library: { cover: async () => svg('#6136df') } } });
+  registerDesignRoutes(router, { service: { library: { refresh: async () => null, cover: async () => svg('#6136df') } } });
   const server = createServer((req, res) => router.handle(req, res));
   server.listen(0, '127.0.0.1');
   await once(server, 'listening');
@@ -73,5 +73,29 @@ test('Chỉ thumbnail tĩnh hỗ trợ 304; cover động và lỗi giữ no-sto
       assert.equal(response.headers.get('cache-control'), 'no-store');
       await response.text();
     }
+  } finally { await new Promise(resolve => server.close(resolve)); }
+});
+
+test('database thumbnails and full covers use the same current library revision', async () => {
+  const router = new Router();
+  let color = '#125634';
+  registerDesignRoutes(router, { service: { library: {
+    refresh: async () => ({ items: [{ kind: 'template', id: 'birthday-radiance' }] }),
+    cover: async () => svg(color),
+  } } });
+  const server = createServer((req, res) => router.handle(req, res));
+  server.listen(0, '127.0.0.1');
+  await once(server, 'listening');
+  const base = `http://127.0.0.1:${server.address().port}/library/templates/birthday-radiance`;
+  try {
+    const first = await fetch(`${base}/thumbnail?width=192`);
+    assert.equal(first.status, 200);
+    assert.equal(first.headers.get('cache-control'), 'no-store');
+    const bytes = Buffer.from(await first.arrayBuffer());
+    const cover = await fetch(`${base}/cover?width=192`);
+    assert.deepEqual(bytes, Buffer.from(await cover.arrayBuffer()));
+    color = '#a12345';
+    const next = await fetch(`${base}/thumbnail?width=192`);
+    assert.notDeepEqual(bytes, Buffer.from(await next.arrayBuffer()));
   } finally { await new Promise(resolve => server.close(resolve)); }
 });

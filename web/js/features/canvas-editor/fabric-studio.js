@@ -1,4 +1,5 @@
 import { createLocaleControl, message, setAttr, setText, t } from "../../core/i18n.js";
+import { dropCapFabricObject, bindDropCapFabricObject } from './fabric-drop-cap.js';
 import { node, button } from './dom.js';
 import { canFabricEdit, fabricView, fabricDiff } from './fabric-adapter.js';
 import { arrangeFabricBoxes } from './fabric-align.js';
@@ -6,10 +7,12 @@ import { mountFabricInspector } from './fabric-inspector.js';
 import { mountFabricQuickbar } from './fabric-quickbar.js';
 import { mountFabricProperties } from './fabric-properties.js';
 import {mountFabricShortcuts} from './fabric-shortcuts.js';
-import { vectorParts } from '../../shared/canvas/artwork.js';
+import { masks, vectorParts } from '../../shared/canvas/artwork.js';
+import { eventMediaUrl } from '../../shared/canvas/event-media.js';
 import { PAPER_GRAIN_URL } from '../../shared/canvas/paper-grain.js';
 import {usesMotions} from '../../shared/canvas/motion-stack.js';
 import { previewSvg } from '../../shared/canvas/cover-svg.js';
+import { stationeryFlow, paperSlices } from '../../shared/canvas/stationery-flow.js';
 import {
   canManageFabricLayer, moveFabricLayer, applyFabricWorkspacePatch,
   fabricWorkspaceChanged, snapFabricCenter, applyFabricCommands
@@ -65,18 +68,35 @@ function staticPreview(fabric, model) {
   });
 }
 
+function bindCaptionParts(object) {
+  if (!object.momeviaCaptionGroup) return;
+  // Child references must not enter Fabric's JSON enlivening graph.
+  Object.defineProperties(object, {
+    momeviaPhoto: { configurable: true, get: () => object.getObjects()[1] },
+    momeviaCaption: { configurable: true, get: () => object.getObjects()[3] },
+  });
+  object.set('objectCaching', false);
+}
+
 async function makeFabricObject(fabric, model, assetUrl, signal) {
   const options = shapeOptions(model);
   const props = model.props;
   let object;
-  const assemblyPaths=model.assembly?.parts.flatMap(p=>p.vector.paths);
-  const vector=assemblyPaths?assemblyPaths.map(p=>({d:p.d,fill:p.fill==='color'?props.color:p.fill,stroke:p.stroke==='color'?props.color:p.stroke,'stroke-width':p.strokeWidth})):vectorParts(model);
-  if(vector) {
+  const vector=vectorParts(model);
+  if (model.assembly) {
+    try {
+      object = await assemblyFabricObject(fabric, model, assetUrl, signal);
+    } catch {
+      if (signal.aborted) return;
+      object = staticPreview(fabric, model);
+      object.momeviaMissingImage = true;
+    }
+  } else if(vector) {
     const parts=[new fabric.Rect({left:0,top:0,width:100,height:100,originX:'left',originY:'top',fill:'transparent',strokeWidth:0}),
       ...vector.map((part,i)=>{
         const path=new fabric.Path(part.d,{originX:'left',originY:'top',fill:part.fill==='none'?null:part.fill,stroke:part.stroke,strokeWidth:part['stroke-width']||0,
           strokeDashArray:part['stroke-dasharray']?.split(' ').map(Number),strokeUniform:['shape','line'].includes(model.type),strokeLineCap:'round',strokeLineJoin:'round'});
-        path.momeviaFillBinding=(assemblyPaths||model.artwork?.paths)?.[i]?.fill==='color';path.momeviaStrokeBinding=(assemblyPaths||model.artwork?.paths)?.[i]?.stroke==='color';return path;
+        path.momeviaFillBinding=model.artwork?.paths?.[i]?.fill==='color';path.momeviaStrokeBinding=model.artwork?.paths?.[i]?.stroke==='color';return path;
       })];
     object=new fabric.Group(parts,{...options,width:100,height:100,scaleX:options.width/100,scaleY:options.height/100});
     // SVG uses a fixed 100×100 viewBox, including paths extending into their
@@ -91,9 +111,14 @@ async function makeFabricObject(fabric, model, assetUrl, signal) {
       stroke: props.strokeColor || props.color || '#DCCDFC',
       strokeWidth: props.strokeWidth || 0,
     });
+  } else if (model.type === 'text' && props.dropCap) {
+    object = await dropCapFabricObject(fabric, model, options);
   } else if (model.type === 'text') {
     const token=props.fontToken==='serif'?'--font-serif':props.fontToken==='heading'?'--font-display':'--font-body';
     const fontFamily=getComputedStyle(document.documentElement).getPropertyValue(token).trim()||'Arial';
+    const measure=document.createElement('canvas').getContext('2d');
+    measure.font=`${model.accessibility?.role==='heading'?'700':'400'} ${props.fontSize||24}px ${fontFamily}`;
+    const splitByGrapheme=Boolean(model.stationeryText&&(model.text||'').split(/\s+/).some(word=>measure.measureText(word).width>options.width));
     object = new fabric.Textbox(model.text ?? '', {
       ...options,
       fontFamily,
@@ -103,36 +128,95 @@ async function makeFabricObject(fabric, model, assetUrl, signal) {
       textAlign: props.align || 'left',
       fill: props.color || '#30243B',
       editable: model.textEditable,
+      splitByGrapheme,
     });
     // Fabric tự đo chiều cao text; lưu chiều cao DOM theo schema gốc ở bước apply.
     object.momeviaBaseHeight = options.height;
   } else if (model.type === 'image' && props.assetId) {
     const url = assetUrl(props.assetId);
-    if (typeof url === 'string' && /^\/api\/designs\/designs\/[\w-]+\/assets\/[\w-]+$/.test(url)) {
+    if (typeof url === 'string' && (/^\/api\/designs\/designs\/[\w-]+\/assets\/[\w-]+$/.test(url) || url === eventMediaUrl(props.assetId))) {
       try {
         object = await fabric.FabricImage.fromURL(url, { crossOrigin: 'anonymous', signal });
         if (signal.aborted) { object.dispose(); return; }
+        const caption = props.caption ? new fabric.Textbox(props.caption, {
+          left: 6, top: 0, width: Math.max(1, options.width - 12),
+          originX: 'left', originY: 'top',
+          fontFamily: getComputedStyle(document.documentElement).getPropertyValue('--font-body').trim() || 'Arial',
+          fontSize: 15, fontWeight: 500, lineHeight: 1.35,
+          fill: '#32243B', selectable: false, evented: false,
+        }) : null;
+        const captionHeight = caption ? Math.max(36, caption.height + 10) : 0;
+        const frameHeight = caption ? Math.max(52, options.height - captionHeight) : options.height;
+        const frameOptions = { ...options, height: frameHeight };
         const sourceWidth=object.width,sourceHeight=object.height;
-        if(props.fit==='contain'){
+        if(model.stationerySurface){
+          const pixelRatio=2,buffer=document.createElement('canvas');buffer.width=Math.ceil(options.width*pixelRatio);buffer.height=Math.ceil(frameHeight*pixelRatio);
+          const context=buffer.getContext('2d');context.scale(pixelRatio,pixelRatio);
+          for(const slice of paperSlices(sourceWidth,sourceHeight,options.width,frameHeight))context.drawImage(object.getElement(),slice.sx,slice.sy,slice.sw,slice.sh,slice.x,slice.y,slice.width,slice.height);
+          object.dispose();object=new fabric.FabricImage(buffer,{...frameOptions,width:buffer.width,height:buffer.height,scaleX:options.width/buffer.width,scaleY:frameHeight/buffer.height});
+        }else if(props.fit==='contain'){
           const pixelScale=Math.max(1,Math.min(2,Math.max(sourceWidth/options.width,sourceHeight/options.height))),canvas=document.createElement('canvas');
-          canvas.width=Math.max(1,Math.round(options.width*pixelScale));canvas.height=Math.max(1,Math.round(options.height*pixelScale));
+          canvas.width=Math.max(1,Math.round(options.width*pixelScale));canvas.height=Math.max(1,Math.round(frameHeight*pixelScale));
           const context=canvas.getContext('2d'),scale=Math.min(canvas.width/sourceWidth,canvas.height/sourceHeight),w=sourceWidth*scale,h=sourceHeight*scale;
           context.drawImage(object.getElement(),(canvas.width-w)*(props.focalPoint?.x??.5),(canvas.height-h)*(props.focalPoint?.y??.5),w,h);
-          object.dispose();object=new fabric.FabricImage(canvas,{...options,width:canvas.width,height:canvas.height,scaleX:options.width/canvas.width,scaleY:options.height/canvas.height});
+          object.dispose();object=new fabric.FabricImage(canvas,{...frameOptions,width:canvas.width,height:canvas.height,scaleX:options.width/canvas.width,scaleY:frameHeight/canvas.height});
         }else{
-        const scale=(props.fit==='contain'?Math.min:Math.max)(options.width/sourceWidth,options.height/sourceHeight);
-        const cropWidth=Math.min(sourceWidth,options.width/scale),cropHeight=Math.min(sourceHeight,options.height/scale);
+        const scale=Math.max(options.width/sourceWidth,frameHeight/sourceHeight);
+        const cropWidth=Math.min(sourceWidth,options.width/scale),cropHeight=Math.min(sourceHeight,frameHeight/scale);
         object.set({
-          ...options,
+          ...frameOptions,
           // Giữ kích thước ảnh gốc; scale mới đại diện đúng bố cục Momevia.
           width: cropWidth,
           height: cropHeight,
           cropX:(sourceWidth-cropWidth)*(props.focalPoint?.x??.5),
           cropY:(sourceHeight-cropHeight)*(props.focalPoint?.y??.5),
           scaleX: options.width / Math.max(1, cropWidth),
-          scaleY: options.height / Math.max(1, cropHeight),
+          scaleY: frameHeight / Math.max(1, cropHeight),
           objectCaching: true,
         });
+        }
+        const maskPath = props.mask ? props.maskPath || masks[props.mask] : null;
+        {
+          const clip = maskPath ? new fabric.Path(maskPath, {
+            originX: 'center', originY: 'center', fill: '#000', strokeWidth: 0,
+          }) : new fabric.Rect({
+            width: options.width, height: frameHeight,
+            originX: 'center', originY: 'center',
+            rx: props.radius, ry: props.radius, strokeWidth: 0,
+          });
+          clip.set({
+            left: maskPath ? (clip.pathOffset.x - 50) * options.width / 100 / object.scaleX : 0,
+            top: maskPath ? (clip.pathOffset.y - 50) * frameHeight / 100 / object.scaleY : 0,
+            scaleX: (maskPath ? options.width / 100 : 1) / object.scaleX,
+            scaleY: (maskPath ? frameHeight / 100 : 1) / object.scaleY,
+          });
+          object.set('clipPath', clip);
+        }
+        if (caption) {
+          // Keep the image layer as one selectable object while preserving its caption.
+          // A transparent frame holds the original schema bounds on open/apply.
+          object.set({ left: 0, top: 0, originX: 'left', originY: 'top', selectable: false, evented: false });
+          caption.set({ top: frameHeight + 5 });
+          const paper = new fabric.Rect({ left: 0, top: frameHeight, width: options.width,
+            height: captionHeight, fill: '#FFF7EE', strokeWidth: 0, originX: 'left', originY: 'top' });
+          const bounds = new fabric.Rect({ left: 0, top: 0, width: options.width,
+            height: options.height, fill: 'transparent', strokeWidth: 0, originX: 'left', originY: 'top' });
+          const displayHeight = Math.max(options.height, frameHeight + captionHeight);
+          const picture = object;
+          object = new fabric.Group([bounds, picture, paper, caption]);
+          object.set({ ...options, top: options.top + (displayHeight - options.height) / 2,
+            width: options.width, height: displayHeight, scaleX: 1, scaleY: 1, objectCaching: false });
+          object.momeviaBaseHeight = options.height;
+          object.momeviaDisplayOffsetY = (displayHeight - options.height) / 2;
+          object.momeviaCaptionGroup = true;
+          bindCaptionParts(object);
+          object.layoutManager = new fabric.LayoutManager(new fabric.FixedLayout());
+          // Assign child coordinates in the fixed group's centered coordinate space.
+          bounds.set({ left: -options.width / 2, top: -displayHeight / 2 });
+          picture.set({ left: -options.width / 2, top: -displayHeight / 2 });
+          paper.set({ left: -options.width / 2, top: frameHeight - displayHeight / 2 });
+          caption.set({ left: 6 - options.width / 2, top: frameHeight + 5 - displayHeight / 2 });
+          for (const child of object.getObjects()) child.setCoords();
         }
       } catch {
         if (signal.aborted) return;
@@ -142,11 +226,12 @@ async function makeFabricObject(fabric, model, assetUrl, signal) {
       }
     }
   }
-  if(!object&&(['button','envelope','gift-box','reply','line'].includes(model.type)||model.type==='interaction'&&['foldout-letter','flip-card'].includes(props.kind))){
+  const coreSticker = model.type === 'sticker' && ['heart', 'star', 'flower', 'sparkles'].includes(props.stickerId);
+  if(!object&&(coreSticker||['button','envelope','gift-box','reply','line'].includes(model.type)||model.type==='interaction'&&['foldout-letter','flip-card'].includes(props.kind))){
     object=await snapshotFabricElement(fabric,model,signal);object.set({selectable:false,evented:false});
   }
   object ||= staticPreview(fabric, model);
-  if (model.type === 'image' && !(object instanceof fabric.FabricImage)) object.momeviaMissingImage = true;
+  if (model.type === 'image' && !(object instanceof fabric.FabricImage) && !(object instanceof fabric.Group)) object.momeviaMissingImage = true;
   object.momeviaId = model.id;
   object.momeviaType = model.type;
   const surface=model.effects?.surface,styles=surface?.definition?.animation?.styles;
@@ -164,15 +249,48 @@ async function makeFabricObject(fabric, model, assetUrl, signal) {
   return object;
 }
 
-async function snapshotFabricElement(fabric,model,signal,includeSurface=false){
+function fabricElementSvg(model, includeSurface = false, images = new Map()) {
   const options=shapeOptions(model),copy=structuredClone(model);
   delete copy.actions;if(!includeSurface)delete copy.effects;
-  for(const key of ['editable','hidden','text','textEditable'])delete copy[key];
+  for(const key of ['editable','hidden','text','textEditable','stationerySurface','stationeryText'])delete copy[key];
   copy.elementVersion=1;copy.opacity=1;copy.layout={x:0,y:0,width:options.width,height:options.height,rotation:0};copy.accessibility={};
   if(['button','envelope','gift-box'].includes(copy.type))copy.actions=[{on:'activate',type:'replay'}];
   const version=usesMotions({elements:[copy]})?4:2;
-  const doc={schemaVersion:version,registryVersion:version,artboard:{baseSize:{width:Math.max(240,options.width),height:Math.max(240,options.height)},layoutMode:'responsive-scene',safeInsets:{top:0,right:0,bottom:0,left:0}},entrySceneId:'fabric-preview',bindings:{recipientName:{type:'text',value:''},senderName:{type:'text',value:''},message:{type:'text',value:''}},assets:[],elements:[copy],scenes:[{id:'fabric-preview',name:'Preview',background:{kind:'solid',color:'#FFFFFF'},elementIds:[copy.id]}],responsive:{textOverflow:'expand-flow',sceneOverflow:'scroll',desktop:{maxContentWidth:600,align:'center'}}};
-  const svg=previewSvg(doc,undefined,undefined,{validationMode:'draft'}).replace('<rect width="100%" height="100%" fill="#FFFFFF"/>','').replace(/^<svg[^>]+>/,`<svg xmlns="http://www.w3.org/2000/svg" width="${options.width}" height="${options.height}" viewBox="0 0 ${options.width} ${options.height}">`);
+  const assets = copy.props.assetId ? [{ assetId: copy.props.assetId, kind: 'image' }] : [];
+  const doc={schemaVersion:version,registryVersion:version,artboard:{baseSize:{width:Math.max(240,options.width),height:Math.max(240,options.height)},layoutMode:'responsive-scene',safeInsets:{top:0,right:0,bottom:0,left:0}},entrySceneId:'fabric-preview',bindings:{recipientName:{type:'text',value:''},senderName:{type:'text',value:''},message:{type:'text',value:''}},assets,elements:[copy],scenes:[{id:'fabric-preview',name:'Preview',background:{kind:'solid',color:'#FFFFFF'},elementIds:[copy.id]}],responsive:{textOverflow:'expand-flow',sceneOverflow:'scroll',desktop:{maxContentWidth:600,align:'center'}}};
+  return previewSvg(doc,undefined,images,{validationMode:'draft'}).replace('<rect width="100%" height="100%" fill="#FFFFFF"/>','').replace(/^<svg[^>]+>/,`<svg xmlns="http://www.w3.org/2000/svg" width="${options.width}" height="${options.height}" viewBox="0 0 ${options.width} ${options.height}">`);
+}
+
+async function assemblyFabricObject(fabric, model, assetUrl, signal) {
+  const images = new Map();
+  for (const part of model.assembly.parts) {
+    if (!part.image || images.has(part.image.mediaId)) continue;
+    const id = part.image.mediaId;
+    const url = assetUrl(id) || eventMediaUrl(id);
+    if (!url || (url !== eventMediaUrl(id) && !/^\/api\/designs\/designs\/[\w-]+\/assets\/[\w-]+$/.test(url)))
+      throw new Error('Ảnh của thành phần chưa sẵn sàng.');
+    const image = await fabric.util.loadImage(url, { signal });
+    const canvas = document.createElement('canvas');
+    canvas.width = image.naturalWidth; canvas.height = image.naturalHeight;
+    canvas.getContext('2d').drawImage(image, 0, 0);
+    images.set(id, { url: canvas.toDataURL('image/webp'), width: canvas.width, height: canvas.height });
+  }
+  // The shared SVG renderer retains parent transforms, rest poses and per-part clips.
+  const { width, height } = model.layout;
+  const svg = fabricElementSvg(model, false, images).replace(/^(<svg[^>]+>)/,
+    `$1<rect width="${width}" height="${height}" fill="transparent" stroke-width="0"/>`);
+  const parsed = await fabric.loadSVGFromString(svg, (element, object) => {
+    if (element.getAttribute('fill') === model.props.color) object.momeviaFillBinding = true;
+    if (element.getAttribute('stroke') === model.props.color) object.momeviaStrokeBinding = true;
+  }, { signal });
+  const object = fabric.util.groupSVGElements(parsed.objects.filter(Boolean), parsed.options);
+  object.set({ ...shapeOptions(model), width, height, scaleX: 1, scaleY: 1 });
+  return object;
+}
+
+async function snapshotFabricElement(fabric,model,signal,includeSurface=false){
+  const options=shapeOptions(model);
+  const svg=fabricElementSvg(model,includeSurface);
   const image=await fabric.FabricImage.fromURL(`data:image/svg+xml,${encodeURIComponent(svg)}`,{signal});image.set(options);return image;
 }
 
@@ -181,6 +299,57 @@ async function paperPattern(fabric,color,signal) {
   const tile=document.createElement('canvas');tile.width=tile.height=128;
   const context=tile.getContext('2d');context.fillStyle=color;context.fillRect(0,0,128,128);context.drawImage(image,0,0);
   return new fabric.Pattern({source:tile,repeat:'repeat'});
+}
+
+function reflowCaptionedPhotos(canvas, view) {
+  const objects = new Map(canvas.getObjects().map(object => [object.momeviaId, object]));
+  const content = view.elements.filter(model => !['shape', 'line', 'sticker'].includes(model.type))
+    .sort((a, b) => a.layout.y - b.layout.y);
+  const cohorts = [];
+  for (const model of content) {
+    const previous = cohorts.at(-1);
+    const bottom = model.layout.y + model.layout.height;
+    if (previous && model.layout.y < previous.bottom) {
+      previous.models.push(model);
+      previous.bottom = Math.max(previous.bottom, bottom);
+    } else cohorts.push({ models: [model], bottom });
+  }
+  const growth = [];
+  let shift = 0;
+  for (const cohort of cohorts) {
+    let overflow = 0;
+    for (const model of cohort.models) {
+      const object = objects.get(model.id);
+      if (!object) continue;
+      object.set('top', object.top + shift);
+      object.momeviaDisplayOffsetY = (object.momeviaDisplayOffsetY || 0) + shift;
+      if (object.momeviaCaption)
+        overflow = Math.max(overflow, model.layout.y + object.height - cohort.bottom);
+    }
+    if (overflow > 0) {
+      growth.push({ boundary: cohort.bottom, amount: overflow });
+      shift += overflow;
+    }
+  }
+  for (const model of view.elements.filter(item => ['shape', 'line', 'sticker'].includes(item.type))) {
+    const object = objects.get(model.id);
+    if (!object) continue;
+    const offset = growth.filter(item => item.boundary <= model.layout.y).reduce((sum, item) => sum + item.amount, 0);
+    // A frame spanning the photo grows with its content. Small ornaments keep their shape.
+    const framesPhoto = model.type === 'shape' && model.props.kind === 'rectangle' && !model.artwork &&
+      content.some(photo => objects.get(photo.id)?.momeviaCaption &&
+        model.layout.x <= photo.layout.x && model.layout.x + model.layout.width >= photo.layout.x + photo.layout.width &&
+        model.layout.y <= photo.layout.y && model.layout.y + model.layout.height >= photo.layout.y + photo.layout.height);
+    const extra = framesPhoto ? growth.filter(item => item.boundary > model.layout.y &&
+      item.boundary <= model.layout.y + model.layout.height).reduce((sum, item) => sum + item.amount, 0) : 0;
+    if (extra) {
+      object.momeviaBaseHeight = model.layout.height;
+      object.set('height', object.height + extra);
+    }
+    object.set('top', object.top + offset + extra / 2);
+    object.momeviaDisplayOffsetY = offset + extra / 2;
+  }
+  for (const object of objects.values()) object.setCoords();
 }
 
 export async function openFabricStudio({ snapshot, sceneId, policy, assetUrl, onApply, onClose = () => { }, inlineHost = null, signal }) {
@@ -351,7 +520,7 @@ export async function openFabricStudio({ snapshot, sceneId, policy, assetUrl, on
       canvas.backgroundColor = pattern;
     }
     for (const element of view.elements) {
-      const object = await makeFabricObject(fabric, element, assetUrl, work.signal);
+      const object = await makeFabricObject(fabric, { ...element, stationeryText:Boolean(scene.flow) }, assetUrl, work.signal);
       if (closed || signal?.aborted) {
         object?.dispose();
         return { dialog, close };
@@ -361,6 +530,27 @@ export async function openFabricStudio({ snapshot, sceneId, policy, assetUrl, on
     apply.disabled = false;
     actions.inert = false;
     // Đồng bộ bảng layer và đối tượng Canvas, không thêm metadata lạ vào tài liệu.
+    if (scene.flow) {
+      const objects = new Map(canvas.getObjects().map(object => [object.momeviaId, object]));
+      const heights = new Map(view.elements.filter(model=>model.type==='text').map(model=>[model.id,objects.get(model.id)?.getScaledHeight()]));
+      const flow = stationeryFlow(scene, view.elements, heights);
+      for (const model of view.elements) {
+        const layout = flow.layouts.get(model.id), old = objects.get(model.id);
+        if (!layout || !old) continue;
+        const display = await makeFabricObject(fabric, { ...model, layout, stationeryText:true, stationerySurface:flow.surfaces.has(model.id) }, assetUrl, work.signal);
+        if (closed || signal?.aborted) { display?.dispose(); return { dialog, close }; }
+        if (!display) continue;
+        if(model.type==='text')display.set('top',layout.y+Math.abs(display.height*(display.scaleY||1))/2);
+        const at = canvas.getObjects().indexOf(old);
+        canvas.remove(old); old.dispose(); canvas.insertAt(at, display);
+        display.momeviaFlowHeightRatio = layout.height / model.layout.height;
+        display.momeviaFlowOffsetY = layout.y - model.layout.y;
+        // Textboxes measure their text. The authored box remains the saved geometry.
+        if (model.type==='text') display.momeviaBaseHeight = model.layout.height;
+      }
+      view.height += flow.growth;
+      canvas.setDimensions({width:view.width,height:view.height});
+    } else reflowCaptionedPhotos(canvas, view);
     const byId = new Map(canvas.getObjects().map(item => [item.momeviaId, item]));
     const layerList = layersPanel.querySelector('.fabric-layer-list');
     const isMovable = id => canManage(id) && !temporaryLocks.has(id);
@@ -405,9 +595,11 @@ export async function openFabricStudio({ snapshot, sceneId, policy, assetUrl, on
         byId.clear();
         for(const object of canvas.getObjects()){
           if (layerModels.get(object.momeviaId)?.groupId) lockGroupGeometry(object);
+          bindDropCapFabricObject(fabric, object);
+          bindCaptionParts(object);
           byId.set(object.momeviaId,object);
         }
-        renderLayers();properties.refresh();inspector?.refresh?.();
+        renderLayers();properties.refresh();inspector?.refresh?.();updateCaptionExport();
       },
       onSave:()=>dialog.querySelector('[data-editor-action="fabric-apply"]:enabled')?.click(),
     });
@@ -517,6 +709,35 @@ export async function openFabricStudio({ snapshot, sceneId, policy, assetUrl, on
       setAttr(download, 'title', message("editor.fabric.downloadUnavailable"));
       setText(help, message("editor.fabric.downloadHint"));
     }
+    let captionWarning = false;
+    const updateCaptionExport = () => {
+      const objects = canvas.getObjects().filter(object => object.visible);
+      const content = objects.filter(object => !['shape', 'line', 'sticker'].includes(object.momeviaType));
+      const overflow = objects.filter(object => object.momeviaCaption).some(object => {
+        const caption = object.momeviaCaption.getBoundingRect();
+        if (caption.left < 0 || caption.top < 0 || caption.left + caption.width > view.width ||
+          caption.top + caption.height > view.height) return true;
+        return content.some(other => {
+          if (other === object) return false;
+          const box = other.getBoundingRect();
+          return caption.left < box.left + box.width && caption.left + caption.width > box.left &&
+            caption.top < box.top + box.height && caption.top + caption.height > box.top;
+        });
+      });
+      download.disabled = Boolean(unsupported.length || missingImages.length || overflow);
+      if (overflow) {
+        setAttr(download, 'title', message('editor.fabric.downloadCaptionOverflow'));
+        setText(help, message('editor.fabric.downloadCaptionOverflow'));
+      } else if (captionWarning && !unsupported.length && !missingImages.length) {
+        download.removeAttribute('title');
+        setText(help, '');
+      }
+      captionWarning = overflow;
+    };
+    updateCaptionExport();
+    canvas.on('object:moving', updateCaptionExport);
+    canvas.on('object:scaling', updateCaptionExport);
+    canvas.on('object:modified', updateCaptionExport);
     // Chỉ thu nhỏ bằng CSS, giữ hệ tọa độ của document để Fabric Diff không bị trôi.
     const resizeFabric = () => {
       if (closed || !canvas) return;
@@ -625,6 +846,7 @@ export async function openFabricStudio({ snapshot, sceneId, policy, assetUrl, on
         selected.setCoords();
         canvas.requestRenderAll();
       }
+      if (action === 'fabric-download') updateCaptionExport();
       if (action === 'fabric-download' && !download.disabled) {
         try {
           const a = node('a', { download: 'momevia-thiep-tinh.png' });

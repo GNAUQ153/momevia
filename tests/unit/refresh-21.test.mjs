@@ -4,18 +4,39 @@ import fs from 'node:fs';
 import { builtinLibraryItems } from '../../src/modules/designs/library.seed.mjs';
 import { REFRESH_21,coverVariant } from '../../web/js/shared/canvas/refresh-21-config.js';
 import { canonicalStringify,validateDocument,duplicateDocument } from '../../web/js/shared/canvas/schema.js';
-import { insertPhotoFrame,framePhoto,isPhotoFrame } from '../../web/js/shared/canvas/basic-templates.js';
+import { insertPhotoFrame,framePhoto,isPhotoFrame,basicTemplateDefinition } from '../../web/js/shared/canvas/basic-templates.js';
 import { templatePreviewDocument } from '../../web/js/shared/canvas/presets.js';
 import { validateRollout,previewRollout } from '../../src/modules/designs/library-rollout.mjs';
 import { fabricView } from '../../web/js/features/canvas-editor/fabric-adapter.js';
 import {EVENT_MEDIA,NATURAL_ARTWORK_LABEL} from '../../web/js/shared/canvas/event-media.js';
 const personalPhotos=doc=>doc.elements.filter(e=>e.type==='image'&&!(e.accessibility.decorative&&e.accessibility.label===NATURAL_ARTWORK_LABEL));
 const before=JSON.parse(fs.readFileSync(new URL('../fixtures/refresh-21-before.json',import.meta.url))),current=builtinLibraryItems();
-test('21 designs have three distinct editable scenes in VI/EN, while all seven controls retain exact documents',()=>{
+test('21 designs have distinct scenes; control documents retain all fields outside reviewed text spacing',()=>{
  assert.equal(Object.keys(REFRESH_21).length,21);
  const signatures=[new Set(),new Set(),new Set()];
  for(const row of current.filter(r=>r.kind==='template')){
-  if(!REFRESH_21[row.id]){assert.deepEqual(row.definition.documents,before.find(r=>r.kind==='template'&&r.id===row.id).definition.documents,row.id);continue;}
+  if(!REFRESH_21[row.id]){
+   const original=before.find(r=>r.kind==='template'&&r.id===row.id).definition.documents;
+   const expected=structuredClone(original);
+   for(const doc of Object.values(expected)) {
+    const reply=doc.elements.find(e=>e.type==='reply');
+    if(reply) reply.props.color=basicTemplateDefinition(row.id).button;
+   }
+   if(['birthday-radiance','hai-phong-bi','proud-of-you'].includes(row.id))for(const doc of Object.values(expected)){
+    const find=id=>doc.elements.find(e=>e.id===id);
+    Object.assign(find('time-heading').layout,{y:55,height:162});find('time-heading').props.fontSize=29;
+    Object.assign(find('time-intro').layout,{y:235,height:66});
+    find('event-countdown').layout.y=326;find('event-elapsed').layout.y=506;
+    if(row.id==='hai-phong-bi'){
+     find('text-message').layout.height=320;find('text-message').props.fontSize=19;
+     find('message-from-label').layout.y=506;find('text-sender').layout.y=544;
+     Object.assign(find('wish-back').layout,{y:644,height:64});
+     Object.assign(find('wish-to-time').layout,{y:735,height:64});
+    }
+   }
+   assert.deepEqual(row.definition.documents,expected,row.id);
+   continue;
+  }
   for(const [locale,doc]of Object.entries(row.definition.documents)){
    assert.equal(doc.scenes.length,3);assert(doc.assets.length>0,'natural artwork is real immutable media');assert(doc.assets.every(ref=>Object.hasOwn(EVENT_MEDIA,ref.assetId)&&!EVENT_MEDIA[ref.assetId].previewOnly));assert.equal(personalPhotos(doc).length,0);assert.doesNotThrow(()=>validateDocument(doc));
    assert.equal(doc.elements.filter(isPhotoFrame).length,['polaroid','mot-ky-niem'].includes(row.id)?1:0);

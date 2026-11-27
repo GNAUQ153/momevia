@@ -2,6 +2,7 @@ import { HttpError, parseJson, sendJson } from '../../shared/http.mjs';
 import { previewTemplateDocument, versionView } from './creator-templates.mjs';
 import { sanitizeText } from '../../shared/security.mjs';
 import { previewSvg } from '../../../web/js/shared/canvas/cover-svg.js';
+import { requestLocale, serverText } from '../../shared/locale.mjs';
 import { imageAssetIds } from '../../../web/js/shared/canvas/schema.js';
 import sharp from 'sharp';
 
@@ -15,7 +16,7 @@ export function registerCreatorRoutes(router, { service, user, designs, streamAs
     if (!asset || !designs.assetExists(asset)) throw new HttpError(404, 'Không tìm thấy ảnh minh họa.');
     streamAsset(res, { filePath: designs.assetPath(asset), contentType: asset.mime });
   }
-  async function serveCover(res, version) {
+  async function serveCover(res, version, locale) {
     const document = previewTemplateDocument(version);
     const scene = document.scenes.find(item => item.id === (version.coverSceneId || document.entrySceneId));
     const imageIds = imageAssetIds({ elements: document.elements.filter(item => scene.elementIds.includes(item.id)
@@ -29,7 +30,8 @@ export function registerCreatorRoutes(router, { service, user, designs, streamAs
       const url = `data:image/webp;base64,${data.toString('base64')}`;
       images.set(id, document.schemaVersion === 1 ? url : {url,width:info.width,height:info.height});
     }
-    const svg = previewSvg(document, scene.id, images);
+    const ariaLabel = serverText(locale, 'catalog.artwork.creatorAlt', { title: version.title || scene.name });
+    const svg = previewSvg(document, scene.id, images, { locale, ariaLabel });
     res.writeHead(200, { 'content-type': 'image/svg+xml; charset=utf-8', 'cache-control': 'no-store',
       'content-security-policy': "default-src 'none'; img-src data:; sandbox", 'x-content-type-options': 'nosniff' });
     res.end(svg);
@@ -70,7 +72,7 @@ export function registerCreatorRoutes(router, { service, user, designs, streamAs
   router.on('GET', `${review}/assets/:assetId`, async ({ req, res, params }) =>
     serveAsset(res, await service.version(await user(req), params.id, params.version), params.assetId));
   router.on('GET', `${review}/cover`, async ({ req, res, params }) =>
-    serveCover(res, await service.version(await user(req), params.id, params.version)));
+    serveCover(res, await service.version(await user(req), params.id, params.version), requestLocale(req)));
   router.on('GET', published, async ({ res, params }) => {
     const version = await service.approved(params.id, params.version);
     const { id, bindings, photoId } = version;
@@ -78,6 +80,6 @@ export function registerCreatorRoutes(router, { service, user, designs, streamAs
   });
   router.on('GET', `${published}/assets/:assetId`, async ({ res, params }) =>
     serveAsset(res, await service.approved(params.id, params.version), params.assetId));
-  router.on('GET', `${published}/cover`, async ({ res, params }) =>
-    serveCover(res, await service.approved(params.id, params.version)));
+  router.on('GET', `${published}/cover`, async ({ req, res, params }) =>
+    serveCover(res, await service.approved(params.id, params.version), requestLocale(req)));
 }

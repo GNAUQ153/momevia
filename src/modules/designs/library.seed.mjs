@@ -1,3 +1,4 @@
+import { stickerVector } from '../../../web/js/shared/canvas/sticker-style.js';
 import { eventRecipes } from '../../../web/js/shared/canvas/event-recipes.js';
 import { registry } from '../../../web/js/shared/canvas/registry.js';
 import { catalog } from '../../../web/js/features/canvas-editor/library.js';
@@ -22,9 +23,9 @@ export function builtinLibraryItems() {
       defaults: Object.fromEntries(Object.entries(spec.defaults).filter(([key]) => !['text','label','title','submitLabel'].includes(key))),
       accessibility: Object.fromEntries(Object.entries(spec.accessibility).filter(([key]) => !['alt','label'].includes(key))),
     });
-    for (const [key, [fill, stroke]] of Object.entries(stickerArt)) add('artwork', `sticker-${key}`, { target: 'sticker', key, vector: { paths: [
-      ...(fill ? [{ d: fill, fill: 'color' }] : []), ...(stroke ? [{ d: stroke, fill: 'none', stroke: fill ? (['wax-seal','birthday-candle'].includes(key) ? '#FFF7EE' : '#32243B') : 'color', strokeWidth: 4 }] : []),
-    ] } });
+    for (const [key, parts] of Object.entries(stickerArt)) add('artwork', `sticker-${key}`, {
+      title: words(`editor.library.item.${key}`), target: 'sticker', key, vector: stickerVector(key, parts),
+    });
     for (const [target, values] of [['shape', shapes], ['line', lines], ['mask', masks]]) for (const [key, d] of Object.entries(values))
       add('artwork', `${target}-${key}`, { target, key, vector: { paths: [{ d, fill: target === 'line' ? 'none' : 'color',
         ...(target !== 'mask' ? { stroke: target === 'line' ? 'color' : 'strokeColor', strokeWidth: 'strokeWidth' } : {}),

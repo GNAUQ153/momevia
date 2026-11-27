@@ -1,0 +1,471 @@
+{
+  "version": 1,
+  "source": "library-export",
+  "templates": {
+    "loi-moi-ben-hien": {
+      "revision": 2,
+      "covers": {
+        "vi": {
+          "portrait": "920842be71cc25f5f8a4fe89af54279ec630b8426ca9b9b68dbf670bebd5da79",
+          "catalog": "8cf3b5e0dfe5fae48826a4df3d32127511b23af365b751a078a90e70b2f78bc2",
+          "seasonal": "c34073a6aa571ff450489567d347e1d173c3599a2fe9bb30530fb4ff05ae9237"
+        },
+        "en": {
+          "portrait": "1789ff0114c5d123ecd36490605cabbfdaeb1d9d61cd4ed8748de592f3de98f2",
+          "catalog": "432d4915e4c86805eafadb5dc45ee55be5df688c127c0762b8f93f49c489a1c2",
+          "seasonal": "d003926360ece41dad88437962edeccb6953c38644fb8e5e82308bc7a97c6f88"
+        }
+      }
+    },
+    "cuon-phim-ngay-ay": {
+      "revision": 2,
+      "covers": {
+        "vi": {
+          "portrait": "9ce004c6a241479dc32e6cde5f1c3beba356632b2260034327021890c7fe3eab",
+          "catalog": "4947a585f4d556fdbd3eef51074f4f1b2e8986c1bc5b0b0515765f41a60ca5d2",
+          "seasonal": "5efaff32798ff5b6b6d904d0d3cf05907b6e14b787f0ad3738c1eef3f8f9620b"
+        },
+        "en": {
+          "portrait": "54a18226c16775e74bc45cf451a202fcd105aa430dc4970d30add04a0bbec136",
+          "catalog": "75ab988d17cf180242053e5d575923ef4cb2bf734a992c8d55212dec1fa654d2",
+          "seasonal": "f12576b5e1bb412143e84838ddfcde94901b98d1d01548da5f65c466ea9e8373"
+        }
+      }
+    },
+    "ban-do-ngay-ra-truong": {
+      "revision": 2,
+      "covers": {
+        "vi": {
+          "portrait": "49fb4639ab0a29862ec2590b14fdde08def875373139bf3479c37709b2f3f62b",
+          "catalog": "846cffbd54c494634ecb07acb5bfb8739b9a907f4d5220ed4fd275ded67a10dc",
+          "seasonal": "cb5b2e14cd995a738f6c79063806137ac676edeae2fca68b0d16bebe2091b12e"
+        },
+        "en": {
+          "portrait": "e17a711d39742b8c2438a9c6c34cee5ee8a7b8bf6dac8f7742ff8ca2cc9c8635",
+          "catalog": "25d1a791043d1ed3e25e6a9477f5c5aadc88a65925cb9e824b15d33186cf67c6",
+          "seasonal": "f54de219bc579573064f56a6643137806952382f5ea185fd40fcfb7daabebcfb"
+        }
+      }
+    },
+    "midnight-bloom": {
+      "revision": 4,
+      "covers": {
+        "vi": {
+          "portrait": "eaadbfbc6aeb9d7bcb65cb7009c1baf247d3e7fd2d3c7b9a62d28a1fe67d33f9",
+          "catalog": "fcad70ba58425389286c1b33edb559fa781c7031ea523f2a9ddcd1f31c1477d2",
+          "seasonal": "64fb05cafc47e6f3c784d9b16ee82211cf3062affba1ab0dafe0de9728197a87"
+        },
+        "en": {
+          "portrait": "b197b93f3fa680c5fae30859afaf212368475554d13bad42e7cbaa473069c56e",
+          "catalog": "f7da57d6a1c706710fa260972c473a235b1dd9c6cecbaf09b4a90bdc34ccca85",
+          "seasonal": "445f564cba668577646981ec98a3bd5e927f3bece6b322257fdef4575e6cdeb0"
+        }
+      }
+    },
+    "sunny-wishes": {
+      "revision": 4,
+      "covers": {
+        "vi": {
+          "portrait": "fad23c0475b32f3e134e278e5f3ca6be8d83c5f5e4c55b8eb2cc65e2b6328895",
+          "catalog": "c026a219dfa4656d46a35bc98891a187cd1b490c2170f5b2ddcf970eafb96168",
+          "seasonal": "f51a7706fe4caac48d25af337bee1dc89b39404f4f7b81099825c0dd2a9f121a"
+        },
+        "en": {
+          "portrait": "d3cc1cdaae384ce1b6865c12cc0cd349b80fad690d30d7570c9e8200aa8c7942",
+          "catalog": "bd0a84253ed12380a74f11e538e556971240e998ec1471c1052f176f061b440a",
+          "seasonal": "b4ad232715c19b3e7e851ea2793be5599e2ffdfe8f702ad54da8b0c2b8d1c7ca"
+        }
+      }
+    },
+    "love-letter": {
+      "revision": 4,
+      "covers": {
+        "vi": {
+          "portrait": "f6e3290a8a1a98273c47e7536edf0a7fef33d1a5751b0eed06da9044fe66f3b6",
+          "catalog": "dc2a12a4821084b56d3cefe468af47952a04318d32db5ceb7c55b7cd2486644b",
+          "seasonal": "ac28abc9cf0a13ac3c01707f58fc966def912fc210e1b802535c7d2236d311af"
+        },
+        "en": {
+          "portrait": "aace3484ce2ea641577e8360017400ae40f9e720038a9ea32ba01710485080a1",
+          "catalog": "63e8f4912aeb34e5cbec34454a0c017bbfb4da527134f99531067ea46a38a89b",
+          "seasonal": "70872a18545d076709658f7bd4a3cd7f95dbaa4dbacab5c6b6f0eaef5850615f"
+        }
+      }
+    },
+    "starlight": {
+      "revision": 4,
+      "covers": {
+        "vi": {
+          "portrait": "d0e59c111ebc2454f4c79cfe70c84a7fffad704bf6721846b0db5055f0b9c58e",
+          "catalog": "ec511ed394bb33c9da41da6f0dd8b6354906946835bd357ee4c2d016d544b959",
+          "seasonal": "d1bf65631cfc27209cf9836d65f6262ca20942e56e13507d589671c32f5064dd"
+        },
+        "en": {
+          "portrait": "769e449ef0a3ac953f17b3f03fa461d0704d7861f8a0d18dcf5d1de5b200e361",
+          "catalog": "b13aec865ade63367d3fd895512bb2932896dde6379e1a0eec205193bbab931f",
+          "seasonal": "615731a8aa3cc98e11047876e0b218bf8ed8b2cc970b11d376b103e821a28dac"
+        }
+      }
+    },
+    "peachy-day": {
+      "revision": 4,
+      "covers": {
+        "vi": {
+          "portrait": "41ff4db30f10c179b8d5a4b3b4c942180dd7c6c37cb0321a7a1500d3d560631c",
+          "catalog": "fbc4312ff4346ac325b1136b35b065e7d2f7abe93435f796aa027075d2269953",
+          "seasonal": "d19e3c4470a6f5c6a74cb3c7aa5ceda52030dacb915a808b53a4e256537d397e"
+        },
+        "en": {
+          "portrait": "575c7d94f39eed517c9aa9d97ae069f74beb329c2cc555c25e265dee2baa2da0",
+          "catalog": "2d81fb57b2cfba34f3d3bc9fecede5c739fa89bfacd72251826069e82b63effd",
+          "seasonal": "89d04dd902887e8c5288451fc1ae1dd3d031ce217984c81184e2bb5a986c1ac4"
+        }
+      }
+    },
+    "greenhouse": {
+      "revision": 4,
+      "covers": {
+        "vi": {
+          "portrait": "126f76452868f5c183dcb53627676c03e0d9dc6eab72494f0127415d8660cf1f",
+          "catalog": "a5a61f4cebcec8814f52f6382eb0c63e2528f02d41e80e3d381d214beccfefe6",
+          "seasonal": "fc86a948f8aa328cf9f5e2b77e27c2ca9a1ad7e8545a525f7b63dfec5cba0410"
+        },
+        "en": {
+          "portrait": "586c6694bf974037392148b5b3af76a4b836264e1084f57b03e210c5f8fadf41",
+          "catalog": "b44fcdbf604dc941948244b1cc8b33af284043d5c5554a687d8cc1f1dd843dc4",
+          "seasonal": "38361cef45ca3aca991e75da8f42bc96ce4abb90102a61c60de3d4fe7596ddcb"
+        }
+      }
+    },
+    "confetti": {
+      "revision": 4,
+      "covers": {
+        "vi": {
+          "portrait": "e44d6f250eb91da518cae4c4d9dd20d107674dff6a279db186af59eee454f664",
+          "catalog": "38b95a478d841f79ae7bd3e682c618bce10f5c3071b2191ee6c31984b5ce398b",
+          "seasonal": "480bd703052d8ca7b2a14e748226624c4e1db68a001b832eca1fe1ef3355bb3b"
+        },
+        "en": {
+          "portrait": "e9376109503db650ad3031bd538fc8d8aeb62a5558dc340fff53ff3737f9aa2a",
+          "catalog": "435fb109c757d2c462fca5e6aa0e92ce5f9073c3c2488adc2c081b06b281d3fc",
+          "seasonal": "15716e9c46c1b04cc19549c17208c929072b56f5fa720dcc8275b0ed73ded2d3"
+        }
+      }
+    },
+    "cloud-nine": {
+      "revision": 4,
+      "covers": {
+        "vi": {
+          "portrait": "8c6324a9b229e3a7c6b346e56c9ed9f61364ac522777113dad8a2e4c0e560b3c",
+          "catalog": "1275e676b5705bf39dedd2eae65af7d2c92217568b312b5a9c789c3e62a0cee2",
+          "seasonal": "7b7aa11159bce085bdaa856eba6cdadefb43769163ae39337a66cccb8a167f36"
+        },
+        "en": {
+          "portrait": "940d42c694dbd50232f3047fff95b1bbbf670b82fc3c231d8207a2e615c012d9",
+          "catalog": "e2fd18f6c240200dc4fe6d4d2b81a68a359d6dd06e312d5045a21359d90298b7",
+          "seasonal": "47923ef07b1b5540949ea11430833e0c4fb56aa2ef07e7b31b26a44d38a12d1c"
+        }
+      }
+    },
+    "lavender": {
+      "revision": 4,
+      "covers": {
+        "vi": {
+          "portrait": "abbcf569d1371b917db63577c7dc7d523204fa37313e4a80fcaf864848e53975",
+          "catalog": "6496de2365ff6183c8459d2616ab7e57bcdedb0f847906fa5c690217d1e6852d",
+          "seasonal": "b305c52980f4d2f4c50f6378c16b0b708feade4ba3a950c266aa62df728f8152"
+        },
+        "en": {
+          "portrait": "03f0f69329b2322980c8d9ee0c19faaaa8802ec9f15169d80d456cbe7a43568b",
+          "catalog": "9b8965e1a4c6228627c74a4a4638a14b3d6ce6de63f05fa5984141650025322b",
+          "seasonal": "933ed15f42115b7ddc5f818ae50edbdccf7c9e1c45cc801474eb0a09e666f984"
+        }
+      }
+    },
+    "polaroid": {
+      "revision": 5,
+      "covers": {
+        "vi": {
+          "portrait": "68187df6d527f439ea347d222959c82b5db2bd378b0bbfe6a298e7b750b7093f",
+          "catalog": "973984cab985ae65b8297521c770c18ec884f0793f63f74bba3d8f89b1eddb4c",
+          "seasonal": "1ffc49f3b572462755e7fdd0f61423f2f124c9c97609c70ab72d24fadcced1ab"
+        },
+        "en": {
+          "portrait": "67ef88d1d0166f612c38fd409bbe24bcd26ba170f11cf35d7c879cf01838acff",
+          "catalog": "e63cced2854dcd8a6ad23e888234862602cc4734b4aa38d951cd6852c2f39271",
+          "seasonal": "19bd04fff37c68815a49149755de5a4db440e2ffe98769e4a0ff590986067e37"
+        }
+      }
+    },
+    "afterglow": {
+      "revision": 4,
+      "covers": {
+        "vi": {
+          "portrait": "6c9323bb8fc6d19ce81589ec35470c6c494bb1f56eb55e94a6b68b5707b4b6c9",
+          "catalog": "f65700483a5877f23e14c72f5921a7d6b12c9b0e9ae55ebd13c2ae9ad86134bc",
+          "seasonal": "ced5accee8f2fa7abe655dec772235e4078c0bab2e4a97875337a937811cafcb"
+        },
+        "en": {
+          "portrait": "3c64800f9f1f997f53ade8113ec79a11a40ae2c07d798681236b639283cc38ed",
+          "catalog": "e1b6ebfa82c5465b438fdc72303d6a18b2f9f9f6e12270531a9f42c39f562a86",
+          "seasonal": "dedf2e2fc926df59706a2a27e5ff4c6e40c12ec650abd29771d3bcd40e1c1b3b"
+        }
+      }
+    },
+    "tiny-celebration": {
+      "revision": 4,
+      "covers": {
+        "vi": {
+          "portrait": "44f2b586dc993972669c49953e378890edb782a3730195ec50a1fc77f0a83860",
+          "catalog": "2121e4272ee609a3e9b29a9504ed8c4b6f6fd612247eb7ad8101891f3a92e234",
+          "seasonal": "ba32599696f38d9a3dde43ad73029683e1a7ff311096eaa21a8e79fd8b4beb72"
+        },
+        "en": {
+          "portrait": "d1983d18ed9b2c9633a76f1affe0938ec90c1fa668910677e5468ed248440158",
+          "catalog": "9d3eb1e0377846dbf33b1c65c2c7b8b50372c0b812a14da6813dce466238f5d2",
+          "seasonal": "12d46bf2592865948331f68cf23489f299b909e05babc8815fd3d31da0015ce8"
+        }
+      }
+    },
+    "mot-ky-niem": {
+      "revision": 4,
+      "covers": {
+        "vi": {
+          "portrait": "e96e6502d7701179d98330a1217e1ee4f3f69947ac9382654ecc5375e7f060bd",
+          "catalog": "062f9bbe2d1c4c5061936ea6f06c09a7256f181b02e48f816909c45054747bff",
+          "seasonal": "59ae80c20cc676e8cee2a4fcfbe0b1897aab57fc5513c777919c16231e48a8b7"
+        },
+        "en": {
+          "portrait": "a5d2fcdf244ebad102b6a445401e0176f03665cc252687e2ca632fe6bc5d6e25",
+          "catalog": "397fe44d61fe5fb01acdbb04b4a907f6c561a7433c03357bdb9086ee443c1dcc",
+          "seasonal": "2f9ebb5c53f431fd9c475b68a6f9532d8bb2cde5ee4ba29b33973b7801414209"
+        }
+      }
+    },
+    "hai-phong-bi": {
+      "revision": 3,
+      "covers": {
+        "vi": {
+          "portrait": "f27bc364b854ab135492f5bea26f7fdd3b3175e8c79b69c456a5ebfcb74d9c65",
+          "catalog": "1f1f3685b5497726284f1c8a9b48bdf449b562f8cb4599fdaafbafe07f075b0e",
+          "seasonal": "4c72fdf23287c3cd2fd33d119cba0b3cafecf6e0793df7aae1f0e878229c0b3b"
+        },
+        "en": {
+          "portrait": "5eee9dfb908602aa7373d341be48fe2fb5e033dd7b34e2d31179299a43bc5bc6",
+          "catalog": "760de33870ac90a43e694817896dc8756346a53915cf717785a2f496556cfeeb",
+          "seasonal": "0c53f5506675ab2acaa041cfe3b17bc5eb2c6f535f552d123d78a924cc13d36f"
+        }
+      }
+    },
+    "to-doan-cau-se-chon": {
+      "revision": 1,
+      "covers": {
+        "vi": {
+          "portrait": "76951674a2f8ae59c03575ba41f84f1efb660ad344d12d4c2d6bb6bae0718705",
+          "catalog": "d671e5932cc4ca0edefcedec102f45f65d01e382e9c24c542f104dacb737db46",
+          "seasonal": "b139e16ebb088dd05a0c4d60cffdb38448e9abcf26f09f6aa486646520343a1f"
+        },
+        "en": {
+          "portrait": "3a5057c5d4ee717ed1d9af1eafc6b6ea675406d48bc0aadb81a373853a54443b",
+          "catalog": "374c281e86afa72354ec02937da1d6c8faf035f46f21be297fa4781516f8c410",
+          "seasonal": "e016a70deddc4ec8db979d809d31a050da6b1ff9fac8fc2ce16d16302b29c57f"
+        }
+      }
+    },
+    "winter-wishes-2026": {
+      "revision": 4,
+      "covers": {
+        "vi": {
+          "portrait": "a2afa7dba632f751e90633a0861b81daf5a1e5120c9645d81e1402301974e2c0",
+          "catalog": "d0f220f80cb9efaa6b32fbed4fc9eaff4208ca06e59658bf9d2da7d44283c7c2",
+          "seasonal": "e7c69283a4dc1b7fb04553813234d4be58d81bf8d7e0a09b57712b2ab9f61af0"
+        },
+        "en": {
+          "portrait": "cfb3de9e3392b494a411e402454d6762029b490831589eb78073683d39b37c25",
+          "catalog": "323ebb2b8941ce667cc00e76628f2749f401937b3f64017c526bab1880857da2",
+          "seasonal": "b3f98eb2442ce06fc784698e841013255880ba46dacf178d4df3223db16d241f"
+        }
+      }
+    },
+    "new-year-spark-2027": {
+      "revision": 4,
+      "covers": {
+        "vi": {
+          "portrait": "120143d350a8e48c41043c62546497109978e0af058bcab192e08959dc097790",
+          "catalog": "3e9b533bff4cf6641605c53afdab67b11cd2b63e29b78ca70b66266d90ec4436",
+          "seasonal": "fbd65275d289ec998936a4c233cb3b39267abd3f769f5933d787d71f5c7a757e"
+        },
+        "en": {
+          "portrait": "0d17221881ee4aca6a48d8b67d184d8ae0458e0c79eff2882910b26067531a69",
+          "catalog": "7e8ea584fb214366b550e7198033f20bcfa233fa0d96de95db5ee311fef79661",
+          "seasonal": "9b1a43e98e1a60a2d088101f7bc8f7bfdf973f38dd1f41bec97009dccf6a5c0b"
+        }
+      }
+    },
+    "spring-blessing-2027": {
+      "revision": 4,
+      "covers": {
+        "vi": {
+          "portrait": "2c046b92737dd14b8887dd802ced31a9cacd2725e3abfdd1ba94e116f187aedd",
+          "catalog": "8edd7277983275b277e8d5cc33b06317a3ca46374045446384647abcce2b4669",
+          "seasonal": "ffccc00a372eee481e5444ab092ddf4a96ac1adf17e593c4132364245c5ae404"
+        },
+        "en": {
+          "portrait": "c0f8c8339603f4925e9e3e3e4040c919615ca0ac8011d693c3d1bcdb27ef7be2",
+          "catalog": "8dc9c2b00da60a7f5c1ac47e841bf2d061354a775c8923a435e6bfd1e4160d5e",
+          "seasonal": "23cf0f8820c6c6997e135490508788e883028d00556b67c9e9e467d9d6b468a4"
+        }
+      }
+    },
+    "velvet-valentine-2027": {
+      "revision": 4,
+      "covers": {
+        "vi": {
+          "portrait": "d37d156624bab0c490d79053c8e3c6b46a8761cd64361a2dcf5c23f573d3edfb",
+          "catalog": "5cf031730e4cad44234d888d07d7bb4ad899c4b96109f3e5a049a2a69846e1b8",
+          "seasonal": "bf2c71099b746f0b6b4f13e191635a77aab4ea5fd25dcd57defe3d1ec81b61c9"
+        },
+        "en": {
+          "portrait": "843a9cfbbfc70d97a4828414943af06dbc5fb106f9a4e8b3fe62db1a152bc08a",
+          "catalog": "1693ffeb61139888fa88b368cfd5eb52f8d5cc660e1e8f6ce0021f1ea2f089f2",
+          "seasonal": "a1666745e9237450b81068c845307a2ee4efd5e42b3d9cf4602f112fb6b771ef"
+        }
+      }
+    },
+    "birthday-radiance": {
+      "revision": 3,
+      "covers": {
+        "vi": {
+          "portrait": "6dfd10a5145205e9d3579905e5bb78004bfae80290bfec8afff15a029e0bb592",
+          "catalog": "038f5eadd71702866dde006653e1c95bc87bda02428de8db00424bfa1391199e",
+          "seasonal": "6b202649c3b1ad5e59b409998794ad89cf93ceebac90589c39f484b780261d8e"
+        },
+        "en": {
+          "portrait": "ff2efbc6f68dc4503db7f6defd48d5704e73945457df2c4e492b9b3a30368037",
+          "catalog": "de31258391e1be85f587282f9e156acbb8647c211ca4454061dd98aa317df217",
+          "seasonal": "a506009e0308a4ebd0dcec0a547cf26ab46255262cb2fcd578949b725bf9ce8f"
+        }
+      }
+    },
+    "thank-you-bloom": {
+      "revision": 4,
+      "covers": {
+        "vi": {
+          "portrait": "2f39fc0f50ba467ad169146aecb9f73f78ebac7a7294fc37a863a28226328252",
+          "catalog": "b968e37954d8ac6ccea15505351a9aea5e53d33730b99dacc594a79de1cc4627",
+          "seasonal": "0a49d2afd930bf532079e5c8b6c2776281cb8270ca774ac0b17ebda1b8897017"
+        },
+        "en": {
+          "portrait": "55718166dbeb5d9b5ba92e5ed4220ede62db2a6472409d584cfada1bbe155ad9",
+          "catalog": "5ec0c63e3bc68dae2862cd1182873925063b5be836d0b70cc1fc8d12fc04ea48",
+          "seasonal": "f062a06ed1fe6657c9ec98f55fbfeffb2e25296c2d9c36288371ef6a07c2bf1f"
+        }
+      }
+    },
+    "proud-of-you": {
+      "revision": 3,
+      "covers": {
+        "vi": {
+          "portrait": "82bd6d1d03b6d50eb208fabcf46c77562d542edb66f6cabd34541bcce402dd5d",
+          "catalog": "bb1fe1e0282abcc590abf6197b2ae277153a4e058de74837ee631efe51935695",
+          "seasonal": "6c3d966c092d1eeb3e7545fbdb867d8069a16f7d92bbc5c5aa2520d0fb871356"
+        },
+        "en": {
+          "portrait": "0500a77d64ed6f6a99ba52915cef1a4cf21087ed27adc6f3a88c22ec1fc1cffa",
+          "catalog": "a5637b9c02a72c3dffbb0891a9229683cd093542ddf8d3a53d815e50bd1f3203",
+          "seasonal": "44ec8f312c0816ea5cd2fb82a4fb20e496f0a5fa06cd7295fec37db9021aba6b"
+        }
+      }
+    },
+    "faraway-hug": {
+      "revision": 4,
+      "covers": {
+        "vi": {
+          "portrait": "38548c03ff38ec9701f3f6c8d6afab3b3350ad52c8af690f42927bb3e0d0c396",
+          "catalog": "e00e3e58a7cfe63d0b7c270a89b750adb15cdb74be3048f874fb36a522907b3b",
+          "seasonal": "eccaa3448b2b525416edf259dcb9dd1c3c68f0a98ec10684c08ce8575be6067b"
+        },
+        "en": {
+          "portrait": "a4f89db50e71029ee733c2f963e9e2f688510d475a887974418e238a39adb29c",
+          "catalog": "85a9d427f62e4b2c75b533dcdfa200c6fb49ef9339669aec10d83cc6718d58d8",
+          "seasonal": "1967427b2b463716ca3606aa400821bf4598f22d005a42bd1d4db7c3ee3ca1a4"
+        }
+      }
+    },
+    "gentle-apology": {
+      "revision": 4,
+      "covers": {
+        "vi": {
+          "portrait": "b858d708d20c3cd7a6bd6c1f4eca26a355f58486d802df938440310fd70bc859",
+          "catalog": "dc58e400afacad631a432c36d656246300965c55f041f67809e8f41f7477a0b5",
+          "seasonal": "a726784fd9338afe6c83b9a626c8bb92b5abff04acbed5dfdb35aa96e778bc27"
+        },
+        "en": {
+          "portrait": "6c238374b1c5a6d90c85ddbd7ef52f229cff4f6f728067de2791911d8859111a",
+          "catalog": "28b24a8f04c60676b41b1621b3db4703d766f402891ccbc6b05d46748212ea3f",
+          "seasonal": "8bc872de667f7cb7ec6aaf539144a2d905387c424e7740aefecd5a12ffd933e4"
+        }
+      }
+    },
+    "calm-light": {
+      "revision": 4,
+      "covers": {
+        "vi": {
+          "portrait": "3a14e46c7ae7e1b7470e1d4a4b9619beecc0145c8148a576e27ed605f2348ecd",
+          "catalog": "aa7bb8ecc6ee00462cc22e38dc1ed3d0e71bef6779009d32a644de8c1afc89fd",
+          "seasonal": "cd3a44c5e53973727f3e9978f1f0c3f15154b5f5659f685aeb0e1fa7acb8e8d7"
+        },
+        "en": {
+          "portrait": "955da60bfc069f72b04bb7a4fff12c02f6819d305bfaf9e4540ff53cfb58d786",
+          "catalog": "f2cb92ca530c4d87674e4be174be1bf10ff7cc96f1a52d90d7e11bf25c83f47b",
+          "seasonal": "9891f4410340b30364e9831286caa1e6b02dac4a7bd50a2d65570228a57105ea"
+        }
+      }
+    },
+    "club-22-invitation": {
+      "revision": null,
+      "covers": {
+        "vi": {
+          "portrait": "da30d7cb8b62f466bae3b1a2a5ad343cbe0d94bf99bcdd1b6eb32d451d0cf116",
+          "catalog": "dac7638cd1953c89271368efa49fa3ef610bc77b06b106905262e1471f67e37f",
+          "seasonal": "808fb7d85f09b09417460dfe0012e63c20fb434cdd0c67965b2625ffb95b8d68"
+        },
+        "en": {
+          "portrait": "985b9b36e34bfb84f477e773649810183bb6c9197e96b447672133cb34a020bd",
+          "catalog": "8594c26783788c1280799c137cee1f7513aaa53433874fa023f6f4a44aa59f84",
+          "seasonal": "da5a8f3c184e6abfa5f92c0c25f677def6139455754d61952602cbb1300a8490"
+        }
+      }
+    },
+    "cozy-christmas-invitation": {
+      "revision": null,
+      "covers": {
+        "vi": {
+          "portrait": "a4421592d74c2262f59ef08a4418990a6cf6d8eceaeafee8a8a27b320fefc1de",
+          "catalog": "290f49b62362ae9b2399dd94c59479b2ad073c141d9aaac80d9c6c806fbbcd9e",
+          "seasonal": "e67f184ebf6660219b1cc99fe1e6874f4ff3e3120c114bad3dc5d9f3d3285a3d"
+        },
+        "en": {
+          "portrait": "476973a6b94607c9f786ff40638fe92187fcb4d73accbdcd0ca971ba2687cd86",
+          "catalog": "94cea2fc302f07d2eeede738d3b94b2ae12bfeb0bcd46ebbb14e91219d1db42e",
+          "seasonal": "d4eac1bc7f075a66aee205203eefd0e6b089d2ae348ad9baf4cd7ced9b33ebdf"
+        }
+      }
+    },
+    "tet-phong-thu": {
+      "revision": null,
+      "covers": {
+        "vi": {
+          "portrait": "eefed0c7d89c0db44b8d5d98f6d1fa182af21905a1f6dad94535a11cb0ae7137",
+          "catalog": "43ec30cf0d8ea10456330c9bcd9ef96b588909125139c467fd4bbd0f152ee0ee",
+          "seasonal": "857d30da99c330d1c3bc135fd09f9d1f8857fb6f98009eaeb3fbce1a5ab710a1"
+        },
+        "en": {
+          "portrait": "9eb798c13c9c7c924188df3283cfac4919a7375f15d7dc9eec4711e45768d57c",
+          "catalog": "e924e9ef52700d2f0d31329b34a0f5864d3d26978977fb1c198786b4b3b599d8",
+          "seasonal": "71b0c20fec43c1593b68ea0f2b4d7c60b3582912b775c28fde89dc956aec8f6d"
+        }
+      }
+    }
+  }
+}

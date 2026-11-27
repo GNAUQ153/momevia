@@ -24,13 +24,13 @@ export function createTetLetter(localize) {
   flowers(letter, 'letter', false);
   // The paper continues below reflowing text; a finite bottom frame would cross long messages.
   shape(letter, 'letter-paper', [20, 120, 350, 2400], '#FFFAEF', 'rectangle', { strokeColor: '#C99550', strokeWidth: 1, radius: 3 });
-  heading(letter, 'letter-heading', c('letterTitle'), [30, 145, 330, 95], 35, p.ink, 'serif');
-  text(letter, 'letter-year', c('year'), [33, 270, 324, 36], 15, p.green);
-  binding(letter, 'text-recipient', 'recipientName', [33, 337, 324, 80], 24, p.ink, 'center');
-  add(letter, 'line', 'letter-rule', [51, 439, 288, 2], { color: '#C99550', strokeWidth: 1 });
-  binding(letter, 'text-message', 'message', [33, 473, 324, 150], 21, '#643F34');
-  text(letter, 'letter-signoff', c('signOff'), [33, 645, 324, 32], 16, '#643F34', 'serif', 'right');
-  binding(letter, 'text-sender', 'senderName', [33, 696, 324, 64], 22, p.ink, 'right');
+  heading(letter, 'letter-heading', c('letterTitle'), [30, 145, 330, 95], 33, p.ink, 'serif');
+  text(letter, 'letter-year', c('year'), [33, 255, 324, 30], 15, p.green);
+  binding(letter, 'text-recipient', 'recipientName', [33, 306, 324, 68], 23, p.ink, 'center');
+  add(letter, 'line', 'letter-rule', [51, 399, 288, 2], { color: '#C99550', strokeWidth: 1 });
+  binding(letter, 'text-message', 'message', [33, 425, 324, 242], 19, '#643F34');
+  text(letter, 'letter-signoff', c('signOff'), [33, 683, 324, 28], 16, '#643F34', 'serif', 'right');
+  binding(letter, 'text-sender', 'senderName', [33, 724, 324, 46], 20, p.ink, 'right');
   go(letter, 'to-reply', 'reply', 'scene-reply', [28, 784, 164, 58]);
   replay(letter, [202, 784, 160, 58], p.accent, 'letter-replay');
   reply();

@@ -19,8 +19,21 @@ export function buildInspectorPropertyFields(element) {
     if(element.assembly && key!=='color')continue;
     if (dedicatedInspectorProperties.includes(key)) continue;
     if (["color", "strokeColor"].includes(key)) {
-      fields.push(input(message(key === "color" ? "editor.interface.color" : "editor.interface.stroke"),
-        `props.${key}`, props[key], { type: "color" }));
+      const colorControl = node('input', { type: 'color', 'data-editor-field': `props.${key}`, value: props[key] || '#514463' });
+      fields.push(field(message(key === "color" ? "editor.interface.color" : "editor.interface.stroke"), colorControl));
+      if ((element.type === 'text' && key === 'color') || (element.type === 'sticker' && key === 'strokeColor')) {
+        const palette = node('select', { 'data-editor-color-preset': `props.${key}` },
+          node('option', { value: '' }, message('editor.interface.customColor')),
+          node('option', { value: '#32243B' }, message('editor.interface.onLight')),
+          node('option', { value: '#FFF7EE' }, message('editor.interface.onDark')));
+        palette.value = ['#32243B', '#FFF7EE'].includes(props[key]) ? props[key] : '';
+        palette.onchange = () => {
+          if (!palette.value || palette.disabled || colorControl.disabled) return;
+          colorControl.value = palette.value;
+          colorControl.dispatchEvent(new Event('change', { bubbles: true }));
+        };
+        fields.push(field(message('editor.interface.readablePalette'), palette));
+      }
     } else if (["radius", "strokeWidth"].includes(key)) {
       fields.push(input(message(key === "radius" ? "editor.interface.radius" : "editor.interface.strokeWidth"),
         `props.${key}`, props[key], { type: "number", min: 0, max: key === "radius" ? 512 : 40 }));
@@ -48,7 +61,7 @@ export function buildInspectorPropertyFields(element) {
       ]));
     } else if (key === "stickerId") {
       fields.push(select(message("editor.interface.sticker"), "props.stickerId", props.stickerId,
-        artworkChoices("sticker", Object.entries(stickerNames), currentLocale())));
+        artworkChoices("sticker", Object.keys(stickerNames).map(id => [id, message(`editor.library.item.${id}`)]), currentLocale())));
     } else if (!["preset", "pattern", "mask", "maskPath", "caption", "optional"].includes(key)) {
       fields.push(input({
         label: message("editor.interface.label.button"),
@@ -125,6 +138,8 @@ export function lockInspectorControls(host, policy, allowInlineText = false) {
     host.children[1] || null);
   for (const control of host.querySelectorAll("[data-editor-field]"))
     control.disabled = !canEditInspectorField(control.dataset.editorField, permitted);
+  for (const control of host.querySelectorAll('[data-editor-color-preset]'))
+    control.disabled = !canEditInspectorField(control.dataset.editorColorPreset, permitted);
   for (const control of host.querySelectorAll("[data-editor-action]"))
     control.disabled = !canUseInspectorAction(control.dataset.editorAction, permitted, allowInlineText);
 }

@@ -461,7 +461,7 @@ export async function runCanvasBrowser(base, expiredSlug) {
     await save();
     await page.reload();
     assert.equal(await field('binding.message').inputValue(), quickGreeting);
-    await page.locator('.editor-artboard img').first().waitFor();
+    await page.locator(`.editor-artboard [data-element-id="photo-window-image"] img[src$="/${uploadedAsset.id}"]`).waitFor();
     await control('preview').click();
     const quickPreview = page.locator('dialog[open]');
     await quickPreview.getByRole('button', { name: /Lời chúc/ }).click();
@@ -534,7 +534,7 @@ export async function runCanvasBrowser(base, expiredSlug) {
     await search.fill('cum hoa');
     const layerCount = await page.locator('.editor-artboard .editor-stage-element').count();
     await block('flowers').click();
-    const flowerLayers=2; // Outer petals and the independent illuminated edges.
+    const flowerLayers = 6; // Five independent petals and the flower centre.
     assert.equal(await page.locator('.editor-artboard .editor-stage-element').count(), layerCount + flowerLayers);
     await control('undo').click();
     assert.equal(await page.locator('.editor-artboard .editor-stage-element').count(), layerCount);

@@ -1,9 +1,10 @@
 import { message, setAttr, t } from "../../core/i18n.js";
-import { renderElement, applyLayout, resolveText, applyFocalPoint, textFont } from "../gift-runtime/renderer.js";
+import { renderElement, applyLayout, resolveText, applyFocalPoint, textFont, applyStationerySurface } from "../gift-runtime/renderer.js";
 import { applySurface, createMotion, playElement } from "../gift-runtime/effects.js";
 import { logicalPoint, gestureLayout, snapLayout } from "./store.js";
 import { node } from "./dom.js";
 import { createEditorSceneMotion } from './scene-motion.js';
+import { stationeryFlow } from '../../shared/canvas/stationery-flow.js';
 import { groupMembers } from '../../shared/canvas/element-groups.js';
 import { applyGroupLayout, dragGroupCorner, groupLayout, transformedLayout } from './group-layout.js';
 
@@ -36,10 +37,11 @@ export function createStage(
   });
   surround.append(artboard);
   host.replaceChildren(surround);
-  let zoom = 1,
+  let zoom = 1, displayHeight = store.get().document.artboard.baseSize.height,
     gesture = null,
     disposed = false;
   let selectionOutline, inlineEditor, renderLifecycle;
+  let displayLayouts = new Map();
   const preference=globalThis.matchMedia('(prefers-reduced-motion: reduce)');
   const sceneMotion = createEditorSceneMotion(artboard, { signal, preference });
   const motion=createMotion(()=>!preference.matches&&!disposed);
@@ -54,10 +56,10 @@ export function createStage(
     zoom = value;
     const size = store.get().document.artboard.baseSize;
     artboard.style.width = `${size.width}px`;
-    artboard.style.height = `${size.height}px`;
+    artboard.style.height = `${displayHeight}px`;
     artboard.style.transform = `scale(${zoom})`;
     surround.style.width = `${size.width * zoom}px`;
-    surround.style.height = `${size.height * zoom}px`;
+    surround.style.height = `${displayHeight * zoom}px`;
   }
   function render() {
     if (disposed || signal.aborted || gesture || inlineEditor) return;
@@ -127,24 +129,54 @@ export function createStage(
         });
       }
     }
-    for (const element of outlines.values()) {
+    const selections = [...outlines.values()].map(element => {
       const members = groupMembers(doc.elements, element);
       const outline = node("span", { class: "editor-selection-outline", "data-element-id": element.id, "aria-hidden": "true" });
       outline.style.zIndex = String(scene.elementIds.length);
       if (!members.some(member => member.locked || isLayoutLocked(member.id)))
         outline.append(node("span", { class: "editor-resize-handle", "data-editor-resize": "true" }));
-      applyLayout(outline, groupLayout(members), doc.artboard.baseSize);
       artboard.append(outline);
       if (element.id === getSelection()) selectionOutline = outline;
+      return { members, outline };
+    });
+    const applyFlow = () => {
+      if (gesture) return;
+      displayHeight = doc.artboard.baseSize.height;
+      displayLayouts = new Map();
+      if (scene.flow) {
+        artboard.style.transitionProperty='none';
+        const items = artboard.querySelectorAll('.editor-stage-element');
+        for (const item of items) {
+          item.style.transitionProperty='none';
+          item.style.overflowWrap='anywhere';
+          const model = currentModels.get(item.dataset.elementId);
+          if (model) applyLayout(item, model, doc.artboard.baseSize);
+        }
+        const heights = new Map([...artboard.querySelectorAll('.editor-stage-element.gift-runtime-text')].map(item => [item.dataset.elementId, item.scrollHeight]));
+        const flow = stationeryFlow(scene, doc.elements, heights);
+        displayLayouts = flow.layouts;
+        for (const item of items) {
+          const layout = flow.layouts.get(item.dataset.elementId);
+          if (layout) applyLayout(item, layout, doc.artboard.baseSize);
+          if(flow.surfaces.has(item.dataset.elementId))applyStationerySurface(item);
+        }
+        displayHeight += flow.growth;
+      }
+      for (const { members, outline } of selections) applyLayout(outline, groupLayout(members, displayLayouts), doc.artboard.baseSize);
+      setZoom(zoom);
+    };
+    applyFlow();
+    if (scene.flow) {
+      const active = renderLifecycle.signal;
+      globalThis.document.fonts?.ready.then(()=>{if(!active.aborted&&!disposed)applyFlow();});
     }
-    setZoom(zoom);
     sceneMotion.sync(scene.id);
   }
   function point(event, rect) {
     return logicalPoint(
       { x: event.clientX, y: event.clientY },
       rect,
-      store.get().document.artboard.baseSize,
+      { ...store.get().document.artboard.baseSize, height: displayHeight },
     );
   }
   function cancel() {
@@ -181,7 +213,7 @@ export function createStage(
       maxlength: options.maxlength,
       value: original,
     });
-    applyLayout(field, model.layout, doc.artboard.baseSize);
+    applyLayout(field, displayLayouts.get(id) || model.layout, doc.artboard.baseSize);
     Object.assign(field.style, {
       fontFamily: textFont(model.props.fontToken),
       fontSize: `${model.props.fontSize ?? 24}px`,
@@ -288,7 +320,9 @@ export function createStage(
     } else {
       const painted = new Map();
       gesture.members.forEach((member, index) => {
-        const box = gesture.members.length > 1 ? transformedLayout(member.layout, gesture.original, layout) : layout;
+        const original = member.layout, display = displayLayouts.get(member.id);
+        const next = gesture.members.length > 1 ? transformedLayout(original, gesture.original, layout) : layout;
+        const box = display ? { ...next, y: next.y + display.y - original.y, height: next.height * display.height / original.height } : next;
         painted.set(member.id, box);
         applyLayout(gesture.nodes[index], { ...member, layout: box }, size);
       });
@@ -368,7 +402,8 @@ export function createStage(
     },
     visibleArea() {
       const frame = host.getBoundingClientRect(), board = artboard.getBoundingClientRect();
-      const { width, height } = store.get().document.artboard.baseSize;
+      const { width } = store.get().document.artboard.baseSize;
+      const height = displayHeight;
       const left = Math.min(width - 1, Math.max(0, (frame.left - board.left) / zoom));
       const top = Math.min(height - 1, Math.max(0, (frame.top - board.top) / zoom));
       const right = Math.max(left, Math.min(width, (frame.right - board.left) / zoom));

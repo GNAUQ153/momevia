@@ -29,7 +29,7 @@ export function readInspectorGeometry(shape) {
   const height = baseHeight * scaleY;
   return {
     x: round(left - width / 2),
-    y: round(top - height / 2),
+    y: round(top - height / 2 - (shape.momeviaDisplayOffsetY || 0) * scaleY),
     width: round(width),
     height: round(height),
     rotation: round(rotation),
@@ -83,7 +83,7 @@ export function applyInspectorGeometry(shape, geometry) {
   }
   shape.set({
     left: next.x + next.width / 2,
-    top: next.y + next.height / 2,
+    top: next.y + next.height / 2 + (shape.momeviaDisplayOffsetY || 0) * next.height / baseHeight,
     scaleX: next.width / baseWidth,
     scaleY: next.height / baseHeight,
     angle: next.rotation,

@@ -1,3 +1,4 @@
+import { stickerVector } from './sticker-style.js';
 import { decorativeArt } from "./decorative-art.js";
 import { extendedArt } from "./decorative-art-55.js";
 // Original Momevia paths. Every path is defined in a 100 × 100 viewBox.
@@ -67,15 +68,15 @@ export function vectorParts(model) {
   const { type, props: p } = model;
   if (model.artwork) return model.artwork.paths.map(part => ({ d: part.d,
     fill: part.fill === 'color' ? p.color : part.fill === 'strokeColor' ? p.strokeColor : part.fill || 'none',
-    ...(part.stroke ? { stroke: part.stroke === 'color' ? p.color : part.stroke === 'strokeColor' ? p.strokeColor : part.stroke } : {}),
+    ...(part.stroke ? { stroke: part.stroke === 'color' ? p.color : part.stroke === 'strokeColor' ? p.strokeColor : type === 'sticker' && p.strokeColor && part.stroke !== 'color' ? p.strokeColor : part.stroke } : {}),
     ...(part.strokeWidth !== undefined ? { 'stroke-width': part.strokeWidth === 'strokeWidth' ? p.strokeWidth : part.strokeWidth } : {}),
     ...(['shape','line'].includes(type) ? { 'vector-effect': 'non-scaling-stroke' } : {}),
     ...(part.dash ? { 'stroke-dasharray': part.dash } : {}) }));
   if (type === 'sticker' && Object.hasOwn(stickerArt,p.stickerId)) {
-    const [fill, stroke] = stickerArt[p.stickerId];
-    return [fill && { d:fill, fill:p.color },
-      stroke && { d:stroke, fill:'none', stroke: fill ? (p.stickerId === 'wax-seal' || p.stickerId === 'birthday-candle' ? '#FFF7EE' : '#32243B') : p.color, 'stroke-width': 4 },
-    ].filter(Boolean);
+    return stickerVector(p.stickerId, stickerArt[p.stickerId]).paths.map(part => ({
+      d: part.d, fill: part.fill === 'color' ? p.color : part.fill,
+      ...(part.stroke ? { stroke: part.stroke === 'color' ? p.color : p.strokeColor || part.stroke, 'stroke-width': part.strokeWidth } : {}),
+    }));
   }
   if (type === 'shape' && Object.hasOwn(shapes,p.kind)) return [{
     d:shapes[p.kind], fill:p.color, stroke:p.strokeColor, 'stroke-width':p.strokeWidth, 'vector-effect':'non-scaling-stroke',

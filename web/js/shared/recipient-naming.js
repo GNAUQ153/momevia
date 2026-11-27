@@ -1,3 +1,5 @@
+import { displayCopy } from './locale.js';
+
 // Versioned opt-in: published documents without this marker keep literal braces.
 export const RECIPIENT_TOKEN = '{người nhận}';
 export const RECIPIENT_MODES = ['manual', 'list', 'self'];
@@ -22,6 +24,15 @@ export function recipientText(value, name, enabled) {
 export function displayRecipient(document) {
   return document.personalization?.mode !== 'manual' && document.personalization?.mode && !document.personalization.resolved
     ? 'Mai Anh' : document.bindings.recipientName.value;
+}
+export function displayLayerText(element, document, translate) {
+  const name = displayRecipient(document);
+  const binding = element.props.textBinding;
+  if (binding === 'recipientName' && document.personalization?.mode && document.personalization.mode !== 'manual') {
+    return displayCopy(translate('recipient.address', { name }));
+  }
+  const value = binding === 'recipientName' ? name : binding ? document.bindings[binding]?.value : element.props.text;
+  return displayCopy(recipientText(value || '', name, document.personalization?.version === 1));
 }
 export function coverHasRecipient(document) {
   const cover = document.scenes.find(s => s.id === document.entrySceneId);

@@ -4,6 +4,7 @@ import { validateDocument } from './schema.js';
 import { heartPieces, masks, vectorParts } from './artwork.js';
 import { interactionKinds } from './interactions.js';
 import {EVENT_MEDIA} from './event-media.js';
+import { stationeryFlow, paperSlices } from './stationery-flow.js';
 
 const escape = value => String(value).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 
@@ -31,15 +32,60 @@ function recipeSurface(body,node,id){
  return filter?`<filter id="depth-${id}" x="-70%" y="-70%" width="240%" height="240%">${filter}</filter><g filter="url(#depth-${id})">${body}</g>`:body;
 }
 
-function wrap(text, width, size, font) {
-  const limit = Math.max(5, Math.floor(width / (size * (font === 'serif' ? .51 : .54))));
-  return text.split('\n').flatMap(paragraph => {
-    const result = []; let line = '';
-    for (const word of paragraph.split(/\s+/)) {
-      if (line && (line + ' ' + word).length > limit) { result.push(line); line = word; }
-      else line += (line ? ' ' : '') + word;
+const graphemes = new Intl.Segmenter(undefined, { granularity: 'grapheme' });
+const fullWidth = /[\p{Extended_Pictographic}\p{Regional_Indicator}\p{Ideographic}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]/u;
+// Upper advances in hundredths of an em, in alphabet order. These cover the
+// actual Lora/Times and Arial fonts on the SVG, including their bold variants.
+// A single average width breaks valid authored lines with Vietnamese diacritics.
+const coverAlphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789ĐđƠơƯư';
+const coverAdvances = {
+  body: [
+    73,73,73,73,67,62,78,73,28,56,73,62,84,73,78,67,78,73,67,62,73,67,95,67,67,62,
+    56,62,56,62,56,34,62,62,28,28,56,28,89,62,62,62,62,39,56,34,62,56,78,56,56,50,
+    56,56,56,56,56,56,56,56,56,56,73,62,86,72,86,73,
+  ],
+  serif: [
+    73,67,73,75,67,62,78,78,39,50,78,67,95,77,80,62,80,73,57,67,76,73,106,73,73,67,
+    52,59,54,60,55,35,56,60,29,34,56,28,90,61,59,60,58,45,47,40,60,53,83,53,55,52,
+    63,50,54,56,55,55,58,50,57,58,75,60,81,60,81,62,
+  ],
+};
+
+function clusterWidth(cluster, serif, embeddedSerif) {
+  if (fullWidth.test(cluster) || cluster.includes('\u200d')) return 1.16;
+  const decomposed = cluster.normalize('NFD');
+  const base = decomposed.includes('\u031b') ? (decomposed[0] + '\u031b').normalize('NFC') : decomposed[0];
+  const index = coverAlphabet.indexOf(base);
+  if (index >= 0) {
+    const advance = coverAdvances[serif ? 'serif' : 'body'][index] / 100;
+    return (advance + .012) * (serif && !embeddedSerif ? 1.16 : 1);
+  }
+  if (/[.,'!:;|]/.test(base)) return .35;
+  return 1.04;
+}
+
+function wrap(text, width, size, font, embeddedSerif = false) {
+  const serif = font === 'serif';
+  const budget = width / size;
+  const limit = Math.max(1, Math.floor(budget / (serif ? .51 : .54)));
+  return text.normalize('NFC').split('\n').flatMap(paragraph => {
+    const lines = [];
+    let line = '', used = 0, count = 0;
+    const flush = () => { lines.push(line); line = ''; used = 0; count = 0; };
+    for (const word of paragraph.trim().split(/\s+/)) {
+      if (!word) continue;
+      const letters = Array.from(graphemes.segment(word), part => part.segment);
+      const advances = letters.map(letter => clusterWidth(letter, serif, embeddedSerif));
+      const wordWidth = advances.reduce((sum, value) => sum + value, 0);
+      if (line && (count + 1 + letters.length > limit || used + .29 + wordWidth > budget)) flush();
+      if (line) { line += ' '; used += .29; count += 1; }
+      for (let i = 0; i < letters.length; i++) {
+        if (line && (count >= limit || used + advances[i] > budget)) flush();
+        line += letters[i]; used += advances[i]; count += 1;
+      }
     }
-    result.push(line); return result;
+    lines.push(line);
+    return lines;
   });
 }
 
@@ -73,7 +119,13 @@ function interactionSvg(node, images) {
   const background = `<rect width="${w}" height="${h}" rx="14" fill="${p.color}"/>`;
   const panel = (x,y,width,height,fill='#FFF7EE') => `<rect x="${x}" y="${y}" width="${width}" height="${height}" rx="8" fill="${fill}"/>`;
   if (p.kind === 'light-a-candle' && ['cake-overlay-v1','cake-photo-v2'].includes(p.appearance)) return panel(0,h-54,w,54,'#FFF8F0') + labelSvg(p.entries[0].heading,16,h-20,w-32);
-  if (p.kind === 'prediction-choice') return background + labelSvg(p.question, 20, 42, w-40, 22) + ['A', 'B'].map((id, i) => panel(16, 170+i*112, w-32, 94, i ? '#FBE8EB' : '#F4EBFA') + labelSvg(`${id} - ${p['option'+id]}`, 28, 206+i*112, w-56, 18)).join('');
+  if (p.kind === 'prediction-choice') {
+    const compact = h < 400, row = compact ? Math.max(42, (h - 88) / 2) : 112;
+    const first = compact ? 76 : 170;
+    return background + labelSvg(p.question, 20, compact ? 30 : 42, w-40, compact ? 19 : 22) +
+      ['A', 'B'].map((id, i) => panel(16, first + i * row, w-32, row - (compact ? 6 : 18), i ? '#FBE8EB' : '#F4EBFA') +
+        labelSvg(`${id} - ${p['option'+id]}`, 28, first + i * row + (compact ? 24 : 36), w-56, compact ? 16 : 18)).join('');
+  }
   if (p.photos) {
     const compare = p.kind === 'photo-comparison';
     const a = (compare ? p.photos[0] : p.photos.find(photo => photo.assetId)) || p.photos[0], b = p.photos[1];
@@ -101,12 +153,19 @@ function interactionSvg(node, images) {
     (p.kind === 'event-countdown' ? labelSvg('00 : 00 : 00',16,123,w-32,25) : '');
 }
 
-export function previewSvg(document, sceneId = document.entrySceneId, images = new Map(), { serifWoff2,validationMode='publish' } = {}) {
+export function previewSvg(document, sceneId = document.entrySceneId, images = new Map(), { serifWoff2, validationMode = 'publish', locale = 'vi', ariaLabel } = {}) {
   validateDocument(document, { mode: validationMode, requiredBindings: [] });
-  const scene = document.scenes.find(s => s.id === sceneId), size = document.artboard.baseSize;
+  const scene = document.scenes.find(s => s.id === sceneId), size = { ...document.artboard.baseSize };
   const nodes = new Map(document.elements.map(element => [element.id, element]));
+  const measured = new Map((scene.flow?document.elements.filter(e=>e.type==='text'&&scene.elementIds.includes(e.id)):[]).map(e=>{
+    const value=e.props.textBinding?document.bindings[e.props.textBinding].value:e.props.text;
+    return [e.id,wrap(value,e.layout.width,e.props.fontSize,e.props.fontToken,Boolean(serifWoff2)).length*e.props.fontSize*(e.props.lineHeight||1.4)];
+  }));
+  const flow = stationeryFlow(scene, document.elements, measured);
+  size.height += flow.growth;
   const content = scene.elementIds.map(id => {
-    const node = nodes.get(id); if (node.visible === false) return '';
+    const original = nodes.get(id); if (original.visible === false) return '';
+    const node = flow.layouts.has(id) ? { ...original, layout: flow.layouts.get(id) } : original;
     const { x, y, width: w, height: h, rotation } = node.layout, p = node.props;
     const rotate = rotation ? ` transform="rotate(${rotation} ${w / 2} ${h / 2})"` : '';
     let body = '';
@@ -123,7 +182,7 @@ export function previewSvg(document, sceneId = document.entrySceneId, images = n
     else if (node.type === 'line') body = `<path d="M0 1H${w}" stroke="${p.color}" stroke-width="${p.strokeWidth || 1}"/>`;
     else if (node.type === 'text') {
       const text = p.textBinding ? document.bindings[p.textBinding].value : p.text;
-      const lines = wrap(text, w, p.fontSize, p.fontToken), anchor = p.align === 'center' ? 'middle' : p.align === 'right' ? 'end' : 'start';
+      const lines = wrap(text, w, p.fontSize, p.fontToken,Boolean(serifWoff2)), anchor = p.align === 'center' ? 'middle' : p.align === 'right' ? 'end' : 'start';
       const tx = anchor === 'middle' ? w / 2 : anchor === 'end' ? w : 0;
       body = `<text x="${tx}" y="${p.fontSize}" fill="${p.color}" font-family="${p.fontToken === 'serif' ? 'Georgia,serif' : 'Arial,sans-serif'}" font-size="${p.fontSize}" font-weight="${node.accessibility.role === 'heading' ? '700' : '400'}" text-anchor="${anchor}">${lines.map((line, i) => `<tspan x="${tx}" dy="${i ? p.fontSize * (p.lineHeight || 1.4) : 0}">${p.dropCap && !i ? `<tspan font-size="${p.fontSize*1.65}">${escape(line[0] || '')}</tspan>${escape(line.slice(1))}` : escape(line)}</tspan>`).join('')}</text>`;
     } else if (node.type === 'sticker') body = `<text x="${w / 2}" y="${h * .77}" text-anchor="middle" font-family="Arial,sans-serif" font-size="${Math.min(w, h) * .8}" fill="${p.color}">${escape(STICKERS[p.stickerId])}</text>`;
@@ -135,7 +194,10 @@ export function previewSvg(document, sceneId = document.entrySceneId, images = n
       body += `<text x="${w / 2}" y="${photoCaption?h-24:(envelope && !['compact-v2','photo-caption-v3'].includes(p.preset)) || box ? h - 24 : h / 2 + 6}" fill="#FFFFFF" font-family="Arial,sans-serif" font-size="${envelope || box ? 17 : 16}" text-anchor="middle">${escape(p.label)}</text>`;
     } else if (node.type === 'image') {
       const photoHeight = p.caption ? Math.max(1, h - 32) : h;
-      body = photoSvg(p, images.get(p.assetId), w, photoHeight, node.id);
+      const media=images.get(p.assetId);
+      body = flow.surfaces.has(id)&&media?.width&&media?.height&&/^data:image\/webp;base64,[A-Za-z0-9+/=]+$/.test(media.url)
+        ? paperSlices(media.width,media.height,w,photoHeight).map(s=>`<svg x="${s.x}" y="${s.y}" width="${s.width}" height="${s.height}" viewBox="${s.sx} ${s.sy} ${s.sw} ${s.sh}" preserveAspectRatio="none"><image href="${escape(media.url)}" width="${media.width}" height="${media.height}"/></svg>`).join('')
+        : photoSvg(p, media, w, photoHeight, node.id);
       if (p.caption) body += `<rect y="${photoHeight}" width="${w}" height="32" fill="#FFF7EE"/><text x="6" y="${photoHeight+16}" font-family="Arial,sans-serif" font-size="14" fill="#32243B">${wrap(p.caption,w-12,14,'body').slice(0,2).map((line,i)=>`<tspan x="6" dy="${i*14}">${escape(line)}</tspan>`).join('')}</text>`;
     } else if (node.type === 'interaction') body = interactionSvg(node, images);
     else if (node.type === 'reply') body = `<rect width="${w}" height="${h}" rx="20" fill="#FFFFFF"/><text x="18" y="35" fill="#32243B" font-size="20" font-family="Arial,sans-serif">${escape(p.title)}</text><rect x="18" y="70" width="${w - 36}" height="42" rx="8" fill="#F7F4FA"/><rect x="18" y="130" width="${w - 36}" height="88" rx="8" fill="#F7F4FA"/>`;
@@ -160,8 +222,10 @@ export function previewSvg(document, sceneId = document.entrySceneId, images = n
     /^[a-z0-9+/=]+$/i.test(serifWoff2);
   const font = embeddedSerif ? `<style>@font-face{font-family:"Momevia Cover";src:url(data:font/woff2;base64,${serifWoff2}) format("woff2")}</style>` : '';
   const artwork = embeddedSerif
-    ? content.replaceAll('font-family="Georgia,serif"', 'font-family="Momevia Cover,Times New Roman,serif"').normalize('NFC')
+    ? content.replaceAll('font-family="Georgia,serif"', 'font-family="Momevia Cover,Times New Roman,serif"')
     : content;
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${size.width}" height="${size.height}" viewBox="0 0 ${size.width} ${size.height}" role="img" aria-label="Bản xem trước mẫu quà Momevia">${font}${pattern}${cottonPattern}<rect width="100%" height="100%" fill="${scene.background.color}"/>${sceneGrain}${cottonScene}${artwork}</svg>\n`;
+  const language = locale === 'en' ? 'en' : 'vi';
+  const label = ariaLabel || (language === 'en' ? 'Momevia gift preview' : 'Bản xem trước mẫu quà Momevia');
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${size.width}" height="${size.height}" viewBox="0 0 ${size.width} ${size.height}" lang="${language}" xml:lang="${language}" role="img" aria-label="${escape(label.normalize('NFC'))}">${font}${pattern}${cottonPattern}<rect width="100%" height="100%" fill="${scene.background.color}"/>${sceneGrain}${cottonScene}${artwork.normalize('NFC')}</svg>\n`;
 }
 

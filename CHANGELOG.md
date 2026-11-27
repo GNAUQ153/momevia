@@ -1,3 +1,9 @@
+## Unreleased — Kiểm định thiết kế Canvas và thư viện thiệp (2026-11-27)
+
+- Sửa bản xuất PNG trong Fabric Studio để giữ chú thích, mặt nạ ảnh, chữ cái mở đoạn và thứ tự các lớp hình. Hoàn tác, làm lại và nhân bản giữ đúng nội dung và kiểu dáng đã chỉnh.
+- Cho nền giấy giãn theo lời chúc dài, chỉnh khoảng cách và độ tương phản trên thiệp. Bìa Catalog, bìa theo mùa và ảnh thu nhỏ tiếng Việt, tiếng Anh dùng cùng phiên bản thư viện.
+- Cập nhật hình minh họa, biểu tượng, nhãn thư viện và bộ chọn màu nét để chi tiết dễ nhìn trên cả nền sáng lẫn nền tối.
+
 ## Unreleased — Nhóm khối trên canvas (2026-11-27)
 
 - Khi thêm một khối nhiều lớp từ thư viện, người gửi có thể di chuyển, xoay, đổi kích thước hoặc nhân bản cả khối và vẫn chỉnh được từng ảnh, đoạn chữ. Các lớp rời trong nháp cũ có thể nhóm lại bằng thao tác chọn nhiều lớp.

@@ -28,7 +28,7 @@ export function paintEventCard(id, doc, { shape, line, text, binding, action, ad
   const reply = () => {
     heading(2, 'reply-heading', copy('replyHeadline'), [34, 80, 322, 104], 32);
     text(2, 'reply-intro', copy('replyNote'), [42, 207, 306, 75], 18);
-    add(2, 'reply', 'reply-card', [24, 320, 342, 300], { title: copy('replyTitle'), submitLabel: localize('templates.copy.sendReply') });
+    add(2, 'reply', 'reply-card', [24, 320, 342, 300], { title: copy('replyTitle'), submitLabel: localize('templates.copy.sendReply'), color:p.button });
     action(2, 'button', 'replay-gift', copy('replay'), [65, 714, 260, 72]);
   };
 
@@ -75,10 +75,10 @@ export function paintEventCard(id, doc, { shape, line, text, binding, action, ad
     action(1, 'button', 'memory-back', localize('templates.copy.backToEnvelopes'), [62, 711, 266, 72], 'scene-cover');
     doc.scenes[2].background.color = p.paper;
     heading(2, 'message-heading', copy('wishLabel'), [42, 55, 306, 75], 34);
-    binding(2, 'text-message', 'message', [42, 162, 306, 194], 21, p.ink, 'left');
-    signature(2, 378, p.ink);
-    action(2, 'button', 'wish-back', localize('templates.copy.backToEnvelopes'), [62, 512, 266, 72], 'scene-cover');
-    add(2, 'reply', 'reply-card', [24, 602, 342, 208], { title: copy('replyTitle'), submitLabel: localize('templates.copy.sendReply') });
+    binding(2, 'text-message', 'message', [42, 162, 306, 320], 19, p.ink, 'left');
+    signature(2, 506, p.ink);
+    action(2, 'button', 'wish-back', localize('templates.copy.backToEnvelopes'), [62, 644, 266, 64], 'scene-cover');
+    add(2, 'reply', 'reply-card', [24, 602, 342, 208], { title: copy('replyTitle'), submitLabel: localize('templates.copy.sendReply'), color:p.button });
   } else {
     text(0, 'cover-kicker', copy('kicker'), [40, 38, 310, 30], 14, p.ink);
     heading(0, 'cover-title', p.headline, [32, 95, 326, 118], 36);

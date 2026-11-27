@@ -80,6 +80,15 @@ export function createCatalogActions({
     [["retry-catalog"], async (action, element) => {
       return render();
     }],
+    [["clear-catalog-search"], async () => {
+      // Chỉ xóa từ khóa, giữ bộ lọc loại thiệp, giá, dịp và phong cách.
+      const search = document.getElementById("template-search");
+      if (!search) return;
+      search.value = state.search = "";
+      state.catalogPage = 1;
+      search.focus();
+      commitCatalogFilters();
+    }],
     [["clear-filters"], async (action, element) => {
       state.catalogPage = 1;
       state.filter = "all";

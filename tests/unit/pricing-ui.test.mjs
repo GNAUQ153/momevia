@@ -14,7 +14,7 @@ test('Auth typography and 3D artwork belong to auth-pages.css without later over
   assert.match(authCss, /font-size: 16px/);
   assert.match(authCss, /\.auth-showcase__art > img \{/);
   assert.doesNotMatch(css, /\.auth-showcase__art|\.auth-page \.auth-switch/);
-  assert.match(index, /<link rel="stylesheet" href="\/css\/ui-polish\.css"/);
+  assert.match(index, /<link rel="stylesheet" href="\/css\/ui-polish\.css\?v=20261127-type-scale"/);
   assert(index.lastIndexOf('ui-polish.css') > index.lastIndexOf('responsive.css'));
 });
 

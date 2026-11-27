@@ -118,8 +118,8 @@ export function updateElementCopy(node, model, document) {
   }
 }
 export function textFont(token) {
-  return token === "heading" ? "var(--font-display)" :
-    token === "serif" ? "var(--font-serif)" : "var(--font-body)";
+  return token === "heading" ? "var(--canvas-font-display)" :
+    token === "serif" ? "var(--canvas-font-serif)" : "var(--canvas-font-body)";
 }
 
 export function applyFocalPoint(img, focalPoint) {

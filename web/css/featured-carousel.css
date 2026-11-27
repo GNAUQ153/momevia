@@ -1,13 +1,13 @@
 /* The viewport clips only the moving row; the page never hides overflow. */
 .featured-carousel {
   --featured-columns: 3;
-  --featured-gap: 24px;
+  --featured-gap: var(--layout-card-gap);
   min-width: 0;
 }
 
 .featured-carousel__viewport {
   overflow: hidden;
-  padding: 8px 0 26px;
+  padding: var(--space-2) 0 var(--space-8);
 }
 
 .featured-carousel__track {
@@ -32,7 +32,7 @@
 @media (max-width: 767px) {
   .featured-carousel {
     --featured-columns: 1;
-    --featured-gap: 16px;
+    --featured-gap: var(--layout-card-gap-mobile);
   }
 
   .featured-carousel__track > .template-card--home {
@@ -42,11 +42,11 @@
   .featured-carousel__track .template-card__visual {
     aspect-ratio: auto;
     min-height: 170px;
-    border-radius: 17px 0 0 17px;
+    border-radius: var(--layout-radius-card-inner) 0 0 var(--layout-radius-card-inner);
   }
 
   .featured-carousel__track .template-card__info {
     align-self: center;
-    padding: 34px 14px 14px;
+    padding: var(--space-8) var(--space-3) var(--space-3);
   }
 }

@@ -7,6 +7,11 @@ html {
   scroll-behavior: smooth;
   scroll-padding-top: 100px;
 }
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
 body {
   display: flex;
   flex-direction: column;
@@ -85,7 +90,7 @@ h2 em {
   font-weight: 500;
 }
 .container {
-  width: min(var(--container), calc(100% - 72px));
+  width: min(var(--container), calc(100% - 2 * var(--layout-gutter)));
   margin-inline: auto;
 }
 .visually-hidden {
@@ -100,15 +105,23 @@ h2 em {
 }
 .skip-link {
   position: fixed;
-  top: -90px;
+  top: 12px;
   left: 16px;
   z-index: 10000;
   padding: 12px 18px;
-  background: var(--purple);
-  color: white;
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  border-radius: var(--layout-radius-control);
+  max-width: calc(100% - 16px);
+  overflow-wrap: anywhere;
+}
+.skip-link:not(:focus) {
+  clip-path: inset(50%);
+  pointer-events: none;
 }
 .skip-link:focus {
-  top: 12px;
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
 }
 .no-scroll {
   overflow: hidden;

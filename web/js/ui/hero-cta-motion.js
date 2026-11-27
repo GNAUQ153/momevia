@@ -1,5 +1,8 @@
+import { createInertLock } from './inert-lock.js';
+
 // Animate the existing floating actions from the hero's two action positions.
 export function createHeroCtaMotion(panel) {
+  const setInert = createInertLock(panel);
   const reduced = globalThis.matchMedia?.('(prefers-reduced-motion: reduce)');
   let source = null, origins = [], crossed = false, travelled = false, generation = 0;
   let animations = [];
@@ -8,7 +11,7 @@ export function createHeroCtaMotion(panel) {
     generation++;
     for (const animation of animations) animation.cancel();
     animations = [];
-    panel.inert = false;
+    setInert(false);
     panel.classList?.remove('floating-cta--travelling');
   }
 
@@ -56,11 +59,11 @@ export function createHeroCtaMotion(panel) {
     });
     if (!animations.length) return;
     // Moving controls cannot intercept a click while travelling across the page.
-    panel.inert = true;
+    setInert(true);
     panel.classList.add('floating-cta--travelling');
     Promise.allSettled(animations.map(animation => animation.finished)).then(() => {
       if (request !== generation) return;
-      animations = []; panel.inert = false;
+      animations = []; setInert(false);
       panel.classList.remove('floating-cta--travelling');
     });
   }

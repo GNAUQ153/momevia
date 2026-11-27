@@ -43,7 +43,8 @@
 
 .catalog-grid .template-card__title {
   color: #281c3b;
-  font-size: clamp(18px, 1.8vw, 24px);
+  font-size: var(--type-card);
+  line-height: var(--type-line-heading);
   font-weight: 650;
 }
 
@@ -58,8 +59,8 @@
   display: -webkit-box;
   overflow: hidden;
   color: #5d5668;
-  font-size: 13px;
-  line-height: 1.55;
+  font-size: var(--type-small);
+  line-height: var(--type-line-body);
   white-space: normal;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 3;
@@ -103,7 +104,8 @@
 }
 .catalog-compact .catalog-title h1 {
   margin: 0;
-  font: 500 clamp(1.8rem, 5vw, 3rem)/1.12 var(--font-display);
+  font: 600 var(--type-h1)/var(--type-line-heading) var(--font-display);
+  overflow-wrap: anywhere;
 }
 
 .catalog-toolbar__actions {

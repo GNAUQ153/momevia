@@ -1,14 +1,10 @@
 import { randomUUID } from 'node:crypto';
 import { MySqlClient } from '../../infrastructure/mysql/client.mjs';
-import { mysqlDate } from '../identity/mysql.repositories.mjs';
+import { mysqlDate, mysqlTimestampToIso as iso } from '../../infrastructure/mysql/datetime.mjs';
 import { localizedError } from '../../shared/http.mjs';
 import { activeEntitlementSql, entitlementSourceSql, entitlementStateSql } from './entitlement-policy.mjs';
 import { readPublicationAuthority, grantPublicationCredit } from './publication-credit.mjs';
 
-function iso(value) {
-  if (value instanceof Date) return value.toISOString();
-  return new Date(`${String(value).replace(' ', 'T').replace(/Z$/, '')}Z`).toISOString();
-}
 function rowToOrder(row) {
   if (!row) return null;
   const payload = typeof row.payload === 'string' ? JSON.parse(row.payload) : (row.payload || {});

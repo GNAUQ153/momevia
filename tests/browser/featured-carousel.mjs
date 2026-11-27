@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { waitForHomeConstruction } from './home-construction.mjs';
 
 export async function runFeaturedCarousel(browser,base){
   const context=await browser.newContext({viewport:{width:1440,height:900},reducedMotion:'no-preference'});
@@ -7,7 +8,7 @@ export async function runFeaturedCarousel(browser,base){
     page.on('request',r=>{if(r.url().includes('/api/')&&!['GET','HEAD'].includes(r.method()))writes.push(r.url());});
     await page.clock.install();await page.goto(base);
     const root=page.locator('[data-featured-carousel]'),viewport=page.locator('[data-featured-viewport]');
-    await root.waitFor();await viewport.scrollIntoViewIfNeeded();
+    await root.waitFor();await waitForHomeConstruction(page);await viewport.scrollIntoViewIfNeeded();
     await page.waitForFunction(()=>globalThis.document.querySelector('[data-featured-carousel]').dataset.featuredRunning==='true');
     const ids=await page.locator('[data-featured-track] > article').evaluateAll(ns=>ns.map(n=>n.dataset.templateId));
     assert.equal(ids.length,15);assert.equal(new Set(ids).size,15);assert.equal(await root.getAttribute('data-featured-visible'),'3');

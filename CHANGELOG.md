@@ -1,3 +1,83 @@
+## Unreleased — Phase 4.4F CTA Conversion (2026-11-27)
+
+- Bổ sung CTA tạo thiệp sau khi mở quà mẫu, dùng chung hộp thoại chọn loại thiệp với Hero; chuyển replay thành hành động phụ, giữ focus, giao diện VI/EN và reduced motion. Không phát sinh giao dịch hoặc dữ liệu nghiệp vụ.
+
+## Unreleased — Phase 4.4E Interactive Product Showcase (2026-11-27)
+
+- Bổ sung mở/đóng quà mẫu tại bước Open của Interactive Journey, đồng bộ trạng thái ARIA và VI/EN; không gọi API, giữ chức năng vuốt và reduced motion.
+
+## Unreleased — Phase 4.4D Interactive Bento (2026-11-27)
+
+- Chuyển nhóm điều khiển hành trình thành Bento hai cột trên desktop, làm nổi bật bước tạo thiệp; giữ rail vuốt trên mobile, cảnh 3D, nội dung VI/EN và nghiệp vụ hiện có. Bổ sung liên kết ARIA, hướng dẫn bàn phím và kiểm thử bố cục.
+
+## Unreleased — Phase 4.4C Scroll Reveal (2026-11-27)
+
+- Thay reveal ẩn toàn section bằng hiệu ứng tiêu đề và chi tiết theo viewport, giới hạn stagger trên desktop; giữ nội dung luôn đọc được, bỏ chuyển động khi tab ẩn hoặc chế độ tĩnh, không dịch chuyển bố cục và CTA.
+
+## Unreleased — Phase 4.4B Hero Mesh (2026-11-27)
+
+- Bổ sung nền mesh gradient sau thiệp Hero, một lượt chuyển động 4,4 giây trên desktop; dùng chung vòng đời ambient, giữ nền tĩnh trên mobile và reduced motion, không thay đổi bố cục hoặc nghiệp vụ.
+
+## Unreleased — Phase 4.4A.1 Featured Spacing Hotfix (2026-11-27)
+
+- Dùng token khoảng đệm 24px cho mục mẫu thiệp từ 681px, đồng nhất VI/EN và giữ ngưỡng kiểm thử khoảng cách Hero–Featured hiện tại.
+
+## Unreleased — Phase 4.4A Hero Visual Depth (2026-11-27)
+
+- Làm mới sân khấu thiệp với phong bì CSS 3D, ánh sáng và màu nhận diện; giới hạn lớp trang trí trên màn hình hẹp, tôn trọng reduced motion và giữ preview, CTA, VI/EN, Canvas cùng nghiệp vụ hiện tại.
+
+## Unreleased — Phase 4.3E.1 Accessibility Hotfix (2026-11-27)
+
+- Phối hợp khóa inert giữa modal và animation CTA; giữ khóa còn hiệu lực khi animation dừng hoặc hoàn tất. Bổ sung regression, không bỏ assertion browser smoke.
+
+## Unreleased — Phase 4.3E Accessibility (2026-11-27)
+
+- Củng cố skip link, focus và cô lập vùng nền modal, tắt cuộn mượt khi giảm chuyển động; bổ sung regression VI/EN, giữ nguyên nghiệp vụ và Canvas.
+
+## Unreleased — Phase 4.3D Typography Scale (2026-11-27)
+
+- Chuẩn hóa cỡ chữ responsive cho Hero, Catalog và Pricing bằng token rem/clamp, đồng bộ cascade và chiều cao dòng; giữ typography Canvas, Auth và Workspace.
+
+## Unreleased — Phase 4.3C Card & Feedback (2026-11-27)
+
+- Đồng bộ thẻ mẫu, nhãn giá và trạng thái rỗng Catalog; tách điều khiển focus hộp thoại app shell và thông báo toast, giữ binding VI/EN, hỗ trợ reduced motion và bảo toàn nghiệp vụ giá, Canvas, database.
+
+## Unreleased — Phase 4.3B.1 Browser Test Hotfix (2026-11-27)
+
+- Sửa kiểm thử focus của ô tìm kiếm Catalog bằng ownerDocument của phần tử để tương thích ESLint no-undef trong Node.js, giữ nguyên điều kiện kiểm thử và hành vi ứng dụng.
+
+## Unreleased — Phase 4.3B Interactive Controls (2026-11-27)
+
+- Chuẩn hóa nút marketing, trường tìm kiếm và bộ lọc danh mục bằng token chung; bổ sung nút xóa riêng từ khóa có nhãn VI/EN, giữ bộ lọc và focus. Giữ nguyên Auth, Canvas, thanh toán và database.
+
+## Unreleased — Phase 4.3A Layout Foundation (2026-11-27)
+
+- Chuẩn hóa thang khoảng cách, container responsive, độ bo góc và bóng đổ marketing; giữ breakpoint, hình học Canvas và bố cục Auth hiện tại. Đồng bộ Hero, carousel, hành trình và hộp thoại tạo thiệp qua token chung.
+
+## Unreleased — Phase 4.2 Hệ màu nhận diện (2026-11-27)
+
+- Chuẩn hóa token màu thương hiệu, trạng thái, gradient và CTA marketing; tăng tương phản viền điều khiển và khoảng cách dòng tiêu đề. Giữ màu Auth, Workspace và Canvas cũ. Bổ sung kiểm thử tương phản và nghiệm thu VI/EN.
+
+## Unreleased — Phase 4.1.1 Bảo toàn giấy phép font (2026-11-26)
+
+- Giữ nguyên byte ba giấy phép OFL mới, miễn kiểm tra khoảng trắng cuối dòng riêng ba file license; cập nhật tài liệu nguồn font self-hosted. Không đổi font, CSS, nghiệp vụ hoặc database.
+
+## Unreleased — Phase 4.1 Typography (2026-11-26)
+
+- Đổi token nhận diện sang Bricolage Grotesque, Be Vietnam Pro và Fraunces; giữ bộ font nội dung Canvas cũ, sửa phân cấp tiêu đề marketing. Thêm công cụ tải WOFF2 và OFL thủ công, xác minh checksum trước build; không tải font từ bên ngoài khi chạy website.
+
+## Unreleased — Phase 3.8 Nghiệm thu kỹ thuật (2026-11-26)
+
+- Tổng hợp audit kiến trúc, CSS, font, migration và nợ kỹ thuật; chặn import tương đối chưa rà soát, yêu cầu vendor đã build trong Quality Gate. Phân biệt nghiệm thu source và production readiness; không đổi runtime, dữ liệu hoặc giao diện.
+
+## Unreleased — Phase 3.7C Chuẩn hóa CSS và kiểm kê tài nguyên (2026-11-26)
+
+- Mở rộng kiểm tra toàn bộ stylesheet nguồn, bao gồm @font-face; tách các rule viết dồn dòng và giữ nguyên thứ tự cascade. Thêm audit tài nguyên chỉ đọc, thống kê dung lượng, bản sao byte và kiểm tra manifest font; không xóa tài nguyên hoặc đổi dependency.
+
+## Unreleased — Phase 3.7B Chuẩn hóa thời gian MySQL (2026-11-26)
+
+- Gom chuyển đổi thời gian UTC vào tầng Infrastructure, giảm phụ thuộc Repository vào Identity; giữ export tương thích, hành vi null và lỗi hiện tại. Không đổi SQL, schema, API hoặc giao diện.
+
 ## Unreleased — Tách và hợp con trỏ dựng trang chủ (2026-11-27)
 
 - Các con trỏ ảo tách ra từ vị trí chuột khi bắt đầu dựng trang; sau khi hết phần tử và nội dung đang tải, trang cuộn lên đầu rồi các con trỏ hội tụ về vị trí chuột hiện tại.
@@ -8,6 +88,7 @@
 - Thêm 15 con trỏ dựng từng phần tử trên trang chủ, nhận việc từ hàng đợi chung theo vùng hiển thị và cập nhật khi đổi kích thước cửa sổ hoặc tải xong danh mục.
 - Giữ chuyển động liên tục giữa các phần tử và khu vực; tự cuộn để mở thêm nội dung rồi quay lại đầu trang khi hoàn tất. Tạm dừng vòng quay thiệp và carousel trong lượt dựng.
 - Hỗ trợ giảm chuyển động, tiết kiệm dữ liệu và dọn animation khi rời trang; bổ sung kiểm thử phân việc, phụ thuộc khung cha, nhiều khu vực cùng hiển thị, resize và hủy route.
+
 
 ## Unreleased — Khôi phục giao diện Auth tối từ d36c664 (2026-11-26)
 

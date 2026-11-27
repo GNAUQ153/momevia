@@ -1,16 +1,10 @@
 import { MySqlClient } from '../../infrastructure/mysql/client.mjs';
 import { localizedError } from '../../shared/http.mjs';
 import { signSession, verifySession } from '../../shared/security.mjs';
+import { mysqlDate, mysqlTimestampToIso as fromMysqlDate } from '../../infrastructure/mysql/datetime.mjs';
 
-export function mysqlDate(value) {
-  const date = new Date(value);
-  if (!Number.isFinite(date.valueOf())) throw new Error('Invalid MySQL datetime');
-  return date.toISOString().slice(0, 23).replace('T', ' ');
-}
-function fromMysqlDate(value) {
-  if (value instanceof Date) return value.toISOString();
-  return new Date(`${String(value).replace(' ', 'T').replace(/Z$/, '')}Z`).toISOString();
-}
+// Giữ đường dẫn import cũ cho các công cụ migration và consumer hiện có.
+export { mysqlDate };
 function payload(value) { return typeof value === 'string' ? JSON.parse(value) : (value || {}); }
 function userFromRow(row) {
   if (!row) return null;

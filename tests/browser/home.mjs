@@ -44,10 +44,33 @@ export async function runHomeBrowser(base) {
           assert(coverBox.width >= 100, `${width}: each complete thumbnail is at least 100px wide`);
           const frame = await hero.locator('.open-me-stack').boundingBox();
           assert(coverBox.x >= frame.x && coverBox.x + coverBox.width <= frame.x + frame.width, `${width}: featured cover stays within its frame`);
+          // Phong bì chỉ trang trí; không che thao tác xem thiệp hay nhận focus.
+          const envelope = hero.locator('.mkt-stage__envelope');
+          assert.equal(await envelope.count(), 1);
+          assert.equal(await hero.locator('.mkt-stage__atmosphere').getAttribute('aria-hidden'), 'true');
+          assert.equal(await envelope.evaluate(node => node.ownerDocument.defaultView.getComputedStyle(node).pointerEvents), 'none');
+          // Nền mesh luôn hiện diện nhưng không chuyển động trong chế độ giảm chuyển động.
+          const mesh = await hero.locator('.mkt-stage__atmosphere').evaluate(node => {
+            const style = node.ownerDocument.defaultView.getComputedStyle(node, '::before');
+            return { background: style.backgroundImage, animation: style.animationName, pointer: style.pointerEvents };
+          });
+          assert.match(mesh.background, /radial-gradient/);
+          assert.equal(mesh.animation, 'none');
+          assert.equal(mesh.pointer, 'none');
+          assert.equal(await cover.evaluate(node => node.ownerDocument.defaultView.getComputedStyle(node).transform), 'none');
+          const showDecorativeLabels = !(width <= 520 || (width >= 768 && width <= 1100));
+          for (const selector of ['.mkt-stage__note', '.mkt-stage__reply', '.open-me-posters__stamp']) {
+            assert.equal(await hero.locator(selector).isVisible(), showDecorativeLabels);
+          }
           assert.equal(await hero.locator('[data-hero-image][data-active="true"]').count(),1,'Exactly one featured sample');
           assert.equal(await hero.locator('[data-hero-image]').count(),5,'Five distinct sample layers');
           if (width < 768) assert(previewBox.y + previewBox.height <= frame.y, `${width}: mobile actions precede the artwork`);
           else assert(headingBox.x + headingBox.width < frame.x, `${width}: artwork and heading have distinct columns`);
+          // Giữ gutter theo breakpoint và xác minh token của Hero sau toàn bộ cascade.
+          const gutter = width <= 370 ? 13 : width <= 680 ? 17 : width <= 900 ? 22 : 36;
+          const container = await hero.locator(':scope > .container').boundingBox();
+          assert(Math.abs(container.width - Math.min(1190, width - 2 * gutter)) <= 1, `${width}: shared container width`);
+          assert.equal(await primary.evaluate(element => globalThis.getComputedStyle(element).borderTopLeftRadius), '12px');
           assert.equal(await page.evaluate(() => globalThis.document.documentElement.scrollWidth), width);
           if (width === 1024) {
             const toggle = page.locator('#site-header [data-action="toggle-menu"]');
@@ -126,6 +149,67 @@ export async function runHomeBrowser(base) {
             await page.waitForFunction(value => globalThis.document.documentElement.lang === value, otherLanguage);
             await selector.selectOption(language);
             await page.waitForFunction(value => globalThis.document.documentElement.lang === value, language);
+          }
+          // Bento desktop giữ thứ tự DOM, vùng chạm và điều khiển cảnh thật.
+          if (width >= 901) {
+            const journey = page.locator('main > .mkt-journey');
+            const buttons = journey.locator('[data-mkt-step]');
+            const boxes = await buttons.evaluateAll(nodes => nodes.map(node => {
+              const rect = node.getBoundingClientRect();
+              return { x: rect.x, y: rect.y, width: rect.width, height: rect.height, overflow: node.scrollWidth > node.clientWidth };
+            }));
+            assert(boxes.every(box => box.height >= 44 && !box.overflow), `${width}: bento controls fit`);
+            assert(boxes[0].width > boxes[1].width * 1.8, `${width}: create spans both columns`);
+            assert(Math.abs(boxes[1].y - boxes[2].y) <= 1, `${width}: share and open share a row`);
+            assert(Math.abs(boxes[3].y - boxes[4].y) <= 1, `${width}: reply and keep share a row`);
+            assert(boxes[3].y > boxes[1].y, `${width}: row order is preserved`);
+            if (width === 1440) {
+              await buttons.first().focus();
+              await buttons.first().press('ArrowRight');
+              const selected = buttons.nth(1);
+              assert.equal(await selected.getAttribute('aria-pressed'), 'true');
+              assert.equal(await selected.evaluate(node => node === node.ownerDocument.activeElement), true);
+              assert.equal(await journey.locator('[data-mkt-journey-scene]').getAttribute('data-stage'), 'share');
+              assert.equal(await journey.locator('#mkt-journey-panel-share').isVisible(), true);
+              await selected.press('Home');
+              assert.equal(await buttons.first().getAttribute('aria-pressed'), 'true');
+            }
+          }
+          // Demo mở quà: kiểm tra nút thật, trạng thái và quay lại bước trước.
+          if (width === 390 || width === 1440) {
+            const showcase = page.locator('main > .mkt-journey');
+            const scene = showcase.locator('[data-mkt-journey-scene]');
+            const toggle = showcase.locator('[data-mkt-gift-toggle]');
+            const message = showcase.locator('[data-mkt-gift-message]');
+            const create = showcase.locator('[data-home-create-after-demo]');
+            const choices = hero.locator('.home-create-dialog');
+            await showcase.locator('[data-mkt-step="open"]').click();
+            assert.equal(await toggle.getAttribute('aria-expanded'), 'false');
+            assert.equal(await message.isVisible(), false);
+            assert.equal(await create.isVisible(), false);
+            await toggle.press('Enter');
+            assert.equal(await scene.getAttribute('data-gift-open'), 'true');
+            assert.equal(await toggle.getAttribute('aria-expanded'), 'true');
+            assert.equal(await message.isVisible(), true);
+            assert.equal(await create.isVisible(), true);
+            assert(await toggle.evaluate(node => node.classList.contains('mkt-secondary')));
+            assert((await create.boundingBox()).height >= 44);
+            await create.press('Enter');
+            await choices.waitFor({ state: 'visible' });
+            assert.equal(await choices.locator('.home-create-choice--greeting').getAttribute('href'), '/explore?cardType=greeting');
+            await page.keyboard.press('Escape');
+            await choices.waitFor({ state: 'hidden' });
+            await page.waitForFunction(() => globalThis.document.activeElement?.matches('[data-home-create-after-demo]'));
+            assert.equal(await scene.getAttribute('data-gift-open'), 'true');
+            await toggle.click();
+            assert.equal(await create.isVisible(), false);
+            assert.equal(await scene.getAttribute('data-gift-open'), 'false');
+            await toggle.click();
+            await showcase.locator('[data-mkt-step="reply"]').click();
+            await showcase.locator('[data-mkt-step="open"]').click();
+            assert.equal(await toggle.getAttribute('aria-expanded'), 'false');
+            assert.equal(await message.isVisible(), false);
+            await showcase.locator('[data-mkt-step="create"]').click();
           }
           if (width !== 390) continue;
           const journey = page.locator('main > .mkt-journey');
@@ -224,6 +308,14 @@ export async function runHomeBrowser(base) {
           await page.goto(base);
           await page.locator('.mkt-hero h1').waitFor();
           const homeHeader = await headerSnapshot(page);
+          // Bỏ qua điều hướng bằng bàn phím, không tạo history/hash phụ.
+          const skip = page.locator('#site-header .skip-link');
+          await skip.focus();
+          assert.equal(await skip.evaluate(node => node === node.ownerDocument.activeElement), true);
+          await page.keyboard.press('Enter');
+          assert.equal(await page.locator('#main').evaluate(node => node === node.ownerDocument.activeElement), true);
+          assert.equal(page.url(), new URL('/', base).href);
+          assert.equal(await page.locator('html').evaluate(node => node.ownerDocument.defaultView.getComputedStyle(node).scrollBehavior), 'auto');
           await page.goto(base + '/explore');
           await page.locator('#template-search').waitFor();
           assert.deepEqual(await headerSnapshot(page), homeHeader, `${language} ${width}: shared header styling and links`);
@@ -235,6 +327,20 @@ export async function runHomeBrowser(base) {
     await motionPage.goto(base);
     assert.equal(await motionPage.locator('.mkt-hero__cover').count(), 1, 'Motion mode has one featured cover');
     assert.equal(await motionPage.locator('[data-hero-image]').count(),5);
+    // Nội dung luôn hiển thị, kể cả trước khi observer đánh dấu section.
+    const sections = motionPage.locator('main > [data-mkt-reveal]');
+    assert.equal(await sections.count(), 3);
+    for (const section of await sections.all()) {
+      assert.deepEqual(await section.evaluate(node => {
+        const style = node.ownerDocument.defaultView.getComputedStyle(node);
+        return { opacity: style.opacity, transform: style.transform };
+      }), { opacity: '1', transform: 'none' });
+    }
+    const how = motionPage.locator('#how-it-works');
+    await how.scrollIntoViewIfNeeded();
+    await motionPage.waitForFunction(() => globalThis.document.getElementById('how-it-works').classList.contains('mkt-is-visible'));
+    const steps = how.locator('.mkt-step-number');
+    assert.deepEqual(await steps.evaluateAll(nodes => nodes.map(node => node.ownerDocument.defaultView.getComputedStyle(node).animationDelay)), ['0s', '0.08s', '0.16s']);
     const title = motionPage.locator('[data-moment="liquid-type"] h2');
     const filter = motionPage.locator('filter[id^="mo-lt-"]');
     await filter.waitFor({ state: 'attached' });
@@ -246,6 +352,8 @@ export async function runHomeBrowser(base) {
     await motionPage.emulateMedia({ reducedMotion: 'reduce' });
     await filter.waitFor({ state: 'detached' });
     assert.equal(await title.evaluate(node => node.style.filter), '');
+    assert.equal(await motionPage.locator('#main').getAttribute('data-mkt-motion-ready'), null);
+    assert.deepEqual(await steps.evaluateAll(nodes => nodes.map(node => node.ownerDocument.defaultView.getComputedStyle(node).animationName)), ['none', 'none', 'none']);
     await motionPage.emulateMedia({ reducedMotion: 'no-preference' });
     await filter.waitFor({ state: 'attached' });
     await motionPage.locator('.mkt-hero a[href="/explore"]').click();
@@ -315,7 +423,15 @@ async function verifyCatalog(context, page, base) {
   await page.goBack();
   assert.equal(await search.inputValue(), 'sunny wishes');
   assert.equal(await free.isChecked(), true);
-  await search.fill('');
+  const clearSearch = page.locator('#template-search-clear');
+  assert.equal(await clearSearch.isEnabled(), true);
+  await clearSearch.click();
+  assert.equal(await search.inputValue(), '');
+  assert.equal(await free.isChecked(), true, 'Clear search preserves other filters');
+  assert.equal(await clearSearch.isDisabled(), true);
+  assert.equal(await search.evaluate(input => input === input.ownerDocument.activeElement), true);
+  assert.equal(new URL(page.url()).searchParams.has('q'), false);
+  assert.equal(new URL(page.url()).searchParams.get('free'), '1');
   await page.locator('.catalog-reset').click();
   await page.waitForURL('**/explore');
   assert.equal(await free.isChecked(), false);

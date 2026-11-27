@@ -1,13 +1,11 @@
+import { mysqlTimestampToIso } from '../../infrastructure/mysql/datetime.mjs';
+
 // Chuyển dữ liệu SQL thành đối tượng nghiệp vụ; không truy vấn hoặc ghi dữ liệu.
 export const jsonValue = (value) =>
   typeof value === "string" ? JSON.parse(value) : value;
 export function iso(value) {
   if (value == null) return null;
-  return value instanceof Date
-    ? value.toISOString()
-    : new Date(
-        `${String(value).replace(" ", "T").replace(/Z$/, "")}Z`,
-      ).toISOString();
+  return mysqlTimestampToIso(value);
 }
 export function designFromRow(row) {
   if (!row) return null;

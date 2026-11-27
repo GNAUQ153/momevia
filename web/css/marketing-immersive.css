@@ -9,7 +9,7 @@
   position: relative;
   overflow: clip;
   padding-block: clamp(38px, 6vw, 92px);
-  background: radial-gradient(ellipse at 91% 11%, #e6dafa 0%, transparent 48%), radial-gradient(ellipse at 0% 88%, #ffe6df 0%, transparent 43%), var(--app-accent-soft);
+  background: var(--color-gradient-hero);
 }
 
 .is-home .mkt-hero::before {
@@ -47,7 +47,7 @@
   align-items: center;
   gap: 9px;
   padding: 8px 13px;
-  border: 1px solid #d9c8f4;
+  border: 1px solid var(--color-control-border);
   border-radius: 100px;
   background: #ffffffa8;
   color: var(--purple);
@@ -63,19 +63,19 @@
 .is-home .mkt-hero h1 {
   max-width: 13ch;
   margin-top: 22px;
-  font-size: clamp(45px, 5.6vw, 82px);
+  font-size: var(--type-display);
   font-weight: 750;
-  line-height: 1.04;
-  letter-spacing: -0.058em;
-  color: var(--ink);
+  line-height: var(--type-line-display);
+  letter-spacing: -0.035em;
+  color: var(--mkt-ink);
 }
 
 .is-home .mkt-hero__intro > p {
   max-width: 49ch;
   margin-top: 22px;
-  font-size: clamp(16px, 1.45vw, 20px);
+  font-size: var(--type-lead);
   line-height: 1.66;
-  color: var(--muted);
+  color: var(--mkt-muted);
 }
 
 .is-home .mkt-hero__benefits {
@@ -91,7 +91,7 @@
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  color: var(--muted);
+  color: var(--mkt-muted);
   font-size: 13px;
   font-weight: 650;
 }
@@ -235,7 +235,7 @@
   line-height: 1.3;
   font-weight: 700;
   letter-spacing: 0.04em;
-  color: var(--muted);
+  color: var(--mkt-muted);
 }
 
 .is-home .mkt-stage__note strong,
@@ -243,7 +243,7 @@
   font-size: clamp(12px, 1.2vw, 16px);
   line-height: 1.32;
   font-weight: 750;
-  color: var(--ink);
+  color: var(--mkt-ink);
 }
 
 .is-home .mkt-stage__note {
@@ -266,7 +266,7 @@
 
 .is-home .mkt-stage__reply .icon {
   flex: none;
-  color: #c05b89;
+  color: var(--color-error);
 }
 
 /* Chuyển tiếp phần nội dung có thể xem bằng cuộn trang */
@@ -276,41 +276,77 @@
 
 .is-home .mkt-featured {
   position: relative;
-  background: #fffcfb;
+  background: var(--color-page);
 }
 
 .is-home .mkt-featured__heading h2,
 .is-home .mkt-how h2 {
   font-weight: 750;
-  color: var(--ink);
+  color: var(--mkt-ink);
 }
 
 .is-home .mkt-gift-grid .template-card--home {
   overflow: hidden;
   border: 1px solid var(--line);
-  border-radius: 22px;
-  box-shadow: 0 13px 28px #3e25410f;
+  border-radius: var(--layout-radius-card);
+  box-shadow: var(--layout-shadow-card);
   transition: transform 240ms ease, box-shadow 240ms ease;
 }
 
 .is-home .mkt-gift-grid .template-card--home:hover {
   transform: translateY(-5px);
-  box-shadow: 0 20px 38px #3e254126;
+  box-shadow: var(--layout-shadow-card-hover);
 }
 
 .is-home .mkt-how {
-  background: linear-gradient(165deg, var(--app-accent-soft), #fff9f6);
+  background: var(--color-gradient-section);
 }
 
-.is-home #main[data-mkt-motion-ready] [data-mkt-reveal] {
-  opacity: 0;
-  transform: translateY(22px);
-  transition: opacity 650ms ease, transform 650ms ease;
+/* Nội dung luôn đọc được; chỉ chạy hiệu ứng trên chi tiết đã vào viewport.
+   Không dịch chuyển section, carousel, nút hoặc vùng tương tác. */
+@media (prefers-reduced-motion: no-preference) {
+  .is-home #main[data-mkt-motion-ready] .mkt-is-visible .mkt-featured__heading h2,
+  .is-home #main[data-mkt-motion-ready] .mkt-is-visible .mkt-journey__heading h2 {
+    animation: mkt-reveal-title 420ms ease-out;
+  }
 }
 
-.is-home #main[data-mkt-motion-ready] [data-mkt-reveal].mkt-is-visible {
-  opacity: 1;
-  transform: translateY(0);
+@media (min-width: 900px) and (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .is-home #main[data-mkt-motion-ready] .mkt-is-visible .mkt-step-number,
+  .is-home #main[data-mkt-motion-ready] .mkt-is-visible .mkt-example__field,
+  .is-home #main[data-mkt-motion-ready] .mkt-is-visible .mkt-example__letter {
+    animation: mkt-reveal-detail 480ms ease-out backwards;
+  }
+
+  .is-home #main[data-mkt-motion-ready] .mkt-is-visible .mkt-steps li:nth-child(2) .mkt-step-number,
+  .is-home #main[data-mkt-motion-ready] .mkt-is-visible .mkt-example__field {
+    animation-delay: 80ms;
+  }
+
+  .is-home #main[data-mkt-motion-ready] .mkt-is-visible .mkt-steps li:nth-child(3) .mkt-step-number,
+  .is-home #main[data-mkt-motion-ready] .mkt-is-visible .mkt-example__letter {
+    animation-delay: 160ms;
+  }
+}
+
+@keyframes mkt-reveal-title {
+  from {
+    opacity: .92;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes mkt-reveal-detail {
+  from {
+    transform: translateY(8px);
+  }
+
+  to {
+    transform: none;
+  }
 }
 
 /* Trạng thái điều khiển bằng bàn phím và người dùng ít chuyển động */
@@ -370,7 +406,7 @@
 
   .is-home .mkt-hero h1 {
     max-width: 15ch;
-    font-size: clamp(40px, 9vw, 62px);
+    font-size: var(--type-display);
   }
 
   .is-home .mkt-stage {
@@ -424,8 +460,7 @@
 @media (prefers-reduced-motion: reduce) {
   .is-home .mkt-stage,
   .is-home .mkt-stage .mkt-hero__cover,
-  .is-home .mkt-gift-grid .template-card--home,
-  .is-home #main[data-mkt-motion-ready] [data-mkt-reveal] {
+  .is-home .mkt-gift-grid .template-card--home {
     opacity: 1;
     animation: none;
     transform: none;

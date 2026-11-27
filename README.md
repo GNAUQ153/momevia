@@ -91,16 +91,16 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Bổ sung benchmark GET loopback opt-in cho Catalog VI/EN và thumbnail 200/304, giới hạn tải, timeout, báo cáo tổng hợp và quy trình đánh giá chi phí Railway. Không đổi runtime, dữ liệu hoặc schema.
+- Bổ sung CTA tạo thiệp sau khi mở quà mẫu, dùng chung hộp thoại chọn loại thiệp với Hero; chuyển replay thành hành động phụ, giữ focus, giao diện VI/EN và reduced motion. Không phát sinh giao dịch hoặc dữ liệu nghiệp vụ.
 
 **Các commit gần nhất trên `main`:**
 
-- `9755479` — feat(performance): add bounded local backend load testing and cost evaluation guide (2026-11-26)
-- `b5a7c21` — perf(frontend): optimize cover loading lifecycle and data-aware preloading (2026-11-26)
-- `d5f78fa` — perf(backend): add conditional thumbnail responses and safe asset streaming (2026-11-26)
-- `85bdf56` — perf(backend): bound thumbnail rendering concurrency and memory cache (2026-11-26)
-- `24c974a` — feat(performance): add privacy-safe backend and mysql performance monitoring (2026-11-26)
-- `7cdd8c3` — feat(database): add cross-table integrity audit and shared pool regression coverage (2026-11-26)
+- `5dd6c55` — feat(ui): introduce contextual gift showcase CTA and shared creation dialog (2026-11-27)
+- `af9c0ef` — feat(ui): introduce interactive gift opening showcase and replay (2026-11-27)
+- `b75905e` — feat(ui): introduce responsive interactive journey bento layout (2026-11-27)
+- `f3d9d77` — feat(ui): improve scroll reveal with staggered motion and stable section layout (2026-11-27)
+- `d5f25c9` — feat(ui): introduce animated hero mesh gradient with bounded motion lifecycle (2026-11-27)
+- `881b299` — fix(ui): stabilize responsive spacing between hero and featured templates (2026-11-27)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

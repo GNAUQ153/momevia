@@ -1,5 +1,5 @@
 import { MySqlClient } from "../../infrastructure/mysql/client.mjs";
-import { mysqlDate } from "../identity/mysql.repositories.mjs";
+import { mysqlDate } from "../../infrastructure/mysql/datetime.mjs";
 import { jsonValue, iso, designFromRow } from "./mysql-row-mapping.mjs";
 import { canvasError, canvasTransaction, lockOwner, lockedDesign, sameRequest, sameRevision, ensureAssets, insertDesignAssetRefs } from "./mysql-transaction.mjs";
 import * as assetsModule from "./mysql-assets.mjs";

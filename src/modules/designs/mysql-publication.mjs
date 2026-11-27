@@ -1,5 +1,5 @@
 import { MySqlClient } from '../../infrastructure/mysql/client.mjs';
-import { mysqlDate } from '../identity/mysql.repositories.mjs';
+import { mysqlDate } from '../../infrastructure/mysql/datetime.mjs';
 import { CheckoutService } from '../checkout/checkout.service.mjs';
 import { activeEntitlementSql } from '../checkout/entitlement-policy.mjs';
 import { readPublicationAuthority, consumePublicationCredit } from '../checkout/publication-credit.mjs';

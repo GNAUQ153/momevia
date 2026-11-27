@@ -1,8 +1,8 @@
 /* Hành trình Create–Share–Open–Reply–Keep: thẻ thiệp xoay trong không gian 3D CSS. */
 .is-home .mkt-journey {
-  padding-block: clamp(40px, 5vw, 72px);
+  padding-block: clamp(var(--space-10), 5vw, var(--space-18));
   overflow: hidden;
-  background: linear-gradient(162deg, #f4eeff 0%, #fff9f6 55%, #f7f4ff 100%);
+  background: var(--color-gradient-journey);
 }
 
 .is-home .mkt-journey__heading {
@@ -23,17 +23,17 @@
 
 .is-home .mkt-journey__heading h2 {
   margin: 0;
-  color: var(--ink);
-  font-size: clamp(30px, 3.2vw, 44px);
-  line-height: 1.16;
+  color: var(--mkt-ink);
+  font-size: var(--type-h2);
+  line-height: var(--type-line-heading);
   letter-spacing: -0.04em;
 }
 
 .is-home .mkt-journey__heading p {
   max-width: 56ch;
   margin: 16px 0 0;
-  color: #655974;
-  font-size: clamp(15px, 1.5vw, 18px);
+  color: var(--mkt-muted);
+  font-size: var(--type-lead);
   line-height: 1.65;
 }
 
@@ -41,7 +41,7 @@
   display: grid;
   grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
   grid-template-areas: "heading showcase" "steps showcase" "footer showcase";
-  gap: 24px clamp(32px, 4vw, 56px);
+  gap: var(--space-6) clamp(var(--space-8), 4vw, 56px);
   align-items: start;
 }
 
@@ -49,48 +49,50 @@
   grid-area: steps;
   min-width: 0;
   display: grid;
-  gap: 8px;
+  gap: var(--space-2);
 }
 
 .is-home .mkt-journey__step {
   display: grid;
   grid-template-columns: 24px 24px minmax(0, 1fr);
-  gap: 12px;
+  gap: var(--space-3);
   align-items: center;
   width: 100%;
   min-height: 48px;
   padding: 10px 16px;
-  border: 1px solid var(--app-control-border);
-  border-radius: 12px;
-  background: #ffffffbd;
-  color: #4c4062;
+  border: 1px solid var(--color-control-border);
+  border-radius: var(--layout-radius-control);
+  background: var(--color-white);
+  color: var(--mkt-ink);
   cursor: pointer;
   font: inherit;
   font-weight: 680;
   text-align: left;
+  overflow-wrap: anywhere;
   transition: border-color 220ms ease, transform 220ms ease, box-shadow 220ms ease, background 220ms ease;
 }
 
 .is-home .mkt-journey__step-index {
-  color: #77618f;
+  color: var(--mkt-muted);
   font-size: 13px;
   font-variant-numeric: tabular-nums;
 }
 
 .is-home .mkt-journey__step .icon {
-  color: #8865c2;
+  color: var(--mkt-action);
 }
 
-.is-home .mkt-journey__step:hover {
-  transform: translateX(4px);
-  border-color: #aa91d6;
+@media (hover: hover) and (pointer: fine) {
+  .is-home .mkt-journey__step:hover {
+    border-color: var(--mkt-action);
+  }
 }
 
 .is-home .mkt-journey__step[aria-pressed="true"] {
-  border-color: #9573d2;
-  background: #ffffff;
-  box-shadow: 0 14px 35px #553b8520;
-  color: #34204e;
+  border-color: var(--mkt-action);
+  background: var(--color-lavender);
+  box-shadow: inset 0 0 0 1px var(--mkt-action), var(--layout-shadow-card);
+  color: var(--mkt-action-hover);
 }
 
 .is-home .mkt-journey__step:focus-visible {
@@ -106,9 +108,9 @@
   min-width: 0;
   overflow: hidden;
   border: 1px solid #f7f0ff;
-  border-radius: 30px;
+  border-radius: var(--layout-radius-showcase);
   background: #ffffffaa;
-  box-shadow: 0 26px 80px #56407815;
+  box-shadow: var(--layout-shadow-stage);
 }
 
 /* Hai mặt thiệp tạo hiệu ứng lật thật bằng perspective và backface-visibility. */
@@ -237,7 +239,93 @@
 }
 
 .is-home .mkt-journey__scene[data-stage="open"] .mkt-journey__postcard {
-  transform: rotateY(180deg) rotateX(3deg) translateY(-8px);
+  opacity: 0;
+  transform: translateY(24px) scale(.6);
+  transition: transform 560ms cubic-bezier(.22, 1, .36, 1), opacity 240ms ease;
+}
+
+/* Hộp quà chỉ xuất hiện ở bước mở; không che các điều khiển thật. */
+.is-home .mkt-journey__gift {
+  display: none;
+  position: absolute;
+  width: min(52%, 214px);
+  aspect-ratio: 1.2;
+  z-index: 3;
+  pointer-events: none;
+  transform: rotate(-6deg);
+  transition: transform 560ms ease, opacity 320ms ease;
+}
+
+.is-home .mkt-journey__gift-base {
+  position: absolute;
+  inset: 25% 6% 0;
+  border-radius: var(--layout-radius-control);
+  background: linear-gradient(90deg, transparent 43%, var(--color-pink-soft) 43% 57%, transparent 57%), linear-gradient(145deg, var(--mkt-action), var(--mkt-action-hover));
+  box-shadow: var(--layout-shadow-stage);
+}
+
+.is-home .mkt-journey__gift-lid {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 35%;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--color-white);
+  border-radius: var(--layout-radius-control);
+  background: var(--color-lavender);
+  color: var(--mkt-action-hover);
+  box-shadow: var(--layout-shadow-card);
+  transform-origin: center bottom;
+  transition: transform 420ms ease;
+}
+
+.is-home .mkt-journey__scene[data-stage="open"] .mkt-journey__gift {
+  display: block;
+}
+
+.is-home .mkt-journey__scene[data-stage="open"][data-gift-open="true"] .mkt-journey__gift {
+  opacity: 0;
+  transform: translateY(36px) scale(.8) rotate(-6deg);
+}
+
+.is-home .mkt-journey__scene[data-stage="open"][data-gift-open="true"] .mkt-journey__gift-lid {
+  transform: translateY(-48%) rotateX(40deg);
+}
+
+.is-home .mkt-journey__scene[data-stage="open"][data-gift-open="true"] .mkt-journey__postcard {
+  opacity: 1;
+  transform: rotateY(-8deg) rotateX(3deg) translateY(-8px);
+}
+
+.is-home .mkt-journey__gift-controls {
+  display: grid;
+  gap: var(--space-3);
+  justify-items: start;
+  margin-top: var(--space-4);
+}
+
+/* CTA sau demo dùng cùng token nút và cho phép nhãn dài xuống dòng. */
+.is-home .mkt-journey__gift-next {
+  display: grid;
+  gap: var(--space-3);
+  justify-items: start;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.is-home .mkt-journey__gift-toggle,
+.is-home .mkt-journey__gift-create {
+  min-height: 48px;
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-align: center;
+}
+
+.is-home .mkt-journey__gift-toggle:focus-visible,
+.is-home .mkt-journey__gift-create:focus-visible {
+  outline: 2px solid var(--mkt-action);
+  outline-offset: 3px;
 }
 
 .is-home .mkt-journey__scene[data-stage="reply"] .mkt-journey__postcard {
@@ -275,7 +363,7 @@
   display: none;
   margin: 0;
   padding: 0 18px 18px;
-  color: #655974;
+  color: var(--mkt-muted);
   font-size: 13px;
   line-height: 1.5;
   text-align: center;
@@ -287,11 +375,83 @@
   justify-content: flex-start;
 }
 
+/* Bento: giữ thứ tự DOM và nhóm nút hiện có, không tạo thêm controller. */
+@media (min-width: 901px) {
+  .is-home .mkt-journey__steps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-3);
+  }
+
+  .is-home .mkt-journey__step {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: "symbol index" "label label";
+    align-content: space-between;
+    gap: var(--space-3);
+    min-width: 0;
+    min-height: 92px;
+    padding: var(--space-4);
+    border-radius: var(--layout-radius-card);
+    font-size: var(--type-body);
+    line-height: var(--type-line-heading);
+  }
+
+  .is-home .mkt-journey__step[data-mkt-step="create"] {
+    grid-column: 1 / -1;
+    grid-template-areas: "symbol index" "label label";
+    min-height: 108px;
+    background: var(--color-lavender);
+  }
+
+  .is-home .mkt-journey__step[data-mkt-step="open"] {
+    background: var(--color-pink-soft);
+  }
+
+  .is-home .mkt-journey__step[data-mkt-step="reply"] {
+    background: var(--color-peach-soft);
+  }
+
+  .is-home .mkt-journey__step-index {
+    grid-area: index;
+    justify-self: end;
+  }
+
+  .is-home .mkt-journey__step .icon {
+    grid-area: symbol;
+    width: 26px;
+    height: 26px;
+  }
+
+  .is-home .mkt-journey__step-label {
+    grid-area: label;
+    min-width: 0;
+  }
+
+  .is-home .mkt-journey__step[aria-pressed="true"] {
+    background: var(--color-lavender);
+  }
+}
+
+/* Chuyển động ngắn chỉ trên thiết bị có con trỏ chính xác. */
+@media (min-width: 901px) and (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .is-home .mkt-journey__step:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--layout-shadow-card-hover);
+  }
+
+  .is-home .mkt-journey__step[aria-pressed="true"]:hover {
+    box-shadow: inset 0 0 0 1px var(--mkt-action), var(--layout-shadow-card-hover);
+  }
+
+  .is-home .mkt-journey__step:active {
+    transform: none;
+  }
+}
+
 @media (max-width: 900px) {
   .is-home .mkt-journey__layout {
     grid-template-columns: 1fr;
     grid-template-areas: "heading" "steps" "showcase" "footer";
-    gap: 24px;
+    gap: var(--space-6);
   }
 
   .is-home .mkt-journey__heading {
@@ -300,13 +460,13 @@
 
   .is-home .mkt-journey__steps {
     grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: 8px;
+    gap: var(--space-2);
   }
 
   .is-home .mkt-journey__step {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: var(--space-2);
     justify-content: center;
     min-height: 96px;
     padding: 12px 8px;
@@ -325,7 +485,7 @@
     grid-template-columns: none;
     grid-auto-flow: column;
     grid-auto-columns: minmax(112px, 1fr);
-    gap: 8px;
+    gap: var(--space-2);
     min-width: 0;
     overflow-x: auto;
     overscroll-behavior-x: contain;
@@ -374,6 +534,13 @@
     padding: 20px;
   }
 
+  .is-home .mkt-journey__gift-controls,
+  .is-home .mkt-journey__gift-next {
+    justify-items: stretch;
+  }
+
+  .is-home .mkt-journey__gift-toggle,
+  .is-home .mkt-journey__gift-create,
   .is-home .mkt-journey__footer .btn {
     width: 100%;
   }
@@ -381,11 +548,20 @@
 
 @media (prefers-reduced-motion: reduce) {
   .is-home .mkt-journey__step,
-  .is-home .mkt-journey__postcard {
+  .is-home .mkt-journey__postcard,
+  .is-home .mkt-journey__scene[data-stage="open"] .mkt-journey__postcard,
+  .is-home .mkt-journey__gift,
+  .is-home .mkt-journey__gift-lid {
     transition: none;
   }
 
   .is-home .mkt-journey__step:hover {
+    transform: none;
+  }
+
+  .is-home .mkt-journey__gift-toggle.btn,
+  .is-home .mkt-journey__gift-create.btn {
+    transition: none;
     transform: none;
   }
 }

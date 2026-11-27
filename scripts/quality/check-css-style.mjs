@@ -1,25 +1,19 @@
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { readFileSync, readdirSync } from 'node:fs';
+import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-// Các stylesheet đã được chuẩn hóa, mở rộng danh sách sau từng đợt rà soát.
-export const monitoredStylesheets = Object.freeze([
-  'admin-library.css',
-  'template-library.css',
-  'editor-conflict-review.css',
-  'editor-recovery-center.css',
-  'gift-runtime.css',
-  'editor.css',
-  'editor-workspace.css',
-  'recipient-layout.css',
-  'upgrade.css',
-  'auth-pages.css',
-  'ui-polish.css',
-  'open-me-system.css',
-  'open-me-website.css',
-  'featured-carousel.css',
-  'home-construction.css',
-]);
+const project = fileURLToPath(new URL('../../', import.meta.url));
+
+// Tự phát hiện stylesheet nguồn để file mới không lọt khỏi Quality Gate.
+export function listStylesheets(root) {
+  return readdirSync(join(root, 'web', 'css'), { withFileTypes: true })
+    .filter(entry => entry.isFile() && entry.name.endsWith('.css'))
+    .map(entry => entry.name)
+    .sort();
+}
+
+// Giữ export cũ cho các công cụ đang sử dụng danh sách mặc định.
+export const monitoredStylesheets = Object.freeze(listStylesheets(project));
 
 /**
  * Bộ phân tích cú pháp nhẹ, không thay thế parser CSS của trình duyệt.
@@ -50,7 +44,7 @@ export function auditCssStyle(source, filename = 'stylesheet.css') {
       pushError(line, `khai báo CSS không hợp lệ: ${value.slice(0, 48)}`);
       return;
     }
-    const name = match[1].toLowerCase();
+    const name = match[1].startsWith('--') ? match[1] : match[1].toLowerCase();
     if (block.properties.has(name)) pushError(line, `thuộc tính ${name} trùng trong cùng rule`);
     block.properties.add(name);
     declarationCount++;
@@ -80,7 +74,9 @@ export function auditCssStyle(source, filename = 'stylesheet.css') {
     if (!parens && !brackets && ch === '{') {
       const selector = buffer.trim();
       if (!selector) pushError(line, 'thiếu selector hoặc at-rule');
-      stack.push({ kind: selector.startsWith('@') ? 'group' : 'rule', properties: new Set() });
+      // @font-face chứa descriptor, không phải nhóm selector.
+      const isGroup = selector.startsWith('@') && !/^@font-face(?:\s|$)/i.test(selector);
+      stack.push({ kind: isGroup ? 'group' : 'rule', properties: new Set() });
       lineOpenBraces.add(line);
       buffer = '';
       continue;
@@ -114,7 +110,7 @@ export function auditCssStyle(source, filename = 'stylesheet.css') {
 
 export function auditMonitoredCss(root) {
   const results = [];
-  for (const name of monitoredStylesheets) {
+  for (const name of listStylesheets(root)) {
     const location = join(root, 'web', 'css', name);
     const source = readFileSync(location, 'utf8');
     results.push({ file: name, ...auditCssStyle(source, name) });
@@ -122,8 +118,7 @@ export function auditMonitoredCss(root) {
   return results;
 }
 
-if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
-  const project = join(fileURLToPath(new URL('../../', import.meta.url)));
+if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) {
   const results = auditMonitoredCss(project);
   for (const entry of results) for (const error of entry.errors) console.error(error);
   const count = results.reduce((sum, item) => sum + item.declarationCount, 0);

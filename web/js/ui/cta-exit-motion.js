@@ -1,5 +1,8 @@
+import { createInertLock } from './inert-lock.js';
+
 // Keep the fixed frame still for collision checks while its surface slides out.
 export function createCtaExitMotion(panel) {
+  const setInert = createInertLock(panel);
   const reduced = globalThis.matchMedia?.('(prefers-reduced-motion: reduce)');
   const nav = panel.querySelector?.('nav');
   let animation = null, phase = null, generation = 0;
@@ -10,7 +13,7 @@ export function createCtaExitMotion(panel) {
     phase = null;
     panel.classList?.remove('floating-cta--leaving');
     panel.classList?.remove('floating-cta--entering');
-    panel.inert = false;
+    setInert(false);
     panel.removeAttribute?.('aria-hidden');
     panel.style?.removeProperty('--cta-motion-from');
     panel.style?.removeProperty('--cta-motion-opacity');
@@ -25,7 +28,7 @@ export function createCtaExitMotion(panel) {
     const entering = nextPhase === 'entering';
     cancel(); panel.hidden = false;
     phase = nextPhase;
-    panel.inert = true;
+    setInert(true);
     panel.setAttribute?.('aria-hidden', 'true');
     panel.style?.setProperty('--cta-motion-from', from.transform);
     panel.style?.setProperty('--cta-motion-opacity', String(from.opacity));
@@ -60,7 +63,7 @@ export function createCtaExitMotion(panel) {
       return;
     }
     if (panel.hidden) return;
-    panel.inert = true;
+    setInert(true);
     panel.setAttribute?.('aria-hidden', 'true');
     if (phase === 'leaving') return;
     if (reduced?.matches || !nav?.animate) { settle(false); return; }

@@ -97,7 +97,7 @@ test("Không còn CSS auth ghi đè trong ui-polish; CSS được kiểm tra ch�
   assert.doesNotMatch(auth, /\.auth-switch a\s*,\s*\.is-auth \.site-tools\s*\{\s*display:\s*none;/);
 });
 
-test("CSS tôn trọng reduced-motion; cả ba font Momevia được giữ nguyên", () => {
+test("CSS tôn trọng reduced-motion; cả ba font Momevia dùng token chung", () => {
   const css = source("web/css/auth-pages.css");
   const tokens = source("web/css/tokens.css");
   assert.match(css, /@media \(prefers-reduced-motion:\s*reduce\)/);
@@ -105,9 +105,9 @@ test("CSS tôn trọng reduced-motion; cả ba font Momevia được giữ nguy�
   assert.match(css, /font-family:\s*var\(--font-body\)/);
   assert.match(css, /font-family:\s*var\(--font-display\)/);
   assert.match(css, /font-family:\s*var\(--font-serif\)/);
-  assert.match(tokens, /--font-display:\s*"Plus Jakarta Sans"/);
-  assert.match(tokens, /--font-body:\s*"Inter"/);
-  assert.match(tokens, /--font-serif:\s*"Lora"/);
+  assert.match(tokens, /--font-display:\s*"Bricolage Grotesque"/);
+  assert.match(tokens, /--font-body:\s*"Be Vietnam Pro"/);
+  assert.match(tokens, /--font-serif:\s*"Fraunces"/);
 });
 
 test("Không thêm khóa dịch khác nhau giữa VI và EN, không hardcode bản dịch trong form", () => {

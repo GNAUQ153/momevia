@@ -18,10 +18,18 @@
   cursor: pointer;
 }
 
-.seasonal-shelf__heading::-webkit-details-marker { display: none; }
-.seasonal-shelf[open] .seasonal-shelf__heading svg { rotate: 180deg; }
-.seasonal-shelf__grid { margin-top: 14px; }
-.seasonal-shelf__hint { min-height: 44px; }
+.seasonal-shelf__heading::-webkit-details-marker {
+  display: none;
+}
+.seasonal-shelf[open] .seasonal-shelf__heading svg {
+  rotate: 180deg;
+}
+.seasonal-shelf__grid {
+  margin-top: 14px;
+}
+.seasonal-shelf__hint {
+  min-height: 44px;
+}
 
 .seasonal-shelf__eyebrow {
   display: block;
@@ -128,7 +136,9 @@
     border-radius: 18px;
   }
 
-  .seasonal-shelf[open] { padding-bottom: 14px; }
+  .seasonal-shelf[open] {
+    padding-bottom: 14px;
+  }
 
   .seasonal-shelf__card img {
     height: 170px;

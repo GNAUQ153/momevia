@@ -9,13 +9,13 @@ const css = file('web/css/brand-system.css');
 const staticServer = file('src/gateway/static.mjs');
 
 test('Ba font đúng tên và đồng nhất trên giao diện VI/EN', () => {
-  assert.match(tokens, /--font-display: "Plus Jakarta Sans", "Inter", system-ui, -apple-system, sans-serif;/);
-  assert.match(tokens, /--font-body: "Inter", system-ui, -apple-system, sans-serif;/);
-  assert.match(tokens, /--font-serif: "Lora", Georgia, serif;/);
-  assert.match(tokens, /--font-shell: "Inter", system-ui, -apple-system, sans-serif;/);
+  assert.match(tokens, /--font-display: "Bricolage Grotesque", var\(--canvas-font-display\);/);
+  assert.match(tokens, /--font-body: "Be Vietnam Pro", var\(--canvas-font-body\);/);
+  assert.match(tokens, /--font-serif: "Fraunces", var\(--canvas-font-serif\);/);
+  assert.match(tokens, /--font-shell: var\(--font-body\);/);
   assert.match(tokens, /font-family: "Lora";/);
   assert.match(html, /<link id="app-fonts" rel="stylesheet"/);
-  assert.match(html, /href="\/css\/app-fonts\.css"/);
+  assert.match(html, /href="\/css\/app-fonts\.css\?v=20261126-typography"/);
   const fonts=file('web/css/app-fonts.css');
   assert.match(fonts,/font-family: 'Inter'/);assert.match(fonts,/font-family: 'Plus Jakarta Sans'/);
   assert.match(fonts,/font-weight: 400 800/);assert.match(fonts,/font-display: swap/);
@@ -29,7 +29,7 @@ test('Font dùng ở trang chủ lẫn các vai trò khác và không phụ thu�
   const script = html.indexOf('<script type="module" src="/js/app.js"');
   assert(meta >= 0 && font > meta && script > font);
   assert.match(css, /\.site-header,\s*\.site-footer\s*\{\s*font-family: var\(--font-body\);/);
-  assert.match(html, /href="\/css\/brand-system\.css\?v=20261121"/);
+  assert.match(html, /href="\/css\/brand-system\.css\?v=20261127-type-scale"/);
 });
 
 test('CSS hoàn thiện được tách thành từng thuộc tính rõ ràng', () => {

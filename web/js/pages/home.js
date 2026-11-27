@@ -50,7 +50,7 @@ export function createHomeViews({ state, buttonLink, templateCard }) {
       </div>
       <div class="mkt-hero__artwork open-me-hero__showcase">
       <div class="mkt-hero__frame mkt-stage open-me-stack" data-visual data-enter-media data-mkt-tilt data-mkt-tilt-strength="0.15">
-        <div class="mkt-stage__atmosphere" aria-hidden="true"><span class="mkt-stage__orb mkt-stage__orb--first"></span><span class="mkt-stage__orb mkt-stage__orb--second"></span><span class="mkt-stage__ring"></span></div>
+        <div class="mkt-stage__atmosphere" aria-hidden="true"><span class="mkt-stage__orb mkt-stage__orb--first"></span><span class="mkt-stage__orb mkt-stage__orb--second"></span><span class="mkt-stage__ring"></span><span class="mkt-stage__envelope"></span></div>
         <span class="open-me-posters__stamp" aria-hidden="true">${text('home.openMe.stamp')}</span>
         <div class="mkt-stage__note" aria-hidden="true"><span>${text('home.hero.note.caption')}</span><strong>${text('home.hero.note.title')}</strong></div>
         <div class="mkt-stage__cards"><button type="button" class="mkt-hero__cover" data-template-preview aria-haspopup="dialog" ${attr('aria-label','home.hero.preview')}>${heroImages(demos)}</button></div>
@@ -130,15 +130,16 @@ export function createHomeViews({ state, buttonLink, templateCard }) {
           <h2 id="mkt-journey-title">${text("home.journey.title")}</h2>
           <p>${text("home.journey.intro")}</p>
         </div>
-        <div class="mkt-journey__steps" role="group" ${attr("aria-label", "home.journey.stepsLabel")}>
-          ${steps.map(({ id, symbol }, index) => `<button type="button" class="mkt-journey__step" data-mkt-step="${id}" aria-pressed="${id === 'create'}">
+        <p id="mkt-journey-keyboard-hint" class="visually-hidden">${text("home.journey.keyboardHint")}</p>
+        <div class="mkt-journey__steps" role="group" aria-describedby="mkt-journey-keyboard-hint" ${attr("aria-label", "home.journey.stepsLabel")}>
+          ${steps.map(({ id, symbol }, index) => `<button type="button" class="mkt-journey__step" data-mkt-step="${id}" aria-pressed="${id === 'create'}" aria-controls="mkt-journey-panel-${id}">
             <span class="mkt-journey__step-index">0${index + 1}</span>
             ${icon(symbol, 21)}
-            <span>${text(`home.journey.${id}.title`)}</span>
+            <span class="mkt-journey__step-label">${text(`home.journey.${id}.title`)}</span>
           </button>`).join('')}
         </div>
         <div class="mkt-journey__showcase">
-          <div class="mkt-journey__scene" data-mkt-journey-scene data-stage="create" aria-hidden="true">
+          <div class="mkt-journey__scene" data-mkt-journey-scene data-stage="create" data-gift-open="false" aria-hidden="true">
             <div class="mkt-journey__halo"></div>
             <div class="mkt-journey__orbit mkt-journey__orbit--first"></div>
             <div class="mkt-journey__orbit mkt-journey__orbit--second"></div>
@@ -154,13 +155,26 @@ export function createHomeViews({ state, buttonLink, templateCard }) {
                 <span>${text("home.journey.scene.reply")}</span>
               </div>
             </div>
+            <div class="mkt-journey__gift" aria-hidden="true">
+              <div class="mkt-journey__gift-base"></div>
+              <div class="mkt-journey__gift-lid">${icon('gift', 32)}</div>
+            </div>
             <span class="mkt-journey__spark mkt-journey__spark--one"></span>
             <span class="mkt-journey__spark mkt-journey__spark--two"></span>
           </div>
           <div class="mkt-journey__details" aria-live="polite" aria-atomic="true">
-            ${steps.map(({ id }) => `<div data-mkt-panel="${id}" ${id === 'create' ? '' : 'hidden'}>
+            ${steps.map(({ id }) => `<div id="mkt-journey-panel-${id}" data-mkt-panel="${id}" ${id === 'create' ? '' : 'hidden'}>
               <h3>${text(`home.journey.${id}.title`)}</h3>
               <p>${text(`home.journey.${id}.body`)}</p>
+              ${id === 'open' ? `<div class="mkt-journey__gift-controls">
+                <button type="button" class="btn mkt-primary mkt-journey__gift-toggle" data-mkt-gift-toggle aria-expanded="false" aria-controls="mkt-journey-gift-message">
+                  ${icon('gift', 18)}<span data-mkt-gift-label-closed>${text('home.journey.gift.open')}</span><span data-mkt-gift-label-open hidden>${text('home.journey.gift.close')}</span>
+                </button>
+                <div id="mkt-journey-gift-message" class="mkt-journey__gift-next" data-mkt-gift-message hidden>
+                  <p>${text('home.journey.gift.message')}</p>
+                  <button type="button" class="btn mkt-primary mkt-journey__gift-create" data-home-create-after-demo aria-haspopup="dialog">${text('home.journey.gift.create')} ${icon('arrow-up-right', 18)}</button>
+                </div>
+              </div>` : ''}
             </div>`).join('')}
           </div>
           <p class="mkt-journey__swipe-hint">${text('home.journey.swipeHint')}</p>

@@ -461,6 +461,7 @@
   "catalog.scenes": {
     "other": "{count} cảnh"
   },
+  "catalog.search.clear": "Xóa từ khóa tìm kiếm",
   "catalog.search.label": "Tìm kiếm mẫu",
   "catalog.search.placeholder": "Tìm tên mẫu, dịp, phong cách…",
   "catalog.seasonal.action": "Xem mẫu lễ hội",
@@ -1894,8 +1895,13 @@
   "home.journey.cta": "Khám phá các mẫu thiệp",
   "home.journey.eyebrow": "TRẢI NGHIỆM MOMEVIA",
   "home.journey.intro": "Chạm vào từng bước để khám phá cách một tấm thiệp trở thành cuộc trò chuyện đáng nhớ.",
+  "home.journey.keyboardHint": "Dùng phím mũi tên trái hoặc phải để chuyển bước, Home hoặc End để đến bước đầu hoặc cuối.",
   "home.journey.keep.body": "Mở lại món quà trong thời hạn còn hiệu lực theo chính sách lưu giữ đã công bố.",
   "home.journey.keep.title": "Xem lại kỷ niệm",
+  "home.journey.gift.close": "Đóng quà để thử lại",
+  "home.journey.gift.create": "Tạo thiệp của tôi",
+  "home.journey.gift.message": "Bạn vừa mở một thiệp mẫu. Hãy tạo thiệp của riêng bạn để gửi lời chúc.",
+  "home.journey.gift.open": "Mở quà mẫu",
   "home.journey.open.body": "Người nhận mở link trên trình duyệt, xem thiệp và tương tác mà không cần tạo tài khoản.",
   "home.journey.open.title": "Chạm để mở",
   "home.journey.reply.body": "Người nhận có thể gửi lời nhắn khi chủ quà cho phép phản hồi.",

@@ -1,19 +1,23 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync, mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   auditCssStyle,
   auditMonitoredCss,
+  listStylesheets,
   monitoredStylesheets,
 } from '../../scripts/quality/check-css-style.mjs';
 
 const project = fileURLToPath(new URL('../../', import.meta.url));
 
-test('Chín stylesheet trọng điểm không còn khai báo dồn dòng hoặc duplicate property', () => {
+test('Toàn bộ stylesheet nguồn không còn khai báo dồn dòng hoặc duplicate property', () => {
   const results = auditMonitoredCss(project);
   assert.equal(results.length, monitoredStylesheets.length);
-  assert.ok(results.length >= 9);
+  assert.deepEqual(monitoredStylesheets, readdirSync(join(project, 'web/css')).filter(name => name.endsWith('.css')).sort());
+  assert.ok(results.length > 0);
   assert.deepEqual(results.flatMap(result => result.errors), []);
   assert.ok(results.reduce((count, result) => count + result.declarationCount, 0) > 2200);
   assert.ok(monitoredStylesheets.includes('gift-runtime.css'));
@@ -72,4 +76,25 @@ test('Thiết kế mobile tăng độ đọc của nút, trạng thái và dành
 test('Quality check chạy cùng npm run check để ngăn hồi quy CSS', () => {
   const pkg = JSON.parse(readFileSync(new URL('../../package.json', import.meta.url), 'utf8'));
   assert.match(pkg.scripts.check, /check-css-style\.mjs/);
+});
+
+
+test('Tự phát hiện stylesheet mới và báo lỗi khai báo dồn dòng', () => {
+  const root = mkdtempSync(join(tmpdir(), 'momevia-css-'));
+  try {
+    mkdirSync(join(root, 'web/css'), { recursive: true });
+    writeFileSync(join(root, 'web/css/new.css'), '.new { color: red; }');
+    writeFileSync(join(root, 'web/css/README.txt'), 'ignored');
+    assert.deepEqual(listStylesheets(root), ['new.css']);
+    assert.ok(auditMonitoredCss(root)[0].errors.length);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('Kiểm tra descriptor @font-face, giữ phân biệt hoa thường của custom property', () => {
+  const css = '@font-face {\n  font-family: Test;\n  src: url(test.woff2);\n}\n:root {\n  --Foo: 1;\n  --foo: 2;\n}';
+  assert.equal(auditCssStyle(css).declarationCount, 4);
+  assert.deepEqual(auditCssStyle(css).errors, []);
+  assert.ok(auditCssStyle('@font-face { src: url(a); src: url(b); }').errors.some(e => e.includes('trùng')));
 });

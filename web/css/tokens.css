@@ -22,7 +22,37 @@
   font-display: swap;
 }
 
+/* Bảng màu nhận diện; màu trang trí không mặc định là màu chữ. */
 :root {
+  --color-primary: #5939d0;
+  --color-primary-hover: #4327a8;
+  --color-primary-light: #6940c8;
+  --color-on-primary: #ffffff;
+  --color-ink: #30243b;
+  --color-muted: #62566d;
+  --color-page: #faf7fc;
+  --color-white: #ffffff;
+  --color-lavender: #ede5ff;
+  --color-pink: #e879a9;
+  --color-pink-soft: #fce4ef;
+  --color-peach: #f4ba72;
+  --color-peach-soft: #fff1e3;
+  --color-border: #dfd3ee;
+  --color-control-border: #806d9d;
+  --color-focus: #5939d0;
+  --color-success: #167957;
+  --color-success-soft: #e2f5ec;
+  --color-warning: #8a5210;
+  --color-warning-soft: #fff1d6;
+  --color-error: #ba3053;
+  --color-error-soft: #fce4ef;
+  --color-info: #285a9c;
+  --color-info-soft: #e4efff;
+  --color-gradient-action: linear-gradient(135deg, var(--color-primary-light), var(--color-primary-hover));
+  --color-gradient-hero: radial-gradient(ellipse at 91% 11%, var(--color-lavender) 0%, transparent 48%), radial-gradient(ellipse at 0% 88%, var(--color-peach-soft) 0%, transparent 43%), var(--color-pink-soft);
+  --color-gradient-journey: linear-gradient(162deg, var(--color-lavender), var(--color-peach-soft) 55%, var(--color-page));
+  --color-gradient-section: linear-gradient(165deg, var(--color-lavender), var(--color-peach-soft));
+  /* Token ứng dụng cũ giữ giá trị để không đổi Auth và nội dung Canvas. */
   --app-page: #faf8f2;
   --app-surface: #ffffff;
   --app-surface-muted: #f1eee7;
@@ -32,8 +62,8 @@
   --app-text-subtle: #746b80;
   --app-border: #e4dfd5;
   --app-control-border: #c8c0d0;
-  --app-accent: #5939d0;
-  --app-accent-hover: #4327a8;
+  --app-accent: var(--color-primary);
+  --app-accent-hover: var(--color-primary-hover);
   --app-accent-soft: #f0ebff;
   --app-highlight: #ffdc54;
   /* Giấy, mực và màu hành động; màu thiệp thuộc tài liệu canvas. */
@@ -52,8 +82,8 @@
   --coral: #f45278;
   --line: var(--app-border);
   --white: #ffffff;
-  --success: #167957;
-  --error: #ba3053;
+  --success: var(--color-success);
+  --error: var(--color-error);
   /* Token điều khiển chung cho Canvas/Creator/Admin: một nguồn cấu hình. */
   --ui-control-min-height: 44px;
   --ui-text-base: 1rem;
@@ -70,11 +100,81 @@
   --radius-xl: 34px;
   --shadow-soft: 0 14px 40px rgba(52, 26, 115, 0.09);
   --shadow-elevated: 0 26px 70px rgba(52, 26, 115, 0.18);
-  --font-display: "Plus Jakarta Sans", "Inter", system-ui, -apple-system, sans-serif;
-  --font-body: "Inter", system-ui, -apple-system, sans-serif;
-  --font-serif: "Lora", Georgia, serif;
-  --font-shell: "Inter", system-ui, -apple-system, sans-serif;
-  --container: 1190px;
+  /* Font nhận diện UI; giữ bộ font cũ cho nội dung thiệp đã lưu. */
+  --canvas-font-display: "Plus Jakarta Sans", "Inter", system-ui, -apple-system, sans-serif;
+  --canvas-font-body: "Inter", system-ui, -apple-system, sans-serif;
+  --canvas-font-serif: "Lora", Georgia, serif;
+  --font-display: "Bricolage Grotesque", var(--canvas-font-display);
+  --font-body: "Be Vietnam Pro", var(--canvas-font-body);
+  --font-serif: "Fraunces", var(--canvas-font-serif);
+  --font-shell: var(--font-body);
+  /* Thang chữ giao diện công khai; rem hỗ trợ cài đặt cỡ chữ trình duyệt. */
+  --type-display: clamp(2.25rem, 1.3rem + 3.5vw, 4.5rem);
+  --type-h1: clamp(1.875rem, 1.45rem + 1.8vw, 3rem);
+  --type-h2: clamp(1.5rem, 1.2rem + 1.3vw, 2.25rem);
+  --type-h3: clamp(1.25rem, 1.1rem + .65vw, 1.625rem);
+  --type-card: clamp(1.125rem, 1rem + .5vw, 1.375rem);
+  --type-body: 1rem;
+  --type-lead: clamp(1rem, .94rem + .4vw, 1.125rem);
+  --type-small: .875rem;
+  --type-caption: .8125rem;
+  --type-line-display: 1.2;
+  --type-line-heading: 1.3;
+  --type-line-body: 1.65;
+  /* Thang khoảng cách 4px; không áp dụng vào tọa độ hoặc kích thước Canvas. */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-9: 36px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-18: 72px;
+  --layout-max: 1190px;
+  --layout-gutter-wide: var(--space-9);
+  --layout-gutter-tablet: 22px;
+  --layout-gutter-mobile: 17px;
+  --layout-gutter-small: 13px;
+  --layout-gutter: var(--layout-gutter-wide);
+  --container: var(--layout-max);
+  --layout-section-space: clamp(var(--space-8), 4vw, var(--space-12));
+  --layout-hero-space: clamp(28px, 3.2vw, 46px);
+  --layout-hero-gap: clamp(28px, 5vw, var(--space-18));
+  --layout-hero-gap-compact: var(--space-6);
+  --layout-card-gap: var(--space-6);
+  --layout-card-gap-mobile: var(--space-4);
+  /* Kích thước điều khiển cho giao diện marketing và danh mục. */
+  --control-height: 48px;
+  --control-padding-x: var(--space-4);
+  --control-gap: var(--space-2);
+  --control-font-size: max(16px, 1rem);
+  --control-focus-width: 2px;
+  --control-focus-offset: 2px;
+  /* Thành phần phản hồi và hộp thoại dùng chung hệ layout. */
+  --feedback-radius: var(--layout-radius-control);
+  --feedback-padding: var(--space-4);
+  --dialog-padding: clamp(var(--space-5), 4vw, var(--space-10));
+  --layout-radius-control: 12px;
+  --layout-radius-card: 20px;
+  --layout-radius-card-inner: calc(var(--layout-radius-card) - 1px);
+  --layout-radius-stage: 24px;
+  --layout-radius-showcase: 28px;
+  --layout-shadow-card: 0 8px 24px rgb(48 36 59 / 8%);
+  --layout-shadow-card-hover: 0 16px 40px rgb(48 36 59 / 15%);
+  --layout-shadow-stage: 0 20px 56px rgb(48 36 59 / 13%);
   --ease: cubic-bezier(.2, .8, .2, 1);
   --ease-in-out: cubic-bezier(.77, 0, .175, 1);
+}
+
+/* Không đổi font nội dung Canvas/thiệp, kể cả bản nháp cũ. */
+.editor-artboard,
+.gift-runtime-stage {
+  --font-display: var(--canvas-font-display);
+  --font-body: var(--canvas-font-body);
+  --font-serif: var(--canvas-font-serif);
+  font-family: var(--canvas-font-body);
 }

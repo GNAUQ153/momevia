@@ -1,9 +1,5 @@
 import { MySqlClient } from '../../infrastructure/mysql/client.mjs';
-
-function mysqlTimestampToIso(value) {
-  if (value instanceof Date) return value.toISOString();
-  return new Date(`${String(value).replace(' ', 'T').replace(/Z$/, '')}Z`).toISOString();
-}
+import { mysqlTimestampToIso } from '../../infrastructure/mysql/datetime.mjs';
 
 export class MySqlSupportRepository {
   constructor(client = new MySqlClient()) { this.client = client; }

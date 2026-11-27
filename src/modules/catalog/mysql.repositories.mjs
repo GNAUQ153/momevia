@@ -1,10 +1,7 @@
 import { MySqlClient } from '../../infrastructure/mysql/client.mjs';
 import { HttpError } from '../../shared/http.mjs';
-import { mysqlDate } from '../identity/mysql.repositories.mjs';
+import { mysqlDate, mysqlTimestampToIso as iso } from '../../infrastructure/mysql/datetime.mjs';
 
-function iso(value) {
-  return value instanceof Date ? value.toISOString() : new Date(`${String(value).replace(' ', 'T').replace(/Z$/, '')}Z`).toISOString();
-}
 function fromRow(row) {
   if (!row) return null;
   const extra = typeof row.payload === 'string' ? JSON.parse(row.payload) : row.payload;

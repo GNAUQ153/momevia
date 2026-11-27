@@ -97,19 +97,26 @@ export function mountMarketingMotion(root, { signal } = {}) {
   }
 
   function syncReveal() {
-    // Khi giảm chuyển động giữa chừng, không để nội dung bị ẩn bởi CSS reveal.
-    if (staticPreferred() || typeof window.IntersectionObserver !== 'function') {
+    // Tab ẩn hoặc chế độ tĩnh: kết thúc reveal, không phát lại khi quay về.
+    if (staticPreferred() || typeof window.IntersectionObserver !== 'function' || ownerDocument?.hidden) {
       showReveal();
       return;
     }
     if (observer || revealItems.every(item => item.classList.contains('mkt-is-visible'))) return;
-    observer = new window.IntersectionObserver(entries => {
+    const current = new window.IntersectionObserver(entries => {
+      // Callback đã xếp hàng có thể đến sau khi hủy observer hoặc rời trang.
+      if (disposed || observer !== current) return;
+      if (staticPreferred() || ownerDocument?.hidden) {
+        showReveal();
+        return;
+      }
       for (const entry of entries) {
         if (!entry.isIntersecting) continue;
         entry.target.classList.add('mkt-is-visible');
-        observer?.unobserve(entry.target);
+        current.unobserve(entry.target);
       }
-    }, { threshold: 0.09, rootMargin: '0px 0px -30px 0px' });
+    }, { threshold: 0 });
+    observer = current;
     for (const item of revealItems) {
       if (!item.classList.contains('mkt-is-visible')) observer.observe(item);
     }
@@ -122,7 +129,10 @@ export function mountMarketingMotion(root, { signal } = {}) {
   }
 
   function onVisibilityChange() {
-    if (ownerDocument?.hidden) resetTilt();
+    if (ownerDocument?.hidden) {
+      resetTilt();
+      showReveal();
+    }
   }
 
   function dispose() {

@@ -44,7 +44,6 @@ body {
 /* Font/spacing phụ thuộc thiết kế sản phẩm, không ép lên chữ người dùng trong Canvas. */
 .role-workspace__lead p,
 .role-workspace__review-notice li p,
-.is-home .mkt-journey__heading p,
 .recipient-viral p {
   font-size: var(--ui-text-lead);
   line-height: 1.65;
@@ -106,7 +105,7 @@ body {
 @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
   .is-home .mkt-gift-grid .template-card--home:hover {
     transform: translate3d(0, -5px, 10px) rotateX(1deg);
-    box-shadow: var(--brand-shadow-hover);
+    box-shadow: var(--layout-shadow-card-hover);
   }
 
   .role-workspace__link:hover {
@@ -153,4 +152,11 @@ body {
     transition: none;
     transform: none;
   }
+}
+
+/* Lead marketing không đổi cỡ chữ của workspace và recipient. */
+.is-home .mkt-journey__heading p {
+  font-size: var(--type-lead);
+  line-height: var(--type-line-body);
+  color: var(--brand-text-muted);
 }

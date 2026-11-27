@@ -223,11 +223,16 @@ export function mountHomeChoices(host) {
   const lifetime = new AbortController();
   const options = {signal:lifetime.signal};
   let opener;
-  host.querySelector('[data-home-create]')?.addEventListener('click', event => {
+  // Dùng chung hộp thoại chọn loại thiệp cho Hero và CTA sau demo.
+  function openChoices(event) {
+    if (dialog.open) return;
     opener = event.currentTarget;
     dialog.showModal();
     dialog.querySelector('.home-create-choice')?.focus();
-  }, options);
+  }
+  for (const trigger of host.querySelectorAll('[data-home-create], [data-home-create-after-demo]')) {
+    trigger.addEventListener('click', openChoices, options);
+  }
   dialog.querySelector('[data-home-create-close]').addEventListener('click', () => dialog.close(), options);
   dialog.addEventListener('click', event => {
     if (event.target.closest('a[data-link]')) dialog.close();

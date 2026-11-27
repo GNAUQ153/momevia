@@ -1,7 +1,7 @@
 import { randomUUID, randomInt } from 'node:crypto';
 import { MySqlClient } from '../../infrastructure/mysql/client.mjs';
 import { localizedError } from '../../shared/http.mjs';
-import { mysqlDate } from '../identity/mysql.repositories.mjs';
+import { mysqlDate } from '../../infrastructure/mysql/datetime.mjs';
 import { canonicalText } from '../../../web/js/shared/locale.js';
 import { FinanceReport } from './finance-report.mjs';
 import { ReconciliationAudit } from './reconciliation-audit.mjs';

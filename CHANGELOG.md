@@ -1,3 +1,8 @@
+## Unreleased - Sửa font ảnh bìa trên Railway (2026-11-28)
+
+- Thêm railpack.json cài fontconfig và fonts-dejavu-core khi deploy: ảnh bìa Catalog do server vẽ bằng sharp không còn hiện chữ thành ô vuông.
+- Thêm test giữ cấu hình font; đã tái hiện lỗi và xác nhận cách sửa trong container node:24-bookworm-slim.
+
 ## Unreleased - 16 thiệp kể chuyện theo góc nhìn người nhận (2026-11-28)
 
 - Dựng lại 16 Originals: mỗi mẫu có bìa tối với một trong sáu cơ chế mở 3D (hộp quà, dấu sáp, cửa đôi, máy ảnh in ảnh, bóc lịch, ống kính), tương tác riêng và lời kết gắn với câu chuyện.

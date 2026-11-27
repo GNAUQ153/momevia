@@ -150,7 +150,9 @@ export async function runCanvasResilience(base) {
     }
     completed.push('Fabric double-open yields one modal, Close, Escape and route disposal dismiss before image response with no save');
 
-    const catalog = (await api('/catalog/templates')).templates, paid = catalog.find(template => template.price > 0);
+    // Thư viện chỉ liệt kê Originals miễn phí; mẫu trả phí cũ vẫn mua được qua link trực tiếp.
+    const catalog = (await api('/catalog/templates')).templates;
+    const paid = catalog.find(template => template.price > 0) || (await api('/catalog/templates/midnight-bloom')).template;
     assert(paid, 'paid seed fixture');
     const paidA = await create('Checkout draft A', paid.id), paidB = await create('Checkout draft B', paid.id);
     let expectedPaidBMessage = paidB.document.bindings.message.value;

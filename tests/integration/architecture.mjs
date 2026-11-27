@@ -358,7 +358,8 @@ async function runMonolith({ base, env }) {
   assert(replyResults.every(result=>result.status===201));
   assert.equal((await request(base,`${extraRoute}/replies`)).data.replies.length,3);
   assert.equal((await request(base,extraRoute)).data.gift.replyCount,3);
-  const paidId = catalog.data.templates.find(template=>template.price>0).id;
+  // Thư viện hiện chỉ có Originals miễn phí; dùng mẫu trả phí cũ còn mua được qua link trực tiếp.
+  const paidId = catalog.data.templates.find(template=>template.price>0)?.id || 'midnight-bloom';
   const purchases = await Promise.all(Array.from({length:20},()=>request(base,'/api/checkout/orders/demo-purchase',{method:'POST',cookie,body:{templateId:paidId}})));
   assert(purchases.every(result=>result.status===201));
   assert.equal(new Set(purchases.map(result=>result.data.order.id)).size,1);

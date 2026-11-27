@@ -71,11 +71,11 @@ export async function runLocaleBrowser(base) {
     await capture(page, 'locale-home-en-desktop.png');
     await page.goto(base + '/explore');
     await page.getByRole('heading', { name: 'Gift template library' }).waitFor();
-    await page.getByRole('searchbox').fill('A Memory of Us');
+    await page.getByRole('searchbox').fill('Snowglobe Countdown');
     await page.getByText('1 matching template', { exact: true }).waitFor();
-    await page.getByRole('link', { name: 'A Memory of Us', exact: true }).click();
-    await page.getByRole('heading', { name: 'A Memory of Us', exact: true }).waitFor();
-    assert.match(await page.locator('.detail-art img').getAttribute('src'), /basic-templates\/en\/mot-ky-niem\.svg/);
+    await page.getByRole('link', { name: 'Snowglobe Countdown', exact: true }).click();
+    await page.getByRole('heading', { name: 'Snowglobe Countdown', exact: true }).waitFor();
+    assert.match(await page.locator('.detail-art img').getAttribute('src'), /basic-templates\/en\/snowglobe-countdown\.svg/);
     await page.goto(login);
     await page.locator('#email-login-form input[name="email"]').fill('env-qa@example.test');
     await input.fill('EnvFixturePass123');

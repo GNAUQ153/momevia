@@ -1,3 +1,12 @@
+## Unreleased - 16 thiệp kể chuyện theo góc nhìn người nhận (2026-11-28)
+
+- Dựng lại 16 Originals: mỗi mẫu có bìa tối với một trong sáu cơ chế mở 3D (hộp quà, dấu sáp, cửa đôi, máy ảnh in ảnh, bóc lịch, ống kính), tương tác riêng và lời kết gắn với câu chuyện.
+- Ba mẫu có hai nhánh do người nhận chọn; thiệp mời có vé sự kiện và đồng hồ đếm ngược tự lấy ngày giờ của thiệp mời.
+- Thư viện và trang chủ chỉ liệt kê 16 Originals và mẫu Creator; mẫu hệ thống cũ vẫn mở, tạo và xuất bản được qua link trực tiếp.
+- Nút trong thiệp tự chọn màu chữ đọc được theo nền; bỏ chữ "(minh họa)" trên bản xem thử; ẩn chữ alt khi ảnh bìa đang tải.
+- Nội dung VI/EN cùng khóa, cùng bố cục (scripts/build/originals-copy.mjs); cập nhật báo cáo docs/danh-gia-ma-nguon.md.
+- Lưu ý: cả 16 mẫu hiện miễn phí; cần quyết định mẫu Premium. Thư viện MySQL production cần áp dụng đề xuất originals-update để thấy thiết kế mới.
+
 ## Unreleased - Khắc phục browser CI (2026-11-28)
 
 - Thu gọn khoảng cách giữa bộ mẫu và phần hành trình trên desktop, giữ kiểm tra giới hạn khoảng trắng hiện có.

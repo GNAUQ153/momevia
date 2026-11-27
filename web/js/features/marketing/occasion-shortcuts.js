@@ -9,8 +9,8 @@ const knownCategories = new Map(Object.entries(vi)
   .map(([key, value]) => [value, key]));
 
 const preferred = Object.freeze([
-  'christmas', 'tet', 'newYear', 'birthday', 'wedding', 'valentine',
-  'graduation', 'friendship', 'thanks', 'congratulations', 'encouragement', 'apology',
+  'christmas', 'tet', 'newYear', 'birthday', 'graduation', 'meetup', 'wedding', 'valentine',
+  'friendship', 'thanks', 'congratulations', 'encouragement', 'apology',
 ]);
 const priority = new Map(preferred.map((name, index) => [`templates.meta.category.${name}`, index]));
 

@@ -142,18 +142,9 @@ export async function runCreatorJourney(base) {
     assert(await visibleInViewport(phone, firstCard), 'Mẫu sự kiện phải xuất hiện trong màn hình đầu');
     assert.deepEqual(await catalogCards.evaluateAll(cards => cards.slice(0, 3).map(card => card.dataset.templateId)),
       ORIGINAL_IDS.slice(0, 3));
-    const seasonalShelf = phone.locator('.seasonal-shelf');
-    await seasonalShelf.waitFor();
-    const catalogBox = await phone.locator('#catalog-grid').boundingBox();
-    const shelfBox = await seasonalShelf.boundingBox();
-    assert(catalogBox.y + catalogBox.height <= shelfBox.y, 'Bộ sưu tập mùa lễ phải nằm sau danh sách mẫu chính');
-    await seasonalShelf.scrollIntoViewIfNeeded();
-    assert(await visibleInViewport(phone, seasonalShelf), 'Bộ sưu tập mùa lễ phải cuộn tới được trên mobile');
-    assert.equal(await seasonalShelf.getAttribute('open'), null);
-    await seasonalShelf.locator('summary').click();
-    await phone.locator('.seasonal-shelf__card').first().waitFor();
+    // Thư viện chỉ liệt kê 16 Originals nên không còn kệ mẫu theo mùa thế hệ cũ.
+    assert.equal(await phone.locator('.seasonal-shelf').count(), 0);
     await capture(phone, 'catalog-390');
-    await seasonalShelf.locator('summary').click();
     await firstCard.scrollIntoViewIfNeeded();
     assert(await visibleInViewport(phone, firstCard), 'Danh sách mẫu chính phải cuộn tới được trên mobile');
     const search = phone.getByRole('searchbox', { name: 'Tìm kiếm mẫu' });

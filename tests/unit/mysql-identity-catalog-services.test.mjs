@@ -30,7 +30,7 @@ test('IdentityService works with async MySQL repositories, issues session and ch
 });
 
 test('CatalogService handles async search, favorites and moderation without returning unresolved Promise',async()=>{
-  const rows=[{id:'seed',title:'Bình minh',subtitle:'Cỏ xanh',creator:'Momevia',creatorId:'system',
+  const rows=[{id:'seed',title:'Bình minh',subtitle:'Cỏ xanh',creator:'Momevia',creatorId:'creator-seed',
     style:'Thiên nhiên',theme:'sage',price:0,status:'published',createdAt:'2026-11-01T00:00:00.000Z'},
   {id:'draft',title:'Draft',subtitle:'Waiting',creator:'Maker',creatorId:id,
     style:'Độc quyền',theme:'sage',price:1000,status:'pending',createdAt:'2026-11-02T00:00:00.000Z'}];

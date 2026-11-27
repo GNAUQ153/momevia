@@ -53,6 +53,19 @@ export function drawVector(parts, { stretch = false } = {}) {
   return svg;
 }
 
+// Chọn màu chữ đọc được trên nền nút (WCAG): nền sáng dùng chữ tối, nền tối dùng chữ trắng.
+function readableLabel(background) {
+  const hex = /^#([0-9a-f]{6})$/i.exec(background || "");
+  if (!hex) return "";
+  const value = parseInt(hex[1], 16);
+  const linear = shift => {
+    const channel = ((value >> shift) & 255) / 255;
+    return channel <= 0.03928 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
+  };
+  const luminance = 0.2126 * linear(16) + 0.7152 * linear(8) + 0.0722 * linear(0);
+  return luminance > 0.4 ? "#1F1A24" : "#FFFFFF";
+}
+
 function element(tag, className, text) {
   const node = globalThis.document.createElement(tag);
   if (className) node.className = className;
@@ -275,6 +288,7 @@ export function renderElement(
     if(model.id==='open-gift'&&document.elements.some(e=>e.id.startsWith('refresh-')))node.classList.add('gift-runtime-object-control');
     if (mode !== "thumbnail") node.type = "button";
     node.style.backgroundColor = p.color;
+    if (type === "button") node.style.color = readableLabel(p.color);
     if(type==='envelope' && p.preset==='compact-v2')node.classList.add('gift-runtime-compact-envelope');
     const photoCaption=type==='envelope'&&p.preset==='photo-caption-v3';
     const controlBody=photoCaption?element('span','gift-envelope-footer'):node;

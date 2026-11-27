@@ -11,26 +11,76 @@ import { templates, addedSystemTemplates } from '../../src/modules/catalog/seed.
 import { builtinLibraryItems } from '../../src/modules/designs/library.seed.mjs';
 import { serverText } from '../../src/shared/locale.mjs';
 
-test('16 mẫu Originals có bốn scene, artwork riêng và action hợp lệ trong VI/EN', () => {
+// Vai trò lớp mà signature-opening.js cần để chạy hoạt ảnh mở bìa 3D.
+const RIG_ROLES = {
+  gift: ['bow', 'lid', 'lid-ribbon', 'body-ribbon', 'letter'],
+  envelope: ['flap', 'seal', 'letter'],
+  gatefold: ['door-left', 'door-right', 'seal'],
+  polaroid: ['shutter', 'screen', 'print'],
+  calendar: ['peel', 'calendar-paper', 'disco'],
+  lens: ['dial-knob', 'lens', 'crosshair'],
+};
+
+// Đi theo mọi nút goToScene từ bìa: mọi cảnh đều tới được và đều dẫn tới phần hồi đáp.
+function reachable(doc) {
+  const seen = new Set([doc.entrySceneId]);
+  const queue = [doc.entrySceneId];
+  while (queue.length) {
+    const current = queue.shift();
+    const scene = doc.scenes.find(s => s.id === current);
+    for (const element of doc.elements.filter(e => scene.elementIds.includes(e.id))) {
+      for (const action of element.actions || []) {
+        if (action.type === 'goToScene' && !seen.has(action.targetSceneId)) {
+          seen.add(action.targetSceneId);
+          queue.push(action.targetSceneId);
+        }
+      }
+    }
+  }
+  return seen;
+}
+
+test('16 mẫu Originals có câu chuyện riêng, bìa 3D và luồng hợp lệ trong VI/EN', () => {
   assert.equal(new Set(ORIGINAL_IDS).size, 16);
   assert.equal(ORIGINALS.filter(p => p.cardType === 'invitation').length, 10);
+  assert.deepEqual([...new Set(ORIGINALS.map(p => p.category))].sort(), ['birthday', 'christmas', 'graduation', 'meetup', 'wedding']);
   const art = new Set();
+  const stories = new Set();
   for (const item of ORIGINALS) {
     assert.equal(systemCardType(item.id), item.cardType);
-    for (const locale of ['vi','en']) {
+    for (const locale of ['vi', 'en']) {
       const doc = templatePreviewDocument(item, (key, params) => serverText(locale, key, params));
-      assert.equal(doc.scenes.length, 4);
+      assert.equal(doc.scenes.length, item.branch ? 6 : 4);
       assert.doesNotThrow(() => validateDocument(doc, { mode: 'publish' }));
       assert.doesNotThrow(() => validateDocument(duplicateDocument(doc)));
+      // Bìa: một nút mở + một đường bỏ qua hiệu ứng, cả hai tới lời mời/lời chúc.
       assert.equal(doc.elements.find(e => e.id === 'open-gift').actions[0].targetSceneId, 'scene-main');
-      assert.equal(doc.elements.find(e => e.id === 'to-discover').actions[0].targetSceneId, 'scene-discover');
-      assert.equal(doc.elements.find(e => e.id === 'to-finish').actions[0].targetSceneId, 'scene-finish');
+      assert.equal(doc.elements.find(e => e.id === 'skip-surprise').actions[0].targetSceneId, 'scene-main');
+      assert.equal(doc.elements.find(e => e.id === 'open-gift').effects, undefined);
+      const kinds = new Set(doc.elements.map(e => e.props.kind));
+      for (const role of ['cover-decoration', ...RIG_ROLES[item.rig]]) assert(kinds.has('signature-' + role), `${item.id} thiếu ${role}`);
+      assert.equal(doc.elements.find(e => e.id === 'surprise').props.kind, item.discover);
+      if (item.branch) {
+        const targets = doc.elements.find(e => e.id === 'surprise').actions.map(a => a.targetSceneId);
+        assert.deepEqual(targets, ['scene-path-a', 'scene-path-b']);
+      }
+      assert.equal(doc.elements.some(e => e.id === 'event-countdown'), item.extra === 'countdown');
+      assert.deepEqual([...reachable(doc)].sort(), doc.scenes.map(s => s.id).sort());
       assert.equal(doc.elements.find(e => e.id === 'replay-gift').actions[0].type, 'replay');
-      assert.equal(doc.elements.find(e => e.id === 'event-album').props.photos.length, 3);
-      if (locale === 'vi') art.add(JSON.stringify(doc.elements.find(e => e.id === 'cover-art').artwork));
+      assert(doc.elements.some(e => e.type === 'reply'));
+      // Không còn chữ minh họa kiểu "(minh họa)" hay khóa chưa dịch trên thiệp.
+      for (const e of doc.elements.filter(e => e.type === 'text' && typeof e.props.text === 'string')) {
+        assert(!/^(stories|templates|originals)\./.test(e.props.text), `${item.id} ${locale} thiếu bản dịch ${e.props.text}`);
+        assert(!/minh họa|\(sample\)/i.test(e.props.text), `${item.id} ${locale} còn chữ minh họa`);
+      }
+      if (locale === 'vi') {
+        art.add(JSON.stringify(doc.elements.find(e => e.id === 'cover-art').artwork));
+        stories.add(doc.elements.find(e => e.id === 'open-gift').props.label + item.rig + item.discover);
+      }
     }
   }
   assert.equal(art.size, 16);
+  assert.equal(stories.size, 16);
 });
 
 test('chỉ thiệp mời có slot sự kiện; thông tin cần được điền và xác thực', () => {
@@ -43,6 +93,8 @@ test('chỉ thiệp mời có slot sự kiện; thông tin cần được điề
     editInvitation(doc, 'date', '2027-06-01T17:00');
     editInvitation(doc, 'venue', 'Hội trường A');
     assert.deepEqual(publicInvitation(doc), { eventAt:'2027-06-01T10:00:00.000Z', timeZone:'Asia/Ho_Chi_Minh', venue:'Hội trường A' });
+    // Đồng hồ đếm ngược dùng đúng ngày giờ Sender vừa nhập, không cần nhập lần hai.
+    assert.equal(doc.elements.find(e => e.id === 'event-countdown').props.eventAt, '2027-06-01T10:00:00.000Z');
   }
 });
 

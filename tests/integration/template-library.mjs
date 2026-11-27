@@ -10,6 +10,7 @@ import sharp from 'sharp';
 import { createDocument, publicDocument, canonicalStringify, BASIC_TEMPLATES, insertPhotoFrame } from '../../web/js/shared/canvas/index.js';
 import { materializeTemplateStart } from '../../web/js/features/canvas-editor/template-start.js';
 import { templates, addedSystemTemplates } from '../../src/modules/catalog/seed.mjs';
+import { ORIGINAL_IDS } from '../../web/js/shared/canvas/originals-data.js';
 import { builtinMedia } from '../../src/modules/designs/builtin-media.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
@@ -58,7 +59,11 @@ async function fixture(name, legacy = false, existingTemplates) {
 
 try {
   const current = await fixture('current');
-  const catalog = (await current.request('/catalog/templates', undefined, 200, false)).templates;
+  // Thư viện chỉ liệt kê 16 Originals; 28 mẫu hệ thống cũ vẫn mở/tạo/xuất bản được qua link trực tiếp.
+  const listed = (await current.request('/catalog/templates', undefined, 200, false)).templates;
+  assert.deepEqual(listed.map(t => t.id).sort(), [...ORIGINAL_IDS].sort());
+  const catalog = [];
+  for (const seed of templates) catalog.push((await current.request(`/catalog/templates/${seed.id}`, undefined, 200, false)).template);
   assert.equal(catalog.length, 44); let published = 0;
   for (const template of catalog) {
     const mutationId = randomUUID(); const created = await current.request('/designs/designs', { source: { kind: 'template', templateId: template.id }, presetId: 'envelope-basic', mutationId }, 201);
@@ -121,7 +126,7 @@ try {
   const originals = templates.filter(template => !addedIds.has(template.id));
   const existing = await fixture('existing', false, originals);
   const updated = (await existing.request('/catalog/templates', undefined, 200, false)).templates;
-  assert.deepEqual(updated, catalog);
+  assert.deepEqual(updated, listed);
   console.log(`PASS Existing JSON catalog: appended ${updated.length - originals.length} missing templates and preserved all ${originals.length} originals.`);
 
   const localizedStart = { source: { kind: 'template', templateId: 'sunny-wishes' }, mutationId: randomUUID() };
@@ -133,8 +138,8 @@ try {
   assert.notEqual(english.documentHash, vietnamese.documentHash);
   assert.equal(english.revision, 1);
   assert.deepEqual((await current.request('/designs/designs', localizedStart, 201, true, 'vi')).design, english);
-  const matching = await current.request('/catalog/templates?q=A%20Memory%20of%20Us&style=all', undefined, 200, false, 'en');
-  assert.deepEqual(matching.templates.map(item => item.id), ['mot-ky-niem']);
+  const matching = await current.request('/catalog/templates?q=Snowglobe%20Countdown&style=all', undefined, 200, false, 'en');
+  assert.deepEqual(matching.templates.map(item => item.id), ['snowglobe-countdown']);
   const cover = await fetch(current.base + '/assets/basic-templates/en/sunny-wishes.svg');
   assert.equal(cover.status, 200);
   assert.match(cover.headers.get('content-type'), /image\/svg\+xml/);

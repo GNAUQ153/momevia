@@ -74,6 +74,9 @@ export function templatePreviewDocument(template, localize = canonicalText) {
       const venue = doc.elements.find(e => e.id === 'event-location' && e.type === 'text');
       if (date) date.props.text = localize('originals.sampleDate');
       if (venue) venue.props.text = localize('originals.sampleVenue');
+      // Bản xem thử chạy đồng hồ thật tới một mốc ba tuần sau để người xem thấy hiệu ứng.
+      const clock = doc.elements.find(e => e.id === 'event-countdown');
+      if (clock) clock.props.eventAt = new Date(Date.now() + 21 * 86400000).toISOString();
     }
   }
   if (OPEN_ME_TEMPLATE_IDS.includes(template?.id)) {

@@ -1,3 +1,4 @@
+import { signatureTemplateDefinition } from './signature/templates.js';
 import { originalDefinition } from './originals-data.js';
 import { createElement } from './registry.js';
 import { validateDocument } from './schema.js';
@@ -62,6 +63,7 @@ export function templatePreviewDocument(template, localize = canonicalText) {
   doc.bindings.recipientName.value = localize('templates.preview.recipient');
   doc.bindings.senderName.value = localize('templates.preview.sender');
   doc.bindings.message.value = localize('templates.preview.greeting');
+  if (signatureTemplateDefinition(template?.id)) doc.bindings.message.value = localize('signature.templates.sample');
   const original = originalDefinition(template?.id);
   if (original) {
     doc.bindings.recipientName.value = localize('originals.sampleRecipient');

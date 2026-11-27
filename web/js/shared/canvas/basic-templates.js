@@ -1,3 +1,4 @@
+import { createSignatureTemplate } from './signature/templates.js';
 import { ORIGINALS } from './originals-data.js';
 import { createOriginalTemplate } from './originals.js';
 import { createInteractiveTemplate } from './interactive-templates.js';
@@ -56,6 +57,8 @@ const LAYER_NAMES = {
 export function createBasicTemplate(template, localize = canonicalText) {
   const configured = libraryDocument('template', template?.id, localize);
   if (configured) return validateDocument(pinDocumentArtwork(configured));
+  const signature = createSignatureTemplate(template?.id, localize);
+  if (signature) return signature;
   const original = createOriginalTemplate(template?.id, localize);
   if (original) return original;
   const openMe = createOpenMeTemplate(template?.id, localize);

@@ -1,3 +1,9 @@
+## Unreleased — Signature S4 (2026-11-27)
+
+- Tạo sáu Canvas template nghiệm thu nội bộ VI/EN với artwork Signature riêng, bốn cảnh và slot sự kiện, ảnh tùy chọn.
+- Bổ sung factory và công cụ xuất JSON/SVG local; chưa kích hoạt Catalog hoặc MySQL seed, chưa triển khai opening riêng.
+- Không thêm dependency, migration hoặc ảnh cá nhân.
+
 ## Unreleased — Signature S3 (2026-11-27)
 
 - Cho phép đổi màu vector Signature chỉ có nét viền, giữ màu cố định và đường nét khi áp dụng Fabric.

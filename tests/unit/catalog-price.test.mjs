@@ -55,6 +55,13 @@ test('Chi tiết và Preview giữ giá, phạm vi quyền và tuyến tạo thi
   assert.match(templatePreviewDialog({ ...template, price: null }), /data-price-tier="unknown"/);
 });
 
+test('Marker giá Preview không trùng marker mở hộp thoại', () => {
+  const html = templatePreviewDialog({ ...base, price: 59000 });
+  assert.match(html, /data-preview-price(?:\s|>)/);
+  assert.doesNotMatch(html, /data-template-preview/g);
+  assert.match(read('web/js/features/catalog/template-preview.js'), /querySelector\('\[data-preview-price\]'\)/);
+});
+
 test('Preview cập nhật giá và loại giá theo activeTemplate, không sửa tuyến tạo mẫu', () => {
   const source = read('web/js/features/catalog/template-preview.js');
   assert.match(source, /activeTemplate = getTemplate\(\);[\s\S]*?useTemplate\.setAttribute\('href', templateCreateUrl\(activeTemplate\)\);[\s\S]*?previewPrice\.dataset\.priceTier = templatePriceTier\(activeTemplate\.price\);[\s\S]*?templatePriceText\(activeTemplate\.price\)/);

@@ -1,3 +1,8 @@
+## Unreleased — Phase 4.5F.1 Preview Price Marker (2026-11-27)
+
+- Đổi marker giá Preview để tránh trùng tiền tố với nút mở Preview; giữ nguyên giá và luồng tạo thiệp.
+- Bổ sung kiểm thử hồi quy marker, không nới lỏng các kiểm thử Hero hiện có.
+
 ## Unreleased — Phase 4.5F Catalog Price Discovery (2026-11-27)
 
 - Phân loại giá mẫu theo số nguyên VND hợp lệ; không coi giá thiếu, rỗng hoặc sai kiểu là miễn phí.

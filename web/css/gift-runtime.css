@@ -42,10 +42,28 @@ body.is-playing-gift #main {
   position: absolute;
   inset: 0;
 }
-.gift-scene-content > [data-runtime-element] {
+.gift-scene-content > [data-runtime-element],
+.gift-scene-body-content > [data-runtime-element] {
   box-sizing: border-box;
   margin: 0;
   overflow-wrap: anywhere;
+}
+.gift-scene-body {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 0;
+  overflow: hidden auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: #a6ad9a transparent;
+}
+.gift-scene-body-content {
+  position: relative;
+  overflow: hidden;
+}
+.gift-scene-body:focus-visible {
+  outline: 2px solid #66715f;
+  outline-offset: -2px;
 }
 .gift-runtime-text {
   white-space: pre-wrap;
@@ -57,7 +75,8 @@ body.is-playing-gift #main {
   line-height: .9;
   padding-inline-end: .14em;
 }
-.gift-scene-content > :is(.gift-runtime-vector-box, .gift-runtime-shape, .gift-runtime-sticker) {
+.gift-scene-content > :is(.gift-runtime-vector-box, .gift-runtime-shape, .gift-runtime-sticker),
+.gift-scene-body-content > :is(.gift-runtime-vector-box, .gift-runtime-shape, .gift-runtime-sticker) {
   pointer-events: none;
 }
 .gift-runtime-vector {
@@ -597,9 +616,9 @@ span.gift-comparison-range {
   place-items: center;
   height: 100%;
   margin: 0;
-  padding: 28px;
+  padding: clamp(8px, 3cqw, 16px);
   color: #685644;
-  font: 18px/1.6 var(--font-serif);
+  font: clamp(.8125rem, 3.8cqw, .9375rem)/1.5 var(--font-serif);
   text-align: center;
 }
 .editor-interaction-photo {
@@ -1298,4 +1317,17 @@ span.gift-comparison-range {
 .rsvp-panel button {
   min-height: 44px;
   font-size: 16px;
+}
+
+/* An optional secondary action keeps the same keyboard and touch target. */
+.gift-runtime-control.gift-runtime-control-text {
+  min-width: 44px;
+  border: 0;
+  box-shadow: none;
+  text-decoration: none;
+  font-weight: 400;
+}
+.gift-runtime-control-text:hover .gift-runtime-control-label {
+  text-decoration: underline;
+  text-underline-offset: 4px;
 }

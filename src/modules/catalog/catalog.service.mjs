@@ -37,7 +37,7 @@ export function publicTemplate(template) {
     const document = createDocument({ template });
     const albumSlots = document.elements.filter(e => e.type === 'interaction' && e.props.kind === 'swipe-album' && e.props.optional)
       .reduce((count, e) => count + e.props.photos.length, 0);
-    view.personalization = { bindings: [...visibleBindingKeys(document)], photoFrames: document.elements.filter(isPhotoFrame).length + albumSlots, layout: true };
+    view.personalization = { bindings: [...visibleBindingKeys(document)], photoFrames: document.elements.filter(isPhotoFrame).length + albumSlots + document.elements.filter(e => e.type === 'image' && e.props.optional && !e.props.assetId).length, layout: true };
   }
   return view;
 }

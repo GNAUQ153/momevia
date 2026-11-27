@@ -13,7 +13,7 @@ import { previewSvg } from '../../web/js/shared/canvas/cover-svg.js';
 import { cleanGiftLayout } from '../../web/js/shared/canvas/clean-layout.js';
 
 const cards = catalog.flatMap(({items}) => items);
-const originalCards = cards.filter(card => card.id!=='sound-button' && !card.id.startsWith('object-') && !card.id.startsWith('natural-') && !card.id.startsWith('motion-') && !EVENT_CLUSTER_IDS.includes(card.id) && !card.id.startsWith("m54-") && !card.id.startsWith("m55-"));
+const originalCards = cards.filter(card => card.id!=='sound-button' && !card.id.startsWith('object-') && !card.id.startsWith('natural-') && !card.id.startsWith('motion-') && !card.id.startsWith('garden-') && !EVENT_CLUSTER_IDS.includes(card.id) && !card.id.startsWith("m54-") && !card.id.startsWith("m55-"));
 
 test('the pre-expansion V1 fixture round-trips without a document upgrade', () => {
   const document = JSON.parse(fs.readFileSync(new URL('../fixtures/canvas-v1.json',import.meta.url),'utf8'));
@@ -44,7 +44,7 @@ test('100 original library IDs match the approved 72 additions and the 28 origin
     'rectangle','rounded','ellipse','circle','divider','heart','star','flower','sparkles','balloon','cake','gift',
     'flowers','leaves','stars','envelope','gift-box','continue','replay','reply'];
   assert.deepEqual(originalCards.filter(card=>!card.id.startsWith('object-')).map(card=>card.id).sort(), [...baseline,...planned.map(([,id])=>id)].sort());
-  assert.deepEqual(catalog.filter(group => !group.label.startsWith("Kho trang trí - ") && !group.items.every(card=>card.id.startsWith("natural-")||card.id.startsWith("motion-"))).map(group=>group.items.length),[15,14,15,21,33,17,16]);
+  assert.deepEqual(catalog.filter(group => !group.label.startsWith("Kho trang trí - ") && !group.items.every(card=>card.id.startsWith("natural-")||card.id.startsWith("motion-")||card.id.startsWith("garden-"))).map(group=>group.items.length),[15,14,15,21,33,17,16]);
   for (const [,id,label] of planned) assert.equal(cards.find(card=>card.id===id).title,label);
   for (const card of cards) assert(matchesBlock(card, card.title),card.id);
   assert(matchesBlock(cards.find(card=>card.id==='wax-seal'),'con dau'));
@@ -98,7 +98,7 @@ test('photo and action publish blockers identify the slot, and layout reuse clea
   assert.deepEqual(copy.elements.at(-1).actions.map(action=>action.targetSceneId),copy.scenes.slice(1).map(scene=>scene.id));
 });
 
-test('33 effect IDs have compatible validated, persisted and public configurations', () => {
+test('35 effect IDs have compatible validated, persisted and public configurations', () => {
   const ids = new Set();
   for (const [family,{presets}] of Object.entries(effectFamilies)) {
     for (const id of Object.keys(presets)) {
@@ -118,7 +118,7 @@ test('33 effect IDs have compatible validated, persisted and public configuratio
       assert.equal(publicModel.effects[family].id,id);
     }
   }
-  assert.equal(ids.size,33);
+  assert.equal(ids.size,35);
   assert.equal(Object.keys(interactionKinds).length,11);
 });
 

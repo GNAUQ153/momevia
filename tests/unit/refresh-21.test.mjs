@@ -14,7 +14,8 @@ const before=JSON.parse(fs.readFileSync(new URL('../fixtures/refresh-21-before.j
 test('21 designs have distinct scenes; control documents retain all fields outside reviewed text spacing',()=>{
  assert.equal(Object.keys(REFRESH_21).length,21);
  const signatures=[new Set(),new Set(),new Set()];
- for(const row of current.filter(r=>r.kind==='template')){
+ // Garden Tea was added after this frozen 21-design rollout and has its own regression suite.
+ for(const row of current.filter(r=>r.kind==='template' && r.id!=='garden-tea')){
   if(!REFRESH_21[row.id]){
    const original=before.find(r=>r.kind==='template'&&r.id===row.id).definition.documents;
    const expected=structuredClone(original);

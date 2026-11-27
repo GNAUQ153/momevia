@@ -1,3 +1,4 @@
+import { editInvitation } from './invitation.js';
 import { createElement } from './registry.js';
 import { validateDocument } from './schema.js';
 import { createBasicTemplate } from './basic-templates.js';
@@ -67,6 +68,12 @@ export function templatePreviewDocument(template, localize = canonicalText) {
   if (OPEN_ME_TEMPLATE_IDS.includes(template?.id)) {
     for (const [binding, field] of [['recipientName', 'previewRecipient'], ['senderName', 'previewSender'], ['message', 'previewMessage']])
       doc.bindings[binding].value = localize(`templates.${template.id}.${field}`);
+  }
+  if (template?.id === 'garden-tea') {
+    doc.personalization = { version: 1, mode: 'manual' };
+    for (const [binding, field] of [['recipientName','previewRecipient'],['senderName','previewSender'],['message','previewMessage']]) doc.bindings[binding].value = localize(`templates.garden-tea.${field}`);
+    editInvitation(doc, 'date', '2027-01-09T15:00');
+    editInvitation(doc, 'venue', localize('templates.garden-tea.previewVenue'));
   }
   const prediction = predictionCard(doc);
   if (prediction) {

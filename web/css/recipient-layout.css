@@ -1,13 +1,16 @@
-/* Phones fill the viewport; only wide desktop screens use a centered card. */
+/* Preview and shared links fit the same authored card to the available screen. */
 body.is-playing-gift .recipient-section {
-  padding: 0;
+  display: grid;
+  place-items: start center;
+  min-height: 100svh;
+  padding: 16px 0;
 }
 body.is-playing-gift .recipient-section > .recipient-shell {
   width: 100%;
   max-width: none;
 }
 .recipient-shell {
-  --recipient-card-width: 100%;
+  --recipient-card-width: min(100%, var(--gift-content-limit, 720px), max(200px, calc((100svh - 36px - var(--gift-player-chrome, 0px)) * var(--gift-artboard-ratio, .462))));
   min-width: 0;
 }
 .recipient-shell .recipient-player-host {
@@ -15,14 +18,14 @@ body.is-playing-gift .recipient-section > .recipient-shell {
   max-width: 100%;
   margin-inline: auto;
   min-width: 0;
-  min-height: 100svh;
+  min-height: 0;
   background: var(--recipient-scene-background, transparent);
 }
 .recipient-shell .gift-runtime-mode-public {
   max-width: none;
 }
 .recipient-shell .gift-runtime-stage {
-  border-radius: 0;
+  border-radius: var(--layout-radius-card);
 }
 .recipient-shell [data-rsvp-host] {
   max-width: var(--recipient-card-width);
@@ -39,12 +42,12 @@ body.is-playing-gift .recipient-section > .recipient-shell {
     padding: 24px 0;
   }
   .recipient-shell {
-    --recipient-card-width: min(100%, var(--gift-content-limit, 720px), max(280px, calc((100svh - 48px) * var(--gift-artboard-ratio, .462))));
+    --recipient-card-width: min(100%, var(--gift-content-limit, 720px), max(200px, calc((100svh - 52px - var(--gift-player-chrome, 0px)) * var(--gift-artboard-ratio, .462))));
   }
   .recipient-shell .recipient-player-host {
     min-height: 0;
   }
   .recipient-shell .gift-runtime-stage {
-    border-radius: 16px;
+    border-radius: var(--layout-radius-card);
   }
 }

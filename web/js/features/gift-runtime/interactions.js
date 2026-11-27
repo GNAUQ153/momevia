@@ -1,3 +1,4 @@
+import { mountProgressScratch } from './scratch-progress.js';
 import { CANDLE_SKINS } from '../../shared/canvas/candle-skins.js';
 import { eventMediaUrl } from '../../shared/canvas/event-media.js';
 import { predictionResult } from '../../shared/canvas/prediction.js';
@@ -112,8 +113,10 @@ export function renderInteraction(model, { mode, signal, motion, bindings, rende
     scratch.setAttribute("aria-hidden", "true");
     covered.append(message, cover);
     if (live) covered.append(scratch);
+    let progressScratch;
     let open = false;
     const reveal = () => {
+      if (progressScratch) return progressScratch.reveal();
       if (open) return;
       open = true;
       scratch.hidden = cover.hidden = true;
@@ -123,7 +126,10 @@ export function renderInteraction(model, { mode, signal, motion, bindings, rende
       bypass.setAttribute("aria-disabled", "true");
     };
     const bypass = button(label("gift.interactions.openNow"), reveal);
-    if (live) {
+    if (live && model.props.appearance === 'scratch-progress-v1') {
+      root.append(covered, bypass);
+      progressScratch = mountProgressScratch({ root, scratch, cover, message, bypass, color, signal, motion });
+    } else if (live) {
       const brush = scratch.getContext("2d");
       brush.fillStyle = "#81649b";
       brush.fillRect(0, 0, scratch.width, scratch.height);
@@ -156,7 +162,7 @@ export function renderInteraction(model, { mode, signal, motion, bindings, rende
       for (const name of ["pointerup","pointercancel","lostpointercapture"])
         listen(scratch, name, event => { if (event.pointerId === pointer) { pointer = undefined; previous = null; } });
     }
-    root.append(covered, bypass);
+    if (!progressScratch) root.append(covered, bypass);
   } else if (kind === "foldout-letter") {
     if(model.props.appearance==='paper-fold-v2'){root.classList.add('gift-paper-fold-v2');root.style.setProperty('--gift-letter-paper',color); }
     for (const [index, entry] of entries.entries()) {
@@ -183,7 +189,7 @@ export function renderInteraction(model, { mode, signal, motion, bindings, rende
       index = target;
       root.dataset.albumIndex = String(index);
       picture.replaceChildren(!available.length && model.props.optional
-        ? node('p', 'gift-album-empty', label('gift.interactions.albumEmpty')) : renderPhoto(pages[index]));
+        ? node('p', 'gift-album-empty', label(mode === 'public' ? 'gift.interactions.albumEmptyRecipient' : 'gift.interactions.albumEmpty')) : renderPhoto(pages[index]));
       if(changed&&motion?.enabled()){
         const controller=pageMotion=new AbortController(),img=picture.querySelector('img');
         const play=()=>{if(signal?.aborted||controller.signal.aborted)return;void motion.run(picture,automatic?[{transform:'perspective(700px) rotateY(-12deg) scale(.98)',opacity:.55},{transform:'perspective(700px) rotateY(0deg) scale(1)',opacity:1}]:[{transform:`translateX(${direction*9}px)`,opacity:.55},{transform:'translateX(0px)',opacity:1}],{duration:automatic?420:240},controller.signal);};
@@ -240,6 +246,7 @@ export function renderInteraction(model, { mode, signal, motion, bindings, rende
     }
     frame.append(picture,caption);
     const pager = node("div", "gift-album-controls");
+    pager.hidden = pages.length < 2;
     pager.append(before,indicator,after);
     root.append(frame,pager);
     if (play) { play.hidden = available.length < 2; root.append(play); }

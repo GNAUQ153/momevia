@@ -1,7 +1,7 @@
 // Portable recipes are data, never JavaScript, HTML, SVG markup or CSS source.
 export const LIBRARY_KINDS = ['element_type', 'element', 'animation', 'effect', 'preset', 'template', 'artwork'];
 export const CORE_EFFECT_IDS = Object.freeze({ surface: ['S01','S02','S03','S04'], entrance: ['E01','E02','E03','E04','E05','E06'],
-  emphasis: ['A01','A02','A03','A04','A05'], transition: ['T01','T02','T03','T04','T05','T06'],
+  emphasis: ['A01','A02','A03','A04','A05'], transition: ['T01','T02','T03','T04','T05','T06','T07','T08'],
   ambience: ['B01','B02','B03','B04','B05','B06','B07','B08'], reaction: ['R01','R02','R03','R04'] });
 const check = (ok, message) => { if (!ok) throw Object.assign(new Error(`Canvas library: ${message}`), { status: 422, code: 'INVALID_LIBRARY_DEFINITION' }); };
 export const libraryId = value => typeof value === 'string' && /^[A-Za-z0-9_-]{1,128}$/.test(value);

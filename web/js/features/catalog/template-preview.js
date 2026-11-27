@@ -42,7 +42,12 @@ export function mountTemplatePreview(host, template, { api, onOpen, autoOpen = f
   // Locale, zoom and a visible Replay action can change the sticky toolbar's
   // height. Reserve its measured space when focusing content in the player.
   const syncScrollPadding = () => {
-    if (dialog.open) dialog.style.scrollPaddingTop = `${Math.ceil(toolbar.getBoundingClientRect().height) + 12}px`;
+    if (dialog.open) {
+      const height=Math.ceil(toolbar.getBoundingClientRect().height),css=getComputedStyle(dialog);
+      dialog.style.scrollPaddingTop = `${height + 12}px`;
+      const before=playerHost.getBoundingClientRect().top-dialog.getBoundingClientRect().top+dialog.scrollTop;
+      playerHost.style.setProperty('--gift-preview-chrome',`${before+(parseFloat(css.paddingBottom)||0)+36}px`);
+    }
   };
   const toolbarSize = globalThis.ResizeObserver ? new ResizeObserver(syncScrollPadding) : null;
   toolbarSize?.observe(toolbar);

@@ -19,7 +19,7 @@ function contrast(a, b) {
 
 test('all 12 original shared IDs retain distinct editable compositions and publish budgets', () => {
   const original = structuredClone(templates), signatures = new Set();
-  assert.equal(Object.keys(BASIC_TEMPLATES).length, 28);
+  assert.equal(Object.keys(BASIC_TEMPLATES).length, 29);
   const addedIds = new Set(addedSystemTemplates.map(template => template.id));
   for (const template of templates.filter(item => !addedIds.has(item.id))) {
     const d = createDocument({ template }); assert.equal(d.scenes.length, 3); assert(d.elements.length >= 18);
@@ -113,12 +113,12 @@ test('managed cover SVGs match validated layouts and escape text without scripts
     assert.equal(createHash('sha256').update(packaged).digest('hex'), release.templates[id].covers.vi.portrait);
     for (const value of [svg, packaged]) {
       assert.match(value, /viewBox="0 0 390 844"/);
-      assert.doesNotMatch(value.replace(fontRule, '').replace(/href="data:image\/webp;base64,[A-Za-z0-9+/=]+"/g, ''), /<script|foreignObject|onload=|href=|style=/i);
+      assert.doesNotMatch(value.replace(fontRule, '').replace(/href="data:image\/webp;base64,[A-Za-z0-9+/=]+"/g, ''), /<script|foreignObject|onload=|href=|(?<![-\w])style\s*=/i);
     }
     assert.equal(svg.includes(fontRule), defaultSvg.includes('Georgia,serif'));
     assert.doesNotMatch(svg.replace(fontRule, ''), /<style|url\(["']?(?:https?:|data:)/i);
     assert.doesNotMatch(defaultSvg, /Momevia Cover/);
-    assert.doesNotMatch(svg.replace(/href="data:image\/webp;base64,[A-Za-z0-9+/=]+"/g, ''), /<script|foreignObject|onload=|href=|style=/i);
+    assert.doesNotMatch(svg.replace(/href="data:image\/webp;base64,[A-Za-z0-9+/=]+"/g, ''), /<script|foreignObject|onload=|href=|(?<![-\w])style\s*=/i);
     assert.equal(/viewBox="0 0 390 844"/.test(svg), true);
   }
   const doc = templatePreviewDocument({ id: 'love-letter' }); doc.bindings.recipientName.value = '<script>alert(1)</script>';

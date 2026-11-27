@@ -344,13 +344,14 @@ export async function runExpandedBrowser(base, cookie, {cards, controls}, artifa
 
     await page.goto(`${base}/design/${controls.draftId}`);
     await control('preview').click();
-    const previewNav = n => dialog.locator('.gift-runtime-navigation button').nth(n-1);
-    await previewNav(2).click();
+    const previewNav = dialog.locator('.gift-runtime-scene-select');
+    const secondScene=await previewNav.locator('option').nth(1).getAttribute('value');
+    await previewNav.selectOption(secondScene);
     assert.equal(await dialog.locator('.gift-runtime-progress').getAttribute('value'), '2');
-    assert.equal(await previewNav(2).getAttribute('aria-current'), 'step');
-    await previewNav(2).press('ArrowRight');
-    assert(await previewNav(3).evaluate(node => node.ownerDocument.activeElement === node));
-    assert.equal(await previewNav(2).getAttribute('aria-current'), 'step');
+    assert.equal(await previewNav.inputValue(),secondScene);
+    await previewNav.focus();await previewNav.press('ArrowDown');
+    await page.waitForFunction(()=>globalThis.document.querySelector('.editor-preview-dialog .gift-runtime-progress')?.value===3);
+    assert(await previewNav.evaluate(node => node.ownerDocument.activeElement === node));
     await close();
 
     const guest = await pageFor(mobile);

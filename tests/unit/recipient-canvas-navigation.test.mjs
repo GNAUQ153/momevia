@@ -4,7 +4,7 @@ import { sceneProgress, createSceneNavigation } from '../../web/js/features/gift
 import { translate, vi } from '../../web/js/shared/locale.js';
 import en from '../../web/assets/locales/en.json' with { type: 'json' };
 
-function createFixture() {
+function createFixture(compact=false) {
   const handlers = {};
   const ownerDocument = { activeElement: null };
   ownerDocument.createElement = tagName => ({
@@ -12,6 +12,10 @@ function createFixture() {
     type: '',
     dataset: {},
     attrs: {},
+    handlers: {},
+    children: [],
+    replaceChildren(...children) { this.children=children; },
+    addEventListener(name,fn) { this.handlers[name]=fn; },
     offsetLeft: 0,
     offsetWidth: 100,
     setAttribute(name, value) { this.attrs[name] = value; },
@@ -19,6 +23,8 @@ function createFixture() {
     focus() { ownerDocument.activeElement = this; },
   });
   const navigation = {
+    attrs: {'aria-label':'Các cảnh'},
+    getAttribute(name) { return this.attrs[name]; },
     ownerDocument,
     children: [],
     clientWidth: 220,
@@ -36,6 +42,7 @@ function createFixture() {
   const player = createSceneNavigation(navigation, progress, {
     onSelect: id => chosen.push(id),
     signal: controller.signal,
+    compact,
   });
   const scenes = [
     { id: 'first', name: 'Mở thiệp' },
@@ -51,6 +58,16 @@ test('Scene progress reports position without modifying the Canvas document', ()
   assert.deepEqual(sceneProgress(scenes, 'invalid'), { index: 0, total: 3 });
   assert.deepEqual(sceneProgress([], 'a'), { index: 0, total: 0 });
   assert.deepEqual(sceneProgress(null, 'a'), { index: 0, total: 0 });
+});
+
+test('compact preview navigation keeps one accessible select and all scenes without a scrolling button rail',()=>{
+ const f=createFixture(true);f.player.sync(f.scenes,'second');
+ const select=f.navigation.children[0];assert.equal(select.tagName,'SELECT');assert.equal(select.value,'second');assert.equal(select.attrs['aria-label'],'Các cảnh');
+ assert.deepEqual(select.children.map(e=>[e.value,e.textContent]),[['first','1. Mở thiệp'],['second','2. Lời nhắn'],['third','3. Lưu giữ']]);
+ select.value='third';select.handlers.change();assert.deepEqual(f.chosen,['third']);
+ f.navigation.attrs['aria-label']='Scenes';f.player.sync(f.scenes.map(s=>({...s,name:'English: '+s.name})),'third');
+ assert.equal(f.navigation.children[0],select);assert.equal(select.attrs['aria-label'],'Scenes');assert.equal(select.children[0].textContent,'1. English: Mở thiệp');
+ f.player.sync([f.scenes[0]],'first');assert.equal(f.navigation.hidden,true);assert.equal(f.progress.hidden,true);
 });
 
 test('Navigation preserves DOM buttons across scene changes and updates progress', () => {

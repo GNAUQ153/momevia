@@ -68,6 +68,7 @@ export function createInspectorPanel({
     const fields = [input(message("editor.interface.blockBackground"), "props.color", p.color, { type: "color" })];
     if (p.kind === 'light-a-candle') fields.push(select(message('interactive.candleAppearance'),'props.appearance',p.appearance || 'classic',[['classic',message('interactive.candleClassic')],['cake-overlay-v1',message('interactive.candleOverlay')],['cake-photo-v2',message('interactive.candlePhoto')]]));
     if(p.kind==='foldout-letter')fields.push(select(message('interactive.foldPaper'),'props.appearance',p.appearance || 'classic',[['classic',message('interactive.foldClassic')],['paper-fold-v2',message('interactive.foldPaper')]]));
+    if (p.kind === 'scratch-ticket') fields.push(select(message('gift.interactions.scratchProgress'), 'props.appearance', p.appearance || 'classic', [['classic', message('gift.interactions.scratchClassic')], ['scratch-progress-v1', message('gift.interactions.scratchProgress')]]));
     if (p.kind === PREDICTION_KIND) return [...fields, createPredictionFields(model, 'inspector')];
     for (const [i, entry] of (p.entries || []).entries()) {
       fields.push(input(message(`editor.interactionField.${p.kind}.${i}.0`), `entry.${i}.heading`, entry.heading, { maxlength: 120 }));
@@ -109,7 +110,7 @@ export function createInspectorPanel({
             `slot.${photo.id}.${axis}`, toPercent(photo.focalPoint[axis]), { type: "number", min: 0, max: 100, step: .1 }))),
       ));
     }
-    if (spec.clock) {
+    if (spec.clock && p.clockSource !== 'invitation') {
       if (Object.hasOwn(p, 'clockMode')) fields.push(select(message('templates.story.dateMode'), 'props.clockMode', p.clockMode,
         [['countdown', message('templates.story.countdown')], ['elapsed', message('templates.story.elapsed')]]));
       const zones = new Set(["Asia/Ho_Chi_Minh", "UTC", p.timeZone, ...Intl.supportedValuesOf("timeZone")]);
@@ -268,9 +269,10 @@ export function createInspectorPanel({
           select(message("editor.interface.interaction"), "action.type", action?.type || "goToScene", [
             ["goToScene", message("editor.interface.nextScene")],
             ["replay", message("editor.interface.replay")],
+            ...(element.type === 'button' && (store.get().document.invitation || ['openEventMap', 'saveEventCalendar'].includes(action?.type)) ? [['openEventMap', message('templates.garden-tea.map')], ['saveEventCalendar', message('templates.garden-tea.calendar')]] : []),
           ]),
         );
-        if (action?.type !== "replay") {
+        if (!action || action.type === 'goToScene') {
           const doc = store.get().document;
           const destination = doc.scenes.find(scene => scene.id === action?.targetSceneId);
           children.push(node("details", { class: "editor-target-picker" },

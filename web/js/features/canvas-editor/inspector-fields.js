@@ -36,13 +36,13 @@ export function buildInspectorPropertyFields(element) {
       }
     } else if (["radius", "strokeWidth"].includes(key)) {
       fields.push(input(message(key === "radius" ? "editor.interface.radius" : "editor.interface.strokeWidth"),
-        `props.${key}`, props[key], { type: "number", min: 0, max: key === "radius" ? 512 : 40 }));
+        `props.${key}`, key==='radius'&&element.type==='button'?(props[key]??12):props[key], { type: "number", min: 0, max: key === "radius" ? 512 : 40 }));
     } else if (key === "kind") {
       fields.push(select(message("editor.interface.shape"), "props.kind", props.kind, [
         ["rectangle", message("editor.interface.shapeRectangle")],
         ["ellipse", message("editor.interface.shapeEllipse")],
         ["line", message("editor.interface.shapeLine")],
-        ...artworkChoices("shape", Object.keys(shapes).map((id, i) => [id, message(`editor.interface.shape.${["triangle", "diamond", "hexagon", "arch", "ribbon", "bubble"][i]}`)]), currentLocale()),
+        ...artworkChoices("shape", Object.keys(shapes).map((id, i) => [id, message(id.startsWith("garden-door-") ? `templates.garden-tea.${id.includes("left") ? "doorLeft" : "doorRight"}` : `editor.interface.shape.${["triangle", "diamond", "hexagon", "arch", "ribbon", "bubble"][i]}`)]), currentLocale()),
       ]));
     } else if (key === "mask" && props.mask) {
       fields.push(select(message("editor.interface.imageMask"), "props.mask", props.mask,
@@ -54,6 +54,20 @@ export function buildInspectorPropertyFields(element) {
     } else if (key === "pattern" && props.pattern) {
       fields.push(select(message("editor.interface.linePattern"), "props.pattern", props.pattern,
         artworkChoices("line", Object.keys(lines).map((id, i) => [id, message(`editor.interface.pattern.${["arc", "stitch", "arrow", "wave", "brace", "corners"][i]}`)]), currentLocale())));
+    } else if (key === "variant") {
+      fields.push(select(message('editor.buttonVariant.label'),'props.variant',props.variant||'filled',[
+        ['filled',message('editor.buttonVariant.filled')],['text',message('editor.buttonVariant.text')],
+      ]));
+    } else if (key === 'placement') {
+      fields.push(select(message('editor.buttonPlacement.label'),'props.placement',props.placement||'canvas',[
+        ['canvas',message('editor.buttonPlacement.canvas')],['footer',message('editor.buttonPlacement.footer')],
+      ]));
+    } else if (key === 'placeholder' && props.optional) {
+      fields.push(select(message('editor.emptyPhoto.label'),'props.placeholder',props.placeholder||'portrait',[
+        ['portrait',message('editor.emptyPhoto.portrait')],['collapse',message('editor.emptyPhoto.collapse')],
+      ]));
+    } else if (key === "fontStyle") {
+      if (Object.hasOwn(props, 'fontStyle')) fields.push(select(message("editor.fontStyle.label"), "props.fontStyle", props.fontStyle || "normal", [["normal", message("editor.fontStyle.normal")], ["italic", message("editor.fontStyle.italic")]]));
     } else if (key === "fit") {
       fields.push(select(message("editor.interface.photoFrame"), "props.fit", props.fit, [
         ["cover", message("editor.interface.fitCover")],
@@ -62,7 +76,7 @@ export function buildInspectorPropertyFields(element) {
     } else if (key === "stickerId") {
       fields.push(select(message("editor.interface.sticker"), "props.stickerId", props.stickerId,
         artworkChoices("sticker", Object.keys(stickerNames).map(id => [id, message(`editor.library.item.${id}`)]), currentLocale())));
-    } else if (!["preset", "pattern", "mask", "maskPath", "caption", "optional"].includes(key)) {
+    } else if (!["preset", "pattern", "mask", "maskPath", "caption", "optional", "placeholder", "replyMode"].includes(key)) {
       fields.push(input({
         label: message("editor.interface.label.button"),
         title: message("editor.interface.label.title"),

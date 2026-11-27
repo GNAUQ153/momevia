@@ -34,6 +34,8 @@ export const templates = [
   { id: 'loi-moi-ben-hien', title: canonicalText('templates.loi-moi-ben-hien.title'), subtitle: canonicalText('templates.loi-moi-ben-hien.subtitle'), theme: 'sage', style: canonicalText('templates.meta.style.nature'), category: canonicalText('templates.meta.category.wedding'), price: 0, scenes: 5, effect: canonicalText('templates.meta.effect.openLetter'), creator: 'Momevia Originals' },
   { id: 'cuon-phim-ngay-ay', title: canonicalText('templates.cuon-phim-ngay-ay.title'), subtitle: canonicalText('templates.cuon-phim-ngay-ay.subtitle'), theme: 'cream', style: canonicalText('templates.meta.style.nostalgic'), category: canonicalText('templates.meta.category.friendship'), price: 0, scenes: 4, effect: canonicalText('templates.meta.effect.openLetter'), creator: 'Momevia Originals' },
   { id: 'ban-do-ngay-ra-truong', title: canonicalText('templates.ban-do-ngay-ra-truong.title'), subtitle: canonicalText('templates.ban-do-ngay-ra-truong.subtitle'), theme: 'sky', style: canonicalText('templates.meta.style.elegant'), category: canonicalText('templates.meta.category.graduation'), price: 0, scenes: 5, effect: canonicalText('templates.meta.effect.openLetter'), creator: 'Momevia Originals' },
+  // Garden Tea pilot: free in local fixtures; no running Catalog is modified by source edits.
+  { id: 'garden-tea', title: canonicalText('templates.garden-tea.title'), subtitle: canonicalText('templates.garden-tea.subtitle'), theme: 'sage', style: canonicalText('templates.meta.style.nature'), category: canonicalText('templates.garden-tea.category'), cardType: 'invitation', price: 0, scenes: 9, effect: canonicalText('templates.garden-tea.effect'), creator: 'Momevia Originals' },
 ].map(template => ({
   ...template,
   category: template.category || canonicalText('templates.meta.category.birthday'),
@@ -42,4 +44,4 @@ export const templates = [
   createdAt: '2026-11-01T00:00:00.000Z',
 }));
 // Chỉ chèn mẫu hệ thống chưa tồn tại; không cập nhật đè giá, trạng thái hay snapshot cũ.
-export const addedSystemTemplates = templates.filter(template => ['loi-moi-ben-hien','cuon-phim-ngay-ay','ban-do-ngay-ra-truong','mot-ky-niem', 'hai-phong-bi', 'to-doan-cau-se-chon'].includes(template.id) || template.isSeasonal || ['birthday-radiance', 'thank-you-bloom', 'proud-of-you', 'faraway-hug', 'gentle-apology', 'calm-light'].includes(template.id));
+export const addedSystemTemplates = templates.filter(template => ['garden-tea','loi-moi-ben-hien','cuon-phim-ngay-ay','ban-do-ngay-ra-truong','mot-ky-niem', 'hai-phong-bi', 'to-doan-cau-se-chon'].includes(template.id) || template.isSeasonal || ['birthday-radiance', 'thank-you-bloom', 'proud-of-you', 'faraway-hug', 'gentle-apology', 'calm-light'].includes(template.id));

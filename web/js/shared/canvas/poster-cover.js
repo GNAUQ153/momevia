@@ -24,7 +24,17 @@ function fitLayers(layers, reference, box) {
 }
 
 export function posterCover(document, variant, id) {
-  if (!photoCovers.has(id) && !letterCovers.has(id) && id !== 'hai-phong-bi' && id !== 'to-doan-cau-se-chon') return document;
+  if (!photoCovers.has(id) && !letterCovers.has(id) && id !== 'hai-phong-bi' && id !== 'to-doan-cau-se-chon' && id !== 'garden-tea') return document;
+  if (id === 'garden-tea' && variant !== 'portrait') {
+    const doc = structuredClone(document), height = variant === 'seasonal' ? 466 : 330;
+    const scale = height / doc.artboard.baseSize.height;
+    for (const e of doc.elements) {
+      e.layout.y *= scale; e.layout.height = Math.max(1, e.layout.height * scale);
+      if (e.type === 'text') e.props.fontSize = Math.max(10, e.props.fontSize * Math.sqrt(scale));
+    }
+    doc.artboard.baseSize.height = height;
+    return doc;
+  }
   const seasonal = variant === 'seasonal';
   const height = seasonal ? 466 : 330;
   const doc = structuredClone(document);

@@ -394,7 +394,7 @@ export function mountDesigner(
     if (design.policy?.kind === "creator-template")
       return store.get().document.elements.find(element => element.id === design.policy.photoId);
     return store.get().document.elements.find(element =>
-      isLegacyFrame(element) && element.visible !== false && !element.locked &&
+      (isLegacyFrame(element) || (element.type === 'image' && element.props.optional)) && element.visible !== false && !element.locked &&
       !design.policy?.lockedElements?.[element.id]
     );
   }
@@ -938,8 +938,9 @@ export function mountDesigner(
     fitted = true;
     const scroll = main.querySelector(".editor-stage-scroll");
     const padding = getComputedStyle(scroll);
-    const width = scroll.clientWidth - parseFloat(padding.paddingLeft) - parseFloat(padding.paddingRight);
-    const height = scroll.clientHeight - parseFloat(padding.paddingTop) - parseFloat(padding.paddingBottom);
+    // Leave a small tolerance for outlines, artwork bleed and fractional zoom.
+    const width = scroll.clientWidth - parseFloat(padding.paddingLeft) - parseFloat(padding.paddingRight) - 8;
+    const height = scroll.clientHeight - parseFloat(padding.paddingTop) - parseFloat(padding.paddingBottom) - 8;
     const size = store.get().document.artboard.baseSize;
     setZoom(Math.min(1, Math.max(0.1, Math.min(width / size.width, height / size.height))));
   }
@@ -1715,6 +1716,7 @@ export function mountDesigner(
       const insertingGreeting = name === "insert-greeting";
       const block = catalog.flatMap(group => group.items).find(item => item.id === (insertingGreeting ? "greeting" : target.dataset.block));
       if (!block) return;
+      if (block.id === 'garden-attendance' && !store.get().document.invitation) throw new Error(t('templates.garden-tea.requiresEvent'));
       let models = block.create(),addedAssets=[];
       if(models.some(e=>photoSlots(e).some(slot=>slot.assetId))){
         const designId=design.id;target.disabled=true;
@@ -2172,8 +2174,8 @@ export function mountDesigner(
         }
         if (key === "action.type") {
           item.actions = [
-            value === "replay"
-              ? { on: "activate", type: "replay" }
+            ['replay', 'openEventMap', 'saveEventCalendar'].includes(value)
+              ? { on: 'activate', type: value }
               : { on: "activate", type: "goToScene", targetSceneId: null },
           ];
           return;

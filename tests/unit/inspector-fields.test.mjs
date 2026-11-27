@@ -52,7 +52,7 @@ test("Inspector chỉ dựng trường chung của từng loại, không nhân �
     line: ["props.color", "props.strokeWidth"],
     sticker: ["props.stickerId", "props.color", "props.strokeColor"],
     image: ["props.fit", "props.radius"],
-    button: ["props.label", "props.color"],
+    button: ["props.label", "props.color", "props.variant", "props.placement", "props.radius"],
     reply: ["props.title", "props.submitLabel", "props.color"],
     interaction: [],
   };
@@ -69,6 +69,7 @@ test("Các trường ảnh tùy chọn không làm lộ điều khiển không �
   const values = fields(buildInspectorPropertyFields(image));
   assert.ok(values.includes("props.mask"));
   assert.ok(values.includes("props.caption"));
+  assert.ok(values.includes("props.placeholder"));
   assert.ok(!values.includes("props.optional"));
   assert.ok(!values.includes("props.maskPath"));
 });

@@ -1,3 +1,10 @@
+## Unreleased — Phase 4.5A Catalog Layout (2026-11-27)
+
+- Làm mới bố cục Catalog bằng token màu, spacing, radius và elevation hiện có.
+- Chuẩn hóa lưới ba, hai và một cột; giữ focus, reduced motion và giao diện VI/EN.
+- Giữ renderer, bộ lọc, phân trang, artwork, giá và quyền sử dụng mẫu. Không thêm dependency hoặc migration.
+- Bổ sung năm kiểm thử hợp đồng CSS và cập nhật phiên bản stylesheet.
+
 ## Unreleased — Phase 4.4H.2 Marketing Performance Gate (2026-11-27)
 
 - Bổ sung nghiệm thu báo cáo local-lab v2 theo ngân sách p75, kiểm tra đủ dữ liệu VI/EN và viewport.

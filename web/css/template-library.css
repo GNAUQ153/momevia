@@ -147,6 +147,208 @@
     width: 100%;
   }
 }
+/* Phase 4.5A: bố cục danh mục dùng chung cho VI/EN. */
+.catalog-section.catalog-compact {
+  background: var(--color-page);
+  color: var(--color-ink);
+}
+
+.catalog-section.catalog-compact .catalog-toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-3);
+  margin-block: 0 var(--space-3);
+  min-width: 0;
+}
+
+.catalog-section.catalog-compact .catalog-title,
+.catalog-section.catalog-compact .catalog-toolbar__actions {
+  min-width: 0;
+}
+
+.catalog-section.catalog-compact .catalog-title h1 {
+  color: var(--color-ink);
+  font-family: var(--font-display);
+  overflow-wrap: anywhere;
+}
+
+.catalog-section.catalog-compact .catalog-intro {
+  margin: var(--space-1) 0 0;
+  color: var(--color-muted);
+  overflow-wrap: anywhere;
+}
+
+.catalog-section.catalog-compact #catalog-count {
+  color: var(--color-primary-hover);
+  font-size: var(--type-small);
+  overflow-wrap: anywhere;
+}
+
+.catalog-section.catalog-compact .catalog-toolbar__actions {
+  width: 100%;
+  gap: var(--space-2);
+}
+
+.catalog-section.catalog-compact .catalog-toolbar__actions .search-field {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.catalog-section.catalog-compact .catalog-create-cta {
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-align: center;
+  background: var(--color-gradient-action);
+  color: var(--color-on-primary);
+}
+
+.catalog-section.catalog-compact .catalog-create-cta:hover {
+  background: var(--color-primary-hover);
+}
+
+.catalog-section.catalog-compact .catalog-filters {
+  gap: var(--space-3);
+  margin-block: var(--space-3) var(--space-4);
+  padding: var(--space-3);
+  border-color: var(--color-border);
+  border-radius: var(--layout-radius-card);
+  background: var(--color-white);
+}
+
+.catalog-section.catalog-compact .catalog-range {
+  margin-block: var(--space-2) var(--space-3);
+  color: var(--color-muted);
+  font-size: var(--type-small);
+  overflow-wrap: anywhere;
+}
+
+/* Giữ hình ảnh, giá và metadata thật; chỉ thay bố cục thẻ. */
+.catalog-section.catalog-compact .catalog-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: stretch;
+  gap: var(--layout-card-gap);
+  min-width: 0;
+}
+
+.catalog-section.catalog-compact .catalog-grid .template-card {
+  min-width: 0;
+  border-color: var(--color-border);
+  border-radius: var(--layout-radius-card);
+  box-shadow: var(--layout-shadow-card);
+}
+
+.catalog-section.catalog-compact .catalog-grid .template-card__visual {
+  border-radius: var(--layout-radius-card-inner) var(--layout-radius-card-inner) 0 0;
+}
+
+.catalog-section.catalog-compact .catalog-grid .template-card__info {
+  min-width: 0;
+  padding: var(--space-4);
+}
+
+.catalog-section.catalog-compact .catalog-grid .template-card__title {
+  overflow-wrap: anywhere;
+}
+
+.catalog-section.catalog-compact .catalog-grid .empty-state {
+  grid-column: 1 / -1;
+  min-width: 0;
+}
+
+.catalog-section.catalog-compact .catalog-grid .template-card:focus-within {
+  border-color: var(--color-focus);
+  box-shadow: 0 0 0 2px var(--color-focus);
+}
+
+/* Màn hình rộng có vùng giới thiệu riêng, không đẩy mẫu trên mobile. */
+@media (min-width: 1001px) {
+  .catalog-section.catalog-compact .catalog-toolbar {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--space-6);
+    padding: var(--space-6);
+    border: 1px solid var(--color-border);
+    border-radius: var(--layout-radius-stage);
+    background: var(--color-gradient-section);
+  }
+
+  .catalog-section.catalog-compact .catalog-toolbar__actions {
+    flex-wrap: wrap;
+  }
+
+  .catalog-section.catalog-compact .catalog-toolbar__actions .search-field {
+    flex: 1 1 180px;
+  }
+}
+
+/* Hai cột từ điện thoại thông thường đến tablet. */
+@media (max-width: 1000px) {
+  .catalog-section.catalog-compact .catalog-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--layout-card-gap-mobile);
+  }
+}
+
+@media (max-width: 680px) {
+  .catalog-section.catalog-compact {
+    padding-block: var(--space-4);
+  }
+
+  .catalog-section.catalog-compact .catalog-toolbar {
+    gap: var(--space-2);
+  }
+
+  .catalog-section.catalog-compact .catalog-toolbar__actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .catalog-section.catalog-compact .catalog-toolbar__actions .search-field {
+    width: 100%;
+    flex: none;
+  }
+
+  .catalog-section.catalog-compact .catalog-filters {
+    gap: var(--space-2);
+    padding: var(--space-2);
+    margin-block: var(--space-2) var(--space-3);
+  }
+
+  .catalog-section.catalog-compact .catalog-grid {
+    gap: var(--space-3);
+  }
+
+  .catalog-section.catalog-compact .catalog-grid .template-card__info {
+    padding: var(--space-3);
+  }
+}
+
+@media (max-width: 370px) {
+  .catalog-section.catalog-compact .catalog-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Phản hồi thị giác nhẹ, không tạo animation loop hay dịch chuyển vùng bấm. */
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .catalog-section.catalog-compact .catalog-grid .template-card {
+    transition: border-color var(--ui-transition), box-shadow var(--ui-transition);
+  }
+
+  .catalog-section.catalog-compact .catalog-grid .template-card:hover {
+    border-color: var(--color-primary-light);
+    box-shadow: var(--layout-shadow-card-hover);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .catalog-section.catalog-compact .catalog-grid .template-card {
+    transition: none;
+  }
+}
+
 .detail-section .detail-grid {
   display: block;
 }

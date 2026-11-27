@@ -91,19 +91,18 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Cho phép đổi màu vector Signature chỉ có nét viền, giữ màu cố định và đường nét khi áp dụng Fabric.
-- Giới hạn Inspector của vector Signature ở các thuộc tính có tác dụng; giữ điều khiển hình học và ảnh hiện tại.
-- Cho phép sắp xếp ô ảnh tùy chọn chưa tải ảnh trong Fabric Studio, không thay đổi quyền Creator hoặc cho phép xuất ảnh placeholder.
-- Bổ sung kiểm thử hồi quy theo 6 concept; không thêm dependency hoặc migration.
+- Tạo sáu Canvas template nghiệm thu nội bộ VI/EN với artwork Signature riêng, bốn cảnh và slot sự kiện, ảnh tùy chọn.
+- Bổ sung factory và công cụ xuất JSON/SVG local; chưa kích hoạt Catalog hoặc MySQL seed, chưa triển khai opening riêng.
+- Không thêm dependency, migration hoặc ảnh cá nhân.
 
 **Các commit gần nhất trên `main`:**
 
+- `3f1bb7c` — feat(signature): introduce six editable bilingual template documents (2026-11-27)
 - `bb8ca53` — feat(signature): improve editable vector inspector and optional photo layout (2026-11-27)
 - `adb1872` — feat(signature): register six editable artwork collections in canvas library (2026-11-27)
 - `7292608` — feat(signature): introduce independent editable vector artwork (2026-11-27)
 - `f19e37f` — feat(templates): introduce 16 editable interactive Momevia Originals (2026-11-27)
 - `ec93b5a` — feat(ui): refine authentication aurora layout and accessible 3D motion (2026-11-27)
-- `5e19e91` — test(ui): add catalog business and responsive acceptance coverage (2026-11-27)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

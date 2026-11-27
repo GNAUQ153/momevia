@@ -1,3 +1,9 @@
+## Unreleased — Phase 4.5F Catalog Price Discovery (2026-11-27)
+
+- Phân loại giá mẫu theo số nguyên VND hợp lệ; không coi giá thiếu, rỗng hoặc sai kiểu là miễn phí.
+- Hiển thị giá và nhãn trả phí rõ ràng; đồng bộ giá trong Preview khi Hero đổi mẫu, giải thích phạm vi giá và quyền xuất bản bằng VI/EN.
+- Giữ tuyến tạo thiệp, quyền sử dụng, thanh toán, dữ liệu và phân trang; không thêm dependency hoặc migration.
+
 ## Unreleased — Phase 4.5E Seasonal Collections (2026-11-27)
 
 - Ưu tiên chiến dịch đang diễn ra, mùa sắp tới, sau đó các mùa đã qua; dữ liệu lịch thiếu không làm lỗi danh mục.

@@ -4,10 +4,13 @@ import { attr, createLocaleControl, message, onLocaleChange, setAttr, text, t } 
 import { isSystemTemplate } from '../../shared/template-copy.js';
 import { templateField, templateValue } from './template-copy.js';
 import { templateCreateUrl } from './template-create-url.js';
+import { templatePriceText, templatePriceTier } from './price.js';
 
 export function templatePreviewDialog(template) {
   return `<dialog class="template-preview-dialog" data-preview-state="idle" ${attr('aria-label', 'catalog.detail.previewLabel', { title: templateValue(template, 'title') })}>
     <div class="template-preview-toolbar"><h2>${templateField(template, 'title')}</h2><div class="template-preview-actions"><button class="btn btn--outline" type="button" data-template-reset hidden>${text('catalog.detail.replay')}</button><a class="btn btn--dark template-preview-use" href="${templateCreateUrl(template)}" data-template-use data-link>${text('catalog.detail.use')}</a><button class="btn btn--outline" type="button" data-template-close>${text('common.actions.close')}</button></div></div>
+    <div class="catalog-price-summary" data-template-preview-price data-price-tier="${templatePriceTier(template.price)}"><small>${text('catalog.price.label')}</small><strong>${templatePriceText(template.price)}</strong></div>
+    <p class="catalog-price-note">${text('catalog.price.scope')}</p>
     <p class="template-preview-note">${text('catalog.detail.previewNote')}</p>
     <p role="status" data-template-loading hidden>${text('catalog.detail.previewLoading')}</p>
     <div data-template-error hidden><p role="alert">${text('catalog.detail.previewError')}</p><button class="btn btn--outline" type="button" data-template-retry>${text('common.actions.retry')}</button></div>
@@ -25,6 +28,7 @@ export function mountTemplatePreview(host, template, { api, onOpen, autoOpen = f
   const close = dialog.querySelector('[data-template-close]');
   const useTemplate = dialog.querySelector('[data-template-use]');
   const reset = dialog.querySelector('[data-template-reset]');
+  const previewPrice = dialog.querySelector('[data-template-preview-price]');
   const loading = dialog.querySelector('[data-template-loading]');
   const errorPanel = dialog.querySelector('[data-template-error]');
   const retry = dialog.querySelector('[data-template-retry]');
@@ -106,6 +110,9 @@ export function mountTemplatePreview(host, template, { api, onOpen, autoOpen = f
       activeTemplate = getTemplate();
       // Hero tự đổi mẫu: CTA phải trỏ đến mẫu đang mở, không phải mẫu mặc định.
       useTemplate.setAttribute('href', templateCreateUrl(activeTemplate));
+      // Cập nhật giá cùng mẫu đang mở, giữ marker bản dịch của i18n.
+      previewPrice.dataset.priceTier = templatePriceTier(activeTemplate.price);
+      previewPrice.querySelector('strong').innerHTML = templatePriceText(activeTemplate.price);
       dialog.querySelector('.template-preview-toolbar h2').innerHTML = templateField(activeTemplate, 'title');
       setAttr(dialog, 'aria-label', message('catalog.detail.previewLabel', { title: templateValue(activeTemplate, 'title') }));
       opener = trigger;

@@ -1,5 +1,6 @@
 import { normalizeCardTypeFilter, templateCardType } from '../../shared/card-type.js';
 import { canonicalText } from '../../shared/locale.js';
+import { templatePriceTier } from './price.js';
 
 // Các phép lọc thuần, dùng chung cho giao diện và unit tests.
 export function searchText(value) {
@@ -25,7 +26,7 @@ export function filterTemplates(
   const type = normalizeCardTypeFilter(cardType);
   return templates.filter((template) => {
     const matchesStyle = style === "all" || style === "Tất cả" || template.style === style;
-    const matchesPrice = !freeOnly || Number(template.price) === 0;
+    const matchesPrice = !freeOnly || templatePriceTier(template.price) === 'free';
     const fields = [
       template.title,
       template.subtitle,

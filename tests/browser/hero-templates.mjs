@@ -38,6 +38,23 @@ export async function runHeroTemplatesBrowser(browser,base) {
       assert.deepEqual(writes,[]);assert.deepEqual(errors,[]);
     } finally {await context.close();}
   }
+  // Điện thoại không cần bật Reduced Motion để ngăn autoplay.
+  const touchContext = await browser.newContext({
+    viewport: { width: 390, height: 844 }, hasTouch: true, reducedMotion: 'no-preference',
+  });
+  try {
+    const page = await touchContext.newPage();
+    await page.goto(base);
+    const hero = page.locator('.mkt-hero');
+    const selectors = hero.locator('[data-hero-select]');
+    await page.waitForFunction(() => globalThis.document.querySelectorAll('[data-hero-select]').length === 5);
+    assert.equal(await hero.getAttribute('data-mkt-ambient-running'), null);
+    assert.equal(await hero.locator('[data-hero-progress]').evaluateAll(nodes =>
+      nodes.flatMap(node => node.getAnimations()).filter(animation => animation.playState === 'running').length), 0);
+    await selectors.nth(1).click();
+    await selectors.nth(1).and(page.locator('[aria-pressed="true"]')).waitFor();
+    assert.equal(await hero.getAttribute('data-mkt-ambient-running'), null);
+  } finally { await touchContext.close(); }
   await runHeroMotionBrowser(browser,base);
   console.log('PASS classic five-template cycle: one foreground, decoded next-card teaser behind, circular handoff, no pause button, correct preview/version VI/EN and zero writes.');
 }

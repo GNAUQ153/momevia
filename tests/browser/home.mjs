@@ -226,7 +226,7 @@ export async function runHomeBrowser(base) {
           assert(await journey.locator('[data-mkt-step="create"]').evaluate(node =>
             parseFloat(globalThis.getComputedStyle(node).fontSize) >= 13), 'mobile step labels remain readable');
           await journey.locator('[data-mkt-step="create"]').click();
-          await journey.locator('[data-mkt-journey-scene]').evaluate(scene => {
+          const afterVertical = await journey.locator('[data-mkt-journey-scene]').evaluate(scene => {
             const makeTouch = (type, x, y) => {
               const touch = new globalThis.Touch({ identifier: 1, target: scene, clientX: x, clientY: y });
               const options = type === 'touchstart'
@@ -235,8 +235,13 @@ export async function runHomeBrowser(base) {
               scene.dispatchEvent(new globalThis.TouchEvent(type, options));
             };
             makeTouch('touchstart', 215, 120);
+            makeTouch('touchend', 212, 240);
+            const stage = scene.dataset.stage;
+            makeTouch('touchstart', 215, 120);
             makeTouch('touchend', 120, 123);
+            return stage;
           });
+          assert.equal(afterVertical, 'create', 'Vertical swipe does not change stage');
           assert.equal(await journey.locator('[data-mkt-journey-scene]').getAttribute('data-stage'), 'share');
           assert.equal(await journey.locator('[data-mkt-step="share"]').getAttribute('aria-pressed'), 'true');
           assert.equal(await journey.locator('[data-mkt-panel="share"]').isVisible(), true);

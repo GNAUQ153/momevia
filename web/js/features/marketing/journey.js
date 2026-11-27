@@ -106,14 +106,14 @@ export function mountJourney(root, { signal } = {}) {
     const start = touchStart;
     touchStart = null;
     const touch = [...(event.changedTouches || [])].find(item => item.identifier === start.id);
-    if (!touch) return;
+    if (!touch || event.touches?.length) return;
     const direction = journeySwipeDirection(start, { x: touch.clientX, y: touch.clientY });
     if (!direction) return;
     // Không quay vòng tự động ở hai đầu, để nội dung không bất ngờ nhảy ngược.
     const nextIndex = Math.max(0, Math.min(journeySteps.length - 1, activeIndex + direction));
     if (nextIndex === activeIndex) return;
+    // activate chỉ cuộn rail ngang; không kéo viewport dọc theo nút.
     activate(journeySteps[nextIndex]);
-    buttons[nextIndex]?.scrollIntoView?.({ block: 'nearest', inline: 'nearest', behavior: 'instant' });
   }
 
   function onTouchCancel() {

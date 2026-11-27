@@ -1,3 +1,10 @@
+## Unreleased — Signature S3 (2026-11-27)
+
+- Cho phép đổi màu vector Signature chỉ có nét viền, giữ màu cố định và đường nét khi áp dụng Fabric.
+- Giới hạn Inspector của vector Signature ở các thuộc tính có tác dụng; giữ điều khiển hình học và ảnh hiện tại.
+- Cho phép sắp xếp ô ảnh tùy chọn chưa tải ảnh trong Fabric Studio, không thay đổi quyền Creator hoặc cho phép xuất ảnh placeholder.
+- Bổ sung kiểm thử hồi quy theo 6 concept; không thêm dependency hoặc migration.
+
 ## Unreleased — Signature S2 (2026-11-27)
 
 - Đăng ký sáu cụm artwork Signature vào thư viện Elements, hỗ trợ chèn 34 layer độc lập và tìm kiếm VI/EN.

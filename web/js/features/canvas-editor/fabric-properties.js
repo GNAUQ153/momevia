@@ -43,8 +43,14 @@ export function propertyToFabric(shape, model, field, value) {
   switch (field) {
     case 'opacity': prop = { opacity: accepted }; break;
     case 'color':
-      prop = { fill: accepted };
-      for(const child of shape.getObjects?.()||[]){if(child.momeviaFillBinding)child.set('fill',accepted);if(child.momeviaStrokeBinding)child.set('stroke',accepted);}
+      if (model.artwork || model.assembly) {
+        // Chỉ đổi màu đã liên kết, không tô kín nền trong suốt hoặc màu cố định của artwork.
+        for (const child of shape.getObjects?.() || []) {
+          if (child.momeviaFillBinding) child.set('fill', accepted);
+          if (child.momeviaStrokeBinding) child.set('stroke', accepted);
+        }
+        prop = { dirty: true };
+      } else prop = { fill: accepted };
       break;
     case 'strokeColor': prop = { stroke: accepted }; break;
     case 'strokeWidth': prop = { strokeWidth: accepted }; break;

@@ -12,6 +12,11 @@ export function canFabricEdit(element, policy = null) {
     policy?.kind !== 'creator-template';
 }
 
+// Ô ảnh tùy chọn chưa có asset khác với ảnh đã tải nhưng bị lỗi.
+export function isOptionalEmptyPhoto(element) {
+  return element?.type === 'image' && element.props?.optional === true && element.props.assetId === null;
+}
+
 export function displayText(element, document) {
   const name = displayRecipient(document);
   if (element.props.textBinding === 'recipientName' && document.personalization?.mode && document.personalization.mode !== 'manual') return t('recipient.address', { name });

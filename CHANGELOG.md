@@ -1,3 +1,9 @@
+## Unreleased — Phase 4.5D Template Preview Experience (2026-11-27)
+
+- Chuẩn hóa giao diện xem thử theo token, ưu tiên CTA dùng mẫu, trạng thái tải/lỗi rõ ràng và bố cục responsive.
+- Giữ ghi chú mô phỏng trong suốt phiên xem; đặt lại trạng thái tải và vị trí cuộn khi mở lại, giữ cơ chế hủy request và dispose player.
+- Giữ URL tạo thiệp, phiên bản mẫu, quyền truy cập và runtime hiện có; không thêm dependency hoặc migration.
+
 ## Unreleased — Phase 4.5C Catalog Card Motion (2026-11-27)
 
 - Hiệu ứng nghiêng CSS 3D chỉ trên artwork khi dùng chuột, giữ nguyên vị trí nút yêu thích, vùng xem mẫu và metadata.

@@ -91,18 +91,17 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Ưu tiên chiến dịch đang diễn ra, mùa sắp tới, sau đó các mùa đã qua; dữ liệu lịch thiếu không làm lỗi danh mục.
-- Hiển thị nhãn theo mùa, tên dịp, giá thật và số mẫu; đồng bộ VI/EN, token, responsive, focus và reduced motion.
-- Giữ danh sách chính, bộ lọc, quyền sử dụng mẫu và dữ liệu seed; không thêm dependency hoặc migration.
+- Đổi marker giá Preview để tránh trùng tiền tố với nút mở Preview; giữ nguyên giá và luồng tạo thiệp.
+- Bổ sung kiểm thử hồi quy marker, không nới lỏng các kiểm thử Hero hiện có.
 
 **Các commit gần nhất trên `main`:**
 
+- `e42575f` — fix(ui): isolate preview price marker from hero trigger contract (2026-11-27)
+- `eb55454` — feat(ui): improve free and premium discovery with consistent price validation (2026-11-27)
 - `a08f2c3` — feat(ui): enhance seasonal collections and holiday discovery (2026-11-27)
 - `5736edf` — feat(ui): improve template preview experience and player lifecycle (2026-11-27)
 - `fb06df1` — feat(ui): introduce accessible catalog card depth and motion (2026-11-27)
 - `2606610` — feat(ui): add accessible active catalog filters and independent removal (2026-11-27)
-- `57813cb` — feat(ui): redesign responsive catalog layout using shared design tokens (2026-11-27)
-- `eaea20d` — feat(performance): add marketing acceptance gate and regression budgets (2026-11-27)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

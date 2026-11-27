@@ -4,6 +4,7 @@
 - Catalog tính số cảnh và hiệu ứng của 16 Originals theo thiết kế hiện tại, không dùng giá trị cũ còn lưu trong MySQL (mẫu có nhánh hiển thị 6 cảnh).
 - Sửa lỗi kiểm tra mã (no-undef) trong scripts/build/originals-console.mjs làm CI của hai commit trước thất bại.
 - Thêm test cho kiểu MIME .mjs trên Hostinger và số cảnh Catalog.
+- Đưa railpack.json vào gói phát hành để test trong bản đóng gói tìm thấy cấu hình font.
 
 ## Unreleased - Sửa font ảnh bìa trên Railway (2026-11-28)
 

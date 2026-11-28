@@ -91,19 +91,17 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Hostinger trả .mjs là text/plain; kèm nosniff, trình duyệt chặn Fabric Studio và bộ đọc Excel danh sách người nhận. Thêm AddType text/javascript .mjs vào .htaccess.
-- Catalog tính số cảnh và hiệu ứng của 16 Originals theo thiết kế hiện tại, không dùng giá trị cũ còn lưu trong MySQL (mẫu có nhánh hiển thị 6 cảnh).
-- Sửa lỗi kiểm tra mã (no-undef) trong scripts/build/originals-console.mjs làm CI của hai commit trước thất bại.
-- Thêm test cho kiểu MIME .mjs trên Hostinger và số cảnh Catalog.
+- Bổ sung audit metadata chỉ đọc cho migration 020; pin checksum migration và chặn nghiệm thu nếu cấu trúc session không khớp.
+- Mở rộng MySQL QA hiện có để kiểm tra phiên legacy, thu hồi từng phiên và đổi mật khẩu cạnh tranh qua hai kết nối; ghi rõ điều kiện nghiệm thu Auth.
 
 **Các commit gần nhất trên `main`:**
 
+- `6deb6e7` — test(canvas): keep recovery-journey at its relative path inside the fixture (2026-11-28)
+- `2e712c7` — feat(auth): consent, privacy center, session inventory and festival UI (2026-11-28)
 - `2af4740` — fix(release): include railpack.json in the verified release package (2026-11-28)
 - `da3eeee` — fix: serve .mjs as JavaScript on Hostinger and derive Originals scene count (2026-11-28)
 - `643ed6c` — fix(deploy): keep Railpack default runtime packages alongside fonts (2026-11-28)
 - `3e0dd79` — fix(deploy): install fonts on Railway for server-rendered covers (2026-11-28)
-- `b7c0622` — fix(ci): seed demo paid draft from direct template link (2026-11-28)
-- `aa78c23` — feat(templates): redesign 16 Originals as recipient-first stories (2026-11-28)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

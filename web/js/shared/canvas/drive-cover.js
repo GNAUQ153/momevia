@@ -6,7 +6,7 @@ export function driveInteractionSvg(node,images,photoSvg,labelSvg,event){
 }
 function driveContentSvg(node,images,photoSvg,labelSvg,event){
  const p=node.props,{width:w,height:h}=node.layout;
- const background=`<rect width="${w}" height="${h}" rx="${p.appearance==='soft-v2'?(p.cornerRadius??24):8}" fill="${p.color}"/>`;
+ const background=`<rect width="${w}" height="${h}" rx="${['soft-v2','object-crafted-v4'].includes(p.appearance)?(p.cornerRadius??24):8}" fill="${p.color}"/>`;
  if(p.kind==='calendar-peel'){
   const month=calendarMonth(p.clockSource==='invitation'?event?.eventAt:p.eventAt,p.clockSource==='invitation'?event?.timeZone:p.timeZone);
   if(!month)return background+labelSvg(p.entries[0].heading,16,45,w-32,24);

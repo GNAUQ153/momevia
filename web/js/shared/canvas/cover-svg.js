@@ -1,5 +1,6 @@
 import {NATURAL_OPENINGS,OBJECT_APPEARANCE,DIPLOMA_MASK} from './natural-objects.js';
 import {naturalOpeningCover} from './natural-object-cover.js';
+import {instantCameraSvg} from './instant-camera.js';
 import { gardenFlowerPaths, gardenSprigPaths } from './garden-botanical.js';
 import { scenePresentation } from './scene-presentation.js';
 import { isSceneFooter, sceneFooterLayout } from './scene-footer.js';
@@ -120,7 +121,10 @@ function labelSvg(text, x, y, w, size = 16, color = '#32243B') {
 }
 
 function interactionSvg(node, images, event) {
-  if(node.props.appearance===OBJECT_APPEARANCE&&node.props.objectAssetId){
+  if(node.props.appearance==='object-crafted-v4'&&node.props.kind==='camera-print'){
+    const p=node.props,{width:w,height:h}=node.layout;return `<rect width="${w}" height="${h}" rx="${p.cornerRadius??24}" fill="${p.color}"/>`+labelSvg(p.entries[0].heading,18,40,w-36,22,p.inkColor||'#27394B')+`<g transform="translate(${(w-220)/2} 85) scale(${220/280})">${instantCameraSvg(p,'instant-'+node.id)}</g>`;
+  }
+  if([OBJECT_APPEARANCE,'object-crafted-v4'].includes(node.props.appearance)&&node.props.objectAssetId){
     const p=node.props,{width:w,height:h}=node.layout,media=images.get(p.objectAssetId),aw=w-40,ay=74,ah=p.kind==='camera-print'?aw: p.kind==='cap-toss'?aw/2:aw/4,id='natural-interaction-'+node.id;
     const mask=p.kind==='ribbon-diploma'?`<clipPath id="${id}-pixels" clipPathUnits="objectBoundingBox"><path d="M${DIPLOMA_MASK.map(([x,y])=>x/100+' '+y/100).join('L')}Z"/></clipPath><filter id="${id}-key" color-interpolation-filters="sRGB"><feColorMatrix values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 20 0 -20 0 0" result="warm-mask"/><feComposite in="SourceGraphic" in2="warm-mask" operator="in"/></filter>`:'';
     return `<rect width="${w}" height="${h}" rx="${p.cornerRadius||24}" fill="${p.color}"/>`+labelSvg(p.entries[0].heading,18,40,w-36,22,p.inkColor||'#27394B')+(media?`${mask}<clipPath id="${id}"><rect width="${aw}" height="${ah}"/></clipPath><g transform="translate(20 ${ay})" clip-path="url(#${id})"><image href="${escape(media.url)}" y="${p.kind==='ribbon-diploma'?-aw*.4875:0}" width="${aw}" height="${p.kind==='camera-print'?aw:aw*.7}" preserveAspectRatio="xMidYMid meet" ${mask?`clip-path="url(#${id}-pixels)" filter="url(#${id}-key)"`:''}/></g>`:'');

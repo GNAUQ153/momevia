@@ -12,3 +12,8 @@ web/assets/audio-licenses/*-upstream-*.txt binary
 web/assets/fonts/app/bricolagegrotesque-OFL.txt -text whitespace=-blank-at-eol
 web/assets/fonts/app/bevietnampro-OFL.txt -text whitespace=-blank-at-eol
 web/assets/fonts/app/fraunces-OFL.txt -text whitespace=-blank-at-eol
+
+# Keep reviewed upstream animation/player bytes stable for checksum checks on Windows.
+web/assets/animations/goodeisgn-gift-opening.json -text
+web/js/vendor/lottie-light.mjs -text
+web/js/vendor/LOTTIE_LICENSE.txt -text

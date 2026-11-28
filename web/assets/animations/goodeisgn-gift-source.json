@@ -1,0 +1,25 @@
+{
+  "creator": "Goodeisgn",
+  "source": "https://embed.lottiefiles.com/animation/107704",
+  "archive": "https://assets-v2.lottiefiles.com/a/749eae30-117b-11ee-b817-339b21bf6ffe/f0FS6PJgii.lottie",
+  "license": "https://lottiefiles.com/page/license",
+  "engine": "lottie-web 5.13.0 SVG light (MIT), official npm registry package",
+  "reviewedFrames": [
+    0,
+    10,
+    20,
+    30,
+    40,
+    49
+  ],
+  "files": [
+    {
+      "file": "web/assets/animations/goodeisgn-gift-opening.json",
+      "sha256": "cfee3ad96d8009cc73fb11ef25a6a448d26a428cec40fe74d13e9993a59bbb30"
+    },
+    {
+      "file": "web/js/vendor/lottie-light.mjs",
+      "sha256": "f25f2342b7d307ed8b59907db43328b55f2b504780c6744b023d9249a0bc1a81"
+    }
+  ]
+}

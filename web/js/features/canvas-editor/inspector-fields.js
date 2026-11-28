@@ -17,7 +17,8 @@ export function buildInspectorPropertyFields(element) {
   const { props } = element;
   const fields = [];
   for (const key of element.type === "interaction" ? [] : registry[element.type].inspector) {
-    if(['sealColor','paperColor'].includes(key)&&!props.preset?.startsWith('wax-letter')&&props.preset!=='lid-volume-v4')continue;
+    if(key==='objectDepth'){if(props.preset==='lid-source-v6')fields.push(input(message('crafted.depth'),'props.objectDepth',props.objectDepth??8,{type:'number',min:0,max:16}));continue;}
+    if(['sealColor','paperColor'].includes(key)&&!props.preset?.startsWith('wax-letter')&&!['lid-volume-v4','lid-source-v6'].includes(props.preset))continue;
     if(['cornerRadius','motionSpeed'].includes(key)&&!Object.hasOwn(props,key)&&!['lid-card-v2','wax-letter-v2',...NATURAL_OPENINGS].includes(props.preset)&&!['paper-soft-v2','garden-soft-v2'].includes(props.appearance))continue;
     if(['cornerRadius','motionSpeed'].includes(key)&&['envelope','gift-box'].includes(element.type)&&!['lid-card-v2','wax-letter-v2',...NATURAL_OPENINGS].includes(props.preset))continue;
     if(key==='cornerRadius'&&element.type==='reply'&&!['paper-soft-v2','garden-soft-v2'].includes(props.appearance))continue;
@@ -56,7 +57,7 @@ export function buildInspectorPropertyFields(element) {
       fields.push(select(message("editor.interface.imageMask"), "props.mask", props.mask,
         artworkChoices("mask", Object.keys(masks).map((id, i) => [id, message(`editor.interface.mask.${["round", "arch", "heart", "torn"][i]}`)]), currentLocale())));
      } else if(key==='preset'&&['classic','lid-card-v1','wax-letter-v1','lid-card-v2','wax-letter-v2',...NATURAL_OPENINGS].includes(props.preset)) {
-      fields.push(select(message('drive.openingStyle'),'props.preset',props.preset,element.type==='gift-box'?[['lid-volume-v4',message('natural.style')],['lid-card-natural-v3',message('natural.legacyPhoto')],['lid-card-v2',message('soft.soft')],['lid-card-v1',message('drive.block.santa-gift-box')],['classic',message('interactive.foldClassic')]]:[['wax-letter-natural-v3',message('natural.style')],['wax-letter-v2',message('soft.soft')],['wax-letter-v1',message('drive.block.soiree-envelope')],['classic',message('interactive.foldClassic')]]));
+      fields.push(select(message('drive.openingStyle'),'props.preset',props.preset,element.type==='gift-box'?[['lid-source-v6',message('crafted.giftStyle')],['lid-volume-v4',message('natural.style')],['lid-card-natural-v3',message('natural.legacyPhoto')],['lid-card-v2',message('soft.soft')],['lid-card-v1',message('drive.block.santa-gift-box')],['classic',message('interactive.foldClassic')]]:[['wax-letter-natural-v3',message('natural.style')],['wax-letter-v2',message('soft.soft')],['wax-letter-v1',message('drive.block.soiree-envelope')],['classic',message('interactive.foldClassic')]]));
     } else if (key === "caption" && Object.hasOwn(props, key)) {
       fields.push(field(message("editor.interface.caption"), node("textarea", {
         "data-editor-field": "props.caption", maxlength: LIMITS.text, rows: 3,

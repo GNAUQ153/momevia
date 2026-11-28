@@ -7,7 +7,7 @@ test('legacy models remain classic until the soft variant is explicitly chosen',
  softenElement(classic,{paper:'#FFF3DC',ink:'#183E35',accent:'#983F4E',detail:'#BB8050'});assert.equal(classic.props.preset,'lid-card-v2');assert.equal(classic.effects.reaction.id,'R02');
 });
 test('soft library variants keep editable corner, pace and color fields through duplication',()=>{
- const model=driveElementCards().find(c=>c.id==='drive-calendar-peel').create()[0];assert.equal(model.props.appearance,'soft-v2');model.props.cornerRadius=32;model.props.motionSpeed='slow';model.props.accentColor='#773447';
+ assert.equal(driveBlockModels('calendar-peel',undefined,{soft:true})[0].props.appearance,'soft-v2');const model=driveElementCards().find(c=>c.id==='drive-calendar-peel').create()[0];assert.equal(model.props.appearance,'object-crafted-v4');model.props.cornerRadius=32;model.props.motionSpeed='slow';model.props.accentColor='#773447';
  const doc=createDocument();doc.schemaVersion=doc.registryVersion=2;doc.elements=[model];doc.scenes[0].elementIds=[model.id];const copy=duplicateDocument(doc);assert.equal(copy.elements[0].props.cornerRadius,32);assert.equal(copy.elements[0].props.motionSpeed,'slow');assert.equal(copy.elements[0].props.accentColor,'#773447');
  model.props.cornerRadius=49;assert.throws(()=>validateDocument(doc));assert(softDuration('fast')<softDuration('slow'));
 });

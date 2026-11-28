@@ -1,6 +1,7 @@
 import {EVENT_MEDIA} from './event-media.js';
 import {VOLUME_GIFT_PRESET} from './gift-volume.js';
-export const NATURAL_OPENINGS=[VOLUME_GIFT_PRESET,'wax-letter-natural-v3','lid-card-natural-v3'];
+import {SOURCE_GIFT_PRESET} from './source-gift.js';
+export const NATURAL_OPENINGS=[VOLUME_GIFT_PRESET,'wax-letter-natural-v3','lid-card-natural-v3',SOURCE_GIFT_PRESET];
 export const DRIVE_OPENING_PRESETS=['lid-card-v1','wax-letter-v1','lid-card-v2','wax-letter-v2',...NATURAL_OPENINGS];
 export const OBJECT_APPEARANCE='object-natural-v3';
 export const DIPLOMA_MASK=[[0,70],[27,73],[30,70],[34,69],[38,75],[43,79],[48,79],[54,74],[57,77],[61,81],[100,81],[100,100],[0,100]];
@@ -8,8 +9,8 @@ export const OBJECT_MEDIA={gift:'event-natural-element-3d-gift-01eeafd96b34',bow
 export function naturalizeObject(model,localize,{previousPreset}={}){
  const p=model.props;
  if(model.type==='gift-box'&&p.preset?.startsWith('lid-')){
-  const requestedPhoto=p.preset==='lid-card-natural-v3'&&previousPreset!==undefined,target=requestedPhoto?'lid-card-natural-v3':VOLUME_GIFT_PRESET,image=requestedPhoto?OBJECT_MEDIA.gift:OBJECT_MEDIA.bow;
-  Object.assign(p,{preset:target,assetId:(previousPreset??p.preset)===target?(p.assetId||image):image,cardText:p.cardText||localize('natural.cardText'),sealColor:p.sealColor||'#C69A60',paperColor:p.paperColor||'#FFF3DC',motionSpeed:'slow'});
+  const requestedPhoto=p.preset==='lid-card-natural-v3'&&previousPreset!==undefined,target=requestedPhoto?'lid-card-natural-v3':previousPreset!==undefined&&p.preset===VOLUME_GIFT_PRESET?VOLUME_GIFT_PRESET:SOURCE_GIFT_PRESET,image=requestedPhoto?OBJECT_MEDIA.gift:OBJECT_MEDIA.bow;
+  Object.assign(p,{preset:target,assetId:(previousPreset??p.preset)===target?(p.assetId||image):image,cardText:p.cardText||localize('natural.cardText'),sealColor:p.sealColor||'#C69A60',paperColor:p.paperColor||'#FFF3DC',motionSpeed:'slow'});if(target===SOURCE_GIFT_PRESET){delete p.assetId;p.objectDepth??=8;}
  }
  else if(model.type==='envelope'&&p.preset?.startsWith('wax-letter'))Object.assign(p,{preset:NATURAL_OPENINGS[1],assetId:p.assetId||OBJECT_MEDIA.envelope,sealAssetId:p.sealAssetId||OBJECT_MEDIA.seal,cardText:p.cardText||localize('natural.cardText'),motionSpeed:'slow'});
  else if(model.type==='interaction'&&['camera-print','ribbon-diploma','cap-toss'].includes(p.kind))Object.assign(p,{appearance:OBJECT_APPEARANCE,objectAssetId:p.objectAssetId||OBJECT_MEDIA[p.kind==='camera-print'?'camera':'cap']});
@@ -17,7 +18,7 @@ export function naturalizeObject(model,localize,{previousPreset}={}){
 }
 export function naturalizeDriveDocument(document,id,localize){
  for(const model of document.elements)naturalizeObject(model,localize);
- if(id==='secret-santa-invitation')for(const model of document.elements)if(model.props.preset===VOLUME_GIFT_PRESET)model.props.color='#2D6B53';
+ if(id==='secret-santa-invitation')for(const model of document.elements)if(model.props.preset===SOURCE_GIFT_PRESET)model.props.color='#2D6B53';
  if(['secret-santa-invitation','midnight-soiree','graduation-mixtape'].includes(id)){
   const cover=document.scenes.find(s=>s.id===document.entrySceneId),remove=new Set(cover.elementIds.filter(key=>key.startsWith(cover.id+'-theme-sticker-')));
   cover.elementIds=cover.elementIds.filter(key=>!remove.has(key));document.elements=document.elements.filter(e=>!remove.has(e.id));

@@ -6,14 +6,14 @@
       "revision": 1,
       "covers": {
         "vi": {
-          "portrait": "2cea6a28c042ac9b6b34a4770659f3f9b189678c5d69a2e84aa36410d5e10ed4",
-          "catalog": "77eb62464b83696569c3630d950bafa46fc07ce800c38e4de580f4abbd4e2a97",
-          "seasonal": "1dd1d66d3958397b686658b3b5a5c1e9f42172e0e8c7b1a980395e108a991bf3"
+          "portrait": "ac3186a7cf42345c4b7238ad606ad6a769e4c2eea973ae6d2c2d759bda984826",
+          "catalog": "ffb706e2c68bd7af2058825046ce9d79c17c971190a768137bacd9a737052e60",
+          "seasonal": "32298fd4565e41aad1a6847079ebbe6da624a0e95763f1874b65aa3bf75c27a1"
         },
         "en": {
-          "portrait": "d5b35736083dd7ae49704cf16021bb8d51cc4b2f47dc9582d8c5103526d7c94e",
-          "catalog": "2813781f3d77d694c348281853d88e0fa5d39c017d59752155f43be27b3bb2de",
-          "seasonal": "590d071310d5f4c94ea0cd8dbbb8fb2080e452a19f84f88a35a4c90afc2872bb"
+          "portrait": "fbaa28ad632c9891835d97cde37f581643ee6ca01f60907813ee586ec9055f6e",
+          "catalog": "8fad9370306906c3dce195d571d4f20370fa5ed4e215142131d06cdbace8f4f2",
+          "seasonal": "dcdebf989fa36fbeb90082611f65a42fec014ca6e63115c050a8f693dc4ce6fe"
         }
       }
     },
@@ -51,14 +51,14 @@
       "revision": 1,
       "covers": {
         "vi": {
-          "portrait": "aead624d78e20f3af986c35242fe906c783331340807350a0ac8218a80dbe77d",
-          "catalog": "56259cb8185c79c612cbcdab38da5117bad5714ee3819c79245556f4ad63c5b6",
-          "seasonal": "2cfd9c8e1984e718eeebfcf01a02f0be0e97a7b3cbfcdba0fedd304db0b11b97"
+          "portrait": "37666da14dad0c45550bc62e2599fff1325a917083dc9cdff09e87d683b4964b",
+          "catalog": "229bc6717bd0a4cccba8c9183c821eb4cfd496df28eb3e1c840424c46e1656f2",
+          "seasonal": "f0f468ccdbd32ae2b8c2a2a03d921bdb5906801b17e25e1081aa3dbd362a11f4"
         },
         "en": {
-          "portrait": "716b68e714af69755f99b0868264bcb97e87b1e771dc4505753f1f58d843d15e",
-          "catalog": "71f4365f2186c0b3495f3abad6bfd44e2297a9eb388c74b72b69601cec767480",
-          "seasonal": "900db1b2047629a3fe2518e6627253a18f63d8aea817b391e9fae517d122c875"
+          "portrait": "bb4780ff13dee45ebb58b2d3f11a6659120ef5b246a47e0900fdbacdda10400a",
+          "catalog": "6ce10747b9ee59f945128acf314732a57a1f4f715fa6f177456d292ae772bf72",
+          "seasonal": "1425e98768a9f1ad87373a7bdbd397fca08ca2a7d45de84d8e513ea23474c06d"
         }
       }
     },

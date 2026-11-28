@@ -22,7 +22,7 @@ export function createDriveTemplate(id,localize){
  const title=(at,key,y=70,size=36,color=p.ink)=>heading(at,`${at}-heading`,c(key),[28,y,334,96],size,color,'serif');
  const copy=(at,key,value,box,size=19,color=p.ink)=>text(at,key,value,box,size,color,'body','center');
  const block=(at,kind,box)=>{
-  const models=driveBlockModels(kind,localize),prefix=`${at}-${kind}`,map=new Map(models.map((e,i)=>[e.id,prefix+'-'+i]));
+  const models=driveBlockModels(kind,localize,{soft:kind==='pine-gift-tag'}),prefix=`${at}-${kind}`,map=new Map(models.map((e,i)=>[e.id,prefix+'-'+i]));
   const minX=Math.min(...models.map(e=>e.layout.x)),minY=Math.min(...models.map(e=>e.layout.y));
   const w=Math.max(...models.map(e=>e.layout.x+e.layout.width))-minX,h=Math.max(...models.map(e=>e.layout.y+e.layout.height))-minY;
   for(const model of models){model.id=map.get(model.id);if(model.groupId)model.groupId=map.get(model.groupId);const l=model.layout;Object.assign(l,{x:box[0]+(l.x-minX)*box[2]/w,y:box[1]+(l.y-minY)*box[3]/h,width:l.width*box[2]/w,height:l.height*box[3]/h});
@@ -57,7 +57,7 @@ export function createDriveTemplate(id,localize){
   const dark=p.cover;title(cover,'headline',76,44,p.paper);binding(cover,'cover-recipient','recipientName',[35,202,320,66],21,p.paper,'center');
   const [open]=block(cover,id==='secret-santa-invitation'?'santa-gift-box':'soiree-envelope',[33,307,324,352]);open.props.label=c('seal');open.accessibility.label=c('open');open.actions=[{on:'activate',type:'goToScene',targetSceneId:'scene-invitation'}];
   if(id==='secret-santa-invitation'){
-   for(const e of block(cover,'pine-gift-tag',[0,609,99,108]))if(e.type==='text'){e.props.text=c('tag');e.props.fontSize=11;}
+   for(const e of block(cover,'pine-gift-tag',[180,275,190,90]))if(e.type==='text'){e.props.text=c('tag');e.props.fontSize=12;}
   }
   else {shape(cover,'champagne-border',[18,18,354,808],dark,'rectangle',{strokeColor:p.detail,strokeWidth:1});doc.scenes[0].elementIds.unshift(doc.scenes[0].elementIds.pop());}
   copy(cover,'cover-hint',c('hint'),[55,731,280,60],16,p.paper);

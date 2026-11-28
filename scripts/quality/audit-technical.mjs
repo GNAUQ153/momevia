@@ -11,6 +11,7 @@ const root = fileURLToPath(new URL('../../', import.meta.url));
 
 // Chỉ chấp nhận các cạnh đã xác minh ngoài graph JS. Không miễn trừ cả thư mục vendor.
 const sourceEdges = new Map([
+  ['web/js/features/gift-runtime/source-gift.js -> web/js/vendor/lottie-light.mjs', 'web/js/vendor/lottie-light.mjs'],
   ['src/shared/locale.mjs -> web/assets/locales/en.json', 'web/assets/locales/en.json'],
   ['web/js/shared/locale.js -> web/assets/locales/vi.json', 'web/assets/locales/vi.json'],
   ['web/js/features/canvas-editor/library.js -> web/assets/canvas/vector-insertions-v1.json', 'web/assets/canvas/vector-insertions-v1.json'],

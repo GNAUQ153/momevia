@@ -50,3 +50,11 @@ Các tệp giấy phép đi cùng ở web/assets/event-cards/natural-v4/licenses
 ### CSS 3D box face placement
 
 The face-placement technique used by the scoped Canvas gift volume references [KILLERTIAN/3D-Box-Animation](https://github.com/KILLERTIAN/3D-Box-Animation), MIT License, Copyright (c) 2022 Om Sharma. The full MIT notice is retained in `web/js/features/gift-runtime/gift-volume.js`. Global resets, body styling and continuous cube rotations from that example are not imported.
+
+### Reviewed gift-opening animation · 28/11/2026
+
+Goodeisgn, [Gift Box Opening](https://embed.lottiefiles.com/animation/107704), distributed under the [Lottie Simple License](https://lottiefiles.com/page/license). The original vector JSON, source/hash manifest and full notice are in `web/assets/animations/`. Theme overrides and frame exports remain derivatives under the same license.
+
+The optional on-demand SVG player is lottie-web 5.13.0 from the official npm package, MIT. Its full license is `web/js/vendor/LOTTIE_LICENSE.txt`; the reviewed module hash is verified by the source quality check. No external CDN is contacted during gift playback.
+
+The pine/tag native composition uses OlKu's [fir branch with cones](https://openclipart.org/detail/173819/fir-branch-with-cones), [CC0-1.0](https://openclipart.org/share). Source contours are normalized, approximated at 0.08 in a 100-unit coordinate system, rounded to one decimal and coalesced by paint; source hash and transformation metadata accompany the animation/source manifests. The paper, punch hole and twine are native Momevia layers with independently editable copy.

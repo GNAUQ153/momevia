@@ -4293,5 +4293,8 @@
   "natural.cardTextLabel": "Chữ trên tấm thiệp",
   "natural.changedDuringUpload": "Vật thể đã thay đổi trong lúc tải hình. Vui lòng chọn lại kiểu.",
   "natural.legacyPhoto": "Ảnh mở thiệp",
-  "natural.ribbonColor": "Màu nơ và dải băng"
+  "natural.ribbonColor": "Màu nơ và dải băng",
+  "crafted.giftStyle": "Hộp mở Goodeisgn",
+  "crafted.style": "Vật thể và chuyển động tự nhiên",
+  "crafted.depth": "Độ nổi khối (0: tắt)"
 }

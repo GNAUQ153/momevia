@@ -1,9 +1,12 @@
 // A group belongs to one scene. Its ID is the ID of one of its own layers,
 // so the same ID map can rebind the whole group when a design or scene is copied.
-export function groupElements(elements) {
+export const ANCHORED_GROUP_LABEL='Momevia anchored composition v1';
+export const ANCHORED_SURFACE_LABEL='Momevia composition reading surface v1';
+export function groupElements(elements,{flow}={}) {
   if (elements.length > 1) {
     const anchor = elements.find(element => element.layout.rotation === 0) || elements[0];
     for (const element of elements) element.groupId = anchor.id;
+    if(flow==='anchored')anchor.accessibility={...anchor.accessibility,decorative:true,label:ANCHORED_GROUP_LABEL};
   }
   return elements;
 }

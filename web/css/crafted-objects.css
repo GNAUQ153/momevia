@@ -1,0 +1,209 @@
+/* Only the saved crafted appearance opts into these materials and movements. */
+.gift-drive-crafted .gift-drive-title {
+  font-size: clamp(20px, 1.3em, 27px);
+}
+.gift-drive-crafted .gift-drive-calendar {
+  position: relative;
+  padding: 18px 6px 10px;
+  border-top: 7px solid var(--drive-accent);
+  border-radius: 10px 10px 4px 4px;
+  box-shadow: 0 2px #e3d2b9, 0 4px #fffbf0, 0 6px #e3d2b9;
+  background: #fffcf4;
+}
+.gift-drive-crafted .gift-drive-calendar::before {
+  content: '';
+  position: absolute;
+  inset: -13px 14% auto;
+  height: 18px;
+  border-inline: 5px solid var(--drive-ink);
+  border-radius: 3px;
+}
+.gift-drive-crafted .gift-drive-date-sticker {
+  transform-origin: 90% 8%;
+  background: linear-gradient(135deg, #ffffff50, transparent 60%), var(--drive-detail);
+}
+.gift-drive-crafted .gift-drive-date-sticker.is-peeled {
+  transform: rotate(24deg) translate(3px, -4px) scale(.87);
+}
+.gift-drive-crafted.gift-drive-camera-print .gift-drive-camera {
+  position: relative;
+  z-index: 1;
+  height: 165px;
+  width: 220px;
+  max-width: 100%;
+  align-self: center;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
+}
+.gift-drive-crafted.gift-drive-camera-print .gift-drive-camera > svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.gift-drive-crafted .gift-drive-camera::before,
+.gift-drive-crafted .gift-drive-lens {
+  display: none;
+}
+.gift-drive-crafted.gift-drive-camera-print .gift-crafted-print-well {
+  position: relative;
+  width: min(230px, 100%);
+  height: 130px;
+  margin: -29px auto 0;
+  overflow: hidden;
+  z-index: 2;
+}
+.gift-drive-crafted.gift-drive-camera-print .gift-drive-print {
+  position: absolute;
+  top: 3px;
+  left: 24%;
+  width: 53%;
+  max-height: none;
+  padding: 7px 7px 15px;
+  margin: 0;
+  border: 1px solid #c7b9ad;
+  border-radius: 3px;
+  box-shadow: 0 5px 8px #27394b25;
+  transform: translateY(-108%) rotate(0);
+  opacity: 1;
+  transition: transform var(--drive-duration) cubic-bezier(.2,.8,.25,1);
+}
+.gift-drive-crafted.gift-drive-camera-print .gift-drive-print .gift-runtime-image,
+.gift-drive-crafted.gift-drive-camera-print .gift-drive-photo-empty {
+  height: 72px;
+  min-height: 72px;
+}
+.gift-drive-crafted.gift-drive-camera-print .gift-drive-print figcaption {
+  padding-top: 4px;
+  font-size: 10px;
+  line-height: 1.2;
+  max-height: 24px;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+.gift-drive-crafted.gift-drive-camera-print.is-printed .gift-drive-print {
+  transform: translateY(0) rotate(-3deg);
+}
+.gift-drive-crafted.gift-drive-camera-print .gift-drive-status:empty {
+  min-height: 0;
+}
+.gift-crafted-feedback {
+  position: relative;
+  text-align: center;
+}
+.gift-crafted-feedback-space {
+  visibility: hidden;
+  display: block;
+  overflow-wrap: anywhere;
+}
+.gift-crafted-feedback .gift-drive-status {
+  position: absolute;
+  inset: 0;
+}
+.gift-drive-crafted.gift-drive-camera-print .gift-drive-camera::after {
+  content: '';
+  position: absolute;
+  inset: 30% 20%;
+  background: #fff9e6;
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+}
+.gift-drive-crafted.is-printed .gift-drive-camera::after {
+  animation: crafted-flash calc(var(--drive-duration) * .28) ease-out;
+}
+.gift-drive-crafted.gift-drive-ribbon-diploma .gift-drive-paper {
+  min-height: 140px;
+  align-content: center;
+  overflow: hidden;
+}
+.gift-drive-crafted.gift-drive-ribbon-diploma .gift-natural-diploma-art {
+  flex: none;
+  max-width: 290px;
+  transform-origin: 50% 50%;
+  transition: transform calc(var(--drive-duration) * .6), opacity calc(var(--drive-duration) * .5);
+}
+.gift-drive-crafted.gift-drive-ribbon-diploma.is-revealed .gift-natural-diploma-art {
+  position: absolute;
+  inset: 18px 5% auto;
+  width: 90%;
+  transform: translateY(-70px) scaleX(1.05);
+}
+.gift-drive-crafted .gift-drive-paper-ribbon-diploma .gift-drive-reveal-body {
+  padding: 16px 6px;
+  border-block: 2px solid var(--drive-detail);
+}
+.gift-drive-crafted .gift-drive-paper-peel-letter {
+  background: repeating-linear-gradient(transparent 0 27px, #29445d12 28px), #fff9ec;
+  box-shadow: 0 7px 15px #27394b14;
+  border-radius: 4px 7px 14px 4px;
+}
+.gift-drive-crafted .gift-drive-tape {
+  top: -10px;
+  height: 34px;
+  background: repeating-linear-gradient(90deg, #ffffff22 0 1px, transparent 2px 5px), #d8ae63b3;
+  clip-path: polygon(0 4%, 4% 0, 8% 5%, 92% 0, 96% 6%, 100% 1%, 98% 96%, 92% 99%, 88% 94%, 9% 100%, 5% 94%, 0 99%);
+  transform-origin: 5% 50%;
+  transition: transform var(--drive-duration) cubic-bezier(.2,.8,.25,1), opacity var(--drive-duration);
+}
+.gift-drive-crafted.is-revealed .gift-drive-tape {
+  transform: translate(48px, -28px) rotate(25deg) scaleX(.6);
+  opacity: .35;
+}
+.gift-drive-crafted .gift-drive-paper-grade-stamp {
+  background: repeating-linear-gradient(transparent 0 31px, #29445d12 32px), #fff9ec;
+}
+.gift-drive-crafted .gift-drive-stamp {
+  border-style: double;
+  border-width: 5px;
+  border-radius: 50%;
+  font-weight: 700;
+  opacity: .12;
+  transform: rotate(-12deg) scale(1.35);
+  transition: opacity calc(var(--drive-duration) * .35), transform calc(var(--drive-duration) * .55) cubic-bezier(.18,.8,.32,1.15);
+}
+.gift-drive-crafted.is-revealed .gift-drive-stamp {
+  opacity: .9;
+  transform: rotate(-12deg) scale(1);
+}
+.gift-drive-crafted .gift-drive-pass {
+  box-shadow: 0 7px 16px #27394b16;
+  background: radial-gradient(circle at 100% 50%, transparent 8px, #fff9ec 9px);
+}
+.gift-drive-crafted.gift-drive-cap-toss .gift-drive-paper {
+  overflow: visible;
+}
+.gift-drive-crafted.gift-drive-cap-toss.is-revealed .gift-drive-cap {
+  animation: crafted-cap-flight var(--drive-duration) cubic-bezier(.2,.65,.3,1);
+  transform: translateY(-12px) rotate(-5deg);
+}
+@keyframes crafted-flash {
+  15% {
+    opacity: .55;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes crafted-cap-flight {
+  0% {
+    transform: translateY(0) rotate(0);
+  }
+  45% {
+    transform: translateY(-70px) rotate(14deg) scale(.9);
+  }
+  100% {
+    transform: translateY(-12px) rotate(-5deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gift-drive-crafted * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+.gift-runtime[data-motion=off] .gift-drive-crafted * {
+  animation: none !important;
+  transition: none !important;
+}

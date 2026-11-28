@@ -4,6 +4,7 @@ import {motionRow} from './motion-stack.js';
 import {localVideoModels} from './local-video.js';
 import {vividDriveDocument} from './drive-vivid.js';
 import {naturalizeDriveDocument} from './natural-objects.js';
+import {craftObject} from './crafted-objects.js';
 
 const backgrounds={
  'secret-santa-invitation':['#183E35','#FFF3DC','#F8ECD9','#EAF0E6','#FAEFD9','#F1E5DC','#F3E0C9','#FFF6E5','#E6EEE7'],
@@ -28,8 +29,9 @@ export function polishDriveDocument(doc,id,palette,localize){
   if(e.type==='image'&&e.accessibility.decorative&&doc.scenes.slice(1).some(s=>s.elementIds.includes(e.id)))e.opacity=Math.min(e.opacity??1,.3);
   if(e.type==='shape'&&e.props.kind==='rectangle'&&!e.artwork&&e.layout.width>100&&e.layout.height>100)e.effects={...e.effects,surface:eventRecipe('paper-shadow-v2')};
  }
- const sprig=doc.elements.find(e=>e.id.includes('pine')&&!e.motions&&e.type==='shape');
- if(sprig){const row=motionRow('sway','drive-sprig-sway-v2');Object.assign(row,{amplitude:.18,periodMs:5200,iterations:2});sprig.motions={version:1,enabled:true,rows:[row]};}
+ for(const sprig of doc.elements.filter(e=>e.accessibility.label==='Momevia evergreen sprig v1'&&!e.motions)){
+  const row=motionRow('sway',sprig.id+'-sway');Object.assign(row,{amplitude:.12,periodMs:5200,iterations:2});sprig.motions={version:1,enabled:true,rows:[row]};
+ }
  const scene=doc.scenes.find(s=>s.id===(id==='the-last-chapter-v2'?'scene-outro':'scene-message'));
  if(scene){
   const [video]=localVideoModels(localize);video.id='optional-video';video.name=localize('video.title');video.props.color=p.paper;Object.assign(video.layout,{x:28,y:id==='the-last-chapter-v2'?450:425,width:334,height:id==='the-last-chapter-v2'?250:280});
@@ -42,5 +44,7 @@ export function polishDriveDocument(doc,id,palette,localize){
   }
   if(scene.flow)scene.flow.region.height=260;
  }
- return naturalizeDriveDocument(vividDriveDocument(doc,id),id,localize);
+ const result=naturalizeDriveDocument(vividDriveDocument(doc,id),id,localize);
+ for(const e of result.elements)craftObject(e,localize);
+ return result;
 }

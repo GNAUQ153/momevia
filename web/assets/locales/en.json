@@ -4306,5 +4306,8 @@
   "natural.cardTextLabel": "Text on the card",
   "natural.changedDuringUpload": "The object changed while its artwork was loading. Choose the style again.",
   "natural.legacyPhoto": "Photo reveal",
-  "natural.ribbonColor": "Bow and ribbon color"
+  "natural.ribbonColor": "Bow and ribbon color",
+  "crafted.giftStyle": "Goodeisgn gift opening",
+  "crafted.style": "Crafted objects and motion",
+  "crafted.depth": "Depth (0: off)"
 }

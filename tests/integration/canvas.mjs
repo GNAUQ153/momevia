@@ -273,6 +273,12 @@ try {
     const {runCardPageFit}=await import('../browser/card-page-fit.mjs');
     await check('Shared screen fit: every built-in scene and future portrait/landscape prose pages',()=>runCardPageFit(base));
     const {runGiftVolumeProof}=await import('../browser/gift-volume.mjs');
+    const {runSourceGiftProof}=await import('../browser/source-gift.mjs');
+    const {runCraftedMotionProof}=await import('../browser/crafted-motion.mjs');
+    const {runAnchoredTagProof}=await import('../browser/anchored-tag.mjs');
+    await check('Anchored gift tag keeps longer copy on paper and clear of the opening control',()=>runAnchoredTagProof(base));
+    await check('Crafted camera keeps fitted mobile geometry during photo ejection, feedback and reset',()=>runCraftedMotionProof(base));
+    await check('Reviewed source gift animation preserves geometry, motion preferences and lifecycle',()=>runSourceGiftProof(base));
     await check('Physical gift box occludes the card while closed and exposes it after opening',()=>runGiftVolumeProof(base));
   }
   console.log(JSON.stringify({ gate: 'JSON API', cases, fixture: 'synthetic isolated single process', result: 'PASS' }));

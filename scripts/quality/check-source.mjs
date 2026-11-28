@@ -4,6 +4,7 @@ import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { load } from 'js-yaml';
 import { ESLint } from 'eslint';
+import {createHash} from 'node:crypto';
 import { checkLocales } from './check-locales.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
@@ -24,6 +25,8 @@ for (const file of walk(path.join(root, '.github/workflows')).filter(file => /\.
   if (!workflow.on || !workflow.jobs) throw new Error(`Invalid workflow structure: ${file}`);
 }
 const vendor = fs.readFileSync(path.join(root, 'web/js/vendor/qrcode.js'));
+const giftSource=JSON.parse(fs.readFileSync(path.join(root,'web/assets/animations/goodeisgn-gift-source.json'),'utf8'));
+for(const asset of giftSource.files)if(createHash('sha256').update(fs.readFileSync(path.join(root,asset.file))).digest('hex')!==asset.sha256)throw new Error('Reviewed gift source hash mismatch: '+asset.file);
 if (!vendor.equals(fs.readFileSync(path.join(root, 'node_modules/qrcode-generator/dist/qrcode.mjs')))) {
   throw new Error('QR module is out of date. Run npm run build.');
 }

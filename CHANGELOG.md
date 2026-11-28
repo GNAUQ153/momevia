@@ -1,3 +1,10 @@
+## Unreleased — Hộp nguồn đồng bộ và vật thể chuyển động mềm hơn (2026-11-28)
+
+- Thay hộp mới bằng trọn bộ vector/timeline Gift Box Opening của Goodeisgn; bìa xuất từ cùng animation, màu chỉnh được, chiều sâu 2.5D nhẹ có thể chỉnh/tắt. Đóng gói player SVG light local theo giấy phép, chỉ tải khi tương tác; có fallback và hủy khi rời cảnh. Giữ reader hộp v4 cũ.
+- Thêm kiểu crafted cho các khối Drive trong Canvas: máy ảnh có khe in gắn thân và ảnh trượt trong vùng cố định; lịch có gáy/mép giấy; bằng cuộn, mũ, dấu, băng keo và cuống vé có phản hồi phù hợp vật liệu. Giữ ảnh cá nhân, dữ liệu sự kiện, RSVP/reply và các ID/quyền.
+- Rà sáu mẫu, thêm kiểm geometry/chạm đôi/độ nổi/giảm chuyển động/hủy player và bảo toàn snapshot. Các kiểu mới chỉ dùng khi tạo/chọn rõ ràng; video và dữ liệu QA giữ local.
+- Sửa nhóm thông/thẻ Santa bằng nhánh vector CC0, thẻ có lỗ và dây; tách lá/quả khỏi chữ. Giữ nhóm và bản sao độc lập, tối ưu contour để không vượt budget. Chỉ thông đung đưa, giấy/chữ không dịch theo.
+
 ## Unreleased — Vật thể Canvas và hộp có chiều sâu (2026-11-28)
 
 - Rà lại sáu mẫu và dùng tài nguyên sẵn có trong Canvas cho phong bì giấy, dấu sáp, nơ satin, camera và mũ/bằng. Những thành phần giấy/lịch/vé phù hợp dạng phẳng được giữ đúng vai trò.

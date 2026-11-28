@@ -1,5 +1,7 @@
 # Vật thể tự nhiên trong Canvas
 
+Đợt rà soát tiếp thay default hộp v4 bằng bộ nguồn Goodeisgn đồng bộ và bổ sung kiểu crafted. Xem [kết quả hiện hành](CRAFTED_SIX_QA.md). Những mục v4 dưới đây mô tả reader được giữ để phục vụ tài liệu cũ.
+
 ## Kết quả rà soát sáu mẫu
 
 | Thành phần | Đánh giá trước | Xử lý |

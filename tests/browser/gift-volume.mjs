@@ -4,7 +4,7 @@ export async function runGiftVolumeProof(base){
  try{const page=await browser.newPage({viewport:{width:390,height:844},reducedMotion:'no-preference'});await page.goto(base);await page.evaluate(async()=>{
   const {driveElementCards}=await import('/js/shared/canvas/drive-elements.js'),{renderElement,applyLayout}=await import('/js/features/gift-runtime/renderer.js'),{createMotion}=await import('/js/features/gift-runtime/effects.js'),{eventMediaUrl}=await import('/js/shared/canvas/event-media.js');
   globalThis.document.body.replaceChildren();const host=globalThis.document.createElement('div');host.className='gift-runtime';host.dataset.motion='on';host.style.backgroundColor='#F5EFFF';host.style.width='390px';host.style.height='844px';globalThis.document.body.append(host);
-  const model=driveElementCards().find(c=>c.id==='drive-santa-gift-box').create()[0];Object.assign(model.layout,{x:26,y:80,width:338,height:600});const controller=new AbortController();
+  const model=driveElementCards().find(c=>c.id==='drive-santa-gift-box').create()[0];model.props.preset='lid-volume-v4';model.props.assetId='event-natural-element-satin-bow-2f441b11b6ff';Object.assign(model.layout,{x:26,y:80,width:338,height:600});const controller=new AbortController();
   const node=renderElement(model,{mode:'preview',assetUrl:eventMediaUrl,signal:controller.signal,motion:createMotion(()=>true),onAction:(_actions,play)=>{void play(controller.signal);}});applyLayout(node,model,{width:390,height:844});host.append(node);
   await Promise.all([...node.querySelectorAll('image')].map(async el=>{const image=new globalThis.Image();image.src=el.getAttribute('href');await image.decode();}));await globalThis.document.fonts.ready;
  });

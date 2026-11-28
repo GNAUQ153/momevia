@@ -10,9 +10,9 @@ const client={execute:(...args)=>conn.execute(...args),withTransaction:async fn=
 const library=new CanvasLibraryService(client),admin={role:'admin'},owner=await fixture.register('Drive MySQL QA');
 const runtime=path.join(root,'local/drive-six-20261127/mysql-runtime.json'),resultFile=path.join(root,'local/drive-six-20261127/mysql-six-links.json');
 try{
- fs.writeFileSync(runtime,JSON.stringify({base:fixture.base,owner,directory:fixture.directory}));
+ fs.mkdirSync(path.dirname(runtime),{recursive:true});fs.writeFileSync(runtime,JSON.stringify({base:fixture.base,owner,directory:fixture.directory,testFixture:'drive-six-mysql'}));
  // Fresh database follows the normal API and publication paths for all six templates.
- await promisify(execFile)(process.execPath,[path.join(root,'local/drive-six-20261127/prepare-six.mjs')],{cwd:root,env:{...process.env,DRIVE_QA_RUNTIME:runtime,DRIVE_QA_RESULT_FILE:resultFile},windowsHide:true,timeout:120000});completed.push('fresh MySQL: six sender/recipient/owner journeys, same-name identity, save CAS, reply/RSVP, publication replay and snapshots');
+ await promisify(execFile)(process.execPath,[path.join(root,'tests/integration/fixtures/drive-six-prepare.mjs')],{cwd:root,env:{...process.env,DRIVE_QA_RUNTIME:runtime,DRIVE_QA_RESULT_FILE:resultFile},windowsHide:true,timeout:120000});completed.push('fresh MySQL: six sender/recipient/owner journeys, same-name identity, save CAS, reply/RSVP, publication replay and snapshots');
  const links=JSON.parse(fs.readFileSync(resultFile));const snapshots=await Promise.all(links.rows.map(async row=>{const q=new URL(row.url).search;const r=await fixture.request('/gifts/gifts/'+row.gift+q);assert.equal(r.status,200);return JSON.stringify(r.data.gift.documentSnapshot);}));
  const actualNow=Date.now;
  try{Date.now=()=>Date.parse('2027-01-03T02:45:00.000Z')+1;

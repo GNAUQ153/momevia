@@ -66,6 +66,28 @@ Các thành phần mới có thể ghép từ primitive hiện có và các chuy
 
 Link mời cấp quyền cho người giữ link. Người nhận hồi đáp theo quyền đã chọn khi gửi. Quà legacy giữ quyền ban đầu đến khi hết hạn hoặc bị thu hồi. Quà đã gửi giữ bản chụp và ảnh từ thời điểm xuất bản.
 
+### Trà chiều vườn xuân — Garden Tea
+
+Trong **Thêm → Nhóm khối → Vườn trà Garden Tea** có 13 khối: cành lá có gân, hoa nhiều lớp, góc hoa màu nước, tách trà có hơi ấm, khay trà đôi, khung ảnh vòm, thẻ lịch, giấy thư hoa ép, cánh hoa bay, nét hoa phân cách, cửa mở đôi, RSVP và vé cào. Khối nhiều lớp được nhóm khi chèn; bạn có thể sửa từng lớp và chỉnh chu kỳ, biên độ hoặc tắt chuyển động ở bảng thuộc tính. RSVP cần mẫu thiệp mời có thông tin sự kiện. Khối cửa mở đôi cho phép chọn hành động/cảnh đích bằng bảng thuộc tính như phong bì thông thường.
+
+Trang giới thiệu ưu tiên tiêu đề và lời mời. Ảnh tùy chọn dùng **Khi chưa có ảnh → Ẩn và thu gọn cả khối ảnh**: bản xem ẩn ảnh cùng các lớp chung nhóm và thu khoảng trống trong nội dung; khung thiệp và hàng điều hướng giữ nguyên kích thước. Thêm ảnh khôi phục vị trí gốc. Trình chỉnh sửa vẫn hiện ô ảnh để chọn và thay ảnh. Bạn có thể chọn **Kiểu nút → Nút chữ nhẹ** cho hành động phụ. Hoa lá ở các trang đọc chuyển động một lượt rồi dừng; nút mở cửa và tương tác vẫn có hiệu ứng khi chạm.
+
+Tám trang nội dung dùng chung hàng nút quay lại/đọc tiếp. **Vị trí nút → Cố định cuối thiệp** giữ nút ở cùng vị trí, cỡ chữ và kích thước khi chuyển cảnh. Bản xem trước và thiệp gửi tự vừa phần màn hình còn lại sau các điều khiển; nội dung và RSVP không tạo thanh cuộn trong thiệp hoặc đẩy hàng nút ra ngoài. Lời chúc dài có nút đọc từng phần, giữ đủ nội dung và phần đang đọc khi đổi ngôn ngữ. Chọn **Trong nội dung** nếu cần đặt một nút tự do trên Canvas.
+
+**Bo góc** của nút có thể chỉnh trong bảng thuộc tính; mặc định điều khiển dùng 12 px và các khối nội dung dùng 20 px. Cỡ chữ bạn nhập là cỡ thiết kế gốc; xem trước và link gửi đi dùng cùng cách co giãn theo khung thực tế. Các lưới và RSVP tự đổi bố cục theo không gian hiện có.
+
+Chọn cảnh rồi mở **Hiệu ứng → Khi vào cảnh** để dùng **Trượt giấy dịu** hoặc **Lật giấy mềm**. Hai hiệu ứng đảo hướng khi quay lại; ở các cảnh có hàng nút cố định, phần nội dung chuyển động trong khi hàng nút đứng yên. Trong xem trước, bộ chọn **Các cảnh của món quà** cho phép nhảy trực tiếp đến cảnh cần xem mà không phải cuộn ngang dải nút.
+
+Mẫu gồm chín cảnh và giữ các lớp chữ, ảnh, màu sắc, cánh cửa và hoa lá có thể chỉnh sửa. Bìa dùng cành lá có gân, hoa nhỏ, mặt cửa có chiều sâu và dấu mở nổi. Dấu nhả trước rồi hai cánh cửa mở cùng hoa lá; trang tiếp theo được dựng sẵn phía dưới để chuyển cảnh liền mạch. Chọn **Dùng mẫu** để nhập tên người gửi, lời mời, ngày giờ, múi giờ, địa điểm và ảnh tùy chọn; chọn **Chỉnh bố cục** để sửa tiêu đề, chương trình, trang phục hoặc lời nhắn bí mật. Không có ghi âm/video giả trong thiệp.
+
+Mẫu mới bắt đầu ở chế độ **Người nhận tự điền tên** để mỗi người có một lượt nhận và RSVP riêng. Có thể đổi sang **Tải danh sách**. Nếu đổi sang **Điền tên trước**, RSVP theo lượt nhận không khả dụng. Khi gửi, bật quyền hồi đáp phù hợp. Cảnh RSVP nhận lựa chọn tham dự, tổng số người (gồm người xác nhận, từ 1–5) và lời nhắn tối đa 140 ký tự. Studio hiển thị các dữ liệu này theo từng người nhận. Xem thử chỉ mô phỏng RSVP, không ghi phản hồi thật. Form RSVP có hình tách trà và cành lá, bộ tăng/giảm số người, lựa chọn màu riêng cho từng câu trả lời và chuyển động nhỏ khi xác nhận. Các hiệu ứng trang trí dừng khi tắt chuyển động hoặc thiết bị bật giảm chuyển động. Chiều cao form đi theo nội dung, không giữ vùng trắng trống cố định.
+
+Khung xem thích nghi liên tục theo cả chiều rộng và chiều cao màn hình, giữ kích thước chữ/nút có thể đọc và thao tác. Màn hình thấp hoặc nội dung dài cuộn dọc; không phóng thiệp theo toàn bộ chiều rộng của một cửa sổ cao/hẹp.
+
+Ngày giờ trên thiệp, đồng hồ đếm ngược và tệp lịch dùng cùng thời điểm sự kiện. Thiệp đã gửi vẫn mở được khi sự kiện đã qua; đếm ngược hiện lời kết, RSVP đóng và giữ câu trả lời đã lưu. Sửa nháp sau khi gửi không đổi snapshot của quà đã xuất bản.
+
+Vé cào của Garden Tea có nét cào liên tục. Element tự tính diện tích đã cào; khi vượt 90% và người xem thả tay, phần phủ còn lại tự biến mất. Không có thanh phần trăm hoặc câu hướng dẫn về ngưỡng trên giao diện. Nút **Mở ngay** hỗ trợ người dùng bàn phím và biến mất khi đã mở. Các vé cào cũ không đổi hành vi.
+
 ### Tớ đoán cậu sẽ chọn…
 
 Trong thư viện, tìm **Tớ đoán** và chọn mẫu sinh nhật miễn phí của Momevia Originals. **Dùng mẫu** mở nháp trống có câu hỏi, hai lựa chọn, một dự đoán A/B, lý do và lời kết riêng cho từng lựa chọn. Có thể lưu khi đang viết dở. Khi gửi, điền đủ nội dung và giữ hai lựa chọn khác nhau. Đổi nhãn lựa chọn không đổi mã dự đoán. Người nhận chọn rồi mới thấy dự đoán; lời kết theo điều người nhận chọn. **Chơi lại** hoặc tải lại giữ nguyên dự đoán đã gửi. [Demo sinh nhật và kịch bản quay](TO_DOAN_CAU_SE_CHON_BAN_DAU.md).

@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { localizedError } from '../../shared/http.mjs';
 import { sanitizeText } from '../../shared/security.mjs';
+import { withdrawalTopic, withdrawalHistoryLimit } from '../../../web/js/shared/privacy-requests.js';
 
 export class SupportService {
   constructor({ repository, attempts, resolveReport }) { this.repo = repository; this.attempts = attempts; this.resolveReport = resolveReport; }
@@ -9,11 +10,26 @@ export class SupportService {
     return (await this.repo.all()).sort((a,b) => b.createdAt.localeCompare(a.createdAt));
   }
 
+  async privacyRequests(user) {
+    if (typeof user?.sub !== 'string' || !user.sub) throw localizedError(401, 'errors.unauthorized');
+    const rows = this.repo.findPrivacyRequests
+      ? await this.repo.findPrivacyRequests(user.sub, withdrawalTopic, withdrawalHistoryLimit)
+      : (await this.repo.all()).filter(item => item.userId === user.sub && item.topic === withdrawalTopic);
+    return rows.filter(item => item.userId === user.sub && item.topic === withdrawalTopic)
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt) || b.code.localeCompare(a.code))
+      .slice(0, withdrawalHistoryLimit)
+      .map(({ code, status, createdAt }) => ({ code, status, createdAt }));
+  }
+
   async create(data, user, ip) {
     const name = sanitizeText(data.name, 60);
     const email = sanitizeText(data.email, 254).toLowerCase();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw localizedError(400, 'errors.auth.invalidEmail');
     const topic = sanitizeText(data.topic, 80);
+    if (topic === withdrawalTopic) {
+      if (typeof user?.sub !== 'string' || !user.sub) throw localizedError(401, 'errors.unauthorized');
+      if (data.reportKind || data.reportId) throw localizedError(400, 'errors.validation');
+    }
     const message = sanitizeText(data.message, 2000);
     if (message.length < 15) throw localizedError(400, 'errors.support.shortMessage');
     const ticket = {

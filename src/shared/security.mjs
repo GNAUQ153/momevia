@@ -59,7 +59,9 @@ export function parseCookies(cookieString) {
 }
 
 export function cookie(name, value, maxAge = 600) {
-  const secure = process.env.PUBLIC_BASE_URL?.startsWith('https://') ? '; Secure' : '';
+  let secure = '';
+  try { if (new URL(process.env.PUBLIC_BASE_URL || '').protocol === 'https:') secure = '; Secure'; }
+  catch { /* Local development without a configured public URL. */ }
   return `${name}=${value}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${maxAge}${secure}`;
 }
 

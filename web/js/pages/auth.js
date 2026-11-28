@@ -2,7 +2,7 @@ import { attr, text } from "../core/i18n.js";
 import { icon } from "../ui/icons.js";
 
 export function createAuthViews({ state, buttonLink }) {
-  function authPage(mode = "login") {
+  function authPage(mode = "login", { oauthConsent = false } = {}) {
     const registering = mode === "register";
     if (state.user)
       return `<section class="auth-page"><div class="container auth-signed-in"><div class="auth-signed-in__icon">${icon("check-circle", 30)}</div><h1>${text("auth.signedIn.title")}</h1><p>${text("auth.signedIn.description")}</p>${buttonLink("/studio", text("auth.signedIn.studio"))}</div></section>`;
@@ -24,73 +24,95 @@ export function createAuthViews({ state, buttonLink }) {
       </span>`;
     };
 
-    // Trang đăng ký tập trung hoàn tất biểu mẫu email. Chỉ trang đăng nhập mới hiển thị OAuth.
     const providers = [
       { id: "google", label: "Google", enabled: state.providers?.google === true },
       { id: "zalo", label: "Zalo", enabled: state.providers?.zalo === true },
     ];
     const providerButton = ({ id, label, enabled }) => {
-      const content = `${providerLogo(id)}<span>${text("auth.providers.signInWith", { provider: label })}</span>`;
+      const action = registering ? "auth.providers.registerWith" : "auth.providers.signInWith";
+      const content = `${providerLogo(id)}<span>${label}</span>`;
+      if (registering && enabled)
+        return `<button type="button" class="auth-social" data-auth-provider="${id}" data-auth-provider-url="/api/auth/${id}" disabled ${attr("aria-label", action, { provider: label })}>${content}</button>`;
       return enabled
         ? `<a class="auth-social" href="/api/auth/${id}" data-auth-provider="${id}" ${attr("aria-label", "auth.providers.signInWith", { provider: label })}>${content}</a>`
         : `<button type="button" class="auth-social auth-social--disabled" data-auth-provider="${id}" disabled ${attr("aria-label", "auth.providers.notEnabled", { provider: label })} ${attr("title", "auth.providers.notEnabled", { provider: label })}>${content}</button>`;
     };
-    const socialSection = !registering ? `<div class="auth-divider auth-divider--social" role="separator"><span>${text("auth.providers.orSocialLogin")}</span></div>
-    <div class="auth-oauth" role="group" ${attr("aria-label", "auth.providers.title")}>
+    const socialSection = `<div class="auth-divider auth-divider--social" role="separator"><span>${text(registering ? "auth.providers.orRegister" : "auth.providers.orSocialLogin")}</span></div>
+    <div class="auth-oauth" role="group" ${attr("aria-label", registering ? "auth.providers.registerTitle" : "auth.providers.title")}>
       <div class="auth-buttons">${providers.map(providerButton).join("")}</div>
       ${providers.some(provider => !provider.enabled) ? `<p class="auth-provider-note" role="status">${text("auth.providers.unavailableHint")}</p>` : ""}
-    </div>` : "";
+    </div>`;
     const passwordField = (
       name,
       label,
       autocomplete,
-    ) => `<label class="auth-field"><span class="auth-field__label">${label} <span class="auth-required" aria-hidden="true">*</span></span>
-      <span class="auth-input"><span class="auth-field-icon" aria-hidden="true">${icon("lock", 19)}</span>
-        <input name="${name}" type="password" autocomplete="${autocomplete}" minlength="${registering ? 8 : 1}" maxlength="128" required ${attr("placeholder", registering ? "auth.password.minimum" : "auth.password.placeholder")}/>
-        <button type="button" class="auth-toggle-password" data-action="toggle-password" ${attr("aria-label", "auth.password.show")} aria-pressed="false">${icon("eye", 20)}</button>
-      </span></label>`;
-    return `<section class="auth-page auth-page--${registering ? "register" : "login"}" aria-labelledby="auth-page-title"><div class="container auth-layout">
-      <aside class="auth-showcase" ${attr("aria-label", "auth.showcase.about")}>
-        <div class="auth-showcase__top"><img src="/assets/momevia-icon-128.png" width="43" height="43" alt=""/><span>momevia<span class="auth-showcase__dot">.</span></span></div>
+    ) => `<div class="auth-field">
+      <label for="auth-${name}" class="auth-field__label">${label} <span class="auth-required" aria-hidden="true">*</span></label>
+      <div class="auth-input"><span class="auth-field-icon" aria-hidden="true">${icon("lock", 19)}</span>
+        <input id="auth-${name}" name="${name}" type="password" autocomplete="${autocomplete}" minlength="${registering ? 8 : 1}" maxlength="128" required ${attr("placeholder", name === "confirmPassword" ? "auth.password.confirmPlaceholder" : "auth.password.placeholder")} ${registering && name === "password" ? 'aria-describedby="auth-password-rules"' : ""}/>
+        <button type="button" class="auth-toggle-password" data-action="toggle-password" aria-controls="auth-${name}" ${attr("aria-label", "auth.password.show")} aria-pressed="false">${icon("eye", 20)}</button>
+      </div>
+    </div>`;
+    const passwordRules = `<ul id="auth-password-rules" class="auth-password-rules">
+      ${["length", "letter", "number"].map(rule => `<li data-password-rule="${rule}" data-met="false">
+        <span class="auth-password-rule__mark" aria-hidden="true">${icon("check-circle", 15)}</span>
+        <span>${text("auth.rules." + rule)}</span>
+        <span class="visually-hidden" data-password-rule-status></span>
+      </li>`).join("")}
+    </ul>`;
+    const consent = (id, agreementKey, policyKey, url) => `<div class="auth-consent">
+      <input id="${id}" type="checkbox" required data-auth-consent aria-labelledby="${id}-copy"/>
+      <span id="${id}-copy"><label for="${id}">${text(agreementKey)}</label> <a href="${url}" target="_blank" rel="noopener">${text(policyKey)}</a>.</span>
+    </div>`;
+    const agreements = registering ? `<div class="auth-consents">
+      ${consent("auth-terms", "auth.register.acceptTerms", "auth.register.terms", "/policies/general")}
+      ${consent("auth-privacy", "auth.register.acceptPrivacy", "shell.footer.privacy", "/policies/privacy")}
+    </div>` : "";
+    const supportButton = `<button type="button" class="btn btn--outline auth-support" data-action="support">${text("common.actions.support")}</button>`;
+    const story = registering ? "register" : "login";
+    const showcase = `<aside class="auth-showcase" ${attr("aria-label", "auth.showcase.about")}>
         <div class="auth-showcase__art" aria-hidden="true">
           <div class="auth-showcase__halo auth-showcase__halo--outer"></div>
           <div class="auth-showcase__halo auth-showcase__halo--inner"></div>
           <span class="auth-showcase__spark auth-showcase__spark--one">${icon("sparkles", 31)}</span>
           <span class="auth-showcase__spark auth-showcase__spark--two">${icon("heart", 28)}</span>
-          <img src="/assets/momevia-logo-3d.png" alt="" loading="eager" width="330" height="330"/>
+          <img src="/assets/brand/auth-${story}.svg" alt="" loading="eager" decoding="async" width="330" height="330"/>
         </div>
         <div class="auth-showcase__story">
-          <span class="auth-showcase__eyebrow">${text("auth.showcase.eyebrow")}</span>
-          <h2>${text("auth.showcase.lineOne")}<br/><em>${text("auth.showcase.lineTwo")}</em></h2>
-          <p>${text("auth.showcase.description")}</p>
-          <div class="auth-showcase__benefits"><span>${icon("check-circle", 17)} ${text("auth.showcase.personal")}</span><span>${icon("check-circle", 17)} ${text("auth.showcase.favorites")}</span></div>
+          <h2>${text(`auth.showcase.${story}.lineOne`)}<br/><em>${text(`auth.showcase.${story}.lineTwo`)}</em></h2>
+          <p>${text(`auth.showcase.${story}.description`)}</p>
           <a class="auth-showcase__explore" href="/explore" data-link>${text("shell.nav.explore")} ${icon("arrow", 16)}</a>
         </div>
-      </aside>
+      </aside>`;
+    return `<section class="auth-page auth-page--${registering ? "register" : "login"}" aria-labelledby="auth-page-title"><div class="container auth-layout">
+      ${showcase}
       <div class="auth-panel">
-        <div class="auth-panel__brand" aria-label="Momevia"><img src="/assets/momevia-icon-128.png" width="40" height="40" alt=""/><span>momevia<span class="auth-showcase__dot">.</span></span></div>
-        <div class="auth-panel__top"><a href="/" data-link class="auth-back">${icon("arrow-left", 17)} ${text("shell.nav.home")}</a>
-          <span class="auth-panel__welcome">${registering ? text("auth.register.badge") : text("auth.login.badge")}</span></div>
+        <div class="auth-panel__top"><a href="/" data-link class="auth-back">${icon("arrow-left", 17)} ${text("shell.nav.home")}</a></div>
         <div class="auth-panel__intro"><h1 id="auth-page-title">${registering ? text("auth.register.title") : text("auth.login.title")}</h1>
           <p class="auth-lead">${registering ? text("auth.register.lead") : text("auth.login.lead")}</p></div>
-        <form id="${registering ? "register-form" : "email-login-form"}" class="auth-form" ${attr("aria-label", registering ? "auth.register.form" : "auth.login.form")}>
+        <form id="${registering ? "register-form" : "email-login-form"}" class="auth-form"${registering ? " novalidate" : ""} ${attr("aria-label", registering ? "auth.register.form" : "auth.login.form")}>
           ${registering
         ? `<label class="auth-field"><span class="auth-field__label">${text("auth.fields.fullName")} <span class="auth-required" aria-hidden="true">*</span></span>
-            <span class="auth-input"><span class="auth-field-icon" aria-hidden="true">${icon("user", 19)}</span><input name="name" autocomplete="name" minlength="2" maxlength="50" required ${attr("placeholder", "auth.fields.displayName")}/></span></label>`
+            <span class="auth-input"><span class="auth-field-icon" aria-hidden="true">${icon("user", 19)}</span><input name="name" autocomplete="name" minlength="2" maxlength="50" required ${attr("placeholder", "auth.fields.namePlaceholder")}/></span></label>`
         : ""
       }
           <label class="auth-field"><span class="auth-field__label">${text("auth.fields.email")} <span class="auth-required" aria-hidden="true">*</span></span>
-            <span class="auth-input"><span class="auth-field-icon" aria-hidden="true">${icon("mail", 19)}</span><input name="email" type="email" autocomplete="email" inputmode="email" maxlength="254" required ${attr("placeholder", "auth.fields.emailExample")}/></span></label>
+            <span class="auth-input"><span class="auth-field-icon" aria-hidden="true">${icon("mail", 19)}</span><input name="email" type="email" autocomplete="email" inputmode="email" maxlength="254" autocapitalize="none" spellcheck="false" required ${attr("placeholder", "auth.fields.emailPlaceholder")}/></span></label>
           ${passwordField("password", text("auth.fields.password"), registering ? "new-password" : "current-password")}
-          ${registering ? passwordField("confirmPassword", text("auth.fields.confirmPassword"), "new-password") : ""}
-          ${registering ? `<p class="auth-password-hint">${icon("shield", 16)} ${text("auth.password.hint")}</p>` : `<p class="auth-recovery-link"><a href="/recover" data-link>${text("auth.recovery.link")}</a></p>`}
-          <p class="auth-inline-error" role="alert" hidden></p>
-          <button class="btn btn--dark btn--wide auth-submit" type="submit"><span>${text(registering ? "auth.register.submit" : "shell.pages.login")}</span>${icon("arrow", 18)}</button>
+          ${registering ? passwordRules + passwordField("confirmPassword", text("auth.fields.confirmPassword"), "new-password") : `<p class="auth-recovery-link"><a href="/recover" data-link>${text("auth.recovery.link")}</a></p>`}
+          ${agreements}
+          <p class="auth-inline-error" role="alert"${registering && oauthConsent ? "" : " hidden"} id="auth-form-error" tabindex="-1">${registering && oauthConsent ? text("auth.providers.consentRequired") : ""}</p>
+          <button class="btn btn--dark btn--wide auth-submit" type="submit">
+            <span data-auth-submit-label>${text(registering ? "auth.register.submit" : "shell.pages.login")}</span>
+            <span class="auth-submit__spinner" aria-hidden="true"></span>
+          </button>
         </form>
         ${socialSection}
-        ${registering ? `<p class="auth-switch">${text("auth.register.haveAccount")} <a href="/login" data-link>${text("auth.login.switch")}</a></p>` : `<p class="auth-switch auth-switch--signup">${text("auth.login.noAccount")} <a href="/register" data-link>${text("auth.register.switch")}</a></p>`}
-        <p class="auth-policy-note">${text("auth.policies.prefix")} <a href="/policies/general" data-link>${text("auth.policies.general")}</a> ${text("auth.policies.conjunction")} <a href="/policies/privacy" data-link>${text("shell.footer.privacy")}</a>.</p>
-        <button type="button" class="btn btn--outline auth-support" data-action="support">${text("common.actions.support")}</button>
+        ${registering ? `<p class="auth-switch">${text("auth.register.haveAccount")} <a href="/login" data-link>${text("shell.pages.login")}</a></p>` : `<p class="auth-switch auth-switch--signup">${text("auth.login.noAccount")} <a href="/register" data-link>${text("auth.register.switch")}</a></p>`}
+        <div class="auth-panel__footer">
+          ${registering ? "" : `<p class="auth-policy-note">${text("auth.policies.prefix")} <a href="/policies/general" data-link>${text("auth.policies.general")}</a> ${text("auth.policies.conjunction")} <a href="/policies/privacy" data-link>${text("shell.footer.privacy")}</a>.</p>`}
+          ${supportButton}
+        </div>
       </div>
     </div></section>`;
   }

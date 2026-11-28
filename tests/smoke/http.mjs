@@ -1,9 +1,10 @@
+import { registrationConsent } from '../../web/js/shared/registration-consent.js';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { pathToFileURL } from 'node:url';
 
 const password = 'SyntheticSmoke2026';
-const credentials = () => ({ name: 'Người dùng kiểm thử', email: `smoke-${randomUUID()}@example.test`, password, confirmPassword: password });
+const credentials = () => ({ consent: registrationConsent(true, true), name: 'Người dùng kiểm thử', email: `smoke-${randomUUID()}@example.test`, password, confirmPassword: password });
 const session = headers => {
   const cookie = headers.get('set-cookie');
   assert.match(cookie || '', /^session=/);

@@ -274,65 +274,8 @@
   color: #453259;
   font-size: .875rem;
 }
-.moments-season-particles {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  overflow: hidden;
-  pointer-events: none;
-}
-.moments-season-particles i {
-  position: absolute;
-  top: -20px;
-  left: 8%;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #ffffff;
-  opacity: 0;
-  animation: moments-snow 11s linear infinite;
-}
-.moments-season-particles i:nth-child(2n) {
-  left: 28%;
-  width: 4px;
-  height: 4px;
-  animation-duration: 14s;
-  animation-delay: -5s;
-}
-.moments-season-particles i:nth-child(3n) {
-  left: 52%;
-  animation-delay: -8s;
-}
-.moments-season-particles i:nth-child(4n) {
-  left: 76%;
-  width: 8px;
-  height: 8px;
-  animation-duration: 18s;
-  animation-delay: -3s;
-}
-.moments-season-particles i:nth-child(5n) {
-  left: 91%;
-  animation-delay: -11s;
-}
-.moments-hero[data-season="tet"] .moments-season-particles i {
-  width: 9px;
-  height: 12px;
-  border-radius: 80% 10% 70% 30%;
-  background: #e9aa9f;
-}
-.moments-hero[data-season="newYear"] .moments-season-particles i {
-  border-radius: 1px;
-  background: #bc9c53;
-}
-.moments-hero[data-season="everyday"] .moments-season-particles {
-  display: none;
-}
-.moments-hero[data-season-still="true"] .moments-season-particles i,
 .is-home .moments-hero[data-season-still="true"] .mkt-stage__envelope {
   animation-play-state: paused;
-}
-.is-home .moments-hero[data-season-still="true"] .moments-season-particles {
-  visibility: hidden;
 }
 .is-home .mkt-featured {
   padding: 64px 0;
@@ -400,22 +343,6 @@
 .moments-season button:focus-visible {
   outline: 3px solid #5934ab;
   outline-offset: 4px;
-}
-@keyframes moments-snow {
-  0% {
-    opacity: 0;
-    transform: translate3d(0, -20px, 0);
-  }
-  10% {
-    opacity: .8;
-  }
-  90% {
-    opacity: .7;
-  }
-  100% {
-    opacity: 0;
-    transform: translate3d(50px, 780px, 0) rotate(140deg);
-  }
 }
 @keyframes moments-envelope {
   0%, 100% {
@@ -524,8 +451,7 @@
     transform: none;
     transition: none;
   }
-  .is-home .moments-hero .mkt-stage__envelope,
-  .moments-season-particles i {
+  .is-home .moments-hero .mkt-stage__envelope {
     animation: none;
   }
 }

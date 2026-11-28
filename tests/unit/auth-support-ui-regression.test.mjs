@@ -23,7 +23,7 @@ test("Login có một CTA Đăng ký ngay, dẫn đúng /register và giữ soci
   assert.match(html, /href="\/recover" data-link/);
 });
 
-test("Register không hiển thị social login, vẫn có nút Đăng nhập và các trường đăng ký", () => {
+test("Register có hai lựa chọn OAuth, liên kết đăng nhập và ô đồng ý bắt buộc", () => {
   const html = makeViews().authPage("register");
   assert.match(html, /id="register-form"/);
   assert.match(html, /name="confirmPassword"/);
@@ -31,13 +31,15 @@ test("Register không hiển thị social login, vẫn có nút Đăng nhập v�
   assert.match(html, /minlength="8"/);
   assert.doesNotMatch(html, /auth-switch--signup/);
   assert.doesNotMatch(html, /href="\/register"/);
-  assert.doesNotMatch(html, /data-auth-provider="google"|data-auth-provider="zalo"/);
+  assert.match(html, /data-auth-provider="google" disabled/);
+  assert.match(html, /data-auth-provider="zalo" disabled/);
+  assert.equal((html.match(/type="checkbox" required data-auth-consent/g) || []).length, 2);
 });
 
 test("CSS không còn ẩn liên kết .auth-switch và có vùng bấm/focus rõ", () => {
   const css = file("web/css/auth-pages.css");
   assert.doesNotMatch(css, /\.auth-switch a\s*,\s*\.is-auth \.site-tools\s*\{\s*display:\s*none/);
-  assert.match(css, /\.auth-page \.auth-switch\.auth-switch--signup\s*\{[^}]*border: 1px solid/);
+  assert.match(css, /\.auth-page \.auth-switch\s*\{[^}]*border: 1px solid/);
   assert.match(css, /\.auth-switch a\s*\{/);
   assert.match(css, /\.auth-recovery-link a\s*\{/);
   assert.match(css, /\.auth-panel \.auth-social:focus-visible/);
@@ -47,7 +49,7 @@ test("Support form và màn thành công không chèn bộ chuyển ngôn ngữ 
   const main = file("web/js/app/main.js");
   assert.match(main, /function openModal\(content, \{ showLocaleControl = true \} = \{\}\)/);
   assert.match(main, /\$\{showLocaleControl \? localeControl\(\) : ""\}\$\{content\}/);
-  const form = main.slice(main.indexOf("function openSupport(report)"), main.indexOf("function setAccountMenu("));
+  const form = main.slice(main.indexOf("function openSupport(report,"), main.indexOf("function setAccountMenu("));
   assert.match(form, /<form id="support-form"/);
   assert.match(form, /showLocaleControl: false/);
   const success = main.slice(main.indexOf('form.id === "support-form"'), main.indexOf('form.id === "reply-form"'));
@@ -56,7 +58,7 @@ test("Support form và màn thành công không chèn bộ chuyển ngôn ngữ 
   assert.equal((main.match(/showLocaleControl: false/g) || []).length, 2);
 });
 
-test("Ngôn ngữ VI/EN vẫn lấy từ dictionary chung và không tạo khóa mới", () => {
+test("Ngôn ngữ VI/EN lấy từ dictionary chung và đồng nhất khóa", () => {
   const vi = JSON.parse(file("web/assets/locales/vi.json"));
   const en = JSON.parse(file("web/assets/locales/en.json"));
   assert.deepEqual(Object.keys(vi), Object.keys(en));

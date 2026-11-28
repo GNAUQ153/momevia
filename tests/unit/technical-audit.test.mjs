@@ -30,6 +30,36 @@ test('Không tự cho phép cạnh mới hoặc đọc đường dẫn chưa rà
   assert(result.issues.every(row => row.reason === 'unreviewed-relative-target'));
 });
 
+const policyArchive = 'src/modules/identity/policy-archive/2026-11-28.1.json';
+const policyEdge = `src/modules/identity/policy-archive.mjs -> ${policyArchive}`;
+
+test('Chấp nhận đúng bản lưu chính sách đã rà soát trong cả hai chế độ audit', () => {
+  for (const built of [false, true]) {
+    assert.deepEqual(assessRelativeTargets([policyEdge], file => {
+      assert.equal(file, policyArchive);
+      return true;
+    }, { built }), { issues: [], pending: [] });
+  }
+});
+
+test('Bản lưu chính sách thiếu luôn fail, không chuyển thành pending', () => {
+  for (const built of [false, true]) {
+    assert.deepEqual(assessRelativeTargets([policyEdge], () => false, { built }), {
+      issues: [{ edge: policyEdge, reason: 'missing-source' }], pending: [],
+    });
+  }
+});
+
+test('Không miễn trừ cả thư mục policy-archive hoặc module import khác', () => {
+  const edges = [
+    'src/modules/identity/policy-archive.mjs -> src/modules/identity/policy-archive/next.json',
+    `src/modules/identity/other.mjs -> ${policyArchive}`,
+  ];
+  assert.deepEqual(assessRelativeTargets(edges, () => assert.fail('Không đọc cạnh chưa duyệt')), {
+    issues: edges.map(edge => ({ edge, reason: 'unreviewed-relative-target' })), pending: [],
+  });
+});
+
 function fixture() {
   return {
     architecture: { cycleEdges: [], boundaries: [], scopes: [], cycles: [], staticEdges: 1, dynamicUnknown: 0, mostDecisions: [] },

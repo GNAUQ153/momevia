@@ -11,7 +11,7 @@ const views = providers => createAuthViews({
 });
 const auth = (route, providers) => views(providers).authPage(route);
 
-test('Login luôn có hai lựa chọn Google/Zalo; Register không hiển thị social login', () => {
+test('Login và Register hiển thị hai lựa chọn Google/Zalo', () => {
   const login = auth('login', { google: false, zalo: false });
   assert.equal((login.match(/data-auth-provider="google"/g) || []).length, 1);
   assert.equal((login.match(/data-auth-provider="zalo"/g) || []).length, 1);
@@ -20,8 +20,9 @@ test('Login luôn có hai lựa chọn Google/Zalo; Register không hiển thị
   assert.match(login, /class="auth-divider auth-divider--social"/);
 
   const register = auth('register', { google: true, zalo: true });
-  assert.doesNotMatch(register, /data-auth-provider="google"|data-auth-provider="zalo"/);
-  assert.doesNotMatch(register, /class="auth-divider auth-divider--social"/);
+  assert.match(register, /data-auth-provider="google"/);
+  assert.match(register, /data-auth-provider="zalo"/);
+  assert.match(register, /class="auth-divider auth-divider--social"/);
 });
 
 test('OAuth chưa kích hoạt ở Login không có href hay sự kiện đăng nhập giả', () => {

@@ -74,5 +74,9 @@
   {
     "version": "019_publication_repurchases",
     "sha256": "9f3510f5de740449df914beac71dfa42f8d83f4f2bf37d1460bc054a750f9843"
+  },
+  {
+    "version": "020_session_inventory",
+    "sha256": "5fe52cac61a2828b917b95bd8f2dfc265b16c60caf63150b2be103d31a087105"
   }
 ]

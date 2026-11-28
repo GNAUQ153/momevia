@@ -58,7 +58,7 @@ export function testAccountConfig(env) {
   try { email = normalizeEmail(env.TEST_ACCOUNT_EMAIL); }
   catch { throw new Error('TEST_ACCOUNT_EMAIL phải là địa chỉ email hợp lệ.'); }
   try { validatePassword(env.TEST_ACCOUNT_PASSWORD); }
-  catch { throw new Error('TEST_ACCOUNT_PASSWORD phải từ 8 đến 128 ký tự, gồm chữ cái và chữ số.'); }
+  catch { throw new Error('TEST_ACCOUNT_PASSWORD phải từ 8 đến 128 ký tự, gồm ít nhất một chữ hoa A–Z và một chữ số.'); }
   const role = env.TEST_ACCOUNT_ROLE || 'sender';
   if (!['sender', 'creator', 'admin'].includes(role)) throw new Error('TEST_ACCOUNT_ROLE phải là sender, creator hoặc admin.');
   return { name, email, password: env.TEST_ACCOUNT_PASSWORD, role };

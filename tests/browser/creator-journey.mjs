@@ -1,3 +1,4 @@
+import { registrationConsent } from '../../web/js/shared/registration-consent.js';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { chromium } from 'playwright';
@@ -43,7 +44,7 @@ export async function runCreatorJourney(base) {
       return res.json();
     };
     const register = name => call('/auth/register', {
-      name, email: `${randomUUID()}@example.test`, password: 'SyntheticOnly123', confirmPassword: 'SyntheticOnly123',
+      name, email: `${randomUUID()}@example.test`, password: 'SyntheticOnly123', consent: registrationConsent(true, true), confirmPassword: 'SyntheticOnly123',
     }, 201);
     return { page, call, ask, register };
   }

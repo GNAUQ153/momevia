@@ -1,3 +1,4 @@
+import { registrationConsent } from '../../web/js/shared/registration-consent.js';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import path from 'node:path';
@@ -23,7 +24,7 @@ export async function runSenderIdentity(base) {
     const idOf = page => new URL(page.url()).pathname.split('/').at(-1);
     const editor = (page, name) => page.locator(`[data-editor-action="${name}"]`);
     const register = (actor, name) => actor.api('/auth/register', {
-      name, email: `${randomUUID()}@example.test`, password: 'SyntheticOnly123', confirmPassword: 'SyntheticOnly123',
+      name, email: `${randomUUID()}@example.test`, password: 'SyntheticOnly123', consent: registrationConsent(true, true), confirmPassword: 'SyntheticOnly123',
     }, 201);
     const capture = async (page, name) => {
       if (process.env.BROWSER_ARTIFACT_DIR) await page.screenshot({ path: path.join(process.env.BROWSER_ARTIFACT_DIR, name) });

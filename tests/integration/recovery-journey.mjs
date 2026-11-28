@@ -1,3 +1,4 @@
+import { registrationConsent } from '../../web/js/shared/registration-consent.js';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 
@@ -38,7 +39,7 @@ export async function runRecovery(base, { messageFor, mailFor, advance }) {
   // A newly registered email account can recover before the optional verify-email journey.
   // Possession of the one-time code verifies ownership and invalidates old sessions.
   const freshEmail = `fresh-${randomUUID()}@example.test`;
-  const fresh = await call('/auth/register', 201, { body: {
+  const fresh = await call('/auth/register', 201, { body: { consent: registrationConsent(true, true),
     email: freshEmail, name: 'Tài khoản chưa xác minh', password: oldPassword, confirmPassword: oldPassword,
   } });
   assert.equal(fresh.data.user.emailVerified, false);
@@ -62,7 +63,7 @@ export async function runRecovery(base, { messageFor, mailFor, advance }) {
   await call('/auth/recover/confirm', 422, { body: {
     email: freshEmail, code: freshCode, password, confirmPassword: password,
   } });
-  const owner = await call('/auth/register', 201, { body: { email, name: 'Tài khoản khôi phục QA', password: oldPassword, confirmPassword: oldPassword } });
+  const owner = await call('/auth/register', 201, { body: { consent: registrationConsent(true, true), email, name: 'Tài khoản khôi phục QA', password: oldPassword, confirmPassword: oldPassword } });
   const gift = (await call('/gifts/gifts', 201, { cookie: owner.cookie, body: {
     templateId: 'sunny-wishes', recipientName: 'Mai', senderName: 'An', message: 'Quà có trước khôi phục.',
   } })).data.gift;
@@ -92,11 +93,14 @@ export async function runRecovery(base, { messageFor, mailFor, advance }) {
   await call(`/gifts/gifts/mine/${gift.slug}`, 200, { cookie: recovered.cookie });
 
   const google = async (mode, code) => {
-    const start = await call('/auth/google' + mode, 302);
-    const state = new URL(start.location).searchParams.get('state');
+    const start = mode === 'register' ? await call('/auth/google/start', 200, { body: { consent: registrationConsent(true, true) } })
+      : await call('/auth/google' + mode, 302);
+    const state = new URL(start.data?.url || start.location).searchParams.get('state');
     return call(`/auth/google/callback?state=${state}&code=${code}`, 302, { cookie: start.cookie });
   };
-  const first = await google('', 'synthetic-known');
+  const denied = await google('', 'synthetic-known');
+  assert.match(denied.location, /\/register\?oauth=consent$/);
+  const first = await google('register', 'synthetic-known');
   const initial = (await call('/auth/me', 200, { cookie: first.cookie })).data.user;
   const googleDraft = (await call('/designs/designs', 201, { cookie: first.cookie, body: {
     source: { kind: 'blank' }, mutationId: randomUUID(),

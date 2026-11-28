@@ -1,6 +1,7 @@
 import { MySqlClient } from '../../infrastructure/mysql/client.mjs';
 import { localizedError } from '../../shared/http.mjs';
 import { signSession, verifySession } from '../../shared/security.mjs';
+import { findRevocationTarget, inventoryResult, sessionInventoryLimit } from './session-inventory.mjs';
 import { mysqlDate, mysqlTimestampToIso as fromMysqlDate } from '../../infrastructure/mysql/datetime.mjs';
 
 // Giữ đường dẫn import cũ cho các công cụ migration và consumer hiện có.
@@ -53,12 +54,21 @@ export class MySqlUsersRepository {
   async update(id, patch) {
     return this.mutate(id, () => patch);
   }
-  async mutate(id, update) {
+  async mutate(id, update, { session = null } = {}) {
     try {
       return await this.client.withTransaction(async tx => {
         const [rows] = await tx.execute('SELECT * FROM users WHERE id = ? FOR UPDATE', [id]);
         if (!rows.length) return null;
         const current = userFromRow(rows[0]);
+        if (session) {
+          if (session.sub !== id || (current.credentialVersion || 0) !== (session.cv || 0))
+            throw localizedError(401, 'errors.unauthorized');
+          // Khóa theo cùng thứ tự với revokeOne/revokeOthers: user rồi session.
+          const [active] = await tx.execute(`SELECT id FROM sessions
+            WHERE id=? AND user_id=? AND expires_at > UTC_TIMESTAMP(3) FOR UPDATE`, [session.jti, id]);
+          if (!active.length || session.exp <= Date.now() / 1000)
+            throw localizedError(401, 'errors.unauthorized');
+        }
         const patch = update(current);
         if (!patch) return current;
         const user = { ...current, ...patch, id };
@@ -79,8 +89,8 @@ export class MySqlSessionStore {
     const token = signSession(user, this.secret);
     const claims = verifySession(token, this.secret);
     await this.client.execute('DELETE FROM sessions WHERE expires_at <= UTC_TIMESTAMP(3)');
-    await this.client.execute('INSERT INTO sessions (id, user_id, expires_at) VALUES (?, ?, ?)',
-      [claims.jti, user.id, mysqlDate(new Date(claims.exp * 1000).toISOString())]);
+    await this.client.execute('INSERT INTO sessions (id, user_id, expires_at, credential_version, issued_at) VALUES (?, ?, ?, ?, ?)',
+      [claims.jti, user.id, mysqlDate(new Date(claims.exp * 1000).toISOString()), claims.cv, mysqlDate(new Date().toISOString())]);
     return token;
   }
   async find(token) {
@@ -91,6 +101,61 @@ export class MySqlSessionStore {
     if (!rows.length) return null;
     const user = await this.users.get(claims.sub);
     return user && (user.credentialVersion || 0) === (claims.cv || 0) ? { ...claims, role: user.role, name: user.name } : null;
+  }
+  async mutateAuthenticated(token, update) {
+    const claims = verifySession(token, this.secret);
+    if (!claims) throw localizedError(401, 'errors.unauthorized');
+    const result = await this.users.mutate(claims.sub, update, { session: claims });
+    if (!result) throw localizedError(401, 'errors.unauthorized');
+    return result;
+  }
+  // Khóa hàng tài khoản để hai thao tác đồng thời không thu hồi chéo phiên đang dùng.
+  async revokeOthers(token) {
+    const claims = verifySession(token, this.secret);
+    if (!claims) return false;
+    return this.client.withTransaction(async tx => {
+      const [users] = await tx.execute('SELECT * FROM users WHERE id = ? FOR UPDATE', [claims.sub]);
+      const user = userFromRow(users[0]);
+      if (!user || (user.credentialVersion || 0) !== (claims.cv || 0)) return false;
+      const [rows] = await tx.execute(`SELECT id FROM sessions
+        WHERE id=? AND user_id=? AND expires_at > UTC_TIMESTAMP(3) FOR UPDATE`, [claims.jti, claims.sub]);
+      if (!rows.length || claims.exp <= Date.now() / 1000) return false;
+      await tx.execute('DELETE FROM sessions WHERE user_id=? AND id<>?', [claims.sub, claims.jti]);
+      return true;
+    });
+  }
+  async listActive(token) {
+    const claims = await this.find(token);
+    if (!claims) return null;
+    const [rows] = await this.client.execute(`SELECT id, issued_at, expires_at FROM sessions
+      WHERE user_id=? AND expires_at > UTC_TIMESTAMP(3) AND (id=? OR credential_version=?)
+      ORDER BY (id=?) DESC, expires_at DESC, id LIMIT ?`,
+    [claims.sub, claims.jti, claims.cv || 0, claims.jti, sessionInventoryLimit + 1]);
+    const [counts] = await this.client.execute(`SELECT COUNT(*) AS total FROM sessions
+      WHERE user_id=? AND expires_at > UTC_TIMESTAMP(3) AND credential_version IS NULL AND id<>?`, [claims.sub, claims.jti]);
+    return inventoryResult(rows.map(row => ({ id: row.id, issuedAt: row.issued_at == null ? null : fromMysqlDate(row.issued_at),
+      expiresAt: fromMysqlDate(row.expires_at) })), claims, Number(counts[0].total), this.secret);
+  }
+  async revokeOne(token, ref) {
+    const claims = verifySession(token, this.secret);
+    if (!claims) return null;
+    return this.client.withTransaction(async tx => {
+      const [users] = await tx.execute('SELECT * FROM users WHERE id = ? FOR UPDATE', [claims.sub]);
+      const user = userFromRow(users[0]);
+      if (!user || (user.credentialVersion || 0) !== (claims.cv || 0)) return null;
+      const [current] = await tx.execute(`SELECT id FROM sessions
+        WHERE id=? AND user_id=? AND expires_at > UTC_TIMESTAMP(3) FOR UPDATE`, [claims.jti, claims.sub]);
+      if (!current.length || claims.exp <= Date.now() / 1000) return null;
+      const [rows] = await tx.execute(`SELECT id FROM sessions
+        WHERE user_id=? AND id<>? AND credential_version=? AND expires_at > UTC_TIMESTAMP(3)
+        ORDER BY expires_at DESC, id LIMIT ? FOR UPDATE`, [claims.sub, claims.jti, claims.cv || 0, sessionInventoryLimit - 1]);
+      const target = findRevocationTarget(rows, claims, ref, this.secret);
+      if (!target) return false;
+      if (claims.exp <= Date.now() / 1000) return null;
+      const [result] = await tx.execute(`DELETE FROM sessions WHERE id=? AND user_id=? AND id<>?
+        AND credential_version=? AND expires_at > UTC_TIMESTAMP(3)`, [target.id, claims.sub, claims.jti, claims.cv || 0]);
+      return result.affectedRows === 1;
+    });
   }
   async revoke(token) {
     const claims = verifySession(token, this.secret);

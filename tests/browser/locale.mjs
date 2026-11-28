@@ -108,8 +108,9 @@ export async function runLocaleBrowser(base) {
       await supportTrigger.waitFor();
       const entry=route==='/login'||route==='/register';
       assert.equal(await mobilePage.locator('#site-footer').isVisible(),!entry,route+' footer visibility follows the Auth layout');
-      const policies = mobilePage.locator(entry?'main .auth-policy-note a':'main .auth-policy-note a, footer a[href="/policies/privacy"]');
-      if(entry)assert.equal(await policies.count(),2,route+' keeps both policy links inside the form');
+      const policies = mobilePage.locator(route === '/register' ? 'main .auth-consent a'
+        : route === '/login' ? 'main .auth-policy-note a' : 'footer a[href="/policies/privacy"]');
+      if (entry) assert.equal(await policies.count(), 2, route + ' exposes both policy links');
       for (const link of await policies.all()) {
         await link.scrollIntoViewIfNeeded();
         // The dock reveals focused controls; native scrolling alone does not

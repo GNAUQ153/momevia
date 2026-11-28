@@ -37,7 +37,10 @@ jobs:
       - run: npm run build
       - run: npm run check
       - run: npm audit --omit=dev --audit-level=high
-      - run: npm test
+      - name: Verify required Auth suites
+        run: npm run test:auth -- --check
+      - name: Unit regressions including Auth Gateway security
+        run: npm test
       - run: npm run test:templates
       - name: Install Chromium for browser regression
         if: matrix.os == 'ubuntu-latest' && matrix.node == '24'
@@ -134,6 +137,7 @@ jobs:
         run: |
           npm ci
           npm run check
+          npm run test:auth -- --check
           npm test
           npm run test:architecture
           npm run test:templates

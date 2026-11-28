@@ -36,6 +36,7 @@ foreach ([
     'HTTP_ACCEPT' => 'Accept',
     'HTTP_ACCEPT_LANGUAGE' => 'Accept-Language',
     'HTTP_ORIGIN' => 'Origin',
+    'HTTP_SEC_FETCH_SITE' => 'Sec-Fetch-Site',
     'HTTP_COOKIE' => 'Cookie',
     'HTTP_AUTHORIZATION' => 'Authorization',
     'HTTP_RANGE' => 'Range',

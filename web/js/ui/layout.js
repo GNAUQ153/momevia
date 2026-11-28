@@ -36,6 +36,7 @@ export function createLayout({ state, header, footer, homeClosing }) {
     ]);
     if (headerKey !== nextHeaderKey) {
       header.innerHTML = `
+      <div class="festival-lights" aria-hidden="true"></div>
       <div class="container wrap nav-inner">
         <a class="skip-link" href="#main">${text("shell.skip")}</a>
         <a class="brand" href="/" data-link ${attr("aria-label", "shell.nav.homeLabel")}>
@@ -62,9 +63,11 @@ export function createLayout({ state, header, footer, homeClosing }) {
         <div class="account-menu__meta"><strong>${e(state.user.name)}</strong><span>${text(state.user.role === "creator" ? "common.roles.creator" : state.user.role === "admin" ? "common.roles.admin" : "common.roles.sender")}</span></div>
         <a href="/studio" data-link>${icon("layers", 16)} ${text("shell.nav.myGifts")}</a>
         <a href="/favorites" data-link>${icon("heart", 16)} ${text("shell.pages.favorites")}</a>
+        <a href="/account-sessions" data-link>${icon("shield", 16)} ${text("shell.pages.accountSessions")}</a>
         <a href="/creator" data-link>${icon("pencil", 16)} ${text("shell.pages.creator")}</a>
         ${state.user.role === "admin" ? `<a href="/admin" data-link>${icon("shield", 16)} ${text("shell.nav.moderation")}</a><a href="/admin/payments" data-link>${icon("shield", 16)} ${text("shell.pages.adminPayments")}</a>` : ""}
         ${state.user.role === 'admin' ? `<a href="/admin/library" data-link>${icon('layers', 16)} ${text('adminLibrary.nav')}</a>` : ''}
+        <a href="/privacy-center" data-link>${icon("shield", 16)} ${text("privacyCenter.title")}</a>
         <button type="button" data-action="logout">${icon("log-out", 16)} ${text("shell.nav.signOut")}</button>
       </div>`
           : ""
@@ -72,7 +75,8 @@ export function createLayout({ state, header, footer, homeClosing }) {
       <nav class="mobile-nav" id="mobile-nav" hidden ${attr("aria-label", "shell.nav.main")}>
         ${localeControl()}
         ${links.join("")}
-        ${signedIn ? `<a href="/studio" data-link>${text("shell.nav.studio")}</a><a href="/favorites" data-link>${text("shell.pages.favorites")}</a>` : `<a href="/login" data-link>${text("shell.pages.login")}</a>`}
+        ${signedIn ? `<a href="/studio" data-link>${text("shell.nav.studio")}</a><a href="/favorites" data-link>${text("shell.pages.favorites")}</a><a href="/privacy-center" data-link>${text("privacyCenter.title")}</a>` : `<a href="/login" data-link>${text("shell.pages.login")}</a>`}
+        ${signedIn ? `<a href="/account-sessions" data-link>${text("shell.pages.accountSessions")}</a>` : ""}
         ${state.user?.role === 'admin' ? `<a href="/admin" data-link>${text("shell.nav.moderation")}</a><a href="/admin/payments" data-link>${text("shell.pages.adminPayments")}</a><a href="/admin/library" data-link>${text('adminLibrary.nav')}</a>` : ''}
       </nav>
     `;

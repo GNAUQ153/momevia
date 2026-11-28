@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
+import { registrationEvidence } from '../../src/modules/identity/consent.mjs';
+import { registrationConsent } from '../../web/js/shared/registration-consent.js';
 import { IdentityService } from '../../src/modules/identity/identity.service.mjs';
 import { CatalogService } from '../../src/modules/catalog/catalog.service.mjs';
 
@@ -19,7 +21,7 @@ test('IdentityService works with async MySQL repositories, issues session and ch
     find:async token=>token.startsWith('token-')?{sub:token.slice(6)}:null,
   };
   const service=new IdentityService({users,sessions:session,config:{}});
-  const user=await service.findOrCreate('google','caseSensitive-G2',{name:'Tester',email:'tester@example.test'});
+  const user=await service.findOrCreate('google','caseSensitive-G2',{name:'Tester',email:'tester@example.test'}, {...registrationEvidence(registrationConsent(true, true), 'vi'), source:'google-registration'});
   const repeat=await service.findOrCreate('google','caseSensitive-G2',{name:'Updated'});
   assert.equal(user.id,repeat.id);
   assert.equal(rows.length,1);

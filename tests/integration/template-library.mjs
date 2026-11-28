@@ -1,3 +1,4 @@
+import { registrationConsent } from '../../web/js/shared/registration-consent.js';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
@@ -44,7 +45,7 @@ async function fixture(name, legacy = false, existingTemplates) {
   const config = { baseUrl: 'http://127.0.0.1', jwtSecret: randomBytes(32).toString('hex'), internalKey: randomBytes(32).toString('hex'), demoEnabled: false, adminCode: '', giftTtlDays: 365, googleId: '', googleSecret: '', zaloId: '', zaloSecret: '', testAccount: null };
   const app = await createHttpApp(config); apps.push(app);
   app.server.listen(0, '127.0.0.1'); await once(app.server, 'listening'); const base = `http://127.0.0.1:${app.server.address().port}`; config.baseUrl = base;
-  const response = await fetch(base + '/api/auth/register', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ name: 'Template QA', email: `${randomUUID()}@example.test`, password: 'BasicTemplatesQA123', confirmPassword: 'BasicTemplatesQA123' }) });
+  const response = await fetch(base + '/api/auth/register', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ name: 'Template QA', email: `${randomUUID()}@example.test`, password: 'BasicTemplatesQA123', consent: registrationConsent(true, true), confirmPassword: 'BasicTemplatesQA123' }) });
   assert.equal(response.status, 201); const cookie = response.headers.get('set-cookie').split(';')[0];
   async function request(route, body, status = 200, authenticated = true, locale) {
     const result = await fetch(base + '/api' + route, { method: body === undefined ? 'GET' : 'POST', headers: { ...(authenticated ? { cookie } : {}), ...(body ? { 'content-type': 'application/json' } : {}), ...(locale ? { 'x-momevia-locale': locale } : {}) }, body: body ? JSON.stringify(body) : undefined });

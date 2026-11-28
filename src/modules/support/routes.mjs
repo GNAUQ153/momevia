@@ -11,6 +11,10 @@ export function registerRoutes(router, { config, globalAttempts, service, resolv
     const result = await service.create(data, user, clientIp(req));
     sendJson(res, 201, { ticket: result });
   });
+  router.on('GET', '/privacy-requests', async ({ req, res }) => {
+    const user = await resolveUser(req, config.jwtSecret);
+    sendJson(res, 200, { requests: await service.privacyRequests(user) });
+  });
   router.on('GET', '/admin/requests', async ({req, res}) => {
     const user = await resolveUser(req, config.jwtSecret);
     sendJson(res, 200, { requests: await service.requests(user) });

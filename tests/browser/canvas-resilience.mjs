@@ -1,3 +1,4 @@
+import { registrationConsent } from '../../web/js/shared/registration-consent.js';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -31,7 +32,7 @@ export async function runCanvasResilience(base) {
     const data = await response.json(); assert.equal(response.status(), expected, JSON.stringify(data)); return data;
   };
   const login = account => api('/auth/login', { email: account.email, password: account.password });
-  const account = prefix => ({ name: `${prefix} Sender`, email: `${randomUUID()}@example.test`, password: 'CanvasResilience123', confirmPassword: 'CanvasResilience123' });
+  const account = prefix => ({ consent: registrationConsent(true, true), name: `${prefix} Sender`, email: `${randomUUID()}@example.test`, password: 'CanvasResilience123', confirmPassword: 'CanvasResilience123' });
   const create = async (title, templateId) => {
     let design = (await api('/designs/designs', { source: templateId ? { kind: 'template', templateId } : { kind: 'blank' }, presetId: 'envelope-basic', title, mutationId: randomUUID() }, 201)).design;
     design.document.bindings.recipientName.value = 'Mai QA'; design.document.bindings.senderName.value = 'An QA'; design.document.bindings.message.value = title + ' – lời chúc riêng';

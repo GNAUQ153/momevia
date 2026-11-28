@@ -6,7 +6,8 @@ export function authDestination(path) {
   if (typeof path !== 'string' || !path.startsWith('/') || /^\/[/\\]/.test(path) || /[\\\u0000-\u0020]/.test(path)) return null;
   const url = new URL(path, location.origin);
   if (url.origin !== location.origin || url.pathname !== path.split(/[?#]/, 1)[0]) return null;
-  const allowed = /^(?:\/|\/(?:explore|pricing|favorites|studio|creator)|\/(?:create|design|template|success|payment-result)\/[a-z0-9_-]{1,128})$/i;
+  if (url.pathname === '/account-sessions') return url.search || url.hash ? null : path;
+  const allowed = /^(?:\/|\/(?:explore|pricing|favorites|studio|creator|privacy-center)|\/(?:create|design|template|success|payment-result)\/[a-z0-9_-]{1,128})$/i;
   if (!allowed.test(url.pathname)) return null;
 
   const keys = /^\/(create|design)\//.test(url.pathname)

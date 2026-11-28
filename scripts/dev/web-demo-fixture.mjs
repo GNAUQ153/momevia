@@ -1,3 +1,4 @@
+import { registrationConsent } from '../../web/js/shared/registration-consent.js';
 import assert from 'node:assert/strict';
 import path from 'node:path';
 import { randomUUID } from 'node:crypto';
@@ -40,7 +41,7 @@ export async function seedWebDemo({ base, accounts, appDir }) {
   assert.equal((await guest('/checkout/payments/methods')).demoPurchaseAvailable, true);
   assert.equal((await post(admin, '/auth/login', accounts.admin)).user.role, 'admin');
   for (const [actor, profile] of [[creator, accounts.creator], [sender, accounts.sender]]) {
-    const { user } = await post(actor, '/auth/register', { ...profile, confirmPassword: profile.password }, 201);
+    const { user } = await post(actor, '/auth/register', { ...profile, consent: registrationConsent(true, true), confirmPassword: profile.password }, 201);
     if (actor === creator) await post(admin, `/auth/admin/users/${user.id}/role`, { role: 'creator' });
   }
 

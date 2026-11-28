@@ -91,6 +91,8 @@ try {
   await page.locator('input[name="email"]').fill(email);
   await page.locator('input[name="password"]').fill(password);
   await page.locator('input[name="confirmPassword"]').fill(password);
+  await page.locator('#auth-terms').check();
+  await page.locator('#auth-privacy').check();
   const registration = page.waitForResponse('**/api/auth/register');
   await page.locator('.auth-submit').click();
   assert.equal((await registration).status(), 201);

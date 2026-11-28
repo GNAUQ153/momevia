@@ -27,9 +27,10 @@ test('Login dùng logo Zalo nội bộ cho cả hai trạng thái OAuth', () => 
   }
 });
 
-test('Register vẫn không hiển thị social login', () => {
+test('Register dùng logo Zalo nội bộ và chờ xác nhận trước khi cho phép chuyển trang', () => {
   const register = view('register', { google: true, zalo: true });
-  assert.doesNotMatch(register, /assets\/brand\/zalo|data-auth-provider=/);
+  assert.match(register, /data-auth-provider="zalo" data-auth-provider-url="\/api\/auth\/zalo" disabled/);
+  assert.match(register, /src="\/assets\/brand\/zalo\.svg"/);
 });
 
 test('Kích thước logo tối thiểu vừa ô xã hội, không đè lên nội dung', () => {

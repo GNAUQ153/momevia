@@ -17,7 +17,7 @@ const configUrl = new URL('../../src/shared/config.mjs', import.meta.url).href;
 const qa = { NODE_ENV: 'test', PAYMENT_ENV: 'sandbox', PUBLICATION_QUOTA_QA_ENABLED: 'true',
   MYSQL_HOST: '127.0.0.1', MYSQL_DATABASE: 'momevia_canvas_qa_config', CANVAS_QA_MYSQL_ISOLATED: 'true',
   IDENTITY_STORAGE: 'mysql', CATALOG_STORAGE: 'mysql', CHECKOUT_STORAGE: 'mysql', GIFTS_STORAGE: 'mysql', DESIGNS_STORAGE: 'mysql' };
-const account = { TEST_ACCOUNT_ENABLED: 'true', TEST_ACCOUNT_EMAIL: ' QA@Example.test ', TEST_ACCOUNT_PASSWORD: 'abc12345' };
+const account = { TEST_ACCOUNT_ENABLED: 'true', TEST_ACCOUNT_EMAIL: ' QA@Example.test ', TEST_ACCOUNT_PASSWORD: 'Abc12345' };
 
 // Giữ hợp đồng lỗi HTTP của service khi chuyển validation về shared.
 function assertCredentialError(fn, input, key) {
@@ -47,19 +47,20 @@ test('Email giữ nguyên chuẩn hóa, mã lỗi và kiểu HttpError ở cả 
   }
 });
 
-test('Mật khẩu giữ nguyên giới hạn 8–128 và yêu cầu chữ cái, chữ số', () => {
+test('Mật khẩu giữ nguyên giới hạn 8–128 và yêu cầu chữ hoa, chữ số', () => {
   const service = new CredentialsService();
   for (const fn of [validatePassword, value => service.validatePassword(value)]) {
-    for (const valid of ['abc12345', 'a1'.repeat(64)]) assert.equal(fn(valid), undefined);
-    for (const invalid of [null, 'a123456', 'a1'.repeat(65)]) assertCredentialError(fn, invalid, 'errors.auth.passwordLength');
-    for (const invalid of ['abcdefgh', '12345678']) assertCredentialError(fn, invalid, 'errors.auth.passwordComposition');
+    for (const valid of ['Abc12345', 'A1'.repeat(64)]) assert.equal(fn(valid), undefined);
+    for (const invalid of [null, 'A123456']) assertCredentialError(fn, invalid, 'errors.auth.passwordLength');
+    assertCredentialError(fn, 'A1'.repeat(65), 'errors.auth.passwordTooLong');
+    for (const invalid of ['abcdefgh', '12345678', 'abc12345']) assertCredentialError(fn, invalid, 'errors.auth.passwordComposition');
   }
 });
 
 test('Tài khoản test vẫn dùng chung policy; thông báo độ dài khớp quy tắc 8 ký tự', () => {
   assert.equal(testAccountConfig({}), null);
   assert.equal(testAccountConfig(account).email, 'qa@example.test');
-  assert.equal(testAccountConfig(account).password, 'abc12345');
+  assert.equal(testAccountConfig(account).password, 'Abc12345');
   assert.throws(() => testAccountConfig({ ...account, TEST_ACCOUNT_PASSWORD: 'a123456' }), /8 đến 128/);
   assert.throws(() => testAccountConfig({ ...account, NODE_ENV: 'production' }), /production/);
 });

@@ -37,7 +37,7 @@ export function createShellActions({
       return navigate("/register");
     }],
     [["support"], async (action, element) => {
-      return openSupport();
+      return openSupport(undefined, { withdrawal: element.dataset.privacyWithdrawal === "true" });
     }],
     [["back-to-top"], async (action, element) => {
       window.scrollTo({ top: 0, behavior: scrollBehavior() });

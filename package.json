@@ -15,6 +15,7 @@
     "dev": "node dev.mjs",
     "start": "node dev.mjs",
     "test": "node --test tests/unit/*.test.mjs",
+    "test:auth": "node scripts/quality/auth-gate.mjs",
     "test:architecture": "node tests/integration/architecture.mjs",
     "test:browser": "node tests/integration/architecture.mjs --browser",
     "test:demo:browser": "node tests/integration/web-demo.mjs",

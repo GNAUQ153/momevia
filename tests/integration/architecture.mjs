@@ -1,3 +1,4 @@
+import { registrationConsent } from '../../web/js/shared/registration-consent.js';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
@@ -11,6 +12,7 @@ import { fileURLToPath } from 'node:url';
 import { setTimeout as delay } from 'node:timers/promises';
 import sharp from 'sharp';
 import { runHttpSmoke } from '../smoke/http.mjs';
+import { runAuthBoundary } from './auth-boundary.mjs';
 
 // Cả hai topology chạy từ bản sao nguồn với dữ liệu và cổng loopback riêng.
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
@@ -145,9 +147,15 @@ async function startFixture() {
     assert.equal(denied.headers['set-cookie'], undefined);
   }
   console.log('PASS  Login/logout through loopback aliases and configured tunnel; foreign origins rejected');
+  await runAuthBoundary(base, request, sessionCookie(seededLogin));
+  console.log('PASS  Auth boundary: blocked writes do not change session, private responses are no-store');
   if(process.argv.includes('--browser')) {
+    const { runAuthEntryBrowser } = await import('../browser/auth-entry.mjs');
+    await runAuthEntryBrowser(base);
     const {runLocaleBrowser}=await import('../browser/locale.mjs');
     await runLocaleBrowser(base);
+    const { runFestivalBrowser } = await import('../browser/festival.mjs');
+    await runFestivalBrowser(base);
     const {runHomeBrowser}=await import('../browser/home.mjs');
     await runHomeBrowser(base);
     const {runBrowserSmoke}=await import('../browser/smoke.mjs');
@@ -226,7 +234,7 @@ async function runLegacy({ base, env, ports, seededLogin }) {
 
   const actor = await request(base, '/api/auth/register', {
     method: 'POST',
-    body: { name: 'Legacy Creator QA', email: `legacy-creator-${randomUUID()}@example.test`,
+    body: { consent: registrationConsent(true, true), name: 'Legacy Creator QA', email: `legacy-creator-${randomUUID()}@example.test`,
       password: 'RegressionPass123', confirmPassword: 'RegressionPass123' },
   });
   assert.equal(actor.status, 201);
@@ -273,7 +281,7 @@ async function runLegacy({ base, env, ports, seededLogin }) {
 
 async function runMonolith({ base, env }) {
   const email = `architecture-${randomUUID()}@example.test`;
-  const account = {name:'Kiểm thử kiến trúc',email,password:'RegressionPass123',confirmPassword:'RegressionPass123'};
+  const account = {consent: registrationConsent(true, true),name:'Kiểm thử kiến trúc',email,password:'RegressionPass123',confirmPassword:'RegressionPass123'};
   const registrations = await Promise.all([
     request(base,'/api/auth/register',{method:'POST',body:account}),
     request(base,'/api/auth/register',{method:'POST',body:{...account,email:email.toUpperCase()}}),

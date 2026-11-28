@@ -1,3 +1,135 @@
+## Unreleased — Auth V5.2B Acceptance & Schema Verification (2026-11-28)
+
+- Bổ sung audit metadata chỉ đọc cho migration 020; pin checksum migration và chặn nghiệm thu nếu cấu trúc session không khớp.
+- Mở rộng MySQL QA hiện có để kiểm tra phiên legacy, thu hồi từng phiên và đổi mật khẩu cạnh tranh qua hai kết nối; ghi rõ điều kiện nghiệm thu Auth.
+
+## Unreleased — Auth V5.2A Production Preflight (2026-11-28)
+
+- Kiểm tra cặp credential OAuth/email relay và callback cùng public origin; thêm chế độ nghiệm thu đầy đủ --auth-ready, không in secret.
+- Giữ cookie Secure với HTTPS không phân biệt hoa/thường; chuyển tiếp Sec-Fetch-Site qua Hostinger PHP relay.
+- Bổ sung kiểm thử và runbook triển khai; không đổi database, không tự bật strict hoặc gọi provider.
+
+## Unreleased — Auth V5.1B.2 Technical Audit Fix (2026-11-28)
+
+- Đăng ký chính xác cạnh import JSON bản lưu chính sách 2026-11-28.1 trong Technical Audit; giữ kiểm tra tồn tại và từ chối cạnh chưa rà soát.
+- Thêm kiểm thử hồi quy, không đổi snapshot, digest, runtime hoặc migration.
+
+## Unreleased — Auth V5.1B.1 Browser Regression Fix (2026-11-28)
+
+- Đồng bộ kiểm thử trình duyệt với bán kính input 13px, validation theo từng trường và nút đăng ký chỉ khóa trong lúc gửi.
+- Kiểm tra consent theo phiên bản khi đăng ký email/OAuth, từ chối redirect ngoài provider và thử lại; không thay đổi giao diện hoặc runtime.
+
+## Unreleased — Auth V5.1B (2026-11-28)
+
+- Tách factory Gateway để kiểm thử HTTP trên cổng loopback; giữ nguyên tuyến production/legacy và cấu hình khởi động.
+- Nghiệm thu Origin, cookie, cache và các thao tác ghi Auth qua Gateway; dùng chung kịch bản với kiểm thử hai topology hiện có.
+- Thêm lệnh test:auth; lỗi upstream 502 không được cache. Không thêm dependency hoặc migration.
+
+## Unreleased — Auth V5.1A Integration & Security (2026-11-28)
+
+- Kiểm tra session trong cùng thao tác ghi credential; khóa user và session theo thứ tự chung với thu hồi phiên.
+- Thêm nghiệm thu HTTP Identity bằng JSON cô lập, kiểm thử transaction MySQL mô phỏng; form đổi mật khẩu không fallback sang GET.
+- Không thêm migration, dependency hoặc thay đổi nghiệp vụ consent.
+
+## Unreleased — Auth V4D.3B (2026-11-28)
+
+- Thu hồi riêng từng phiên đã xác minh từ danh sách tài khoản, có xác nhận và làm mới dữ liệu.
+- Tham chiếu HMAC ràng buộc với phiên yêu cầu, không trả JWT/JTI; kiểm tra chủ sở hữu, credential version và khóa MySQL.
+- Giữ phiên hiện tại, chức năng thu hồi mọi phiên khác và migration 020; không thêm schema hoặc dependency.
+
+## Unreleased — Auth V4D.3A (2026-11-28)
+
+- Thêm danh sách phiên đăng nhập đã xác minh theo credential version; phiên cũ chưa có metadata không được suy đoán.
+- Thêm migration 020, API chỉ đọc, trang tài khoản VI/EN; không trả JWT/JTI, IP hoặc thiết bị.
+
+## Unreleased — Auth V4D.2B (2026-11-28)
+
+- Đổi mật khẩu local từ Privacy Center, kiểm tra mật khẩu hiện tại và xác nhận đăng xuất mọi phiên.
+- Kiểm tra lại phiên, hash và credential version trước khi cập nhật; xóa challenge cũ và không cấp JWT mới.
+- Bổ sung kiểm thử hồi quy và nội dung VI/EN.
+
+## Unreleased — Auth V4D.2A (2026-11-28)
+
+- Xác thực OTP trước khi chạy scrypt; kiểm tra lại challenge, thời hạn và phiên bản credential trong mutate trước khi ghi mật khẩu.
+- Từ chối challenge hoặc password hash sai cấu trúc, giữ giới hạn lượt thử và luồng xác minh email.
+- Bổ sung kiểm thử hồi quy đồng thời, mã hết hạn và lỗi băm mật khẩu.
+
+## Unreleased — Auth V4D.1 (2026-11-28)
+
+- Thêm thao tác đăng xuất các phiên khác từ Privacy Center, xác nhận rõ ràng, giữ phiên hiện tại.
+- Kiểm tra session phía server, giới hạn tần suất và khóa hàng MySQL; không trả token hoặc định danh phiên về client.
+
+## Unreleased — Auth V4C.3B (2026-11-28)
+
+- Bổ sung lịch sử xác nhận chính sách và xác nhận tự nguyện theo phiên bản, ngôn ngữ và digest; giữ nguyên bằng chứng đăng ký.
+- Dùng thao tác mutate có transaction trên MySQL để chống ghi trùng; không tự thực thi thu hồi hoặc bắt buộc xác nhận lại để đăng nhập.
+- Hiển thị cảnh báo dự thảo, lịch sử cá nhân và trạng thái phiên bản trong Privacy Center, hỗ trợ VI/EN.
+
+## Unreleased — Auth V4C.3A (2026-11-28)
+
+- Tiếp nhận yêu cầu thu hồi qua Support Ticket gắn với session; hiển thị lịch sử và tiến độ xử lý riêng của tài khoản.
+- Không tự thu hồi consent, xóa tài khoản hoặc thiệp; giữ nguyên bằng chứng đăng ký.
+
+## Unreleased — Auth V4C.2 (2026-11-28)
+
+- Thêm trang quyền riêng tư trong menu tài khoản, đọc bằng chứng consent của session hiện tại và bản lưu chính sách đúng ngôn ngữ.
+- Phân biệt lỗi tải, thiếu bằng chứng và trạng thái đối chiếu digest; không tự xác nhận hoặc thu hồi consent.
+- Hỗ trợ VI/EN, responsive và hủy request khi rời trang.
+
+## Unreleased — Auth V4C.1 (2026-11-28)
+
+- Lưu bản chụp chính sách đăng ký VI/EN theo phiên bản và SHA-256 cùng bằng chứng đồng ý mới.
+- Bổ sung API đọc bằng chứng của chính tài khoản và đọc nội dung chính sách theo phiên bản; không tự gán consent cũ.
+- Hiển thị phiên bản trên trang chính sách, giữ cảnh báo dự thảo; bổ sung kiểm thử hồi quy.
+
+## Unreleased — Auth V4B (2026-11-28)
+
+- Xác thực consent phía server trước khi bắt đầu OAuth đăng ký Google/Zalo; lưu bằng chứng cùng tài khoản mới.
+- Cookie state/PKCE có chữ ký, thời hạn server và ràng buộc provider; Google bổ sung PKCE S256.
+- Giữ đăng nhập và khôi phục tài khoản đã liên kết; chuyển người dùng OAuth mới đến đăng ký nếu chưa đồng ý.
+- Giữ nhãn provider ngắn và giao diện VI/EN; không thêm migration hoặc dependency.
+
+## Unreleased — Auth Provider Labels (2026-11-28)
+
+- Rút gọn nhãn nút OAuth thành Google và Zalo trên cả Login/Register; giữ nguyên nhãn trợ năng, trạng thái và luồng xác thực.
+
+## Unreleased — Auth Password UX (2026-11-28)
+
+- Rút gọn checklist mật khẩu: tối thiểu 8 ký tự, ít nhất một chữ hoa A–Z và một chữ số; giữ giới hạn kỹ thuật 128 ký tự.
+- Đồng bộ kiểm tra mật khẩu mới ở client/server và đặt lại mật khẩu; không áp quy tắc mới cho đăng nhập tài khoản cũ.
+- Bỏ thông báo tổng quát khi form đăng ký có lỗi tại từng trường; giữ thông báo lỗi API và cơ chế khóa gửi lặp.
+
+## Unreleased — Auth Experience V3 (2026-11-28)
+
+- Aside đăng nhập và đăng ký dùng artwork vector và nội dung VI/EN riêng.
+- Form đăng ký luôn cho phép nhấn gửi khi chưa xử lý API; kiểm tra từng trường, hai checkbox và khóa gửi lặp trong thời gian chờ.
+- Giữ nguyên API và luồng đăng nhập; chưa thay đổi lưu bằng chứng consent phía server.
+
+## Unreleased — Auth V4A (2026-11-28)
+
+- Kiểm tra consent và phiên bản chính sách tại API đăng ký email; lưu bằng chứng cùng bản ghi tài khoản, không trả qua API công khai.
+- Cập nhật client và fixture kiểm thử; giữ nguyên đăng nhập và OAuth hiện tại. Không tự ghi nhận đồng ý cho tài khoản cũ.
+- Cần triển khai frontend/backend đồng bộ; OAuth consent xử lý trong giai đoạn riêng.
+
+## Unreleased - Đồng bộ Auth UI trên source hiện tại (2026-11-28)
+
+- Thống nhất bố cục, typography, input, icon, OAuth và khối chuyển trang Login/Register; giữ màu theo mùa và artwork hiện tại.
+- Giữ nguyên hai checkbox đồng ý, trạng thái provider và nghiệp vụ xác thực; phân biệt nút chưa đủ điều kiện và đang gửi yêu cầu.
+- Bổ sung kiểm thử hồi quy giao diện và cache version mới.
+
+## Unreleased - Giao diện xác thực (2026-11-28)
+
+- Làm lại bố cục đăng nhập và đăng ký với form sáng, vùng bấm dễ thao tác và bảng màu Giáng sinh theo lịch chung.
+- Hiển thị yêu cầu mật khẩu khi nhập, đưa focus về ô xác nhận khi không khớp và phản hồi trạng thái gửi form bằng VI/EN.
+- Dùng chung bố cục hai cột trên desktop cho đăng nhập và đăng ký. Giữ form đăng ký một cột, ô nhập bo tròn, hai ô xác nhận điều khoản và quyền riêng tư, cùng Google/Zalo theo cấu hình xác thực. Cập nhật gợi ý email và mật khẩu ở cả hai ngôn ngữ.
+
+## Unreleased - Giao diện mùa lễ (2026-11-28)
+
+- Thêm theme theo lịch, tuyết nhiều lớp, đèn header, đếm ngược và lối vào kho thiệp Giáng sinh.
+- Thêm cây thông tương tác, lịch Advent 24 ô và xe trượt tuyết trên desktop.
+- Mở hộp 3D và nhạc bật theo yêu cầu trên thiệp Giáng sinh. Giữ quyền truy cập, dữ liệu thiệp và bản nháp.
+- Tải hiệu ứng khi cần, giảm mật độ trên điện thoại, lưu lựa chọn tắt hiệu ứng và hỗ trợ reduced motion.
+
 ## Unreleased - Fabric Studio trên Hostinger và số cảnh Catalog (2026-11-28)
 
 - Hostinger trả .mjs là text/plain; kèm nosniff, trình duyệt chặn Fabric Studio và bộ đọc Excel danh sách người nhận. Thêm AddType text/javascript .mjs vào .htaccess.

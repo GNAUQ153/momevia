@@ -1,3 +1,7 @@
+## Unreleased — Rà thư viện và chốt WIP (2026-11-28)
+
+- Đồng bộ token/UI và xử lý nhãn nút Studio EN ở 391–700 px theo kích thước nội dung; giữ bố cục cột trên màn hình nhỏ.
+
 ## Unreleased - Khắc phục browser CI (2026-11-28)
 
 - Thu gọn khoảng cách giữa bộ mẫu và phần hành trình trên desktop, giữ kiểm tra giới hạn khoảng trắng hiện có.

@@ -1,0 +1,338 @@
+/* Shared application controls, cards and grids. Artwork keeps its authored geometry. */
+@media (min-width: 391px) and (max-width: 700px) {
+  .studio-space__hero-actions .btn {
+    flex-basis: max-content;
+  }
+}
+body :is(.btn, .auth-submit, .auth-support, .auth-social, .editor-primary, .editor-secondary,
+  .studio-space__filters button, .studio-space__jump a, .catalog-reset,
+  .role-workspace button, .library-admin__header button, .legal-sidebar a,
+  .account-menu a, .account-menu button) {
+  min-height: var(--control-height);
+  max-width: 100%;
+  border-radius: var(--layout-radius-control);
+  font-size: var(--ui-control-type);
+  font-weight: 600;
+  line-height: 1.4;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-align: center;
+}
+.catalog-compact .search-field__clear,
+body .pagination button {
+  min-width: var(--ui-control-min-height);
+  min-height: var(--ui-control-min-height);
+  border-radius: var(--layout-radius-control);
+  font-size: var(--ui-control-type);
+}
+body :is(.catalog-compact, .pricing-page, .studio-space, .creator-space, .role-workspace, .detail-section, .library-admin) .btn,
+body.is-home .btn,
+body .studio-space__hero-actions .btn,
+body .site-header .btn,
+body.is-auth-entry .auth-panel :is(.auth-submit, .auth-social, .auth-support) {
+  font-size: var(--ui-control-type);
+  border-radius: var(--layout-radius-control);
+  min-height: var(--control-height);
+}
+body .studio-space__section .my-gift-actions .btn {
+  min-height: var(--control-height);
+}
+.editor-workspace :is(.editor-top-actions, .editor-library-tabs, .editor-stage-tools,
+  .editor-discovery-modes, .editor-discovery-types, .editor-inspector, .editor-mobile-dock) :is(button, select),
+.editor-preview-heading :is(button, select),
+.fabric-dialog :is(button, select),
+.library-admin :is(button, select) {
+  min-height: var(--ui-control-min-height);
+  border-radius: var(--layout-radius-control);
+  font-size: var(--ui-text-small);
+  line-height: 1.4;
+  white-space: normal;
+}
+.editor-workspace .editor-heading > button,
+.editor-workspace .editor-more-tools > summary {
+  min-height: var(--ui-control-min-height);
+  border-radius: var(--layout-radius-control);
+  font-size: var(--ui-text-small);
+}
+.editor-main .editor-workspace .editor-top-actions {
+  align-items: stretch;
+}
+.editor-main .editor-workspace .editor-top-actions > button {
+  align-self: stretch;
+  height: auto;
+}
+.editor-main .editor-workspace .editor-more-tools > summary {
+  height: 100%;
+}
+.editor-workspace .editor-stage-tools .editor-icon-button,
+.editor-preview-heading .editor-icon-button,
+body .icon-button {
+  width: var(--ui-control-min-height);
+  height: var(--ui-control-min-height);
+  min-width: var(--ui-control-min-height);
+  min-height: var(--ui-control-min-height);
+  border-radius: var(--layout-radius-control);
+}
+.editor-workspace .editor-stage-tools :is(button, select) {
+  height: var(--ui-control-min-height);
+}
+body :is(.field, .auth-input, .editor-field, .creator-form, .library-admin__form)
+  :is(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), textarea, select) {
+  min-width: 0;
+  max-width: 100%;
+  border-radius: var(--layout-radius-control);
+  font-size: max(1rem, 16px);
+  line-height: 1.45;
+}
+.studio-space .studio-space__search,
+.catalog-compact .search-field {
+  min-width: 0;
+  border-radius: var(--layout-radius-control);
+}
+.auth-panel .auth-toggle-password {
+  border-radius: var(--layout-radius-control);
+}
+body .locale-control select,
+body .nav-actions > .locale-control select {
+  min-height: var(--ui-control-min-height);
+  border-radius: var(--layout-radius-control);
+  font-size: var(--ui-control-type);
+}
+.studio-space .studio-space__search input {
+  font-size: max(1rem, 16px);
+}
+body :is(.studio-space__section, .creator-create, .creator-list,
+  .role-workspace__header, .role-workspace__metric, .pricing-card,
+  .library-admin__browser, .library-admin__form, .library-admin__preview,
+  .recipient-viral, .auth-panel, .auth-showcase__story, .about-value,
+  .about-story__card, .step-card, .legal-sidebar, .legal-help, .account-menu) {
+  min-width: 0;
+  border-radius: var(--layout-radius-card);
+}
+.editor-main .editor-workspace :is(.editor-library, .editor-inspector, .editor-stage-column),
+.editor-main .editor-workspace .editor-topbar {
+  border-radius: var(--layout-radius-card);
+}
+.editor-workspace .editor-block-grid [data-block],
+.catalog-grid .template-card,
+.template-grid .template-card {
+  min-width: 0;
+  border-radius: var(--layout-radius-card);
+}
+.catalog-grid .template-card__visual,
+.template-grid .template-card__visual {
+  border-radius: var(--layout-radius-card-inner);
+}
+:is(.template-grid, .catalog-grid, .pricing-grid, .role-workspace__metrics,
+  .creator-journey, .creator-list__summary, .editor-grid, .library-admin__grid,
+  .about-values, .about-story, .legal-layout, .footer-grid) {
+  gap: var(--ui-grid-gap);
+}
+:is(.template-grid, .catalog-grid, .pricing-grid, .creator-grid,
+  .role-workspace__metrics, .library-admin__grid, .editor-grid) > * {
+  min-width: 0;
+}
+.catalog-compact .catalog-grid,
+.template-grid:not(.mkt-gift-grid),
+.pricing-page .pricing-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+  gap: var(--ui-grid-gap);
+}
+.creator-space .creator-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+  gap: var(--ui-grid-gap);
+}
+.role-workspace__metrics,
+.creator-space .creator-list__summary {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr));
+}
+:is(.studio-space, .creator-space, .role-workspace, .pricing-page) :is(.my-gift, .pricing-card, .creator-create) {
+  padding: var(--ui-panel-padding);
+  border-radius: var(--layout-radius-card);
+}
+:is(.studio-space, .creator-space, .role-workspace) :is(.section-intro, .my-gift p, .creator-list__intro) {
+  font-size: var(--ui-text-base);
+  line-height: var(--type-line-body);
+  overflow-wrap: anywhere;
+}
+:is(.studio-space, .creator-space, .role-workspace, .pricing-page) :is(h1, h2, h3) {
+  overflow-wrap: anywhere;
+  text-wrap: balance;
+}
+.studio-space .studio-space__hero h1,
+.studio-space__hero-inner > h1,
+.creator-space .creator-hero h1,
+.role-workspace .role-workspace__lead h1 {
+  font-size: var(--type-h1);
+  line-height: var(--type-line-heading);
+}
+.template-preview-dialog,
+.editor-preview-dialog,
+.fabric-dialog {
+  max-width: calc(100vw - 24px);
+  max-height: calc(100dvh - 24px);
+  border-radius: var(--layout-radius-card);
+  scrollbar-width: thin;
+}
+.template-preview-player,
+.editor-preview-player {
+  width: min(100%, var(--gift-content-limit, 560px), max(220px, calc((100svh - var(--gift-preview-chrome, 180px) - var(--gift-player-chrome, 0px)) * var(--gift-artboard-ratio, .462))));
+}
+.template-preview-player .gift-runtime-status,
+.editor-preview-player .gift-runtime-status {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+:is(.template-preview-player, .editor-preview-player) .gift-runtime-mode-label {
+  margin-bottom: var(--space-1);
+}
+:is(.template-preview-player, .editor-preview-player) .gift-runtime-progress {
+  margin-top: var(--space-2);
+}
+.gift-runtime-navigation:has(.gift-runtime-scene-select) {
+  display: block;
+  overflow: visible;
+  padding: 0;
+  margin-block: 8px;
+}
+.gift-runtime-scene-select {
+  width: 100%;
+  min-width: 0;
+  min-height: var(--ui-control-min-height);
+  border: 1px solid var(--app-control-border);
+  border-radius: var(--layout-radius-control);
+  padding: 8px 12px;
+  font-size: max(1rem, 16px);
+  background: var(--paper);
+  color: var(--ink);
+}
+.editor-preview-dialog .editor-preview-heading {
+  gap: 8px;
+}
+.editor-preview-heading > .locale-control {
+  flex: 0 0 auto;
+  margin: 0;
+}
+.editor-preview-heading .locale-control select {
+  border-radius: var(--layout-radius-control);
+}
+.editor-workspace :is(.editor-library, .editor-inspector, .editor-stage-scroll),
+.library-admin :is(.library-admin__list, .library-admin__form-body),
+.dialog {
+  scrollbar-width: thin;
+  scrollbar-color: var(--app-control-border) transparent;
+}
+.gift-runtime-button,
+.gift-runtime-sound-button,
+.gift-interaction-button,
+.gift-sound-control,
+.gift-typewriter-skip,
+.gift-motion-control,
+.gift-runtime-submit,
+.gift-runtime-navigation button,
+.gift-runtime-reply :is(input, textarea) {
+  border-radius: var(--layout-radius-control);
+}
+.gift-runtime-button {
+  font-weight: 600;
+  font-size: 16px;
+}
+.gift-runtime .gift-runtime-button {
+  font-size: clamp(.875rem, 4cqw, 1.125rem);
+  line-height: 1.35;
+  padding: clamp(4px, 1.5cqw, 12px) clamp(8px, 3cqw, 18px);
+}
+body .gift-runtime .gift-interaction-button {
+  border-radius: var(--layout-radius-control);
+  font-size: clamp(.875rem, 4cqw, 1rem);
+}
+body .gift-motion-toolbar button,
+body .gift-sound-control {
+  min-height: var(--ui-control-min-height);
+  font-size: var(--ui-control-type);
+  border-radius: var(--layout-radius-control);
+}
+.gift-motion-toolbar {
+  min-height: var(--control-height);
+}
+.gift-runtime-interaction,
+.gift-runtime-reply {
+  border-radius: var(--layout-radius-card);
+}
+.gift-runtime .gift-runtime-stage {
+  container-type: inline-size;
+}
+.gift-runtime .gift-runtime-interaction h3 {
+  font-size: clamp(1rem, 5.4cqw, 1.375rem);
+}
+.gift-runtime .gift-countdown-time {
+  font-size: clamp(1.25rem, 7cqw, 1.75rem);
+}
+.gift-runtime .gift-interaction-copy {
+  font-size: clamp(.875rem, 4cqw, 1rem);
+  line-height: 1.5;
+}
+.gift-runtime .gift-runtime-reply:not(.gift-garden-rsvp) h2 {
+  font-size: clamp(1.25rem, 5.5cqw, 1.75rem);
+}
+.gift-runtime .gift-runtime-reply:not(.gift-garden-rsvp) {
+  padding: clamp(12px, 3cqw, 16px);
+}
+.gift-runtime .gift-runtime-reply:not(.gift-garden-rsvp) label {
+  margin-block: clamp(4px, 1cqw, 8px);
+  font-size: clamp(.8125rem, 3.8cqw, .875rem);
+}
+.gift-runtime .gift-runtime-submit {
+  font-size: clamp(.875rem, 4cqw, 1rem);
+}
+@media (max-width: 760px) {
+  .library-admin .library-admin__grid {
+    grid-template-columns: minmax(0, 1fr);
+    height: auto;
+  }
+  .library-admin :is(.library-admin__browser, .library-admin__form, .library-admin__preview) {
+    grid-column: 1;
+    grid-row: auto;
+    position: static;
+    height: auto;
+  }
+  .library-admin .library-admin__form-body {
+    overflow: visible;
+    flex: auto;
+  }
+  .library-admin .library-admin__preview-stage {
+    width: min(100%, 390px);
+    margin-inline: auto;
+  }
+}
+@media (max-width: 600px) {
+  .editor-preview-dialog:has(.editor-preview-player) {
+    padding: 12px;
+  }
+  .editor-preview-dialog .editor-preview-heading {
+    top: -12px;
+  }
+  .catalog-compact .catalog-grid,
+  .template-grid:not(.mkt-gift-grid) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .template-preview-dialog .template-preview-toolbar .btn {
+    min-height: 44px;
+    padding-inline: 10px;
+    font-size: var(--ui-control-type);
+  }
+  .editor-workspace .editor-topbar {
+    gap: 8px;
+  }
+}
+@media (max-width: 360px) {
+  .catalog-compact .catalog-grid,
+  .template-grid:not(.mkt-gift-grid) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

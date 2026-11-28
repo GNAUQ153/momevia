@@ -10,7 +10,11 @@ const token = name => tokens.match(new RegExp(`^\\s*--type-${name}: ([^;]+);`, '
 
 // Đánh giá công thức clamp tại các viewport, không thay thế computed style của trình duyệt.
 function size(name, width, rem = 16) {
-  const value = token(name);
+  let value = token(name),depth=0,alias;
+  while((alias=/^var\((--[\w-]+)\)$/.exec(value))){
+    assert(++depth<10,'Typography aliases must not cycle');
+    value=tokens.match(new RegExp(`^\\s*${alias[1]}: ([^;]+);`,'m'))?.[1];
+  }
   const match = /^clamp\(([\d.]+)rem, ([\d.]+)rem \+ ([\d.]+)vw, ([\d.]+)rem\)$/.exec(value);
   assert(match, name);
   const [, min, base, fluid, max] = match.map(Number);
@@ -18,7 +22,7 @@ function size(name, width, rem = 16) {
 }
 
 test('Thang chữ fluid có giới hạn, phân cấp và không giảm khi viewport rộng hơn', () => {
-  const names = ['display', 'h1', 'h2', 'h3', 'card'];
+  const names = ['display', 'h1', 'h2', 'h3', 'card','body','small','caption'];
   for (const name of names) {
     let previous = 0;
     for (const width of [320, 390, 680, 768, 1024, 1440, 1920]) {
@@ -33,13 +37,13 @@ test('Thang chữ fluid có giới hạn, phân cấp và không giảm khi view
   }
   assert.equal(size('display', 320), 36);
   assert.equal(size('display', 1920), 72);
-  assert.equal(token('body'), '1rem');
-  assert.equal(token('small'), '.875rem');
-  assert.equal(token('caption'), '.8125rem');
+  assert.equal(size('body',320),15);assert.equal(size('body',1920),16);
+  assert.equal(size('small',320),13);assert.equal(size('small',1920),14);
+  assert.equal(size('caption',320),12);assert.equal(size('caption',1920),13);
 });
 
 test('Cỡ chữ tương đối tăng khi người dùng đổi font mặc định', () => {
-  for (const name of ['display', 'h1', 'h2', 'h3', 'card', 'lead']) {
+  for (const name of ['display', 'h1', 'h2', 'h3', 'card', 'lead','body','small','caption']) {
     for (const width of [320, 768, 1440]) assert(size(name, width, 32) > size(name, width, 16));
   }
   assert.equal(token('line-display'), '1.2');

@@ -79,7 +79,7 @@ export class DesignsService {
     const document = validateDocument(resolved.document || resolved.version?.document || createDocument({
       presetId: input.presetId || (resolved.template ? 'envelope-basic' : 'blank'), template: resolved.template, localize,
     }));
-    if (!input.purpose) document.personalization = { version: 1, mode: 'manual' };
+    if (!input.purpose) document.personalization = { version: 1, mode: document.invitation && document.elements.some(e => e.type === 'reply' && e.props.replyMode === 'attendance') ? 'self' : 'manual' };
     const now = new Date().toISOString();
     const id = randomUUID();
     const assets = [];

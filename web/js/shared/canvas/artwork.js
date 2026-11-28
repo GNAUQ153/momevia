@@ -38,6 +38,8 @@ export const shapes = Object.freeze({
   arch: 'M1 99V46C1-14 99-14 99 46V99Z',
   ribbon: 'M0 12H100L88 50 100 88H0L12 50Z',
   speech: 'M4 2H96Q99 2 99 12V72Q99 82 93 82H33L15 99V82H7Q1 82 1 72V12Q1 2 4 2Z',
+  'garden-door-left-v1': 'M0 0H100V100H0Z',
+  'garden-door-right-v1': 'M0 0H100V100H0Z',
 });
 
 export const lines = Object.freeze({

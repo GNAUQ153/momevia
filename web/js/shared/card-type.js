@@ -2,7 +2,7 @@ import { signatureTemplateDefinition } from './canvas/signature/templates.js';
 import { originalDefinition } from './canvas/originals-data.js';
 // Loại thiệp khác với dịp sử dụng; không suy đoán từ tên hoặc danh mục.
 export const CARD_TYPES = Object.freeze(['invitation', 'greeting', 'unspecified']);
-const invitationIds = new Set(['loi-moi-ben-hien', 'club-22-invitation', 'cozy-christmas-invitation']);
+const invitationIds = new Set(['garden-tea', 'loi-moi-ben-hien', 'club-22-invitation', 'cozy-christmas-invitation']);
 const greetingIds = new Set([
   'tet-phong-thu',
   'midnight-bloom', 'sunny-wishes', 'love-letter', 'starlight', 'peachy-day',

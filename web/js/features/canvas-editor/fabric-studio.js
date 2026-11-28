@@ -122,7 +122,8 @@ async function makeFabricObject(fabric, model, assetUrl, signal) {
     object = new fabric.Textbox(model.text ?? '', {
       ...options,
       fontFamily,
-      fontWeight:model.accessibility?.role==='heading'?'700':'400',
+      fontStyle: props.fontStyle || 'normal',
+      fontWeight:props.fontWeight || (model.accessibility?.role==='heading'?'700':'400'),
       fontSize: props.fontSize || 24,
       lineHeight: props.lineHeight || 1.4,
       textAlign: props.align || 'left',

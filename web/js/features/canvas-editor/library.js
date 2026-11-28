@@ -1,4 +1,5 @@
 import { signatureLibraryCards } from '../../shared/canvas/signature/registry.js';
+import { gardenElementCards } from '../../shared/canvas/garden-elements.js';
 import {ANIMATED_GROUPS,animatedElementCards} from '../../shared/canvas/animated-elements.js';
 import { EVENT_CLUSTER_IDS, eventCluster } from '../../shared/canvas/event-clusters.js';
 import { REFRESH_21 } from '../../shared/canvas/refresh-21-config.js';
@@ -137,6 +138,7 @@ for(const [group,titles]of ANIMATED_GROUPS.entries())catalog.push({label:titles[
 // Giữ thứ tự các nhóm Classic để không đổi các khóa dịch và dữ liệu cũ.
 const signatureGroup = canonicalText('editor.library.group.27');
 catalog.push({ label: signatureGroup, items: signatureLibraryCards(signatureGroup) });
+catalog.push({ label: 'Vườn trà Garden Tea', titleTexts: { vi: 'Vườn trà Garden Tea', en: 'Garden Tea collection' }, items: gardenElementCards(canonicalText).map(card => ({...card, group: 'Vườn trà Garden Tea'})) });
 const normalized = value => value.toLowerCase().normalize("NFD").replace(/\p{Diacritic}/gu, "").replaceAll("đ", "d");
 const searchIndex = new Map(catalog.flatMap(({ items }) => items.map(block => [
   block.id, normalized(`${block.title} ${block.group} ${block.keywords}`),

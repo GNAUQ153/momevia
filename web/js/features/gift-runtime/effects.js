@@ -1,4 +1,5 @@
 import { playMotionStack } from './motion-stack.js';
+import { isPaperTransition, playPaperTransition } from './scene-transition.js';
 import { effectSpeed, builtinPreset } from "../../shared/canvas/effects.js";
 import { celebrate, photoFragments } from './celebrations.js';
 import { playRecipe, playParticleRecipe, applyRecipeSurface } from './recipe-runtime.js';
@@ -148,9 +149,14 @@ export async function playElement(host, model, motion, signal, only, registerTyp
   delete node.dataset.giftEffect;
 }
 
-export function sceneTransition(stage, incoming, previous, preset, motion, signal) {
+export function sceneTransition(stage, incoming, previous, preset, motion, signal, {direction=1}={}) {
   if (!previous || !preset || !motion.enabled()) return;
   preset = builtinPreset(preset);
+  if(isPaperTransition(preset)){
+    // The opening doors already reveal this scene; only dissolve the last layer.
+    if(previous.hasAttribute('data-garden-opening'))preset={...preset,id:'T01',speed:'fast'};
+    else return playPaperTransition(stage,incoming,previous,preset,motion,signal,direction);
+  }
   if (preset.definition?.animation.engine === 'keyframes') { previous.remove(); return playRecipe(incoming, preset, motion, signal); }
   previous.classList.add("gift-transition-layer");
   previous.dataset.giftEffect = preset.id;

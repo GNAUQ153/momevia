@@ -19,7 +19,7 @@ test('Six distinct Signature cards keep 34 independently editable layers', () =>
   const cards = signatureCards();
   assert.deepEqual(cards.map(card => card.id), signatureElementIds);
   assert.equal(cards.reduce((count, card) => count + card.create().length, 0), 34);
-  assert.equal(new Set(catalog.flatMap(group => group.items.map(card => card.id))).size, 299);
+  assert.equal(new Set(catalog.flatMap(group => group.items.map(card => card.id))).size, 312);
   for (const card of cards) {
     const first = card.create(), second = card.create();
     assert(first.every(canFabricEdit));

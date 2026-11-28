@@ -551,21 +551,26 @@ async function render({ transition = false, resetScroll = false } = {}) {
       lifetime.signal.addEventListener("abort", () => clearInterval(poll), { once: true });
       if (gift.documentSnapshot) {
         document.body.classList.add("is-playing-gift");
-        const openMeRecipient = ['club-22-invitation', 'cozy-christmas-invitation', 'tet-phong-thu'].includes(gift.templateId);
+        const openMeRecipient = ['garden-tea','club-22-invitation', 'cozy-christmas-invitation', 'tet-phong-thu'].includes(gift.templateId);
         const originalInvitation = originalDefinition(gift.templateId)?.cardType === 'invitation' && gift.invitation;
         const { mountPlayer } =
           await import("../features/gift-runtime/index.js");
         if (generation !== renderGeneration) return;
-        main.innerHTML = `<section class="section recipient-section"><div class="container recipient-shell">${gift.recipientMode === 'self' ? `<div class="recipient-preferences">${localeControl()}</div>` : ''}<div id="canvas-public-player" class="recipient-player-host"></div>${originalInvitation ? '<div data-event-tools hidden></div>' : ''}${gift.rsvp ? '<div data-rsvp-host></div>' : ''}</div></section>`;
+        main.innerHTML = `<section class="section recipient-section"><div class="container recipient-shell">${gift.recipientMode === 'self' ? `<div class="recipient-preferences">${localeControl()}</div>` : ''}<div id="canvas-public-player" class="recipient-player-host"></div>${originalInvitation ? '<div data-event-tools hidden></div>' : ''}${gift.rsvp && gift.templateId !== 'garden-tea' ? '<div data-rsvp-host></div>' : ''}</div></section>`;
         const player = mountPlayer(
           document.getElementById("canvas-public-player"),
           {
             document: gift.documentSnapshot,
+            invitation: gift.invitation,
             runtimeVersion: gift.runtimeVersion,
             mode: "public",
             onSceneChange: sceneId => {
               const eventTools = main.querySelector('[data-event-tools]');
               if (eventTools) eventTools.hidden = sceneId === gift.documentSnapshot.entrySceneId;
+              if (gift.templateId === 'garden-tea') {
+                const host = main.querySelector('[data-rsvp-host]');
+                if (host) host.hidden = sceneId !== 'scene-reply';
+              }
               if (openMeRecipient) {
                 const dedication = main.querySelector('.recipient-dedication');
                 if (dedication) {
@@ -588,6 +593,8 @@ async function render({ transition = false, resetScroll = false } = {}) {
               `/api/gifts/gifts/${encodeURIComponent(id)}/assets/${encodeURIComponent(assetId)}${query}`,
             replyAdapter: {
               ...gift.replyPermissions, cardName: gift.recipientName,
+              attendance: gift.rsvp ? { ...gift.rsvp, eventAt: gift.invitation?.eventAt, timeZone: gift.invitation?.timeZone, onClosed: closed,
+                submit: async body => (await api.post(`${giftEndpoint}/rsvp${query}`, body, { signal: lifetime.signal })).rsvp } : null,
               send: gift.replyPermissions.canSend ? async (reply) =>
                 submitReplyIntent(`${id}:${gift.receiptId || 'manual'}`, reply, async body => (
                   await api.post(repliesEndpoint, body, {
@@ -614,10 +621,12 @@ async function render({ transition = false, resetScroll = false } = {}) {
           if (generation !== renderGeneration || lifetime.signal.aborted) return;
           mountInvitationTools(main.querySelector('[data-event-tools]'), gift.invitation, { title: gift.title, signal: lifetime.signal });
         }
-        if (gift.rsvp) {
+        if (gift.rsvp && gift.templateId !== 'garden-tea') {
           const { mountRsvp } = await import('../features/gifts/rsvp.js');
+          const mount = mountRsvp;
           if (generation !== renderGeneration || lifetime.signal.aborted) return;
-          mountRsvp(main.querySelector('[data-rsvp-host]'), gift.rsvp, {
+          mount(main.querySelector('[data-rsvp-host]'), gift.rsvp, {
+            recipientName: gift.recipientName, eventAt: gift.invitation?.eventAt,
             submit: async status => (await api.post(`${giftEndpoint}/rsvp${query}`, { status }, { signal: lifetime.signal })).rsvp,
             signal: lifetime.signal, onClosed: closed,
           });

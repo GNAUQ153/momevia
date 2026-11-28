@@ -13,8 +13,8 @@ const newIds = [
 ];
 
 test('Bộ 10 mẫu có ID duy nhất, giá và danh mục rõ, 3 cảnh Canvas chỉnh sửa được', () => {
-  assert.equal(templates.length, 44);
-  assert.equal(new Set(templates.map(item => item.id)).size, 44);
+  assert.equal(templates.length, 45);
+  assert.equal(new Set(templates.map(item => item.id)).size, 45);
   for (const id of newIds) {
     const template = templates.find(item => item.id === id);
     assert(template, `Thiếu ${id}`);

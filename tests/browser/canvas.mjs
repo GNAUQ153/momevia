@@ -464,7 +464,10 @@ export async function runCanvasBrowser(base, expiredSlug) {
     await page.locator(`.editor-artboard [data-element-id="photo-window-image"] img[src$="/${uploadedAsset.id}"]`).waitFor();
     await control('preview').click();
     const quickPreview = page.locator('dialog[open]');
-    await quickPreview.getByRole('button', { name: /Lời chúc/ }).click();
+    const sceneSelect = quickPreview.locator('.gift-runtime-scene-select');
+    const greetingScene = await sceneSelect.locator('option').filter({ hasText: /Lời chúc/ }).getAttribute('value');
+    assert(greetingScene, 'The compact scene selector retains the greeting scene');
+    await sceneSelect.selectOption(greetingScene);
     await quickPreview.getByText(quickGreeting, { exact: true }).waitFor();
     await control('preview-close').click();
     const quickPersisted = (await api(`/designs/designs/${quickId}`)).data.design;

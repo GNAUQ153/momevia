@@ -1,6 +1,7 @@
 import { createSignatureTemplate } from './signature/templates.js';
 import { ORIGINALS } from './originals-data.js';
 import { createOriginalTemplate } from './originals.js';
+import { createGardenTea, GARDEN_TEA_ID } from './garden-tea.js';
 import { createInteractiveTemplate } from './interactive-templates.js';
 import { createOpenMeTemplate } from './open-me-templates.js';
 import { canonicalText } from '../locale.js';
@@ -18,6 +19,7 @@ import { paintRefreshedTemplate } from './refresh-21.js';
 // Existing IDs, prices and provenance stay with Catalog; only new starting layouts change.
 export const BASIC_TEMPLATE_REVISION = 2;
 export const BASIC_TEMPLATES = Object.freeze({
+  'garden-tea': { motif: 'garden-tea', name: canonicalText('templates.garden-tea.title'), bg: '#F8EBE6', paper: '#F8EBE6', ink: '#34452F', accent: '#934850', detail: '#829176', button: '#934850', headline: canonicalText('templates.garden-tea.headline'), font: 'serif' },
   'loi-moi-ben-hien': {motif:'interactive',name:canonicalText('templates.loi-moi-ben-hien.title'),bg:'#F8F1E6',paper:'#F8F1E6',ink:'#263C32',accent:'#59705B',detail:'#AA5744',button:'#59705B',headline:canonicalText('templates.loi-moi-ben-hien.headline'),font:'serif'},
   'cuon-phim-ngay-ay': {motif:'interactive',name:canonicalText('templates.cuon-phim-ngay-ay.title'),bg:'#F6EBD9',paper:'#F6EBD9',ink:'#352B30',accent:'#825943',detail:'#DEA99C',button:'#825943',headline:canonicalText('templates.cuon-phim-ngay-ay.headline'),font:'serif'},
   'ban-do-ngay-ra-truong': {motif:'interactive',name:canonicalText('templates.ban-do-ngay-ra-truong.title'),bg:'#E6EFF1',paper:'#E6EFF1',ink:'#21394C',accent:'#375B6A',detail:'#E9BA63',button:'#375B6A',headline:canonicalText('templates.ban-do-ngay-ra-truong.headline'),font:'serif'},
@@ -61,6 +63,7 @@ export function createBasicTemplate(template, localize = canonicalText) {
   if (signature) return signature;
   const original = createOriginalTemplate(template?.id, localize);
   if (original) return original;
+  if (template?.id === GARDEN_TEA_ID) return validateDocument(createGardenTea(localize));
   const openMe = createOpenMeTemplate(template?.id, localize);
   if (openMe) return openMe;
   const interactive = createInteractiveTemplate(template?.id, localize);

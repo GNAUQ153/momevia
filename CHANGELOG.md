@@ -1,6 +1,8 @@
 ## Unreleased — Rà thư viện và chốt WIP (2026-11-28)
 
 - Đồng bộ token/UI và xử lý nhãn nút Studio EN ở 391–700 px theo kích thước nội dung; giữ bố cục cột trên màn hình nhỏ.
+- Đưa fit một trang và đọc lời nhắn dài theo phần vào viewer dùng chung của 45 mẫu; giữ source/ID/dữ liệu và 16 mẫu mới từ main.
+- Rà 45 mẫu, 1.393 unit tests, Canvas browser, UI regression và Garden Tea MySQL QA cô lập; sửa fixture thư viện còn thiếu Garden Tea.
 
 ## Unreleased - Khắc phục browser CI (2026-11-28)
 
@@ -131,6 +133,29 @@
 - Thêm điều khiển tạm dừng và tiếp tục Hero Carousel trên desktop; giữ chọn mẫu thủ công trên mobile và hỗ trợ bàn phím, VI/EN, reduced motion.
 - CTA nổi nhường chỗ cho CTA sau khi mở quà và trong hiệu ứng dựng trang chủ. Giữ cơ chế animation, phân quyền và nghiệp vụ hiện có.
 - Cập nhật kiểm thử Hero Carousel và CTA; không thêm dependency hoặc migration.
+
+## Unreleased — Đồng bộ UI và responsive Momevia (2026-11-27)
+
+- Dùng chung bo góc điều khiển 12 px, khối nội dung 20 px, khoảng cách lưới và thang chữ co giãn cho các màn công khai, Studio, Creator, Admin, form và hộp thoại. Gói CSS rút gọn của Catalog cũng nhận quy chuẩn này.
+- Trình xem mẫu và thiệp đã chia sẻ dùng chung cách co giãn chữ theo vai trò; khung thiệp tính cả không gian điều khiển phía ngoài. Nút Canvas có thuộc tính bo góc có thể sửa và được kiểm tra/lưu cùng tài liệu.
+- Giữ khung ổn định cho cả các mẫu đã có trước; nội dung dài cuộn trong thân thiệp. Album chưa có ảnh dùng lời nhắn phù hợp cho người nhận, chữ co giãn và ẩn điều hướng khi chỉ có một trang.
+- Thu gọn RSVP, tự đổi giữa một và hai cột theo khung thực tế, giữ ô nhập dễ đọc và giảm khoảng trống/trang trí thừa. Tên mẫu trong xem trước nhất quán với phần nội dung đã cá nhân hóa.
+- Thêm hai hiệu ứng Canvas: Trượt giấy dịu và Lật giấy mềm. Chuyển tiếp/quay lại có hướng tương ứng; hàng điều hướng cố định và khung đứng yên, giữ hiệu ứng mở cửa, giảm chuyển động và dọn lớp chuyển cảnh khi hủy.
+- Thay dải nút chọn cảnh trong xem trước bằng bộ chọn gọn, giữ focus khi dùng bàn phím và đổi ngôn ngữ. Hộp thoại đo phần tiêu đề thực tế để hạn chế cuộn ngoài; thao tác vừa khung Canvas chừa dung sai cho viền và làm đều hàng nút ở màn hình nhỏ.
+- Các thay đổi và kiểm thử ở local; không đổi API nghiệp vụ, quyền, giá hoặc dữ liệu thiệp đã phát hành.
+
+## Unreleased — Garden Tea local (2026-11-27)
+
+- Thêm mẫu Trà chiều vườn xuân với hai cánh cửa và nhóm hoa lá có thể chỉnh sửa, ảnh tùy chọn, lời mời, lịch hẹn, chương trình, trang phục, vé cào, RSVP và lời kết.
+- RSVP lưu trạng thái, tổng số người và lời nhắn theo từng lượt nhận; người gửi xem được thông tin này. Sự kiện đã qua vẫn xem được, nhưng không cập nhật RSVP mới. Đếm ngược dùng cùng dữ liệu ngày giờ với sự kiện.
+- Vé cào mới vẽ nét liên tục và đo diện tích đã cào ở bên trong element. Chỉ tự mở hết khi người dùng thả tay sau khi vượt 90%; không hiển thị thanh tiến độ, tỷ lệ hay câu hướng dẫn về ngưỡng này. Vé cào đã có trước giữ cách hoạt động cũ.
+- Làm lại đồ họa cành lá, gân lá, hoa, bề mặt cửa và dấu mở. Cửa chuyển động theo hai mặt phẳng có phối cảnh, dựng trang đích bên dưới và giữ khung đứng yên trong lúc mở.
+- Thiết kế lại RSVP bằng bảng màu vườn trà, hình tách trà, bộ tăng/giảm số người và hiệu ứng xác nhận nhẹ. Form có chiều cao theo nội dung; khung thiệp thích nghi theo cả hai chiều màn hình và giữ cuộn dọc cho nội dung dài.
+- Phối màu cả chín cảnh, bổ sung hoa lá màu nước, giấy thư, khung vòm, khay trà và chuyển động trên từng chi tiết. Thêm bộ 13 khối Garden Tea vào Canvas; giữ hình vẽ riêng khi lưu/chèn qua thư viện, và thay dãy chấm trang phục bằng cánh hoa bay ở viền.
+- Ưu tiên nội dung trên các trang đọc: thu gọn khối ảnh tùy chọn khi chưa có ảnh, giảm độ nổi hoa lá, dừng chuyển động sau vài nhịp và dùng nút chữ cho điều hướng quay lại. Canvas có lựa chọn kiểu nút và cách hiển thị khi thiếu ảnh; ảnh đã thêm vẫn giữ khung và vị trí đã thiết kế.
+- Đồng bộ khung Garden Tea và hàng điều hướng trên tất cả trang nội dung. Nút đọc tiếp/quay lại dùng cùng cỡ chữ, kích thước, màu và khoảng cách; nội dung dài, ảnh tùy chọn và RSVP không làm đổi chiều cao khung. Canvas hỗ trợ nút cố định cuối thiệp, còn nội dung dài cuộn riêng ở phía trên.
+- Có bản dựng và vùng dữ liệu kiểm thử local riêng; chưa triển khai lên môi trường vận hành.
+
 
 ## Unreleased — Kiểm định thiết kế Canvas và thư viện thiệp (2026-11-27)
 

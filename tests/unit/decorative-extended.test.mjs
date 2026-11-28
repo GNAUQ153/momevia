@@ -14,9 +14,9 @@ const cards = catalog.flatMap(group => group.items);
 const extended = cards.filter(block => block.id.startsWith("m55-"));
 
 test("Không mất 100 khối gốc, 24 trang trí cũ; đủ 48 vector ở sáu nhóm mới", () => {
-  assert.equal(cards.length, 299);
-  assert.equal(new Set(cards.map(item => item.id)).size, 299);
-  assert.equal(cards.filter(item => !/^m5[45]-/.test(item.id) && !item.id.startsWith('object-') && !item.id.startsWith('natural-') && !item.id.startsWith('motion-') && !item.id.startsWith('signature-') && !EVENT_CLUSTER_IDS.includes(item.id) && item.id!=='sound-button').length, 100);
+  assert.equal(cards.length, 312);
+  assert.equal(new Set(cards.map(item => item.id)).size, 312);
+  assert.equal(cards.filter(item => !/^m5[45]-/.test(item.id) && !item.id.startsWith('object-') && !item.id.startsWith('natural-') && !item.id.startsWith('motion-') && !item.id.startsWith('signature-') && !item.id.startsWith('garden-') && !EVENT_CLUSTER_IDS.includes(item.id) && item.id!=='sound-button').length, 100);
   assert.equal(cards.filter(item => item.id.startsWith("m54-")).length, 24);
   assert.equal(extended.length, 48);
   assert.equal(Object.keys(extendedArt).length, 48);

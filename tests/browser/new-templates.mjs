@@ -77,7 +77,17 @@ export async function runNewTemplates(base) {
     const stage = page.locator('.gift-runtime-stage');
     await stage.getByText('Ảnh mừng sinh nhật', { exact: true }).waitFor();
     await stage.getByRole('button', { name: 'Lật góc khung ảnh' }).click();
-    await stage.getByText(long, { exact: true }).waitFor();
+    const greeting=stage.locator('[data-runtime-element="text-message"]');
+    await greeting.waitFor();
+    const parts=[],nextPart=page.locator('.gift-page-navigation button').last();
+    for(let i=0;i<30;i++){
+      parts.push(await greeting.textContent());
+      if(await nextPart.isDisabled())break;
+      await nextPart.click();
+    }
+    assert.equal(parts.join(''),long,'Every character of the long greeting remains readable across parts');
+    const lastPart=parts.at(-1);
+    assert(await stage.locator('.gift-scene-body').evaluate(n=>n.scrollHeight<=n.clientHeight+1));
     await capture('memory-long-greeting.png');
     assert.equal(await page.locator('.recipient-preferences,.gift-runtime-navigation').count(), 0);
     // Preferences selected on another public tab still translate the player in
@@ -88,7 +98,8 @@ export async function runNewTemplates(base) {
     const playerLocale = preferences.locator('.nav-actions [data-locale-select]');
     await playerLocale.selectOption('en');
     await page.waitForFunction(() => globalThis.document.documentElement.lang === 'en');
-    await stage.getByText(long, { exact: true }).waitFor();
+    await page.getByRole('button',{name:'Next part',exact:true}).waitFor();
+    assert.equal(await greeting.textContent(),lastPart,'Changing locale retains the current reading part');
     await stage.getByRole('button', { name: 'Gửi một lời hồi đáp' }).click();
     await stage.getByLabel('Reply', { exact: true }).fill('Lời đáp đang nhập ở trang quà.');
     const replyInput = await stage.locator('textarea').elementHandle();

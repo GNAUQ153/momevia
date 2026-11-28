@@ -7,6 +7,7 @@ import { pathToFileURL, fileURLToPath } from 'node:url';
 import { once } from 'node:events';
 import { randomBytes, randomUUID,createHash } from 'node:crypto';
 import {EVENT_MEDIA} from '../../web/js/shared/canvas/event-media.js';
+import {photoSlots} from '../../web/js/shared/canvas/interactions.js';
 import sharp from 'sharp';
 import { createDocument, publicDocument, canonicalStringify, BASIC_TEMPLATES, insertPhotoFrame } from '../../web/js/shared/canvas/index.js';
 import { materializeTemplateStart } from '../../web/js/features/canvas-editor/template-start.js';
@@ -77,7 +78,7 @@ try {
       assert.equal(response.status, 200); assert.deepEqual(Buffer.from(await response.arrayBuffer()), media.bytes);
       assert.equal((await fetch(`${current.base}/api/designs/designs/${d.id}/assets/${owned}`)).status, 401);
       ref.assetId = owned;
-      for (const element of expectedPreset.elements) if (element.type === 'image' && element.props.assetId === original) element.props.assetId = owned;
+      for (const element of expectedPreset.elements) for(const slot of photoSlots(element))if(slot.assetId===original)slot.assetId=owned;
     }
     assert.deepEqual(d.document, expectedPreset); assert.equal(d.source.templateId, template.id); assert.equal(d.source.kind, 'template');
     const originalSource = structuredClone(d.source);
@@ -156,7 +157,7 @@ try {
   };
   await assert.rejects(materializeTemplateStart(original, { template, createMutationId: key, request,...initializerMedia }), /lost initialization ACK/);
   const recovered = await materializeTemplateStart(original, { template, createMutationId: key, request,...initializerMedia });
-  assert.equal(recovered.revision, 2); assert.deepEqual(writes[0], writes[1]); assert.deepEqual(recovered.source, original.source); assert.deepEqual(recovered.policy, original.policy); const normalized=structuredClone(recovered.document);for(const ref of normalized.assets)ref.assetId=aliases.get(ref.assetId)||ref.assetId;for(const e of normalized.elements)if(e.type==='image')e.props.assetId=aliases.get(e.props.assetId)||e.props.assetId;assert.deepEqual(normalized,createDocument({template}));
+  assert.equal(recovered.revision, 2); assert.deepEqual(writes[0], writes[1]); assert.deepEqual(recovered.source, original.source); assert.deepEqual(recovered.policy, original.policy); const normalized=structuredClone(recovered.document);for(const ref of normalized.assets)ref.assetId=aliases.get(ref.assetId)||ref.assetId;for(const e of normalized.elements)for(const slot of photoSlots(e))slot.assetId=aliases.get(slot.assetId)||slot.assetId;assert.deepEqual(normalized,createDocument({template}));
   recovered.document.bindings.message.value = 'Nội dung ở một tab khác';
   await legacy.request(`/designs/designs/${recovered.id}/save`, { expectedRevision: 2, mutationId: randomUUID(), title: recovered.title, document: recovered.document });
   const latest = await materializeTemplateStart(original, { template, createMutationId: key, request,...initializerMedia }); assert.equal(latest.revision, 3); assert.equal(latest.document.bindings.message.value, 'Nội dung ở một tab khác');

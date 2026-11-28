@@ -272,6 +272,8 @@ try {
     await check('Mobile memory template, optional photo and two-envelope keyboard branching', () => runNewTemplates(base));
     const {runCardPageFit}=await import('../browser/card-page-fit.mjs');
     await check('Shared screen fit: every built-in scene and future portrait/landscape prose pages',()=>runCardPageFit(base));
+    const {runGiftVolumeProof}=await import('../browser/gift-volume.mjs');
+    await check('Physical gift box occludes the card while closed and exposes it after opening',()=>runGiftVolumeProof(base));
   }
   console.log(JSON.stringify({ gate: 'JSON API', cases, fixture: 'synthetic isolated single process', result: 'PASS' }));
 } catch (error) { console.error(logs); throw error; }

@@ -1,5 +1,6 @@
 import {applySoftAppearance} from './soft-appearance.js';
 import {softDuration} from '../../shared/canvas/drive-soft.js';
+import {OBJECT_APPEARANCE,DIPLOMA_MASK} from '../../shared/canvas/natural-objects.js';
 import { calendarMonth, graduationPassSvg } from '../../shared/canvas/drive-data.js';
 import { currentLocale, t } from '../../core/i18n.js';
 
@@ -8,6 +9,16 @@ export function renderDriveInteraction(model,{mode,signal,renderPhoto,document:d
   let first={...p.entries[0],...(p.bodyBinding==='message'?{body:doc?.bindings?.message?.value||p.entries[0].body}:{})};
   const node=(tag,css,text)=>{const el=globalThis.document.createElement(tag);if(css)el.className=css;if(text!==undefined)el.textContent=text;return el;};
   const root=node('section',`gift-drive-block gift-drive-${p.kind}`);root.style.backgroundColor=p.color;const soft=applySoftAppearance(root,p);
+  const natural=p.appearance===OBJECT_APPEARANCE&&p.objectAssetId;
+  if(natural)root.classList.add('gift-drive-natural');
+  const objectArt=css=>{const wrapper=node('span',css),art=renderPhoto({id:model.id+'-object',assetId:p.objectAssetId,fit:'contain',decorative:true,focalPoint:{x:.5,y:.5}});
+    if(css==='gift-natural-diploma-art'){
+      art.style.clipPath=`polygon(${DIPLOMA_MASK.map(([x,y])=>x+'% '+y+'%').join(',')})`;
+      // The existing photograph includes a navy cap above the warm diploma.
+      // Keep its original alpha and warm pixels; key out only dark cap remnants.
+      const svg=document.createElementNS('http://www.w3.org/2000/svg','svg'),filter=document.createElementNS(svg.namespaceURI,'filter'),matrix=document.createElementNS(svg.namespaceURI,'feColorMatrix'),composite=document.createElementNS(svg.namespaceURI,'feComposite');
+      svg.setAttribute('width','0');svg.setAttribute('height','0');filter.id='diploma-key-'+crypto.randomUUID();filter.setAttribute('color-interpolation-filters','sRGB');matrix.setAttribute('values','1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 20 0 -20 0 0');matrix.setAttribute('result','warm-mask');composite.setAttribute('in','SourceGraphic');composite.setAttribute('in2','warm-mask');composite.setAttribute('operator','in');filter.append(matrix,composite);svg.append(filter);art.append(svg);art.style.filter=`url(#${filter.id})`;
+    }wrapper.append(art);return wrapper;};
   const listen=(el,event,fn)=>{if(live)el.addEventListener(event,fn,{signal});};
   const button=(text,fn,css='')=>{const el=node(live?'button':'span',`gift-drive-button ${css}`,text);if(live){el.type='button';listen(el,'click',event=>activate?activate(el,event,()=>fn?.(event)):fn?.(event));}return el;};
   const title=node('h3','gift-drive-title',p.kind==='four-choice-quiz'?(p.question||t('drive.quizQuestion')):first.heading),status=node('p','gift-drive-status');status.setAttribute('role','status');
@@ -33,6 +44,7 @@ export function renderDriveInteraction(model,{mode,signal,renderPhoto,document:d
     root.append(calendar,open);
   }else if(p.kind==='camera-print'){
     const camera=node('div','gift-drive-camera'),lens=node('span','gift-drive-lens');camera.append(lens);
+    if(natural)camera.append(objectArt('gift-natural-camera-art'));
     const print=node('figure','gift-drive-print');print.append(photo(),node('figcaption','',p.photos[0].caption));
     const snap=button(t('drive.takePhoto'),()=>{if(complete(snap,first.body))root.classList.add('is-printed');});
     if(live){camera.setAttribute('role','button');camera.tabIndex=0;camera.setAttribute('aria-label',t('drive.takePhoto'));listen(camera,'click',()=>snap.click());listen(camera,'keydown',e=>{if(['Enter',' '].includes(e.key)){e.preventDefault();snap.click();}});}
@@ -66,11 +78,12 @@ export function renderDriveInteraction(model,{mode,signal,renderPhoto,document:d
     const body=node('p','gift-drive-reveal-body',first.body),paper=node('div',`gift-drive-paper gift-drive-paper-${p.kind}`);
     if(p.kind==='cap-toss'){
       const cap=node('span','gift-drive-cap',soft?'':'◆');
-      if(soft){const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('viewBox','0 0 130 100');
+      if(natural)cap.append(objectArt('gift-natural-cap-art'));
+      else if(soft){const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('viewBox','0 0 130 100');
         for(const[d,fill,stroke]of [['M7 33L65 5 123 33 65 62Z',p.inkColor||'#272936',p.detailColor||'#D8AE63'],['M31 51V76Q65 99 99 76V51',p.inkColor||'#272936','none'],['M120 34V78M116 79H124V91H116Z',p.detailColor||'#D8AE63',p.detailColor||'#D8AE63']]){const path=document.createElementNS('http://www.w3.org/2000/svg','path');path.setAttribute('d',d);path.setAttribute('fill',fill);path.setAttribute('stroke',stroke);path.setAttribute('stroke-width','2');svg.append(path);}cap.append(svg);
       }paper.append(cap);
     }
-    else if(p.kind==='ribbon-diploma')paper.append(node('span','gift-drive-ribbon','∞'));
+    else if(p.kind==='ribbon-diploma')paper.append(natural?objectArt('gift-natural-diploma-art'):node('span','gift-drive-ribbon','∞'));
     else if(p.kind==='grade-stamp')paper.append(node('span','gift-drive-stamp',t('drive.graduated')));
     else paper.append(node('span','gift-drive-tape',''));
     paper.append(body);

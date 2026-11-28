@@ -3,10 +3,11 @@ import {photoSlots} from '../../shared/canvas/interactions.js';
 
 // Treat library artwork as immutable data. Only a local, allowlisted media URL
 // can be read; saving uses the same authenticated image upload as a file input.
-export async function materializeInsertionMedia(models,{fetchMedia=fetch,upload,signal,namespace='',cache=new Map()}){
+export async function materializeInsertionMedia(models,{fetchMedia=fetch,upload,signal,namespace='',cache=new Map(),existingAssets=[]}){
  const copies=structuredClone(models),aliases=new Map(),assets=[];
  for(const model of copies)for(const slot of photoSlots(model)){
   const original=slot.assetId;if(!original)continue;const spec=Object.hasOwn(EVENT_MEDIA,original)?EVENT_MEDIA[original]:null;
+  if(!spec&&existingAssets.some(a=>a.kind==='image'&&a.assetId===original))continue;
   if(!spec||spec.previewOnly)throw new Error('Only reviewed distributable library media can be inserted');
   const cacheKey=namespace+':'+original;
   if(!aliases.has(original)&&cache.has(cacheKey))aliases.set(original,cache.get(cacheKey));

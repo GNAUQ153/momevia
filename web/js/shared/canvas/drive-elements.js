@@ -1,4 +1,5 @@
 import {softenElement} from './drive-soft.js';
+import {naturalizeObject} from './natural-objects.js';
 import { createElement } from './registry.js';
 import { canonicalText } from '../locale.js';
 const materializeModels = source => { const copy=structuredClone(source),ids=new Map(copy.map(e=>[e.id,globalThis.crypto.randomUUID()]));for(const e of copy){e.id=ids.get(e.id);if(e.groupId)e.groupId=ids.get(e.groupId);}return copy; };
@@ -36,4 +37,4 @@ export function driveBlockModels(id, localize = canonicalText, {soft=false}={}) 
   for(const e of elements)e.groupId=elements[0].id;
   return elements;
 }
-export const driveElementCards = (localize=canonicalText) => [...DRIVE_BLOCKS,...DRIVE_OPENINGS,['vinyl-record','Đĩa nhạc khi phát','Playback vinyl record'],['pine-gift-tag','Nhánh thông và thẻ quà','Pine sprig and gift tag']].map(([id,vi,en])=>({id:`drive-${id}`,title:localize(`editor.library.item.drive-${id}`),titleTexts:{vi,en},visualKind:id==='pine-gift-tag'?'graphics':'interactive',keywords:`${vi} ${en} drive graduation invitation tốt nghiệp thiệp mời`,create:()=>materializeModels(driveBlockModels(id,localize,{soft:true})).map(e=>{delete e.groupId;return e;})}));
+export const driveElementCards = (localize=canonicalText) => [...DRIVE_BLOCKS,...DRIVE_OPENINGS,['vinyl-record','Đĩa nhạc khi phát','Playback vinyl record'],['pine-gift-tag','Nhánh thông và thẻ quà','Pine sprig and gift tag']].map(([id,vi,en])=>({id:`drive-${id}`,title:localize(`editor.library.item.drive-${id}`),titleTexts:{vi,en},visualKind:id==='pine-gift-tag'?'graphics':'interactive',keywords:`${vi} ${en} drive graduation invitation tốt nghiệp thiệp mời`,create:()=>materializeModels(driveBlockModels(id,localize,{soft:true})).map(e=>{delete e.groupId;return naturalizeObject(e,localize);})}));

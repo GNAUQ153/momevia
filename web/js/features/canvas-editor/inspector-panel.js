@@ -1,3 +1,4 @@
+import {NATURAL_OPENINGS} from '../../shared/canvas/natural-objects.js';
 import {localVideoAvailable} from '../../shared/canvas/local-video.js';
 import { currentLocale, message, t } from "../../core/i18n.js";
 import { createElement, registry, LIMITS } from "../../shared/canvas/index.js";
@@ -68,7 +69,7 @@ export function createInspectorPanel({
     const p = model.props, spec = interactionKinds[p.kind], doc = getStore().get().document;
     const fields = [input(message("editor.interface.blockBackground"), "props.color", p.color, { type: "color" })];
     if(spec.drive||p.appearance&&['soft-v2','album-soft-v2','paper-fold-soft-v3','scratch-progress-soft-v2'].includes(p.appearance)){
-      fields.push(select(message('soft.style'),'props.appearance',p.appearance||'classic',[[spec.drive?'soft-v2':p.appearance,message('soft.soft')],['classic',message('soft.classic')]]));if(p.appearance&&p.appearance!=='classic'){fields.push(select(message('soft.speed'),'props.motionSpeed',p.motionSpeed||'normal',[['fast',message('soft.fast')],['normal',message('soft.normal')],['slow',message('soft.slow')]]),input(message('soft.radius'),'props.cornerRadius',p.cornerRadius??24,{type:'number',min:0,max:48}));
+      fields.push(select(message('soft.style'),'props.appearance',p.appearance||'classic',[...(['camera-print','ribbon-diploma','cap-toss'].includes(p.kind)?[['object-natural-v3',message('natural.style')]]:[]),[spec.drive?'soft-v2':p.appearance,message('soft.soft')],['classic',message('soft.classic')]]));if(p.appearance&&p.appearance!=='classic'){fields.push(select(message('soft.speed'),'props.motionSpeed',p.motionSpeed||'normal',[['fast',message('soft.fast')],['normal',message('soft.normal')],['slow',message('soft.slow')]]),input(message('soft.radius'),'props.cornerRadius',p.cornerRadius??24,{type:'number',min:0,max:48}));
       for(const[key,label]of [['inkColor','ink'],['accentColor','accent'],['detailColor','detail']])fields.push(input(message('soft.'+label),'props.'+key,p[key]||({inkColor:'#27394B',accentColor:'#7D3854',detailColor:'#EAC572'}[key]),{type:'color'}));}
     }
     if(p.kind==='swipe-album')fields.push(select(message('soft.style'),'props.appearance',p.appearance||'classic',[['classic',message('soft.classic')],['album-soft-v2',message('soft.soft')]]));
@@ -176,7 +177,7 @@ export function createInspectorPanel({
         input(message("editor.interface.layerName"), "element.name", element.name || "", {
           maxlength: 100,
         }),
-        element.type === "image" ? imagePicker(message(props.assetId ? "editor.interface.replacePhoto" : "editor.interface.choosePhoto")) : null,
+        (element.type === "image"||NATURAL_OPENINGS.includes(props.preset)) ? imagePicker(message(props.assetId ? "editor.interface.replacePhoto" : "editor.interface.choosePhoto")) : null,
       );
       if (element.type === "text") {
         children.push(

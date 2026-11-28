@@ -26,11 +26,14 @@ try{
  await library.put(admin,old.kind,old.id,{expectedRevision:old.revision,definition:{...old.definition,title:{vi:'Bản Admin QA giữ nguyên',en:'Preserved Admin QA edition'}}});
  const outside=(await library.rows()).filter(r=>!DRIVE_LIBRARY_KEYS.includes(r.kind+':'+r.id)).map(driveFingerprint);
  await library.ready();assert.deepEqual((await library.rows()).filter(r=>!DRIVE_LIBRARY_KEYS.includes(r.kind+':'+r.id)).map(driveFingerprint),outside);completed.push('existing library bootstrap preserves Admin edits and does not silently replace reviewed rows');
- await conn.execute("UPDATE canvas_library_items SET revision=revision+1 WHERE kind='template' AND id='garden-tea'");
- const conflict=planDriveLibraryRollout(await library.rows(),bundle);assert.equal(conflict.canApply,false);assert.equal(conflict.actions.find(a=>a.key==='template:garden-tea').status,'conflict');
+ // Exercise a row whose definition actually changes in this reviewed rollout.
+ // Bumping an already identical Garden row can legitimately match a retry.
+ const changed=bundle.changes.find(c=>c.before&&driveFingerprint(c.before.definition)!==driveFingerprint(c.next.definition));assert(changed,'The test rollout must contain a changed definition');
+ await conn.execute('UPDATE canvas_library_items SET revision=revision+1 WHERE kind=? AND id=?',[changed.before.kind,changed.before.id]);
+ const conflict=planDriveLibraryRollout(await library.rows(),bundle);assert.equal(conflict.canApply,false);assert.equal(conflict.actions.find(a=>a.key===changed.before.kind+':'+changed.before.id).status,'conflict');
  const refused=await applyDriveLibraryRollout(library,admin,bundle);assert.deepEqual(refused.applied,[]);
  // Reset only this intentionally simulated QA revision before exercising the approved baseline.
- await conn.execute("UPDATE canvas_library_items SET revision=revision-1 WHERE kind='template' AND id='garden-tea'");completed.push('concurrent revision mismatch blocks the entire scoped update before any write');
+ await conn.execute('UPDATE canvas_library_items SET revision=revision-1 WHERE kind=? AND id=?',[changed.before.kind,changed.before.id]);completed.push('concurrent revision mismatch blocks the entire scoped update before any write');
  const applied=await applyDriveLibraryRollout(library,admin,bundle);assert(applied.canApply);assert.equal(applied.applied.length,DRIVE_LIBRARY_KEYS.length);
  assert.deepEqual((await library.rows()).filter(r=>!DRIVE_LIBRARY_KEYS.includes(r.kind+':'+r.id)).map(driveFingerprint),outside);
  const again=await applyDriveLibraryRollout(library,admin,bundle);assert(again.canApply);assert.deepEqual(again.applied,[]);
@@ -43,8 +46,9 @@ try{
  const visible=(await fixture.request('/catalog/templates')).data.templates;assert(newIds.every(id=>!visible.some(t=>t.id===id)));
  const rollback=await applyDriveLibraryRollout(library,admin,bundle,{rollback:true});assert(rollback.canApply);assert.equal(rollback.applied.length,DRIVE_LIBRARY_KEYS.length);
  const rollbackAgain=await applyDriveLibraryRollout(library,admin,bundle,{rollback:true});assert(rollbackAgain.canApply);assert.deepEqual(rollbackAgain.applied,[]);
+ for(const change of bundle.changes){const row=(await library.rows()).find(r=>r.kind===change.next.kind&&r.id===change.next.id);if(change.before){assert.deepEqual(row.definition,change.before.definition);assert.equal(row.status,change.before.status);}else assert.equal(row.status,'disabled');}
  for(const[index,row]of links.rows.entries()){const r=await fixture.request('/gifts/gifts/'+row.gift+new URL(row.url).search);assert.equal(r.status,200);assert.equal(JSON.stringify(r.data.gift.documentSnapshot),snapshots[index]);const d=await fixture.request('/designs/designs/'+row.designId,{cookie:owner.cookie});assert.equal(d.status,200);}
  const[history]=await conn.execute('SELECT kind,id,revision FROM canvas_library_history');assert(history.some(r=>r.id==='garden-tea'));
- completed.push('rollback restores Garden baseline, disables only new items, is repeatable and preserves every saved draft/published snapshot');
+ completed.push('rollback restores the reviewed definitions/statuses (disables only rows absent from baseline), is repeatable and preserves every saved draft/published snapshot');
  fs.writeFileSync(path.join(root,'local/drive-six-20261127/mysql-results.json'),JSON.stringify({completed,storage:'Docker MySQL 8.4, random schema, loopback binding, destroyed after test',scopedItems:DRIVE_LIBRARY_KEYS.length},null,2));console.log(JSON.stringify({passed:completed},null,2));
 }finally{await fixture.close();}

@@ -21,7 +21,7 @@ export function vividDriveDocument(doc,id){
    if(e.type==='shape'&&e.props.kind.startsWith('garden-door-'))e.props.color=theme.ink;
    if(e.type==='text'){
     const centre={x:e.layout.x+e.layout.width/2,y:e.layout.y+e.layout.height/2};
-    const paper=models.find(s=>s.type==='shape'&&s.props.kind==='rectangle'&&s.layout.width>100&&s.layout.height>100&&s.props.color&&s.layout.x<=centre.x&&s.layout.y<=centre.y&&s.layout.x+s.layout.width>=centre.x&&s.layout.y+s.layout.height>=centre.y&&!dark(s.props.color));
+    const paper=models.find(s=>s.type==='shape'&&s.props.kind==='rectangle'&&s.layout.width>(e.groupId&&s.groupId===e.groupId?30:100)&&s.layout.height>(e.groupId&&s.groupId===e.groupId?30:100)&&s.props.color&&s.layout.x<=centre.x&&s.layout.y<=centre.y&&s.layout.x+s.layout.width>=centre.x&&s.layout.y+s.layout.height>=centre.y&&!dark(s.props.color));
     e.props.color=paper?theme.ink:dark(background)?theme.paper:theme.ink;
    }
    if(e.type==='button'||e.type==='reply')e.props.color=e.type==='button'&&e.props.variant==='text'&&dark(background)?theme.paper:theme.accent;

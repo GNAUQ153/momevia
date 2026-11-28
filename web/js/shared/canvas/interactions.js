@@ -17,7 +17,9 @@ export const interactionKinds = Object.freeze({
 
 export const photoSlots = element => {
   if (element.type === 'image') return [element.props];
-  if (element.type === 'interaction') return element.props.photos || [];
+  const props=element.props,slot=key=>({get assetId(){return props[key];},set assetId(value){props[key]=value;}});
+  if (element.type === 'interaction') return [...(props.photos || []),...(props.objectAssetId?[slot('objectAssetId')]:[])];
+  if(['envelope','gift-box'].includes(element.type))return [...(props.assetId?[slot('assetId')]:[]),...(props.sealAssetId?[slot('sealAssetId')]:[])];
   return [];
 };
 

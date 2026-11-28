@@ -1,0 +1,186 @@
+/* The card and lid occupy actual depth. No photograph is cut into fake walls. */
+.gift-object-volume .gift-object-parts {
+  perspective: var(--cube-perspective);
+  transform-style: preserve-3d;
+}
+.gift-cube-world {
+  position: absolute;
+  left: var(--cube-left);
+  top: var(--cube-top);
+  width: var(--cube-unit);
+  height: var(--cube-height);
+  transform-style: preserve-3d;
+  transform: rotateX(-24deg) rotateY(-28deg);
+}
+.gift-cube-face,
+.gift-cube-lid-face {
+  position: absolute;
+  backface-visibility: hidden;
+  background: linear-gradient(#ffffff0c, #00000008), var(--drive-object-ink);
+  border: 1px solid #00000020;
+}
+.gift-cube-face {
+  inset: 0;
+}
+.gift-cube-face:not(.gift-cube-inner)::before {
+  content: '';
+  position: absolute;
+  inset: 0 44%;
+  background: linear-gradient(90deg, #00000021, #ffffff30 45%, #0000001a), var(--cube-ribbon);
+}
+.gift-cube-front {
+  transform: translateZ(calc(var(--cube-depth) * .5));
+}
+.gift-cube-back {
+  transform: rotateY(180deg) translateZ(calc(var(--cube-depth) * .5));
+}
+.gift-cube-left,
+.gift-cube-right,
+.gift-cube-left-inner,
+.gift-cube-right-inner {
+  width: var(--cube-depth);
+  left: calc((var(--cube-unit) - var(--cube-depth)) * .5);
+}
+.gift-cube-left {
+  background-color: var(--cube-side);
+  transform: rotateY(-90deg) translateZ(calc(var(--cube-unit) * .5));
+}
+.gift-cube-right {
+  background-color: var(--cube-side);
+  transform: rotateY(90deg) translateZ(calc(var(--cube-unit) * .5));
+}
+.gift-cube-bottom,
+.gift-cube-bottom-inner {
+  height: var(--cube-depth);
+  top: calc((var(--cube-height) - var(--cube-depth)) * .5);
+}
+.gift-cube-bottom {
+  transform: rotateX(-90deg) translateZ(calc(var(--cube-height) * .5));
+}
+.gift-cube-inner {
+  background: var(--cube-inside);
+}
+.gift-cube-front-inner {
+  transform: rotateY(180deg) translateZ(calc(var(--cube-depth) * -.5 + .5px));
+}
+.gift-cube-back-inner {
+  transform: translateZ(calc(var(--cube-depth) * -.5 + .5px));
+}
+.gift-cube-left-inner {
+  transform: rotateY(90deg) translateZ(calc(var(--cube-unit) * -.5 + .5px));
+}
+.gift-cube-right-inner {
+  transform: rotateY(-90deg) translateZ(calc(var(--cube-unit) * -.5 + .5px));
+}
+.gift-cube-bottom-inner {
+  transform: rotateX(90deg) translateZ(calc(var(--cube-height) * -.5 + .5px));
+}
+.gift-object-volume .gift-cube-card {
+  position: absolute;
+  top: calc(var(--cube-height) * .06);
+  bottom: auto;
+  left: calc(var(--cube-unit) * .12);
+  right: auto;
+  width: calc(var(--cube-unit) * .76);
+  height: calc(var(--cube-unit) * .68);
+  padding: 16px 8px;
+  border: 1px solid #c6ad82;
+  border-radius: 6px;
+  background: var(--drive-paper-color);
+  color: #27394b;
+  font: italic 17px/1.3 var(--canvas-font-serif);
+  opacity: 1;
+  z-index: auto;
+  transform: translateY(0) translateZ(0);
+  transition: transform calc(var(--drive-duration, 1200ms) * .58) cubic-bezier(.22,.7,.25,1);
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+.gift-object-volume.is-opening .gift-cube-card {
+  transform: translateY(calc(var(--cube-unit) * -.65)) translateZ(0);
+  transition-delay: calc(var(--drive-duration, 1200ms) * .32);
+}
+.gift-cube-lid {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transform-origin: 50% 0px calc(var(--cube-depth) * -.5);
+  transition: transform calc(var(--drive-duration, 1200ms) * .6) cubic-bezier(.22,.7,.25,1);
+}
+.gift-object-volume.is-opening .gift-cube-lid {
+  transform: rotateX(105deg);
+}
+.gift-cube-top {
+  left: -4px;
+  top: calc((var(--cube-height) - var(--cube-depth) - 8px) * .5);
+  width: calc(var(--cube-unit) + 8px);
+  height: calc(var(--cube-depth) + 8px);
+  background-color: var(--cube-top-color);
+  transform-style: preserve-3d;
+  transform: rotateX(90deg) translateZ(calc(var(--cube-height) * .5 + var(--cube-lid-size)));
+}
+.gift-cube-under {
+  position: absolute;
+  left: -4px;
+  top: calc((var(--cube-height) - var(--cube-depth) - 8px) * .5);
+  width: calc(var(--cube-unit) + 8px);
+  height: calc(var(--cube-depth) + 8px);
+  backface-visibility: hidden;
+  background: var(--cube-inside);
+  border: 1px solid #00000025;
+  transform: rotateX(-90deg) translateZ(calc(var(--cube-height) * -.5));
+}
+.gift-cube-ribbon-x,
+.gift-cube-ribbon-y {
+  position: absolute;
+  background: linear-gradient(90deg, #0000001c, #ffffff24 50%, #00000020), var(--cube-ribbon);
+}
+.gift-cube-ribbon-x {
+  inset: 43% 0;
+}
+.gift-cube-ribbon-y {
+  inset: 0 44%;
+}
+.gift-cube-bow {
+  position: absolute;
+  inset: -12% 8%;
+  transform: translateZ(3px) rotateX(-16deg);
+  backface-visibility: hidden;
+}
+.gift-cube-bow > svg {
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+}
+.gift-cube-lid-face:not(.gift-cube-top) {
+  top: calc(var(--cube-lid-size) * -1);
+  left: -4px;
+  width: calc(var(--cube-unit) + 8px);
+  height: var(--cube-lid-size);
+}
+.gift-cube-lid-front {
+  transform: translateZ(calc(var(--cube-depth) * .5 + 4px));
+}
+.gift-cube-lid-back {
+  transform: rotateY(180deg) translateZ(calc(var(--cube-depth) * .5 + 4px));
+}
+.gift-cube-lid-face.gift-cube-lid-left,
+.gift-cube-lid-face.gift-cube-lid-right {
+  left: calc((var(--cube-unit) - var(--cube-depth) - 8px) * .5);
+  width: calc(var(--cube-depth) + 8px);
+}
+.gift-cube-lid-left {
+  transform: rotateY(-90deg) translateZ(calc(var(--cube-unit) * .5 + 4px));
+}
+.gift-cube-lid-right {
+  transform: rotateY(90deg) translateZ(calc(var(--cube-unit) * .5 + 4px));
+}
+.gift-object-legacy-photo .gift-object-art {
+  transition: opacity calc(var(--drive-duration, 1200ms) * .3);
+}
+.gift-object-legacy-photo.is-opening .gift-object-art {
+  opacity: 0;
+}
+.gift-object-legacy-photo.is-opening .gift-object-card {
+  transition-delay: calc(var(--drive-duration, 1200ms) * .4);
+}

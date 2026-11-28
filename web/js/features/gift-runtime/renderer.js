@@ -1,4 +1,7 @@
 import { decorateDriveOpening, playDriveOpening } from './drive-interactions.js';
+import {decorateNaturalOpening} from './natural-objects.js';
+import {NATURAL_OPENINGS,DRIVE_OPENING_PRESETS,naturalObjectFrame} from '../../shared/canvas/natural-objects.js';
+import {VOLUME_GIFT_PRESET,giftVolumeGeometry} from '../../shared/canvas/gift-volume.js';
 import { reflowSceneNodes } from './reflow.js';
 import { scenePresentation } from '../../shared/canvas/scene-presentation.js';
 import { isSceneFooter, sceneFooterLayout } from '../../shared/canvas/scene-footer.js';
@@ -92,10 +95,11 @@ export function updateElementCopy(node, model, document) {
     finishTypewriter(node);
     node.textContent = resolveText(model, document);
   } else if (["button", "envelope", "gift-box", "sound-button"].includes(type)) {
-    if(['lid-card-v1','wax-letter-v1','lid-card-v2','wax-letter-v2'].includes(p.preset)){
-      if(p.preset!=='lid-card-v2')node.querySelector('.gift-drive-bow').textContent=p.preset.startsWith('lid-card')?'∞':p.label;
-      node.querySelector('.gift-drive-sliding-card').textContent=p.label;
-      node.querySelector('.gift-drive-opening-label').textContent=p.preset.startsWith('wax-letter')?t('drive.openNow'):p.label;
+    if(DRIVE_OPENING_PRESETS.includes(p.preset)){
+      if(NATURAL_OPENINGS.includes(p.preset))node.updateNaturalCopy?.(p);
+      else{if(p.preset!=='lid-card-v2')node.querySelector('.gift-drive-bow').textContent=p.preset.startsWith('lid-card')?'∞':p.label;
+        node.querySelector('.gift-drive-sliding-card').textContent=p.label;
+        node.querySelector('.gift-drive-opening-label').textContent=p.preset.startsWith('wax-letter')?t('drive.openNow'):p.label;}
     }else setText(node.querySelector(".gift-runtime-control-label"), p.label || a.label || label("gift.runtime.continue"));
     setAttr(node, "aria-label", a.label || p.label || label("gift.runtime.continue"));
     if(model.id==='open-gift'&&document.elements.some(e=>e.id.startsWith('refresh-')))node.classList.add('gift-runtime-object-control');
@@ -151,6 +155,11 @@ export function applyLayout(
   { responsive = false, scale = 1 } = {},
 ) {
   const layout = model.layout || model;
+  if(NATURAL_OPENINGS.includes(model.props?.preset)){
+    const s=responsive?scale:1,f=naturalObjectFrame(model.props,layout.width*s,layout.height*s);
+    for(const [key,value]of Object.entries(f))node.style.setProperty('--object-'+key,value+'px');
+    if(model.props.preset===VOLUME_GIFT_PRESET){const g=giftVolumeGeometry(f.width);for(const [key,value]of Object.entries(g))node.style.setProperty('--cube-'+(key==='lid'?'lid-size':key),value+'px');}
+  }
   node.style.position = "absolute";
   node.style.left = responsive
     ? `${(layout.x / baseSize.width) * 100}%`
@@ -217,7 +226,7 @@ export function renderElement(
     const reactionTarget=model.motions?control.querySelector('[data-motion-family="reaction"]')||control:control;
     if (actions?.length) {
       onAction(actions, intentSignal => {
-        if(['lid-card-v2','wax-letter-v2'].includes(p.preset)){
+        if(['lid-card-v2','wax-letter-v2',...NATURAL_OPENINGS].includes(p.preset)){
           if(!preset)return;
           const combined=signal?AbortSignal.any([intentSignal,signal]):intentSignal;
           const base={fast:480,normal:800,slow:1200}[p.motionSpeed]||800,duration=Math.round(base*({fast:.7,normal:1,slow:1.3}[preset.speed||'normal']));
@@ -225,7 +234,7 @@ export function renderElement(
           const opening=playDriveOpening(control,motion,combined,duration),extra=['R01','R02'].includes(preset.id)?null:playReaction(control,preset,motion,combined,event);
           const played=extra?Promise.all([opening,extra]):opening;pendingControls.add(control);return played.finally(()=>pendingControls.delete(control));
         }
-        const played = ['lid-card-v1','wax-letter-v1','lid-card-v2','wax-letter-v2'].includes(p.preset) ? playDriveOpening(control,motion,signal ? AbortSignal.any([intentSignal,signal]) : intentSignal,p.preset.endsWith('-v2')?({fast:480,normal:800,slow:1200}[p.motionSpeed]||800):850) : type === 'envelope' && p.preset === 'garden-gate-v1'
+        const played = DRIVE_OPENING_PRESETS.includes(p.preset) ? playDriveOpening(control,motion,signal ? AbortSignal.any([intentSignal,signal]) : intentSignal,p.preset.endsWith('-v2')?({fast:480,normal:800,slow:1200}[p.motionSpeed]||800):850) : type === 'envelope' && p.preset === 'garden-gate-v1'
           ? playGardenGate(control, document, motion, signal ? AbortSignal.any([intentSignal, signal]) : intentSignal, () => {
             const scene = document.scenes.find(s => s.id === actions[0]?.targetSceneId);
             if (!scene) return null;
@@ -383,7 +392,8 @@ export function renderElement(
       ),
     );
     setAttr(node, "aria-label", a.label || p.label || label("gift.runtime.continue"));
-    if(['lid-card-v1','wax-letter-v1','lid-card-v2','wax-letter-v2'].includes(p.preset))decorateDriveOpening(node,p.preset,p.label,p.color,p.sealColor,p.paperColor,mode,signal,p);
+    if(NATURAL_OPENINGS.includes(p.preset))decorateNaturalOpening(node,p,{assetUrl:id=>imageUrl(assetUrl(id),mode),mode,signal,renderImage:assetId=>renderElement({id:model.id+'-seal',type:'image',props:{assetId,fit:'contain'},accessibility:{decorative:true}},{document,assetUrl,mode,signal})});
+      else if(DRIVE_OPENING_PRESETS.includes(p.preset))decorateDriveOpening(node,p.preset,p.label,p.color,p.sealColor,p.paperColor,mode,signal,p);
     if (mode === "editor") node.tabIndex = -1;
     else if (mode !== "thumbnail")
       node.addEventListener(
@@ -397,8 +407,8 @@ export function renderElement(
       mode, signal, motion, document, invitation,videoUrl:p.videoAssetId?imageUrl(assetUrl(p.videoAssetId),mode):null, bindings: document.bindings, activate, renderArt: drawVector,
       renderPhoto: photo => renderElement({
         id: photo.id, type: "image",
-        props: { assetId: photo.assetId, fit: "cover", focalPoint: photo.focalPoint, optional: true },
-        accessibility: { alt: photo.alt },
+          props: { assetId: photo.assetId, fit: photo.fit||"cover", focalPoint: photo.focalPoint, optional: !photo.decorative },
+          accessibility: { alt: photo.alt||'',...(photo.decorative?{decorative:true,label:NATURAL_ARTWORK_LABEL}:{}) },
       }, { document, assetUrl, mode, signal }),
     });
   } else if (type === 'reply' && p.replyMode === 'attendance' && mode !== 'thumbnail' && mode !== 'editor') {

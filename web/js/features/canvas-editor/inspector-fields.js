@@ -1,3 +1,4 @@
+import {NATURAL_OPENINGS} from '../../shared/canvas/natural-objects.js';
 // Các điều khiển thuần giao diện của Inspector; không ghi Canvas JSON hoặc gọi API.
 import { currentLocale, message } from "../../core/i18n.js";
 import { LIMITS, registry } from "../../shared/canvas/registry.js";
@@ -9,24 +10,25 @@ import { button, field, iconButton, input, node, select } from "./dom.js";
 
 // Những trường đã có trình điều khiển chuyên dụng (văn bản, ảnh, crop).
 export const dedicatedInspectorProperties = Object.freeze([
-  "text", "textBinding", "fontToken", "fontSize", "align", "assetId", "focalPoint",
+  "text", "textBinding", "fontToken", "fontSize", "align", "assetId", "sealAssetId", "focalPoint",
 ]);
 
 export function buildInspectorPropertyFields(element) {
   const { props } = element;
   const fields = [];
   for (const key of element.type === "interaction" ? [] : registry[element.type].inspector) {
-    if(['sealColor','paperColor'].includes(key)&&!props.preset?.startsWith('wax-letter'))continue;
-    if(['cornerRadius','motionSpeed'].includes(key)&&!Object.hasOwn(props,key)&&!['lid-card-v2','wax-letter-v2'].includes(props.preset)&&!['paper-soft-v2','garden-soft-v2'].includes(props.appearance))continue;
-    if(['cornerRadius','motionSpeed'].includes(key)&&['envelope','gift-box'].includes(element.type)&&!['lid-card-v2','wax-letter-v2'].includes(props.preset))continue;
+    if(['sealColor','paperColor'].includes(key)&&!props.preset?.startsWith('wax-letter')&&props.preset!=='lid-volume-v4')continue;
+    if(['cornerRadius','motionSpeed'].includes(key)&&!Object.hasOwn(props,key)&&!['lid-card-v2','wax-letter-v2',...NATURAL_OPENINGS].includes(props.preset)&&!['paper-soft-v2','garden-soft-v2'].includes(props.appearance))continue;
+    if(['cornerRadius','motionSpeed'].includes(key)&&['envelope','gift-box'].includes(element.type)&&!['lid-card-v2','wax-letter-v2',...NATURAL_OPENINGS].includes(props.preset))continue;
     if(key==='cornerRadius'&&element.type==='reply'&&!['paper-soft-v2','garden-soft-v2'].includes(props.appearance))continue;
     if(element.assembly && key!=='color')continue;
+    if(key==='cardText'){if(NATURAL_OPENINGS.includes(props.preset))fields.push(input(message('natural.cardTextLabel'),'props.cardText',props.cardText||'',{maxlength:120}));continue;}
     if (dedicatedInspectorProperties.includes(key)) continue;
     if(key==='cornerRadius'){fields.push(input(message('soft.radius'),'props.cornerRadius',props.cornerRadius??24,{type:'number',min:0,max:48}));continue;}
     if(key==='motionSpeed'){fields.push(select(message('soft.speed'),'props.motionSpeed',props.motionSpeed||'normal',[['fast',message('soft.fast')],['normal',message('soft.normal')],['slow',message('soft.slow')]]));continue;}
     if (["color", "strokeColor", "sealColor", "paperColor"].includes(key)) {
       const colorControl = node('input', { type: 'color', 'data-editor-field': `props.${key}`, value: props[key] || '#514463' });
-      fields.push(field(message(key === "color" ? "editor.interface.color" : key==='sealColor'?'drive.sealColor':key==='paperColor'?'drive.paperColor':"editor.interface.stroke"), colorControl));
+      fields.push(field(message(key === "color" ? "editor.interface.color" : key==='sealColor'?(element.type==='gift-box'?'natural.ribbonColor':'drive.sealColor'):key==='paperColor'?'drive.paperColor':"editor.interface.stroke"), colorControl));
       if ((element.type === 'text' && key === 'color') || (element.type === 'sticker' && key === 'strokeColor')) {
         const palette = node('select', { 'data-editor-color-preset': `props.${key}` },
           node('option', { value: '' }, message('editor.interface.customColor')),
@@ -53,8 +55,8 @@ export function buildInspectorPropertyFields(element) {
     } else if (key === "mask" && props.mask) {
       fields.push(select(message("editor.interface.imageMask"), "props.mask", props.mask,
         artworkChoices("mask", Object.keys(masks).map((id, i) => [id, message(`editor.interface.mask.${["round", "arch", "heart", "torn"][i]}`)]), currentLocale())));
-     } else if(key==='preset'&&['lid-card-v1','wax-letter-v1','lid-card-v2','wax-letter-v2'].includes(props.preset)) {
-      fields.push(select(message('drive.openingStyle'),'props.preset',props.preset,element.type==='gift-box'?[['lid-card-v2',message('soft.soft')],['lid-card-v1',message('drive.block.santa-gift-box')],['classic',message('interactive.foldClassic')]]:[['wax-letter-v2',message('soft.soft')],['wax-letter-v1',message('drive.block.soiree-envelope')],['classic',message('interactive.foldClassic')]]));
+     } else if(key==='preset'&&['classic','lid-card-v1','wax-letter-v1','lid-card-v2','wax-letter-v2',...NATURAL_OPENINGS].includes(props.preset)) {
+      fields.push(select(message('drive.openingStyle'),'props.preset',props.preset,element.type==='gift-box'?[['lid-volume-v4',message('natural.style')],['lid-card-natural-v3',message('natural.legacyPhoto')],['lid-card-v2',message('soft.soft')],['lid-card-v1',message('drive.block.santa-gift-box')],['classic',message('interactive.foldClassic')]]:[['wax-letter-natural-v3',message('natural.style')],['wax-letter-v2',message('soft.soft')],['wax-letter-v1',message('drive.block.soiree-envelope')],['classic',message('interactive.foldClassic')]]));
     } else if (key === "caption" && Object.hasOwn(props, key)) {
       fields.push(field(message("editor.interface.caption"), node("textarea", {
         "data-editor-field": "props.caption", maxlength: LIMITS.text, rows: 3,

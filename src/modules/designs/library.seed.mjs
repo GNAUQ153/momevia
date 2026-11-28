@@ -7,6 +7,7 @@ import { createDocument, PRESETS } from '../../../web/js/shared/canvas/presets.j
 import { stickerArt, shapes, lines, masks } from '../../../web/js/shared/canvas/artwork.js';
 import { installLibrary, librarySnapshot } from '../../../web/js/shared/canvas/library-state.js';
 import { pinDocumentArtwork } from '../../../web/js/shared/canvas/library-materialize.js';
+import {photoSlots} from '../../../web/js/shared/canvas/interactions.js';
 import { templates } from '../catalog/seed.mjs';
 import { serverText } from '../../shared/locale.mjs';
 
@@ -52,7 +53,7 @@ export function builtinLibraryItems() {
         const ids=new Map(elements.map((e,i)=>[e.id,card.id+'-subject'+(i?'-'+i:'')]));
         for(const e of elements){e.id=ids.get(e.id);if(e.groupId)e.groupId=ids.get(e.groupId);}
       }
-      const assets=[...new Set(elements.filter(e=>e.type==='image'&&e.props.assetId).map(e=>e.props.assetId))].map(assetId=>({assetId,kind:'image'}));
+      const assets=[...new Set(elements.flatMap(photoSlots).map(p=>p.assetId).filter(Boolean))].map(assetId=>({assetId,kind:'image'}));
       add('element',card.id,{title:card.titleTexts||words(`editor.library.item.${card.id}`),group:group.titleTexts||words(`editor.library.group.${index}`),keywords:card.keywords||'',elements,...(assets.length?{assets}:{}),...(card.visualKind?{visualKind:card.visualKind}:{})});
     }
     // Pin path data into the DB documents; old source definitions remain solely

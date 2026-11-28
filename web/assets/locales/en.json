@@ -4300,5 +4300,11 @@
   "soft.paperRsvp": "Soft · paper",
   "gift.page.previous": "Previous part",
   "gift.page.next": "Next part",
-  "gift.page.position": "Part {index}/{total}"
+  "gift.page.position": "Part {index}/{total}",
+  "natural.style": "Natural object",
+  "natural.cardText": "Invitation",
+  "natural.cardTextLabel": "Text on the card",
+  "natural.changedDuringUpload": "The object changed while its artwork was loading. Choose the style again.",
+  "natural.legacyPhoto": "Photo reveal",
+  "natural.ribbonColor": "Bow and ribbon color"
 }

@@ -9,11 +9,12 @@ import { effectsFor, effectSpeed, elementEffectFamilies, sceneEffectFamilies, CE
 import { validatePortableEffect, validateVector } from './library-contract.js';
 import { SOUND_TYPES, usesSound, validateSound } from './sound.js';
 import { usesMotions, validateMotions, validateAssembly } from './motion-stack.js';
+import {NATURAL_OPENINGS,OBJECT_APPEARANCE} from './natural-objects.js';
 
 const CANVAS_VERSIONS = Object.freeze([1, 2, 3, 4]);
 export const runtimeVersionFor = document => document.schemaVersion;
 export const requiresCanvasV2 = document => Boolean(document.soundtrack) || document.scenes.some(scene => scene.effects || scene.flow) || document.elements.some(e =>
-  e.type === 'interaction' || e.effects || e.artwork ||
+  e.type === 'interaction' || e.effects || e.artwork || NATURAL_OPENINGS.includes(e.props.preset) ||
   ['dropCap', 'pattern', 'mask', 'optional', 'caption'].some(key => own(e.props, key)) ||
   (e.type === 'sticker' && !originalStickerIds.includes(e.props.stickerId)) ||
   (e.type === 'shape' && Object.hasOwn(shapes, e.props.kind)));
@@ -53,7 +54,7 @@ function validateInteraction(p, path, assets, publishing, videos) {
   const keys = ['kind', 'color', ...(spec.fields ? ['entries'] : []),
     ...(spec.prediction ? [...Object.keys(predictionFields), 'prediction'] : []),
     ...(spec.slots ? ['photos'] : []), ...(spec.clock ? ['eventAt', 'timeZone'] : [])];
-  const extras = [...((spec.drive||['swipe-album','foldout-letter','scratch-ticket'].includes(p.kind))?['appearance','cornerRadius','motionSpeed','inkColor','accentColor','detailColor']:[]), ...(spec.video?['videoAssetId','optional']:[]), ...(spec.drive?['bodyBinding']:[]),...(p.kind==='four-choice-quiz'?['question']:[]), ...(['light-a-candle','foldout-letter','scratch-ticket'].includes(p.kind) ? ['appearance'] : []), ...((p.kind === 'swipe-album' || spec.slots) ? ['optional', ...(p.kind === 'swipe-album' ? ['autoplay','zoom'] : [])] : []), ...(spec.clock ? ['optional', 'clockMode', 'clockSource'] : [])];
+  const extras = [...((spec.drive||['swipe-album','foldout-letter','scratch-ticket'].includes(p.kind))?['appearance','cornerRadius','motionSpeed','inkColor','accentColor','detailColor']:[]), ...(spec.video?['videoAssetId','optional']:[]), ...(spec.drive?['bodyBinding','objectAssetId']:[]),...(p.kind==='four-choice-quiz'?['question']:[]), ...(['light-a-candle','foldout-letter','scratch-ticket'].includes(p.kind) ? ['appearance'] : []), ...((p.kind === 'swipe-album' || spec.slots) ? ['optional', ...(p.kind === 'swipe-album' ? ['autoplay','zoom'] : [])] : []), ...(spec.clock ? ['optional', 'clockMode', 'clockSource'] : [])];
   object(p, path, [...keys, ...extras], keys);
   if (own(p, 'optional')) boolean(p.optional, `${path}.optional`);
   if (own(p, 'autoplay')) boolean(p.autoplay, `${path}.autoplay`);
@@ -63,10 +64,12 @@ function validateInteraction(p, path, assets, publishing, videos) {
   if(p.kind==='four-choice-quiz'&&own(p,'question'))string(p.question,`${path}.question`,240);
   if(own(p,'bodyBinding'))enumeration(p.bodyBinding,`${path}.bodyBinding`,['message']);
   if(spec.video){if(p.videoAssetId!==null){id(p.videoAssetId,`${path}.videoAssetId`);if(!videos.has(p.videoAssetId))fail(`${path}.videoAssetId`,'Video chưa được khai báo.','ASSET_REFERENCE');}else if(publishing&&!p.optional)fail(path,'Chọn video.','VIDEO_REQUIRED');}
+  if(own(p,'objectAssetId')){id(p.objectAssetId,`${path}.objectAssetId`);if(!assets.has(p.objectAssetId))fail(path,'Artwork asset must be declared','ASSET_REFERENCE');}
+  if(p.appearance===OBJECT_APPEARANCE){if(!['camera-print','ribbon-diploma','cap-toss'].includes(p.kind))fail(path,'Natural artwork is not available for this widget.');if(!p.objectAssetId)fail(path,'Choose the object artwork.','ASSET_REFERENCE');}
   color(p.color, `${path}.color`);
   for(const key of ['inkColor','accentColor','detailColor'])if(own(p,key))color(p[key],`${path}.${key}`);
   if(own(p,'cornerRadius'))number(p.cornerRadius,`${path}.cornerRadius`,0,48);if(own(p,'motionSpeed'))enumeration(p.motionSpeed,`${path}.motionSpeed`,['fast','normal','slow']);
-  if (own(p,'appearance')) enumeration(p.appearance,`${path}.appearance`,spec.drive?['classic','soft-v2']:p.kind==='swipe-album'?['classic','album-soft-v2']:p.kind==='foldout-letter'?['classic','paper-fold-v2','paper-fold-soft-v3']:p.kind==='scratch-ticket'?['classic','scratch-progress-v1','scratch-progress-soft-v2']:['classic','cake-overlay-v1','cake-photo-v2']);
+  if (own(p,'appearance')) enumeration(p.appearance,`${path}.appearance`,spec.drive?['classic','soft-v2','object-natural-v3']:p.kind==='swipe-album'?['classic','album-soft-v2']:p.kind==='foldout-letter'?['classic','paper-fold-v2','paper-fold-soft-v3']:p.kind==='scratch-ticket'?['classic','scratch-progress-v1','scratch-progress-soft-v2']:['classic','cake-overlay-v1','cake-photo-v2']);
   if (spec.prediction) {
     for (const [key, max] of Object.entries(predictionFields)) {
       string(p[key], `${path}.${key}`, max);
@@ -245,7 +248,7 @@ export function validateDocument(document, { mode = 'draft', requiredBindings = 
     if (e.type === 'interaction') validateInteraction(e.props, `${p}.props`, imageAssets, mode === 'publish', videoAssets);
     for (const [k, v] of e.type === 'interaction' ? [] : Object.entries(e.props)) {
       const q = `${p}.props.${k}`;
-      if (['text', 'label', 'title', 'submitLabel'].includes(k)) string(v, q, k === 'text' ? LIMITS.text : 120);
+      if (['text', 'label', 'title', 'submitLabel','cardText'].includes(k)) string(v, q, k === 'text' ? LIMITS.text : 120);
       else if (k === 'textBinding') enumeration(v, q, BINDINGS);
       else if (k === 'fontToken') enumeration(v, q, FONT_TOKENS);
       else if (k === 'fontWeight') enumeration(v, q, [400, 500, 600, 700]);
@@ -271,14 +274,15 @@ export function validateDocument(document, { mode = 'draft', requiredBindings = 
       else if (k === 'kind') { if (!e.artwork) enumeration(v, q, ['rectangle', 'ellipse', 'line', ...Object.keys(shapes)]); else id(v, q); }
       else if (k === 'fit') enumeration(v, q, ['cover', 'contain']);
       else if (k === 'focalPoint') { object(v, q, ['x', 'y'], ['x', 'y']); number(v.x, `${q}.x`, 0, 1); number(v.y, `${q}.y`, 0, 1); }
-      else if (k === 'assetId') { if (v === null && (mode === 'draft' || e.props.optional)) continue; id(v, q); if (!imageAssets.has(v)) fail(q, 'Ảnh chưa được khai báo.', 'ASSET_REFERENCE'); }
+      else if (['assetId','sealAssetId'].includes(k)) { if (v === null && (mode === 'draft' || e.props.optional)) continue; id(v, q); if (!imageAssets.has(v)) fail(q, 'Ảnh chưa được khai báo.', 'ASSET_REFERENCE'); }
       else if (k === 'stickerId') { if (!e.artwork) enumeration(v, q, Object.keys(STICKERS)); else id(v, q); }
       else if(k==='appearance')enumeration(v,q,['garden','paper-v1','garden-soft-v2','paper-soft-v2']);
-      else if (k === 'preset') enumeration(v, q, e.type === 'envelope' ? ['classic','compact-v2','photo-caption-v3','garden-gate-v1','botanical-gate-v2','wax-letter-v1','wax-letter-v2'] : ['classic','lid-card-v1','lid-card-v2']);
+      else if (k === 'preset') enumeration(v, q, e.type === 'envelope' ? ['classic','compact-v2','photo-caption-v3','garden-gate-v1','botanical-gate-v2','wax-letter-v1','wax-letter-v2','wax-letter-natural-v3'] : ['classic','lid-card-v1','lid-card-v2','lid-card-natural-v3','lid-volume-v4']);
     }
     if (e.type === 'text' && !own(e.props, 'text') && !own(e.props, 'textBinding')) fail(`${p}.props`, 'Văn bản cần literal hoặc binding.');
     if (e.type === 'text' && own(e.props, 'text') && own(e.props, 'textBinding')) fail(`${p}.props`, 'Chỉ chọn literal hoặc binding.');
     if (e.type === 'image' && !own(e.props, 'assetId')) fail(`${p}.props.assetId`, 'Cần asset hoặc placeholder null.');
+    if(mode==='publish'&&NATURAL_OPENINGS.includes(e.props.preset)&&(!e.props.assetId||(e.props.preset.startsWith('wax-letter')&&!e.props.sealAssetId)))fail(`${p}.props.assetId`,'Choose the object artwork.','ASSET_REFERENCE');
     object(e.accessibility, `${p}.accessibility`, ['role', 'level', 'label', 'alt', 'decorative']);
     for (const [k, v] of Object.entries(e.accessibility)) { const q = `${p}.accessibility.${k}`; if (k === 'role') enumeration(v, q, ['heading', 'paragraph']); else if (k === 'level') { number(v, q, 1, 6); if (!Number.isInteger(v)) fail(q, 'Heading level phải nguyên.'); } else if (k === 'decorative') boolean(v, q); else string(v, q, LIMITS.accessibilityText); }
     if (mode === 'publish' && e.type === 'image' && e.props.assetId && !e.accessibility.decorative && !e.accessibility.alt?.trim()) fail(`${p}.accessibility.alt`, 'Ảnh cần mô tả hoặc đánh dấu trang trí.', 'IMAGE_ALT_REQUIRED');

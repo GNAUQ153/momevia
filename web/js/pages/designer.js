@@ -36,6 +36,7 @@ import { framePhoto, MEMORY_TEMPLATE_ID, memoryGreetingStarterKeys } from "../sh
 import { materializeTemplateStart } from '../features/canvas-editor/template-start.js';
 import { createEventFields, updateEventFields, createStoryTextFields, updateStoryTextFields, storyAlbum, storyClock } from '../features/canvas-editor/event-fields.js';
 import { createInvitationFields, updateInvitationFields } from '../features/canvas-editor/invitation-fields.js';
+import {naturalizeObject,addObjectAssets,NATURAL_OPENINGS,OBJECT_APPEARANCE} from '../shared/canvas/natural-objects.js';
 import { editInvitation } from '../shared/canvas/invitation.js';
 import { predictionCard, PREDICTION_KIND } from '../shared/canvas/prediction.js';
 import { createPredictionFields, updatePredictionFields } from '../features/canvas-editor/prediction-fields.js';
@@ -971,7 +972,7 @@ export function mountDesigner(
     }
     if (!slotId) {
       if (isPolaroidPlaceholder(element)) value.document.elements[index] = fillPolaroid(element, assetId);
-      else if (element.type === "image") element.props.assetId = assetId;
+      else if (element.type === "image"||NATURAL_OPENINGS.includes(element.props.preset)) element.props.assetId = assetId;
       else return;
     }
     if (!value.document.assets.some(item => item.assetId === assetId))
@@ -1986,6 +1987,20 @@ export function mountDesigner(
     const key = control.dataset.editorField;
     if(key==='local-video-upload'){await uploadVideo(control.files?.[0],selection);return;}
     if(key==='local-video-select'){if(assetPending)return;commit(next=>{const e=next.document.elements.find(e=>e.id===selection&&e.props.kind==='local-video');if(e)e.props.videoAssetId=control.value||null;},t('video.replaced'));renderInspector();return;}
+    if((key==='props.preset'&&NATURAL_OPENINGS.includes(control.value))||(key==='props.appearance'&&control.value===OBJECT_APPEARANCE)){
+      if(assetPending)return;
+      const before=selected();if(!before||control.disabled||!editableElement(before,design.policy))return;
+      const baseline=JSON.stringify(before),model=structuredClone(before),designId=design.id,elementId=before.id;
+      model.props[key.split('.')[1]]=control.value;naturalizeObject(model,t,{previousPreset:before.props.preset});
+      assetPending=true;renderAll();
+      try{
+        const prepared=await materializeInsertionMedia([model],{signal,namespace:designId,cache:libraryMediaCache,existingAssets:store.get().document.assets,upload:async(bytes,mutationId)=>(await request(`/designs/designs/${encodeURIComponent(designId)}/assets`,undefined,{method:'POST',headers:{'content-type':'image/webp','x-mutation-id':mutationId},body:bytes})).asset});
+        if(disposed||signal.aborted||design.id!==designId)return;
+        if(JSON.stringify(store.get().document.elements.find(e=>e.id===elementId))!==baseline)throw new Error(t('natural.changedDuringUpload'));
+        commit(next=>{const index=next.document.elements.findIndex(e=>e.id===elementId);next.document.elements[index]=prepared.models[0];for(const ref of prepared.assets)if(!next.document.assets.some(a=>a.assetId===ref.assetId))next.document.assets.push(ref);if(next.document.schemaVersion<2)next.document.schemaVersion=next.document.registryVersion=2;},t('editor.history.editProperties'));
+      }finally{assetPending=false;if(!disposed)renderAll();}
+      return;
+    }
     if (key.startsWith('invitation.')) {
       const field = key.slice('invitation.'.length);
       try {
@@ -2207,6 +2222,7 @@ export function mountDesigner(
           applyGroupLayout(members, before, after);
         } else if (["props", "accessibility"].includes(group))
           item[group][fieldName] = value;
+        if(group==='props'&&((fieldName==='preset'&&NATURAL_OPENINGS.includes(value))||(fieldName==='appearance'&&value===OBJECT_APPEARANCE))){naturalizeObject(item,t);addObjectAssets(next.document);}
         if (group === 'props' && (['stickerId','mask','pattern'].includes(fieldName) || fieldName === 'kind' && item.type === 'shape')) refreshElementArtwork(item);
         if (
           ["label", "title"].includes(fieldName) &&
@@ -2222,7 +2238,7 @@ export function mountDesigner(
             : null,
       },
     );
-    if ((key.startsWith("layout.") && selected()?.groupId) || ["textBinding", "action.type", "props.fit", "props.radius", "props.timeZone", "accessibility.decorative"].includes(key) ||
+    if ((key.startsWith("layout.") && selected()?.groupId) || ["textBinding", "action.type", "props.fit", "props.radius", "props.preset", "props.appearance", "props.timeZone", "accessibility.decorative"].includes(key) ||
       key.endsWith(".assetId") || (key.startsWith("effect.") && key.endsWith(".id")) ||
       key.startsWith("crop.") || key.startsWith('celebration.')) renderInspector();
   }

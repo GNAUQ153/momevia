@@ -57,7 +57,7 @@ export function createDriveTemplate(id,localize){
   const dark=p.cover;title(cover,'headline',76,44,p.paper);binding(cover,'cover-recipient','recipientName',[35,202,320,66],21,p.paper,'center');
   const [open]=block(cover,id==='secret-santa-invitation'?'santa-gift-box':'soiree-envelope',[33,307,324,352]);open.props.label=c('seal');open.accessibility.label=c('open');open.actions=[{on:'activate',type:'goToScene',targetSceneId:'scene-invitation'}];
   if(id==='secret-santa-invitation'){
-   for(const e of block(cover,'pine-gift-tag',[13,609,99,108]))if(e.type==='text'){e.props.text=c('tag');e.props.fontSize=11;}
+   for(const e of block(cover,'pine-gift-tag',[0,609,99,108]))if(e.type==='text'){e.props.text=c('tag');e.props.fontSize=11;}
   }
   else {shape(cover,'champagne-border',[18,18,354,808],dark,'rectangle',{strokeColor:p.detail,strokeWidth:1});doc.scenes[0].elementIds.unshift(doc.scenes[0].elementIds.pop());}
   copy(cover,'cover-hint',c('hint'),[55,731,280,60],16,p.paper);

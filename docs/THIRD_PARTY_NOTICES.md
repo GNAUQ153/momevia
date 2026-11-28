@@ -47,3 +47,6 @@ Các tệp giấy phép đi cùng ở web/assets/event-cards/natural-v4/licenses
 ## Refined library graphics · 27/11/2026
 
 `web/assets/event-cards/refined-v1/cloud-source.svg` là hình mây vector do Momevia vẽ, có khoảng trong suốt an toàn. Bóng được đặt bằng hiệu ứng Canvas riêng. `vintage-source.svg` giữ toàn bộ đường gốc của johnny_automatic từ The Purple Parasol (1905), bổ sung vùng bao và viền sáng. Openclipart phát hành theo CC0-1.0. Nguồn SVG và hash của các rendition được ghi trong manifest cùng thư mục. [Tác phẩm gốc](https://openclipart.org/detail/8903/branch-with-flower) · [Quyền sửa và sử dụng](https://openclipart.org/share).
+### CSS 3D box face placement
+
+The face-placement technique used by the scoped Canvas gift volume references [KILLERTIAN/3D-Box-Animation](https://github.com/KILLERTIAN/3D-Box-Animation), MIT License, Copyright (c) 2022 Om Sharma. The full MIT notice is retained in `web/js/features/gift-runtime/gift-volume.js`. Global resets, body styling and continuous cube rotations from that example are not imported.

@@ -3,6 +3,7 @@ import { requiresCanvasV2 } from './schema.js';
 import { effectPreset } from './effects.js';
 import { usesSound } from './sound.js';
 import { usesMotions } from './motion-stack.js';
+import {addObjectAssets} from './natural-objects.js';
 
 function pinEffect(preset, family) {
   const row = librarySnapshot()?.items.find(item => item.kind === 'effect' && item.id === preset.id);
@@ -41,6 +42,7 @@ export function refreshElementArtwork(model) {
   pinArtwork([model]);
 }
 export function pinDocumentArtwork(document) {
+  addObjectAssets(document);
   pinArtwork(document.elements);
   for (const scene of document.scenes) for (const [family, preset] of Object.entries(scene.effects || {})) {
     if (family === 'celebrations') {

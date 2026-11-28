@@ -1,3 +1,5 @@
+import {NATURAL_OPENINGS,OBJECT_APPEARANCE,DIPLOMA_MASK} from './natural-objects.js';
+import {naturalOpeningCover} from './natural-object-cover.js';
 import { gardenFlowerPaths, gardenSprigPaths } from './garden-botanical.js';
 import { scenePresentation } from './scene-presentation.js';
 import { isSceneFooter, sceneFooterLayout } from './scene-footer.js';
@@ -118,6 +120,11 @@ function labelSvg(text, x, y, w, size = 16, color = '#32243B') {
 }
 
 function interactionSvg(node, images, event) {
+  if(node.props.appearance===OBJECT_APPEARANCE&&node.props.objectAssetId){
+    const p=node.props,{width:w,height:h}=node.layout,media=images.get(p.objectAssetId),aw=w-40,ay=74,ah=p.kind==='camera-print'?aw: p.kind==='cap-toss'?aw/2:aw/4,id='natural-interaction-'+node.id;
+    const mask=p.kind==='ribbon-diploma'?`<clipPath id="${id}-pixels" clipPathUnits="objectBoundingBox"><path d="M${DIPLOMA_MASK.map(([x,y])=>x/100+' '+y/100).join('L')}Z"/></clipPath><filter id="${id}-key" color-interpolation-filters="sRGB"><feColorMatrix values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 20 0 -20 0 0" result="warm-mask"/><feComposite in="SourceGraphic" in2="warm-mask" operator="in"/></filter>`:'';
+    return `<rect width="${w}" height="${h}" rx="${p.cornerRadius||24}" fill="${p.color}"/>`+labelSvg(p.entries[0].heading,18,40,w-36,22,p.inkColor||'#27394B')+(media?`${mask}<clipPath id="${id}"><rect width="${aw}" height="${ah}"/></clipPath><g transform="translate(20 ${ay})" clip-path="url(#${id})"><image href="${escape(media.url)}" y="${p.kind==='ribbon-diploma'?-aw*.4875:0}" width="${aw}" height="${p.kind==='camera-print'?aw:aw*.7}" preserveAspectRatio="xMidYMid meet" ${mask?`clip-path="url(#${id}-pixels)" filter="url(#${id}-key)"`:''}/></g>`:'');
+  }
   if(interactionKinds[node.props.kind]?.drive)return driveInteractionSvg(node,images,photoSvg,labelSvg,event);
   const p = node.props, {width:w,height:h} = node.layout;
   const { label, icon } = interactionKinds[p.kind];
@@ -203,7 +210,8 @@ export function previewSvg(document, sceneId = document.entrySceneId, images = n
         const vector = paths => paths.map(q => `<path d="${q.d}" fill="${q.fill || 'none'}" stroke="${q.stroke || 'none'}" stroke-width="${q.strokeWidth || 0}" stroke-linecap="round"/>`).join('');
         body = `<rect width="${w}" height="${h}" rx="12" fill="${p.color}"/><path d="M${w/2} 0V${h}" stroke="#D4D5B4"/><rect x="10" y="10" width="${w-20}" height="${h-20}" rx="8" fill="none" stroke="#D4D5B4"/><svg x="0" y="0" width="${w*.5}" height="${h}" viewBox="0 0 100 100">${vector(gardenSprigPaths())}</svg><svg x="${w*.5}" y="0" width="${w*.5}" height="${h}" viewBox="0 0 100 100">${vector(gardenSprigPaths())}</svg><circle cx="${w/2}" cy="${h/2}" r="${w*.21}" fill="#FFF3E9" stroke="#BB8584"/><svg x="${w/2-16}" y="${h/2-33}" width="32" height="32" viewBox="0 0 100 100">${vector(gardenFlowerPaths())}</svg><text x="${w/2}" y="${h/2+19}" text-anchor="middle" fill="#854C50" font-family="Georgia,serif" font-size="17">${escape(p.label)}</text>`;
       }
-      if(['lid-card-v1','wax-letter-v1','lid-card-v2','wax-letter-v2'].includes(p.preset))body=driveOpeningSvg(p,w,h);
+      if(NATURAL_OPENINGS.includes(p.preset))body=naturalOpeningCover(node,images,locale==='en'?'Open now':'Mở ngay');
+      else if(['lid-card-v1','wax-letter-v1','lid-card-v2','wax-letter-v2'].includes(p.preset))body=driveOpeningSvg(p,w,h);
       if (p.preset === 'garden-gate-v1') body = `<circle cx="${w/2}" cy="${h/2}" r="${Math.min(w,h)/2-3}" fill="#F8EBE6" stroke="${p.color}"/><circle cx="${w/2}" cy="${h/2}" r="${Math.min(w,h)/2-7}" fill="none" stroke="${p.color}"/><text x="${w/2}" y="${h/2+7}" text-anchor="middle" fill="${p.color}" font-family="Georgia,serif" font-style="italic" font-size="22">${escape(p.label)}</text>`;
       if (node.type==='button'&&p.variant==='text')body=`<text x="${w/2}" y="${h/2+6}" text-anchor="middle" fill="${p.color}" font-family="Arial,sans-serif" font-size="16">${escape(p.label)}</text>`;
     } else if (node.type === 'image') {

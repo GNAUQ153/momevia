@@ -3,6 +3,7 @@ import {eventRecipe} from './event-recipes.js';
 import {motionRow} from './motion-stack.js';
 import {localVideoModels} from './local-video.js';
 import {vividDriveDocument} from './drive-vivid.js';
+import {naturalizeDriveDocument} from './natural-objects.js';
 
 const backgrounds={
  'secret-santa-invitation':['#183E35','#FFF3DC','#F8ECD9','#EAF0E6','#FAEFD9','#F1E5DC','#F3E0C9','#FFF6E5','#E6EEE7'],
@@ -41,5 +42,5 @@ export function polishDriveDocument(doc,id,palette,localize){
   }
   if(scene.flow)scene.flow.region.height=260;
  }
- return vividDriveDocument(doc,id);
+ return naturalizeDriveDocument(vividDriveDocument(doc,id),id,localize);
 }

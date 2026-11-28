@@ -1,3 +1,11 @@
+## Unreleased — Vật thể Canvas và hộp có chiều sâu (2026-11-28)
+
+- Rà lại sáu mẫu và dùng tài nguyên sẵn có trong Canvas cho phong bì giấy, dấu sáp, nơ satin, camera và mũ/bằng. Những thành phần giấy/lịch/vé phù hợp dạng phẳng được giữ đúng vai trò.
+- Thêm biến thể hộp có các mặt ngoài, lòng hộp, đáy, hai mặt nắp và bản lề 3D; thiệp nằm sau thành hộp khi đóng và trượt lên sau khi nắp mở. Loại phương án cắt ảnh hộp đóng gây dải trắng xuyên thân. Biến thể ảnh thử cũ chỉ mở ảnh/thư, không tiếp tục tách nắp giả.
+- Các kiểu mới chỉnh được màu, chữ thiệp/dấu, nhịp và ảnh trang trí trong Canvas. Chèn/đổi kiểu nhập hình qua cơ chế asset sở hữu hiện hành, giữ tham chiếu ảnh cá nhân đã có và không ghi đè sửa đổi đồng thời.
+- Tham chiếu hình trong vật thể đi qua cùng validator, clone, public projection, owner/invite/revoke và snapshot pins; không thêm kiểu lưu trữ hay URL ảnh tùy ý. Kiểu v1/v2 và các ID/giá/quyền cũ giữ nguyên.
+- Thêm hồi quy so sánh ảnh để phát hiện thiệp lộ qua thành hộp lúc đóng và xác nhận thiệp xuất hiện sau khi mở. Video và dữ liệu QA tiếp tục chỉ lưu local.
+
 ## Unreleased — Trang thiệp vừa màn hình và màu rõ hơn (2026-11-28)
 
 - Sửa player Canvas dùng chung theo cả chiều rộng/cao và chiều cao thực của thanh điều khiển, áp dụng cho mẫu cũ, mới và tài liệu tạo sau này. Nội dung được đo/co thực, footer nằm trong viewport; bỏ thanh cuộn nội dung cảnh, không cắt phần tràn.

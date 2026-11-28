@@ -4287,5 +4287,11 @@
   "soft.paperRsvp": "Mềm · giấy thư",
   "gift.page.previous": "Phần trước",
   "gift.page.next": "Phần tiếp theo",
-  "gift.page.position": "Phần {index}/{total}"
+  "gift.page.position": "Phần {index}/{total}",
+  "natural.style": "Vật thể tự nhiên",
+  "natural.cardText": "Thiệp mời",
+  "natural.cardTextLabel": "Chữ trên tấm thiệp",
+  "natural.changedDuringUpload": "Vật thể đã thay đổi trong lúc tải hình. Vui lòng chọn lại kiểu.",
+  "natural.legacyPhoto": "Ảnh mở thiệp",
+  "natural.ribbonColor": "Màu nơ và dải băng"
 }

@@ -11,6 +11,11 @@ import {builtinMedia} from '../../src/modules/designs/builtin-media.mjs';
 const id=NATURAL_MEDIA_IDS['element-3d-heart'];
 const bytes=()=>fs.readFileSync(new URL('../../web/assets/event-cards/'+EVENT_MEDIA[id].file,import.meta.url));
 const model=()=>createElement('image',{id:'heart',props:{assetId:id,fit:'contain',radius:0},accessibility:{decorative:true,label:NATURAL_ARTWORK_LABEL}});
+test('style conversion preserves declared owned media and still rejects unknown references',async()=>{
+ const existing=model();existing.props.assetId='owned-existing';const options={existingAssets:[{assetId:'owned-existing',kind:'image'}],fetchMedia:()=>{throw Error('must not fetch owned bytes');},upload:()=>{throw Error('must not upload owned bytes');}};
+ const result=await materializeInsertionMedia([existing],options);assert.equal(result.models[0].props.assetId,'owned-existing');assert.deepEqual(result.assets,[]);
+ await assert.rejects(()=>materializeInsertionMedia([existing],{...options,existingAssets:[]}),/Only reviewed/);
+});
 test('library insertion verifies bytes, deduplicates refs, preserves models and caches only per design',async()=>{
  const original=[model(),{...model(),id:'second'}],copy=structuredClone(original),uploads=[],cache=new Map();let reads=0;
  const options={namespace:'design-A',cache,fetchMedia:async url=>{assert.equal(url,eventMediaUrl(id));reads++;return new Response(bytes());},upload:async(blob,mutationId)=>{assert.equal(blob.type,'image/webp');uploads.push(mutationId);return{id:'private-asset',status:'ready'};}};

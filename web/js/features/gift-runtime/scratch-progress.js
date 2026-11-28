@@ -1,6 +1,6 @@
 import { scratchPercent, finishScratchOnRelease } from '../../shared/canvas/scratch-progress.js';
 
-export function mountProgressScratch({ root, scratch, cover, message, bypass, color, signal, motion }) {
+export function mountProgressScratch({ root, scratch, cover, message, bypass, color, signal, motion, tactile=false,keepControl=false,onReveal }) {
   root.classList.add('gift-runtime-scratch-progress');
   // Reserve the message height before the first stroke so the surface never jumps.
   message.hidden = false; message.setAttribute('aria-hidden', 'true');
@@ -41,6 +41,7 @@ export function mountProgressScratch({ root, scratch, cover, message, bypass, co
     const foil = brush.createLinearGradient(0, 0, scratch.width, scratch.height);
     foil.addColorStop(0, '#92734E'); foil.addColorStop(.5, color); foil.addColorStop(1, '#92734E');
     brush.globalCompositeOperation = 'source-over'; brush.fillStyle = foil; brush.fillRect(0, 0, scratch.width, scratch.height);
+    if(tactile){brush.strokeStyle='#FFFFFF35';brush.lineWidth=1;for(let y=3;y<scratch.height;y+=6){brush.beginPath();brush.moveTo(0,y);brush.lineTo(scratch.width,y-14);brush.stroke();}}
     coverage.globalCompositeOperation = 'source-over'; coverage.fillStyle = '#000'; coverage.fillRect(0, 0, mask.width, mask.height);
     strokes.forEach(paintStroke); sample();
   };
@@ -75,7 +76,7 @@ export function mountProgressScratch({ root, scratch, cover, message, bypass, co
       if (signal.aborted) return;
       scratch.hidden = cover.hidden = true; message.hidden = false; message.removeAttribute('aria-hidden');
       if (document.activeElement === bypass) { message.tabIndex = -1; message.focus({ preventScroll: true }); }
-      bypass.hidden = true;
+      bypass.hidden = !keepControl;onReveal?.();
     };
     if (motion?.enabled()) void motion.run(scratch, [{ opacity: 1 }, { opacity: 0 }], { duration: 180 }, signal).then(reveal);
     else reveal();

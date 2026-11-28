@@ -1,3 +1,9 @@
+## Unreleased — Giấy gấp, Polaroid, vé cào và vé xé (2026-11-28)
+
+- Thêm kiểu Canvas tactile-v2 có độ sâu 0–16: thư có nếp mở, Polaroid xếp lớp/đổi thẻ, foil cào và cuống vé lật/xé. Chữ/ảnh/màu vẫn chỉnh được; chữ dài đọc đủ, chú thích album có dialog riêng, vé SVG không cắt mất trường dài.
+- Tích hợp đúng các cảnh đang dùng bốn loại thành phần trong sáu mẫu; giữ reader của nháp/quà cũ. Nhịp hữu hạn, reset/rapid, reduced/off và hủy khi rời theo cơ chế chung.
+- Thêm scope rollout 10 hàng có baseline/CAS/rollback; scope Drive 19 hàng cũ giữ nguyên. QA, video và dữ liệu thử chỉ ở local; chưa merge/deploy.
+
 ## Unreleased — Máy ảnh, mũ và lịch có chiều sâu (2026-11-28)
 
 - Thêm lựa chọn Canvas dimensional-v2 cho ba card: máy ảnh có thân/ống kính nổi và feed ảnh theo nhịp; mũ xoay lộ mặt dưới, tua lệch pha và hạ dưới vùng tiêu đề; lịch có lớp giấy/khoen, sticker hai mặt và marker ngày thật.

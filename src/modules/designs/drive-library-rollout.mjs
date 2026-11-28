@@ -7,18 +7,21 @@ import{validateLibrary}from'./library.service.mjs';
 const key=row=>`${row.kind}:${row.id}`;
 export const driveFingerprint=row=>row?createHash('sha256').update(canonicalStringify(row)).digest('hex'):null;
 export const DRIVE_LIBRARY_KEYS=Object.freeze([...driveElementCards().map(c=>'element:'+c.id),...['garden-tea',...DRIVE_TEMPLATE_META.map(t=>t.id)].map(id=>'template:'+id)]);
+export const PAPER_LIBRARY_KEYS=Object.freeze(['element:foldout-letter','element:swipe-album','element:scratch-ticket','element:drive-tear-ticket',...['garden-tea',...DRIVE_TEMPLATE_META.map(t=>t.id)].map(id=>'template:'+id)]);
+const bundleKeys=bundle=>bundle?.id==='tactile-paper-20261128-v1'?PAPER_LIBRARY_KEYS:bundle?.id==='drive-six-20261127-v1'?DRIVE_LIBRARY_KEYS:null;
 const sameDefinition=(a,b)=>a&&b&&a.status===b.status&&canonicalStringify(a.definition)===canonicalStringify(b.definition);
 // The reviewed export is explicit input. Never treat a current Admin row as an approved baseline.
-export function buildDriveLibraryRollout(reviewed,desired){
- const changes=DRIVE_LIBRARY_KEYS.map(id=>{
+export function buildDriveLibraryRollout(reviewed,desired,{scope='drive'}={}){
+ if(!['drive','paper'].includes(scope))throw Error('Invalid rollout scope');const keys=scope==='paper'?PAPER_LIBRARY_KEYS:DRIVE_LIBRARY_KEYS;
+ const changes=keys.map(id=>{
   const source=desired.find(r=>key(r)===id);if(!source)throw new Error('Missing reviewed Drive item '+id);
   const before=reviewed.find(r=>key(r)===id)||null;
   return {before:structuredClone(before),expectedFingerprint:driveFingerprint(before),next:{...structuredClone(source),revision:(before?.revision||0)+1,sortOrder:before?.sortOrder??source.sortOrder}};
- });return {formatVersion:1,id:'drive-six-20261127-v1',changes};
+ });return {formatVersion:1,id:scope==='paper'?'tactile-paper-20261128-v1':'drive-six-20261127-v1',changes};
 }
 function validateBundle(bundle){
- if(bundle?.formatVersion!==1||bundle.id!=='drive-six-20261127-v1'||bundle.changes?.length!==DRIVE_LIBRARY_KEYS.length)throw new Error('Invalid Drive rollout scope');
- const seen=new Set();for(const c of bundle.changes){const id=key(c.next);if(!DRIVE_LIBRARY_KEYS.includes(id)||seen.has(id)||c.before&&key(c.before)!==id||c.expectedFingerprint!==driveFingerprint(c.before)||c.next.revision!==(c.before?.revision||0)+1)throw new Error('Invalid reviewed Drive baseline');seen.add(id);}
+ const keys=bundleKeys(bundle);if(bundle?.formatVersion!==1||!keys||bundle.changes?.length!==keys.length)throw new Error('Invalid Drive rollout scope');
+ const seen=new Set();for(const c of bundle.changes){const id=key(c.next);if(!keys.includes(id)||seen.has(id)||c.before&&key(c.before)!==id||c.expectedFingerprint!==driveFingerprint(c.before)||c.next.revision!==(c.before?.revision||0)+1)throw new Error('Invalid reviewed Drive baseline');seen.add(id);}
 }
 export function planDriveLibraryRollout(rows,bundle,{rollback=false}={}){
  validateBundle(bundle);

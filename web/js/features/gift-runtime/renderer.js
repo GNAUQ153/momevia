@@ -91,6 +91,7 @@ export function resolveText(node, document) {
 // The system preview regenerates the same document structure with translated copy.
 export function updateElementCopy(node, model, document) {
   const { type, props: p, accessibility: a = {} } = model;
+  if(node.updateTactileCopy){node.updateTactileCopy(model,document);return;}
   if(node.updateDriveCopy){node.updateDriveCopy(model,document);return;}
   if (type === "text") {
     finishTypewriter(node);

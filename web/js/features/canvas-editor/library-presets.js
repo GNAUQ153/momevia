@@ -1,3 +1,4 @@
+import {tactileModel} from '../../shared/canvas/tactile-paper.js';
 import { createElement } from "../../shared/canvas/registry.js";
 import { interactionKinds } from "../../shared/canvas/interactions.js";
 
@@ -301,7 +302,7 @@ const interaction = (kind, color, entries, extras = {}) => () => {
   const options = spec.targets ? {actions: Array.from({length:spec.targets}, () => ({
     on: "activate", type: "goToScene", targetSceneId: null,
   }))} : {};
-  return [layer("interaction", 0, 0, width, height, props, spec.label, options)];
+  return [tactileModel(layer("interaction", 0, 0, width, height, props, spec.label, options))];
 };
 
 export const interactions = [

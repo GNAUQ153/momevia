@@ -1,0 +1,7 @@
+import {softenElement} from './drive-soft.js';
+export const TACTILE_PAPER='tactile-v2';
+export const TACTILE_KINDS=['foldout-letter','swipe-album','scratch-ticket','tear-ticket'];
+export const supportsTactile=p=>p.kind==='foldout-letter'?['paper-fold-v2','paper-fold-soft-v3'].includes(p.appearance):p.kind==='swipe-album'?p.appearance==='album-soft-v2':p.kind==='scratch-ticket'?['scratch-progress-v1','scratch-progress-soft-v2'].includes(p.appearance):p.kind==='tear-ticket'&&['soft-v2','object-crafted-v4'].includes(p.appearance);
+export const tactilePaper=p=>p.paperTreatment===TACTILE_PAPER&&supportsTactile(p);
+export function tactileModel(model){const p=model.props;if(model.type!=='interaction'||!TACTILE_KINDS.includes(p.kind))return model;if(!supportsTactile(p))softenElement(model,{ink:p.inkColor||'#27394B',accent:p.accentColor||'#7D3854',detail:p.detailColor||'#EAC572'});p.paperTreatment??=TACTILE_PAPER;p.objectDepth??=8;if(p.paperTreatment===TACTILE_PAPER&&model.layout)model.layout.height=Math.max(model.layout.height,{'foldout-letter':420,'swipe-album':560,'scratch-ticket':260,'tear-ticket':520}[p.kind]);if(p.kind==='swipe-album')p.zoom??=true;return model;}
+export function captionPreview(text,limit=42){const parts=globalThis.Intl?.Segmenter?[...new Intl.Segmenter(undefined,{granularity:'grapheme'}).segment(String(text))].map(p=>p.segment):Array.from(String(text));return parts.length>limit?parts.slice(0,limit).join('')+'…':String(text);}

@@ -4319,5 +4319,8 @@
   "physical.illustrated": "Source illustration",
   "physical.material": "Paper thickness and lighting",
   "depth.construction": "Object construction",
-  "depth.solid": "Depth and movement · 3D"
+  "depth.solid": "Depth and movement · 3D",
+  "tactile.treatment": "Paper treatment",
+  "tactile.layered": "Layered paper and movement",
+  "tactile.readCaption": "Read caption"
 }

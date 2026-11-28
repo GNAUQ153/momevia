@@ -1,3 +1,5 @@
+import {tactilePaper,captionPreview} from '../../shared/canvas/tactile-paper.js';
+import {applyTactile,renderTactileLetter,readPager,albumTurn} from './tactile-paper.js';
 import {openPhotoDialog} from './photo-dialog.js';
 import {applySoftAppearance} from './soft-appearance.js';
 import {renderLocalVideo} from './local-video.js';
@@ -18,12 +20,13 @@ function node(tag, css, text) {
 }
 
 export function renderInteraction(model, { mode, signal, motion, bindings, renderPhoto, renderArt, activate, document, invitation,videoUrl }) {
+  if(model.props.kind==='foldout-letter'&&tactilePaper(model.props))return renderTactileLetter(model,{mode,signal,motion,activate});
   if(model.props.kind==='local-video')return renderLocalVideo(model,{mode,signal,url:videoUrl});
   if(interactionKinds[model.props.kind]?.drive)return renderDriveInteraction(model,{mode,signal,motion,renderPhoto,document,invitation,activate});
   const { kind, color, entries, photos, eventAt, timeZone } = model.props;
   const spec = interactionKinds[kind];
   const root = node("section", `gift-runtime-interaction gift-runtime-${kind}`);
-  root.style.backgroundColor = color;applySoftAppearance(root,model.props);
+  root.style.backgroundColor = color;applySoftAppearance(root,model.props);const tactile=tactilePaper(model.props);if(tactile)applyTactile(root,model.props);
   setAttr(root, "aria-label", label(`gift.interactions.kind.${kind}`));
   if (kind === 'event-countdown' && model.props.clockMode === 'elapsed') setAttr(root, 'aria-label', label('templates.story.elapsed'));
   const live = mode === "preview" || mode === "public";
@@ -119,7 +122,7 @@ export function renderInteraction(model, { mode, signal, motion, bindings, rende
     scratch.setAttribute("aria-hidden", "true");
     covered.append(message, cover);
     if (live) covered.append(scratch);
-    let progressScratch;
+    let progressScratch;const reading=tactile?readPager(first.body,message,{button,limit:48}):null;if(tactile)root.classList.add('gift-tactile-scratch');
     let open = false;
     const reveal = () => {
       if (progressScratch) return progressScratch.reveal();
@@ -134,7 +137,7 @@ export function renderInteraction(model, { mode, signal, motion, bindings, rende
     const bypass = button(label("gift.interactions.openNow"), reveal);
     if (live && ['scratch-progress-v1','scratch-progress-soft-v2'].includes(model.props.appearance)) {
       root.append(covered, bypass);
-      progressScratch = mountProgressScratch({ root, scratch, cover, message, bypass, color, signal, motion });
+      progressScratch = mountProgressScratch({ root, scratch, cover, message, bypass, color:tactile?model.props.detailColor||'#C3B99A':color, signal, motion,tactile,keepControl:tactile,onReveal:tactile?()=>{root.dataset.scratchOpen='true';setText(bypass,label('gift.interactions.opened'));}:undefined });
     } else if (live) {
       const brush = scratch.getContext("2d");
       brush.fillStyle = "#81649b";
@@ -168,7 +171,7 @@ export function renderInteraction(model, { mode, signal, motion, bindings, rende
       for (const name of ["pointerup","pointercancel","lostpointercapture"])
         listen(scratch, name, event => { if (event.pointerId === pointer) { pointer = undefined; previous = null; } });
     }
-    if (!progressScratch) root.append(covered, bypass);
+    if (!progressScratch) root.append(covered, bypass);if(reading){root.append(reading.nav);root.updateTactileCopy=next=>{reading.updateText(next.props.entries[0].body);setText(bypass,label(root.dataset.scratchOpen?'gift.interactions.opened':'gift.interactions.openNow'));};}
   } else if (kind === "foldout-letter") {
     if(['paper-fold-v2','paper-fold-soft-v3'].includes(model.props.appearance)){root.classList.add('gift-paper-fold-v2');root.style.setProperty('--gift-letter-paper',color); }
     for (const [index, entry] of entries.entries()) {
@@ -191,18 +194,19 @@ export function renderInteraction(model, { mode, signal, motion, bindings, rende
     signal?.addEventListener('abort',()=>pageMotion?.abort(),{once:true});
     const setPage = (target, automatic = false) => {
       if (target < 0 || target >= pages.length) return;
-      const changed=target!==index,direction=target>index?1:-1;pageMotion?.abort();
+      const changed=target!==index,direction=target>index?1:-1,snapshot=tactile&&changed?frame.cloneNode(true):null;pageMotion?.abort();
       index = target;
       root.dataset.albumIndex = String(index);
       picture.replaceChildren(!available.length && model.props.optional
         ? node('p', 'gift-album-empty', label(mode === 'public' ? 'gift.interactions.albumEmptyRecipient' : 'gift.interactions.albumEmpty')) : renderPhoto(pages[index]));
       if(changed&&motion?.enabled()){
-        const controller=pageMotion=new AbortController(),img=picture.querySelector('img');
-        const play=()=>{if(signal?.aborted||controller.signal.aborted)return;void motion.run(picture,automatic?[{transform:'perspective(700px) rotateY(-12deg) scale(.98)',opacity:.55},{transform:'perspective(700px) rotateY(0deg) scale(1)',opacity:1}]:[{transform:`translateX(${direction*9}px)`,opacity:.55},{transform:'translateX(0px)',opacity:1}],{duration:automatic?420:240},controller.signal);};
-        if(img&&!img.complete)img.decode().then(()=>{if(picture.contains(img))play();}).catch(()=>{});else play();
+        const controller=pageMotion=new AbortController(),img=picture.querySelector('img'),turn=tactile?albumTurn(root,frame,snapshot,{direction,motion,signal:controller.signal,speed:model.props.motionSpeed}):null;
+        const play=()=>{if(signal?.aborted||controller.signal.aborted)return;if(turn)return turn();void motion.run(picture,automatic?[{transform:'perspective(700px) rotateY(-12deg) scale(.98)',opacity:.55},{transform:'perspective(700px) rotateY(0deg) scale(1)',opacity:1}]:[{transform:`translateX(${direction*9}px)`,opacity:.55},{transform:'translateX(0px)',opacity:1}],{duration:automatic?420:240},controller.signal);};
+        if(img&&!img.complete)img.decode().then(()=>{if(picture.contains(img))play();}).catch(()=>{if(tactile)play();});else play();
       }
-      setText(caption, pages[index].caption);
-      caption.hidden = !pages[index].caption;
+      setText(caption, tactile?captionPreview(pages[index].caption||''):pages[index].caption);
+      caption.hidden = !tactile&&!pages[index].caption;
+      if(captionRead)captionRead.setAttribute('aria-disabled',String(!pages[index].caption));
       setText(indicator, label("gift.interactions.albumPage", { index: index + 1, total: pages.length }));
       before.setAttribute("aria-disabled", String(index === 0));
       after.setAttribute("aria-disabled", String(index === pages.length-1));
@@ -217,6 +221,7 @@ export function renderInteraction(model, { mode, signal, motion, bindings, rende
     };
     const stop = () => { playing = false; clearInterval(clock); syncPlay(); };
     const manual = target => { stop(); setPage(target); };
+    let captionRead;
     const before = button(label("catalog.pagination.prev"), () => manual(index - 1));
     const after = button(label("gift.interactions.next"), () => manual(index + 1));
     const play = model.props.autoplay ? button(label('gift.interactions.albumPlay'), () => {
@@ -255,14 +260,15 @@ export function renderInteraction(model, { mode, signal, motion, bindings, rende
     pager.hidden = pages.length < 2;
     pager.append(before,indicator,after);
     root.append(frame,pager);
+    if(tactile&&live){captionRead=button(label('tactile.readCaption'),()=>{if(!pages[index].caption)return;stop();pageMotion?.abort();openPhotoDialog({photo:{...pages[index],alt:label('tactile.readCaption')},renderPhoto:()=>globalThis.document.createDocumentFragment(),trigger:captionRead,signal,closeLabel:label('drive.closePhoto')});});captionRead.hidden=!pages.some(p=>p.caption);root.append(captionRead);}
     if(model.props.zoom && live){
       const zoom=button(label('drive.zoomPhoto'),()=>{
-        if(!available.length)return;
+        if(!available.length)return;if(tactile){stop();pageMotion?.abort();}
         openPhotoDialog({photo:available[index],renderPhoto,trigger:zoom,signal,closeLabel:label('drive.closePhoto'),activateClose:activate});
       });zoom.hidden=!available.length;root.append(zoom);
     }
     if (play) { play.hidden = available.length < 2; root.append(play); }
-    setPage(0);
+    setPage(0);if(tactile)root.updateTactileCopy=()=>{caption.textContent=captionPreview(pages[index].caption||'');setText(before,label('catalog.pagination.prev'));setText(after,label('gift.interactions.next'));setText(indicator,label('gift.interactions.albumPage',{index:index+1,total:pages.length}));if(captionRead)setText(captionRead,label('tactile.readCaption'));syncPlay();};
     if (model.props.autoplay && live) {
       startPlayback();
       preference?.addEventListener('change', stop, { signal });

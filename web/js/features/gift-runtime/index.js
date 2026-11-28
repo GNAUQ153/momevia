@@ -1,3 +1,4 @@
+import {tactilePaper} from '../../shared/canvas/tactile-paper.js';
 import {dimensionalObject} from '../../shared/canvas/object-construction.js';
 import { reflowSceneNodes,growReadingSurfaces } from './reflow.js';
 import {ENVELOPE_SOURCE_PRESET} from '../../shared/canvas/studio-constants.js';
@@ -225,7 +226,7 @@ export function mountPlayer(
   else shell.append(stage, status);
   stage.after(pageNavigation);
   if (hasSound) shell.insertBefore(soundControl,stage);
-  if (document.soundtrack || (document.schemaVersion >= 2 && (document.scenes.some(scene => scene.effects) || document.elements.some(element => element.effects || element.motions || dimensionalObject(element.props||{})))))
+  if (document.soundtrack || (document.schemaVersion >= 2 && (document.scenes.some(scene => scene.effects) || document.elements.some(element => element.effects || element.motions || dimensionalObject(element.props||{}) || tactilePaper(element.props||{})))))
     shell.insertBefore(toolbar, stage);
   root.replaceChildren(shell);
   const recipientPreferences=recipientContainer?.querySelector(':scope > .recipient-preferences');

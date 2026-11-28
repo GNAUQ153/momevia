@@ -1,3 +1,6 @@
+import {tactilePaper} from '../../shared/canvas/tactile-paper.js';
+import {tactileGraduationPassSvg} from '../../shared/canvas/tactile-ticket.js';
+import {applyTactile,decorateTactileTicket,groupTicketControls} from './tactile-paper.js';
 import {dimensionalObject,objectDepth} from '../../shared/canvas/object-construction.js';
 import {depthCameraRig,depthCalendar,waitForPrint} from './dimensional-objects.js';
 import {applySoftAppearance} from './soft-appearance.js';
@@ -16,6 +19,7 @@ export function renderDriveInteraction(model,{mode,signal,renderPhoto,document:d
   let first={...p.entries[0],...(p.bodyBinding==='message'?{body:doc?.bindings?.message?.value||p.entries[0].body}:{})};
   const node=(tag,css,text)=>{const el=globalThis.document.createElement(tag);if(css)el.className=css;if(text!==undefined)el.textContent=text;return el;};
   const root=node('section',`gift-drive-block gift-drive-${p.kind}`);root.style.backgroundColor=p.color;const soft=applySoftAppearance(root,p);
+  const tactile=tactilePaper(p);if(tactile)applyTactile(root,p);
   const dimensional=dimensionalObject(p);if(dimensional){root.classList.add('gift-drive-depth');root.dataset.objectDepth=String(objectDepth(p));root.style.setProperty('--object-depth',String(objectDepth(p)));}
   const studio=p.appearance===STUDIO_APPEARANCE,crafted=studio||p.appearance===CRAFT_APPEARANCE,natural=NATURAL_OBJECT_STYLES.includes(p.appearance)&&p.objectAssetId;
   if(crafted&&(!studio||p.kind==='camera-print'))root.classList.add('gift-drive-crafted');if(studio)root.classList.add('gift-drive-studio');
@@ -75,13 +79,13 @@ export function renderDriveInteraction(model,{mode,signal,renderPhoto,document:d
     const label=node('label','gift-drive-name',t('drive.guestName')),name=node('input','');name.maxLength=80;name.value=doc?.bindings?.recipientName?.value||'';label.append(name);
     const ticket=node('div','gift-drive-pass');ticket.append(node('p','',first.body));
     const who=node('strong',''),when=node('p',''),where=node('p','');ticket.append(who,when,where);
-    if(soft)ticket.append(node('span','gift-drive-ticket-stub','MOMEVIA'));
+    if(soft)ticket.append(node('span','gift-drive-ticket-stub','MOMEVIA'));if(tactile)decorateTactileTicket(ticket);
     const event=doc?.invitation||invitation||p;
     const render=()=>{who.textContent=name.value||t('drive.specialGuest');when.textContent=event.eventAt?new Intl.DateTimeFormat(currentLocale(),{timeZone:event.timeZone,dateStyle:'long',timeStyle:'short'}).format(new Date(event.eventAt)):t('drive.chooseEvent');where.textContent=invitation?.venue||doc?.elements?.find(e=>e.id===doc.invitation?.venueElementId)?.props.text||'';};
     const pull=button(t('drive.pullTicket'),()=>{root.classList.add('is-pulled');status.textContent=t('drive.ticketReady');});
     const tear=button(t('drive.tearTicket'),()=>{root.classList.add('is-pulled');if(complete(tear,t('drive.ticketTorn')))ticket.classList.add('is-torn');});
     const download=button(t('drive.saveTicket'),()=>{
-      render();const svg=graduationPassSvg({name:name.value||t('drive.specialGuest'),eventAt:event.eventAt,timeZone:event.timeZone,venue:where.textContent,title:first.body});
+      render();const data={name:name.value||t('drive.specialGuest'),eventAt:event.eventAt,timeZone:event.timeZone,venue:where.textContent,title:first.body};const svg=tactile?tactileGraduationPassSvg({...data,locale:currentLocale(),ink:p.inkColor,paper:p.color,accent:p.accentColor,depth:p.objectDepth,torn:!!root.dataset.complete}):graduationPassSvg(data);
       const url=URL.createObjectURL(new Blob([svg],{type:'image/svg+xml'})),a=node('a','');a.href=url;a.download='momevia-graduation-pass.svg';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
     });
     listen(name,'input',render);render();root.append(label,ticket,pull,tear,download);
@@ -133,7 +137,7 @@ export function renderDriveInteraction(model,{mode,signal,renderPhoto,document:d
     const labels={ 'calendar-peel':['drive.openNow'],'camera-print':['drive.takePhoto'],'focus-photo':['drive.autoFocus'],'tear-ticket':['drive.pullTicket','drive.tearTicket','drive.saveTicket'] }[p.kind]||(!['four-choice-quiz'].includes(p.kind)?['drive.action.'+p.kind]:[]);
     const controls=root.querySelectorAll('button:not(.gift-drive-date-sticker)');for(const[i,control]of [...controls].entries())if(labels[i])control.textContent=t(labels[i]);
   };
-  if((crafted&&p.kind==='camera-print')||(dimensional&&p.kind==='calendar-peel')){const container=node('div','gift-crafted-feedback'),reserved=node('span','gift-crafted-feedback-space',feedback());reserved.setAttribute('aria-hidden','true');container.append(reserved,status);root.append(container);}else root.append(status);return root;
+  if((crafted&&p.kind==='camera-print')||(dimensional&&p.kind==='calendar-peel')){const container=node('div','gift-crafted-feedback'),reserved=node('span','gift-crafted-feedback-space',feedback());reserved.setAttribute('aria-hidden','true');container.append(reserved,status);root.append(container);}else root.append(status);if(tactile&&p.kind==='tear-ticket')groupTicketControls(root);return root;
 }
 
 export function decorateDriveOpening(node,preset,label,color,sealColor,paperColor,mode,signal,settings={}){

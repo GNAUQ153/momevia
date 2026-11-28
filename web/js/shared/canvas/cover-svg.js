@@ -1,3 +1,5 @@
+import {tactilePaper} from './tactile-paper.js';
+import {tactileInteractionSvg} from './tactile-cover.js';
 import {NATURAL_OPENINGS,OBJECT_APPEARANCE,DIPLOMA_MASK} from './natural-objects.js';
 import {naturalOpeningCover} from './natural-object-cover.js';
 import {instantCameraSvg} from './instant-camera.js';
@@ -125,6 +127,7 @@ function labelSvg(text, x, y, w, size = 16, color = '#32243B') {
 }
 
 function interactionSvg(node, images, event) {
+  if(tactilePaper(node.props))return tactileInteractionSvg(node,images,photoSvg,labelSvg);
   if(node.props.appearance===STUDIO_APPEARANCE&&['cap-toss','ribbon-diploma'].includes(node.props.kind)){
     const p=node.props,{width:w,height:h}=node.layout,cap=p.kind==='cap-toss';return `<rect width="${w}" height="${h}" rx="${p.cornerRadius??24}" fill="${p.color}"/>`+labelSvg(p.entries[0].heading,12,32,w-24,23,p.inkColor||'#27394B')+`<g transform="translate(${(w-(cap?220:240))/2} 55)">${cap?`<svg width="220" height="170" viewBox="0 0 128 128">${(dimensionalObject(p)?dimensionalCapSvg(p,'studio-'+node.id):studioCapSvg(p,'studio-'+node.id)).replace(/^<svg[^>]*>|<\/svg>$/g,'')}</svg>`:studioDiplomaSvg(p,'studio-'+node.id)}</g>`;
   }

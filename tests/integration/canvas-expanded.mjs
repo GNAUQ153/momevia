@@ -206,6 +206,9 @@ export async function runExpandedApi(base, cookie, otherCookie, { artifacts, all
     document.entrySceneId = document.scenes[0].id;
     document.elements = document.scenes.map(scene => {
       const [element] = blocks.get(scene.id).create();
+      // Keep this fixture on persisted, pre-tactile readers (details toggle,
+      // scratch bypass). The versioned paper readers have a separate suite.
+      delete element.props.paperTreatment;
       Object.assign(element.layout,{x:26,y:40});
       scene.elementIds.push(element.id);
       return element;

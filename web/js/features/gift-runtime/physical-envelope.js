@@ -1,0 +1,22 @@
+import {foldedEnvelopeParts,physicalDepth} from '../../shared/canvas/physical-paper.js';
+import {envelopeSeal} from './envelope-seal.js';
+import {t} from '../../core/i18n.js';
+let sequence=0;
+const span=css=>{const node=document.createElement('span');node.className=css;return node;};
+const svg=source=>{const doc=new DOMParser().parseFromString(source,'image/svg+xml');if(doc.querySelector('parsererror'))throw Error('Invalid physical paper SVG');return document.importNode(doc.documentElement,true);};
+export function decoratePhysicalEnvelope(node,p,{signal,mode,assetUrl}){
+ const parts=foldedEnvelopeParts(p,'folded-envelope-'+(++sequence)),scene=span('gift-physical-envelope-scene'),back=span('gift-physical-envelope-back'),front=span('gift-physical-envelope-front'),flap=span('gift-physical-envelope-flap'),outside=span('gift-physical-flap-outside'),inside=span('gift-physical-flap-inside'),letter=span('gift-physical-envelope-letter'),copy=span('gift-physical-letter-copy'),label=span('gift-drive-opening-label'),{seal,monogram}=envelopeSeal(p,assetUrl);
+ scene.setAttribute('aria-hidden','true');node.classList.add('gift-drive-opening','gift-object-opening','gift-object-source','gift-source-envelope','gift-envelope-folded','gift-paper-physical');node.dataset.physicalDepth=String(physicalDepth(p));node.style.setProperty('--physical-half-edge',parts.edge/2+'px');node.style.setProperty('--drive-paper-color',p.paperColor||'#FFF2DB');node.style.setProperty('--physical-paper',p.paperColor||'#FFF2DB');node.style.setProperty('--physical-cut',p.paperColor||'#FFF2DB');
+ const status=span('gift-physical-envelope-status');status.setAttribute('role','status');status.setAttribute('aria-live','polite');node.setAttribute('aria-expanded','false');
+ back.append(svg(parts.back));front.append(svg(parts.front));outside.append(svg(parts.flap));inside.append(svg(parts.inside));flap.append(outside,inside);for(const side of ['left','right'])flap.append(span('gift-physical-flap-edge gift-physical-flap-edge-'+side));flap.append(seal);letter.append(copy);scene.append(back,letter,front,flap);node.replaceChildren(scene,label,status);
+ const update=props=>{copy.textContent=props.cardText||t('natural.cardText');copy.style.fontSize=Math.max(10,14-Math.max(0,Array.from(props.cardText||'').length-30)/18)+'px';monogram.textContent=props.label;monogram.style.fontSize=Math.max(8,18-Math.max(0,Array.from(props.label||'').length-2)*1.2)+'px';seal.title=props.label;label.textContent=t('drive.openNow');};update(p);node.updateNaturalCopy=update;
+ const opened=()=>{node.setAttribute('aria-expanded','true');status.textContent=copy.textContent;};let cancel;const clear=()=>{cancel?.(false);node.classList.remove('is-opening','is-source-revealing');};signal?.addEventListener('abort',clear,{once:true});
+ node.playSourceGift=async({motion,signal:intent,duration=1200})=>{
+  const combined=signal?AbortSignal.any([signal,intent].filter(Boolean)):intent;if(combined?.aborted)return;
+  const instant=motion?.enabled()===false||matchMedia('(prefers-reduced-motion: reduce)').matches;cancel?.(false);node.classList.remove('is-opening','is-source-revealing','is-physical-instant');node.setAttribute('aria-expanded','false');status.textContent='';
+  if(instant){node.classList.add('is-opening','is-source-revealing','is-physical-instant');opened();return;}
+  await new Promise(resolve=>requestAnimationFrame(resolve));if(combined?.aborted)return;node.style.setProperty('--drive-duration',duration+'ms');node.classList.add('is-opening');
+  await new Promise(resolve=>{let timer,release;const stop=(complete=true)=>{clearTimeout(timer);release?.();combined?.removeEventListener('abort',abort);if(complete){node.classList.add('is-source-revealing','is-physical-instant');opened();}else node.classList.remove('is-opening');cancel=undefined;resolve();},abort=()=>stop(false);cancel=stop;release=motion?.track(()=>stop());combined?.addEventListener('abort',abort,{once:true});timer=setTimeout(()=>stop(),duration);});
+ };
+ if(['preview','public'].includes(mode)){let start;node.style.touchAction='none';node.addEventListener('pointerdown',e=>{start={id:e.pointerId,x:e.clientX,y:e.clientY};},{signal});node.addEventListener('pointerup',e=>{if(start?.id===e.pointerId&&(start.y-e.clientY>45||Math.abs(start.x-e.clientX)>60)){e.preventDefault();node.click();}start=null;},{signal});for(const event of ['pointercancel','lostpointercapture'])node.addEventListener(event,()=>{start=null;},{signal});}
+}

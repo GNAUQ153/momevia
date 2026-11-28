@@ -1,5 +1,7 @@
 # Phong bì và bằng: chiều sâu giấy có lựa chọn
 
+Phần cấu trúc giấy mới (nắp hai mặt/cạnh, bản lề và trụ giấy) được ghi tại [PHYSICAL_PAPER_QA.md](PHYSICAL_PAPER_QA.md). Reader relief trong tài liệu này vẫn phục vụ các bản đã lưu không chọn physical-v2.
+
 Đợt tiếp từ `84a2899` trên nhánh review `fix/natural-canvas-objects-20261128`, tại bản làm việc cô lập. Chỉ hai thành phần cần thêm chiều sâu: phong bì Source v4 của Midnight Soirée và bằng Studio v5 của The Last Chapter V2. Giữ nguồn Silviya/Noto và giấy phép đã có; không thêm tài nguyên, CDN, WebGL hoặc dependency. Video ghi chuyển động và dữ liệu QA chỉ ở local. Chưa merge/deploy.
 
 | Thành phần / mục tiêu | Đã có | Thay đổi | Phạm vi / hồi quy |

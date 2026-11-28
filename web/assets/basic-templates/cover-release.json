@@ -21,14 +21,14 @@
       "revision": 1,
       "covers": {
         "vi": {
-          "portrait": "5a399883a36b1d609f003d6b3c56da6f5943a62f46e953e554896659979bc958",
-          "catalog": "daddf46605a09205c98c5566b27527a810df2ac228495893702e83f1db12f0f1",
-          "seasonal": "75acc4efd02ef16ccefde73cc10afd1511123c0d524c29ae86f719c57ad605ef"
+          "portrait": "4f1343906e7563dcf89a1fd9b2df165f392e61d20f87f97cce8de7a7f8fc0861",
+          "catalog": "69fe191328b4797dd08de70c4ffed43aebb9b393ce59020b80b78012c8cb2558",
+          "seasonal": "23907056fa2c6a2639764a8de1bcf94580e57afe970d79b45fe81431f9f0d5af"
         },
         "en": {
-          "portrait": "0e0195e0d92cd8edda6840633351aa9388dcf9e86d549a5101c4f956845748b1",
-          "catalog": "9505b527f96be0c5ee0235b4722aef2605106574bf6f97d4d7e93e6f2385c1c8",
-          "seasonal": "1643c67c016a03665cd66947002517b7b3102c9325074dda8f591c08153a5f13"
+          "portrait": "7b66efd7856181f365cdb22865d7b47eb90ce8239fbb80aae55afa8452b9b2a8",
+          "catalog": "baa3cb2350ec24616164925e6a70531cf092bc77f29f6c765e322389054ba67c",
+          "seasonal": "7e7b1743f61a32fd6a46c2e4d907041565ad3bb5bd4b15ffe99be4494a7700fa"
         }
       }
     },

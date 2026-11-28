@@ -4300,5 +4300,9 @@
   "studio.style": "Minh họa và chuyển động Studio",
   "studio.envelopeStyle": "Phong bì mở cùng thư",
   "studio.noCameraPhoto": "Chưa có ảnh cho khoảnh khắc này.",
-  "studio.paperRelief": "Chiều sâu giấy và nhịp mở tự nhiên"
+  "studio.paperRelief": "Chiều sâu giấy và nhịp mở tự nhiên",
+  "physical.construction": "Cấu trúc giấy",
+  "physical.folded": "Giấy gấp có chiều dày · 3D",
+  "physical.illustrated": "Minh họa nguồn",
+  "physical.material": "Độ dày và ánh sáng giấy"
 }

@@ -1,3 +1,9 @@
+## Unreleased — Nắp phong bì có bản lề và bằng cuộn giấy (2026-11-28)
+
+- Thêm lựa chọn Canvas physical-v2: phong bì có mặt cắt, nắp hai mặt/cạnh xoay quanh nếp gấp; thư nằm sau túi rồi trượt ra. Giữ reader minh họa/relief đã lưu.
+- Bằng dùng trụ và vòng giấy, bỏ cảm giác chốt gỗ; nơ rời trước, cuộn lăn khi giấy trải. Chữ vẫn sửa được, nội dung dài đọc đủ, vùng nút cố định.
+- Kiểm lưu/nhân bản/0/tắt, 3D giữa nhịp, reset/replay, reduced/off/abort và tương thích snapshot. Video/dữ liệu QA chỉ local, chưa merge/deploy.
+
 ## Unreleased — Chiều sâu giấy và nhịp mở phong bì/bằng (2026-11-28)
 
 - Thêm tùy chọn Canvas cho chiều sâu giấy 0–16 ở phong bì Source và bằng Studio: gradient mặt/cuộn, bóng mép và phối cảnh nhẹ; giữ chữ thật và vùng bấm cố định.

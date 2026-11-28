@@ -280,6 +280,8 @@ try {
     await check('Studio source envelope, readable diploma, visible cap landing and accessible camera zoom',()=>runStudioObjectProof(base));
     const {runPaperReliefProof}=await import('../browser/paper-relief.mjs');
     await check('Opt-in paper relief: depth/zero, staged opening, stable mobile geometry, reduced motion and abort',()=>runPaperReliefProof(base));
+    const {runPhysicalPaperProof}=await import('../browser/physical-paper.mjs');
+    await check('Physical paper: two-sided hinge, thickness, rolling certificate, lifecycle and lossless mobile reading',()=>runPhysicalPaperProof(base));
     await check('Anchored gift tag keeps longer copy on paper and clear of the opening control',()=>runAnchoredTagProof(base));
     await check('Crafted camera keeps fitted mobile geometry during photo ejection, feedback and reset',()=>runCraftedMotionProof(base));
     await check('Reviewed source gift animation preserves geometry, motion preferences and lifecycle',()=>runSourceGiftProof(base));

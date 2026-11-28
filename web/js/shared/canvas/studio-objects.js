@@ -4,7 +4,7 @@ export function studioObject(model,localize){
  craftObject(model,localize);const p=model.props;
  if(model.type==='interaction'&&STUDIO_KINDS.includes(p.kind)){p.appearance=STUDIO_APPEARANCE;delete p.objectAssetId;if(p.kind==='camera-print')p.zoom??=true;}
  if(model.type==='envelope'&&p.preset?.startsWith('wax-letter')){p.preset=ENVELOPE_SOURCE_PRESET;delete p.assetId;}
- if((model.type==='envelope'&&p.preset===ENVELOPE_SOURCE_PRESET)||(model.type==='interaction'&&p.kind==='ribbon-diploma'&&p.appearance===STUDIO_APPEARANCE)){p.paperRelief??=true;p.objectDepth??=8;}
+ if((model.type==='envelope'&&p.preset===ENVELOPE_SOURCE_PRESET)||(model.type==='interaction'&&p.kind==='ribbon-diploma'&&p.appearance===STUDIO_APPEARANCE)){p.paperRelief??=true;p.objectDepth??=10;p.paperConstruction??='physical-v2';}
  return model;
 }
 export function studioDriveDocument(doc,id,localize){

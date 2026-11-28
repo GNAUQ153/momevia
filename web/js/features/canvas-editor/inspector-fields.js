@@ -17,7 +17,8 @@ export function buildInspectorPropertyFields(element) {
   const { props } = element;
   const fields = [];
   for (const key of element.type === "interaction" ? [] : registry[element.type].inspector) {
-    if(key==='paperRelief'){if(props.preset==='wax-letter-source-v4')fields.push(field(message('studio.paperRelief'),node('input',{type:'checkbox',checked:props.paperRelief===true,'data-editor-field':'props.paperRelief'})));continue;}
+    if(key==='paperConstruction'){if(props.preset==='wax-letter-source-v4')fields.push(select(message('physical.construction'),'props.paperConstruction',props.paperConstruction||'illustrated-v1',[['physical-v2',message('physical.folded')],['illustrated-v1',message('physical.illustrated')]]));continue;}
+    if(key==='paperRelief'){if(props.preset==='wax-letter-source-v4')fields.push(field(message(props.paperConstruction==='physical-v2'?'physical.material':'studio.paperRelief'),node('input',{type:'checkbox',checked:props.paperRelief===true,'data-editor-field':'props.paperRelief'})));continue;}
     if(key==='objectDepth'){if(['lid-source-v6','wax-letter-source-v4'].includes(props.preset))fields.push(input(message('crafted.depth'),'props.objectDepth',props.objectDepth??8,{type:'number',min:0,max:16}));continue;}
     if(['sealColor','paperColor'].includes(key)&&!props.preset?.startsWith('wax-letter')&&!['lid-volume-v4','lid-source-v6'].includes(props.preset))continue;
     if(['cornerRadius','motionSpeed'].includes(key)&&!Object.hasOwn(props,key)&&!['lid-card-v2','wax-letter-v2',...NATURAL_OPENINGS].includes(props.preset)&&!['paper-soft-v2','garden-soft-v2'].includes(props.appearance))continue;

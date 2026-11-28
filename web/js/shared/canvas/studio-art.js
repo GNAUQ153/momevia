@@ -1,6 +1,7 @@
 import {NOTO_CAP,NOTO_SCROLL,NOTO_RIBBON} from './studio-art-data.js';
 import {shadeHex} from './gift-volume.js';
 import {paperReliefEnabled,reliefGradient} from './paper-relief.js';
+import {physicalPaper,physicalDiplomaSvg} from './physical-paper.js';
 const mix=(a,b,t)=>'#'+[1,3,5].map(i=>Math.round(parseInt(a.slice(i,i+2),16)*(1-t)+parseInt(b.slice(i,i+2),16)*t).toString(16).padStart(2,'0')).join('');
 const prefixId=id=>String(id).replace(/[^a-zA-Z0-9_-]/g,'-');
 function artwork(source,p,prefix,kind){
@@ -15,4 +16,4 @@ function artwork(source,p,prefix,kind){
 export const studioCapSvg=(p,id)=>artwork(NOTO_CAP,p,id,'cap');
 export const studioScrollSvg=(p,id)=>artwork(NOTO_SCROLL,p,id,'scroll');
 export const studioRibbonSvg=(p,id)=>artwork(NOTO_RIBBON,p,id,'ribbon');
-export function studioDiplomaSvg(p,id){const safe=prefixId(id);return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 190" width="240" height="190" aria-hidden="true"><defs><clipPath id="${safe}-main"><rect x="15" y="64" width="210" height="53.2"/></clipPath><clipPath id="${safe}-foot"><rect x="15" y="75.4" width="210" height="49.4"/></clipPath></defs><g clip-path="url(#${safe}-main)"><svg x="15" y="64" width="210" height="190" viewBox="0 0 128 128">${artwork(NOTO_SCROLL,p,id+'-main','scroll').replace(/^<svg[^>]*>|<\/svg>$/g,'')}</svg></g><g clip-path="url(#${safe}-foot)"><svg x="15" y="-65.2" width="210" height="190" viewBox="0 0 128 128">${artwork(NOTO_SCROLL,p,id+'-foot','scroll').replace(/^<svg[^>]*>|<\/svg>$/g,'')}</svg></g><rect x="113" y="76" width="14" height="39" rx="3" fill="${p.accentColor||'#B52E3D'}"/><g transform="translate(83 58) scale(.58)">${studioRibbonSvg(p,id+'-ribbon')}</g></svg>`;}
+export function studioDiplomaSvg(p,id){if(physicalPaper(p))return physicalDiplomaSvg(p,id,studioRibbonSvg(p,id+'-bow'));const safe=prefixId(id);return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 190" width="240" height="190" aria-hidden="true"><defs><clipPath id="${safe}-main"><rect x="15" y="64" width="210" height="53.2"/></clipPath><clipPath id="${safe}-foot"><rect x="15" y="75.4" width="210" height="49.4"/></clipPath></defs><g clip-path="url(#${safe}-main)"><svg x="15" y="64" width="210" height="190" viewBox="0 0 128 128">${artwork(NOTO_SCROLL,p,id+'-main','scroll').replace(/^<svg[^>]*>|<\/svg>$/g,'')}</svg></g><g clip-path="url(#${safe}-foot)"><svg x="15" y="-65.2" width="210" height="190" viewBox="0 0 128 128">${artwork(NOTO_SCROLL,p,id+'-foot','scroll').replace(/^<svg[^>]*>|<\/svg>$/g,'')}</svg></g><rect x="113" y="76" width="14" height="39" rx="3" fill="${p.accentColor||'#B52E3D'}"/><g transform="translate(83 58) scale(.58)">${studioRibbonSvg(p,id+'-ribbon')}</g></svg>`;}

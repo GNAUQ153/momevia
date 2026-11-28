@@ -4313,5 +4313,9 @@
   "studio.style": "Studio illustration and motion",
   "studio.envelopeStyle": "Envelope and rising letter",
   "studio.noCameraPhoto": "No photo has been added for this moment.",
-  "studio.paperRelief": "Paper depth and natural opening"
+  "studio.paperRelief": "Paper depth and natural opening",
+  "physical.construction": "Paper construction",
+  "physical.folded": "Folded paper with thickness · 3D",
+  "physical.illustrated": "Source illustration",
+  "physical.material": "Paper thickness and lighting"
 }

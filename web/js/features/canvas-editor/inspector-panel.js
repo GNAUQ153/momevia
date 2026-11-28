@@ -1,3 +1,4 @@
+import {supportsDimensional} from '../../shared/canvas/object-construction.js';
 import {NATURAL_OPENINGS} from '../../shared/canvas/natural-objects.js';
 import {localVideoAvailable} from '../../shared/canvas/local-video.js';
 import { currentLocale, message, t } from "../../core/i18n.js";
@@ -74,6 +75,7 @@ export function createInspectorPanel({
     }
     if(p.kind==='ribbon-diploma'&&p.appearance==='object-studio-v5')fields.push(field(message(p.paperConstruction==='physical-v2'?'physical.material':'studio.paperRelief'),node('input',{type:'checkbox',checked:p.paperRelief===true,'data-editor-field':'props.paperRelief'})),input(message('crafted.depth'),'props.objectDepth',p.objectDepth??8,{type:'number',min:0,max:16}));
     if(p.kind==='ribbon-diploma'&&p.appearance==='object-studio-v5')fields.push(select(message('physical.construction'),'props.paperConstruction',p.paperConstruction||'illustrated-v1',[['physical-v2',message('physical.folded')],['illustrated-v1',message('physical.illustrated')]]));
+    if(supportsDimensional(p))fields.push(select(message('depth.construction'),'props.objectConstruction',p.objectConstruction||'illustrated-v1',[['dimensional-v2',message('depth.solid')],['illustrated-v1',message('physical.illustrated')]]),input(message('crafted.depth'),'props.objectDepth',p.objectDepth??10,{type:'number',min:0,max:16}));
     if(p.kind==='swipe-album')fields.push(select(message('soft.style'),'props.appearance',p.appearance||'classic',[['classic',message('soft.classic')],['album-soft-v2',message('soft.soft')]]));
     if(p.kind==='local-video'){
       if(localVideoAvailable())fields.push(field(message('video.choose'),node('input',{type:'file',disabled:isAssetPending(),accept:'.webm,video/webm','data-editor-field':'local-video-upload'})),node('p',{class:'editor-help'},message('video.limits')),

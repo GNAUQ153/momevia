@@ -1,0 +1,310 @@
+/* Explicit dimensional-v2 construction only. */
+.gift-drive-depth {
+  --object-shade: .625;
+}
+.gift-depth-camera-rig {
+  position: relative;
+  width: 100%;
+  height: 266px;
+  min-height: 266px;
+  perspective: 800px;
+}
+.gift-drive-depth .gift-depth-camera-rig .gift-drive-camera {
+  margin: 0 auto;
+}
+.gift-drive-depth .gift-depth-camera-rig .gift-crafted-print-well {
+  margin: -29px auto 0;
+}
+.gift-drive-depth .gift-drive-camera > svg {
+  filter: drop-shadow(2px 5px 3px #192a3530);
+}
+.gift-drive-depth.is-printed .gift-drive-camera > svg {
+  animation: depth-shutter var(--drive-duration) cubic-bezier(.2,.7,.25,1) both;
+}
+.gift-drive-depth.is-printed .gift-depth-camera-lens {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: depth-lens-press var(--drive-duration) ease-out both;
+}
+.gift-drive-depth .gift-drive-camera::after {
+  background: radial-gradient(ellipse, #fff6d580, #fff6d500 70%);
+}
+.gift-drive-depth .gift-drive-print {
+  border-right: 2px solid #d8c8ae;
+  border-bottom: 3px solid #cdbb9f;
+  box-shadow: 1px 3px 7px #27394b35;
+  transition: none;
+}
+.gift-drive-depth.is-printed .gift-drive-print {
+  animation: depth-print-feed var(--drive-duration) cubic-bezier(.22,.7,.25,1) both;
+}
+.gift-depth-cap-stage {
+  perspective: 750px;
+}
+.gift-drive-depth .gift-studio-cap {
+  top: 20px;
+}
+.gift-depth-cap-spin {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+}
+.gift-depth-cap-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+}
+.gift-depth-cap-front {
+  transform: translateZ(var(--object-edge));
+}
+.gift-depth-cap-under {
+  transform: rotateY(180deg) translateZ(var(--object-edge));
+}
+.gift-depth-cap-face > svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(1px 4px 3px #14203730);
+}
+.gift-depth-tassel-free {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.gift-drive-depth.is-revealed .gift-studio-cap {
+  transform: translateY(-63px) rotate(-5deg) scale(.5);
+  animation: depth-cap-flight var(--drive-duration) cubic-bezier(.22,.7,.25,1) both;
+}
+.gift-drive-depth.is-revealed .gift-depth-cap-spin {
+  animation: depth-cap-turn var(--drive-duration) ease-in-out both;
+}
+.gift-drive-depth.is-revealed .studio-cap-tassel {
+  animation: depth-tassel-lag var(--drive-duration) ease-out both;
+}
+.gift-drive-depth .gift-drive-calendar {
+  isolation: isolate;
+  border-radius: 12px;
+  background: linear-gradient(110deg, #ffffff80, transparent 60%, #b69e6a0c), #fffcf4;
+  box-shadow: 0 3px 8px #38204620;
+}
+.gift-drive-depth .gift-drive-calendar::before {
+  display: none;
+}
+.gift-depth-calendar-stack {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+.gift-depth-calendar-leaf {
+  position: absolute;
+  inset: 0;
+  border: 1px solid #c7b696;
+  border-radius: 12px;
+  background: #fff8e8;
+  transform: translate(calc(var(--leaf-index) * var(--object-depth) * .12px), calc(var(--leaf-index) * var(--object-depth) * .2px));
+}
+.gift-depth-calendar-rings {
+  position: absolute;
+  display: flex;
+  justify-content: space-between;
+  left: 14%;
+  right: 14%;
+  top: -17px;
+  height: 25px;
+  pointer-events: none;
+}
+.gift-depth-calendar-ring {
+  width: 13px;
+  height: 25px;
+  box-sizing: border-box;
+  border: 3px solid #b28b48;
+  border-radius: 7px;
+  background: linear-gradient(90deg, #5c4329, #fff5cf 38%, #ba914e 65%, #795b34);
+  box-shadow: 1px 2px 2px #49342135, inset 1px 0 #fffbdf;
+  transform: rotateX(12deg);
+}
+.gift-drive-depth .gift-drive-date-sticker {
+  position: relative;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  transform: none;
+  perspective: 400px;
+  z-index: 1;
+}
+.gift-drive-depth .gift-drive-date-sticker::after {
+  content: attr(data-day-label);
+  position: absolute;
+  inset: 2px;
+  display: grid;
+  place-items: center;
+  border: 2px solid var(--drive-accent);
+  border-radius: 50%;
+  color: var(--drive-ink);
+  font-weight: 700;
+  z-index: -1;
+}
+.gift-depth-sticker-paper {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transform-origin: 95% 5%;
+  pointer-events: none;
+}
+.gift-depth-sticker-front,
+.gift-depth-sticker-back {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  border: 1px solid #b58b35;
+  border-radius: 10px 4px 10px 7px;
+  backface-visibility: hidden;
+}
+.gift-depth-sticker-front {
+  background: linear-gradient(135deg, #ffffff45, transparent 55%), var(--drive-detail);
+  box-shadow: 1px 2px 2px #775c2830;
+  transform: translateZ(.5px);
+}
+.gift-depth-sticker-back {
+  background: #fff1c7;
+  transform: rotateY(180deg) translateZ(.5px);
+}
+.gift-drive-depth .gift-drive-date-sticker.is-peeled {
+  transform: none;
+}
+.gift-drive-depth .is-peeled .gift-depth-sticker-paper {
+  animation: depth-sticker-peel var(--drive-duration) cubic-bezier(.22,.7,.25,1) both;
+  transform: translate(12px,-10px) rotate3d(-1,1,0,165deg);
+  opacity: 0;
+}
+.gift-drive-depth.gift-drive-calendar-peel button {
+  min-height: 56px;
+}
+.gift-drive-depth.gift-drive-calendar-peel .gift-drive-date-sticker {
+  min-height: 44px;
+}
+.gift-drive-depth[data-object-depth="0"] .gift-drive-camera > svg,
+.gift-drive-depth[data-object-depth="0"] .gift-depth-cap-face > svg {
+  filter: none;
+}
+.gift-drive-depth[data-object-depth="0"] .gift-drive-print,
+.gift-drive-depth[data-object-depth="0"] .gift-drive-calendar,
+.gift-drive-depth[data-object-depth="0"] .gift-depth-calendar-ring {
+  box-shadow: none;
+}
+@keyframes depth-shutter {
+  0%, 100% {
+    transform: none;
+  }
+  12% {
+    transform: translateY(2px) rotateX(2deg);
+  }
+  26% {
+    transform: translateY(-1px);
+  }
+  42% {
+    transform: none;
+  }
+}
+@keyframes depth-lens-press {
+  0%, 100% {
+    transform: none;
+  }
+  12% {
+    transform: scale(.975);
+  }
+  26% {
+    transform: none;
+  }
+}
+@keyframes depth-print-feed {
+  0%, 20% {
+    transform: translateY(-108%);
+  }
+  82%, 100% {
+    transform: translateY(0) rotate(-3deg);
+  }
+}
+@keyframes depth-cap-flight {
+  0% {
+    transform: none;
+  }
+  28% {
+    transform: translateY(-26px) rotate(4deg) scale(.9);
+  }
+  58% {
+    transform: translateY(-48px) rotate(-4deg) scale(.68);
+  }
+  88% {
+    transform: translateY(-66px) rotate(-3deg) scale(.5);
+  }
+  100% {
+    transform: translateY(-63px) rotate(-5deg) scale(.5);
+  }
+}
+@keyframes depth-cap-turn {
+  0% {
+    transform: rotateY(0deg);
+  }
+  60% {
+    transform: rotateY(210deg);
+  }
+  88%, 100% {
+    transform: rotateY(360deg);
+  }
+}
+@keyframes depth-tassel-lag {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  38% {
+    transform: rotate(20deg);
+  }
+  68% {
+    transform: rotate(-13deg);
+  }
+  88% {
+    transform: rotate(4deg);
+  }
+}
+@keyframes depth-sticker-peel {
+  0% {
+    transform: none;
+    opacity: 1;
+  }
+  28% {
+    transform: rotate3d(-1,1,0,38deg);
+    opacity: 1;
+  }
+  68% {
+    transform: translate(9px,-7px) rotate3d(-1,1,0,130deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(12px,-10px) rotate3d(-1,1,0,165deg);
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gift-drive-depth * {
+    animation: none !important;
+    transition: none !important;
+  }
+  .gift-drive-depth.gift-drive-camera-print .gift-drive-camera::after {
+    animation: none !important;
+    opacity: 0;
+  }
+}
+.gift-runtime[data-motion=off] .gift-drive-depth * {
+  animation: none !important;
+  transition: none !important;
+}
+.gift-runtime[data-motion=off] .gift-drive-depth.gift-drive-camera-print .gift-drive-camera::after {
+  animation: none !important;
+  opacity: 0;
+}

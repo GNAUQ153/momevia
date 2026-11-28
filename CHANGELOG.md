@@ -1,3 +1,9 @@
+## Unreleased — Máy ảnh, mũ và lịch có chiều sâu (2026-11-28)
+
+- Thêm lựa chọn Canvas dimensional-v2 cho ba card: máy ảnh có thân/ống kính nổi và feed ảnh theo nhịp; mũ xoay lộ mặt dưới, tua lệch pha và hạ dưới vùng tiêu đề; lịch có lớp giấy/khoen, sticker hai mặt và marker ngày thật.
+- Chỉnh được độ sâu/nhịp, depth 0 và motion-off/reduced. Zoom chỉ bật sau lượt in hiện hành; reset/in lại nhanh không nhận callback cũ. Các bản minh họa và style không dùng enum giữ nguyên.
+- Rà sáu mẫu, kiểm geometry/media/date/serialization và reader cũ; video/dữ liệu QA giữ local, chưa merge/deploy.
+
 ## Unreleased — Nắp phong bì có bản lề và bằng cuộn giấy (2026-11-28)
 
 - Thêm lựa chọn Canvas physical-v2: phong bì có mặt cắt, nắp hai mặt/cạnh xoay quanh nếp gấp; thư nằm sau túi rồi trượt ra. Giữ reader minh họa/relief đã lưu.

@@ -4304,5 +4304,7 @@
   "physical.construction": "Cấu trúc giấy",
   "physical.folded": "Giấy gấp có chiều dày · 3D",
   "physical.illustrated": "Minh họa nguồn",
-  "physical.material": "Độ dày và ánh sáng giấy"
+  "physical.material": "Độ dày và ánh sáng giấy",
+  "depth.construction": "Kết cấu vật thể",
+  "depth.solid": "Độ dày và chuyển động · 3D"
 }

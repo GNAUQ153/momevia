@@ -1,3 +1,4 @@
+import {dimensionalObject,objectDepth}from'./object-construction.js';
 import {calendarMonth}from'./drive-data.js';
 const escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export function driveInteractionSvg(node,images,photoSvg,labelSvg,event){
@@ -9,10 +10,11 @@ function driveContentSvg(node,images,photoSvg,labelSvg,event){
  const background=`<rect width="${w}" height="${h}" rx="${['soft-v2','object-crafted-v4'].includes(p.appearance)?(p.cornerRadius??24):8}" fill="${p.color}"/>`;
  if(p.kind==='calendar-peel'){
   const month=calendarMonth(p.clockSource==='invitation'?event?.eventAt:p.eventAt,p.clockSource==='invitation'?event?.timeZone:p.timeZone);
-  if(!month)return background+labelSvg(p.entries[0].heading,16,45,w-32,24);
-  const size=(w-28)/7,top=97;let cells='';
-  for(let day=1;day<=month.days;day++){const cell=month.offset+day-1,x=14+cell%7*size,y=top+Math.floor(cell/7)*size;if(day===month.day)cells+=`<rect x="${x}" y="${y-24}" width="${size-2}" height="${size-2}" rx="5" fill="#EAC572" transform="rotate(-6 ${x+size/2} ${y})"/>`;cells+=`<text x="${x+size/2}" y="${y}" text-anchor="middle" fill="#27394B" font-size="18">${day}</text>`;}
-  return background+labelSvg(month.title,18,40,w-36,23,'#7D3854')+cells;
+  const dimensional=dimensionalObject(p),d=objectDepth(p)/16,frame=dimensional?`<rect x="${14+d*4}" y="${56+d*6}" width="310" height="350" rx="12" fill="#D8C7A6"/><rect x="12" y="54" width="310" height="350" rx="12" fill="#FFFCF4" stroke="#C7B696"/>`+[50,270].map(x=>`<rect x="${x}" y="39" width="12" height="25" rx="6" fill="#D9B76D" stroke="#795B34" stroke-width="2"/>`).join(''):'';
+  if(!month)return dimensional?background+frame+labelSvg(p.entries[0].heading,20,95,w-40,24):background+labelSvg(p.entries[0].heading,16,45,w-32,24);
+  const size=(w-28)/7,top=dimensional?133:97;let cells='';
+  for(let day=1;day<=month.days;day++){const cell=month.offset+day-1,x=14+cell%7*size,y=top+Math.floor(cell/7)*size;if(day===month.day)cells+=`<rect x="${x}" y="${y-24}" width="${size-2}" height="${size-2}" rx="5" fill="${dimensional?p.detailColor||'#EAC572':'#EAC572'}" transform="rotate(${dimensional?0:-6} ${x+size/2} ${y})"/>`;cells+=`<text x="${x+size/2}" y="${y}" text-anchor="middle" fill="${dimensional?p.inkColor||'#27394B':'#27394B'}" font-size="18">${day}</text>`;}
+  return background+frame+labelSvg(month.title,18,dimensional?91:40,w-36,23,dimensional?p.inkColor||'#27394B':'#7D3854')+cells;
  }
  if(p.kind==='camera-print')return background+`<rect x="20" y="30" width="${w-40}" height="120" rx="20" fill="#272936" stroke="#A8B9C9" stroke-width="8"/><circle cx="${w/2}" cy="86" r="37" fill="#141B32" stroke="#A8B9C9" stroke-width="9"/><rect x="${w/2-89}" y="133" width="178" height="211" fill="#FFF8E8"/><g transform="translate(${w/2-80} 143)">${photoSvg({...p.photos[0],optional:true},images.get(p.photos[0].assetId),160,159,node.id+'-camera')}</g>`+labelSvg(p.entries[0].heading,18,h-30,w-36,18);
  if(p.kind==='focus-photo')return background+`<circle cx="${w/2}" cy="${h/2-20}" r="111" fill="#29445D"/><clipPath id="drive-lens-${node.id}"><circle cx="${w/2}" cy="${h/2-20}" r="95"/></clipPath><g clip-path="url(#drive-lens-${node.id})" transform="translate(${w/2-95} ${h/2-115})">${photoSvg({...p.photos[0],optional:true},images.get(p.photos[0].assetId),190,190,node.id+'-focus')}</g>`+labelSvg(p.entries[0].heading,16,h-25,w-32,20);

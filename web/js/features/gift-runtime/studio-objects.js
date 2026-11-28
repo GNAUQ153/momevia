@@ -2,8 +2,11 @@ import {studioCapSvg,studioScrollSvg,studioRibbonSvg} from '../../shared/canvas/
 import {paperReliefEnabled} from '../../shared/canvas/paper-relief.js';
 import {physicalPaper} from '../../shared/canvas/physical-paper.js';
 import {physicalDiploma} from './physical-diploma.js';
+import {dimensionalObject} from '../../shared/canvas/object-construction.js';
+import {depthCap} from './dimensional-objects.js';
 const svg=source=>{const parsed=new DOMParser().parseFromString(source,'image/svg+xml');if(parsed.querySelector('parsererror'))throw new Error('Studio artwork is not valid SVG');return globalThis.document.importNode(parsed.documentElement,true);};
 export function studioReveal(model,body){
+ if(model.props.kind==='cap-toss'&&dimensionalObject(model.props))return depthCap(model,body);
  if(model.props.kind==='ribbon-diploma'&&physicalPaper(model.props))return physicalDiploma(model,body);
  const p=model.props,stage=globalThis.document.createElement('div');stage.className='gift-studio-stage';if(p.kind==='ribbon-diploma'&&paperReliefEnabled(p)){stage.classList.add('gift-paper-relief');stage.style.setProperty('--paper-depth',String((p.objectDepth??8)/8));}body.classList.add('gift-studio-reading');body.dataset.studioProse=p.kind==='ribbon-diploma'?'64':'100';body.setAttribute('aria-hidden','true');
  if(p.kind==='cap-toss'){const cap=globalThis.document.createElement('span');cap.className='gift-drive-cap gift-studio-cap';cap.setAttribute('aria-hidden','true');cap.append(svg(studioCapSvg(p,model.id)));stage.append(cap,body);}

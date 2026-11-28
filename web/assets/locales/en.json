@@ -4317,5 +4317,7 @@
   "physical.construction": "Paper construction",
   "physical.folded": "Folded paper with thickness · 3D",
   "physical.illustrated": "Source illustration",
-  "physical.material": "Paper thickness and lighting"
+  "physical.material": "Paper thickness and lighting",
+  "depth.construction": "Object construction",
+  "depth.solid": "Depth and movement · 3D"
 }

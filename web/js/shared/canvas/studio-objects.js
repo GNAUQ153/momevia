@@ -5,6 +5,7 @@ export function studioObject(model,localize){
  if(model.type==='interaction'&&STUDIO_KINDS.includes(p.kind)){p.appearance=STUDIO_APPEARANCE;delete p.objectAssetId;if(p.kind==='camera-print')p.zoom??=true;}
  if(model.type==='envelope'&&p.preset?.startsWith('wax-letter')){p.preset=ENVELOPE_SOURCE_PRESET;delete p.assetId;}
  if((model.type==='envelope'&&p.preset===ENVELOPE_SOURCE_PRESET)||(model.type==='interaction'&&p.kind==='ribbon-diploma'&&p.appearance===STUDIO_APPEARANCE)){p.paperRelief??=true;p.objectDepth??=10;p.paperConstruction??='physical-v2';}
+ if(model.type==='interaction'&&['camera-print','cap-toss','calendar-peel'].includes(p.kind)){p.objectConstruction??='dimensional-v2';p.objectDepth??=10;}
  return model;
 }
 export function studioDriveDocument(doc,id,localize){

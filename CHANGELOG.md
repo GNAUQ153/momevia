@@ -3,6 +3,7 @@
 - Đồng bộ token/UI và xử lý nhãn nút Studio EN ở 391–700 px theo kích thước nội dung; giữ bố cục cột trên màn hình nhỏ.
 - Đưa fit một trang và đọc lời nhắn dài theo phần vào viewer dùng chung của 45 mẫu; giữ source/ID/dữ liệu và 16 mẫu mới từ main.
 - Rà 45 mẫu, 1.393 unit tests, Canvas browser, UI regression và Garden Tea MySQL QA cô lập; sửa fixture thư viện còn thiếu Garden Tea.
+- Sinh lại bìa VI/EN từ tài liệu hiện hành; video, dữ liệu và bằng chứng QA chỉ giữ local.
 
 ## Unreleased - Khắc phục browser CI (2026-11-28)
 

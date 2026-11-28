@@ -2,16 +2,31 @@
   "version": 1,
   "source": "builtin-seed",
   "templates": {
+    "garden-tea": {
+      "revision": 1,
+      "covers": {
+        "vi": {
+          "portrait": "a8f2b418fdad0bebf2474a0350f980babadbcd4757927de9ac96c634b96865bc",
+          "catalog": "b1a53086fd183fba43f392af569d40543d2557089660735b97eedc74b129b906",
+          "seasonal": "71649153fe9526a01b2bf09640cf0776df4f9cc6351fcc7c457707447ac988cd"
+        },
+        "en": {
+          "portrait": "549b09b0756624764337f35bf59ce468a49b4bcab88ba18f441af1ed680ef9f9",
+          "catalog": "3e11cb45fdf10e7284ad9cf7f9691a10b848d215f280e17c9f137984a10a8bb1",
+          "seasonal": "bf99a3b835c7fcb41cbcbf6db85f2b48dfa4d956587d88ca29eb0ac7ad4d31d5"
+        }
+      }
+    },
     "loi-moi-ben-hien": {
       "revision": 1,
       "covers": {
         "vi": {
-          "portrait": "920842be71cc25f5f8a4fe89af54279ec630b8426ca9b9b68dbf670bebd5da79",
+          "portrait": "465db0c95c3c4f173f36bff0baa2a3dab42c9dc625e3fe38e9fb988eb00a0ba7",
           "catalog": "8cf3b5e0dfe5fae48826a4df3d32127511b23af365b751a078a90e70b2f78bc2",
           "seasonal": "c34073a6aa571ff450489567d347e1d173c3599a2fe9bb30530fb4ff05ae9237"
         },
         "en": {
-          "portrait": "1789ff0114c5d123ecd36490605cabbfdaeb1d9d61cd4ed8748de592f3de98f2",
+          "portrait": "dcee1cd05bb427c02eb89b289e53b1d40204457a865fb46e7eabd7139ec8f4ab",
           "catalog": "432d4915e4c86805eafadb5dc45ee55be5df688c127c0762b8f93f49c489a1c2",
           "seasonal": "d003926360ece41dad88437962edeccb6953c38644fb8e5e82308bc7a97c6f88"
         }
@@ -21,12 +36,12 @@
       "revision": 1,
       "covers": {
         "vi": {
-          "portrait": "9ce004c6a241479dc32e6cde5f1c3beba356632b2260034327021890c7fe3eab",
+          "portrait": "047a4dbc7db79f5600c7552b43c6b545b27495443cfffe047a9180ceb2c2c9c1",
           "catalog": "4947a585f4d556fdbd3eef51074f4f1b2e8986c1bc5b0b0515765f41a60ca5d2",
           "seasonal": "5efaff32798ff5b6b6d904d0d3cf05907b6e14b787f0ad3738c1eef3f8f9620b"
         },
         "en": {
-          "portrait": "54a18226c16775e74bc45cf451a202fcd105aa430dc4970d30add04a0bbec136",
+          "portrait": "00cb0b1b69d472c283f6ae56fa3164e349be17341bc9198037547a384fc25070",
           "catalog": "75ab988d17cf180242053e5d575923ef4cb2bf734a992c8d55212dec1fa654d2",
           "seasonal": "f12576b5e1bb412143e84838ddfcde94901b98d1d01548da5f65c466ea9e8373"
         }
@@ -36,12 +51,12 @@
       "revision": 1,
       "covers": {
         "vi": {
-          "portrait": "49fb4639ab0a29862ec2590b14fdde08def875373139bf3479c37709b2f3f62b",
+          "portrait": "67afd5b875b3183d604e02abaa19643bc806a6948c78a5cd0a52c8e302d7b67c",
           "catalog": "846cffbd54c494634ecb07acb5bfb8739b9a907f4d5220ed4fd275ded67a10dc",
           "seasonal": "cb5b2e14cd995a738f6c79063806137ac676edeae2fca68b0d16bebe2091b12e"
         },
         "en": {
-          "portrait": "e17a711d39742b8c2438a9c6c34cee5ee8a7b8bf6dac8f7742ff8ca2cc9c8635",
+          "portrait": "57465f43f603811c6c001bc7de5938d2d04a8b1a7e3a3141f5e02ebdb7ffdf80",
           "catalog": "25d1a791043d1ed3e25e6a9477f5c5aadc88a65925cb9e824b15d33186cf67c6",
           "seasonal": "f54de219bc579573064f56a6643137806952382f5ea185fd40fcfb7daabebcfb"
         }
@@ -51,12 +66,12 @@
       "revision": 1,
       "covers": {
         "vi": {
-          "portrait": "eaadbfbc6aeb9d7bcb65cb7009c1baf247d3e7fd2d3c7b9a62d28a1fe67d33f9",
+          "portrait": "dc7e31cbed870f1de6aaee00e2556f150422f427a6563387bec2c9d39ff28b28",
           "catalog": "fcad70ba58425389286c1b33edb559fa781c7031ea523f2a9ddcd1f31c1477d2",
           "seasonal": "64fb05cafc47e6f3c784d9b16ee82211cf3062affba1ab0dafe0de9728197a87"
         },
         "en": {
-          "portrait": "b197b93f3fa680c5fae30859afaf212368475554d13bad42e7cbaa473069c56e",
+          "portrait": "c11df5264d9e767119caa85c738306644f4d51193b801acafbbdd740bb105e88",
           "catalog": "f7da57d6a1c706710fa260972c473a235b1dd9c6cecbaf09b4a90bdc34ccca85",
           "seasonal": "445f564cba668577646981ec98a3bd5e927f3bece6b322257fdef4575e6cdeb0"
         }
@@ -66,12 +81,12 @@
       "revision": 1,
       "covers": {
         "vi": {
-          "portrait": "fad23c0475b32f3e134e278e5f3ca6be8d83c5f5e4c55b8eb2cc65e2b6328895",
+          "portrait": "153f4314e2cf4b175c1004fdf7918735aecad8407af0e81caa9ea2120a6bd42e",
           "catalog": "c026a219dfa4656d46a35bc98891a187cd1b490c2170f5b2ddcf970eafb96168",
           "seasonal": "f51a7706fe4caac48d25af337bee1dc89b39404f4f7b81099825c0dd2a9f121a"
         },
         "en": {
-          "portrait": "d3cc1cdaae384ce1b6865c12cc0cd349b80fad690d30d7570c9e8200aa8c7942",
+          "portrait": "2f50cf5b88f55d73708b47b86617fcd1f7d03e9c77a9706aa78d7a5176d51541",
           "catalog": "bd0a84253ed12380a74f11e538e556971240e998ec1471c1052f176f061b440a",
           "seasonal": "b4ad232715c19b3e7e851ea2793be5599e2ffdfe8f702ad54da8b0c2b8d1c7ca"
         }
@@ -81,12 +96,12 @@
       "revision": 1,
       "covers": {
         "vi": {
-          "portrait": "f6e3290a8a1a98273c47e7536edf0a7fef33d1a5751b0eed06da9044fe66f3b6",
+          "portrait": "e47d523576ee4b7ab81d82801e27bc2da625400190a7b710c4792c4dcd53790e",
           "catalog": "dc2a12a4821084b56d3cefe468af47952a04318d32db5ceb7c55b7cd2486644b",
           "seasonal": "ac28abc9cf0a13ac3c01707f58fc966def912fc210e1b802535c7d2236d311af"
         },
         "en": {
-          "portrait": "aace3484ce2ea641577e8360017400ae40f9e720038a9ea32ba01710485080a1",
+          "portrait": "64447be115d6acc5e8f384112e82e13b9c1276133bf556e9e1b52b502a63e935",
           "catalog": "63e8f4912aeb34e5cbec34454a0c017bbfb4da527134f99531067ea46a38a89b",
           "seasonal": "70872a18545d076709658f7bd4a3cd7f95dbaa4dbacab5c6b6f0eaef5850615f"
         }
@@ -96,12 +111,12 @@
       "revision": 1,
       "covers": {
         "vi": {
-          "portrait": "d0e59c111ebc2454f4c79cfe70c84a7fffad704bf6721846b0db5055f0b9c58e",
+          "portrait": "d9a52906985ddfabd0edb90d2453a88ce02c23606d6a93237c3726d39a95bbda",
           "catalog": "ec511ed394bb33c9da41da6f0dd8b6354906946835bd357ee4c2d016d544b959",
           "seasonal": "d1bf65631cfc27209cf9836d65f6262ca20942e56e13507d589671c32f5064dd"
         },
         "en": {
-          "portrait": "769e449ef0a3ac953f17b3f03fa461d0704d7861f8a0d18dcf5d1de5b200e361",
+          "portrait": "c6d2048e03cd1bfa1ee9dfb7799c3a936f076b6644be6c9efe54e5d8b8b038d1",
           "catalog": "b13aec865ade63367d3fd895512bb2932896dde6379e1a0eec205193bbab931f",
           "seasonal": "615731a8aa3cc98e11047876e0b218bf8ed8b2cc970b11d376b103e821a28dac"
         }
@@ -111,12 +126,12 @@
       "revision": 1,
       "covers": {
         "vi": {
-          "portrait": "41ff4db30f10c179b8d5a4b3b4c942180dd7c6c37cb0321a7a1500d3d560631c",
+          "portrait": "c9d93bd2842644630c67ce89ef23e018020321fa8ad9ec50fdb7d9cd12524cf3",
           "catalog": "fbc4312ff4346ac325b1136b35b065e7d2f7abe93435f796aa027075d2269953",
           "seasonal": "d19e3c4470a6f5c6a74cb3c7aa5ceda52030dacb915a808b53a4e256537d397e"
         },
         "en": {
-          "portrait": "575c7d94f39eed517c9aa9d97ae069f74beb329c2cc555c25e265dee2baa2da0",
+          "portrait": "8d21665fe359bee90ba035c7db737008b34d60b3ca7f52e1a5f55795e49e2902",
           "catalog": "2d81fb57b2cfba34f3d3bc9fecede5c739fa89bfacd72251826069e82b63effd",
           "seasonal": "89d04dd902887e8c5288451fc1ae1dd3d031ce217984c81184e2bb5a986c1ac4"
         }
@@ -126,12 +141,12 @@
       "revision": 1,
       "covers": {
         "vi": {
-          "portrait": "126f76452868f5c183dcb53627676c03e0d9dc6eab72494f0127415d8660cf1f",
+          "portrait": "0598c8bd1a8b2eb2755d64066ab886bd6ae5e9dc73110f388040100f2b9e2c37",
           "catalog": "a5a61f4cebcec8814f52f6382eb0c63e2528f02d41e80e3d381d214beccfefe6",
           "seasonal": "fc86a948f8aa328cf9f5e2b77e27c2ca9a1ad7e8545a525f7b63dfec5cba0410"
         },
         "en": {
-          "portrait": "586c6694bf974037392148b5b3af76a4b836264e1084f57b03e210c5f8fadf41",
+          "portrait": "111f4ee6219860ebb472f20dec786f8f8b129280b85ed1fb13c64f3fe5dd7e20",
           "catalog": "b44fcdbf604dc941948244b1cc8b33af284043d5c5554a687d8cc1f1dd843dc4",
           "seasonal": "38361cef45ca3aca991e75da8f42bc96ce4abb90102a61c60de3d4fe7596ddcb"
         }
@@ -141,12 +156,12 @@
       "revision": 1,
       "covers": {
         "vi": {
-          "portrait": "e44d6f250eb91da518cae4c4d9dd20d107674dff6a279db186af59eee454f664",
+          "portrait": "7c3f42d68f36dd90e890a106011eb3e66a24fb9f1d20dacbcbca05410019f3e9",
           "catalog": "38b95a478d841f79ae7bd3e682c618bce10f5c3071b2191ee6c31984b5ce398b",
           "seasonal": "480bd703052d8ca7b2a14e748226624c4e1db68a001b832eca1fe1ef3355bb3b"
         },
         "en": {
-          "portrait": "e9376109503db650ad3031bd538fc8d8aeb62a5558dc340fff53ff3737f9aa2a",
+          "portrait": "63bd859e1915aa6759d5d7539ef7637bbe20490105fdee7aee36fd14d3253880",
           "catalog": "435fb109c757d2c462fca5e6aa0e92ce5f9073c3c2488adc2c081b06b281d3fc",
           "seasonal": "15716e9c46c1b04cc19549c17208c929072b56f5fa720dcc8275b0ed73ded2d3"
         }
@@ -156,12 +171,12 @@
       "revision": 1,
       "covers": {
         "vi": {
-          "portrait": "8c6324a9b229e3a7c6b346e56c9ed9f61364ac522777113dad8a2e4c0e560b3c",
+          "portrait": "a5af2a9a80ea9c336cc1447a433426108740ed4e0a845abef38a4c73985d8c4a",
           "catalog": "1275e676b5705bf39dedd2eae65af7d2c92217568b312b5a9c789c3e62a0cee2",
           "seasonal": "7b7aa11159bce085bdaa856eba6cdadefb43769163ae39337a66cccb8a167f36"
         },
         "en": {
-          "portrait": "940d42c694dbd50232f3047fff95b1bbbf670b82fc3c231d8207a2e615c012d9",
+          "portrait": "4dd434e4ce038506b3ff6d4b7951444aae76dcf44ba5b26cb00055ec5cd7ddfa",
           "catalog": "e2fd18f6c240200dc4fe6d4d2b81a68a359d6dd06e312d5045a21359d90298b7",
           "seasonal": "47923ef07b1b5540949ea11430833e0c4fb56aa2ef07e7b31b26a44d38a12d1c"
         }
@@ -171,12 +186,12 @@
       "revision": 1,
       "covers": {
         "vi": {
-          "portrait": "abbcf569d1371b917db63577c7dc7d523204fa37313e4a80fcaf864848e53975",
+          "portrait": "bda40459bc0c92c04edd0da102afce0d03a28d897bec670eb948f7258256bfa1",
           "catalog": "6496de2365ff6183c8459d2616ab7e57bcdedb0f847906fa5c690217d1e6852d",
           "seasonal": "b305c52980f4d2f4c50f6378c16b0b708feade4ba3a950c266aa62df728f8152"
         },
         "en": {
-          "portrait": "03f0f69329b2322980c8d9ee0c19faaaa8802ec9f15169d80d456cbe7a43568b",
+          "portrait": "28afbca1e0230b1922aba047346d3fc648c9446186d5ee44192e578d21aa78a9",
           "catalog": "9b8965e1a4c6228627c74a4a4638a14b3d6ce6de63f05fa5984141650025322b",
           "seasonal": "933ed15f42115b7ddc5f818ae50edbdccf7c9e1c45cc801474eb0a09e666f984"
         }
@@ -186,12 +201,12 @@
       "revision": 1,
       "covers": {
         "vi": {
-          "portrait": "68187df6d527f439ea347d222959c82b5db2bd378b0bbfe6a298e7b750b7093f",
+          "portrait": "02b5488763fe9bd718fda9855bc63e4626af32d90b610ec77b62d91818e90db2",
           "catalog": "973984cab985ae65b8297521c770c18ec884f0793f63f74bba3d8f89b1eddb4c",
           "seasonal": "1ffc49f3b572462755e7fdd0f61423f2f124c9c97609c70ab72d24fadcced1ab"
         },
         "en": {
-          "portrait": "67ef88d1d0166f612c38fd409bbe24bcd26ba170f11cf35d7c879cf01838acff",
+          "portrait": "e93efa277c5986ea9ddfbf130dcb009e9f1ae0f4b7e0976db134916a6e6bba75",
           "catalog": "e63cced2854dcd8a6ad23e888234862602cc4734b4aa38d951cd6852c2f39271",
           "seasonal": "19bd04fff37c68815a49149755de5a4db440e2ffe98769e4a0ff590986067e37"
         }
@@ -201,12 +216,12 @@
       "revision": 1,
       "covers": {
         "vi": {
-          "portrait": "6c9323bb8fc6d19ce81589ec35470c6c494bb1f56eb55e94a6b68b5707b4b6c9",
+          "portrait": "309fc852e08ddcc71ce3d8d6955caa7e282960ff04703dd19fa815ef1ea7d629",
           "catalog": "f65700483a5877f23e14c72f5921a7d6b12c9b0e9ae55ebd13c2ae9ad86134bc",
           "seasonal": "ced5accee8f2fa7abe655dec772235e4078c0bab2e4a97875337a937811cafcb"
         },
         "en": {
-          "portrait": "3c64800f9f1f997f53ade8113ec79a11a40ae2c07d798681236b639283cc38ed",
+          "portrait": "ca229e10aa4deb41cd82ef189faaaf5852f1556fb0d2e865776fdcde35e38769",
           "catalog": "e1b6ebfa82c5465b438fdc72303d6a18b2f9f9f6e12270531a9f42c39f562a86",
           "seasonal": "dedf2e2fc926df59706a2a27e5ff4c6e40c12ec650abd29771d3bcd40e1c1b3b"
         }
@@ -216,12 +231,12 @@
       "revision": 1,
       "covers": {
         "vi": {
-          "portrait": "44f2b586dc993972669c49953e378890edb782a3730195ec50a1fc77f0a83860",
+          "portrait": "052491dbdb9d669de124e8f45ce18cc09723ae0c609dc1c1213f2bb1fd8e6029",
           "catalog": "2121e4272ee609a3e9b29a9504ed8c4b6f6fd612247eb7ad8101891f3a92e234",
           "seasonal": "ba32599696f38d9a3dde43ad73029683e1a7ff311096eaa21a8e79fd8b4beb72"
         },
         "en": {
-          "portrait": "d1983d18ed9b2c9633a76f1affe0938ec90c1fa668910677e5468ed248440158",
+          "portrait": "fbfcec26e25a13e897d6bd62a79f5e586c3b0a8ddcefbc12baa45e9c47e27b31",
           "catalog": "9d3eb1e0377846dbf33b1c65c2c7b8b50372c0b812a14da6813dce466238f5d2",
           "seasonal": "12d46bf2592865948331f68cf23489f299b909e05babc8815fd3d31da0015ce8"
         }
@@ -231,12 +246,12 @@
       "revision": 1,
       "covers": {
         "vi": {
-          "portrait": "e96e6502d7701179d98330a1217e1ee4f3f69947ac9382654ecc5375e7f060bd",
+          "portrait": "42b7af863bbdeb79f3e43f28bd50fdf7bd9e9f5c6750af5cc71fcde28136ee4a",
           "catalog": "062f9bbe2d1c4c5061936ea6f06c09a7256f181b02e48f816909c45054747bff",
           "seasonal": "59ae80c20cc676e8cee2a4fcfbe0b1897aab57fc5513c777919c16231e48a8b7"
         },
         "en": {
-          "portrait": "a5d2fcdf244ebad102b6a445401e0176f03665cc252687e2ca632fe6bc5d6e25",
+          "portrait": "fd4670b21b5b491d70ed681defd4d3a3dc8adc3389e13d2994257dda43e87cd8",
           "catalog": "397fe44d61fe5fb01acdbb04b4a907f6c561a7433c03357bdb9086ee443c1dcc",
           "seasonal": "2f9ebb5c53f431fd9c475b68a6f9532d8bb2cde5ee4ba29b33973b7801414209"
         }
@@ -246,12 +261,12 @@
       "revision": 1,
       "covers": {
         "vi": {
-          "portrait": "15fdf6624fb572e335199988b420162e37379f8af1a2b2aa0e2577ecdb62070b",
+          "portrait": "85583afe784831dd57bf4b55b1a28ed70cdf33310b7a5b127f610223bbc97714",
           "catalog": "7326331819d1c79c15763f23c2788403bc3e60840a994916eafdf4006734eb92",
           "seasonal": "cdab97045247a3b93ed430fcf9bafb2ae1611f5e17d1e7f388705aa9163032fd"
         },
         "en": {
-          "portrait": "a2f74d47d46d683813b6bb5ebdc7adfd37a7a09a94d23a63a39d44648aa3278a",
+          "portrait": "868b5073d0bbadbb44d1e9aaef1c5fb247dfbed0d828883548f6db935a4ad1e4",
           "catalog": "029505c7442eca6c343ff5bc0d845384f949d286f97ca26f24aff3c6bb5412af",
           "seasonal": "191ab568170bbd181ca5392afe36ca661a5f7d9269c5aa90a8ded794bfe014f0"
         }
@@ -276,12 +291,12 @@
       "revision": 1,
       "covers": {
         "vi": {
-          "portrait": "a2afa7dba632f751e90633a0861b81daf5a1e5120c9645d81e1402301974e2c0",
+          "portrait": "967994130eaf4dbc64ebd26cc14f0d24761ab7e4dc8c937d015986bb95d402d1",
           "catalog": "d0f220f80cb9efaa6b32fbed4fc9eaff4208ca06e59658bf9d2da7d44283c7c2",
           "seasonal": "e7c69283a4dc1b7fb04553813234d4be58d81bf8d7e0a09b57712b2ab9f61af0"
         },
         "en": {
-          "portrait": "cfb3de9e3392b494a411e402454d6762029b490831589eb78073683d39b37c25",
+          "portrait": "0c8d9ff01ebbb1e9235a9147dcda62f215c0f964e3b5f244242052e68d774519",
           "catalog": "323ebb2b8941ce667cc00e76628f2749f401937b3f64017c526bab1880857da2",
           "seasonal": "b3f98eb2442ce06fc784698e841013255880ba46dacf178d4df3223db16d241f"
         }
@@ -291,12 +306,12 @@
       "revision": 1,
       "covers": {
         "vi": {
-          "portrait": "120143d350a8e48c41043c62546497109978e0af058bcab192e08959dc097790",
+          "portrait": "6e0bd1489c633a3144b5f9894e7c259d29425ad622d0b06a41a03373fb51e982",
           "catalog": "3e9b533bff4cf6641605c53afdab67b11cd2b63e29b78ca70b66266d90ec4436",
           "seasonal": "fbd65275d289ec998936a4c233cb3b39267abd3f769f5933d787d71f5c7a757e"
         },
         "en": {
-          "portrait": "0d17221881ee4aca6a48d8b67d184d8ae0458e0c79eff2882910b26067531a69",
+          "portrait": "c152768f5291cd17d65ca49ffd2b50f1cae71bb460bad630278c93c1a69b3c19",
           "catalog": "7e8ea584fb214366b550e7198033f20bcfa233fa0d96de95db5ee311fef79661",
           "seasonal": "9b1a43e98e1a60a2d088101f7bc8f7bfdf973f38dd1f41bec97009dccf6a5c0b"
         }
@@ -306,12 +321,12 @@
       "revision": 1,
       "covers": {
         "vi": {
-          "portrait": "2c046b92737dd14b8887dd802ced31a9cacd2725e3abfdd1ba94e116f187aedd",
+          "portrait": "1a28c60b9869a3978c51079e92a9398e118d5b48d5f31ec2f2584f85c974e13f",
           "catalog": "8edd7277983275b277e8d5cc33b06317a3ca46374045446384647abcce2b4669",
           "seasonal": "ffccc00a372eee481e5444ab092ddf4a96ac1adf17e593c4132364245c5ae404"
         },
         "en": {
-          "portrait": "c0f8c8339603f4925e9e3e3e4040c919615ca0ac8011d693c3d1bcdb27ef7be2",
+          "portrait": "fb2fdb6a312bbb71a4b479ef1b90e118bf7407bed1e1e7e4dd88a18e960372d3",
           "catalog": "8dc9c2b00da60a7f5c1ac47e841bf2d061354a775c8923a435e6bfd1e4160d5e",
           "seasonal": "23cf0f8820c6c6997e135490508788e883028d00556b67c9e9e467d9d6b468a4"
         }
@@ -321,12 +336,12 @@
       "revision": 1,
       "covers": {
         "vi": {
-          "portrait": "d37d156624bab0c490d79053c8e3c6b46a8761cd64361a2dcf5c23f573d3edfb",
+          "portrait": "1eb30d44544987c3f895e792dede32314ed5c7a9dbaa862b6f6fae7f8f17ff45",
           "catalog": "5cf031730e4cad44234d888d07d7bb4ad899c4b96109f3e5a049a2a69846e1b8",
           "seasonal": "bf2c71099b746f0b6b4f13e191635a77aab4ea5fd25dcd57defe3d1ec81b61c9"
         },
         "en": {
-          "portrait": "843a9cfbbfc70d97a4828414943af06dbc5fb106f9a4e8b3fe62db1a152bc08a",
+          "portrait": "a192d4fc11d9b437a20e5bad4220a7de1d6b19131d1f4edb66c498fc8f0def28",
           "catalog": "1693ffeb61139888fa88b368cfd5eb52f8d5cc660e1e8f6ce0021f1ea2f089f2",
           "seasonal": "a1666745e9237450b81068c845307a2ee4efd5e42b3d9cf4602f112fb6b771ef"
         }
@@ -336,12 +351,12 @@
       "revision": 1,
       "covers": {
         "vi": {
-          "portrait": "71519b31f1fe8412d6e61b0da56bc82a4e085db3cf6727d3d36ed648fbee4868",
+          "portrait": "c8030f56bef1d8a7f08b0e4304575270dc0566b80026cec48626afeca9ca6819",
           "catalog": "287dd5ae142c4babc92e8559543b4a4b86873d071a10e1b580eaa5c29b9f6eb2",
           "seasonal": "38283da0fccdc400abdd516b8002a7f4567ffc65a4bc2030b5895443d5b5222c"
         },
         "en": {
-          "portrait": "8280e8d0503d64925d5fd55cdac4ab85fff17433ff0cec892786c87bc0afdb99",
+          "portrait": "7df88c967f181d305266f72dd80b4fe25739d9c26a98ee51e7c47551f4bb488d",
           "catalog": "59d97b7cebe4b8e535e3ce595536409660ffd6ae1beac12719a5de9d5fb09a2a",
           "seasonal": "28948c6cf8a1d68fdd1abcbf407c44aee8ff573554cd4d01d1b13b7dd0683ca2"
         }
@@ -351,12 +366,12 @@
       "revision": 1,
       "covers": {
         "vi": {
-          "portrait": "2f39fc0f50ba467ad169146aecb9f73f78ebac7a7294fc37a863a28226328252",
+          "portrait": "dbef7fa8f5f24acd4d354047f03a4bb8b6d8ea1c4b6bc6e56a2c8fb9b55f8fd7",
           "catalog": "b968e37954d8ac6ccea15505351a9aea5e53d33730b99dacc594a79de1cc4627",
           "seasonal": "0a49d2afd930bf532079e5c8b6c2776281cb8270ca774ac0b17ebda1b8897017"
         },
         "en": {
-          "portrait": "55718166dbeb5d9b5ba92e5ed4220ede62db2a6472409d584cfada1bbe155ad9",
+          "portrait": "6428545156a49fe8a98941f80a96ce0bbaa9077b3338c306efa1f95b59d73d06",
           "catalog": "5ec0c63e3bc68dae2862cd1182873925063b5be836d0b70cc1fc8d12fc04ea48",
           "seasonal": "f062a06ed1fe6657c9ec98f55fbfeffb2e25296c2d9c36288371ef6a07c2bf1f"
         }
@@ -366,12 +381,12 @@
       "revision": 1,
       "covers": {
         "vi": {
-          "portrait": "2f607f97770ebe772ef3d0373c3c75aee86e658d96a41fab9b751003a5e51559",
+          "portrait": "a57f6fc17a712596c3837d1acd97f6f8b79d8e28caeff2ff23d2541c8743490b",
           "catalog": "d802f9f8dc65e0151152ef736bd48535e875917e41b2f3161a6a539d7bcf8a18",
           "seasonal": "a8e16bed5f46a690d5f8ac59a172088acfc3230f9cfa5efa85929fa6a62d833d"
         },
         "en": {
-          "portrait": "8c9381b498b6df190a4141f617488b8f9381c538539e9b3bd1e74621913a6c29",
+          "portrait": "714beea4e12aff83556ac9593f7eb54d61f327024c2909614de5bfd77061f112",
           "catalog": "d6352048815412a50467b7daa51d161a786ff8e18758fe2d22527db9794738e3",
           "seasonal": "a513a70182fc2c6355098f8854a2904dcc4f8d9ad529ff7456a9221abb21f7a5"
         }
@@ -381,12 +396,12 @@
       "revision": 1,
       "covers": {
         "vi": {
-          "portrait": "38548c03ff38ec9701f3f6c8d6afab3b3350ad52c8af690f42927bb3e0d0c396",
+          "portrait": "d6fee24168026577cbfba8073f038830a181b638b500d352546bba9c299146ea",
           "catalog": "e00e3e58a7cfe63d0b7c270a89b750adb15cdb74be3048f874fb36a522907b3b",
           "seasonal": "eccaa3448b2b525416edf259dcb9dd1c3c68f0a98ec10684c08ce8575be6067b"
         },
         "en": {
-          "portrait": "a4f89db50e71029ee733c2f963e9e2f688510d475a887974418e238a39adb29c",
+          "portrait": "14af06ab3195c27064e470970cd644c52a4a1c02a11c3ffece824187ad31d53f",
           "catalog": "85a9d427f62e4b2c75b533dcdfa200c6fb49ef9339669aec10d83cc6718d58d8",
           "seasonal": "1967427b2b463716ca3606aa400821bf4598f22d005a42bd1d4db7c3ee3ca1a4"
         }
@@ -396,12 +411,12 @@
       "revision": 1,
       "covers": {
         "vi": {
-          "portrait": "b858d708d20c3cd7a6bd6c1f4eca26a355f58486d802df938440310fd70bc859",
+          "portrait": "55fc7a1b13629c5ae8dfad2611b3a29bc1df4c91f7c01ea4b56a8b2a78674ab4",
           "catalog": "dc58e400afacad631a432c36d656246300965c55f041f67809e8f41f7477a0b5",
           "seasonal": "a726784fd9338afe6c83b9a626c8bb92b5abff04acbed5dfdb35aa96e778bc27"
         },
         "en": {
-          "portrait": "6c238374b1c5a6d90c85ddbd7ef52f229cff4f6f728067de2791911d8859111a",
+          "portrait": "b58bd826218752e43d197b0d9a88f0492962a00956375de44b71e0c4c0ff071a",
           "catalog": "28b24a8f04c60676b41b1621b3db4703d766f402891ccbc6b05d46748212ea3f",
           "seasonal": "8bc872de667f7cb7ec6aaf539144a2d905387c424e7740aefecd5a12ffd933e4"
         }
@@ -411,12 +426,12 @@
       "revision": 1,
       "covers": {
         "vi": {
-          "portrait": "3a14e46c7ae7e1b7470e1d4a4b9619beecc0145c8148a576e27ed605f2348ecd",
+          "portrait": "ca0c9ec5d94f56155f4c83034483a0bb6673b690df419d83a4e36f5ae7de40fc",
           "catalog": "aa7bb8ecc6ee00462cc22e38dc1ed3d0e71bef6779009d32a644de8c1afc89fd",
           "seasonal": "cd3a44c5e53973727f3e9978f1f0c3f15154b5f5659f685aeb0e1fa7acb8e8d7"
         },
         "en": {
-          "portrait": "955da60bfc069f72b04bb7a4fff12c02f6819d305bfaf9e4540ff53cfb58d786",
+          "portrait": "bc83368e71f16ed93d4eed988aad0a988696dbdca0272a3a7f79b0dc153a4953",
           "catalog": "f2cb92ca530c4d87674e4be174be1bf10ff7cc96f1a52d90d7e11bf25c83f47b",
           "seasonal": "9891f4410340b30364e9831286caa1e6b02dac4a7bd50a2d65570228a57105ea"
         }
@@ -426,12 +441,12 @@
       "revision": 1,
       "covers": {
         "vi": {
-          "portrait": "ee9e2af2846788c88c0f40fe27ae9bcf52a591b78116996d3453df873e04cef5",
+          "portrait": "1f2469e3f431a9231e1d925854b891c05a1d2a1db745bb35326a542f20ef1404",
           "catalog": "32389c245906f498e8e153f374fc95fb632d4c634e3d3a43043491804203e8fa",
           "seasonal": "5477a1661a45dc6a8c15e429372b97322fcea448228c7b3338e7c0beb3a1da95"
         },
         "en": {
-          "portrait": "c469a015ee036f12d04d4c867d8328d9d47df9cd5bdf8ff8ec349d894167306a",
+          "portrait": "b67a37d8dfb5a281503087e2adf42efc51f4350171eab27a1c2056e0325b9bd7",
           "catalog": "f7e8146e5c1d2a6432870bd6188ed4623866f241f4149db8ec1c32dfd23fb9ba",
           "seasonal": "e9d33cbd9b95b1eae2dbe7d6ed9816a6bccd19359d8d165b09644d555e3c0b5b"
         }
@@ -441,12 +456,12 @@
       "revision": 1,
       "covers": {
         "vi": {
-          "portrait": "4fe6a3fb697b409b1b938c142fbefbdc3f96bf3a745f362fd4ffc3c6490cbfed",
+          "portrait": "024241e83c09e5ac3e001e2c5a260972fbbd4e425a8fb428d084851c964b968a",
           "catalog": "7ac2d9c25e4fae327e90f500373a5b6e89fbaa2ea4020aab97c1f1b9c96eba65",
           "seasonal": "db3ac6266a174603d4207ea0213549c55a3f8780c7b8181e4bb70de5672b2797"
         },
         "en": {
-          "portrait": "b06538960e4cf3e57976f89c2bcecb4cabacc1a96ce7676010885e63ea5ff828",
+          "portrait": "1bd624a8d10b992920f5a33792a20231a65704b0910a90624dde222bad3e1ef8",
           "catalog": "6a51874e20aece242898e5be83002fd98bdecbe89830159b2da7bfd4e47f4f85",
           "seasonal": "87a31548d5976e2c49b18d6bfd26f0bb0dee0b959f9fcb2c0857dcbd932ba1b3"
         }
@@ -456,12 +471,12 @@
       "revision": 1,
       "covers": {
         "vi": {
-          "portrait": "631a2c071cc058b1c4aa98240e2d8e1ebd31009cc65e4e4ecc9b97ebd3b54feb",
+          "portrait": "75da704b687e605bd4ddd231461c9c7f34c1988dcb0e1547d8808936bbd9417f",
           "catalog": "39b689df3fc0dae4258679a0f6070a8f35a3a9664f9d5a3f5d42773f985265ab",
           "seasonal": "8164fff941ebf93aa842f8623cf367adda869c5b421c96356aac6fcb6d3a2713"
         },
         "en": {
-          "portrait": "c1396bdd25af8840791c89471f95e39214d57ec6841cbdeac68e607cf160b0a8",
+          "portrait": "c4142bc2a0d1b5fb48b3ae4e86afbf48025f8f9878f765603268df703ac37edf",
           "catalog": "044ac42d5f7e750af3b8470b2bdd16615accffdf8688b64f0a3c1c321a628d9d",
           "seasonal": "65b3c0a660c91bbc79d05b26002640f45d032f5cfcf15c709a0beb65ec9ad7e8"
         }
@@ -471,12 +486,12 @@
       "revision": 1,
       "covers": {
         "vi": {
-          "portrait": "86ec4206e4b210dd34865316f130d400c69b824e456e33d677915d606fd55706",
+          "portrait": "d57c3e33aec7d79215c62291a1b0a408663dd99c4573a7d26689ef74e18f654d",
           "catalog": "b80a2309f64a7f2b16d257da32c29d2628c88a02a4b55f0bcee8f46212be8244",
           "seasonal": "021728ddf231b14aaa32526dd86ccbfd5ca18fde8f9b848bd700e2fb5d462600"
         },
         "en": {
-          "portrait": "86992be2ecc625681530ed45ed56bf608ecc70008f6be676f8af94c92daf26cf",
+          "portrait": "c47a2018eff940252aec8ae4aeae9831e0e4d8b5b6739b56abd9eece9007f2eb",
           "catalog": "98f2b1279b81d63c54f74c90b50f53a33603380baeea024c23d1514158ed14e6",
           "seasonal": "b1fdb621bf089124d7d3c3160598e39f58bb86ccd376d5cb6363b9bec8f859f1"
         }
@@ -486,12 +501,12 @@
       "revision": 1,
       "covers": {
         "vi": {
-          "portrait": "2133c464174823e0a040c83ce3eb698570bcc58476fc3333961d7cc0d1a1ad0f",
+          "portrait": "10b52f92e2f5f8651b2abe6f55e375adda1ffe3451ceb6e4dc43b8dabacdc972",
           "catalog": "6ff6fcfafe4f51b4c37bdea9380614b58b61db56c87bb4692ab22104f75f9bc4",
           "seasonal": "7251de7970ce7e00f66650a146ae99882b4e2fdf73370ace13773e0c87371dc9"
         },
         "en": {
-          "portrait": "d074c2870dd2ea67d27d98484f68cc3a91927baa5c82815074ad18bcca9d8bfb",
+          "portrait": "203d5faa599e25460907a5c9a6fb085a1184abeb4ba343fda59c9f11da810d73",
           "catalog": "62e5cd78d037a7e350e59769dc96900569030f67028835934b1208895b79af36",
           "seasonal": "fac63189d90c308086ea8d96c1ca55396a999e52ee7cf451eda6b416aca27915"
         }
@@ -501,12 +516,12 @@
       "revision": 1,
       "covers": {
         "vi": {
-          "portrait": "34484a5a0ceb3c405f9c72daba1291d4d13682494f6b4552c8e0cb8bde4a7697",
+          "portrait": "b4130ca18cca90f4332356e0007a4f87b806c68728b99491b915aec9556d5265",
           "catalog": "1d02147dd152416924b347146089922ef118f9a929fd8c971c3770207234e5c5",
           "seasonal": "d42570f8d49c0e3e76f42c63c8cb39bf600ee2dc16151f4bfc8a5495c0679b31"
         },
         "en": {
-          "portrait": "10bae90e13a05b9de11f7fa04489ea2e6b8efa55109fa4a999c30933d92cb03b",
+          "portrait": "14b95614c82975820901e19fbaad7d34b58102359b3a43f3cd0d57aaddd1bdf7",
           "catalog": "1a6ac0441a8ee026daecb957565f58ed2b9578f3d4c9b1f668a8094a7aaa6259",
           "seasonal": "63959354510f24dba6c8ec479b92b4ff5132eaf5bac795a1f28ec733f562ab4a"
         }
@@ -516,12 +531,12 @@
       "revision": 1,
       "covers": {
         "vi": {
-          "portrait": "b0f66944a1da123e4a057e43f4c5681e315a42efb293f6020f393a6e9491f29e",
+          "portrait": "d8fd566ed623840650430b61789e24b054e5fa96ef3a9c78a80907e7fab26c2e",
           "catalog": "3d027119c461bb1a703a39cac0648db66939edca3f5a8a1864f1d8f3869fc3e1",
           "seasonal": "a6e956685024e57d1462bbabb00092dfe40cd718670bc76bf7f7b5b58bb20cc2"
         },
         "en": {
-          "portrait": "d0687c0ce19401df5bb4c7ac232347ab4cd4c6c775fd5f62914a3c1373cbb48a",
+          "portrait": "78726a2c298304ecc37fadb304eac4a8fd9d589ecb41fdc03579f7cf3ae2c2a5",
           "catalog": "f9bffa04fb9059a0bc046eca846ffeb8e51e5ce955018e4d146c1ad97471757a",
           "seasonal": "426bdb019000f94696684ba82384d5447f4a5b8f4c42a7dcb947e8122d72439b"
         }
@@ -531,12 +546,12 @@
       "revision": 1,
       "covers": {
         "vi": {
-          "portrait": "57de6c45782fc67b0a51c002b6b618226f117b84a8b8b3225f18b7ba6f1e6005",
+          "portrait": "7eee8242eed7d4d08e6c283bdab9baf719f3af862c41f0a4d2b4243ab4338a0f",
           "catalog": "54ce00914da5d5fd49b30e4e3b39c3a66ee69eec8a745e90de17de0dd0f53fbe",
           "seasonal": "ddab0be3b4904584028891be0fb9c525db288523bb84c65640ed0ab6c8715a9b"
         },
         "en": {
-          "portrait": "2b053e562398eaed34727e6a90260b431475c6c38391dba2505f7f17b882bf50",
+          "portrait": "f180c51bdbfde1fbd020f566a9de75ee9f09eddafc2aed9f5a0052773e04c4e3",
           "catalog": "8d22eac479649898c8020d4aa44adfa8cabef03523086dfb60fd37c81b80710a",
           "seasonal": "bbbf93884f8ffa9a4e2c8f619b33d811d66fdd3af0221d72ba8ac89275f2cc73"
         }
@@ -546,12 +561,12 @@
       "revision": 1,
       "covers": {
         "vi": {
-          "portrait": "2d91e3b20db6ebc30d9403764e9d5944d03cae3c3acc081b0385cdf8963c5798",
+          "portrait": "e94ec2346b939e958d7e4ba4c0a143f01765df318f5d2014dbafe1e3f0e2cd77",
           "catalog": "9b0fb41b228edc51677442f6630b37edd6a47e356aaeea389c7a4ab30e9c3cc9",
           "seasonal": "e57b9cfe0284a2be2b9f2b83bb367c6e813f7759275889288c02e7b66e02ec69"
         },
         "en": {
-          "portrait": "14559b10a507577fc721d9993ffb922a8db29b69b6dd8ffcc290ae79a67f1175",
+          "portrait": "75b3be2bd123f28336dd16887d656c940b279f488a64ac3764f78a8af2cb6dbe",
           "catalog": "7af2e5148b1de70a32b27562f667f889213a1beb2b39c2b4698194980180a87d",
           "seasonal": "4bc4d22f19d4e274e39075ec0a8196b1d054d374fbfbab3c92b82b87ec674b4f"
         }
@@ -561,12 +576,12 @@
       "revision": 1,
       "covers": {
         "vi": {
-          "portrait": "b1b1d2c857752afc06b3dd09858a5bbc5ed13f8242e476cb9b0b0845273294e3",
+          "portrait": "1a6c041feb47af0597d676bdd9a146bd7a22e8f17b6bc0f5ea468e76111bbc0e",
           "catalog": "a7c02f36c512878cbb16037f9708575dfff7f9998475191cfb8770df55d87c5c",
           "seasonal": "b490910f3442b8cb74df3fc7a65b6af0be950623558a03f817c0c465ce087bc3"
         },
         "en": {
-          "portrait": "066d988ee1561a565e84eb8954990a33dfe70db6e962f6fcdae1e23b2b011a4a",
+          "portrait": "8286d917fe0340947d4f1c5eb1880fb89b65f446af6a5c0629d8dcfd53ccac31",
           "catalog": "ca086a4f247e027ae5f088f50757b0266347005a01062f6cb0c834437f58a8ea",
           "seasonal": "86af11401d87eb19649aaea01098a3d5b0c34acd4991ea8d1daa8012e73019fc"
         }
@@ -576,12 +591,12 @@
       "revision": 1,
       "covers": {
         "vi": {
-          "portrait": "37920aab96b3906fc7d308da1ab81ee6628f682564d1f2252d7aadca81642805",
+          "portrait": "57992201b2ff56fb69c6ac17a1f5b4d4130f74a76a63e595c4099b9968807596",
           "catalog": "eeae9a9d2f1ea9d94c5725ff883d9d7144df13d1f0babee26d17ed18d49d4db2",
           "seasonal": "d8d90f0c4d39f12691e5c074ab90b441b0a47c3676776e0a605231b59a4c0ee9"
         },
         "en": {
-          "portrait": "eab70e40f5e89aaa5f82f70dd243a78b5ec5463d234db2be1cbec89164b95bdb",
+          "portrait": "4f44369d9959b1114b5df61d69419351e742d99154a4cd40be22f4eb5e5221cc",
           "catalog": "426fda07d8aa435fba9cd946cdeb89a03e5a98fe945ae01b9881c1d0f6e0e8da",
           "seasonal": "ca27f94cb8f30a225165bb2602b6ef6e63ba7c8d3e39293a1823ecfb798d4ce1"
         }
@@ -591,12 +606,12 @@
       "revision": 1,
       "covers": {
         "vi": {
-          "portrait": "09a7df294620a33cd9ea147f7928788a95920ceb7c463111903bd9dafd77c1f2",
+          "portrait": "5c43128bd05f1b74caee33cdc7841ac5cdc4c7828571becaf04ae0df22833332",
           "catalog": "c26dea0282a331a460218a4de49111eb618ce49636c3317463f029a5877b1449",
           "seasonal": "acdff0fc46885afce2036f75cf070c3423bffb1fc310203debcfe3a0b9b44418"
         },
         "en": {
-          "portrait": "e34819956848718d0b8135cf526e8be017d10b130232e65d2aefc97a84748610",
+          "portrait": "8021dd6f7a25ff6216d7cd29f80f89c6712b14e7f7af0981a2e02bf06b0ab42c",
           "catalog": "13a1057cfa3333cfce3e8ec440daf6bd1337e365a7063861abb7db6bbc99ce0a",
           "seasonal": "ba702ad3e7b5da5d75e037432c8b9dd2bbf50fe94a6fe43ec94075cc36d8f7d2"
         }
@@ -606,12 +621,12 @@
       "revision": 1,
       "covers": {
         "vi": {
-          "portrait": "c0348e6d6f1219b8d89e8834574f5dd95b171a54756238f138bd1af5b015cf62",
+          "portrait": "e846786b580299a7c9c5c4373d8ab0621bf302bd834f5b56abc9b3eddfaa26fe",
           "catalog": "7f2be5bd78be88daad9787cb6874cc6ce2af1cb14108493872550900e4db56bf",
           "seasonal": "eba02509d7617805d97e464980f5e7b59209dd4244ed162b141d3e27d9f2bba3"
         },
         "en": {
-          "portrait": "b8d5921db9f2eb1fc5614fd59ea70b5416779d9108a23d1d01683dda5d32c814",
+          "portrait": "17c4d67daa7061dd87b4ad593f6ef6797de41b07eb79212f729fb1fc96cec2c7",
           "catalog": "e1e73e77e0b3a9f3484f83a4f1a71ba9029852f2a68d31182633355d04b75d13",
           "seasonal": "5a0442c36d184e84aceefaa255a04c85d53a4172d4c2167b48e7e9124a4e6fdb"
         }
@@ -621,12 +636,12 @@
       "revision": 1,
       "covers": {
         "vi": {
-          "portrait": "1410ead3e0f7d01bac0378a19f14e2d5caddc65c014d537ed7b4cbc6f9ac429b",
+          "portrait": "431b03b207a341de02d4293404feaa5f39c96145191ed8835218e458c74f4596",
           "catalog": "018495fa4e56e656af4f7364ffeb6c0f2c19078abcc22bf03f50558253cfeacb",
           "seasonal": "e0d6925fe4f7c2015a921571531f16d798f9d1e065fff0fb95c87f8fe8b5db2a"
         },
         "en": {
-          "portrait": "c6728874cabf069c4622dee83f0835758affe0ddfa4601c1048c16adc80e3730",
+          "portrait": "005925f40e8e268eef358fcb9a3eea72fc884b8bf057ddaa24606fa81e6a3d12",
           "catalog": "1248a283123fe00496f3e5a49334b4ed5feb1dacc8839ef9b82d05f2770a2f0b",
           "seasonal": "3aae6ed7601940fd8f488ab80dc0b700548307b2dd8c44a7acbf223ffad99a34"
         }
@@ -636,12 +651,12 @@
       "revision": 1,
       "covers": {
         "vi": {
-          "portrait": "7e4084b954f3c748a7787a3431af0e1c6e2429a3cebd91edd2f4f04509094041",
+          "portrait": "773d643efd2fa226046700c538b14f8633c9b7d2876142dd333c0436911b08fe",
           "catalog": "de019aa46532300d659f090f8037d727257a486dfc07a4473aff1e52462b455c",
           "seasonal": "69e8b1464db2a833f7cfaa2a25be8fe4f14887d8fd09682f984b59584a019ae1"
         },
         "en": {
-          "portrait": "8c4830eaeb98672a90884fb7d24a54a9a232979113d38a4ba4575117aaee5a26",
+          "portrait": "1b834be3dd59de0581bf98f228208b0615868b47532aea7e01ab126d96dc3bbf",
           "catalog": "0a72934b67f850591a8edb8c1b7c07f012a47b3f8ad381c1d3e563011dadc360",
           "seasonal": "d5f29104f7a0c48568354a145b1f1751ee6a6e26945a8bd416d65f00eeec2027"
         }
@@ -651,12 +666,12 @@
       "revision": 1,
       "covers": {
         "vi": {
-          "portrait": "fd9d30bb64a4c6c100f7ac6f797cd68fa5628c814cf3047e885f937889afbc00",
+          "portrait": "0d6d7946c6d95b9dcce25423c3230c9264d21333f4038ae7add88659f77bb04f",
           "catalog": "b4bb08dccf9b7aa32aab509ed9b65023a5bff5890b2bc0694744bfadb93cf589",
           "seasonal": "bd4321d7bdb4a9ae084d6024c5f462c7531b2b2841b22f5c80eaf14fe7a5ae2f"
         },
         "en": {
-          "portrait": "0b157c437fecf0b57beabb2990d84442c0b28e1903ef1f18db8d2f068a38e44c",
+          "portrait": "3d5caea5ba464ac53fc3ad8dbf2c8119dc774d3ae8826ff84a929240cc88ca5b",
           "catalog": "0ca1094ee72588ccb6fef01691d1bdffbe263cad7fa90c86defd93be71a4c473",
           "seasonal": "0a54cd28a54e39523c057cfff835a67d49a3081b0acb9e34dab0e0a2775a5a05"
         }

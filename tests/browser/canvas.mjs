@@ -8,6 +8,7 @@ import sharp from 'sharp';
 import { confirmGiftAccess } from './gift-access.mjs';
 import { clickEditorTool, selectEditorLocale } from './editor-tools.mjs';
 import { checkContextualCanvas } from './canvas-contextual.mjs';
+import { checkCanvasGroups } from './canvas-element-groups.mjs';
 import {catalog} from '../../web/js/features/canvas-editor/library.js';
 import {filteredIds} from '../../web/js/features/canvas-editor/library-discovery.js';
 
@@ -462,10 +463,13 @@ export async function runCanvasBrowser(base, expiredSlug) {
     await save();
     await page.reload();
     assert.equal(await field('binding.message').inputValue(), quickGreeting);
-    await page.locator('.editor-artboard img').first().waitFor();
+    await page.locator(`.editor-artboard [data-element-id="photo-window-image"] img[src$="/${uploadedAsset.id}"]`).waitFor();
     await control('preview').click();
     const quickPreview = page.locator('dialog[open]');
-    await quickPreview.getByRole('button', { name: /Lời chúc/ }).click();
+    const sceneSelect = quickPreview.locator('.gift-runtime-scene-select');
+    const greetingScene = await sceneSelect.locator('option').filter({ hasText: /Lời chúc/ }).getAttribute('value');
+    assert(greetingScene, 'The compact scene selector retains the greeting scene');
+    await sceneSelect.selectOption(greetingScene);
     await quickPreview.getByText(quickGreeting, { exact: true }).waitFor();
     await control('preview-close').click();
     const quickPersisted = (await api(`/designs/designs/${quickId}`)).data.design;
@@ -535,7 +539,7 @@ export async function runCanvasBrowser(base, expiredSlug) {
     await search.fill('cum hoa');
     const layerCount = await page.locator('.editor-artboard .editor-stage-element').count();
     await block('flowers').click();
-    const flowerLayers=2; // Outer petals and the independent illuminated edges.
+    const flowerLayers = 6; // Five independent petals and the flower centre.
     assert.equal(await page.locator('.editor-artboard .editor-stage-element').count(), layerCount + flowerLayers);
     await control('undo').click();
     assert.equal(await page.locator('.editor-artboard .editor-stage-element').count(), layerCount);
@@ -577,6 +581,7 @@ export async function runCanvasBrowser(base, expiredSlug) {
     await save();
     completed.push('three visual starters; Vietnamese search, exact star, staggered insertion, one undo for a motif, blocking incomplete action and choosing a scene by thumbnail');
     completed.push(await checkContextualCanvas({ page, base, browser, context, artifacts }));
+    completed.push(await checkCanvasGroups(page, base));
 
     csp.push(...await page.evaluate(() => globalThis.__csp)); assert.deepEqual(csp, []); assert.deepEqual(errors, []);
     if (artifacts) fs.writeFileSync(path.join(artifacts, 'canvas-browser.json'), JSON.stringify({

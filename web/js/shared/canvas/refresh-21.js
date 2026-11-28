@@ -56,11 +56,11 @@ export function paintRefreshedTemplate(id, doc, api, original, localize) {
   const note=(s,key,value,box,size=16,color=ink,align='left')=>text(s,key,value,box,size,color,'body',align);
   const paper=(s,key,box,color='#F6EBD5')=>{
     const role=['tiny-celebration','peachy-day','mot-ky-niem'].includes(id)?'paper-kraft':'paper-cotton',assetId=NATURAL_MEDIA_IDS['element-'+role];
-    if(assetId){if(!doc.assets.some(a=>a.assetId===assetId))doc.assets.push({assetId,kind:'image'});return add(s,'image',key,box,{assetId,fit:'cover',radius:0},{name:localize('editor.library.item.natural-'+role),accessibility:{decorative:true,label:NATURAL_ARTWORK_LABEL}});}
+    if(assetId){if(!doc.assets.some(a=>a.assetId===assetId))doc.assets.push({assetId,kind:'image'});return add(s,'image',key,[box[0]-12,box[1],box[2]+24,box[3]+12],{assetId,fit:'cover',radius:0},{name:localize('editor.library.item.natural-'+role),accessibility:{decorative:true,label:NATURAL_ARTWORK_LABEL}});}
     const node=rect(s,key,box,color);node.effects={surface:eventRecipe('cotton-paper-v2')};return node;
   };
   const depth=(s,key,box)=>{
-    const node=rect(s,key,box,'#352B30');node.opacity=.14;node.effects={surface:eventRecipe('contact-shadow-v1')};return node;
+    const node=rect(s,key,[box[0]-12,box[1],box[2]+24,box[3]+12],'#352B30');node.opacity=.14;node.effects={surface:eventRecipe('contact-shadow-v1')};return node;
   };
   const art=(s,prefix,box,state)=>refreshArt(doc,api,s,prefix,box,p,state);
   const defaultPhoto=(s,box)=>{
@@ -190,32 +190,49 @@ export function paintRefreshedTemplate(id, doc, api, original, localize) {
     line(1,'satin-light-fold',[x+20,y+88,w-35,1,-6],'#FFEFDD',7).opacity=.55;
   }
   if(id==='polaroid'){
-    paper(1,'photo-strip-paper',[34,45,322,680],'#FFF9E9');
-    const frame=rect(1,'photo-window',[50,67,290,252],'#B4C1AC',0);frame.name='Khung ảnh kỷ niệm';
+    paper(1,'photo-strip-paper',[34,35,322,708],'#FFF9E9');
+    doc.elements.find(e=>e.id==='message-paper').visible=false;
+    doc.elements.find(e=>e.id==='reading-contact').visible=false;
+    doc.elements.find(e=>e.id==='photo-strip-paper').effects={surface:eventRecipe('paper-shadow-v2')};
+    const frame=rect(1,'photo-window',[50,53,290,214],'#B4C1AC',0);frame.name='Khung ảnh kỷ niệm';
     frame.artwork={paths:[{d:'M0 0H100V100H0Z',fill:'#8BA193'},{d:'M0 70H100V100H0Z',fill:'#BFA889'},{d:'M34 53H66L61 88H39Z',fill:'#F1DEC0'},{d:'M50 55V12M50 31 26 20M50 42 76 27',fill:'none',stroke:'#466550',strokeWidth:2},{d:'M23 14C39 8 43 22 48 32 30 35 19 27 23 14ZM54 40C56 20 72 15 82 21 83 37 69 42 54 40Z',fill:'#4A7357'},{d:'M8 4H10V65H8Z',fill:'#B8CABB'}]};
-    defaultPhoto(1,[50,67,290,252]);
-    line(1,'satin-edge',[50,322,290,1],'#D9CBB0',1);
-    note(1,'photo-caption',localize('templates.copy.polaroidCaption'),[50,327,290,30],15,'#3E4036');
+    defaultPhoto(1,[50,53,290,214]);
+    line(1,'satin-edge',[50,270,290,1],'#D9CBB0',1);
+    note(1,'photo-caption',localize('templates.copy.polaroidCaption'),[50,278,290,30],15,'#3E4036');
   }
-  const top=id==='polaroid'?y+6:y+10;
+  const top=id==='polaroid'?328:y+10;
   heading(1,'message-heading',words(WISH_HEADINGS[id]),[x+5,top,w-10,64],24,wishInk);
   binding(1,'message-to','recipientName',[x+5,top+64,w-10,63],20,wishInk,'left');
   binding(1,'text-message','message',[x+5,top+145,w-10,Math.max(70,h-240)],19,wishInk,'left');
   binding(1,'text-sender','senderName',[x+5,y+h-65,w-10,58],19,wishInk,'right');
+  if(id==='polaroid') {
+    const find=key=>doc.elements.find(e=>e.id===key);
+    Object.assign(find('message-to').layout,{y:390,height:52});
+    Object.assign(find('text-message').layout,{y:458,height:186});
+    Object.assign(find('text-sender').layout,{y:660,height:53});
+    find('text-message').props.fontSize=18;
+    find('text-message').props.lineHeight=1.5;
+    find('text-sender').props.color='#2F3027';
+  }
   const continueNode=action(1,'button','to-message',localize('templates.copy.leaveReply'),[x,749,Math.min(w,306),56],'scene-message');
   continueNode.name=words(spec.reply);
+  const readingText=doc.elements.filter(e=>doc.scenes[1].elementIds.includes(e.id)&&e.type==='text'&&['message-heading','message-to','text-message','text-sender'].includes(e.id));
+  const firstLine=Math.min(...readingText.map(e=>e.layout.y));
+  const lastLine=Math.max(...readingText.map(e=>e.layout.y+e.layout.height));
+  doc.scenes[1].flow={version:1,region:{x:x+5,y:firstLine,width:w-10,height:lastLine-firstLine}};
 
   // A different, tangible writing object accompanies every reply. The live form
   // remains the standard permission-aware reply element, including retry state.
   const [rx,ry,rw,rh]=spec.response;
   art(2,'keepsake',[250,18,120,135],'open');
-  heading(2,'reply-heading',words(spec.reply),[30,67,269,119],29,ink);
+  // The heading and keepsake occupy separate columns, including long EN labels.
+  heading(2,'reply-heading',words(spec.reply),[30,53,210,134],27,ink);
   note(2,'reply-intro',id==='gentle-apology'?words(['Bạn có thể viết khi sẵn sàng, hoặc khép lại món quà tại đây.','Write whenever you feel ready, or simply close your gift here.']):localize('templates.copy.replyIntro'),[32,197,320,66],16,ink);
   depth(2,'reply-object-shadow',[rx-10,ry-9,rw+22,rh+24]);
   paper(2,'reply-object-paper',[rx-8,ry-12,rw+16,rh+24],id==='velvet-valentine-2027'?'#E7C9C0':'#EFE0C2');
   if(['afterglow','confetti','new-year-spark-2027','faraway-hug'].includes(id)){
-    line(2,'reply-perforation',[rx+15,ry+18,rw-30,1],'#9E8A65',1).props.pattern='stitched';
-    note(2,'reply-ticket-mark',id==='new-year-spark-2027'?'00:00':'↩',[rx+14,ry-5,60,30],15,'#6A644E');
+    line(2,'reply-perforation',[rx+15,ry+8,rw-30,1],'#9E8A65',1).props.pattern='stitched';
+    note(2,'reply-ticket-mark',id==='new-year-spark-2027'?'00:00':'↩',[rx+14,ry+16,60,24],15,'#34352D');
   } else if(['winter-wishes-2026','greenhouse','thank-you-bloom','midnight-bloom','sunny-wishes','peachy-day'].includes(id)){
     shape(2,'tag-eyelet',[rx+rw-34,ry+6,12,12],bg,'ellipse',{strokeColor:'#B19B73',strokeWidth:2});
     line(2,'tag-thread',[rx+rw-24,ry-55,74,2,72],'#A78F64',2);
@@ -225,7 +242,8 @@ export function paintRefreshedTemplate(id, doc, api, original, localize) {
   } else if(id==='polaroid'||id==='mot-ky-niem'){
     for(let i=0;i<3;i++)line(2,`photo-back-rule-${i}`,[rx+15,ry+14+i*7,rw-30,1],'#C9BCA1',.5);
   }
-  const reply=add(2,'reply','reply-card',[rx+3,ry+42,rw-6,rh-52],{title:localize('templates.copy.replyCard'),submitLabel:localize('templates.copy.sendReply')});
+  if(id==='love-letter')doc.elements.find(e=>e.id==='reply-intro').props.color='#34251F';
+  const reply=add(2,'reply','reply-card',[rx+3,ry+42,rw-6,rh-52],{title:localize('templates.copy.replyCard'),submitLabel:localize('templates.copy.sendReply'),color:p.button});
   reply.name=words(spec.reply);
   action(2,'button','replay-gift',localize('templates.copy.replay'),[59,754,272,56]);
   // Stable IDs used by the insertion library's constellation composition.

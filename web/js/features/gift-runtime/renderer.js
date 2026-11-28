@@ -1,5 +1,13 @@
+import { reflowSceneNodes } from './reflow.js';
+import { scenePresentation } from '../../shared/canvas/scene-presentation.js';
+import { isSceneFooter, sceneFooterLayout } from '../../shared/canvas/scene-footer.js';
+import { responsiveTextSize,responsiveControlSize } from '../../shared/canvas/responsive-type.js';
+import { gardenDoorSide } from '../../shared/canvas/garden-tea.js';
+import { gardenFlowerPaths, gardenSprigPaths } from '../../shared/canvas/garden-botanical.js';
+import { mountGardenRsvp } from '../gifts/garden-rsvp.js';
+import { playGardenGate, playInlineGardenGate } from './garden-gate.js';
 import { renderAssembly, prepareMotionLayers } from './motion-stack.js';
-import { recipientText, displayRecipient } from '../../shared/recipient-naming.js';
+import { displayLayerText,displayRecipient } from '../../shared/recipient-naming.js';
 import { STICKERS } from "../../shared/canvas/index.js";
 import { message as label, setAttr, setText, t } from "../../core/i18n.js";
 import { masks, vectorParts } from "../../shared/canvas/artwork.js";
@@ -85,11 +93,7 @@ function imageUrl(value, mode) {
   return null;
 }
 export function resolveText(node, document) {
-  const name = displayRecipient(document);
-  const value = node.props.textBinding === 'recipientName' ? name : node.props.textBinding
-    ? document.bindings[node.props.textBinding]?.value || '' : node.props.text || '';
-  return node.props.textBinding === 'recipientName' && document.personalization?.mode && document.personalization.mode !== 'manual'
-    ? t('recipient.address', { name }) : recipientText(value, name, document.personalization?.version === 1);
+  return displayLayerText(node, document, t);
 }
 
 // The system preview regenerates the same document structure with translated copy.
@@ -102,31 +106,37 @@ export function updateElementCopy(node, model, document) {
     setText(node.querySelector(".gift-runtime-control-label"), p.label || a.label || label("gift.runtime.continue"));
     setAttr(node, "aria-label", a.label || p.label || label("gift.runtime.continue"));
     if(model.id==='open-gift'&&document.elements.some(e=>e.id.startsWith('refresh-')))node.classList.add('gift-runtime-object-control');
+  } else if (type === 'reply' && p.replyMode === 'attendance') {
+    setText(node.querySelector('h2'), p.title || label('rsvp.title'));
+    const panel = node.querySelector('.garden-rsvp-panel'), name = node.querySelector('input[readonly]');
+    if (panel) panel.style.setProperty('--garden-rsvp-primary', p.color || '#3D6045');
+    if (name) name.value = displayRecipient(document);
   } else if (type === "reply") {
     setText(node.querySelector("h2"), p.title || label("gift.reply.send"));
     setText(node.querySelector(".gift-runtime-submit"), p.submitLabel || label("gift.reply.send"));
     setAttr(node, "aria-label", a.label || p.title || label("gift.reply.title"));
   } else if (type === "image") {
     const caption = node.querySelector(".gift-runtime-photo-caption");
-    if (caption) caption.textContent = p.caption || "";
+    if (caption) setText(caption, p.caption);
     const image = node.querySelector("img");
     if (image) image.alt = a.decorative ? "" : a.alt || "";
   } else if (type === 'interaction' && p.kind === 'foldout-letter') {
     for (const [i,fold] of [...node.querySelectorAll('.gift-letter-fold')].entries()) {
-      fold.querySelector('summary').textContent=p.entries[i].heading;fold.querySelector('p').textContent=p.entries[i].body;
+      setText(fold.querySelector('summary'), p.entries[i].heading);
+      setText(fold.querySelector('p'), p.entries[i].body);
     }
   } else if (type === 'interaction' && p.kind === 'light-a-candle') {
-    node.querySelector('.gift-interaction-button').textContent=p.entries[0].heading;
-    if(node.querySelector('.is-lit'))node.querySelector('.gift-interaction-copy').textContent=p.entries[0].body;
+    setText(node.querySelector('.gift-interaction-button'), p.entries[0].heading);
+    if (node.querySelector('.is-lit')) setText(node.querySelector('.gift-interaction-copy'), p.entries[0].body);
   } else if (type === 'interaction' && p.optional) {
     if (p.kind === 'event-countdown') {
-      node.querySelector('h3').textContent = p.entries[0].heading;
+      setText(node.querySelector('h3'), p.entries[0].heading);
       const arrival = node.querySelector('.gift-interaction-copy');
-      if (arrival?.textContent) arrival.textContent = p.entries[0].body;
+      if (arrival?.textContent) setText(arrival, p.entries[0].body);
     } else if (p.kind === 'swipe-album') {
       const photos = p.photos.filter(photo => photo.assetId);
       const caption = node.querySelector('figcaption');
-      if (caption) caption.textContent = photos[Number(node.dataset.albumIndex || 0)]?.caption || '';
+      if (caption) setText(caption, photos[Number(node.dataset.albumIndex || 0)]?.caption);
     }
   }
 }
@@ -174,6 +184,19 @@ export function applyLayout(
     node.style.fontSize = `${Math.max(20, Math.min(layout.width, layout.height) * scale * 0.8)}px`;
 }
 
+export function applyStationerySurface(node, scale=1) {
+  const image=node.querySelector('img');
+  if(!image)return;
+  image.style.visibility='hidden';
+  node.style.borderStyle='solid';
+  node.style.borderColor='transparent';
+  node.style.borderWidth=`${20*scale}px`;
+  node.style.borderImageSource=`url("${image.getAttribute('src')}")`;
+  node.style.borderImageSlice='120 fill';
+  node.style.borderImageWidth='1';
+  node.style.borderImageRepeat='stretch';
+}
+
 export function renderElement(
   model,
   {
@@ -200,7 +223,32 @@ export function renderElement(
     const reactionTarget=model.motions?control.querySelector('[data-motion-family="reaction"]')||control:control;
     if (actions?.length) {
       onAction(actions, intentSignal => {
-        const played = playReaction(reactionTarget, preset, motion, intentSignal, event);
+        const played = type === 'envelope' && p.preset === 'garden-gate-v1'
+          ? playGardenGate(control, document, motion, signal ? AbortSignal.any([intentSignal, signal]) : intentSignal, () => {
+            const scene = document.scenes.find(s => s.id === actions[0]?.targetSceneId);
+            if (!scene) return null;
+            const below = element('div', 'gift-garden-underlay');
+            below.setAttribute('aria-hidden', 'true'); below.inert = true;
+            below.style.backgroundColor = scene.background.color;
+            const content = control.closest('.gift-scene-body-content')||control.closest('.gift-scene-content');
+            const size = document.artboard.baseSize, scale = content.clientWidth / size.width, targets = [];
+            content.append(below);
+            for (const e of scenePresentation(document,scene).elements) {
+              const visual = renderElement(e, { document, assetUrl, mode: 'thumbnail', signal, imagePriority: true });
+              applyLayout(visual, e, size, { responsive: true, scale });
+              if (e.type === 'text') { visual.style.fontSize = responsiveTextSize(e,scale); visual.style.height = 'auto'; }
+              visual.removeAttribute('data-runtime-element'); below.append(visual); targets.push({ model: e, node: visual });
+            }
+            reflowSceneNodes(targets.filter(({model})=>!isSceneFooter(model)), scale, below.getBoundingClientRect().top);
+            const footer=sceneFooterLayout(scenePresentation(document,scene).elements,size,scale);
+            if(footer)for(const {model,node}of targets.filter(({model})=>isSceneFooter(model))){
+              const b=footer.layouts.get(model.id);Object.assign(node.style,{left:`${b.x}px`,top:`${b.y}px`,width:`${b.width}px`,height:`${b.height}px`,minHeight:`${b.height}px`,fontSize:responsiveControlSize(scale),lineHeight:'1.3',padding:'4px 8px'});
+            }
+            return below;
+          })
+          : type === 'envelope' && p.preset === 'botanical-gate-v2'
+            ? playInlineGardenGate(control, motion, signal ? AbortSignal.any([intentSignal, signal]) : intentSignal)
+            : playReaction(reactionTarget, preset, motion, intentSignal, event);
         if (!played) return;
         pendingControls.add(control);
         return played.finally(() => pendingControls.delete(control));
@@ -219,6 +267,7 @@ export function renderElement(
   } else if (vector) {
     node = element("div", `gift-runtime-vector-box gift-runtime-${type}`);
     node.setAttribute("aria-hidden", "true");
+    if (gardenDoorSide(model)) { node.classList.add('gift-garden-panel', `gift-garden-panel--${gardenDoorSide(model)}`); node.style.backgroundColor = p.color; }
     node.append(drawVector(vector, { stretch: type !== "sticker" || ["paper-wave", "lace", "bunting", "washi-tape"].includes(p.stickerId) }));
   } else if (type === "text") {
     node = element(
@@ -231,6 +280,8 @@ export function renderElement(
     if (a.decorative) node.setAttribute("aria-hidden", "true");
     node.style.fontSize = `${p.fontSize || 24}px`;
     node.style.lineHeight = String(p.lineHeight || 1.4);
+    node.style.fontStyle = p.fontStyle || 'normal';
+    if (p.fontWeight) node.style.fontWeight = String(p.fontWeight);
     node.style.textAlign = p.align || "left";
     node.style.color = p.color || "#32243B";
   } else if (type === "image") {
@@ -254,14 +305,17 @@ export function renderElement(
       img.style.objectFit = p.fit || "cover";
       applyFocalPoint(img, p.focalPoint);
       mountRuntimeImage(img, frame, { url, signal, priority: imagePriority });
-    } else if (framed) {
-      frame.append(drawVector([
+    } else if (framed && (p.placeholder !== 'collapse' || mode === 'editor')) {
+      frame.append(drawVector(p.placeholder === 'portrait' ? [
+        {d:"M0 0H100V100H0Z",fill:"#F3DCD9"},
+        {d:"M50 32a11 11 0 1 0 0 22 11 11 0 1 0 0-22ZM29 78c2-15 12-23 21-23s19 8 21 23",fill:"none",stroke:"#A9575F","stroke-width":1.2},
+      ] : [
         {d:"M0 0H100V100H0Z",fill:"#EBDEF4"},
         {d:"M71 18a11 11 0 1 0 0 22 11 11 0 1 0 0-22Z",fill:"#FFF2C9"},
         {d:"M0 82 28 43 54 72 67 55 100 87V100H0Z",fill:"#AD94BF"},
         {d:"M0 92 23 75 46 87 77 73 100 86V100H0Z",fill:"#7F698F"},
       ], { stretch: true }));
-    } else
+    } else if (!framed)
       frame.append(
         element("span", "gift-runtime-placeholder", label("gift.runtime.choosePhoto")),
       );
@@ -289,11 +343,25 @@ export function renderElement(
     if (mode !== "thumbnail") node.type = "button";
     node.style.backgroundColor = p.color;
     if (type === "button") node.style.color = readableLabel(p.color);
+    if(type==='button')node.style.borderRadius=`${p.radius??12}px`;
+    if(type==='button'&&p.variant==='text'){node.classList.add('gift-runtime-control-text');node.style.backgroundColor='transparent';node.style.color=p.color;}
+    if(type==='envelope' && p.preset==='garden-gate-v1'){node.classList.add('gift-garden-gate');node.style.backgroundColor='#F8EBE6';node.style.color=p.color;}
     if(type==='envelope' && p.preset==='compact-v2')node.classList.add('gift-runtime-compact-envelope');
     const photoCaption=type==='envelope'&&p.preset==='photo-caption-v3';
-    const controlBody=photoCaption?element('span','gift-envelope-footer'):node;
+    const botanical=type==='envelope'&&p.preset==='botanical-gate-v2';
+    const controlBody=photoCaption?element('span','gift-envelope-footer'):botanical?element('span','gift-botanical-seal'):node;
+    if(botanical){
+      node.classList.add('gift-botanical-gate');node.style.setProperty('--garden-door-color',p.color);
+      for(const side of ['left','right']){
+        const panel=element('span',`gift-botanical-panel is-${side}`);panel.setAttribute('aria-hidden','true');
+        const branch=element('span','gift-botanical-branch');branch.append(drawVector(gardenSprigPaths()));
+        const bloom=element('span','gift-botanical-bloom');bloom.append(drawVector(gardenFlowerPaths()));
+        panel.append(branch,bloom);node.append(panel);
+      }
+      controlBody.append(drawVector(gardenFlowerPaths()));node.append(controlBody);
+    }
     if(photoCaption){controlBody.style.backgroundColor=p.color;node.classList.add('gift-envelope-photo-control');node.style.backgroundColor='transparent';node.append(controlBody);}
-    if (!["button","sound-button"].includes(type)) {
+    if (!["button","sound-button"].includes(type) && !['garden-gate-v1','botanical-gate-v2'].includes(p.preset)) {
       // SVG cục bộ thay glyph emoji để biểu tượng giống nhau trên mọi hệ điều hành.
       const illustration = navigationArt[model.effects?.reaction?.id]
         || (type === "envelope" ? navigationArt.R01 : navigationArt.R02);
@@ -301,6 +369,10 @@ export function renderElement(
       icon.setAttribute("aria-hidden", "true");
       if (illustration) icon.append(drawVector(illustration, {stretch:true}));
       controlBody.append(icon);
+    }
+    if (type === 'envelope' && p.preset === 'garden-gate-v1') {
+      const mark = element('span', 'gift-garden-seal-mark'); mark.setAttribute('aria-hidden', 'true');
+      mark.append(drawVector(gardenFlowerPaths({ petal: '#EAC4C0', center: '#BE9852', vein: p.color }))); controlBody.append(mark);
     }
     controlBody.append(
       element(
@@ -318,13 +390,23 @@ export function renderElement(
         signal ? { signal } : {},
       );
   } else if (type === "interaction") {
-    node = renderInteraction(model, {
+    const interactionModel = p.clockSource === 'invitation' ? { ...model, props: { ...p, eventAt: document.invitation?.eventAt || null, timeZone: document.invitation?.timeZone || p.timeZone } } : model;
+    node = renderInteraction(interactionModel, {
       mode, signal, motion, bindings: document.bindings, activate, renderArt: drawVector,
       renderPhoto: photo => renderElement({
         id: photo.id, type: "image",
         props: { assetId: photo.assetId, fit: "cover", focalPoint: photo.focalPoint, optional: true },
         accessibility: { alt: photo.alt },
       }, { document, assetUrl, mode, signal }),
+    });
+  } else if (type === 'reply' && p.replyMode === 'attendance' && mode !== 'thumbnail' && mode !== 'editor') {
+    node = element('section', 'gift-runtime-reply gift-garden-rsvp');
+    const attendance = replyAdapter?.attendance;
+    mountGardenRsvp(node, attendance || { status: null, updatedAt: null, canRespond: mode === 'preview' }, {
+      signal, recipientName: displayRecipient(document), title: p.title, color: p.color,
+      eventAt: attendance?.eventAt || document.invitation?.eventAt, timeZone: attendance?.timeZone || document.invitation?.timeZone,
+      submit: mode === 'preview' ? async body => ({ ...body, canRespond: true, updatedAt: new Date().toISOString() }) : attendance?.submit,
+      onClosed: attendance?.onClosed || (() => {}),
     });
   } else if (type === "reply") {
     node = element("section", "gift-runtime-reply");
@@ -358,6 +440,7 @@ export function renderElement(
         p.submitLabel || label("gift.reply.send"),
       ),
       status = element("p", "gift-runtime-reply-status");
+    if (p.color) submit.style.backgroundColor = p.color;
     name.name = "name";
     name.value = replyAdapter?.cardName?.slice(0, 50) || '';
     name.maxLength = 50;

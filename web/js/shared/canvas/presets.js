@@ -1,5 +1,6 @@
 import { signatureTemplateDefinition } from './signature/templates.js';
 import { originalDefinition } from './originals-data.js';
+import { editInvitation } from './invitation.js';
 import { createElement } from './registry.js';
 import { validateDocument } from './schema.js';
 import { createBasicTemplate } from './basic-templates.js';
@@ -10,6 +11,7 @@ import { predictionCard, predictionFields } from './prediction.js';
 import { eventMediaId } from './event-media.js';
 import { libraryDocument, libraryEntry, libraryEntries, libraryLabel as libraryText, libraryLocale } from './library-state.js';
 import { pinDocumentArtwork } from './library-materialize.js';
+import { REFRESH_21 } from './refresh-21-config.js';
 
 const palettes = {
   violet: ['#F5EFFF', '#6136DF'], sunshine: ['#FFF8DE', '#906320'], rose: ['#FFF0F4', '#B93863'], navy: ['#EAF0FF', '#233F85'], peach: ['#FFF0E8', '#AA5735'], sage: ['#ECF7EF', '#34744D'], coral: ['#FFF0EB', '#BE4D51'], sky: ['#EAF8FF', '#326C9D'], lilac: ['#F5EFFF', '#7757A2'], cream: ['#FFF7EE', '#8B5D37'], amber: ['#FFF6DE', '#956D22'], mint: ['#E8FFF7', '#217760'],
@@ -43,8 +45,8 @@ export function createDocument({ presetId = 'blank', template, localize = canoni
   add('scene-cover', 'text', 'text-recipient', { x: 20, y: 110, width: 350, height: 105 }, { textBinding: 'recipientName', fontToken: 'heading', fontSize: 34, align: 'center', color: ink }, { accessibility: { role: 'heading', level: 1 } });
   add('scene-cover', presetId === 'celebration' ? 'gift-box' : 'envelope', 'open-gift', { x: 50, y: 290, width: 290, height: 220 }, { color: ink }, { actions: [{ on: 'activate', type: 'goToScene', targetSceneId: 'scene-surprise' }] });
   add('scene-cover', 'text', 'text-intro', { x: 35, y: 570, width: 320, height: 100 }, { text: localize('templates.preset.waiting'), fontSize: 20, align: 'center', color: ink });
-  add('scene-surprise', 'sticker', 'birthday-cake', { x: 105, y: 130, width: 180, height: 180 }, { stickerId: 'cake' });
-  add('scene-surprise', 'text', 'birthday-title', { x: 25, y: 340, width: 340, height: 140 }, { text: localize('templates.preset.birthday'), fontToken: 'heading', fontSize: 38, align: 'center', color: ink }, { accessibility: { role: 'heading', level: 1 } });
+  add('scene-surprise', 'sticker', 'birthday-cake', { x: 105, y: 130, width: 180, height: 180 }, { stickerId: presetId === 'celebration' ? 'cake' : 'flower' });
+  add('scene-surprise', 'text', 'birthday-title', { x: 25, y: 340, width: 340, height: 140 }, { text: localize(presetId === 'celebration' ? 'templates.preset.birthday' : 'templates.preset.special'), fontToken: 'heading', fontSize: 38, align: 'center', color: ink }, { accessibility: { role: 'heading', level: 1 } });
   add('scene-surprise', 'button', 'to-message', { x: 70, y: 550, width: 250, height: 64 }, { label: localize('templates.preset.read'), color: ink }, { actions: [{ on: 'activate', type: 'goToScene', targetSceneId: 'scene-message' }] });
   add('scene-message', 'text', 'text-message', { x: 25, y: 65, width: 340, height: 210 }, { textBinding: 'message', fontSize: 24, align: 'center', color: ink });
   add('scene-message', 'text', 'text-sender', { x: 25, y: 310, width: 340, height: 70 }, { textBinding: 'senderName', fontSize: 20, align: 'right', color: ink });
@@ -79,9 +81,17 @@ export function templatePreviewDocument(template, localize = canonicalText) {
       if (clock) clock.props.eventAt = new Date(Date.now() + 21 * 86400000).toISOString();
     }
   }
+  if (Object.hasOwn(REFRESH_21, template?.id || '') || ['loi-moi-ben-hien','cuon-phim-ngay-ay','ban-do-ngay-ra-truong'].includes(template?.id))
+    doc.bindings.message.value = localize(`templates.${template.id}.previewMessage`);
   if (OPEN_ME_TEMPLATE_IDS.includes(template?.id)) {
     for (const [binding, field] of [['recipientName', 'previewRecipient'], ['senderName', 'previewSender'], ['message', 'previewMessage']])
       doc.bindings[binding].value = localize(`templates.${template.id}.${field}`);
+  }
+  if (template?.id === 'garden-tea') {
+    doc.personalization = { version: 1, mode: 'manual' };
+    for (const [binding, field] of [['recipientName','previewRecipient'],['senderName','previewSender'],['message','previewMessage']]) doc.bindings[binding].value = localize(`templates.garden-tea.${field}`);
+    editInvitation(doc, 'date', '2027-01-09T15:00');
+    editInvitation(doc, 'venue', localize('templates.garden-tea.previewVenue'));
   }
   const prediction = predictionCard(doc);
   if (prediction) {
@@ -110,6 +120,14 @@ export function templatePreviewDocument(template, localize = canonicalText) {
       const assetId=eventMediaId(key);doc.assets.push({assetId,kind:'image'});
       Object.assign(album.props.photos[i],{assetId,alt:localize('templates.story.samplePhoto'),caption:localize('templates.story.sampleDetail')});
     }
+  }
+  // Illustrative details belong only to the preview, never to a sender draft.
+  if (template?.id === 'loi-moi-ben-hien') {
+    for (const [id, field] of [['event-date','previewDate'],['event-location','previewPlace'],['event-1-time','previewTime1'],['event-1-address','previewAddress1'],['event-2-time','previewTime2'],['event-2-address','previewAddress2']])
+      doc.elements.find(e=>e.id===id).props.text = localize(`templates.${template.id}.${field}`);
+  }
+  if (template?.id === 'ban-do-ngay-ra-truong') {
+    for (let i=1;i<=3;i++) doc.elements.find(e=>e.id===`milestone-${i}-body`).props.text = localize(`templates.${template.id}.previewMilestone${i}`);
   }
   return validateDocument(doc, { mode: 'publish' });
 }

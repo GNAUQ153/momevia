@@ -137,6 +137,23 @@ test('Preview Fabric chỉ cập nhật object tạm, không sửa snapshot', ()
   assert.equal(model.props.fontSize, 24);
 });
 
+test('Đổi màu bộ phận vector lồng nhau giữ màu chi tiết cố định', () => {
+  const model = get(fixture(), 'b-text');
+  const part = (binding, color) => ({
+    ...binding, fill: color,
+    set(field, value) { this[field] = value; },
+  });
+  const bound = part({ momeviaFillBinding: true }, '#112233');
+  const fixed = part({}, '#AABBCC');
+  const shape = {
+    getObjects: () => [{ getObjects: () => [bound, fixed] }],
+    set(values) { Object.assign(this, values); },
+  };
+  propertyToFabric(shape, model, 'color', '#445566');
+  assert.equal(bound.fill, '#445566');
+  assert.equal(fixed.fill, '#AABBCC');
+});
+
 test('Thao tác thay đổi style vẫn bảo vệ độ dài JSON và schema V1/V2', () => {
   const doc = fixture();
   const update = workspace(doc, [{ id: 'b-text', fields: { fontSize: 160, opacity: 0 } }]);

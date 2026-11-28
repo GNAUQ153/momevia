@@ -274,6 +274,7 @@ try {
     const { runNewTemplates } = await import('../browser/new-templates.mjs');
     await check('Mobile memory template, optional photo and two-envelope keyboard branching', () => runNewTemplates(base));
   }
+  if(process.argv.includes('--browser')){const {runCardPageFit}=await import('../browser/card-page-fit.mjs');await check('Every built-in and future card fits the viewport without inner scrolling',()=>runCardPageFit(base));}
   console.log(JSON.stringify({ gate: 'JSON API', cases, fixture: 'synthetic isolated single process', result: 'PASS' }));
 } catch (error) { console.error(logs); throw error; }
 finally {

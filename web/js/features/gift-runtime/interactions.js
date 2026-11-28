@@ -1,3 +1,4 @@
+import { mountProgressScratch } from './scratch-progress.js';
 import { CANDLE_SKINS } from '../../shared/canvas/candle-skins.js';
 import { eventMediaUrl } from '../../shared/canvas/event-media.js';
 import { predictionResult } from '../../shared/canvas/prediction.js';
@@ -93,7 +94,7 @@ export function renderInteraction(model, { mode, signal, motion, bindings, rende
     let flipped = false;
     const toggle = button(label("gift.interactions.flip"), () => {
       flipped = !flipped;
-      back.textContent = flipped ? first.body : first.heading;
+      setText(back, flipped ? first.body : first.heading);
       toggle.setAttribute("aria-pressed", String(flipped));
       root.classList.toggle("is-flipped", flipped);
     });
@@ -112,8 +113,10 @@ export function renderInteraction(model, { mode, signal, motion, bindings, rende
     scratch.setAttribute("aria-hidden", "true");
     covered.append(message, cover);
     if (live) covered.append(scratch);
+    let progressScratch;
     let open = false;
     const reveal = () => {
+      if (progressScratch) return progressScratch.reveal();
       if (open) return;
       open = true;
       scratch.hidden = cover.hidden = true;
@@ -123,7 +126,10 @@ export function renderInteraction(model, { mode, signal, motion, bindings, rende
       bypass.setAttribute("aria-disabled", "true");
     };
     const bypass = button(label("gift.interactions.openNow"), reveal);
-    if (live) {
+    if (live && model.props.appearance === 'scratch-progress-v1') {
+      root.append(covered, bypass);
+      progressScratch = mountProgressScratch({ root, scratch, cover, message, bypass, color, signal, motion });
+    } else if (live) {
       const brush = scratch.getContext("2d");
       brush.fillStyle = "#81649b";
       brush.fillRect(0, 0, scratch.width, scratch.height);
@@ -156,7 +162,7 @@ export function renderInteraction(model, { mode, signal, motion, bindings, rende
       for (const name of ["pointerup","pointercancel","lostpointercapture"])
         listen(scratch, name, event => { if (event.pointerId === pointer) { pointer = undefined; previous = null; } });
     }
-    root.append(covered, bypass);
+    if (!progressScratch) root.append(covered, bypass);
   } else if (kind === "foldout-letter") {
     if(model.props.appearance==='paper-fold-v2'){root.classList.add('gift-paper-fold-v2');root.style.setProperty('--gift-letter-paper',color); }
     for (const [index, entry] of entries.entries()) {
@@ -183,13 +189,13 @@ export function renderInteraction(model, { mode, signal, motion, bindings, rende
       index = target;
       root.dataset.albumIndex = String(index);
       picture.replaceChildren(!available.length && model.props.optional
-        ? node('p', 'gift-album-empty', label('gift.interactions.albumEmpty')) : renderPhoto(pages[index]));
+        ? node('p', 'gift-album-empty', label(mode === 'public' ? 'gift.interactions.albumEmptyRecipient' : 'gift.interactions.albumEmpty')) : renderPhoto(pages[index]));
       if(changed&&motion?.enabled()){
         const controller=pageMotion=new AbortController(),img=picture.querySelector('img');
         const play=()=>{if(signal?.aborted||controller.signal.aborted)return;void motion.run(picture,automatic?[{transform:'perspective(700px) rotateY(-12deg) scale(.98)',opacity:.55},{transform:'perspective(700px) rotateY(0deg) scale(1)',opacity:1}]:[{transform:`translateX(${direction*9}px)`,opacity:.55},{transform:'translateX(0px)',opacity:1}],{duration:automatic?420:240},controller.signal);};
         if(img&&!img.complete)img.decode().then(()=>{if(picture.contains(img))play();}).catch(()=>{});else play();
       }
-      caption.textContent = pages[index].caption;
+      setText(caption, pages[index].caption);
       caption.hidden = !pages[index].caption;
       setText(indicator, label("gift.interactions.albumPage", { index: index + 1, total: pages.length }));
       before.setAttribute("aria-disabled", String(index === 0));
@@ -240,6 +246,7 @@ export function renderInteraction(model, { mode, signal, motion, bindings, rende
     }
     frame.append(picture,caption);
     const pager = node("div", "gift-album-controls");
+    pager.hidden = pages.length < 2;
     pager.append(before,indicator,after);
     root.append(frame,pager);
     if (play) { play.hidden = available.length < 2; root.append(play); }
@@ -305,7 +312,7 @@ export function renderInteraction(model, { mode, signal, motion, bindings, rende
       candle.classList.add("is-lit");
       light.setAttribute("aria-pressed","true");
       light.setAttribute("aria-disabled","true");
-      wish.textContent = first.body;
+      setText(wish, first.body);
     });
     if (live) light.setAttribute("aria-pressed","false");
     if (['cake-overlay-v1','cake-photo-v2'].includes(model.props.appearance)) {
@@ -329,7 +336,7 @@ export function renderInteraction(model, { mode, signal, motion, bindings, rende
       }
       pieces.classList.add("is-complete");
       build();
-      message.textContent = first.body;
+      setText(message, first.body);
       skip.setAttribute("aria-disabled","true");
     };
     const controls = Array.from({length:3}, (_, i) => {
@@ -367,7 +374,7 @@ export function renderInteraction(model, { mode, signal, motion, bindings, rende
         const seconds = Math.max(0, elapsed ? Math.floor(delta) : Math.ceil(delta));
         if (!seconds && !elapsed) {
           countdown.hidden = true;
-          arrival.textContent = first.body;
+          setText(arrival, first.body);
           clearInterval(clock);
           return;
         }

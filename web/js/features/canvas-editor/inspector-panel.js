@@ -11,7 +11,9 @@ import { PREDICTION_KIND } from "../../shared/canvas/prediction.js";
 import { createPredictionFields } from "./prediction-fields.js";
 import { celebrationFields } from "./celebration-fields.js";
 import { motionInspector } from "./motion-inspector.js";
-import { editableElement } from "./clipboard.js";
+import { editableElement, editableSelection } from "./clipboard.js";
+import { groupMembers } from "../../shared/canvas/element-groups.js";
+import { groupLayout } from "./group-layout.js";
 import { toPercent, imagePicker } from "./designer-helpers.js";
 import { sceneThumbnail } from "./thumbnail.js";
 import { catalog, isPolaroidPlaceholder } from "./library.js";
@@ -66,6 +68,7 @@ export function createInspectorPanel({
     const fields = [input(message("editor.interface.blockBackground"), "props.color", p.color, { type: "color" })];
     if (p.kind === 'light-a-candle') fields.push(select(message('interactive.candleAppearance'),'props.appearance',p.appearance || 'classic',[['classic',message('interactive.candleClassic')],['cake-overlay-v1',message('interactive.candleOverlay')],['cake-photo-v2',message('interactive.candlePhoto')]]));
     if(p.kind==='foldout-letter')fields.push(select(message('interactive.foldPaper'),'props.appearance',p.appearance || 'classic',[['classic',message('interactive.foldClassic')],['paper-fold-v2',message('interactive.foldPaper')]]));
+    if (p.kind === 'scratch-ticket') fields.push(select(message('gift.interactions.scratchProgress'), 'props.appearance', p.appearance || 'classic', [['classic', message('gift.interactions.scratchClassic')], ['scratch-progress-v1', message('gift.interactions.scratchProgress')]]));
     if (p.kind === PREDICTION_KIND) return [...fields, createPredictionFields(model, 'inspector')];
     for (const [i, entry] of (p.entries || []).entries()) {
       fields.push(input(message(`editor.interactionField.${p.kind}.${i}.0`), `entry.${i}.heading`, entry.heading, { maxlength: 120 }));
@@ -107,7 +110,7 @@ export function createInspectorPanel({
             `slot.${photo.id}.${axis}`, toPercent(photo.focalPoint[axis]), { type: "number", min: 0, max: 100, step: .1 }))),
       ));
     }
-    if (spec.clock) {
+    if (spec.clock && p.clockSource !== 'invitation') {
       if (Object.hasOwn(p, 'clockMode')) fields.push(select(message('templates.story.dateMode'), 'props.clockMode', p.clockMode,
         [['countdown', message('templates.story.countdown')], ['elapsed', message('templates.story.elapsed')]]));
       const zones = new Set(["Asia/Ho_Chi_Minh", "UTC", p.timeZone, ...Intl.supportedValuesOf("timeZone")]);
@@ -266,9 +269,10 @@ export function createInspectorPanel({
           select(message("editor.interface.interaction"), "action.type", action?.type || "goToScene", [
             ["goToScene", message("editor.interface.nextScene")],
             ["replay", message("editor.interface.replay")],
+            ...(element.type === 'button' && (store.get().document.invitation || ['openEventMap', 'saveEventCalendar'].includes(action?.type)) ? [['openEventMap', message('templates.garden-tea.map')], ['saveEventCalendar', message('templates.garden-tea.calendar')]] : []),
           ]),
         );
-        if (action?.type !== "replay") {
+        if (!action || action.type === 'goToScene') {
           const doc = store.get().document;
           const destination = doc.scenes.find(scene => scene.id === action?.targetSceneId);
           children.push(node("details", { class: "editor-target-picker" },
@@ -291,12 +295,20 @@ export function createInspectorPanel({
         const loopCard=catalog.flatMap(g=>g.items).find(b=>b.id.startsWith('natural-motion-')&&b.create()[0]?.name===element.name);
         if(loopCard)children.push(button(message('editor.celebrations.loop'),'motion-loop-enable',{'data-motion-card':loopCard.id,disabled:!editableElement(element,design.policy)}));
       }
-      children.push(...buildInspectorGeometryFields(element, store.get().document.artboard.baseSize));
+      const members = groupMembers(store.get().document.elements, element);
+      children.push(...buildInspectorGeometryFields(element, store.get().document.artboard.baseSize, {
+        layout: groupLayout(members), locked: members.some(member => member.locked || design.policy?.lockedElements?.[member.id]),
+      }));
     }
-    if(!quickMode&&design.policy?.kind!=='creator-template')children.push(node('div',{class:'editor-control-row'},
-      button(message('editor.interface.copyElements'),'element-copy',{disabled:!selectedIds().some(id=>editableElement(store.get().document.elements.find(e=>e.id===id),design.policy)),'aria-keyshortcuts':'Control+c Meta+c'}),
-      button(message('editor.interface.cutElements'),'element-cut',{disabled:!selectedIds().some(id=>editableElement(store.get().document.elements.find(e=>e.id===id),design.policy)),'aria-keyshortcuts':'Control+x Meta+x'}),
-      button(message('editor.interface.pasteElements'),'element-paste',{disabled:!getClipboard()?.models.length,'aria-keyshortcuts':'Control+v Meta+v'})));
+    if(!quickMode&&design.policy?.kind!=='creator-template'){
+      const ids = selectedIds(), editable = editableSelection(store.get().document.elements, ids, design.policy);
+      if (ids.length > 1 && editable.length === ids.length && editable.every(item => !item.groupId))
+        children.push(button(message('editor.interface.groupLayers'), 'element-group'));
+      children.push(node('div',{class:'editor-control-row'},
+        button(message('editor.interface.copyElements'),'element-copy',{disabled:!editable.length,'aria-keyshortcuts':'Control+c Meta+c'}),
+        button(message('editor.interface.cutElements'),'element-cut',{disabled:!editable.length,'aria-keyshortcuts':'Control+x Meta+x'}),
+        button(message('editor.interface.pasteElements'),'element-paste',{disabled:!getClipboard()?.models.length,'aria-keyshortcuts':'Control+v Meta+v'})));
+    }
     host.replaceChildren(...children.filter(child => child != null));
     if (keepGeometry) host.querySelector(".editor-geometry").open = true;
     if (!element && design.policy?.kind === "creator-template")

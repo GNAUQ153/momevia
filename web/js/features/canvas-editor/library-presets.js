@@ -46,7 +46,7 @@ export const lettering = [
   ], "lịch tháng ngày năm"],
   ["spine-title", "Chữ gáy thiệp", () => [
     shape(0, 0, 64, 265, lilac, "Gáy sách"),
-    rotate(title(-89, 109, 242, 48, "Những trang mình giữ", centered), -90),
+    rotate(title(-89, 109, 242, 48, "Những trang mình giữ", { ...centered, fontSize: 23 }), -90),
   ], "tiêu đề dọc xoay sách"],
   ["sticky-note", "Giấy nhắn dán", () => [
     rotate(shape(5, 7, 246, 153, gold, "Giấy ghi chú", { radius: 3 }), -5),
@@ -123,7 +123,13 @@ export const stories = [
     rotate(line(226, 79, 145, 8, "stitched", "Đường xé dọc", plum, 2), 90),
   ], "vé giờ địa điểm cuộc hẹn"],
   ["friendship-recipe", "Công thức tình bạn", () =>
-    stationery("Công thức tình bạn", rows([["Nguyên liệu", "Tiêu mục", {color:plum}], ["2 tách trà\n1 chuyện vui\nMột nhúm kiên nhẫn", "Nguyên liệu"], ["Lời dặn: dùng khi cần một người lắng nghe.", "Lời dặn"]], 55, 63), {color:sage, height:278}),
+    [
+      shape(0, 0, 336, 330, sage, "Nền giấy"),
+      title(18, 12, 300, 53, "Công thức tình bạn"),
+      text(20, 74, 296, 32, "Nguyên liệu", "Tiêu mục", { color: plum }),
+      text(20, 119, 296, 100, "2 tách trà\n1 chuyện vui\nMột nhúm kiên nhẫn", "Nguyên liệu"),
+      text(20, 241, 296, 70, "Lời dặn: dùng khi cần một người lắng nghe.", "Lời dặn"),
+    ],
     "nấu ăn nguyên liệu lời dặn"],
   ["three-appreciations", "Ba điều mình quý ở bạn", () => [
     shape(0, 0, 338, 345, lilac, "Giấy cảm ơn"),

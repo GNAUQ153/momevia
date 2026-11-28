@@ -13,12 +13,12 @@ const decorations = cards.filter(item => item.id.startsWith("m54-"));
 
 // Kiểm tra bản cũ không bị xóa, đổi tên hoặc đổi thứ tự trong thư viện.
 test("100 elements cũ vẫn còn, 24 trang trí mới tạo bốn nhóm độc lập", () => {
-  assert.equal(cards.length, 299);
-  assert.equal(new Set(cards.map(item => item.id)).size, 299);
+  assert.equal(cards.length, 312);
+  assert.equal(new Set(cards.map(item => item.id)).size, 312);
   assert.equal(decorations.length, 24);
   assert.deepEqual(decorativeGroups.slice(0, 4).map(([, items]) => items.length), [6, 6, 6, 6]);
   assert.deepEqual(decorativeIds.slice().sort(), decorations.map(item => item.id).sort());
-  assert.deepEqual(catalog.filter(group => !group.label.startsWith("Kho trang trí - ") && !group.items.every(card=>card.id.startsWith("natural-")||card.id.startsWith("motion-")||card.id.startsWith("signature-"))).map(group => group.items.length),
+  assert.deepEqual(catalog.filter(group => !group.label.startsWith("Kho trang trí - ") && !group.items.every(card=>card.id.startsWith("natural-")||card.id.startsWith("motion-")||card.id.startsWith("signature-")||card.id.startsWith("garden-"))).map(group => group.items.length),
     [15, 14, 15, 21, 33, 17, 16]);
 });
 

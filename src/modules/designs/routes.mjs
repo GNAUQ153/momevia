@@ -54,6 +54,14 @@ export function registerDesignRoutes(router, { service, assets, resolveUser, con
   });
   router.on('GET', '/library/templates/:id/thumbnail', async ({ req, res, params, url }) => {
     const width = coverThumbnailWidth(url.searchParams.get('width')) ?? 320;
+    const library = await service.library.refresh();
+    if (library?.items.some(item => item.kind === 'template' && item.id === params.id)) {
+      const svg = await service.library.cover(params.id, url.searchParams.get('locale') === 'en' ? 'en' : 'vi', url.searchParams.get('variant') || 'catalog');
+      const bytes = await coverThumbnail(svg, width);
+      res.writeHead(200, { 'content-type': 'image/webp', 'content-length': bytes.length, 'cache-control': 'no-store', 'x-content-type-options': 'nosniff' });
+      res.end(bytes);
+      return;
+    }
     const bytes = await builtinCoverThumbnail(params.id, url.searchParams.get('locale'), url.searchParams.get('variant') || 'catalog', width);
     sendBuiltinThumbnail(req, res, bytes);
   });

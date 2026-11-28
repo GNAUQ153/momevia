@@ -17,7 +17,9 @@ export function pinArtwork(models) {
     for (const [family, preset] of Object.entries(e.effects || {})) e.effects[family] = pinEffect(preset, family);
     const key = e.type === 'sticker' ? e.props.stickerId : e.type === 'shape' ? e.props.kind : e.type === 'line' ? e.props.pattern : null;
     const art = key && libraryEntry('artwork', `${e.type}-${key}`);
-    if (art) e.artwork = structuredClone(art.definition.vector);
+    // Authored compositions carry their own frozen paths. Explicitly changing
+    // the shape/sticker calls refreshElementArtwork and removes that override.
+    if (art && !e.artwork) e.artwork = structuredClone(art.definition.vector);
     const mask = e.type === 'image' && e.props.mask && libraryEntry('artwork', `mask-${e.props.mask}`);
     if (mask) e.props.maskPath = mask.definition.vector.paths[0].d;
   }
@@ -28,6 +30,7 @@ export function materializeModels(source) {
   const ids = new Map(models.map(e => [e.id, globalThis.crypto.randomUUID()]));
   for (const e of models) {
     e.id = ids.get(e.id);
+    if (e.groupId) e.groupId = ids.get(e.groupId);
     for (const action of e.actions || []) if (action.targetSceneId && ids.has(action.targetSceneId)) action.targetSceneId = ids.get(action.targetSceneId);
   }
   return models;

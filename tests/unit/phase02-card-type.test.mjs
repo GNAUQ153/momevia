@@ -12,12 +12,12 @@ const invitation = templates.find(t => t.id === 'loi-moi-ben-hien');
 const greeting = templates.find(t => t.id === 'hai-phong-bi');
 
 test('Phân biệt loại thiệp và dịp; toàn bộ mẫu hệ thống hiện tại có loại rõ ràng', () => {
-  assert.equal(templates.length, 44);
+  assert.equal(templates.length, 45);
   assert.equal(systemCardType(invitation.id), 'invitation');
   assert.equal(systemCardType(greeting.id), 'greeting');
   assert.equal(systemCardType('ban-do-ngay-ra-truong'), 'greeting');
   assert.equal(systemCardType('future-template'), 'unspecified');
-  assert.equal(templates.filter(t => systemCardType(t.id) === 'invitation').length, 11);
+  assert.equal(templates.filter(t => systemCardType(t.id) === 'invitation').length, 12);
   assert.equal(templates.filter(t => systemCardType(t.id) === 'greeting').length, 33);
 });
 

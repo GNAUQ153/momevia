@@ -3,10 +3,11 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { randomUUID,createHash } from 'node:crypto';
 import { templates, addedSystemTemplates } from '../../src/modules/catalog/seed.mjs';
-import { BASIC_TEMPLATES, createDocument, createBasicTemplate, templatePreviewDocument, validateDocument, canonicalStringify, duplicateDocument, insertPhotoFrame, LIMITS } from '../../web/js/shared/canvas/index.js';
+import { BASIC_TEMPLATES, createDocument, createElement, createBasicTemplate, templatePreviewDocument, validateDocument, canonicalStringify, duplicateDocument, insertPhotoFrame, LIMITS } from '../../web/js/shared/canvas/index.js';
 import { materializeTemplateStart } from '../../web/js/features/canvas-editor/template-start.js';
 import { previewSvg } from '../../scripts/build/template-previews.mjs';
 import { builtinCoverImages } from '../../src/modules/designs/builtin-media.mjs';
+import { serverText } from '../../src/shared/locale.mjs';
 import {EVENT_MEDIA,NATURAL_ARTWORK_LABEL} from '../../web/js/shared/canvas/event-media.js';
 const personalPhotos=doc=>doc.elements.filter(e=>e.type==='image'&&!(e.accessibility.decorative&&e.accessibility.label===NATURAL_ARTWORK_LABEL));
 
@@ -18,7 +19,7 @@ function contrast(a, b) {
 
 test('all 12 original shared IDs retain distinct editable compositions and publish budgets', () => {
   const original = structuredClone(templates), signatures = new Set();
-  assert.equal(Object.keys(BASIC_TEMPLATES).length, 44);
+  assert.equal(Object.keys(BASIC_TEMPLATES).length, 45);
   const addedIds = new Set(addedSystemTemplates.map(template => template.id));
   for (const template of templates.filter(item => !addedIds.has(item.id))) {
     const d = createDocument({ template }); assert.equal(d.scenes.length, 3); assert(d.elements.length >= 18);
@@ -102,21 +103,55 @@ test('an optional polaroid photo keeps frame layout, crop, reading IDs and capti
 test('managed cover SVGs match validated layouts and escape text without scripts/remote media', () => {
   const images = builtinCoverImages();
   const serifWoff2 = fs.readFileSync(new URL('../../web/assets/fonts/lora-cover.woff2', import.meta.url)).toString('base64');
+  const release = JSON.parse(fs.readFileSync(new URL('../../web/assets/basic-templates/cover-release.json', import.meta.url), 'utf8'));
   const fontRule = `<style>@font-face{font-family:"Momevia Cover";src:url(data:font/woff2;base64,${serifWoff2}) format("woff2")}</style>`;
   for (const id of Object.keys(BASIC_TEMPLATES)) {
     const doc = templatePreviewDocument({ id });
     const defaultSvg = previewSvg(doc);
     const svg = previewSvg(doc, undefined, images, { serifWoff2 });
-    assert.equal(fs.readFileSync(new URL(`../../web/assets/basic-templates/${id}.svg`, import.meta.url), 'utf8'), svg);
+    const packaged = fs.readFileSync(new URL(`../../web/assets/basic-templates/${id}.svg`, import.meta.url), 'utf8');
+    assert.equal(createHash('sha256').update(packaged).digest('hex'), release.templates[id].covers.vi.portrait);
+    for (const value of [svg, packaged]) {
+      assert.match(value, /viewBox="0 0 390 844"/);
+      assert.doesNotMatch(value.replace(fontRule, '').replace(/href="data:image\/webp;base64,[A-Za-z0-9+/=]+"/g, ''), /<script|foreignObject|onload=|href=|(?<![-\w])style\s*=/i);
+    }
     assert.equal(svg.includes(fontRule), defaultSvg.includes('Georgia,serif'));
     assert.doesNotMatch(svg.replace(fontRule, ''), /<style|url\(["']?(?:https?:|data:)/i);
     assert.doesNotMatch(defaultSvg, /Momevia Cover/);
-    assert.doesNotMatch(svg.replace(/href="data:image\/webp;base64,[A-Za-z0-9+/=]+"/g, ''), /<script|foreignObject|onload=|href=|style=/i);
+    assert.doesNotMatch(svg.replace(/href="data:image\/webp;base64,[A-Za-z0-9+/=]+"/g, ''), /<script|foreignObject|onload=|href=|(?<![-\w])style\s*=/i);
     assert.equal(/viewBox="0 0 390 844"/.test(svg), true);
   }
   const doc = templatePreviewDocument({ id: 'love-letter' }); doc.bindings.recipientName.value = '<script>alert(1)</script>';
   const svg = previewSvg(doc); assert.doesNotMatch(svg, /<script>/); assert(svg.includes('&lt;script&gt;'));
   doc.elements[0].props.color = '#fff" onload="alert(1)'; assert.throws(() => previewSvg(doc), { status: 422 });
+});
+
+test('SVG wraps wide unbroken words and whole graphemes without truncating content or changing the source', () => {
+  const sample = 'Ước'.normalize('NFD');
+  const family = '👨‍👩‍👧‍👦';
+  for (const [copy, unit] of [['W'.repeat(1000), 'W'], [family.repeat(60), family], [sample.repeat(70), '']]) {
+    const doc = createDocument({presetId:'blank'}), scene = doc.scenes[0];
+    const layer = createElement('text', {id:'long-word',layout:{x:0,y:0,width:120,height:260},props:{text:copy,fontSize:20}});
+    doc.elements = [layer]; scene.elementIds = [layer.id];
+    const spans = [...previewSvg(doc).matchAll(/<tspan [^>]+>([^<]*)<\/tspan>/g)].map(m=>m[1]);
+    assert.ok(spans.length > 1);
+    assert.equal(spans.join(''),copy.normalize('NFC'));
+    if (unit) assert.ok(spans.every(line=>line===unit.repeat(line.length / unit.length)));
+    if (unit === 'W') assert.ok(spans.every(line=>line.length <= 6));
+    assert.equal(layer.props.text,copy);
+  }
+});
+
+test('portrait covers keep authored Vietnamese and English headline lines that fit the embedded serif face', () => {
+  const serifWoff2 = fs.readFileSync(new URL('../../web/assets/fonts/lora-cover.woff2', import.meta.url)).toString('base64');
+  for (const [id,locale,lines] of [
+    ['spring-blessing-2027','vi',['Tết đến bên nhau,','phúc lành đầy nhà.']],
+    ['ban-do-ngay-ra-truong','en',['From the first step','to today']],
+  ]) {
+    const doc = templatePreviewDocument({ id }, (key,values) => serverText(locale,key,values));
+    const svg = previewSvg(doc,undefined,new Map(),{serifWoff2});
+    for (const line of lines) assert.ok(svg.includes('>'+line+'</tspan>'), id + ': ' + line);
+  }
 });
 
 const initializerAliases=new Map();

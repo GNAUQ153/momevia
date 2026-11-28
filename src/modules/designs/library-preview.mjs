@@ -68,7 +68,7 @@ export function buildLibraryPreview(item, items, locale = 'vi', requestedFamily)
         : ['entrance','emphasis','transition','reaction','ambience'].includes(requestedFamily) ? requestedFamily : 'entrance';
     const original = items.find(r => r.kind === 'effect' && r.definition.animationId === item.id) || (animation.engine === 'builtin' && items.find(r => r.kind === 'effect' &&
       items.find(a => a.kind === 'animation' && a.id === r.definition.animationId)?.definition.builtinId === animation.builtinId));
-    const targets = animation.engine === 'builtin' && original ? original.definition.targets : { scenes: ['transition','ambience','surface'].includes(family), types: family === 'reaction' ? ['button'] : ['text','image','shape'] };
+    const targets = original ? original.definition.targets : { scenes: ['transition','ambience','surface'].includes(family), types: family === 'reaction' ? ['button'] : ['text','image','shape'] };
     current = { kind: 'effect', id: `preview-${randomUUID()}`, revision: 1, status: 'active', definition: { family, animationId: item.id, targets, title: item.definition.title || item.id, defaults: {} } };
     items.push(current);
   }

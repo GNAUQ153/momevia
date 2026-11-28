@@ -23,17 +23,30 @@ export function buildInspectorPropertyFields(element) {
     }
     if (dedicatedInspectorProperties.includes(key)) continue;
     if (["color", "strokeColor"].includes(key)) {
-      fields.push(input(message(key === "color" ? "editor.interface.color" : "editor.interface.stroke"),
-        `props.${key}`, props[key], { type: "color" }));
+      const colorControl = node('input', { type: 'color', 'data-editor-field': `props.${key}`, value: props[key] || '#514463' });
+      fields.push(field(message(key === "color" ? "editor.interface.color" : "editor.interface.stroke"), colorControl));
+      if ((element.type === 'text' && key === 'color') || (element.type === 'sticker' && key === 'strokeColor')) {
+        const palette = node('select', { 'data-editor-color-preset': `props.${key}` },
+          node('option', { value: '' }, message('editor.interface.customColor')),
+          node('option', { value: '#32243B' }, message('editor.interface.onLight')),
+          node('option', { value: '#FFF7EE' }, message('editor.interface.onDark')));
+        palette.value = ['#32243B', '#FFF7EE'].includes(props[key]) ? props[key] : '';
+        palette.onchange = () => {
+          if (!palette.value || palette.disabled || colorControl.disabled) return;
+          colorControl.value = palette.value;
+          colorControl.dispatchEvent(new Event('change', { bubbles: true }));
+        };
+        fields.push(field(message('editor.interface.readablePalette'), palette));
+      }
     } else if (["radius", "strokeWidth"].includes(key)) {
       fields.push(input(message(key === "radius" ? "editor.interface.radius" : "editor.interface.strokeWidth"),
-        `props.${key}`, props[key], { type: "number", min: 0, max: key === "radius" ? 512 : 40 }));
+        `props.${key}`, key==='radius'&&element.type==='button'?(props[key]??12):props[key], { type: "number", min: 0, max: key === "radius" ? 512 : 40 }));
     } else if (key === "kind") {
       fields.push(select(message("editor.interface.shape"), "props.kind", props.kind, [
         ["rectangle", message("editor.interface.shapeRectangle")],
         ["ellipse", message("editor.interface.shapeEllipse")],
         ["line", message("editor.interface.shapeLine")],
-        ...artworkChoices("shape", Object.keys(shapes).map((id, i) => [id, message(`editor.interface.shape.${["triangle", "diamond", "hexagon", "arch", "ribbon", "bubble"][i]}`)]), currentLocale()),
+        ...artworkChoices("shape", Object.keys(shapes).map((id, i) => [id, message(id.startsWith("garden-door-") ? `templates.garden-tea.${id.includes("left") ? "doorLeft" : "doorRight"}` : `editor.interface.shape.${["triangle", "diamond", "hexagon", "arch", "ribbon", "bubble"][i]}`)]), currentLocale()),
       ]));
     } else if (key === "mask" && props.mask) {
       fields.push(select(message("editor.interface.imageMask"), "props.mask", props.mask,
@@ -45,6 +58,20 @@ export function buildInspectorPropertyFields(element) {
     } else if (key === "pattern" && props.pattern) {
       fields.push(select(message("editor.interface.linePattern"), "props.pattern", props.pattern,
         artworkChoices("line", Object.keys(lines).map((id, i) => [id, message(`editor.interface.pattern.${["arc", "stitch", "arrow", "wave", "brace", "corners"][i]}`)]), currentLocale())));
+    } else if (key === "variant") {
+      fields.push(select(message('editor.buttonVariant.label'),'props.variant',props.variant||'filled',[
+        ['filled',message('editor.buttonVariant.filled')],['text',message('editor.buttonVariant.text')],
+      ]));
+    } else if (key === 'placement') {
+      fields.push(select(message('editor.buttonPlacement.label'),'props.placement',props.placement||'canvas',[
+        ['canvas',message('editor.buttonPlacement.canvas')],['footer',message('editor.buttonPlacement.footer')],
+      ]));
+    } else if (key === 'placeholder' && props.optional) {
+      fields.push(select(message('editor.emptyPhoto.label'),'props.placeholder',props.placeholder||'portrait',[
+        ['portrait',message('editor.emptyPhoto.portrait')],['collapse',message('editor.emptyPhoto.collapse')],
+      ]));
+    } else if (key === "fontStyle") {
+      if (Object.hasOwn(props, 'fontStyle')) fields.push(select(message("editor.fontStyle.label"), "props.fontStyle", props.fontStyle || "normal", [["normal", message("editor.fontStyle.normal")], ["italic", message("editor.fontStyle.italic")]]));
     } else if (key === "fit") {
       fields.push(select(message("editor.interface.photoFrame"), "props.fit", props.fit, [
         ["cover", message("editor.interface.fitCover")],
@@ -52,8 +79,8 @@ export function buildInspectorPropertyFields(element) {
       ]));
     } else if (key === "stickerId") {
       fields.push(select(message("editor.interface.sticker"), "props.stickerId", props.stickerId,
-        artworkChoices("sticker", Object.entries(stickerNames), currentLocale())));
-    } else if (!["preset", "pattern", "mask", "maskPath", "caption", "optional"].includes(key)) {
+        artworkChoices("sticker", Object.keys(stickerNames).map(id => [id, message(`editor.library.item.${id}`)]), currentLocale())));
+    } else if (!["preset", "pattern", "mask", "maskPath", "caption", "optional", "placeholder", "replyMode"].includes(key)) {
       fields.push(input({
         label: message("editor.interface.label.button"),
         title: message("editor.interface.label.title"),
@@ -69,11 +96,10 @@ export function geometryOutsideCanvas(layout, size) {
     layout.x + layout.width > size.width || layout.y + layout.height > size.height;
 }
 
-export function buildInspectorGeometryFields(element, artboardSize) {
-  const { layout } = element;
+export function buildInspectorGeometryFields(element, artboardSize, { layout = element.layout, locked = element.locked } = {}) {
   const children = [
     node("details", { class: "editor-geometry" },
-      node("summary", {}, message("editor.interface.geometry")),
+      node("summary", {}, message(element.groupId ? "editor.interface.groupGeometry" : "editor.interface.geometry")),
       node("div", { class: "editor-layout-fields" },
         ...[["x", "X"], ["y", "Y"], ["width", message("editor.interface.geometry.width")],
           ["height", message("editor.interface.geometry.height")], ["rotation", message("editor.interface.geometry.rotation")]]
@@ -82,10 +108,11 @@ export function buildInspectorGeometryFields(element, artboardSize) {
             min: key === "width" || key === "height" ? 1 : key === "rotation" ? -360 : -LIMITS.coordinate,
             max: key === "rotation" ? 360 : LIMITS.coordinate,
             step: 1,
+            disabled: Boolean(locked),
           }))),
       node("div", { class: "editor-control-row", role: "group", "aria-label": message("editor.interface.positionGroup") },
-        button(message("editor.interface.centerHorizontal"), "center"),
-        button(message("editor.interface.inside"), "inside"))),
+        button(message("editor.interface.centerHorizontal"), "center", { disabled: Boolean(locked) }),
+        button(message("editor.interface.inside"), "inside", { disabled: Boolean(locked) }))),
     input(message("editor.interface.opacity"), "element.opacity", toPercent(1 - (element.opacity ?? 1)), {
       type: "number", min: 0, max: 100, step: 1, title: message("editor.interface.opacityHint"),
     }),
@@ -93,8 +120,8 @@ export function buildInspectorGeometryFields(element, artboardSize) {
       iconButton(message("editor.interface.layerShow"), "layer-visibility", element.visible === false ? "eye-off" : "eye", {
         "aria-pressed": element.visible !== false,
       }),
-      iconButton(message("editor.interface.layerLock"), "layer-lock", element.locked ? "lock" : "unlock", {
-        "aria-pressed": Boolean(element.locked),
+      iconButton(message("editor.interface.layerLock"), "layer-lock", locked ? "lock" : "unlock", {
+        "aria-pressed": Boolean(locked),
       }),
       button(message("editor.interface.layerUp"), "layer-up"),
       button(message("editor.interface.layerDown"), "layer-down"),
@@ -129,6 +156,8 @@ export function lockInspectorControls(host, policy, allowInlineText = false) {
     host.children[1] || null);
   for (const control of host.querySelectorAll("[data-editor-field]"))
     control.disabled = !canEditInspectorField(control.dataset.editorField, permitted);
+  for (const control of host.querySelectorAll('[data-editor-color-preset]'))
+    control.disabled = !canEditInspectorField(control.dataset.editorColorPreset, permitted);
   for (const control of host.querySelectorAll("[data-editor-action]"))
     control.disabled = !canUseInspectorAction(control.dataset.editorAction, permitted, allowInlineText);
 }

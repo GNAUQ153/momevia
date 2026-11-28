@@ -1,5 +1,5 @@
 import { t } from '../../core/i18n.js';
-import { editableElement } from './clipboard.js';
+import { editableElement, editableSelection } from './clipboard.js';
 import { stopKeys } from './designer-helpers.js';
 import { historyShortcut } from './editor-guards.js';
 import { nextSheetFocus } from './mobile-sheet.js';
@@ -101,13 +101,12 @@ export function createKeyboardHandler({ main, document, getContext, getSelection
       ) &&
       selected() &&
       !quickMode &&
-      selectedIds().some(id => editableElement(store.get().document.elements.find(e => e.id === id), design.policy))
+      editableSelection(store.get().document.elements, selectedIds(), design.policy).length
     ) {
       event.preventDefault();
       const step = event.shiftKey ? 10 : 1;
       commit((value) => {
-        const ids = new Set(selectedIds());
-        for (const item of value.document.elements.filter(e => ids.has(e.id) && editableElement(e, design.policy))) {
+        for (const item of editableSelection(value.document.elements, selectedIds(), design.policy)) {
           const layout = item.layout;
           if (event.key === "ArrowLeft") layout.x -= step;
           if (event.key === "ArrowRight") layout.x += step;

@@ -2,6 +2,9 @@
 web/assets/basic-templates/*.svg text eol=lf
 web/assets/basic-templates/en/*.svg text eol=lf
 
+# Giữ byte của SVG nguồn khớp với sourceHash trong manifest đồ họa.
+web/assets/event-cards/refined-v1/*-source.svg -text whitespace=trailing-space,space-before-tab,cr-at-eol
+
 # Preserve third-party license bytes and hashes exactly as shipped in source ZIPs.
 web/assets/audio-licenses/*-upstream-*.txt binary
 

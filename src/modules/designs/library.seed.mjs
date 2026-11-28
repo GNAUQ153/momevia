@@ -1,4 +1,5 @@
 import { signatureElementIds } from '../../../web/js/shared/canvas/signature/registry.js';
+import { stickerVector } from '../../../web/js/shared/canvas/sticker-style.js';
 import { eventRecipes } from '../../../web/js/shared/canvas/event-recipes.js';
 import { registry } from '../../../web/js/shared/canvas/registry.js';
 import { catalog } from '../../../web/js/features/canvas-editor/library.js';
@@ -23,9 +24,9 @@ export function builtinLibraryItems() {
       defaults: Object.fromEntries(Object.entries(spec.defaults).filter(([key]) => !['text','label','title','submitLabel'].includes(key))),
       accessibility: Object.fromEntries(Object.entries(spec.accessibility).filter(([key]) => !['alt','label'].includes(key))),
     });
-    for (const [key, [fill, stroke]] of Object.entries(stickerArt)) add('artwork', `sticker-${key}`, { target: 'sticker', key, vector: { paths: [
-      ...(fill ? [{ d: fill, fill: 'color' }] : []), ...(stroke ? [{ d: stroke, fill: 'none', stroke: fill ? (['wax-seal','birthday-candle'].includes(key) ? '#FFF7EE' : '#32243B') : 'color', strokeWidth: 4 }] : []),
-    ] } });
+    for (const [key, parts] of Object.entries(stickerArt)) add('artwork', `sticker-${key}`, {
+      title: words(`editor.library.item.${key}`), target: 'sticker', key, vector: stickerVector(key, parts),
+    });
     for (const [target, values] of [['shape', shapes], ['line', lines], ['mask', masks]]) for (const [key, d] of Object.entries(values))
       add('artwork', `${target}-${key}`, { target, key, vector: { paths: [{ d, fill: target === 'line' ? 'none' : 'color',
         ...(target !== 'mask' ? { stroke: target === 'line' ? 'color' : 'strokeColor', strokeWidth: 'strokeWidth' } : {}),
@@ -47,7 +48,12 @@ export function builtinLibraryItems() {
     }
     // Capture the complete compositions, not names pointing back to JS factories.
     for (const [index, group] of catalog.entries()) for (const card of group.items){
-      const elements=card.create();if(card.titleTexts||card.id==='natural-motion-heart'||signatureElementIds.includes(card.id))elements.forEach((e,i)=>{e.id=card.id+'-subject'+(i?'-'+i:'');});const assets=[...new Set(elements.filter(e=>e.type==='image'&&e.props.assetId).map(e=>e.props.assetId))].map(assetId=>({assetId,kind:'image'}));
+      const elements=card.create();
+      if(card.titleTexts||card.id==='natural-motion-heart'||signatureElementIds.includes(card.id)){
+        const ids=new Map(elements.map((e,i)=>[e.id,card.id+'-subject'+(i?'-'+i:'')]));
+        for(const e of elements){e.id=ids.get(e.id);if(e.groupId)e.groupId=ids.get(e.groupId);}
+      }
+      const assets=[...new Set(elements.filter(e=>e.type==='image'&&e.props.assetId).map(e=>e.props.assetId))].map(assetId=>({assetId,kind:'image'}));
       add('element',card.id,{title:card.titleTexts||words(`editor.library.item.${card.id}`),group:group.titleTexts||words(`editor.library.group.${index}`),keywords:card.keywords||'',elements,...(assets.length?{assets}:{}),...(card.visualKind?{visualKind:card.visualKind}:{})});
     }
     // Pin path data into the DB documents; old source definitions remain solely

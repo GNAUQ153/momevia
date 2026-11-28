@@ -1,4 +1,5 @@
 // Immutable natural Originals v4. Keep old hashes when adding a replacement.
+import { REFINED_MEDIA, REFINED_MEDIA_IDS } from './refined-media.js';
 export const NATURAL_MEDIA={
   "event-natural-midnight-bloom-ca8056a73824": {
     "file": "natural-v4/midnight-bloom-ca8056a73824.webp",
@@ -1739,7 +1740,8 @@ export const NATURAL_MEDIA={
       "height": 173,
       "bytes": 4966
     }
-  }
+  },
+  ...REFINED_MEDIA
 };
 export const NATURAL_MEDIA_IDS={
   "midnight-bloom": "event-natural-midnight-bloom-ca8056a73824",
@@ -1797,5 +1799,6 @@ export const NATURAL_MEDIA_IDS={
   "element-open-branch-flowers": "event-natural-element-open-branch-flowers-0b368243358d",
   "element-open-vintage-flower": "event-natural-element-open-vintage-flower-f64025de5762",
   "element-open-repo-flower": "event-natural-element-open-repo-flower-ba63c6e18d53",
-  "element-open-repo-leaf": "event-natural-element-open-repo-leaf-8aa494fe1603"
+  "element-open-repo-leaf": "event-natural-element-open-repo-leaf-8aa494fe1603",
+  ...REFINED_MEDIA_IDS
 };

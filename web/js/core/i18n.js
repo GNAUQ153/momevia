@@ -1,4 +1,4 @@
-import { currency, defaultLocale, escapeHtml, isLocale, translateUi as translate, vi } from '../shared/locale.js';
+import { currency, defaultLocale, displayCopy, escapeHtml, isLocale, translateUi as translate, vi } from '../shared/locale.js';
 
 const storageKey = 'momevia-locale';
 const dictionaries = new Map([[defaultLocale, vi]]);
@@ -42,7 +42,7 @@ function encode(key, params) {
 
 // Text stays in its original DOM position, including inside buttons and options.
 export function text(key, params) {
-  return `<!--${marker}${encode(key, params)}-->${escapeHtml(t(key, params))}<!--/momevia-i18n-->`;
+  return `<!--${marker}${encode(key, params)}-->${escapeHtml(displayCopy(t(key, params)))}<!--/momevia-i18n-->`;
 }
 
 export function attr(name, key, params) {
@@ -59,7 +59,7 @@ function bind(node, name, value) {
 }
 
 export function setText(node, value) {
-  node.textContent = bind(node, 'text', value);
+  node.textContent = displayCopy(bind(node, 'text', value));
 }
 
 export function setAttr(node, name, value) {
@@ -70,7 +70,8 @@ export function setAttr(node, name, value) {
 function applyBinding(node, name, key, params) {
   const translated = t(key, params);
   if (name === 'text') {
-    if (node.textContent !== translated) node.textContent = translated;
+    const visible = displayCopy(translated);
+    if (node.textContent !== visible) node.textContent = visible;
   } else if (node.getAttribute(name) !== translated) node.setAttribute(name, translated);
 }
 
@@ -82,7 +83,7 @@ function updateDocument() {
     if (node.nodeType === Node.COMMENT_NODE) {
       if (!node.data.startsWith(marker)) continue;
       const [key, params] = JSON.parse(decodeURIComponent(node.data.slice(marker.length)));
-      const translated = t(key, params);
+      const translated = displayCopy(t(key, params));
       if (node.nextSibling?.nodeType === Node.TEXT_NODE) node.nextSibling.data = translated;
       else node.after(document.createTextNode(translated));
       continue;

@@ -32,11 +32,13 @@ export function openCanvasPreview({
   document.body.append(dialog);
   dialogs.add(dialog);
   let player = null;
+  let previewSizer=null;
   let closed = false;
   const closeDialog = trapDialog(dialog, () => {
     if (closed) return;
     closed = true;
     player?.dispose();
+    previewSizer?.disconnect();
     player = null;
     dialogs.delete(dialog);
     onClose?.();
@@ -51,6 +53,16 @@ export function openCanvasPreview({
       mode: "preview",
       effectPreview,
     });
+    const heading=dialog.querySelector('.editor-preview-heading'),host=dialog.querySelector('.editor-preview-player');
+    const locale=dialog.querySelector(':scope > .locale-control');
+    if(locale){const active=document.activeElement,restore=locale.contains(active);heading.append(locale);if(restore)active.focus({preventScroll:true});}
+    const syncSize=()=>{
+      if(!dialog.open)return;
+      const css=getComputedStyle(dialog);
+      const before=host.getBoundingClientRect().top-dialog.getBoundingClientRect().top+dialog.scrollTop;
+      host.style.setProperty('--gift-preview-chrome',`${before+(parseFloat(css.paddingBottom)||0)+36}px`);
+    };
+    previewSizer=globalThis.ResizeObserver?new ResizeObserver(syncSize):null;previewSizer?.observe(heading);syncSize();
   } catch (error) {
     close();
     throw error;

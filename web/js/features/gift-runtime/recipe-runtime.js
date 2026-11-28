@@ -1,4 +1,5 @@
 import { PAPER_GRAIN_URL } from '../../shared/canvas/paper-grain.js';
+import { displayCopy } from '../../shared/locale.js';
 import { effectSpeed } from '../../shared/canvas/effects.js';
 
 const animationFor = preset => preset?.definition?.animation;
@@ -52,7 +53,7 @@ export function playParticleRecipe(stage, preset, motion, signal) {
     for (let i = 0; i < count; i++) {
       const particle = document.createElement('span'); particle.className = 'gift-particle';
       particle.style.background = 'transparent'; particle.style.fontSize = '20px'; particle.style.width = particle.style.height = '24px';
-      particle.textContent = animation.glyphs[i % animation.glyphs.length]; particle.style.color = animation.colors[i % animation.colors.length];
+      particle.textContent = displayCopy(animation.glyphs[i % animation.glyphs.length]); particle.style.color = animation.colors[i % animation.colors.length];
       particle.style.left = `${5 + i * 41 % 90}%`; particle.style.top = `${i * 29 % 75}%`; layer.append(particle);
       tasks.push(motion.run(particle, [{ opacity: 0, transform: 'translateY(0px)' }, { opacity: .85, offset: .2 },
         { opacity: 0, transform: `translateY(${animation.drift ?? 120}px)` }],

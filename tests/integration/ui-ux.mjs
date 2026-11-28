@@ -78,10 +78,10 @@ try{
   results.push({item:'A5',locale,width,...await page.evaluate(()=>({scroll:globalThis.document.documentElement.scrollWidth,client:globalThis.document.documentElement.clientWidth,grid:globalThis.document.querySelector('.template-review-grid').getBoundingClientRect().width,preview:globalThis.document.querySelector('.template-review-preview').getBoundingClientRect().width}))});
   await page.screenshot({path:path.join(out,`review-${locale}-${width}.png`),fullPage:true});
   if(width===320){
-   const scenes=page.locator('.template-review-preview [data-scene-id]');
-   assert.equal(await scenes.count(),4);await scenes.first().focus();await page.keyboard.press('End');
-   assert(await scenes.last().evaluate(n=>n===globalThis.document.activeElement));await page.keyboard.press('Enter');
-   assert.equal(await scenes.last().getAttribute('aria-current'),'step');
+   const scenes=page.locator('.template-review-preview .gift-runtime-scene-select');
+   assert.equal(await scenes.locator('option').count(),4);await scenes.focus();await page.keyboard.press('End');await page.keyboard.press('Enter');
+   await page.waitForFunction(()=>globalThis.document.querySelector('.template-review-preview .gift-runtime-progress')?.value===4);
+   assert(await scenes.evaluate(n=>n===globalThis.document.activeElement));
    assert(await page.locator('.template-review-controls input,.template-review-controls textarea,.template-review-controls button').evaluateAll(nodes=>nodes.every(n=>{const r=n.getBoundingClientRect();return r.left>=-1&&r.right<=globalThis.innerWidth+1;})));
   }
  }
@@ -121,7 +121,7 @@ try{
   assert.equal(await verify.evaluate(n=>globalThis.getComputedStyle(n).outlineStyle),'solid');
  }
  for(const r of results){
-  if(r.item==='A1/A3'){assert(contrast(r.color,r.background)>=4.5,JSON.stringify(r));assert(r.buttons.every(b=>b.height>=44&&b.height<=52));}
+  if(r.item==='A1/A3'){assert(contrast(r.color,r.background)>=4.5,JSON.stringify(r));assert(r.buttons.every(b=>b.height>=44&&b.height<=52),JSON.stringify(r));}
   if(r.item==='A2'){assert(contrast(r.color,'rgb(255,255,255)')>=4.5,JSON.stringify(r));assert.equal(r.font,'14px');}
   if(r.item==='A4')assert(r.text.every(t=>t.includes('₫')&&!/Free|Miễn phí/.test(t)));
   if(r.client)assert(r.scroll<=r.client+1,JSON.stringify(r));

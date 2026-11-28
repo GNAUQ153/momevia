@@ -9,6 +9,7 @@
   place-items: center;
   overflow: hidden;
   isolation: isolate;
+  container-type: inline-size;
   background: linear-gradient(145deg, var(--art-bg), var(--art-haze));
   color: var(--art-text);
 }
@@ -136,15 +137,30 @@
   justify-content: center;
   width: 86%;
   text-align: center;
+  max-height: 100%;
+  padding: 10px;
+  gap: 6px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.7);
+}
+.artwork--navy .artwork__content {
+  background: rgba(20, 28, 57, 0.84);
 }
 .artwork__eyebrow {
-  margin-bottom: 8%;
+  margin-bottom: 0;
   font-size: 10px;
   font-weight: 750;
-  letter-spacing: 0.26em;
+  letter-spacing: 0.14em;
+}
+@container (max-width: 230px) {
+  .template-card__visual .artwork__eyebrow {
+    align-self: stretch;
+    padding-inline-end: 42px;
+    text-wrap: balance;
+  }
 }
 .artwork__symbol {
-  margin-bottom: 8%;
+  margin-bottom: 0;
   color: var(--art-accent);
   animation: gentle-float 5s ease-in-out infinite;
 }
@@ -156,24 +172,32 @@
 .artwork__content strong {
   max-width: 100%;
   font-family: var(--font-display);
-  font-size: clamp(23px, 2.6vw, 37px);
+  font-size: clamp(14px, 7cqw, 32px);
   font-style: italic;
   font-weight: 500;
   line-height: 1.15;
   letter-spacing: -0.026em;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
 }
 .artwork__content em {
   max-width: 80%;
-  margin-top: 13px;
+  margin-top: 0;
   font-size: 10px;
   font-style: normal;
   line-height: 1.5;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
 }
 .artwork__tinyline {
   display: block;
   width: 44px;
   height: 1px;
-  margin-top: 18px;
+  margin-top: 0;
   background: currentColor;
   opacity: 0.6;
 }

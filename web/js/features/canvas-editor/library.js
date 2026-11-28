@@ -1,4 +1,5 @@
 import { signatureLibraryCards } from '../../shared/canvas/signature/registry.js';
+import { gardenElementCards } from '../../shared/canvas/garden-elements.js';
 import {ANIMATED_GROUPS,animatedElementCards} from '../../shared/canvas/animated-elements.js';
 import { EVENT_CLUSTER_IDS, eventCluster } from '../../shared/canvas/event-clusters.js';
 import { REFRESH_21 } from '../../shared/canvas/refresh-21-config.js';
@@ -9,6 +10,8 @@ import { decorativeGroups, decorativeNames } from "./decorations.js";
 import { createElement } from "../../shared/canvas/registry.js";
 import { originalStickerIds } from "../../shared/canvas/artwork.js";
 import { createDocument } from "../../shared/canvas/presets.js";
+import { bounds } from "./group-layout.js";
+export { bounds };
 import { decorations, geometry, illustratedStickers, interactions, lettering, photoLayouts, stories } from "./library-presets.js";
 
 export const stickerNames = {
@@ -35,6 +38,13 @@ const motif = (templateId, matches) => () => {
   });
 };
 const vectorInsertion=id=>()=>structuredClone(vectorInsertions[id]).map(e=>({...e,id:crypto.randomUUID()}));
+function flowerCluster() {
+  const bloom = (x, y, size, color) => createElement('sticker', { layout: { x, y, width: size, height: size }, props: { stickerId: 'flower', color } });
+  const stem = (x, y, width, height, color) => createElement('line', { layout: { x, y, width, height }, props: { pattern: 'arc', color, strokeWidth: 2 } });
+  return [stem(42, 58, 45, 108, '#5D816B'), stem(100, 39, 19, 129, '#5D816B'),
+    stem(114, 73, 55, 97, '#5D816B'), bloom(0, 27, 93, '#CE8297'),
+    bloom(68, 0, 88, '#B99ACA'), bloom(126, 57, 75, '#D5A756')];
+}
 const replay = [{ on: "activate", type: "replay" }];
 const polaroidLabel = "Ảnh trong khung Polaroid";
 
@@ -45,6 +55,7 @@ export function isPolaroidPlaceholder(model) {
 export function fillPolaroid(model, assetId) {
   return createElement("image", {
     id: model.id,
+    ...(model.groupId ? { groupId: model.groupId } : {}),
     name: model.name || polaroidLabel,
     layout: model.layout,
     props: { assetId, radius: model.props.radius },
@@ -96,7 +107,7 @@ export const catalog = [
   ["Sticker", [...originalStickerIds.map(id =>
     [id, stickerNames[id], sticker(id, 80, id === "star" || id === "sparkles" ? "#A97413" : "#AA5275"), "hình dán sticker"]), ...illustratedStickers]],
   ["Cụm trang trí", [
-    ["flowers", "Cụm hoa", vectorInsertion('flowers'), "cánh hoa"],
+    ["flowers", "Cụm hoa", flowerCluster, "cánh hoa"],
     ["leaves", "Cành lá", vectorInsertion('leaves'), "cây cụm lá"],
     ...Object.entries(REFRESH_21).map(([id,spec])=>[`object-${id}`,canonicalText(`editor.library.item.object-${id}`),motif(id,/^cover-object-/),`${id} ${spec.object} ${spec.material}`]),
     ["stars", "Cụm sao", vectorInsertion('stars'), "chòm sao lấp lánh"],
@@ -127,6 +138,7 @@ for(const [group,titles]of ANIMATED_GROUPS.entries())catalog.push({label:titles[
 // Giữ thứ tự các nhóm Classic để không đổi các khóa dịch và dữ liệu cũ.
 const signatureGroup = canonicalText('editor.library.group.27');
 catalog.push({ label: signatureGroup, items: signatureLibraryCards(signatureGroup) });
+catalog.push({ label: 'Vườn trà Garden Tea', titleTexts: { vi: 'Vườn trà Garden Tea', en: 'Garden Tea collection' }, items: gardenElementCards(canonicalText).map(card => ({...card, group: 'Vườn trà Garden Tea'})) });
 const normalized = value => value.toLowerCase().normalize("NFD").replace(/\p{Diacritic}/gu, "").replaceAll("đ", "d");
 const searchIndex = new Map(catalog.flatMap(({ items }) => items.map(block => [
   block.id, normalized(`${block.title} ${block.group} ${block.keywords}`),
@@ -144,19 +156,6 @@ export function sampleBindings(document) {
   return document;
 }
 
-export function bounds(models) {
-  const boxes = models.map(({ layout }) => {
-    const { x, y, width, height, rotation } = layout;
-    const angle = rotation * Math.PI / 180;
-    const horizontal = (Math.abs(Math.cos(angle)) * width + Math.abs(Math.sin(angle)) * height) / 2;
-    const vertical = (Math.abs(Math.sin(angle)) * width + Math.abs(Math.cos(angle)) * height) / 2;
-    return { left: x + width / 2 - horizontal, top: y + height / 2 - vertical,
-      right: x + width / 2 + horizontal, bottom: y + height / 2 + vertical };
-  });
-  return { left: Math.min(...boxes.map(box => box.left)), top: Math.min(...boxes.map(box => box.top)),
-    right: Math.max(...boxes.map(box => box.right)), bottom: Math.max(...boxes.map(box => box.bottom)) };
-}
-
 function overlap(a, b) {
   return Math.max(0, Math.min(a.right, b.right) - Math.max(a.left, b.left)) *
     Math.max(0, Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top));
@@ -165,9 +164,11 @@ function overlap(a, b) {
 export function placeBlock(models, viewport, existing) {
   const box = bounds(models);
   const width = box.right - box.left, height = box.bottom - box.top;
-  const left = viewport.left + 12, top = viewport.top + 12;
-  const right = Math.max(left, viewport.right - width - 12);
-  const bottom = Math.max(top, viewport.bottom - height - 12);
+  const marginX = Math.max(0, Math.min(12, (viewport.right - viewport.left - width) / 2));
+  const marginY = Math.max(0, Math.min(12, (viewport.bottom - viewport.top - height) / 2));
+  const left = viewport.left + marginX, top = viewport.top + marginY;
+  const right = Math.max(left, viewport.right - width - marginX);
+  const bottom = Math.max(top, viewport.bottom - height - marginY);
   const occupied = existing.filter(model => model.visible !== false).map(model => bounds([model]));
   const steps = [0.5, 0.28, 0.72, 0, 1];
   let best;

@@ -1,5 +1,6 @@
 import { t } from '../../core/i18n.js';
-import { recipientText, displayRecipient } from '../../shared/recipient-naming.js';
+import { displayLayerText } from '../../shared/recipient-naming.js';
+import { displayCopy } from '../../shared/locale.js';
 // Bản đồ chuyển đổi tối thiểu từ Canvas schema Momevia sang Fabric.js.
 // Document Momevia luôn là dữ liệu gốc: không lưu Fabric JSON lên máy chủ.
 export const FABRIC_EDITABLE_TYPES = Object.freeze(['text', 'shape', 'image']);
@@ -18,10 +19,7 @@ export function isOptionalEmptyPhoto(element) {
 }
 
 export function displayText(element, document) {
-  const name = displayRecipient(document);
-  if (element.props.textBinding === 'recipientName' && document.personalization?.mode && document.personalization.mode !== 'manual') return t('recipient.address', { name });
-  return recipientText(element.props.textBinding === 'recipientName' ? name : element.props.textBinding
-    ? document.bindings[element.props.textBinding]?.value || '' : element.props.text || '', name, document.personalization?.version === 1);
+  return displayLayerText(element, document, t);
 }
 
 export function fabricView(document, sceneId, policy = null, { includeHidden = false } = {}) {
@@ -36,6 +34,7 @@ export function fabricView(document, sceneId, policy = null, { includeHidden = f
       .filter(item => item && (includeHidden || item.visible !== false))
       .map(item => ({
         id: item.id,
+        ...(item.groupId ? { groupId: item.groupId } : {}),
         name: item.name || item.accessibility?.label || item.type,
         type: item.type,
         layout: structuredClone(item.layout),
@@ -81,9 +80,11 @@ export function layoutFromFabric(element, shape) {
     : (((angle + 180) % 360 + 360) % 360) - 180;
   return normalizedLayout(element, {
     x: shape.left - width / 2,
-    y: shape.top - height / 2,
+    y: shape.momeviaFlowHeightRatio
+      ? shape.top - Math.abs(shape.height*(shape.scaleY||1))/2 - shape.momeviaFlowOffsetY
+      : shape.top - height / 2 - (shape.momeviaDisplayOffsetY || 0) * (shape.scaleY || 1),
     width,
-    height,
+    height: shape.momeviaFlowHeightRatio && element.type!=='text' ? height/shape.momeviaFlowHeightRatio : height,
     rotation,
   });
 }
@@ -96,12 +97,13 @@ export function fabricDiff(document, sceneId, shapes, policy = null) {
     if (typeof shape.momeviaId !== 'string' || !scene.elementIds.includes(shape.momeviaId)) continue;
     const element = document.elements.find(item => item.id === shape.momeviaId);
     if (!element || !canFabricEdit(element, policy)) continue;
-    const layout = layoutFromFabric(element, shape);
+    const layout = element.groupId ? element.layout : layoutFromFabric(element, shape);
     const text = element.type === 'text' && !element.props.textBinding &&
       typeof shape.text === 'string' && !(document.personalization && element.props.text?.includes('{người nhận}')) ? shape.text.slice(0, 4000) : null;
-    const changed = JSON.stringify(layout) !== JSON.stringify(element.layout) ||
-      (text !== null && text !== element.props.text);
-    if (changed) updates.push({ id: element.id, layout, ...(text === null ? {} : { text }) });
+    const textChanged = text !== null && displayCopy(text) !== displayCopy(element.props.text);
+    if (JSON.stringify(layout) !== JSON.stringify(element.layout) || textChanged) {
+      updates.push({ id: element.id, layout, ...(textChanged ? { text } : {}) });
+    }
   }
   return updates;
 }
@@ -115,7 +117,10 @@ export function applyFabricDiff(document, sceneId, updates, policy = null) {
     if (!element || !scene.elementIds.includes(update.id) || !canFabricEdit(element, policy)) {
       throw new Error('Thao tác không hợp lệ hoặc element đã bị khóa.');
     }
-    element.layout = normalizedLayout(element, update.layout);
+    const layout = normalizedLayout(element, update.layout);
+    if (element.groupId && Object.keys(element.layout).some(key => layout[key] !== element.layout[key]))
+      throw new Error(t('editor.fabric.layer.grouped'));
+    element.layout = layout;
     if ('text' in update) {
       if (element.type !== 'text' || element.props.textBinding || typeof update.text !== 'string' || update.text.length > 4000) {
         throw new Error('Không được sửa nội dung cá nhân hóa bị khóa.');

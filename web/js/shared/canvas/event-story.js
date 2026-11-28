@@ -30,10 +30,10 @@ export function expandEventStory(id, doc, { add, text, action, shape }, p, local
   };
 
   // Two independently optional clocks: no invented date enters a real draft.
-  heading(timer, 'time-heading', copy('timeHeadline'), [36, 65, 318, 94]);
-  text(timer, 'time-intro', copy('timeNote'), [42, 174, 306, 72], 17, ink);
+  heading(timer, 'time-heading', copy('timeHeadline'), [36, 55, 318, 162], 29);
+  text(timer, 'time-intro', copy('timeNote'), [42, 235, 306, 66], 17, ink);
   for (const [i, mode] of ['countdown', 'elapsed'].entries()) {
-    const node = add(timer, 'interaction', `event-${mode}`, [30, 286 + i * 180, 330, 153], {
+    const node = add(timer, 'interaction', `event-${mode}`, [30, 326 + i * 180, 330, 153], {
       kind: 'event-countdown', color: '#FFFCF6', entries: [{ heading: copy(`${mode}Title`), body: copy(`${mode}Arrived`) }],
       eventAt: null, timeZone: 'Asia/Ho_Chi_Minh', clockMode: mode, optional: true,
     });
@@ -72,7 +72,7 @@ export function expandEventStory(id, doc, { add, text, action, shape }, p, local
     heading(reply, 'reply-heading', copy('replyHeadline'), [35, 64, 320, 108]);
     text(reply, 'reply-intro', copy('replyNote'), [42, 191, 306, 75], 18, ink);
     action(reply, 'button', 'replay-gift', common('backCover'), [65, 735, 260, 72]);
-    action(2, 'button', 'wish-to-time', common('openJourney'), [62, 641, 266, 72], 'scene-time');
+    action(2, 'button', 'wish-to-time', common('openJourney'), [62, 735, 266, 64], 'scene-time');
     Object.assign(find('event-photo-wedding-keepsake').layout, { y: 529, height: 86 });
     action(1, 'button', 'memory-to-time', common('openJourney'), [62, 634, 266, 64], 'scene-time');
   } else {

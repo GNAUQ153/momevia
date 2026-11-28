@@ -7,7 +7,7 @@ function decoration(css) { const n=document.createElement('span');n.className=cs
 function wingArt(flower=false) {
   const svg=document.createElementNS(ns,'svg');svg.setAttribute('viewBox','0 0 60 44');
   const parts=flower ? [
-    ['M30 24C4 23 7 1 23 8L30 20C31-3 51 1 45 16L34 25C58 14 65 35 45 36L33 29C35 52 14 48 20 33Z','#F4C9C4'],
+    ['M30 24C4 23 7 1 23 8L30 20C31-3 51 1 45 16L34 25C58 14 65 35 45 36L33 29C34 47 16 46 20 33Z','#F4C9C4'],
     ['M30 17a7 7 0 1 0 0 14a7 7 0 1 0 0-14','#FFC857'],
   ] : [
     ['M29 24C0 1 2 34 25 32C4 52 31 41 30 26Z','#E998AD'],

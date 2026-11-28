@@ -1,4 +1,4 @@
-import { message } from '../../core/i18n.js';
+import { message, setText } from '../../core/i18n.js';
 import { node, field } from './dom.js';
 import { predictionFields } from '../../shared/canvas/prediction.js';
 
@@ -32,6 +32,6 @@ export function updatePredictionFields(root, doc) {
       else if (control !== document.activeElement) control.value = p[key] || '';
     }
     for (const label of host.querySelectorAll('[data-prediction-option]'))
-      label.textContent = `${label.dataset.predictionOption} - ${p['option' + label.dataset.predictionOption]}`;
+      setText(label, `${label.dataset.predictionOption} - ${p['option' + label.dataset.predictionOption]}`);
   }
 }

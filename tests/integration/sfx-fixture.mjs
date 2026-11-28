@@ -7,7 +7,8 @@ import { execFileSync } from 'node:child_process';
 import mysql from 'mysql2/promise';
 import { resolveMysqlConfig } from '../../src/infrastructure/mysql/client.mjs';
 
-export async function startSfxFixture({sql=false,externalSql=false,port=0,label='run',baseline=false,baselineCommit='34f4e52930231dfbff9e2d9dda9f65b99cbb11ed'}={}){
+export async function startSfxFixture({sql=false,externalSql=false,port=0,label='run',publicHost='127.0.0.1',baseline=false,baselineCommit='34f4e52930231dfbff9e2d9dda9f65b99cbb11ed'}={}){
+ if(!['127.0.0.1','localhost'].includes(publicHost))throw new Error('QA public host must remain loopback.');
  const root=fileURLToPath(new URL('../../',import.meta.url)),directory=path.join(root,'local/sfx-qa',`${label}-${Date.now()}`),previousCwd=process.cwd(),previousEnv={...process.env};
  fs.mkdirSync(directory,{recursive:true});
  for(const item of ['src','web','services'])fs.cpSync(path.join(root,item),path.join(directory,item),{recursive:true,filter:p=>path.basename(p)!=='data'});
@@ -54,7 +55,8 @@ export async function startSfxFixture({sql=false,externalSql=false,port=0,label=
   const {createHttpApp}=await import(pathToFileURL(path.join(directory,'src/server/app.mjs')));
   const config={baseUrl:'http://127.0.0.1',jwtSecret:randomBytes(32).toString('hex'),internalKey:randomBytes(32).toString('hex'),demoEnabled:false,adminCode:'',giftTtlDays:365,testAccount:null,googleId:'',googleSecret:'',zaloId:'',zaloSecret:''};
   app=await createHttpApp(config);await new Promise((resolve,reject)=>{app.server.once('error',reject);app.server.listen(port,'127.0.0.1',resolve);});
-  const base=`http://127.0.0.1:${app.server.address().port}`;config.baseUrl=base;
+  // localhost separates browser QA cookies from the persistent 127.0.0.1 demo.
+  const base=`http://${publicHost}:${app.server.address().port}`;config.baseUrl=base;
   async function request(route,{cookie,body,bytes,method,headers={}}={}){
    const res=await fetch(base+'/api'+route,{method:method||(body||bytes?'POST':'GET'),headers:{...(cookie?{cookie}:{}),...(body?{'content-type':'application/json'}:{}),...headers},body:bytes||(body?JSON.stringify(body):undefined)});
    const dataBytes=Buffer.from(await res.arrayBuffer());let data;try{data=JSON.parse(dataBytes);}catch{/* media */}return {status:res.status,data,bytes:dataBytes,headers:res.headers};

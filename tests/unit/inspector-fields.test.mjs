@@ -50,10 +50,10 @@ test("Inspector chỉ dựng trường chung của từng loại, không nhân �
     text: ["props.color"],
     shape: ["props.kind", "props.color", "props.strokeColor", "props.strokeWidth", "props.radius"],
     line: ["props.color", "props.strokeWidth"],
-    sticker: ["props.stickerId", "props.color"],
+    sticker: ["props.stickerId", "props.color", "props.strokeColor"],
     image: ["props.fit", "props.radius"],
-    button: ["props.label", "props.color"],
-    reply: ["props.title", "props.submitLabel"],
+    button: ["props.label", "props.color", "props.variant", "props.placement", "props.radius"],
+    reply: ["props.title", "props.submitLabel", "props.color"],
     interaction: [],
   };
   for (const [type, expected] of Object.entries(cases)) {
@@ -69,6 +69,7 @@ test("Các trường ảnh tùy chọn không làm lộ điều khiển không �
   const values = fields(buildInspectorPropertyFields(image));
   assert.ok(values.includes("props.mask"));
   assert.ok(values.includes("props.caption"));
+  assert.ok(values.includes("props.placeholder"));
   assert.ok(!values.includes("props.optional"));
   assert.ok(!values.includes("props.maskPath"));
 });
@@ -120,7 +121,11 @@ test("Khóa Inspector áp dụng vào DOM nhưng vẫn cho phép đóng panel", 
   const host = {
     children: [{}, {}],
     insertBefore(item) { this.notice = item; },
-    querySelectorAll(selector) { return selector === "[data-editor-field]" ? controls.slice(0, 5) : controls.slice(5); },
+    querySelectorAll(selector) {
+      if (selector === "[data-editor-field]") return controls.slice(0, 5);
+      if (selector === "[data-editor-action]") return controls.slice(5);
+      return [];
+    },
   };
   lockInspectorControls(host, { editableProps: ["color", "focalPoint"] }, false);
   assert.deepEqual(controls.map(c => c.disabled), [false, true, false, true, true, false, true, true]);
@@ -133,12 +138,40 @@ test("Không có policy không thay đổi trạng thái điều khiển", () =>
   assert.equal(changed, false);
 });
 
+test('readable color presets delegate to the existing color field and obey the same lock policy', () => {
+  const model = createElement('text', { props: { color: '#32243B' } });
+  const controls = descendants(buildInspectorPropertyFields(model));
+  const color = controls.find(item => item.dataset.editorField === 'props.color');
+  const palette = controls.find(item => item.dataset.editorColorPreset === 'props.color');
+  const events = [];
+  color.dispatchEvent = event => events.push({ type: event.type, bubbles: event.bubbles });
+  palette.value = '#FFF7EE';
+  palette.onchange();
+  assert.equal(color.value, '#FFF7EE');
+  assert.deepEqual(events, [{ type: 'change', bubbles: true }]);
+  assert.equal(model.props.color, '#32243B');
+  const host = {
+    children: [], insertBefore() {},
+    querySelectorAll(selector) {
+      if (selector === '[data-editor-field]') return [color];
+      if (selector === '[data-editor-color-preset]') return [palette];
+      return [];
+    },
+  };
+  lockInspectorControls(host, { editableProps: [] });
+  assert.equal(color.disabled, true);
+  assert.equal(palette.disabled, true);
+  palette.value = '#32243B';
+  palette.onchange();
+  assert.equal(events.length, 1);
+});
+
 test("Designer kết nối module Inspector, không tự sao chép luật khóa", () => {
   const designer = readFileSync("web/js/pages/designer.js", "utf8");
   const source = readFileSync("web/js/features/canvas-editor/inspector-panel.js", "utf8");
   assert.match(designer, /createInspectorPanel\(\{/);
   assert.match(source, /buildInspectorPropertyFields\(element\)/);
-  assert.match(source, /buildInspectorGeometryFields\(element, store\.get\(\)\.document\.artboard\.baseSize\)/);
+  assert.match(source, /buildInspectorGeometryFields\(element, store\.get\(\)\.document\.artboard\.baseSize, \{\s*layout: groupLayout\(members\), locked: members\.some/);
   assert.match(source, /lockInspectorControls\(host, policy/);
   assert.match(source, /host\.querySelectorAll\("\[data-editor-field\], \[data-editor-action='effect-remove'\]"\)/);
   assert.doesNotMatch(source, /for \(const key of element\.type === "interaction" \? \[\] : registry\[element\.type\]\.inspector\)/);

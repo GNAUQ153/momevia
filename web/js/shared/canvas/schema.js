@@ -12,7 +12,7 @@ import { usesMotions, validateMotions, validateAssembly } from './motion-stack.j
 
 const CANVAS_VERSIONS = Object.freeze([1, 2, 3, 4]);
 export const runtimeVersionFor = document => document.schemaVersion;
-export const requiresCanvasV2 = document => Boolean(document.soundtrack) || document.scenes.some(scene => scene.effects) || document.elements.some(e =>
+export const requiresCanvasV2 = document => Boolean(document.soundtrack) || document.scenes.some(scene => scene.effects || scene.flow) || document.elements.some(e =>
   e.type === 'interaction' || e.effects || e.artwork ||
   ['dropCap', 'pattern', 'mask', 'optional', 'caption'].some(key => own(e.props, key)) ||
   (e.type === 'sticker' && !originalStickerIds.includes(e.props.stickerId)) ||
@@ -53,13 +53,14 @@ function validateInteraction(p, path, assets, publishing) {
   const keys = ['kind', 'color', ...(spec.fields ? ['entries'] : []),
     ...(spec.prediction ? [...Object.keys(predictionFields), 'prediction'] : []),
     ...(spec.slots ? ['photos'] : []), ...(spec.clock ? ['eventAt', 'timeZone'] : [])];
-  const extras = [...(['light-a-candle','foldout-letter'].includes(p.kind) ? ['appearance'] : []), ...(p.kind === 'swipe-album' ? ['optional', 'autoplay'] : []), ...(spec.clock ? ['optional', 'clockMode'] : [])];
+  const extras = [...(['light-a-candle','foldout-letter','scratch-ticket'].includes(p.kind) ? ['appearance'] : []), ...(p.kind === 'swipe-album' ? ['optional', 'autoplay'] : []), ...(spec.clock ? ['optional', 'clockMode', 'clockSource'] : [])];
   object(p, path, [...keys, ...extras], keys);
   if (own(p, 'optional')) boolean(p.optional, `${path}.optional`);
   if (own(p, 'autoplay')) boolean(p.autoplay, `${path}.autoplay`);
+  if (own(p, 'clockSource')) enumeration(p.clockSource, `${path}.clockSource`, ['invitation']);
   if (own(p, 'clockMode')) enumeration(p.clockMode, `${path}.clockMode`, ['countdown', 'elapsed']);
   color(p.color, `${path}.color`);
-  if (own(p,'appearance')) enumeration(p.appearance,`${path}.appearance`,p.kind==='foldout-letter'?['classic','paper-fold-v2']:['classic','cake-overlay-v1','cake-photo-v2']);
+  if (own(p,'appearance')) enumeration(p.appearance,`${path}.appearance`,p.kind==='foldout-letter'?['classic','paper-fold-v2']:p.kind==='scratch-ticket'?['classic','scratch-progress-v1']:['classic','cake-overlay-v1','cake-photo-v2']);
   if (spec.prediction) {
     for (const [key, max] of Object.entries(predictionFields)) {
       string(p[key], `${path}.${key}`, max);
@@ -195,7 +196,14 @@ export function validateDocument(document, { mode = 'draft', requiredBindings = 
   if (!document.scenes.length) fail('scenes', 'Cần ít nhất một cảnh.');
   const sceneIds = new Set(), elementIds = new Set(), assigned = new Set();
   for (const [i, s] of document.scenes.entries()) {
-    const p = `scenes.${i}`; object(s, p, ['id', 'name', 'background', 'elementIds', 'effects'], ['id', 'name', 'background', 'elementIds']); id(s.id, `${p}.id`); string(s.name, `${p}.name`, 100, 1);
+    const p = `scenes.${i}`; object(s, p, ['id', 'name', 'background', 'elementIds', 'effects', 'flow'], ['id', 'name', 'background', 'elementIds']); id(s.id, `${p}.id`); string(s.name, `${p}.name`, 100, 1);
+    if (own(s, 'flow')) {
+      object(s.flow, `${p}.flow`, ['version', 'region'], ['version', 'region']);
+      enumeration(s.flow.version, `${p}.flow.version`, [1]);
+      object(s.flow.region, `${p}.flow.region`, ['x','y','width','height'], ['x','y','width','height']);
+      for (const key of ['x','y']) number(s.flow.region[key], `${p}.flow.region.${key}`, 0, LIMITS.coordinate);
+      for (const key of ['width','height']) number(s.flow.region[key], `${p}.flow.region.${key}`, 1, LIMITS.coordinate);
+    }
     if (own(s,'effects')) validateEffects(s.effects,`${p}.effects`);
     if (sceneIds.has(s.id)) fail(`${p}.id`, 'Cảnh trùng ID.'); sceneIds.add(s.id);
     object(s.background, `${p}.background`, ['kind', 'color'], ['kind', 'color']); enumeration(s.background.kind, `${p}.background.kind`, ['solid']); color(s.background.color, `${p}.background.color`);
@@ -204,7 +212,8 @@ export function validateDocument(document, { mode = 'draft', requiredBindings = 
   }
   id(document.entrySceneId, 'entrySceneId'); if (!sceneIds.has(document.entrySceneId)) fail('entrySceneId', 'Cảnh mở đầu không tồn tại.');
   for (const [i, e] of document.elements.entries()) {
-    const p = `elements.${i}`; object(e, p, ['id', 'type', 'elementVersion', 'layout', 'props', 'accessibility', 'actions', 'name', 'visible', 'locked', 'opacity', 'effects', 'artwork', 'sound', 'assembly', 'motions'], ['id', 'type', 'elementVersion', 'layout', 'props', 'accessibility']);
+    const p = `elements.${i}`; object(e, p, ['id', 'groupId', 'type', 'elementVersion', 'layout', 'props', 'accessibility', 'actions', 'name', 'visible', 'locked', 'opacity', 'effects', 'artwork', 'sound', 'assembly', 'motions'], ['id', 'type', 'elementVersion', 'layout', 'props', 'accessibility']);
+    if (own(e, 'groupId')) id(e.groupId, `${p}.groupId`);
     try {
       if(e.assembly){if(e.type!=='shape'&&!(e.type==='image'&&e.assembly.version===2))fail(p,'Assembly requires a decorative shape or an internal image assembly.');validateAssembly(e.assembly);}
       if(e.motions)validateMotions(e.motions,e);
@@ -222,7 +231,7 @@ export function validateDocument(document, { mode = 'draft', requiredBindings = 
     for (const k of ['x', 'y']) number(e.layout[k], `${p}.layout.${k}`, -LIMITS.coordinate, LIMITS.coordinate);
     for (const k of ['width', 'height']) number(e.layout[k], `${p}.layout.${k}`, 1, LIMITS.coordinate);
     number(e.layout.rotation, `${p}.layout.rotation`, -360, 360);
-    const propKeys = e.type === 'text' ? ['text', 'textBinding', 'fontToken', 'fontSize', 'align', 'color', 'lineHeight', 'dropCap'] : registry[e.type].inspector;
+    const propKeys = e.type === 'text' ? ['text', 'textBinding', 'fontToken', 'fontSize', 'align', 'color', 'lineHeight', 'dropCap', 'fontStyle', 'fontWeight'] : registry[e.type].inspector;
     object(e.props, `${p}.props`, propKeys);
     if (e.type === 'interaction') validateInteraction(e.props, `${p}.props`, imageAssets, mode === 'publish');
     for (const [k, v] of e.type === 'interaction' ? [] : Object.entries(e.props)) {
@@ -230,12 +239,18 @@ export function validateDocument(document, { mode = 'draft', requiredBindings = 
       if (['text', 'label', 'title', 'submitLabel'].includes(k)) string(v, q, k === 'text' ? LIMITS.text : 120);
       else if (k === 'textBinding') enumeration(v, q, BINDINGS);
       else if (k === 'fontToken') enumeration(v, q, FONT_TOKENS);
+      else if (k === 'fontWeight') enumeration(v, q, [400, 500, 600, 700]);
+      else if (k === 'fontStyle') enumeration(v, q, ['normal', 'italic']);
       else if (k === 'fontSize') number(v, q, 10, 160);
       else if (k === 'lineHeight') number(v, q, 1, 3);
       else if (k === 'dropCap') boolean(v, q);
       else if (k === 'mask') { if (!e.props.maskPath) enumeration(v, q, Object.keys(masks)); else id(v, q); }
       else if (k === 'maskPath') { try { validateVector({ paths: [{ d: v }] }); } catch (error) { fail(q, error.message); } }
       else if (k === 'optional') boolean(v, q);
+      else if (k === 'replyMode') enumeration(v, q, ['attendance']);
+      else if (k === 'placeholder') { enumeration(v, q, ['portrait','collapse']); if(v==='collapse'&&!e.props.optional)fail(q,'Chỉ thu gọn khối ảnh tùy chọn.'); }
+      else if (k === 'variant') enumeration(v,q,['filled','text']);
+      else if (k === 'placement') enumeration(v,q,['canvas','footer']);
       else if (k === 'caption') string(v, q, LIMITS.text);
       else if (k === 'pattern') { if (!e.artwork) enumeration(v, q, Object.keys(lines)); else id(v, q); }
       else if (k === 'align') enumeration(v, q, ['left', 'center', 'right']);
@@ -247,7 +262,7 @@ export function validateDocument(document, { mode = 'draft', requiredBindings = 
       else if (k === 'focalPoint') { object(v, q, ['x', 'y'], ['x', 'y']); number(v.x, `${q}.x`, 0, 1); number(v.y, `${q}.y`, 0, 1); }
       else if (k === 'assetId') { if (v === null && (mode === 'draft' || e.props.optional)) continue; id(v, q); if (!imageAssets.has(v)) fail(q, 'Ảnh chưa được khai báo.', 'ASSET_REFERENCE'); }
       else if (k === 'stickerId') { if (!e.artwork) enumeration(v, q, Object.keys(STICKERS)); else id(v, q); }
-      else if (k === 'preset') enumeration(v, q, e.type === 'envelope' ? ['classic','compact-v2','photo-caption-v3'] : ['classic']);
+      else if (k === 'preset') enumeration(v, q, e.type === 'envelope' ? ['classic','compact-v2','photo-caption-v3','garden-gate-v1','botanical-gate-v2'] : ['classic']);
     }
     if (e.type === 'text' && !own(e.props, 'text') && !own(e.props, 'textBinding')) fail(`${p}.props`, 'Văn bản cần literal hoặc binding.');
     if (e.type === 'text' && own(e.props, 'text') && own(e.props, 'textBinding')) fail(`${p}.props`, 'Chỉ chọn literal hoặc binding.');
@@ -270,6 +285,18 @@ export function validateDocument(document, { mode = 'draft', requiredBindings = 
   }
   for (const e of assigned) if (!elementIds.has(e)) fail('scenes.elementIds', 'Element không tồn tại.');
   for (const e of elementIds) if (!assigned.has(e)) fail(`elements.${e}`, 'Element chưa thuộc cảnh nào.');
+  for(const s of document.scenes)if(document.elements.filter(e=>s.elementIds.includes(e.id)&&e.type==='button'&&e.props.placement==='footer').length>4)
+    fail(`scenes.${s.id}.elementIds`,'Hàng điều hướng có tối đa 4 nút.');
+  const grouped = document.elements.filter(element => element.groupId);
+  if (grouped.length) {
+    const owners = new Map(document.scenes.flatMap(scene => scene.elementIds.map(key => [key, scene.id])));
+    const anchors = new Set(grouped.filter(e => e.id === e.groupId).map(e => e.id));
+    const hasSibling = new Set(grouped.filter(e => e.id !== e.groupId).map(e => e.groupId));
+    for (const e of grouped) {
+      if (!anchors.has(e.groupId) || !hasSibling.has(e.groupId) || owners.get(e.id) !== owners.get(e.groupId))
+        fail(`elements.${e.id}.groupId`, 'Các lớp trong một nhóm phải thuộc cùng một cảnh.');
+    }
+  }
   const eventIssue = invitationIssue(document, mode === 'publish');
   if (eventIssue) fail('invitation', `invitation.error.${eventIssue}`, 'INVALID_INVITATION');
   if (document.schemaVersion === 1 && requiresCanvasV2(document)) fail('schemaVersion', 'Khối này cần tài liệu Canvas phiên bản 2.');
@@ -289,7 +316,7 @@ export function duplicateDocument(document, { idFactory = () => globalThis.crypt
   for (const node of [...result.scenes, ...result.elements]) ids.set(node.id, idFactory());
   result.entrySceneId = ids.get(result.entrySceneId);
   for (const s of result.scenes) { s.id = ids.get(s.id); s.elementIds = s.elementIds.map(id => ids.get(id)); }
-  for (const e of result.elements) { e.id = ids.get(e.id); for (const a of e.actions || []) if (a.targetSceneId) a.targetSceneId = ids.get(a.targetSceneId); }
+  for (const e of result.elements) { e.id = ids.get(e.id); if (e.groupId) e.groupId = ids.get(e.groupId); for (const a of e.actions || []) if (a.targetSceneId) a.targetSceneId = ids.get(a.targetSceneId); }
   if (result.invitation) {
     result.invitation.dateElementId = ids.get(result.invitation.dateElementId);
     result.invitation.venueElementId = ids.get(result.invitation.venueElementId);
@@ -301,13 +328,19 @@ export function duplicateDocument(document, { idFactory = () => globalThis.crypt
 export function publicDocument(document) {
   const d = validateDocument(document, { mode: 'publish', requiredBindings: [] });
   const used = new Set(assetIds(d));
+  const publicProps = e => {
+    if (e.props.clockSource !== 'invitation') return e.props;
+    const props = { ...e.props };
+    delete props.clockSource;
+    return { ...props, eventAt: d.invitation?.eventAt || null, timeZone: d.invitation?.timeZone || props.timeZone };
+  };
   return {
     schemaVersion: d.schemaVersion, registryVersion: d.registryVersion, artboard: d.artboard, entrySceneId: d.entrySceneId,
     bindings: d.bindings, assets: d.assets.filter(a => used.has(a.assetId)), scenes: d.scenes,
     ...(d.personalization ? { personalization: { version: 1, mode: d.personalization.mode, ...(d.personalization.resolved ? { resolved: true } : {}) } } : {}),
     ...(d.soundtrack ? { soundtrack: d.soundtrack } : {}),
     ...(d.invitation ? { invitation: d.invitation } : {}),
-    elements: d.elements.map(e => ({ id: e.id, type: e.type, elementVersion: e.elementVersion, layout: e.layout, props: e.props, accessibility: e.accessibility, ...(e.motions ? {motions:e.motions} : {}), ...(e.assembly ? {assembly:e.assembly} : {}), ...(e.sound ? {sound:e.sound} : {}), ...(e.actions ? { actions: e.actions } : {}), ...(e.effects ? { effects: e.effects } : {}), ...(e.artwork ? { artwork: e.artwork } : {}), ...(own(e, 'visible') ? { visible: e.visible } : {}), ...(own(e, 'opacity') ? { opacity: e.opacity } : {}) })),
+    elements: d.elements.map(e => ({ id: e.id, ...(e.groupId ? {groupId:e.groupId} : {}), type: e.type, elementVersion: e.elementVersion, layout: e.layout, props: publicProps(e), accessibility: e.accessibility, ...(e.motions ? {motions:e.motions} : {}), ...(e.assembly ? {assembly:e.assembly} : {}), ...(e.sound ? {sound:e.sound} : {}), ...(e.actions ? { actions: e.actions } : {}), ...(e.effects ? { effects: e.effects } : {}), ...(e.artwork ? { artwork: e.artwork } : {}), ...(own(e, 'visible') ? { visible: e.visible } : {}), ...(own(e, 'opacity') ? { opacity: e.opacity } : {}) })),
     responsive: d.responsive,
   };
 }

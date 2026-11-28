@@ -1,4 +1,5 @@
 import { escapeHtml as e } from "../core/api.js";
+import { displayCopy } from '../shared/locale.js';
 import { attr, text } from "../core/i18n.js";
 import { icon } from "../ui/icons.js";
 import { isSystemTemplate } from '../shared/template-copy.js';
@@ -18,8 +19,8 @@ export function createComponents({ state }) {
       return `<div class="artwork artwork--${e(template.theme)} artwork--canvas ${variant}"><img ${source}="${e(template.thumbnail)}"${marker} ${attr('alt', 'catalog.artwork.creatorAlt', { title: template.title })} width="390" height="844" loading="${loading}"/></div>`;
     }
     const theme = e(template.theme || "violet");
-    const title = template.title ? e(template.title) : text('catalog.artwork.fallbackTitle');
-    const small = template.subtitle ? e(template.subtitle) : text('catalog.artwork.fallbackSubtitle');
+    const title = template.title ? e(displayCopy(template.title)) : text('catalog.artwork.fallbackTitle');
+    const small = template.subtitle ? e(displayCopy(template.subtitle)) : text('catalog.artwork.fallbackSubtitle');
     return `<div class="artwork artwork--${theme} ${variant}">
       <span class="artwork__blur artwork__blur--one"></span>
       <span class="artwork__blur artwork__blur--two"></span>

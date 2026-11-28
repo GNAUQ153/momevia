@@ -1,5 +1,6 @@
 import { clearTemplateBindingDefaults } from './personalization.js';
 import { duplicateDocument } from './schema.js';
+import { repairElementGroups } from './element-groups.js';
 import { EVENT_ARTWORK_LABEL } from './event-media.js';
 import { emptyPrediction, PREDICTION_KIND } from './prediction.js';
 import { canonicalText } from '../locale.js';
@@ -13,6 +14,7 @@ export function cleanGiftLayout(snapshot, { sharedImages = new Map() } = {}) {
   delete document.invitation;
   document.assets = [];
   document.elements = document.elements.filter(element => element.type !== 'image' || sharedImages.has(element.props.assetId));
+  repairElementGroups(document.elements);
   for (const element of document.elements.filter(e => e.type === 'image')) {
     element.props.assetId = sharedImages.get(element.props.assetId);
     delete element.props.caption;

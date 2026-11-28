@@ -17,10 +17,10 @@ function customItems() {
       definition: { family: 'entrance', title: { vi: 'Nghiêng nhẹ', en: 'Gentle tilt' }, animationId: 'db-motion', targets: { types: ['text'] }, defaults: { speed: 'slow', delay: 150 } } },
   ];
 }
-test('552 complete builtin definitions validate and contain no executable factories', () => {
+test('572 complete builtin definitions validate and contain no executable factories', () => {
   const rows = builtinLibraryItems(); validateLibrary(rows);
-  assert.equal(rows.length, 552); assert.equal(rows.filter(r => r.kind === 'element').length, 299);
-  assert.equal(rows.filter(r => r.kind === 'animation').length, 42);
+  assert.equal(rows.length, 572); assert.equal(rows.filter(r => r.kind === 'element').length, 312);
+  assert.equal(rows.filter(r => r.kind === 'animation').length, 44);
   assert.deepEqual(JSON.parse(JSON.stringify(rows)), rows);
 });
 test('DB-only artwork and animation are frozen in the saved and public document', () => {
@@ -51,6 +51,12 @@ test('materialized elements get independent IDs and pinned vector path data', ()
     assert.notEqual(a[0].artwork.paths[0].d, oldPath);
     const photo = { type: 'image', props: { mask: 'arch' } }; refreshElementArtwork(photo); const arch = photo.props.maskPath;
     photo.props.mask = 'heart'; refreshElementArtwork(photo); assert.notEqual(photo.props.maskPath, arch);
+    const cup=items.find(r=>r.kind==='element'&&r.id==='garden-porcelain-cup').definition.elements[0];
+    assert.equal(cup.artwork.paths.length,11);
+    const copy=materializeModels([cup])[0];
+    assert.deepEqual(copy.artwork,cup.artwork,'authored porcelain paths survive an active generic rectangle artwork row');
+    copy.props.kind='ellipse';refreshElementArtwork(copy);
+    assert.notDeepEqual(copy.artwork,cup.artwork,'explicit shape replacement still refreshes the default artwork');
   } finally { installLibrary(before); }
 });
 test('library rejects code, URLs, unsupported transforms, malicious paths and broken dependencies', () => {

@@ -1,7 +1,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { buildTemplatePreviews } from './template-previews.mjs';
+import { parseArgs } from 'node:util';
+import { buildTemplatePreviews, readCoverLibrary } from './template-previews.mjs';
 import { buildLocalizedHtml } from './localized-html.mjs';
 import { checkLocales } from '../quality/check-locales.mjs';
 
@@ -12,7 +13,8 @@ checkLocales();
 fs.mkdirSync(path.dirname(target), { recursive: true });
 fs.copyFileSync(source, target);
 console.log('Built local QR module (qrcode-generator 2.0.4, MIT).');
-buildTemplatePreviews();
+const { values } = parseArgs({ options: { 'cover-library': { type: 'string' } } });
+buildTemplatePreviews({ library: readCoverLibrary(values['cover-library']) });
 buildLocalizedHtml();
 
 await import('./recipient-vendor.mjs');

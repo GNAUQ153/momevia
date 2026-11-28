@@ -14,9 +14,9 @@ const cards = catalog.flatMap(group => group.items);
 const extended = cards.filter(block => block.id.startsWith("m55-"));
 
 test("Không mất 100 khối gốc, 24 trang trí cũ; đủ 48 vector ở sáu nhóm mới", () => {
-  assert.equal(cards.length, 299);
-  assert.equal(new Set(cards.map(item => item.id)).size, 299);
-  assert.equal(cards.filter(item => !/^m5[45]-/.test(item.id) && !item.id.startsWith('object-') && !item.id.startsWith('natural-') && !item.id.startsWith('motion-') && !item.id.startsWith('signature-') && !EVENT_CLUSTER_IDS.includes(item.id) && item.id!=='sound-button').length, 100);
+  assert.equal(cards.length, 312);
+  assert.equal(new Set(cards.map(item => item.id)).size, 312);
+  assert.equal(cards.filter(item => !/^m5[45]-/.test(item.id) && !item.id.startsWith('object-') && !item.id.startsWith('natural-') && !item.id.startsWith('motion-') && !item.id.startsWith('signature-') && !item.id.startsWith('garden-') && !EVENT_CLUSTER_IDS.includes(item.id) && item.id!=='sound-button').length, 100);
   assert.equal(cards.filter(item => item.id.startsWith("m54-")).length, 24);
   assert.equal(extended.length, 48);
   assert.equal(Object.keys(extendedArt).length, 48);
@@ -50,9 +50,21 @@ test("48 hình có metadata, từ khóa có dấu/không dấu, ID và màu hợ
     assert.equal(element.props.stickerId, block.id);
     assert.equal(element.accessibility.decorative, true);
     assert.equal(element.actions, undefined);
-    assert.equal(vectorParts(element).length, 2);
+    const vector = vectorParts(element);
+    assert(vector.length >= 2 && vector.length <= 12, block.id);
+    assert(vector.some(part => part.fill === element.props.color), block.id);
+    assert(vector.some(part => part.stroke && part['stroke-width'] > 0), block.id);
     assert.notEqual(element.id, block.create()[0].id);
   }
+});
+
+test('lion eyes and compass needle keep contrasting surfaces at small sizes', () => {
+  const lion = vectorParts(cards.find(block => block.id === 'm55-lion-mask').create()[0]);
+  assert(lion.some(part => part.fill === '#FFF7E5' && /A12 12/.test(part.d)), 'white eye surrounds');
+  assert(lion.some(part => /A4 4/.test(part.d) && part.fill !== 'none'), 'paired pupils');
+  const compass = vectorParts(cards.find(block => block.id === 'm55-compass').create()[0]);
+  assert(compass.some(part => part.fill === '#FFF7E5' && part.d.includes('50 23')), 'north needle');
+  assert(compass.some(part => part.fill !== '#FFF7E5' && part.d.includes('50 77')), 'south needle');
 });
 
 test("48 hình có thể lưu, nhân bản, xuất bản và render cover SVG trên schema V2", () => {

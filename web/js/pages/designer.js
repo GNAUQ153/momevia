@@ -17,6 +17,8 @@ import {
   LIMITS,
 } from "../shared/canvas/index.js";
 import { requiresCanvasV2 } from "../shared/canvas/schema.js";
+import { groupElements, groupMembers, repairElementGroups } from "../shared/canvas/element-groups.js";
+import { applyGroupLayout, groupLayout, moveBlockInStack, resizeGroup } from "../features/canvas-editor/group-layout.js";
 import { usesSound, SOUND_TYPES } from '../shared/canvas/sound.js';
 import { eventTimeFromLocal, photoSlots } from "../shared/canvas/interactions.js";
 import { motionRow, motionKinds, usesMotions } from '../shared/canvas/motion-stack.js';
@@ -260,24 +262,26 @@ export function mountDesigner(
     getContext: () => ({ store, design, sceneId, quickMode }),
     selectedIds, choose, selectRestored, commit, newId,
     renderInspector: () => renderInspector(),
-    clearSelection: () => { selection = null; selectedSet.clear(); stage.render(); },
+    clearSelection: () => selectRestored([]),
   });
   function selectAll() {
-    selectedSet = new Set(editableSceneIds(store.get().document, currentScene(), design.policy));
-    selection = [...selectedSet].at(-1) || null;
-    stage.render();
-    renderInspector();
+    selectRestored(editableSceneIds(store.get().document, currentScene(), design.policy));
   }
   function selectRestored(ids) {
-    choose(ids.at(-1));
     selectedSet = new Set(ids);
-    stage.render();
+    selection = ids.at(-1) || null;
+    refreshSelection();
   }
   function selected() {
     return store.get().document.elements.find((item) => item.id === selection);
   }
   function choose(idValue,{additive=false}={}) {
-    ({ selection, selectedSet } = toggleSelection(selectedSet, idValue, additive));
+    const elements = store.get().document.elements;
+    const ids = groupMembers(elements, elements.find(item => item.id === idValue)).map(item => item.id);
+    ({ selection, selectedSet } = toggleSelection(selectedSet, idValue, additive, ids));
+    refreshSelection();
+  }
+  function refreshSelection() {
     store?.endMerge();
     stage?.render();
     renderInspector();
@@ -391,7 +395,7 @@ export function mountDesigner(
     if (design.policy?.kind === "creator-template")
       return store.get().document.elements.find(element => element.id === design.policy.photoId);
     return store.get().document.elements.find(element =>
-      isLegacyFrame(element) && element.visible !== false && !element.locked &&
+      (isLegacyFrame(element) || (element.type === 'image' && element.props.optional)) && element.visible !== false && !element.locked &&
       !design.policy?.lockedElements?.[element.id]
     );
   }
@@ -720,7 +724,7 @@ export function mountDesigner(
       getSnap: () => snap,
       isReadOnly: () => quickMode,
       isLayoutLocked: (idValue) =>
-        Boolean(design.policy?.lockedElements?.[idValue]),
+        design.policy?.kind === 'creator-template' || Boolean(design.policy?.lockedElements?.[idValue]),
       onGesture: (active) => main.classList.toggle("editor-dragging", active),
     });
     stageObserver?.disconnect();
@@ -935,8 +939,9 @@ export function mountDesigner(
     fitted = true;
     const scroll = main.querySelector(".editor-stage-scroll");
     const padding = getComputedStyle(scroll);
-    const width = scroll.clientWidth - parseFloat(padding.paddingLeft) - parseFloat(padding.paddingRight);
-    const height = scroll.clientHeight - parseFloat(padding.paddingTop) - parseFloat(padding.paddingBottom);
+    // Leave a small tolerance for outlines, artwork bleed and fractional zoom.
+    const width = scroll.clientWidth - parseFloat(padding.paddingLeft) - parseFloat(padding.paddingRight) - 8;
+    const height = scroll.clientHeight - parseFloat(padding.paddingTop) - parseFloat(padding.paddingBottom) - 8;
     const size = store.get().document.artboard.baseSize;
     setZoom(Math.min(1, Math.max(0.1, Math.min(width / size.width, height / size.height))));
   }
@@ -1311,7 +1316,7 @@ export function mountDesigner(
     if (!mobile.matches) closeSheet();
     if (fitted) fit();
   }, { signal });
-  async function action(name, target) {
+  async function action(name, target, event) {
     if (name === "studio") {
       await navigate(design?.purpose === "creator" ? "/creator" : "/studio");
       return;
@@ -1582,8 +1587,8 @@ export function mountDesigner(
       return;
     }
     if (name === "select") {
-      choose(target.dataset.id);
-      main.querySelector(`.editor-layers [data-id="${CSS.escape(selection)}"]`)?.focus({ preventScroll: true });
+      choose(target.dataset.id, { additive: event?.shiftKey || event?.ctrlKey || event?.metaKey });
+      main.querySelector(`.editor-layers [data-id="${CSS.escape(target.dataset.id)}"]`)?.focus({ preventScroll: true });
       return;
     }
     if (name === "scene-select") {
@@ -1666,6 +1671,7 @@ export function mountDesigner(
         document.elements = document.elements.filter(element => element.id !== photo.id);
         const scene = document.scenes.find(item => item.elementIds.includes(photo.id));
         scene.elementIds = scene.elementIds.filter(elementId => elementId !== photo.id);
+        if (photo.groupId) repairElementGroups(document.elements);
         document.assets = document.assets.filter(asset => assetIds(document).includes(asset.assetId));
       }, message("editor.quick.removePhoto"));
       return;
@@ -1711,6 +1717,7 @@ export function mountDesigner(
       const insertingGreeting = name === "insert-greeting";
       const block = catalog.flatMap(group => group.items).find(item => item.id === (insertingGreeting ? "greeting" : target.dataset.block));
       if (!block) return;
+      if (block.id === 'garden-attendance' && !store.get().document.invitation) throw new Error(t('templates.garden-tea.requiresEvent'));
       let models = block.create(),addedAssets=[];
       if(models.some(e=>photoSlots(e).some(slot=>slot.assetId))){
         const designId=design.id;target.disabled=true;
@@ -1721,6 +1728,7 @@ export function mountDesigner(
         }finally{if(!disposed)target.disabled=false;}
       }
       if (insertingGreeting) models[0].props.color = readableInk(scene.background.color);
+      groupElements(models);
       models.at(-1).name ||= block.title;
       const dropX=Number(target.dataset.dropX),dropY=Number(target.dataset.dropY);
       if(Number.isFinite(dropX)&&Number.isFinite(dropY)){
@@ -1785,6 +1793,7 @@ export function mountDesigner(
         for (const model of originals) {
           const item = structuredClone(model);
           item.id = idMap.get(model.id);
+          if (item.groupId) item.groupId = idMap.get(item.groupId);
           for (const a of item.actions || [])
             if (a.targetSceneId === original.id) a.targetSceneId = nextId;
           value.document.elements.push(item);
@@ -1850,6 +1859,16 @@ export function mountDesigner(
       closePreview=openCanvasPreview({document:motionLibraryPreview(block),assetUrl:id=>eventMediaUrl(id),quickMode:false,signal,dialogs,message,onClose:()=>{closePreview=null;}});return;
     }
     if (!selected()&&name!=='element-paste') throw new Error(t("editor.error.noSelection"));
+    if (name === 'element-group') {
+      const ids = new Set(selectedIds());
+      commit(({ document }) => {
+        const members = document.elements.filter(item => ids.has(item.id));
+        if (members.length > 1 && members.every(item => !item.groupId && editableElement(item, design.policy)))
+          groupElements(members);
+      }, t('editor.interface.groupLayers'));
+      choose(selection);
+      return;
+    }
     if(name==='motion-add' || name==='motion-remove' || name==='motion-preview'){
       const model=store.get().document.elements.find(e=>e.id===selection);if(!model)return;
       if(name==='motion-preview'){stage.playMotions(target.dataset.motionId);return;}
@@ -1886,8 +1905,15 @@ export function mountDesigner(
         const item = document.elements.find(element => element.id === selection);
         if (name === "text-align") item.props.align = target.dataset.align;
         if (name === "text-font") item.props.fontToken = target.dataset.font;
-        if (name === "layer-visibility") item.visible = item.visible === false;
-        if (name === "layer-lock") item.locked = !item.locked;
+        if (name === "layer-visibility" || name === "layer-lock") {
+          const members = groupMembers(document.elements, item);
+          if (design.policy?.kind === 'creator-template' || members.some(member => design.policy?.lockedElements?.[member.id])) return;
+          const show = item.visible === false, lock = !members.some(member => member.locked);
+          for (const member of members) {
+            if (name === "layer-visibility") member.visible = show;
+            else member.locked = lock;
+          }
+        }
       }, target.getAttribute("aria-label"));
       renderInspector();
       const variant = name === "text-align" ? `[data-align="${target.dataset.align}"]` :
@@ -1898,22 +1924,15 @@ export function mountDesigner(
     if (name === "center" || name === "inside") {
       commit(
         (value) => {
-          const item = value.document.elements.find(
-            (item) => item.id === selection,
-          ),
-            size = value.document.artboard.baseSize;
-          item.layout.x =
-            name === "center"
-              ? (size.width - item.layout.width) / 2
-              : Math.max(
-                0,
-                Math.min(item.layout.x, size.width - item.layout.width),
-              );
-          if (name === "inside")
-            item.layout.y = Math.max(
-              0,
-              Math.min(item.layout.y, size.height - item.layout.height),
-            );
+          const item = value.document.elements.find(element => element.id === selection);
+          const members = groupMembers(value.document.elements, item);
+          if (!members.every(member => editableElement(member, design.policy))) return;
+          const layout = groupLayout(members), size = value.document.artboard.baseSize;
+          const box = members.length > 1 ? bounds(members) : { left: layout.x, top: layout.y, right: layout.x + layout.width, bottom: layout.y + layout.height };
+          const width = box.right - box.left, height = box.bottom - box.top;
+          const left = name === "center" ? (size.width - width) / 2 : Math.max(0, Math.min(box.left, size.width - width));
+          const top = name === "inside" ? Math.max(0, Math.min(box.top, size.height - height)) : box.top;
+          applyGroupLayout(members, layout, { ...layout, x: layout.x + left - box.left, y: layout.y + top - box.top });
         },
         name === "center" ? t("editor.history.centerLayer") : t("editor.history.fitLayer"),
       );
@@ -1932,13 +1951,10 @@ export function mountDesigner(
     if (isClipboardAction(name)) return clipboardActions.handle(name, target);
     if (name === "layer-up" || name === "layer-down") {
       commit((value) => {
-        const list = value.document.scenes.find(
-          (item) => item.id === sceneId,
-        ).elementIds,
-          index = list.indexOf(selection),
-          next = index + (name === "layer-up" ? 1 : -1);
-        if (next >= 0 && next < list.length)
-          [list[index], list[next]] = [list[next], list[index]];
+        const scene = value.document.scenes.find(item => item.id === sceneId);
+        const item = value.document.elements.find(element => element.id === selection);
+        if (groupMembers(value.document.elements, item).every(member => editableElement(member, design.policy)))
+          moveBlockInStack(value.document, scene, item, name === "layer-up" ? 1 : -1);
       }, t("editor.history.reorderLayers"));
       return;
     }
@@ -2159,15 +2175,22 @@ export function mountDesigner(
         }
         if (key === "action.type") {
           item.actions = [
-            value === "replay"
-              ? { on: "activate", type: "replay" }
+            ['replay', 'openEventMap', 'saveEventCalendar'].includes(value)
+              ? { on: 'activate', type: value }
               : { on: "activate", type: "goToScene", targetSceneId: null },
           ];
           return;
         }
         const [group, fieldName] = key.split(".");
         if (group === "element") item[fieldName] = value;
-        else if (["props", "layout", "accessibility"].includes(group))
+        else if (group === "layout") {
+          const members = groupMembers(next.document.elements, item);
+          if (!members.every(member => editableElement(member, design.policy))) return;
+          const before = groupLayout(members);
+          const after = members.length > 1 && ["width", "height"].includes(fieldName)
+            ? resizeGroup(members, before, value / before[fieldName]) : { ...before, [fieldName]: value };
+          applyGroupLayout(members, before, after);
+        } else if (["props", "accessibility"].includes(group))
           item[group][fieldName] = value;
         if (group === 'props' && (['stickerId','mask','pattern'].includes(fieldName) || fieldName === 'kind' && item.type === 'shape')) refreshElementArtwork(item);
         if (
@@ -2184,7 +2207,7 @@ export function mountDesigner(
             : null,
       },
     );
-    if (["textBinding", "action.type", "props.fit", "props.radius", "props.timeZone", "accessibility.decorative"].includes(key) ||
+    if ((key.startsWith("layout.") && selected()?.groupId) || ["textBinding", "action.type", "props.fit", "props.radius", "props.timeZone", "accessibility.decorative"].includes(key) ||
       key.endsWith(".assetId") || (key.startsWith("effect.") && key.endsWith(".id")) ||
       key.startsWith("crop.") || key.startsWith('celebration.')) renderInspector();
   }
@@ -2216,7 +2239,7 @@ export function mountDesigner(
       }
       if (!target) return;
       event.preventDefault();
-      await action(target.dataset.editorAction, target);
+      await action(target.dataset.editorAction, target, event);
     }),
     { signal },
   );

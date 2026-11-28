@@ -44,6 +44,10 @@ export function translate(dictionary, locale, key, params, ui = false) {
 export const translateUi = (dictionary, locale, key, params) => translate(dictionary, locale, key, params, true);
 export const canonicalUiText = (key, params) => translateUi(vi, defaultLocale, key, params);
 
+// Normalize only the text sent to a display surface. Stored user input, URLs,
+// identifiers and localization parameters retain their original representation.
+export const displayCopy = value => String(value ?? '').normalize('NFC');
+
 export function escapeHtml(value) {
   return String(value ?? '').replace(/[&<>"']/g, char => ({
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',

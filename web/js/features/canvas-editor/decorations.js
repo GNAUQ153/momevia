@@ -34,7 +34,7 @@ const collections = [
     ["m54-polaroid-stack", "Chồng ảnh Polaroid", "ảnh ký ức", "#C9ABBE"],
     ["m54-confetti", "Pháo hoa giấy", "vui vẻ ăn mừng", "#B78DB9"],
     ["m54-music-notes", "Nốt nhạc", "giai điệu kỷ niệm", "#8B74B3"],
-    ["m54-birthday-slice", "Bánh sinh nhật", "sinh nhật bánh", "#D3A174"],
+    ["m54-birthday-slice", "Miếng bánh sinh nhật", "sinh nhật bánh", "#D3A174"],
     ["m54-star-trail", "Dải sao", "ước nguyện lấp lánh", "#C4A15A"],
     ["m54-floral-wreath", "Vòng hoa", "khung hoa kỷ niệm", "#B47D99"],
   ]],

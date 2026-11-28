@@ -1,6 +1,6 @@
 // Only anonymous, public Catalog GETs may be shared with the app. No identity,
 // draft, gift, reply, entitlement or purchase response belongs in this cache.
-import { COVER_WIDTHS, CATALOG_COVER_SIZES } from '../shared/cover-images.js';
+import { BUILTIN_COVER_REVISION, COVER_WIDTHS, CATALOG_COVER_SIZES } from '../shared/cover-images.js';
 import { prioritizeTemplates } from '../shared/template-order.js';
 const covers=new Map();
 export const catalogCoverRevision=id=>covers.get(id);
@@ -26,11 +26,15 @@ export function startCatalogBootstrap(){
   const templates=match?[data.template]:location.search?[]:prioritizeTemplates(data.templates).slice(0,2);
   for(const template of templates){
    if(!template?.systemOwned&&!template?.thumbnail)continue;
-   const id=encodeURIComponent(template.id),src=template.systemOwned?(template.coverRevision?`/api/designs/library/templates/${id}/cover?locale=${locale}&v=${encodeURIComponent(template.coverRevision)}`:`/assets/basic-templates/${locale==='en'?'en/':''}${id}.svg?v=9`):template.thumbnail;
-   const coverSrc=template.systemOwned&&!match?(template.coverRevision?src+'&variant=catalog':src.replace('.svg?v=9','-catalog.svg?v=9')):src;
+   const id=encodeURIComponent(template.id);
+   const coverSrc=template.systemOwned
+    ? (template.coverRevision
+      ? `/api/designs/library/templates/${id}/cover?locale=${locale}&v=${encodeURIComponent(template.coverRevision)}${match?'':'&variant=catalog'}`
+      : `/assets/basic-templates/${locale==='en'?'en/':''}${id}${match?'':'-catalog'}.svg?v=${BUILTIN_COVER_REVISION}`)
+    : template.thumbnail;
    const link=document.createElement('link');link.rel='preload';link.as='image';
    if(template.systemOwned&&!match){
-    const thumbnail=template.coverRevision?coverSrc:`/api/designs/library/templates/${id}/thumbnail?locale=${locale}&v=9&variant=catalog`;
+    const thumbnail=template.coverRevision?coverSrc:`/api/designs/library/templates/${id}/thumbnail?locale=${locale}&v=${BUILTIN_COVER_REVISION}&variant=catalog`;
     link.imageSrcset=COVER_WIDTHS.map(width=>`${thumbnail}&width=${width} ${width}w`).join(', ');
     link.imageSizes=CATALOG_COVER_SIZES;link.href=thumbnail+'&width=320';
    }else link.href=coverSrc;

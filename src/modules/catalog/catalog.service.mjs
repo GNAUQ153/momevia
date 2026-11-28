@@ -54,7 +54,7 @@ export function publicTemplate(template) {
       .reduce((count, e) => count + e.props.photos.length, 0);
     const photoFrames = signatureTemplateDefinition(template.id)
       ? document.elements.filter(e => e.type === 'image' && e.props.optional).length
-      : document.elements.filter(isPhotoFrame).length + albumSlots;
+      : document.elements.filter(isPhotoFrame).length + albumSlots + document.elements.filter(e => e.type === 'image' && e.props.optional && !e.props.assetId).length;
     view.personalization = { bindings: [...visibleBindingKeys(document)], photoFrames, layout: true };
   }
   return view;

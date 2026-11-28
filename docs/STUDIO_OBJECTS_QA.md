@@ -1,5 +1,7 @@
 # Sáu mẫu: phong bì, máy ảnh, bằng và mũ — 28/11/2026
 
+Phần bổ sung chiều sâu giấy và nhịp mở có lựa chọn cho phong bì/bằng được ghi riêng tại [PAPER_RELIEF_QA.md](PAPER_RELIEF_QA.md). Những tài liệu không bật thuộc tính mới tiếp tục dùng vật liệu đã mô tả ở đợt này.
+
 Đợt tiếp theo trên nhánh `fix/natural-canvas-objects-20261128`, từ `6281faa`. Bản làm việc cô lập `momevia-drive-six-20261127`; không nhập WIP ở repo gốc (`3856921`, 179 đường dẫn khi bắt đầu). Chỉ mã nguồn, vector, giấy phép và bìa sinh tự động được đưa lên Git. Video và dữ liệu/bằng chứng QA ở local. Chưa merge/deploy.
 
 ## Khoanh vùng sau rà ảnh toàn bộ 54 cảnh

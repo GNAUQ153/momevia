@@ -250,6 +250,124 @@
 .gift-source-envelope.is-source-instant * {
   transition: none !important;
 }
+/* Explicit paperRelief opt-in; existing v5 documents keep their flat material. */
+.gift-envelope-relief-rig {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transform: perspective(800px) rotateX(calc(5deg * var(--paper-depth))) rotateY(calc(-6deg * var(--paper-depth))) rotateZ(-.7deg);
+  transform-origin: 50% 65%;
+}
+.gift-envelope-relief-rig::before {
+  content: '';
+  position: absolute;
+  left: calc(var(--object-x) + var(--object-width) * .12);
+  top: calc(var(--object-y) + var(--object-height) * .88);
+  width: calc(var(--object-width) * .78);
+  height: calc(var(--object-width) * .035);
+  border-radius: 50%;
+  background: #160b1f38;
+  filter: blur(5px);
+}
+.gift-paper-relief.is-opening .gift-envelope-relief-rig {
+  animation: paper-envelope-lift var(--drive-duration) cubic-bezier(.22,.7,.25,1) both;
+}
+.gift-paper-relief .gift-source-card {
+  transition-duration: calc(var(--drive-duration) * .12);
+}
+.gift-paper-relief .gift-source-envelope-seal {
+  left: calc(var(--object-x) + var(--object-width) * .39);
+  top: calc(var(--object-y) + var(--object-height) * .63 - var(--object-width) * .11);
+  width: calc(var(--object-width) * .22);
+}
+.gift-paper-relief .gift-source-envelope-monogram {
+  inset: 28%;
+}
+.gift-paper-relief.is-opening .gift-source-envelope-seal {
+  animation: paper-seal-release calc(var(--drive-duration) * .2) ease-out both;
+}
+.gift-studio-stage.gift-paper-relief {
+  perspective: 700px;
+}
+.gift-paper-relief .gift-studio-scroll-assembly {
+  transform-origin: 50% 28%;
+  transform: translateY(64px) rotateX(calc(12deg * var(--paper-depth))) rotateZ(-1deg);
+}
+.gift-paper-relief .gift-studio-scroll-foot {
+  transform-origin: 50% 78%;
+  transform: translateY(-68%) rotateX(calc(16deg * var(--paper-depth)));
+}
+.is-revealed .gift-paper-relief .gift-studio-scroll-assembly {
+  animation: paper-scroll-unroll var(--drive-duration) cubic-bezier(.22,.7,.25,1) both;
+}
+.is-revealed .gift-paper-relief .gift-studio-scroll-foot {
+  transform: none;
+  transition-duration: calc(var(--drive-duration) * .65);
+  transition-delay: calc(var(--drive-duration) * .25);
+}
+.is-revealed .gift-paper-relief .gift-studio-ribbon {
+  animation: paper-ribbon-release calc(var(--drive-duration) * .3) ease-out both;
+}
+.is-revealed .gift-paper-relief .gift-studio-reading {
+  transition-delay: calc(var(--drive-duration) * .78);
+}
+.gift-source-envelope.gift-paper-relief.is-source-instant .gift-envelope-relief-rig {
+  animation: none;
+  transform: none;
+}
+.gift-source-envelope.gift-paper-relief.is-source-instant * {
+  animation: none !important;
+}
+@keyframes paper-envelope-lift {
+  0%, 18% {
+    transform: perspective(800px) rotateX(calc(5deg * var(--paper-depth))) rotateY(calc(-6deg * var(--paper-depth))) rotateZ(-.7deg);
+  }
+  48% {
+    transform: perspective(800px) translateY(-4px) rotateX(calc(-3deg * var(--paper-depth))) rotateY(calc(3deg * var(--paper-depth)));
+  }
+  90%, 100% {
+    transform: none;
+  }
+}
+@keyframes paper-seal-release {
+  0% {
+    opacity: 1;
+    transform: none;
+  }
+  35% {
+    opacity: 1;
+    transform: translate(3px, -7px) rotate(-8deg) scale(1.05);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(15px, -25px) rotate(-20deg) scale(.92);
+  }
+}
+@keyframes paper-scroll-unroll {
+  0%, 20% {
+    transform: translateY(64px) rotateX(calc(12deg * var(--paper-depth))) rotateZ(-1deg);
+  }
+  78% {
+    transform: translateY(-2px) rotateX(calc(-3deg * var(--paper-depth))) rotateZ(.3deg);
+  }
+  100% {
+    transform: none;
+  }
+}
+@keyframes paper-ribbon-release {
+  0% {
+    transform: none;
+    opacity: 1;
+  }
+  35% {
+    transform: translate(8px, -5px) rotate(-12deg) scale(.97);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(58px, -18px) rotate(28deg);
+    opacity: 0;
+  }
+}
 @keyframes studio-cap-flight {
   0% {
     transform: none;
@@ -280,8 +398,20 @@
     animation: none !important;
     transition: none !important;
   }
+  .gift-paper-relief.is-opening .gift-envelope-relief-rig,
+  .is-revealed .gift-paper-relief .gift-studio-scroll-assembly {
+    transform: none;
+  }
 }
 .gift-runtime[data-motion=off] .gift-drive-studio * {
   animation: none !important;
   transition: none !important;
+}
+.gift-runtime[data-motion=off] .gift-paper-relief * {
+  animation: none !important;
+  transition: none !important;
+}
+.gift-runtime[data-motion=off] .gift-paper-relief.is-opening .gift-envelope-relief-rig,
+.gift-runtime[data-motion=off] .is-revealed .gift-paper-relief .gift-studio-scroll-assembly {
+  transform: none;
 }

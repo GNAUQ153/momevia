@@ -4299,5 +4299,6 @@
   "crafted.depth": "Độ nổi khối (0: tắt)",
   "studio.style": "Minh họa và chuyển động Studio",
   "studio.envelopeStyle": "Phong bì mở cùng thư",
-  "studio.noCameraPhoto": "Chưa có ảnh cho khoảnh khắc này."
+  "studio.noCameraPhoto": "Chưa có ảnh cho khoảnh khắc này.",
+  "studio.paperRelief": "Chiều sâu giấy và nhịp mở tự nhiên"
 }

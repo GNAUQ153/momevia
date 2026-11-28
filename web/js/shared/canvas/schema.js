@@ -54,9 +54,10 @@ function validateInteraction(p, path, assets, publishing, videos) {
   const keys = ['kind', 'color', ...(spec.fields ? ['entries'] : []),
     ...(spec.prediction ? [...Object.keys(predictionFields), 'prediction'] : []),
     ...(spec.slots ? ['photos'] : []), ...(spec.clock ? ['eventAt', 'timeZone'] : [])];
-  const extras = [...((spec.drive||['swipe-album','foldout-letter','scratch-ticket'].includes(p.kind))?['appearance','cornerRadius','motionSpeed','inkColor','accentColor','detailColor']:[]), ...(spec.video?['videoAssetId','optional']:[]), ...(spec.drive?['bodyBinding','objectAssetId']:[]),...(p.kind==='camera-print'?['zoom']:[]),...(p.kind==='four-choice-quiz'?['question']:[]), ...(['light-a-candle','foldout-letter','scratch-ticket'].includes(p.kind) ? ['appearance'] : []), ...((p.kind === 'swipe-album' || spec.slots) ? ['optional', ...(p.kind === 'swipe-album' ? ['autoplay','zoom'] : [])] : []), ...(spec.clock ? ['optional', 'clockMode', 'clockSource'] : [])];
+  const extras = [...((spec.drive||['swipe-album','foldout-letter','scratch-ticket'].includes(p.kind))?['appearance','cornerRadius','motionSpeed','inkColor','accentColor','detailColor']:[]), ...(spec.video?['videoAssetId','optional']:[]), ...(spec.drive?['bodyBinding','objectAssetId']:[]),...(p.kind==='camera-print'?['zoom']:[]),...(p.kind==='ribbon-diploma'?['paperRelief','objectDepth']:[]),...(p.kind==='four-choice-quiz'?['question']:[]), ...(['light-a-candle','foldout-letter','scratch-ticket'].includes(p.kind) ? ['appearance'] : []), ...((p.kind === 'swipe-album' || spec.slots) ? ['optional', ...(p.kind === 'swipe-album' ? ['autoplay','zoom'] : [])] : []), ...(spec.clock ? ['optional', 'clockMode', 'clockSource'] : [])];
   object(p, path, [...keys, ...extras], keys);
   if (own(p, 'optional')) boolean(p.optional, `${path}.optional`);
+  if(own(p,'paperRelief'))boolean(p.paperRelief,`${path}.paperRelief`);if(own(p,'objectDepth'))number(p.objectDepth,`${path}.objectDepth`,0,16);
   if (own(p, 'autoplay')) boolean(p.autoplay, `${path}.autoplay`);
   if (own(p, 'zoom')) boolean(p.zoom, `${path}.zoom`);
   if (own(p, 'clockSource')) enumeration(p.clockSource, `${path}.clockSource`, ['invitation']);
@@ -270,6 +271,7 @@ export function validateDocument(document, { mode = 'draft', requiredBindings = 
       else if (['color','strokeColor','paperColor','sealColor'].includes(k)) color(v, q);
       else if(k==='cornerRadius')number(v,q,0,48);
       else if(k==='objectDepth')number(v,q,0,16);
+      else if(k==='paperRelief')boolean(v,q);
       else if(k==='motionSpeed')enumeration(v,q,['fast','normal','slow']);
       else if (k === 'radius') number(v, q, 0, 512);
       else if (k === 'strokeWidth') number(v, q, 0, 40);

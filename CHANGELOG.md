@@ -1,3 +1,9 @@
+## Unreleased — Chiều sâu giấy và nhịp mở phong bì/bằng (2026-11-28)
+
+- Thêm tùy chọn Canvas cho chiều sâu giấy 0–16 ở phong bì Source và bằng Studio: gradient mặt/cuộn, bóng mép và phối cảnh nhẹ; giữ chữ thật và vùng bấm cố định.
+- Dấu sáp hoặc nơ rời trước, giấy mở sau rồi hạ ổn định để đọc. Có bật/tắt, depth 0, reset/replay và reduced/off; hủy lead/tail khi rời cảnh. Tài liệu cũ thiếu thuộc tính giữ nguyên kiểu đã lưu.
+- Giữ nguồn/giấy phép, ID, dữ liệu và quyền. Thêm kiểm tương thích, serialize, SVG và browser; video và dữ liệu QA chỉ lưu local. Chưa merge/deploy.
+
 ## Unreleased — Phong bì, bằng, mũ và ảnh in rõ hơn (2026-11-28)
 
 - Thêm kiểu Canvas có phiên bản cho phong bì mở bằng nguồn vector/timeline đồng bộ, giấy cuộn/tháo nơ và mũ có tua bay rồi hạ còn hiện. Chữ, màu, ảnh và nhịp sửa được; giữ reader của nháp/quà cũ.

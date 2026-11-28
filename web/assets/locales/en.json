@@ -4312,5 +4312,6 @@
   "crafted.depth": "Depth (0: off)",
   "studio.style": "Studio illustration and motion",
   "studio.envelopeStyle": "Envelope and rising letter",
-  "studio.noCameraPhoto": "No photo has been added for this moment."
+  "studio.noCameraPhoto": "No photo has been added for this moment.",
+  "studio.paperRelief": "Paper depth and natural opening"
 }

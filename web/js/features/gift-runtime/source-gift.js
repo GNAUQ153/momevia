@@ -30,9 +30,9 @@ export function decorateSourceGift(node,p,{signal,mode,profile}){
   if(motion?.enabled()===false||matchMedia('(prefers-reduced-motion: reduce)').matches){player.goToAndStop(endFrame,true);node.classList.add('is-opening','is-source-revealing');return;}
   node.style.setProperty('--drive-duration',duration+'ms');node.classList.add('is-opening');
   await new Promise(resolve=>{
-   let tail,fallback,releaseMotion,revealed=false;const stop=()=>{clearTimeout(tail);clearTimeout(fallback);releaseMotion?.();combined?.removeEventListener('abort',stop);player?.removeEventListener('complete',reveal);player?.pause();finish=undefined;resolve();};
-   const reveal=()=>{if(combined?.aborted)return stop();if(revealed)return;revealed=true;clearTimeout(fallback);node.classList.add('is-source-revealing');tail=setTimeout(stop,duration*.34);};
-   finish=stop;releaseMotion=motion?.track(()=>{if(!combined?.aborted){player?.goToAndStop(endFrame,true);node.classList.add('is-source-revealing');}stop();});combined?.addEventListener('abort',stop,{once:true});player.addEventListener('complete',reveal);player.setSpeed(timelineMs/(duration*.66));player.playSegments([0,endFrame],true);fallback=setTimeout(reveal,duration*.8);
+   let lead,tail,fallback,releaseMotion,revealed=false;const stop=()=>{clearTimeout(lead);clearTimeout(tail);clearTimeout(fallback);releaseMotion?.();combined?.removeEventListener('abort',stop);player?.removeEventListener('complete',reveal);player?.pause();finish=undefined;resolve();};
+   const reveal=()=>{if(combined?.aborted)return stop();if(revealed)return;revealed=true;clearTimeout(fallback);node.classList.add('is-source-revealing');tail=setTimeout(stop,duration*(profile?.tailRatio??.34));};
+   finish=stop;releaseMotion=motion?.track(()=>{if(!combined?.aborted){player?.goToAndStop(endFrame,true);node.classList.add('is-source-revealing');}stop();});combined?.addEventListener('abort',stop,{once:true});player.addEventListener('complete',reveal);player.setSpeed(timelineMs/(duration*(profile?.playbackRatio??.66)));const begin=()=>{if(combined?.aborted||disposed)return stop();player?.playSegments([0,endFrame],true);};if(profile?.leadRatio)lead=setTimeout(begin,duration*profile.leadRatio);else begin();fallback=setTimeout(reveal,duration*(profile?.playbackRatio===undefined?.8:Math.min(1,(profile.leadRatio||0)+profile.playbackRatio+.08)));
   });
  };
  node.updateNaturalCopy=props=>{card.textContent=props.cardText||t('natural.cardText');label.textContent=t('drive.openNow');};

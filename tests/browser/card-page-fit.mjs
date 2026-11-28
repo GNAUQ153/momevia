@@ -1,6 +1,6 @@
 import fs from 'node:fs';import path from 'node:path';import assert from 'node:assert/strict';import {chromium} from 'playwright';
 export async function runCardPageFit(base,{onlyFuture=false}={}){
-const out=path.resolve('local/card-fit-20261128');fs.mkdirSync(out,{recursive:true});const browser=await chromium.launch({channel:'chrome',headless:true}),results=[];
+const out=path.resolve('local/card-fit-20261128');fs.mkdirSync(out,{recursive:true});const browser=await chromium.launch({channel:process.env.BROWSER_CHANNEL||undefined,headless:true}),results=[];
 try{
  for(const [width,height]of[[320,568],[390,844],[1440,900],[844,390]]){
   const page=await browser.newPage({viewport:{width,height},reducedMotion:'reduce'});await page.goto(base);

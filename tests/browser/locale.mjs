@@ -71,11 +71,11 @@ export async function runLocaleBrowser(base) {
     await capture(page, 'locale-home-en-desktop.png');
     await page.goto(base + '/explore');
     await page.getByRole('heading', { name: 'Gift template library' }).waitFor();
-    await page.getByRole('searchbox').fill('A Memory of Us');
+    await page.getByRole('searchbox').fill('Snowglobe Countdown');
     await page.getByText('1 matching template', { exact: true }).waitFor();
-    await page.getByRole('link', { name: 'A Memory of Us', exact: true }).click();
-    await page.getByRole('heading', { name: 'A Memory of Us', exact: true }).waitFor();
-    assert.match(await page.locator('.detail-art img').getAttribute('src'), /basic-templates\/en\/mot-ky-niem\.svg/);
+    await page.getByRole('link', { name: 'Snowglobe Countdown', exact: true }).click();
+    await page.getByRole('heading', { name: 'Snowglobe Countdown', exact: true }).waitFor();
+    assert.match(await page.locator('.detail-art img').getAttribute('src'), /basic-templates\/en\/snowglobe-countdown\.svg/);
     await page.goto(login);
     await page.locator('#email-login-form input[name="email"]').fill('env-qa@example.test');
     await input.fill('EnvFixturePass123');
@@ -108,8 +108,9 @@ export async function runLocaleBrowser(base) {
       await supportTrigger.waitFor();
       const entry=route==='/login'||route==='/register';
       assert.equal(await mobilePage.locator('#site-footer').isVisible(),!entry,route+' footer visibility follows the Auth layout');
-      const policies = mobilePage.locator(entry?'main .auth-policy-note a':'main .auth-policy-note a, footer a[href="/policies/privacy"]');
-      if(entry)assert.equal(await policies.count(),2,route+' keeps both policy links inside the form');
+      const policies = mobilePage.locator(route === '/register' ? 'main .auth-consent a'
+        : route === '/login' ? 'main .auth-policy-note a' : 'footer a[href="/policies/privacy"]');
+      if (entry) assert.equal(await policies.count(), 2, route + ' exposes both policy links');
       for (const link of await policies.all()) {
         await link.scrollIntoViewIfNeeded();
         // The dock reveals focused controls; native scrolling alone does not

@@ -53,7 +53,9 @@ export async function runCatalogAcceptance(browser, base) {
         await noOverflow(page, label);
         if (process.env.BROWSER_ARTIFACT_DIR) await page.screenshot({ path: path.join(process.env.BROWSER_ARTIFACT_DIR, `catalog-acceptance-${label}.png`) });
 
-        await page.goto(base + '/explore?free=1&q=sunny+wishes');
+        // Tìm một mẫu Originals miễn phí theo đúng ngôn ngữ đang hiển thị.
+        const query = language === 'vi' ? 'qua cau tuyet' : 'snowglobe countdown';
+        await page.goto(base + '/explore?free=1&q=' + query.replaceAll(' ', '+'));
         await first.waitFor();
         await verifyCards(page, templates, true);
         const search = page.locator('#template-search');
@@ -62,13 +64,13 @@ export async function runCatalogAcceptance(browser, base) {
         assert.equal(await free.isChecked(), true);
         await chip.press('Enter');
         await chip.waitFor({ state: 'detached' });
-        assert.equal(await search.inputValue(), 'sunny wishes');
+        assert.equal(await search.inputValue(), query);
         assert.equal(await free.isChecked(), false);
         const url = new URL(page.url());
-        assert.equal(url.searchParams.get('q'), 'sunny wishes');
+        assert.equal(url.searchParams.get('q'), query);
         assert.equal(url.searchParams.has('free'), false);
         await page.waitForFunction(() => globalThis.document.activeElement?.matches('.catalog-reset'));
-        const card = grid.locator('[data-template-id="sunny-wishes"]');
+        const card = grid.locator('[data-template-id="snowglobe-countdown"]');
         await card.waitFor();
         const price = card.locator('.template-card__price');
         const cardPrice = clean(await price.innerText());
@@ -94,7 +96,7 @@ export async function runCatalogAcceptance(browser, base) {
         await page.goBack();
         await search.waitFor();
         assert.equal(new URL(page.url()).search, catalogUrl.search);
-        assert.equal(await search.inputValue(), 'sunny wishes');
+        assert.equal(await search.inputValue(), query);
         await noOverflow(page, label);
         assert.deepEqual(errors, [], `${label}: page errors`);
       } finally {

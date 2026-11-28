@@ -1,3 +1,4 @@
+import { registrationConsent } from '../../web/js/shared/registration-consent.js';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
@@ -43,7 +44,7 @@ try {
   });
   const health=await request('/api/designs/health');assert.equal(health.status,200);
   const username=`https-${randomUUID()}@example.test`;
-  const login=await request('/api/auth/register',{name:'TLS sender',email:username,password:'HttpsQA12345',confirmPassword:'HttpsQA12345'});
+  const login=await request('/api/auth/register',{name:'TLS sender',email:username,password:'HttpsQA12345',consent: registrationConsent(true, true), confirmPassword:'HttpsQA12345'});
   assert.equal(login.status,201);const setCookie=login.headers['set-cookie'].find(value=>value.startsWith('session='));
   assert.match(setCookie,/; Secure/);assert.match(setCookie,/; HttpOnly/);cookie=setCookie.split(';')[0];
   assert.equal((await request('/api/auth/logout',{},'https://untrusted.invalid')).status,403);

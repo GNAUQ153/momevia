@@ -1,3 +1,4 @@
+import { registrationConsent } from '../../web/js/shared/registration-consent.js';
 import assert from 'node:assert/strict';
 import path from 'node:path';
 import { randomUUID } from 'node:crypto';
@@ -40,7 +41,7 @@ export async function seedWebDemo({ base, accounts, appDir }) {
   assert.equal((await guest('/checkout/payments/methods')).demoPurchaseAvailable, true);
   assert.equal((await post(admin, '/auth/login', accounts.admin)).user.role, 'admin');
   for (const [actor, profile] of [[creator, accounts.creator], [sender, accounts.sender]]) {
-    const { user } = await post(actor, '/auth/register', { ...profile, confirmPassword: profile.password }, 201);
+    const { user } = await post(actor, '/auth/register', { ...profile, consent: registrationConsent(true, true), confirmPassword: profile.password }, 201);
     if (actor === creator) await post(admin, `/auth/admin/users/${user.id}/role`, { role: 'creator' });
   }
 
@@ -146,7 +147,8 @@ export async function seedWebDemo({ base, accounts, appDir }) {
   await post(admin, `/support/admin/requests/${ticket.id}/resolve`, { action: 'claim' });
   await post(admin, `/support/admin/requests/${ticket.id}/resolve`, { action: 'resolve', resolution: 'Đã xác minh phạm vi hiển thị của mẫu demo.' });
 
-  const paid = catalog.find(item => item.id === 'polaroid' && item.price > 0) || catalog.find(item => item.price > 0);
+  // 16 mẫu Originals trong Thư viện đang miễn phí; mẫu trả phí cũ vẫn mở được qua link trực tiếp.
+  const paid = catalog.find(item => item.price > 0) || (await guest('/catalog/templates/polaroid')).template;
   const paidDraft = (await post(sender, '/designs/designs', { source: { kind: 'template', templateId: paid.id }, title: 'Nháp demo · Thử cấp quyền mẫu có giá', mutationId: randomUUID() }, 201)).design;
   for (const [key, value] of Object.entries({ recipientName: 'Châu Anh', senderName: 'Minh Khôi', message: 'Thử cấp quyền mô phỏng rồi gửi thiệp sinh nhật này.' })) {
     paidDraft.document.bindings[key].value = value;

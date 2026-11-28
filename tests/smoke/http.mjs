@@ -1,9 +1,10 @@
+import { registrationConsent } from '../../web/js/shared/registration-consent.js';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { pathToFileURL } from 'node:url';
 
 const password = 'SyntheticSmoke2026';
-const credentials = () => ({ name: 'Người dùng kiểm thử', email: `smoke-${randomUUID()}@example.test`, password, confirmPassword: password });
+const credentials = () => ({ consent: registrationConsent(true, true), name: 'Người dùng kiểm thử', email: `smoke-${randomUUID()}@example.test`, password, confirmPassword: password });
 const session = headers => {
   const cookie = headers.get('set-cookie');
   assert.match(cookie || '', /^session=/);
@@ -97,8 +98,10 @@ async function legacy(base, adminCode) {
   assert.equal((await call('/auth/providers')).data.demo, true);
   const { data: { templates } } = await call('/catalog/templates');
   const free = templates.find(template => template.price === 0);
-  const paid = templates.find(template => template.price > 0);
-  assert(free && paid);
+  // 16 mẫu Originals đang miễn phí; mẫu trả phí cũ vẫn mua được qua link trực tiếp.
+  const paid = templates.find(template => template.price > 0) ||
+    (await call('/catalog/templates/midnight-bloom')).data.template;
+  assert(free && paid && paid.price > 0);
   const demo = await call('/auth/demo', { body: { name: 'Người kiểm thử', deviceId: randomUUID() } });
   const cookie = session(demo.headers);
   const gift = { recipientName: 'Mai', senderName: 'An', message: 'Chúc mừng sinh nhật!', access: { open: 'link', send: 'link', read: 'link' } };

@@ -23,7 +23,7 @@ test('Gói nguồn loại secret/data/dependency và phát hiện file bị sử
   };
   try {
     for (const dir of ['src', 'services', 'web', 'scripts', 'tests', 'docs', '.github']) fs.mkdirSync(path.join(fixture, dir));
-    for (const file of ['gateway.mjs', 'dev.mjs', 'start-local.bat', 'package-lock.json', 'README.md', 'CHANGELOG.md', '.env.example', '.gitignore', 'eslint.config.mjs']) write(file);
+    for (const file of ['gateway.mjs', 'dev.mjs', 'start-local.bat', 'package-lock.json', 'README.md', 'CHANGELOG.md', '.env.example', '.gitignore', 'eslint.config.mjs', 'railpack.json']) write(file);
     write('package.json', JSON.stringify({ version: 'test' }));
     write('web/js/vendor/qrcode.js');
     write('deploy/hostinger/.htaccess', 'RewriteEngine On\n');
@@ -80,6 +80,7 @@ test('Gói nguồn loại secret/data/dependency và phát hiện file bị sử
     assert(fs.existsSync(path.join(release, 'web/js/vendor/qrcode.js')));
     assert(fs.existsSync(path.join(release, 'deploy/https/Caddyfile')));
     assert(fs.existsSync(path.join(release, 'deploy/hostinger/.htaccess')));
+    assert(fs.existsSync(path.join(release, 'railpack.json')));
     assert(fs.existsSync(path.join(release, 'deploy/hostinger/api-relay.php')));
     assert(fs.existsSync(path.join(release, 'deploy/https/momevia.service')));
     assert(fs.existsSync(path.join(release, 'database/compose.yml')));

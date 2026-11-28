@@ -1,3 +1,4 @@
+import { registrationConsent } from '../../web/js/shared/registration-consent.js';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -37,7 +38,7 @@ async function request(url, { cookie, body, method, headers = {}, bytes } = {}) 
   const data = await response.json().catch(() => null); return { status: response.status, data, headers: response.headers };
 }
 async function register(name) {
-  const result = await request('/auth/register', { body: { name, email: `${randomUUID()}@example.test`, password: 'SyntheticOnly123', confirmPassword: 'SyntheticOnly123' } });
+  const result = await request('/auth/register', { body: { name, email: `${randomUUID()}@example.test`, password: 'SyntheticOnly123', consent: registrationConsent(true, true), confirmPassword: 'SyntheticOnly123' } });
   assert.equal(result.status, 201, JSON.stringify(result.data)); return { user: result.data.user, cookie: result.headers.get('set-cookie').split(';')[0] };
 }
 async function post(owner, url, body, status = 200) { const r = await request(url, { cookie: owner.cookie, body }); assert.equal(r.status, status, JSON.stringify(r.data)); return r.data; }
@@ -50,12 +51,14 @@ try {
   // A Windows fixture must own its dependencies when its temp tree is removed.
   if (process.platform === 'win32') fs.cpSync(fs.realpathSync(modules), fixtureModules, {recursive:true});
   else fs.symlinkSync(modules, fixtureModules, 'dir');
-  fs.copyFileSync(path.join(root, 'tests/integration/recovery-journey.mjs'), path.join(fixture, 'recovery-journey.mjs'));
+  // Giữ đúng vị trí tests/integration để import tương đối '../../web/...' vẫn trỏ vào fixture.
+  fs.mkdirSync(path.join(fixture, 'tests/integration'), { recursive: true });
+  fs.copyFileSync(path.join(root, 'tests/integration/recovery-journey.mjs'), path.join(fixture, 'tests/integration/recovery-journey.mjs'));
   fs.writeFileSync(path.join(fixture, 'fixture.mjs'), `
     import fs from 'node:fs';
     import { createHttpApp } from './src/server/app.mjs';
     import { environment } from './src/shared/config.mjs';
-    import { simulatedGoogle } from './recovery-journey.mjs';
+    import { simulatedGoogle } from './tests/integration/recovery-journey.mjs';
     const nativeFetch = globalThis.fetch;
     globalThis.fetch = (input, options) => simulatedGoogle(input, options) || nativeFetch(input, options);
     const config = { ...environment(), googleId: 'synthetic', googleSecret: 'synthetic' };

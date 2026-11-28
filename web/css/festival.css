@@ -1,0 +1,464 @@
+/* Bảng màu dùng chung cho khung trang và các thành phần mùa lễ. */
+html[data-festival] {
+  --festival-evergreen: #103e35;
+  --festival-red: #b91c2c;
+  --festival-gold: #d4af37;
+  --festival-snow: #fff8ed;
+  --festival-night: #101d2d;
+}
+html[data-festival="christmas"] body:not(.is-designing) {
+  --color-primary: var(--festival-evergreen);
+  --color-primary-hover: #0a3028;
+  --color-focus: var(--festival-red);
+  --color-gradient-action: linear-gradient(135deg, #216653, var(--festival-evergreen));
+  --app-accent: var(--festival-evergreen);
+  --app-accent-hover: #0a3028;
+}
+html[data-festival="christmas"] :is(#site-header, #site-footer) {
+  background-color: var(--festival-snow);
+}
+html[data-festival="christmas"] #announcement {
+  background: var(--festival-evergreen);
+  color: var(--festival-snow);
+}
+.festival-lights {
+  display: none;
+}
+html[data-festival="christmas"] body:not(.is-designing) .festival-lights {
+  position: absolute;
+  inset: 0 0 auto;
+  display: block;
+  height: 10px;
+  overflow: hidden;
+  pointer-events: none;
+}
+.festival-lights::before,
+.festival-lights::after {
+  position: absolute;
+  inset: 0;
+  content: '';
+}
+.festival-lights::before {
+  background-image: radial-gradient(ellipse at top, transparent 58%, #427669 62% 67%, transparent 71%);
+  background-size: 54px 8px;
+}
+.festival-lights::after {
+  background-image: radial-gradient(circle at 8px 4px, #b91c2c 2px, transparent 4px), radial-gradient(circle at 27px 7px, #d4af37 2px, transparent 4px), radial-gradient(circle at 47px 4px, #39836b 2px, transparent 4px);
+  background-size: 54px 10px;
+  animation: festival-lights 4s ease-in-out infinite alternate;
+}
+@keyframes festival-lights {
+  from {
+    opacity: .65;
+  }
+  to {
+    opacity: 1;
+    filter: drop-shadow(0 1px 3px #c59b26);
+  }
+}
+.is-home .moments-hero[data-season="christmas"] {
+  color: var(--festival-night);
+  background: radial-gradient(ellipse at 80% 33%, #b8d6ce, transparent 52%), var(--festival-snow);
+}
+.is-home .moments-hero[data-season="christmas"] :is(h1, .hero__lead, .mkt-hero__eyebrow) {
+  color: var(--festival-evergreen);
+}
+.is-home .moments-hero[data-season="christmas"] h1 em {
+  color: var(--festival-red);
+}
+.is-home .moments-hero[data-season="christmas"] .mkt-primary {
+  border-color: #932537;
+  background: var(--festival-red);
+  box-shadow: 0 6px 0 #741526;
+}
+.is-home .moments-hero[data-season="christmas"] .mkt-primary:hover {
+  background: #922131;
+}
+.is-home .moments-hero[data-season="christmas"] .open-me-stack {
+  background: var(--festival-evergreen);
+}
+.is-home .moments-hero[data-season="christmas"] .mkt-stage__atmosphere {
+  background: radial-gradient(ellipse at 60% 40%, #dbf0dd70, transparent 70%);
+}
+.is-home .moments-hero[data-season="christmas"] .mkt-stage__orb {
+  opacity: .44;
+}
+.is-home .moments-hero[data-season="valentine"] {
+  background: radial-gradient(ellipse at 78% 24%, #edb3c8, transparent 60%), #fff3ef;
+}
+.is-home .moments-hero[data-season="newYear"] {
+  background: radial-gradient(ellipse at 70% 38%, #e5cee3, transparent 53%), #fff5d9;
+}
+.is-home .moments-hero[data-season="tet"] {
+  background: radial-gradient(ellipse at 70% 38%, #ffceaa, transparent 56%), #fff3d7;
+}
+.festival-banner-copy {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 16px;
+}
+.festival-countdown:not([hidden]) {
+  display: block;
+  color: #6b2631;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.festival-particles {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.festival-particles i {
+  position: absolute;
+  top: -18px;
+  left: var(--left);
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 4px #718c88;
+  animation: festival-fall var(--fall) var(--delay) linear infinite;
+}
+.festival-particles i[data-depth="1"] {
+  width: 3px;
+  height: 3px;
+  opacity: .62;
+}
+.festival-particles i[data-depth="2"] {
+  width: 8px;
+  height: 8px;
+  filter: blur(1px);
+}
+.moments-hero[data-season="newYear"] .festival-particles i {
+  border-radius: 0;
+  background: #ae6e13;
+  animation-name: festival-firework;
+}
+.moments-hero[data-season="tet"] .festival-particles i {
+  border-radius: 70% 40% 70% 15%;
+  background: #d0a117;
+}
+.moments-hero[data-season="tet"] .festival-particles i[data-depth="2"] {
+  width: 7px;
+  height: 11px;
+  border-radius: 1px;
+  background: linear-gradient(0deg, #b91c2c 65%, #d4af37 66%);
+  filter: none;
+}
+.moments-hero[data-season="valentine"] .festival-particles i {
+  border-radius: 0;
+  clip-path: polygon(50% 100%, 0 45%, 0 19%, 24% 0, 50% 18%, 76% 0, 100% 19%, 100% 45%);
+  background: #b91c52;
+}
+.moments-hero[data-season="valentine"] .festival-particles i[data-depth="2"] {
+  border-radius: 45%;
+  clip-path: polygon(50% 100%, 8% 79%, 0 42%, 17% 4%, 50% 15%, 83% 4%, 100% 42%, 92% 79%);
+  background: #d45478;
+}
+@keyframes festival-fall {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(var(--drift), 105vh, 0) rotate(160deg);
+  }
+}
+@keyframes festival-firework {
+  0%, 64%, 100% {
+    opacity: 0;
+    transform: translate3d(0, 38vh, 0) scale(.3);
+  }
+  74% {
+    opacity: .9;
+    transform: translate3d(calc(var(--drift) * 2), 19vh, 0) scale(1.4) rotate(45deg);
+  }
+}
+.festival-sleigh {
+  display: none;
+}
+.moments-hero[data-season="christmas"] .festival-sleigh {
+  position: absolute;
+  top: 19%;
+  left: 0;
+  display: block;
+  width: 116px;
+  opacity: 0;
+  animation: festival-sleigh 5s 3s ease-in-out 1;
+}
+@keyframes festival-sleigh {
+  0% {
+    opacity: 0;
+    transform: translate3d(-140px, 25px, 0);
+  }
+  20%, 80% {
+    opacity: .85;
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(105vw, -70px, 0);
+  }
+}
+.moments-hero[data-season-still="true"] .festival-particles {
+  visibility: hidden;
+}
+.moments-hero[data-season-still="true"] .festival-particles *,
+html[data-festival-still="true"] .festival-lights::after {
+  animation-play-state: paused;
+}
+
+/* Cây thông là một nút trang trí có thể bật bằng chạm hoặc bàn phím. */
+.festival-tree:not([hidden]) {
+  position: absolute;
+  z-index: 5;
+  bottom: 8%;
+  left: 2%;
+  display: grid;
+  justify-items: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 6px;
+  border: 1px solid #d4af37;
+  border-radius: 12px;
+  background: #fff8eded;
+  color: #103e35;
+  font: inherit;
+  font-size: .875rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.festival-tree__art {
+  position: relative;
+  display: block;
+  width: 45px;
+  height: 55px;
+  background: #216653;
+  clip-path: polygon(50% 0, 78% 34%, 66% 34%, 90% 62%, 75% 62%, 100% 90%, 57% 90%, 57% 100%, 43% 100%, 43% 90%, 0 90%, 25% 62%, 10% 62%, 34% 34%, 22% 34%);
+}
+.festival-tree__art i {
+  position: absolute;
+  top: 29%;
+  left: 44%;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #fff8ed70;
+  box-shadow: -8px 16px #fff8ed70, 9px 21px #fff8ed70, -14px 29px #fff8ed70, 13px 32px #fff8ed70;
+}
+.festival-tree[aria-pressed="true"] .festival-tree__art i {
+  background: #ffdc68;
+  box-shadow: -8px 16px #ffdf6c, 9px 21px #ffe5ad, -14px 29px #ffd348, 13px 32px #fff0ad;
+  filter: drop-shadow(0 0 3px #ffdd69);
+}
+.festival-advent:not([hidden]) {
+  max-width: 720px;
+  margin: 28px auto 0;
+  padding: 18px;
+  border: 1px solid #d9c496;
+  border-radius: 16px;
+  background: #fff8ed;
+  color: #103e35;
+}
+.festival-advent summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.festival-advent summary::after {
+  margin-inline-start: auto;
+  content: '+';
+}
+.festival-advent[open] summary::after {
+  content: '−';
+}
+.festival-advent__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(44px, 1fr));
+  gap: 6px;
+}
+.festival-advent__grid button {
+  min-height: 44px;
+  border: 1px solid #bea16b;
+  border-radius: 8px;
+  background: #fff;
+  color: #103e35;
+  font: inherit;
+  font-weight: 700;
+}
+.festival-advent__grid button[data-opened="true"] {
+  background: #e1efea;
+}
+.festival-advent__grid button[aria-pressed="true"] {
+  border-color: #103e35;
+  background: #103e35;
+  color: #fff;
+}
+.festival-advent__grid button:disabled {
+  background: #f4eee2;
+  color: #70684e;
+}
+.festival-collection-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  font-weight: 700;
+}
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  html[data-festival="christmas"][data-festival-still="false"] :is(.mkt-primary, .template-card__visual, .festival-tree):is(:hover, :focus-visible) {
+    filter: drop-shadow(0 0 8px #d4af3777);
+  }
+  html[data-festival="christmas"][data-festival-still="false"] :is(.mkt-primary, .template-card__visual):is(:hover, :focus-visible)::after {
+    position: absolute;
+    inset: 5px 10px auto auto;
+    z-index: 2;
+    width: 12px;
+    height: 12px;
+    background: #ffdd72;
+    clip-path: polygon(50% 0, 64% 36%, 100% 50%, 64% 64%, 50% 100%, 36% 64%, 0 50%, 36% 36%);
+    content: '';
+    pointer-events: none;
+    animation: festival-spark 700ms ease-out both;
+  }
+}
+@keyframes festival-spark {
+  0% {
+    opacity: 0;
+    transform: scale(.25);
+  }
+  32% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(.55) translateY(-8px);
+  }
+}
+
+/* Lớp mở hộp chỉ trang trí trong lúc chuyển cảnh, không nhận click hay focus. */
+.festival-unboxing {
+  position: fixed;
+  inset: 0;
+  z-index: 900;
+  display: grid;
+  place-items: center;
+  background: #101d2d77;
+  pointer-events: none;
+  animation: festival-unboxing-overlay 650ms both;
+}
+.festival-unboxing__scene {
+  position: relative;
+  width: min(54vw, 220px);
+  aspect-ratio: 1;
+  perspective: 500px;
+  transform-style: preserve-3d;
+}
+.festival-unboxing__scene i {
+  position: absolute;
+  display: block;
+}
+.festival-unboxing__front,
+.festival-unboxing__lid {
+  background: linear-gradient(90deg, transparent 42%, #d4af37 42% 58%, transparent 58%), #b91c2c;
+}
+.festival-unboxing__front {
+  inset: 53% 10% 9% 8%;
+  border-radius: 0 0 10px 10px;
+  box-shadow: inset 0 -8px #861728, 0 18px 30px #101d2d77;
+}
+.festival-unboxing__side {
+  inset: 53% 2% 9% 89%;
+  transform: skewY(-32deg);
+  transform-origin: left;
+  background: #861728;
+}
+.festival-unboxing__lid {
+  inset: 39% 6% 46% 4%;
+  border-radius: 8px;
+  transform-origin: top center;
+  animation: festival-lid 650ms cubic-bezier(.24, .72, .34, 1) both;
+}
+.festival-unboxing__card {
+  inset: 32% 21% 19%;
+  border: 2px solid #d4af37;
+  border-radius: 10px;
+  background: repeating-linear-gradient(0deg, #fff8ed 0 14px, #d4af3744 14px 17px);
+  animation: festival-letter 650ms ease-out both;
+}
+.festival-unboxing__glow {
+  inset: -22%;
+  background: radial-gradient(circle, #ffdd8e99, transparent 62%);
+  animation: festival-letter 650ms both;
+}
+.festival-recipient__music {
+  display: block;
+  margin: 0 auto 12px;
+}
+@keyframes festival-lid {
+  from {
+    transform: rotateX(0);
+  }
+  to {
+    transform: translateY(-64%) rotateX(-70deg) rotateZ(-14deg);
+  }
+}
+@keyframes festival-letter {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(-48%);
+  }
+}
+@keyframes festival-unboxing-overlay {
+  0%, 100% {
+    opacity: 0;
+  }
+  24%, 80% {
+    opacity: 1;
+  }
+}
+@media (max-width: 680px) {
+  .festival-banner-copy {
+    gap: 0;
+  }
+  .festival-countdown:not([hidden]) {
+    font-size: .8125rem;
+  }
+  .festival-tree:not([hidden]) {
+    bottom: 2%;
+    left: 0;
+  }
+  .festival-tree > span:last-child {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .festival-tree__art {
+    width: 26px;
+    height: 37px;
+  }
+  .festival-tree__art i {
+    transform: scale(.55);
+    transform-origin: top center;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .festival-particles,
+  .festival-unboxing {
+    display: none;
+  }
+  .festival-lights::after {
+    animation: none;
+  }
+}

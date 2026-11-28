@@ -45,7 +45,9 @@ const roots = [
   'CHANGELOG.md',
   '.env.example',
   '.gitignore',
-  'eslint.config.mjs'
+  'eslint.config.mjs',
+  // Cấu hình build Railway (gói font cho ảnh bìa vẽ ở server).
+  'railpack.json'
 ];
 
 function copy(source, target) {

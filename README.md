@@ -91,18 +91,17 @@ Sau khi workflow **Momevia CI/CD** thành công, GitHub Actions **Momevia README
 
 **Các chức năng/thay đổi gần đây được ghi nhận trong CHANGELOG:**
 
-- Thêm sáu hiệu ứng mở thiệp riêng trên layer Signature, sử dụng nút chạm/bàn phím và lifecycle motion hiện có.
-- Giữ rotation, opacity và artwork của Sender; nhận diện qua kind để hoạt động khi nhân bản.
-- Bổ sung nhãn VI/EN, giảm chuyển động và hủy animation khi rời cảnh; tiếp tục giữ Catalog QA riêng.
+- Bổ sung audit metadata chỉ đọc cho migration 020; pin checksum migration và chặn nghiệm thu nếu cấu trúc session không khớp.
+- Mở rộng MySQL QA hiện có để kiểm tra phiên legacy, thu hồi từng phiên và đổi mật khẩu cạnh tranh qua hai kết nối; ghi rõ điều kiện nghiệm thu Auth.
 
 **Các commit gần nhất trên `main`:**
 
-- `9af78d4` — feat(signature): introduce six layered opening animations (2026-11-27)
-- `0e6790a` — feat(signature): enable isolated local catalog and canvas review (2026-11-27)
-- `3f1bb7c` — feat(signature): introduce six editable bilingual template documents (2026-11-27)
-- `bb8ca53` — feat(signature): improve editable vector inspector and optional photo layout (2026-11-27)
-- `adb1872` — feat(signature): register six editable artwork collections in canvas library (2026-11-27)
-- `7292608` — feat(signature): introduce independent editable vector artwork (2026-11-27)
+- `6deb6e7` — test(canvas): keep recovery-journey at its relative path inside the fixture (2026-11-28)
+- `2e712c7` — feat(auth): consent, privacy center, session inventory and festival UI (2026-11-28)
+- `2af4740` — fix(release): include railpack.json in the verified release package (2026-11-28)
+- `da3eeee` — fix: serve .mjs as JavaScript on Hostinger and derive Originals scene count (2026-11-28)
+- `643ed6c` — fix(deploy): keep Railpack default runtime packages alongside fonts (2026-11-28)
+- `3e0dd79` — fix(deploy): install fonts on Railway for server-rendered covers (2026-11-28)
 
 > Mục này được đồng bộ tự động sau khi CI đạt. Để thông tin tính năng chính xác, mỗi thay đổi nghiệp vụ phải được ghi trong `CHANGELOG.md` và dùng commit message rõ ràng.
 <!-- MOMEVIA-AUTO-END -->

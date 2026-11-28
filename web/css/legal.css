@@ -1,3 +1,57 @@
+/* Danh sách phiên: không hiển thị token, JTI hoặc dữ liệu thiết bị. */
+.session-inventory {
+  max-width: 840px;
+  overflow-wrap: anywhere;
+}
+.session-inventory-list {
+  display: grid;
+  gap: 14px;
+  list-style: none;
+  padding: 0;
+  margin: 24px 0;
+}
+.session-inventory-list li {
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  min-width: 0;
+}
+.session-inventory-list dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 12px 0 0;
+}
+.session-inventory-list dt {
+  color: #685979;
+  font-size: 14px;
+}
+.session-inventory-list dd {
+  margin: 4px 0 0;
+}
+.session-inventory button {
+  min-height: 44px;
+  max-width: 100%;
+  white-space: normal;
+}
+.session-inventory-list [data-session-revoke],
+.session-revoke-confirm {
+  margin-top: 16px;
+}
+.session-revoke-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.session-revoke-confirm p {
+  margin: 0 0 12px;
+}
+@media (max-width: 520px) {
+  .session-inventory-list dl {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 /* Trang chính sách nhất quán với giao diện chính. */
 .legal-hero {
   padding: 72px 0 61px;
@@ -117,4 +171,188 @@
   .legal-document {
     width: 100%;
   }
+}
+
+/* Khu vực quyền riêng tư dùng chung typography và token với trang chính sách. */
+.privacy-document {
+  display: grid;
+  gap: 20px;
+  overflow-wrap: anywhere;
+}
+.privacy-panel {
+  min-width: 0;
+  padding: clamp(18px, 3vw, 30px);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: #fff;
+}
+.privacy-panel h2 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 16px;
+  font-size: clamp(20px, 2.6vw, 26px);
+}
+.privacy-panel p {
+  margin: 10px 0 16px;
+  line-height: 1.7;
+}
+.privacy-status {
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: #f4f0fa;
+  color: #47365d;
+  font-weight: 650;
+}
+.privacy-status[data-status="digest-matched"] {
+  background: #e8f4ed;
+  color: #205639;
+}
+.privacy-status[data-status="digest-mismatch"] {
+  background: #fff1e8;
+  color: #874315;
+}
+.privacy-facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  margin: 24px 0;
+}
+.privacy-facts dt {
+  margin-bottom: 5px;
+  color: #685979;
+  font-size: 14px;
+}
+.privacy-facts dd {
+  margin: 0;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+.privacy-note {
+  color: #685979;
+}
+.privacy-panel .btn {
+  min-height: 44px;
+  max-width: 100%;
+  white-space: normal;
+}
+.privacy-archive {
+  margin-top: 24px;
+}
+.privacy-archive-policy {
+  margin-top: 12px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+.privacy-archive-policy summary {
+  padding: 10px 0;
+  min-height: 44px;
+  cursor: pointer;
+  font-weight: 650;
+}
+.privacy-archive-policy h3 {
+  margin-top: 20px;
+  font-size: 17px;
+}
+.privacy-panel :is(button, a, summary):focus-visible {
+  outline: 3px solid #7451b2;
+  outline-offset: 3px;
+}
+@media (max-width: 520px) {
+  .privacy-facts {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+  }
+}
+
+/* Lịch sử yêu cầu hỗ trợ, không biểu diễn trạng thái thu hồi thực tế. */
+.privacy-request-list {
+  display: grid;
+  gap: 12px;
+  padding: 0;
+  margin: 16px 0;
+  list-style: none;
+}
+.privacy-request-list li {
+  display: grid;
+  gap: 6px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  min-width: 0;
+}
+.privacy-request-list small {
+  color: #685979;
+}
+
+/* Xác nhận lại chỉ có sau bản xem chính sách, không chọn sẵn checkbox. */
+.privacy-confirmation-preview {
+  margin: 16px 0;
+}
+.privacy-confirmation-preview summary {
+  cursor: pointer;
+  min-height: 44px;
+  padding: 10px 0;
+  font-weight: 650;
+}
+.privacy-confirmation-form {
+  display: grid;
+  gap: 14px;
+  margin: 20px 0;
+}
+.privacy-confirmation-form label {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+}
+.privacy-confirmation-form input {
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+  margin: 3px 0 0;
+  accent-color: var(--accent, #7451b2);
+}
+.privacy-confirmation-form button {
+  justify-self: start;
+}
+
+/* Đổi mật khẩu trong khu vực quản lý tài khoản. */
+.privacy-password-form {
+  display: grid;
+  gap: 12px;
+  max-width: 480px;
+}
+.privacy-password-form label {
+  display: grid;
+  gap: 6px;
+}
+.privacy-password-form input[type="password"] {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid var(--border, #aaa);
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+}
+.privacy-password-form .privacy-password-confirm {
+  display: flex;
+  align-items: flex-start;
+}
+.privacy-password-confirm input {
+  flex: 0 0 auto;
+  accent-color: var(--accent, #7451b2);
+}
+.privacy-password-form [data-password-error]:empty {
+  display: none;
+}
+.privacy-password-form [data-password-error] {
+  color: var(--danger, #a71930);
+}
+.privacy-password-form button {
+  justify-self: start;
 }

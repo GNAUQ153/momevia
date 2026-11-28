@@ -10,19 +10,19 @@ const auth = (mode, providers = {}) => createAuthViews({
   buttonLink: (url, value) => `<a href="${url}">${value}</a>`,
 }).authPage(mode);
 
-test('Hai trang Auth dùng cùng layout hai cột marketing và card xác thực', () => {
+test('Login và Register dùng chung khung minh họa và form', () => {
   for (const mode of ['login', 'register']) {
     const page = auth(mode);
     assert.match(page, new RegExp(`auth-page auth-page--${mode}`));
     assert.match(page, /class="container auth-layout"/);
-    assert.match(page, /class="auth-showcase__story"/);
     assert.match(page, /class="auth-panel"/);
-    assert.match(page, /class="auth-showcase__explore" href="\/explore" data-link/);
+    assert.ok(page.includes('class="auth-showcase__story"'));
+    assert.ok(page.includes('href="/explore" data-link'));
     assert.equal((page.match(/<h1\b/g) || []).length, 1);
   }
 });
 
-test('Login giữ OAuth sau form, Register bỏ khối social để tập trung biểu mẫu', () => {
+test('Login và Register đặt Google/Zalo sau nút gửi form', () => {
   const login = auth('login', { google: true, zalo: true });
   assert.ok(login.indexOf('class="auth-form"') < login.indexOf('class="auth-buttons"'));
   assert.ok(login.indexOf('class="auth-buttons"') < login.indexOf('class="auth-switch'));
@@ -31,19 +31,22 @@ test('Login giữ OAuth sau form, Register bỏ khối social để tập trung 
   assert.match(login, /class="auth-divider auth-divider--social"/);
 
   const register = auth('register', { google: true, zalo: true });
-  assert.doesNotMatch(register, /class="auth-buttons"/);
-  assert.doesNotMatch(register, /data-auth-provider="google"/);
-  assert.doesNotMatch(register, /data-auth-provider="zalo"/);
+  assert.ok(register.indexOf('class="auth-form"') < register.indexOf('class="auth-buttons"'));
+  assert.match(register, /data-auth-provider="google" data-auth-provider-url="\/api\/auth\/google" disabled/);
+  assert.match(register, /data-auth-provider="zalo" data-auth-provider-url="\/api\/auth\/zalo" disabled/);
 });
 
-test('OAuth chưa cấu hình chỉ hiển thị ở Login và không dẫn tới endpoint lỗi', () => {
+test('OAuth chưa cấu hình có trạng thái vô hiệu hóa trên cả hai trang', () => {
   const page = auth('login');
   assert.equal((page.match(/auth-social--disabled/g) || []).length, 2);
   assert.doesNotMatch(page, /href="\/api\/auth\//);
   assert.match(page, /auth-provider-note/);
   assert.match(page, /role="status"/);
   assert.match(page, /auth.providers.orSocialLogin|Hoặc tiếp tục với|Or continue with/);
-  assert.doesNotMatch(auth('register'), /auth-provider-note|auth-social--disabled/);
+  const register = auth('register');
+  assert.match(register, /auth-provider-note/);
+  assert.equal((register.match(/auth-social--disabled/g) || []).length, 2);
+  assert.doesNotMatch(register, /data-auth-provider-url/);
 });
 
 test('Login giữ email, password, recovery và CTA đăng ký', () => {
@@ -56,11 +59,11 @@ test('Register giữ tên, email, mật khẩu tối thiểu 8 ký tự, xác nh
   for (const part of ['id="register-form"', 'autocomplete="name"', 'autocomplete="email"', 'name="confirmPassword"', 'href="/login"', 'minlength="8"']) assert.ok(page.includes(part), part);
 });
 
-test('Nền tối gradient, glass card và grid có thể kiểm toán CSS', () => {
+test('Form sáng và phần minh họa đậm màu dùng chung thẻ hai cột', () => {
   const css = src('web/css/auth-pages.css');
   assert.match(css, /\.auth-layout\s*\{[^}]*grid-template-columns:\s*minmax\(0, 0\.94fr\) minmax\(0, 1\.06fr\)/s);
-  assert.match(css, /\.auth-panel\s*\{[^}]*backdrop-filter:\s*blur\(20px\)/s);
-  assert.match(css, /\.auth-showcase__story\s*\{[^}]*border-radius:\s*27px/s);
+  assert.match(css, /\.auth-panel\s*\{[^}]*background:\s*var\(--auth-paper, #fff\)/s);
+  assert.match(css, /\.auth-showcase\s*\{[^}]*background:\s*radial-gradient/s);
   assert.match(css, /\.auth-page::before\s*\{[^}]*background-image/s);
   assert.deepEqual(auditCssStyle(css, 'auth-pages.css').errors, []);
 });
@@ -96,5 +99,5 @@ test('Giữ bảng dịch VI/EN tương ứng cho heading, CTA và lựa chọn 
 
 test('Auth CSS có version để tránh cache cũ sau khi deploy', () => {
   const html = src('web/index.html');
-  assert.match(html, /href="\/css\/auth-pages\.css\?v=20261127-auth-aurora"/);
+  assert.match(html, /href="\/css\/auth-pages\.css\?v=20261128-auth-experience-v3"/);
 });

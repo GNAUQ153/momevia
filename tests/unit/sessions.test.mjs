@@ -37,9 +37,9 @@ test('JWT từ chối exp thiếu, sai kiểu, hết hạn hoặc jti thiếu d�
 });
 
 test('OAuth state/PKCE vẫn khớp cookie sau tách Identity service', () => {
-  const service = new IdentityService({ users: {}, sessions: {}, config: {} });
+  const service = new IdentityService({ users: {}, sessions: {}, config: { jwtSecret: secret } });
   const cookie = service.oauthCookie('zalo', 'state-value', 'pkce-value').split(';')[0];
-  assert.equal(service.consumeState({headers:{cookie}}, 'zalo', 'state-value'), 'pkce-value');
+  assert.equal(service.consumeState({headers:{cookie}}, 'zalo', 'state-value').verifier, 'pkce-value');
   assert.throws(() => service.consumeState({headers:{cookie}}, 'zalo', 'wrong-state'), {status:403});
   assert.throws(() => service.consumeState({headers:{}}, 'zalo', 'state-value'), {status:403});
 });

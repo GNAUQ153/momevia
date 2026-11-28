@@ -2,6 +2,9 @@ import { originalDefinition } from '../shared/canvas/originals-data.js';
 import { createActionDispatcher } from './action-dispatcher.js';
 import { createFinanceActions } from './finance-actions.js';
 import { createCatalogActions } from './catalog-actions.js';
+import { mountAuthEntry, setAuthPending } from '../features/auth/entry.js';
+import { registrationConsent } from '../shared/registration-consent.js';
+import { mountRegistration, validateRegistrationForm, setRegistrationPending } from '../features/auth/registration.js';
 import { createShellActions } from './shell-actions.js';
 import { createPaymentActions } from './payment-actions.js';
 import { createStudioActions } from './studio-actions.js';
@@ -19,6 +22,7 @@ import { normalizeCardTypeFilter } from '../shared/card-type.js';
 import { legalPages, legalPage } from "../pages/policies.js";
 import { submitReplyIntent } from "../features/gifts/reply-intent.js";
 import { supportTopics, topicForRequest, topicKey } from "../features/support/topics.js";
+import { withdrawalTopic } from "../shared/privacy-requests.js";
 import { state } from "../core/state.js";
 import { templateValue } from "../features/catalog/template-copy.js";
 import { createComponents } from "../ui/components.js";
@@ -28,6 +32,7 @@ import { createModalIsolation, skipToMain } from '../ui/accessibility.js';
 import { createLayout } from "../ui/layout.js";
 import { createHomeViews, homeDemo, selectHomeDemos } from "../pages/home.js";
 import { mountMarketingMotion } from "../features/marketing/scene-motion.js";
+import { mountSeasonTheme } from '../features/marketing/season-theme.js';
 import { mountSeasonCampaign } from '../features/marketing/season-campaign.js';
 import { mountHomeConstruction } from '../features/marketing/home-construction.js';
 import { mountHeroTemplates, mountHomeChoices } from "../features/marketing/hero-templates.js";
@@ -44,6 +49,7 @@ const floatingCta=mountFloatingCta();
 const main = document.getElementById("main");
 const pageTransition = createPageTransition(main);
 mountCoverLoading(main);
+mountSeasonTheme(document);
 const publicCatalogGet=endpoint=>(takeCatalogBootstrap(endpoint)?.catch(()=>api.get(endpoint))||api.get(endpoint)).then(rememberCatalogMetadata);
 const modal = document.getElementById("modal-root");
 const toast = createToast(document.getElementById("toast-host"));
@@ -135,7 +141,8 @@ function updatePageMetadata() {
   const routes = {
     explore: "catalog", favorites: "favorites", creator: "creator",
     login: "login", register: "register", pricing: "pricing",
-    studio: "studio", about: "about", create: "design", design: "design", g: "gift",
+    studio: "studio", "privacy-center": "privacyCenter", about: "about", create: "design", design: "design", g: "gift",
+    "account-sessions": "accountSessions",
     template: "template", success: "success", recover: "recover", "verify-email": "verify",
     "payment-result": "payment", admin: "admin",
   };
@@ -549,6 +556,10 @@ async function render({ transition = false, resetScroll = false } = {}) {
       document.addEventListener("visibilitychange", recheck, { signal: lifetime.signal });
       const poll = setInterval(recheck, 15000);
       lifetime.signal.addEventListener("abort", () => clearInterval(poll), { once: true });
+      const christmasGift = originalDefinition(gift.templateId)?.category === 'christmas' ||
+        ['winter-wishes-2026', 'cozy-christmas-invitation'].includes(gift.templateId);
+      const christmas = christmasGift ? await import('../features/gifts/christmas.js') : null;
+      if (generation !== renderGeneration || lifetime.signal.aborted) return;
       if (gift.documentSnapshot) {
         document.body.classList.add("is-playing-gift");
         const openMeRecipient = ['garden-tea','club-22-invitation', 'cozy-christmas-invitation', 'tet-phong-thu'].includes(gift.templateId);
@@ -563,6 +574,7 @@ async function render({ transition = false, resetScroll = false } = {}) {
             document: gift.documentSnapshot,
             invitation: gift.invitation,
             runtimeVersion: gift.runtimeVersion,
+            christmasGift,
             mode: "public",
             onSceneChange: sceneId => {
               const eventTools = main.querySelector('[data-event-tools]');
@@ -616,6 +628,9 @@ async function render({ transition = false, resetScroll = false } = {}) {
             player.dispose();
           },
         };
+        if (christmasGift) christmas.mountChristmasGift(main.querySelector(".recipient-player-host"), {
+          signal: lifetime.signal, hasSoundtrack: Boolean(gift.documentSnapshot.soundtrack),
+        });
         if (originalInvitation) {
           const { mountInvitationTools } = await import('../features/gifts/invitation-tools.js');
           if (generation !== renderGeneration || lifetime.signal.aborted) return;
@@ -634,6 +649,7 @@ async function render({ transition = false, resetScroll = false } = {}) {
       } else {
         await loadGiftViews();if(generation!==renderGeneration)return;
         main.innerHTML = giftPage(gift);
+        if (christmasGift) christmas.mountChristmasGift(main.querySelector("#recipient-card"), { signal: lifetime.signal, legacy: true });
         const replyForm = main.querySelector("#reply-form");
         const replyList = main.querySelector("#reply-list");
         if (replyForm) { replyForm.dataset.endpoint = repliesEndpoint; replyForm.dataset.replyScope = `${id}:${gift.receiptId || 'manual'}`; }
@@ -724,6 +740,16 @@ async function render({ transition = false, resetScroll = false } = {}) {
         if (generation !== renderGeneration) return;
         await mountRecipientResults(main.querySelector('[data-recipient-results-host]'), result.gift.slug);
       }
+    } else if (route === "account-sessions" && !id) {
+      if (!requireLogin("/account-sessions")) return;
+      const user = state.user;
+      const { sessionPage, mountSessionInventory } = await import('../features/account/session-inventory.js');
+      if (generation !== renderGeneration || state.user !== user) return;
+      showPage(sessionPage());
+      routeController = mountSessionInventory(main.querySelector('[data-session-inventory]'), {
+        api, isCurrent: () => generation === renderGeneration && state.user === user,
+      });
+      await routeController.ready;
     } else if (route === "studio") {
       if (!state.user) {
         requireLogin("/studio");
@@ -741,6 +767,16 @@ async function render({ transition = false, resetScroll = false } = {}) {
         ]);
         if (generation !== renderGeneration) return;
       }
+    } else if (route === 'privacy-center' && !id) {
+      if (!requireLogin('/privacy-center')) return;
+      const user = state.user;
+      const [{ privacyPage }, { mountPrivacyCenter }] = await Promise.all([
+        import('../pages/privacy.js'), import('../features/privacy/privacy-center.js'),
+      ]);
+      if (generation !== renderGeneration || state.user !== user) return;
+      showPage(privacyPage(user));
+      routeController = mountPrivacyCenter(main, { api, isCurrent: () => generation === renderGeneration && state.user === user });
+      await routeController.ready;
     } else if (route === "favorites") {
       if (!state.user) {
         requireLogin("/favorites");
@@ -811,7 +847,9 @@ async function render({ transition = false, resetScroll = false } = {}) {
     else if (route === "login" || route === "register") {
       if (state.user && await finishAuthentication(state.user, null, { defaultTarget: null })) return;
       if (generation !== renderGeneration) return;
-      showPage(authPage(route));
+      showPage(authPage(route, { oauthConsent: new URLSearchParams(location.search).get("oauth") === "consent" }));
+      if (route === "register") mountRegistration(main);
+      else mountAuthEntry(main);
     } else if (route === "policies" && legalPages[id])
       showPage(legalPage(id));
     else showPage(errorPage(message("system.error.notFound")));
@@ -915,21 +953,22 @@ function openModal(content, { showLocaleControl = true } = {}) {
   modalIsolation.activate();
   focusDialog(modal.querySelector('.dialog'));
 }
-function openSupport(report) {
+function openSupport(report, { withdrawal = false } = {}) {
+  if (withdrawal && !requireLogin("/privacy-center")) return;
   const displayName = state.user?.name || "";
   const displayEmail = state.user?.email || "";
   openModal(`<div class="support-modal">
     <span class="eyebrow">${text('support.eyebrow')}</span>
-    <h2>${text(report ? (report.kind === 'gift' ? 'gift.player.report' : 'catalog.detail.report') : 'support.title')}</h2>
-    <p>${text('support.intro')}</p>
+    <h2>${text(report ? (report.kind === 'gift' ? 'gift.player.report' : 'catalog.detail.report') : withdrawal ? 'privacyCenter.withdrawalTopic' : 'support.title')}</h2>
+    <p>${text(withdrawal ? 'privacyCenter.withdrawalNotice' : 'support.intro')}</p>
     <form id="support-form" class="support-form">
       ${report ? `<input type="hidden" name="reportKind" value="${e(report.kind)}"/><input type="hidden" name="reportId" value="${e(report.id)}"/><input type="hidden" name="invite" value="${e(report.kind === "gift" ? new URLSearchParams(location.search).get("invite") || "" : "")}"/>` : ''}
       <label class="field"><span>${text('support.name')}</span><input name="name" required maxlength="60" value="${e(displayName)}" ${attr('placeholder', 'gift.reply.name')}/></label>
       <label class="field"><span>${text('support.email')}</span><input type="email" name="email" required maxlength="254" value="${e(displayEmail)}" ${attr('placeholder', 'support.emailExample')}/></label>
-      ${report ? '<input type="hidden" name="topic" value="report"/>' : `<label class="field"><span>${text('support.topic.label')}</span><select name="topic" required>
+      ${withdrawal ? `<input type="hidden" name="topic" value="${withdrawalTopic}"/>` : report ? '<input type="hidden" name="topic" value="report"/>' : `<label class="field"><span>${text('support.topic.label')}</span><select name="topic" required>
         ${supportTopics.map(id => `<option value="${id}">${text(topicKey(id))}</option>`).join('')}
       </select></label>`}
-      <label class="field"><span>${text('support.body')}</span><textarea name="message" required minlength="15" maxlength="2000" rows="4" ${attr('placeholder', 'support.bodyHint')}></textarea></label>
+      <label class="field"><span>${text('support.body')}</span><textarea name="message" required minlength="15" maxlength="2000" rows="4" ${attr('placeholder', withdrawal ? 'privacyCenter.withdrawalHint' : 'support.bodyHint')}></textarea></label>
       <button type="submit" class="btn btn--dark btn--wide">${text('support.send')} ${icon("send", 17)}</button>
     </form>
     <p class="support-note">${text('support.privacy')}</p>
@@ -1199,13 +1238,19 @@ document.addEventListener("submit", async (event) => {
   )
     return;
   event.preventDefault();
+  const authEntry = form.id === "register-form" || form.id === "email-login-form";
+  if ((authEntry || form.id === "support-form") && form.getAttribute("aria-busy") === "true") return;
   const submit = form.querySelector("[type=submit]");
   const inlineError = form.querySelector(".auth-inline-error");
   if (inlineError) {
     inlineError.hidden = true;
     inlineError.textContent = "";
   }
+  if (form.id === "register-form" && !validateRegistrationForm(form)) return;
   if (submit) submit.disabled = true;
+  if (form.id === "register-form") setRegistrationPending(form, true);
+  else if (authEntry) setAuthPending(form, true);
+  else if (form.id === "support-form") form.setAttribute("aria-busy", "true");
   try {
     const data = Object.fromEntries(new FormData(form));
     if (form.id === 'refund-request-form') {
@@ -1229,15 +1274,13 @@ document.addEventListener("submit", async (event) => {
       } else {
         await finishAuthentication(result.user, message(verify ? "auth.verify.flash" : "auth.recovery.flash"));
       }
-    } else if (form.id === "register-form" || form.id === "email-login-form") {
-      if (
-        form.id === "register-form" &&
-        data.password !== data.confirmPassword
-      ) {
-        throw new Error(t("auth.password.mismatch"));
-      }
+    } else if (authEntry) {
       const endpoint =
         form.id === "register-form" ? "/auth/register" : "/auth/login";
+      if (form.id === "register-form") {
+        data.consent = registrationConsent(form.querySelector('#auth-terms').checked,
+          form.querySelector('#auth-privacy').checked);
+      }
       const result = await api.post(endpoint, data);
       await finishAuthentication(result.user,
         form.id === "register-form"
@@ -1270,11 +1313,16 @@ document.addEventListener("submit", async (event) => {
       toast(message("gift.builder.success"));
       navigate(`/success/${result.gift.slug}`);
     } else if (form.id === "support-form") {
+      const submittingUser = state.user;
       const result = await api.post("/support/requests", { ...data, topic: topicForRequest(data.topic) });
+      if (data.topic === withdrawalTopic) {
+        if (state.user !== submittingUser || !form.isConnected) return;
+        void routeController?.refreshPrivacyRequests?.();
+      }
       openModal(`<div class="support-modal support-success">
         <span class="support-success__icon">${icon("check-circle", 38)}</span>
         <h2>${text('support.success.title')}</h2>
-        <p>${text('support.success.keepCode')}</p>
+        <p>${text(data.topic === withdrawalTopic ? 'privacyCenter.withdrawalReceived' : 'support.success.keepCode')}</p>
         <div class="support-success__code"><strong>${e(result.ticket.code)}</strong>
           <button type="button" data-action="copy-link" data-value="${e(result.ticket.code)}" ${attr('aria-label', 'support.success.copyCode')}>${icon("copy", 18)} ${text('gift.share.copy')}</button></div>
         <p class="support-note">${text('support.success.note')}</p>
@@ -1308,10 +1356,14 @@ document.addEventListener("submit", async (event) => {
     if (inlineError) {
       setText(inlineError, errorCopy(error, message("system.error.submit")));
       inlineError.hidden = false;
+      if (authEntry && form.isConnected) inlineError.focus({ preventScroll: true });
       inlineError.scrollIntoView({ behavior: scrollBehavior(), block: "nearest" });
     } else toast(errorCopy(error, message("system.error.request")), "error");
   } finally {
-    if (submit) submit.disabled = false;
+    if (form.id === "register-form") setRegistrationPending(form, false);
+    else if (authEntry) setAuthPending(form, false);
+    else if (submit) submit.disabled = false;
+    if (form.id === "support-form") form.removeAttribute("aria-busy");
   }
 });
 document.addEventListener("keydown", (event) => {

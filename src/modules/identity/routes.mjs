@@ -3,6 +3,10 @@ import { sessionToken, cookie, randomId, sanitizeText } from '../../shared/secur
 import { createHash } from 'node:crypto';
 import { publicUser } from './credentials.service.mjs';
 import { requestLocale } from '../../shared/locale.mjs';
+import { registerSessionInventoryRoute, registerSessionRevocationRoute } from './session-inventory.mjs';
+import { registrationEvidence } from './consent.mjs';
+import { consentReceipt, policySnapshot } from './policy-archive.mjs';
+import { consentHistory, confirmPolicy } from './consent-history.mjs';
 
 export function registerRoutes(router, { config, credentials, sessions, authLimits, roles, service, recovery }) {
   router.on('GET', '/health', ({res}) => sendJson(res, 200, { name: 'identity', ok: true }));
@@ -16,12 +20,38 @@ export function registerRoutes(router, { config, credentials, sessions, authLimi
     const user = await service.findCurrent(req);
     return sendJson(res, 200, { user: publicUser(user) });
   });
+  // Chỉ đọc bằng chứng của tài khoản trong session; không nhận userId từ client.
+  router.on('GET', '/consent', async ({ req, res }) => {
+    const user = await service.findCurrent(req);
+    if (!user) throw localizedError(401, 'errors.unauthorized');
+    sendJson(res, 200, consentReceipt(user));
+  });
+  router.on('GET', '/consent/history', async ({ req, res }) => {
+    const user = await service.findCurrent(req);
+    if (!user) throw localizedError(401, 'errors.unauthorized');
+    sendJson(res, 200, consentHistory(user, requestLocale(req)));
+  });
+  router.on('POST', '/consent/confirm', async ({ req, res }) => {
+    const user = await service.findCurrent(req);
+    if (!user) throw localizedError(401, 'errors.unauthorized');
+    authLimits.consume('register', req, res);
+    const body = await parseJson(req, 4096);
+    sendJson(res, 200, await confirmPolicy(service.users, user.id, body));
+  });
+  // Nội dung chính sách công khai theo phiên bản, không chứa dữ liệu người dùng.
+  router.on('GET', '/policies/:version', ({ res, params }) => {
+    const snapshot = policySnapshot(params.version);
+    if (!snapshot) throw localizedError(404, 'errors.notFound');
+    sendJson(res, 200, snapshot);
+  });
+  registerSessionInventoryRoute(router, sessions);
+  registerSessionRevocationRoute(router, sessions, authLimits);
   // Đăng ký/đăng nhập bằng email. Mật khẩu được băm với scrypt + salt riêng.
   router.on('POST', '/register', async ({req, res}) => {
     authLimits.consume('register', req, res);
     const body = await parseJson(req, 16_384);
     if (body.confirmPassword !== body.password) throw localizedError(400, 'auth.password.mismatch');
-    const user = await credentials.register(body);
+    const user = await credentials.registerPublic(body, requestLocale(req));
     await service.issueSession(res, user);
     sendJson(res, 201, { user: publicUser(user) });
   });
@@ -31,6 +61,18 @@ export function registerRoutes(router, { config, credentials, sessions, authLimi
     const user = await credentials.login(body);
     await service.issueSession(res, user);
     sendJson(res, 200, { user: publicUser(user) });
+  });
+  router.on('POST', '/password/change', async ({ req, res }) => {
+    const token = sessionToken(req);
+    authLimits.consume('password', req, res);
+    const session = await sessions.find(token);
+    if (!session) throw localizedError(401, 'errors.unauthorized');
+    const body = await parseJson(req, 4096);
+    if (body.confirmLogout !== true) throw localizedError(400, 'passwordChange.confirmRequired');
+    await credentials.changePassword(session, body, update => sessions.mutateAuthenticated(token, update));
+    // Credential version mới vô hiệu hóa toàn bộ JWT cũ; xóa cookie hiện tại.
+    res.setHeader('set-cookie', cookie('session', '', 0));
+    sendJson(res, 200, { ok: true });
   });
   router.on('POST', '/verify-email/request', async ({ req, res }) => {
     const user = await service.findCurrent(req);
@@ -106,6 +148,13 @@ export function registerRoutes(router, { config, credentials, sessions, authLimi
     const updated = await roles.change(session.sub, params.id, body.role);
     sendJson(res, 200, { user: publicUser(updated) });
   });
+  router.on('POST', '/sessions/revoke-others', async ({ req, res }) => {
+    authLimits.consume('session', req, res);
+    const body = await parseJson(req, 1024);
+    if (body.confirm !== true) throw localizedError(400, 'errors.validation');
+    if (!(await sessions.revokeOthers(sessionToken(req)))) throw localizedError(401, 'errors.unauthorized');
+    sendJson(res, 200, { ok: true });
+  });
   router.on('POST', '/logout', async ({req,res}) => {
     await sessions.revoke(sessionToken(req));
     res.setHeader('set-cookie', cookie('session', '', 0));
@@ -118,30 +167,46 @@ export function registerRoutes(router, { config, credentials, sessions, authLimi
     sendJson(res, 200, { user: await sessions.find(body.token) });
   });
 
-  router.on('GET', '/google', ({res, url}) => {
-    if (!config.googleId || !config.googleSecret) throw localizedError(503, 'errors.auth.googleDisabled');
+  // GET chỉ bắt đầu đăng nhập; đăng ký OAuth phải qua POST có consent hợp lệ.
+  function beginOAuth(provider, res, { recovery = false, consent = null } = {}) {
+    const google = provider === 'google';
+    if (google ? !config.googleId || !config.googleSecret : !config.zaloId || !config.zaloSecret)
+      throw localizedError(503, google ? 'errors.auth.googleDisabled' : 'errors.auth.zaloDisabled');
     const state = randomId(24);
-    const query = new URLSearchParams({
-      client_id: config.googleId,
-      redirect_uri: config.googleCallback,
-      response_type: 'code',
-      scope: 'openid email profile',
-      state,
-      prompt: 'select_account',
+    const verifier = randomId(40);
+    const challenge = createHash('sha256').update(verifier).digest('base64url');
+    const query = new URLSearchParams(google ? {
+      client_id: config.googleId, redirect_uri: config.googleCallback, response_type: 'code',
+      scope: 'openid email profile', state, prompt: 'select_account',
+      code_challenge: challenge, code_challenge_method: 'S256',
+    } : { app_id: config.zaloId, redirect_uri: config.zaloCallback, code_challenge: challenge, state });
+    res.setHeader('set-cookie', service.oauthCookie(provider, state, verifier, { recovery, consent }));
+    const endpoint = google ? 'https://accounts.google.com/o/oauth2/v2/auth' : 'https://oauth.zaloapp.com/v4/permission';
+    return `${endpoint}?${query}`;
+  }
+  for (const provider of ['google', 'zalo']) {
+    router.on('POST', `/${provider}/start`, async ({ req, res }) => {
+      authLimits.consume('register', req, res);
+      const body = await parseJson(req, 4096);
+      const consent = { ...registrationEvidence(body.consent, requestLocale(req)), source: `${provider}-registration` };
+      sendJson(res, 200, { url: beginOAuth(provider, res, { consent }) });
     });
-    res.setHeader('set-cookie', service.oauthCookie('google', state, url.searchParams.get('recover') === '1' ? 'recover' : ''));
-    res.writeHead(302, { location: `https://accounts.google.com/o/oauth2/v2/auth?${query}`, 'cache-control': 'no-store' });
-    res.end();
-  });
+    router.on('GET', `/${provider}`, ({ req, res, url }) => {
+      const recovery = provider === 'google' && url.searchParams.get('recover') === '1';
+      authLimits.consume(recovery ? 'recovery' : 'login', req, res);
+      res.writeHead(302, { location: beginOAuth(provider, res, { recovery }), 'cache-control': 'no-store' });
+      res.end();
+    });
+  }
   router.on('GET', '/google/callback', async ({req, res, url}) => {
     if (url.searchParams.has('error')) throw localizedError(401, 'errors.auth.googleCancelled');
-    const recovering = service.consumeState(req, 'google', url.searchParams.get('state')) === 'recover';
+    const context = service.consumeState(req, 'google', url.searchParams.get('state'));
     const code = url.searchParams.get('code');
     if (!code) throw localizedError(400, 'errors.auth.googleCode');
     const response = await fetch('https://oauth2.googleapis.com/token', {
       method: 'POST',
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({ code, client_id: config.googleId, client_secret: config.googleSecret, redirect_uri: config.googleCallback, grant_type: 'authorization_code' }),
+      body: new URLSearchParams({ code, client_id: config.googleId, client_secret: config.googleSecret, redirect_uri: config.googleCallback, grant_type: 'authorization_code', code_verifier: context.verifier }),
       signal: AbortSignal.timeout(10000),
     });
     const token = await response.json();
@@ -152,27 +217,17 @@ export function registerRoutes(router, { config, credentials, sessions, authLimi
     });
     const info = await infoResponse.json();
     if (!infoResponse.ok || !info.sub) throw localizedError(401, 'errors.auth.googleProfile');
-    await service.finishOAuth(res, 'google', { id: info.sub, name: info.name || info.email || 'Người dùng Google', email: info.email, avatar: info.picture }, recovering);
-  });
-  router.on('GET', '/zalo', ({res}) => {
-    if (!config.zaloId || !config.zaloSecret) throw localizedError(503, 'errors.auth.zaloDisabled');
-    const state = randomId(24);
-    const verifier = randomId(40);
-    const challenge = createHash('sha256').update(verifier).digest('base64url');
-    const query = new URLSearchParams({ app_id: config.zaloId, redirect_uri: config.zaloCallback, code_challenge: challenge, state });
-    res.setHeader('set-cookie', service.oauthCookie('zalo', state, verifier));
-    res.writeHead(302, { location: `https://oauth.zaloapp.com/v4/permission?${query}`, 'cache-control': 'no-store' });
-    res.end();
+    await service.finishOAuth(res, 'google', { id: info.sub, name: info.name || info.email || 'Người dùng Google', email: info.email, avatar: info.picture }, context);
   });
   router.on('GET', '/zalo/callback', async ({req, res, url}) => {
     if (url.searchParams.has('error')) throw localizedError(401, 'errors.auth.zaloCancelled');
-    const verifier = service.consumeState(req, 'zalo', url.searchParams.get('state'));
+    const context = service.consumeState(req, 'zalo', url.searchParams.get('state'));
     const code = url.searchParams.get('code');
     if (!code) throw localizedError(400, 'errors.auth.zaloCode');
     const response = await fetch('https://oauth.zaloapp.com/v4/access_token', {
       method: 'POST',
       headers: { 'content-type': 'application/x-www-form-urlencoded', secret_key: config.zaloSecret },
-      body: new URLSearchParams({ code, app_id: config.zaloId, grant_type: 'authorization_code', code_verifier: verifier }),
+      body: new URLSearchParams({ code, app_id: config.zaloId, grant_type: 'authorization_code', code_verifier: context.verifier }),
       signal: AbortSignal.timeout(10000),
     });
     const token = await response.json();
@@ -183,7 +238,7 @@ export function registerRoutes(router, { config, credentials, sessions, authLimi
     });
     const info = await infoResponse.json();
     if (!infoResponse.ok || !info.id || info.error) throw localizedError(401, 'errors.auth.zaloProfile');
-    await service.finishOAuth(res, 'zalo', { id: info.id, name: info.name || 'Người dùng Zalo', avatar: info.picture?.data?.url });
+    await service.finishOAuth(res, 'zalo', { id: info.id, name: info.name || 'Người dùng Zalo', avatar: info.picture?.data?.url }, context);
   });
 
 }

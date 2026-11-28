@@ -16,7 +16,7 @@ export function proxy(req, res, target, route) {
   res.on('close', () => { if (!res.writableEnded) upstream.destroy(); });
   upstream.on('error', () => {
     if (!res.headersSent) {
-      res.writeHead(502, { 'content-type': 'application/json; charset=utf-8' });
+      res.writeHead(502, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store', 'x-content-type-options': 'nosniff' });
       res.end(JSON.stringify({error:'Dịch vụ đang khởi động hoặc tạm thời không khả dụng.'}));
     } else res.destroy();
   });

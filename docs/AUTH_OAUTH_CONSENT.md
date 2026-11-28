@@ -1,0 +1,8 @@
+# Auth V4B — Đăng ký OAuth có consent
+
+- `GET /api/auth/google` và `/zalo` chỉ đăng nhập tài khoản đã liên kết. Nếu chưa có tài khoản, callback chuyển tới `/register?oauth=consent`, không tạo tài khoản/session. Người dùng cần chọn provider lại từ Register.
+- `POST /api/auth/google/start` và `/zalo/start` nhận `{ consent: { terms: true, privacy: true, version } }`. Máy chủ xác nhận phiên bản chính sách, tự ghi thời điểm, locale và nguồn đăng ký; trả URL xác thực của provider. Cookie OAuth HttpOnly, SameSite=Lax được ký HMAC với JWT_SECRET, ràng buộc provider và hạn dùng 10 phút; cả Google và Zalo dùng PKCE. HTTPS production phải có PUBLIC_BASE_URL đúng để cookie có Secure.
+- Callback chỉ tạo Sender mới khi consent còn hợp lệ. Không gán consent giả hoặc ghi đè bằng chứng cho tài khoản cũ; giữ luồng recovery Google. Không nhập access token/hồ sơ vào cookie hoặc URL quay lại. State cookie không phải kho nonce dùng một lần; chống tái sử dụng code vẫn phụ thuộc provider. Cần kiểm thử tích hợp thật trước phát hành.
+- Không thêm migration: bằng chứng lưu cùng user (MySQL legacy_payload hoặc JSON repository). Không khẳng định tuân thủ pháp lý đầy đủ; lịch sử/thu hồi consent và lưu nội dung chính sách theo phiên bản chưa triển khai.
+- Triển khai frontend/backend đồng bộ. Luồng OAuth đang dở trước bản cập nhật phải bắt đầu lại vì cookie định dạng cũ không còn hợp lệ.
+- Kiểm thử: `node --test tests/unit/oauth-consent.test.mjs tests/unit/sessions.test.mjs tests/unit/mysql-identity-catalog-services.test.mjs tests/unit/registration-consent.test.mjs tests/unit/auth-*.test.mjs tests/unit/credentials.test.mjs tests/unit/identity-recovery-unverified.test.mjs`.

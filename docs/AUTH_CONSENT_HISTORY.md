@@ -1,0 +1,8 @@
+# Auth V4C.3B — Lịch sử xác nhận chính sách
+
+- `GET /api/auth/consent/history`: session hiện tại; trả bản chụp chính sách hiện hành đúng ngôn ngữ, digest, lịch sử đã lọc và cờ `confirmed`, `historyValid`. Không trả ID tài khoản, email hay mật khẩu.
+- `POST /api/auth/consent/confirm`: session hiện tại; JSON `{ terms: true, privacy: true, version, locale, digest }`. Client cần đọc bản chụp trước khi gửi. Server kiểm tra digest theo ngôn ngữ, phiên bản và hai boolean, tự đặt thời điểm. Dùng chung rate limit đăng ký; bảo vệ Origin tại gateway như các POST hiện có.
+- `registrationConsent` không bị sửa. `policyConfirmations` lưu các xác nhận sau đăng ký trong `legacy_payload` hiện có. `mutate` khóa hàng trong transaction MySQL, JSON đồng bộ chỉ phù hợp demo một tiến trình. Một phiên bản đã có digest khớp không tạo thêm bản ghi khi gửi lại; không xóa lịch sử cũ. Dữ liệu sai cấu trúc cần xử lý qua hỗ trợ.
+- Chính sách hiện là dự thảo; giao diện có cảnh báo, xác nhận tự nguyện, không khóa tài khoản. Việc xác nhận không tự hoàn tất yêu cầu thu hồi, không xóa ticket, không thay đổi thiệp, giao dịch hay trạng thái đăng nhập. Digest không chứng minh đã đọc hoặc đáp ứng pháp lý.
+- Khi công bố phiên bản mới: tạo snapshot mới, giữ snapshot cũ, thêm vào registry `policy-archive.mjs` và đổi `registrationPolicyVersion` ở client/server cùng lúc; không sửa snapshot cũ. Kiểm tra digest cố định, đồng bộ nội dung trang chính sách, VI/EN và rà soát pháp lý trước production. Không tự động kích hoạt lại consent đã thu hồi; cần nghiệp vụ riêng trước khi triển khai thu hồi thực tế.
+- Triển khai backend trước frontend, kiểm tra GET/POST qua gateway với tài khoản thử nghiệm; MySQL thật và E2E phải được nghiệm thu riêng.

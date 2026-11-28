@@ -13,6 +13,13 @@ import { CheckoutService } from '../../src/modules/checkout/checkout.service.mjs
 import { MySqlPaymentRepository } from '../../src/modules/payments/mysql.repository.mjs';
 import { RefundSettlementQa } from '../../src/modules/payments/refund-settlement-qa.mjs';
 import { readIntegrityCounts } from '../../database/scripts/integrity-audit.mjs';
+import { auditRepository, assessSchema, readSchemaMetadata } from '../../database/scripts/migration-audit.mjs';
+import { auditAuthSchema } from '../../database/scripts/auth-schema-audit.mjs';
+import { MySqlUsersRepository, MySqlSessionStore } from '../../src/modules/identity/mysql.repositories.mjs';
+import { CredentialsService } from '../../src/modules/identity/credentials.service.mjs';
+import { sessionActionRef } from '../../src/modules/identity/session-inventory.mjs';
+import { signSession, verifySession } from '../../src/shared/security.mjs';
+import { registrationConsent } from '../../web/js/shared/registration-consent.js';
 
 const require = createRequire(import.meta.url);
 const driver = require('mysql2/promise');
@@ -382,6 +389,9 @@ try {
     assert.equal((await payments.refunds.byBuyer(intent.orderId, other)).assessment, undefined);
   });
   await check('Phase 2.4B2: scoped checkout preserves historical anchor and isolates concurrent retries', async () => {
+    // Hoàn tất prefix 013–016 trước 017; Auth acceptance sẽ kiểm tra đủ lịch sử 001–020.
+    for (const name of ['013_canvas_library.sql', '014_canvas_audio.sql', '015_music_library.sql', '016_recipient_naming.sql'])
+      await admin.query(await fs.readFile(new URL(`../../database/migrations/${name}`, import.meta.url), 'utf8'));
     // Chạy migration thật sau khi fixture đã có khóa Sandbox từ phiên bản trước.
     await admin.query(await fs.readFile(new URL('../../database/migrations/017_payment_scope_keys.sql', import.meta.url), 'utf8'));
     const legacy = new MySqlPaymentRepository(db);
@@ -571,6 +581,66 @@ try {
       throw rollback;
     }), error => error === rollback);
     assert.deepEqual(await readIntegrityCounts(db), baseline);
+  });
+  await check('Auth V5.2B: migration 020, legacy session preservation and exact schema metadata', async () => {
+    const secret = 'isolated-auth-session-fixture-secret';
+    const users = new MySqlUsersRepository(db);
+    const user = await users.get(owner);
+    const legacyToken = signSession(user, secret), claims = verifySession(legacyToken, secret);
+    await admin.execute('INSERT INTO sessions(id,user_id,expires_at) VALUES (?,?,?)', [claims.jti, owner, date(new Date(claims.exp * 1000).toISOString())]);
+    await admin.query(await fs.readFile(new URL('../../database/migrations/020_session_inventory.sql', import.meta.url), 'utf8'));
+    const repository = await auditRepository();
+    assert.deepEqual(repository.issues, []);
+    const schema = assessSchema(repository.migrations, await readSchemaMetadata(db), { requireLatest: true });
+    assert.equal(schema.status, 'latest');
+    assert.equal((await auditAuthSchema(db, schema)).status, 'ok');
+    const [[row]] = await admin.execute('SELECT credential_version, issued_at FROM sessions WHERE id=?', [claims.jti]);
+    assert.deepEqual({ ...row }, { credential_version: null, issued_at: null });
+    const sessions = new MySqlSessionStore(db, users, secret);
+    assert.ok(await sessions.find(legacyToken));
+    const fresh = await sessions.create(user);
+    const inventory = await sessions.listActive(fresh);
+    assert.equal(inventory.sessions.length, 1);
+    assert.equal(inventory.unclassifiedCount, 1);
+    assert.equal((await sessions.listActive(legacyToken)).sessions.find(row => row.current).issuedAt, null);
+    await sessions.revokeOthers(fresh);
+    assert.equal(await sessions.find(legacyToken), null);
+    assert.ok(await sessions.find(fresh));
+  });
+  await check('Auth V5.2B: two MySQL connections, scoped revocation and concurrent credential change', async () => {
+    const secret = 'isolated-auth-concurrent-fixture-secret';
+    const users = new MySqlUsersRepository(db), users2 = new MySqlUsersRepository(db2);
+    const credentials = new CredentialsService(users), credentials2 = new CredentialsService(users2);
+    const sessions = new MySqlSessionStore(db, users, secret), sessions2 = new MySqlSessionStore(db2, users2, secret);
+    const old = 'FixtureOld123', first = 'FixtureFirst123', second = 'FixtureSecond123';
+    const account = await credentials.registerPublic({ name: 'Auth QA', email: `auth-${uuid()}@example.test`, password: old, consent: registrationConsent(true, true) }, 'vi');
+    const unrelated = await users.get(other);
+    const a = await sessions.create(account), b = await sessions2.create(account), c = await sessions.create(account);
+    const d = await sessions2.create(unrelated);
+    const ca = verifySession(a, secret), cb = verifySession(b, secret);
+    const ref = sessionActionRef(ca, cb.jti, secret);
+    assert.equal(await sessions2.revokeOne(d, ref), false);
+    assert.equal(await sessions2.revokeOne(c, ref), false);
+    assert.equal(await sessions.revokeOne(a, ref), true);
+    assert.equal(await sessions2.find(b), null);
+    assert.ok(await sessions.find(a)); assert.ok(await sessions2.find(c)); assert.ok(await sessions2.find(d));
+    // Hai connection cạnh tranh ghi credential; không giữ khóa lúc chạy scrypt.
+    const claimsA = await sessions.find(a), claimsC = await sessions2.find(c);
+    const change = (service, store, token, claims, password) => service.changePassword(claims,
+      { currentPassword: old, password, confirmPassword: password }, update => store.mutateAuthenticated(token, update));
+    const results = await Promise.allSettled([change(credentials, sessions, a, claimsA, first), change(credentials2, sessions2, c, claimsC, second)]);
+    assert.equal(results.filter(result => result.status === 'fulfilled').length, 1);
+    assert.ok([401, 409].includes(results.find(result => result.status === 'rejected').reason.status));
+    const persisted = await users2.get(account.id);
+    assert.equal(persisted.credentialVersion, 1);
+    assert.deepEqual(persisted.registrationConsent, account.registrationConsent);
+    assert.equal(await sessions.find(a), null); assert.equal(await sessions2.find(c), null); assert.ok(await sessions2.find(d));
+    await assert.rejects(credentials.login({ email: account.email, password: old }), { status: 401 });
+    const winner = results[0].status === 'fulfilled' ? first : second;
+    const loser = winner === first ? second : first;
+    await assert.rejects(credentials2.login({ email: account.email, password: loser }), { status: 401 });
+    const fresh = await sessions2.create(await credentials2.login({ email: account.email, password: winner }));
+    assert.equal((await sessions.listActive(fresh)).sessions.length, 1);
   });
   console.log(`RESULT PASS ${count} isolated MySQL integration cases; mocks are not included.`);
 } finally {

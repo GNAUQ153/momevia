@@ -1,27 +1,40 @@
 import { originalsArtwork } from './originals-art.js';
 import { originalDefinition } from './originals-data.js';
+import { buildRig, coverTexture, shade } from './originals-rigs.js';
 import { createElement } from './registry.js';
 import { validateDocument } from './schema.js';
 
-// Bốn cảnh dùng cùng schema với Editor, preview và trang nhận thiệp.
-// Mỗi hình, chữ và khung là một lớp có thể chỉnh sửa; không raster hóa nội dung.
+// Dựng một thiệp Originals theo hành trình của NGƯỜI NHẬN:
+//   1. Bìa (scene-cover): nền tối, tên người nhận, vật thể 3D cần chạm để mở  -> tò mò
+//   2. Lời mời / lời chúc (scene-main): tiêu đề, lời nhắn, thông tin sự kiện   -> bất ngờ
+//   3. Khám phá (scene-discover): tương tác riêng của từng thiệp                -> tham gia
+//   3b. Hai nhánh (scene-path-a / scene-path-b) nếu thiệp cho người nhận chọn  -> kết nối
+//   4. Hồi đáp (scene-finish): lời kết, ô phản hồi, xem lại                     -> kết nối
+// Tất cả là lớp Canvas chỉnh sửa được, dùng chung schema với Editor và trang nhận quà.
+// Luôn có nút "Xem nội dung ngay" để người nhận bỏ qua hiệu ứng (yêu cầu M07/M10).
+
+const W = 390;
+const H = 844;
+
 export function createOriginalTemplate(id, localize) {
-  const palette = originalDefinition(id);
-  if (!palette) return null;
-  const p = palette;
-  const t = key => localize('originals.' + key);
-  const copy = key => localize('templates.' + id + '.' + key);
-  const journey = key => localize('moments.cards.' + id + '.' + key);
+  const p = originalDefinition(id);
+  if (!p) return null;
+
+  // Ba nguồn chữ: chung cho bộ sưu tập, riêng từng thiệp, và tiêu đề Catalog.
+  const common = key => localize('stories.common.' + key);
+  const story = key => localize('stories.' + id + '.' + key);
+  const headline = localize('templates.' + id + '.headline');
   const invitation = p.cardType === 'invitation';
-  const headlineFont = p.category === 'wedding' ? 'serif' : 'heading';
-  const paper = '#FFFCF7';
+  const titleFont = p.category === 'wedding' || p.category === 'christmas' ? 'serif' : 'heading';
+  const coverInk = '#FFF8EE';
+
   const doc = {
     schemaVersion: 2,
     registryVersion: 2,
     artboard: {
-      baseSize: { width: 390, height: 844 },
+      baseSize: { width: W, height: H },
       layoutMode: 'responsive-scene',
-      safeInsets: { top: 24, right: 24, bottom: 24, left: 24 },
+      safeInsets: { top: 24, right: 20, bottom: 24, left: 20 },
     },
     entrySceneId: 'scene-cover',
     bindings: Object.fromEntries(['recipientName', 'senderName', 'message'].map(key => [key, { type: 'text', value: '' }])),
@@ -31,154 +44,250 @@ export function createOriginalTemplate(id, localize) {
     responsive: {
       textOverflow: 'expand-flow',
       sceneOverflow: 'scroll',
-      desktop: { maxContentWidth: 390, align: 'center' },
+      desktop: { maxContentWidth: 430, align: 'center' },
     },
   };
-  function add(scene, type, id, box, props, extra = {}) {
-    const [x, y, width, height] = box;
+
+  // ---- Hàm tạo lớp dùng chung ----
+  function add(scene, type, elementId, box, props, extra = {}) {
+    const [x, y, width, height, rotation = 0] = box;
     const element = createElement(type, {
-      id,
-      name: localize('editor.element.' + type),
-      layout: { x, y, width, height, rotation: 0 },
+      id: elementId,
+      name: extra.name || localize('editor.element.' + type),
+      layout: { x, y, width, height, rotation },
       props,
       ...extra,
     }, localize);
+    if (extra.name) element.name = extra.name;
     doc.elements.push(element);
-    scene.elementIds.push(id);
+    scene.elementIds.push(elementId);
     return element;
   }
-  const shape = (scene, id, box, color, kind = 'rectangle', radius = 16, strokeWidth = 0) =>
-    add(scene, 'shape', id, box, { kind, color, radius, strokeColor: p.detail, strokeWidth });
-  const art = (scene, id, box, stickerId, color = p.detail) =>
-    add(scene, 'sticker', id, box, { stickerId, color });
-  function text(scene, id, box, value, size = 18, fontToken = 'body', binding = false) {
-    return add(scene, 'text', id, box, {
-      ...(binding ? { textBinding: value } : { text: value }),
+
+  // Hiện dần theo nhịp 0 / 150 / 300 ms để mắt người nhận đi từ trên xuống.
+  const enter = (step = 0, effect = 'E02') => ({ entrance: { id: effect, speed: 'normal', delay: [0, 150, 300][step] } });
+
+  function text(scene, elementId, box, value, options = {}) {
+    const {
+      size = 18,
+      font = 'body',
+      color = p.ink,
+      bind = false,
+      step = 0,
+      heading = false,
+    } = options;
+    return add(scene, 'text', elementId, box, {
+      ...(bind ? { textBinding: value } : { text: value }),
       fontSize: size,
-      fontToken,
+      fontToken: font,
       align: 'center',
-      color: p.ink,
+      color,
       lineHeight: 1.35,
-    }, id.endsWith('-title') ? { accessibility: { role: 'heading', level: 1 } } : {});
+    }, {
+      effects: enter(step),
+      ...(heading ? { accessibility: { role: 'heading', level: 1 } } : {}),
+    });
   }
-  const go = (scene, id, label, target, y = 746, height = 56) =>
-    add(scene, 'button', id, [36, y, 318, height], { label, color: p.button }, {
+
+  function go(scene, elementId, label, target, y = 760, color = p.button) {
+    return add(scene, 'button', elementId, [36, y, 318, 56], { label, color }, {
       actions: [{ on: 'activate', type: 'goToScene', targetSceneId: target }],
     });
-  function scene(id, name, transition = 'T01') {
+  }
+
+  const motifArt = (scene, elementId, box) => add(scene, 'sticker', elementId, box, {
+    stickerId: 'originals-illustration',
+    color: p.button,
+  }, { artwork: originalsArtwork(id), effects: enter(0, 'E01') });
+
+  function scene(sceneId, name, background, transition) {
     const model = {
-      id,
+      id: sceneId,
       name,
-      background: { kind: 'solid', color: p.bg },
+      background: { kind: 'solid', color: background },
       elementIds: [],
       effects: { transition: { id: transition, speed: 'normal' } },
     };
     doc.scenes.push(model);
-    const prefix = id.slice(6);
-    shape(model, id === 'scene-cover' ? 'originals-' + p.id : prefix + '-top-rule', [24, 22, 342, 3], p.button, 'rectangle', 1);
-    art(model, prefix + '-corner', [344, 788, 24, 24], p.motif);
     return model;
   }
 
-  const cover = scene('scene-cover', localize('templates.scene.cover'));
-  text(cover, 'cover-kicker', [42, 45, 306, 28], invitation ? t('invited') : t('to'), 15, 'heading');
-  text(cover, 'cover-title', [30, 94, 330, 132], copy('headline'), 35, headlineFont);
-  text(cover, 'text-recipient', [36, 240, 318, 58], 'recipientName', 24, 'heading', true);
+  // ---- 1. Bìa: tối, chỉ có một việc cần làm là chạm mở ----
+  const cover = scene('scene-cover', localize('templates.scene.cover'), p.night, 'T01');
+  add(cover, 'shape', 'cover-decoration', [0, 0, W, H], {
+    kind: 'signature-cover-decoration',
+    color: p.detail,
+    radius: 0,
+  }, {
+    name: common('layerTexture'),
+    opacity: 0.6,
+    artwork: { paths: [{ d: coverTexture(p.category), fill: 'none', stroke: 'color', strokeWidth: 0.16 }] },
+  });
+  add(cover, 'shape', 'cover-border', [14, 14, W - 28, H - 28], {
+    kind: 'signature-cover-border',
+    color: p.detail,
+    radius: 0,
+  }, {
+    name: common('layerBorder'),
+    opacity: 0.7,
+    artwork: { paths: [{ d: 'M1 1H99V99H1Z', fill: 'none', stroke: 'color', strokeWidth: 0.28 }] },
+  });
+  text(cover, 'cover-kicker', [30, 48, 330, 26], story('kicker'), { size: 14, font: 'heading', color: p.detail });
+  text(cover, 'cover-title', [24, 80, 342, 96], headline, { size: 32, font: titleFont, color: coverInk, heading: true, step: 1 });
+  text(cover, 'cover-for', [40, 186, 310, 22], common('forYou'), { size: 13, color: coverInk, step: 1 });
+  text(cover, 'text-recipient', [40, 210, 310, 40], 'recipientName', { size: 24, font: 'heading', color: p.detail, bind: true, step: 2 });
 
-  // Năm bố cục vật liệu riêng, kết hợp 16 minh họa nguyên bản.
-  const arch = p.layout === 'arch';
-  shape(cover, 'cover-shadow', [40, 326, 320, 268], p.detail, arch ? 'arch' : 'rectangle', 20);
-  shape(cover, 'cover-paper', [30, 316, 320, 268], paper, arch ? 'arch' : 'rectangle', 20);
-  if (p.layout === 'ribbon') {
-    shape(cover, 'cover-ribbon', [30, 526, 320, 26], p.detail, 'rectangle', 0);
-    shape(cover, 'ribbon-tail', [308, 316, 20, 268], p.detail, 'rectangle', 0);
+  // Vật thể 3D: thứ tự lớp = thứ tự vẽ. Khung cửa đôi có minh họa ẩn phía sau.
+  for (const part of buildRig(p)) {
+    add(cover, 'shape', 'rig-' + part.role, part.box, {
+      kind: 'signature-' + part.role,
+      color: part.color,
+      radius: 0,
+    }, { name: part.name, artwork: { paths: part.paths } });
+    if (part.role === 'window') motifArt(cover, 'rig-window-art', [105, 360, 180, 180]);
   }
-  if (p.layout === 'ticket') {
-    add(cover, 'line', 'ticket-rule', [52, 554, 276, 6], { pattern: 'stitched', color: p.detail, strokeWidth: 2 });
-    shape(cover, 'ticket-cut-left', [16, 442, 28, 28], p.bg, 'ellipse', 0);
-    shape(cover, 'ticket-cut-right', [336, 442, 28, 28], p.bg, 'ellipse', 0);
-  }
-  if (p.layout === 'postcard') {
-    shape(cover, 'postage-stamp', [286, 330, 44, 50], p.bg, 'rectangle', 4, 1);
-    add(cover, 'line', 'postage-lines', [52, 552, 212, 4], { pattern: 'stitched', color: p.detail, strokeWidth: 2 });
-  }
-  if (p.layout === 'book') {
-    shape(cover, 'book-spine', [30, 316, 22, 268], p.button, 'rectangle', 3);
-    shape(cover, 'book-ribbon', [296, 316, 16, 48], p.detail, 'rectangle', 0);
-  }
-  add(cover, 'sticker', 'cover-art', [82, 330, 222, 216], {
-    stickerId: 'originals-illustration',
-    color: p.button,
-  }, { artwork: originalsArtwork(id) });
-  if (p.opener === 'button') {
-    go(cover, 'open-gift', journey('open'), 'scene-main', 616, 60);
+
+  // Nút mở duy nhất của bìa: runtime gắn hoạt ảnh mở 3D vào nút có id "open-gift".
+  add(cover, 'button', 'open-gift', [60, 664, 270, 58], { label: story('open'), color: p.cta }, {
+    actions: [{ on: 'activate', type: 'goToScene', targetSceneId: 'scene-main' }],
+  });
+  text(cover, 'cover-note', [36, 730, 318, 40], story('hint'), { size: 14, color: coverInk });
+  add(cover, 'button', 'skip-surprise', [110, 776, 170, 38], {
+    label: common('skip'),
+    color: shade(p.night, 0.18),
+  }, {
+    actions: [{ on: 'activate', type: 'goToScene', targetSceneId: 'scene-main' }],
+  });
+
+  // ---- 2. Lời mời / lời chúc ----
+  const main = scene('scene-main', localize('templates.scene.wish'), p.bg, 'T06');
+  motifArt(main, 'cover-art', [150, 34, 90, 90]);
+  text(main, 'main-kicker', [30, 130, 330, 24], invitation ? common('invited') : story('kicker'), { size: 14, font: 'heading', color: p.button });
+  text(main, 'main-title', [24, 158, 342, 88], headline, { size: 30, font: titleFont, heading: true, step: 1 });
+  text(main, 'text-message', [32, 252, 326, 132], 'message', { size: 19, bind: true, step: 1 });
+  text(main, 'text-sender', [40, 390, 310, 40], 'senderName', { size: 18, font: 'heading', color: p.button, bind: true, step: 2 });
+
+  if (invitation) {
+    // Vé sự kiện: event-date / event-location là hợp đồng với invitation.js (M06).
+    add(main, 'shape', 'event-paper', [24, 446, 342, 250], {
+      kind: 'rectangle',
+      color: p.paper,
+      radius: 22,
+      strokeColor: p.detail,
+      strokeWidth: 2,
+    }, { effects: { surface: { id: 'S01' }, entrance: { id: 'E02', speed: 'normal', delay: 300 } } });
+    add(main, 'shape', 'event-notch-left', [10, 556, 28, 28], { kind: 'ellipse', color: p.bg, radius: 0 });
+    add(main, 'shape', 'event-notch-right', [352, 556, 28, 28], { kind: 'ellipse', color: p.bg, radius: 0 });
+    text(main, 'event-label', [44, 464, 302, 22], common('eventLabel'), { size: 13, font: 'heading', color: p.button, step: 2 });
+    text(main, 'event-date', [44, 492, 302, 60], localize('interactive.datePrompt'), { size: 20, font: 'heading', step: 2 });
+    add(main, 'line', 'event-rule', [60, 568, 270, 4], { pattern: 'stitched', color: p.detail, strokeWidth: 2 });
+    text(main, 'event-location', [44, 584, 302, 60], localize('interactive.placePrompt'), { size: 17, step: 2 });
+    text(main, 'event-note', [44, 648, 302, 32], story('dress'), { size: 14, color: p.button, step: 2 });
   } else {
-    add(cover, p.opener, 'open-gift', [72, 584, 246, 106], { label: journey('open'), color: p.button }, {
-      actions: [{ on: 'activate', type: 'goToScene', targetSceneId: 'scene-main' }],
-      effects: { reaction: { id: p.opener === 'envelope' ? 'R01' : 'R02', speed: 'normal' } },
+    // Khung ảnh nghiêng: minh họa nằm dưới ảnh, nên khi không có ảnh khung vẫn đẹp.
+    add(main, 'shape', 'memory-frame', [70, 448, 250, 250, -3], {
+      kind: 'rectangle',
+      color: p.paper,
+      radius: 10,
+    }, { effects: { surface: { id: 'S01' }, entrance: { id: 'E02', speed: 'normal', delay: 300 } } });
+    motifArt(main, 'memory-art', [120, 478, 150, 150]);
+    add(main, 'image', 'memory-photo', [84, 462, 222, 192, -3], {
+      assetId: null,
+      optional: true,
+      fit: 'cover',
+      radius: 6,
+      caption: common('photo'),
+    }, { accessibility: { alt: common('photo') } });
+  }
+  go(main, 'to-discover', story('discoverTitle'), 'scene-discover');
+
+  // ---- 3. Khám phá: tương tác riêng của từng thiệp ----
+  const discover = scene('scene-discover', story('discoverTitle'), p.bg, 'T03');
+  text(discover, 'discover-title', [24, 48, 342, 70], story('discoverTitle'), { size: 28, font: titleFont, heading: true });
+  text(discover, 'discover-hint', [36, 120, 318, 52], story('discoverHint'), { size: 16, step: 1 });
+
+  const entry = n => ({ heading: story('e' + n + 'h'), body: story('e' + n + 'b') });
+  const primary = {
+    'scratch-ticket': { size: [326, 196], props: { entries: [entry(1)] } },
+    'flip-card': { size: [320, 178], props: { entries: [entry(1)] } },
+    'wish-pick': { size: [334, 182], props: { entries: [entry(1), entry(2), entry(3)] } },
+    'foldout-letter': { size: [336, 230], props: { entries: [entry(1), entry(2), entry(3)], appearance: 'paper-fold-v2' } },
+    'light-a-candle': { size: [230, 187], props: { entries: [entry(1)], appearance: 'classic' } },
+    'heart-puzzle': { size: [293, 199], props: { entries: [entry(1)] } },
+    'scene-choices': { size: [332, 180], props: { entries: [{ heading: story('choiceA') }, { heading: story('choiceB') }] } },
+  }[p.discover];
+  const [pw, ph] = primary.size;
+  const primaryY = p.branch ? 360 : 190;
+  if (p.branch) motifArt(discover, 'discover-art', [135, 186, 120, 120]);
+  add(discover, 'interaction', 'surprise', [Math.round((W - pw) / 2), primaryY, pw, ph], {
+    kind: p.discover,
+    color: p.paper,
+    ...primary.props,
+  }, {
+    effects: { entrance: { id: 'E02', speed: 'normal', delay: 150 } },
+    ...(p.branch ? {
+      actions: [
+        { on: 'activate', type: 'goToScene', targetSceneId: 'scene-path-a' },
+        { on: 'activate', type: 'goToScene', targetSceneId: 'scene-path-b' },
+      ],
+    } : {}),
+  });
+
+  // Tương tác phụ: thiệp mời đếm ngược tới giờ hẹn, thiệp chúc mừng có album ảnh tùy chọn.
+  const extraY = primaryY + ph + 24;
+  if (p.extra === 'countdown') {
+    add(discover, 'interaction', 'event-countdown', [32, Math.min(extraY, 556), 325, 186], {
+      kind: 'event-countdown',
+      color: p.paper,
+      entries: [{ heading: common('countdownTitle'), body: common('countdownArrived') }],
+      eventAt: null,
+      timeZone: 'Asia/Ho_Chi_Minh',
+      clockMode: 'countdown',
+      optional: true,
+    }, { effects: { entrance: { id: 'E02', speed: 'normal', delay: 300 } } });
+  } else if (!p.branch) {
+    add(discover, 'interaction', 'event-album', [26, extraY, 337, 310], {
+      kind: 'swipe-album',
+      color: p.bg,
+      optional: true,
+      autoplay: false,
+      photos: Array.from({ length: 3 }, (_, i) => ({
+        id: 'photo-' + (i + 1),
+        assetId: null,
+        alt: '',
+        caption: '',
+        focalPoint: { x: 0.5, y: 0.5 },
+      })),
     });
   }
-  text(cover, 'cover-note', [40, 704, 310, 68], journey('hint'), 16);
-  go(cover, 'skip-surprise', localize('moments.cards.skip'), 'scene-main', 776, 44);
+  if (!p.branch) go(discover, 'to-finish', common('toFinish'), 'scene-finish');
 
-  const main = scene('scene-main', localize('templates.scene.wish'), p.layout === 'book' ? 'T03' : 'T01');
-  text(main, 'main-title', [36, 58, 318, 110], copy('headline'), 30, headlineFont);
-  text(main, 'text-message', [36, 190, 318, 144], 'message', 20, 'body', true);
-  text(main, 'text-sender', [42, 348, 306, 52], 'senderName', 20, 'heading', true);
-  if (invitation) {
-    shape(main, 'event-paper', [24, 420, 342, 270], paper, 'rectangle', 20);
-    text(main, 'event-date', [40, 440, 310, 78], localize('interactive.datePrompt'), 20, 'heading');
-    text(main, 'event-location', [40, 530, 310, 78], localize('interactive.placePrompt'), 18);
-    text(main, 'event-note', [42, 628, 306, 46], t('dress'), 16);
-  } else {
-    shape(main, 'memory-frame', [76, 434, 238, 260], paper, 'rectangle', 14);
-    add(main, 'image', 'memory-photo', [87, 445, 216, 226], {
-      assetId: null, optional: true, fit: 'cover', radius: 8, caption: t('photo'),
-    }, { accessibility: { alt: t('photo') } });
+  // ---- 3b. Hai nhánh: lựa chọn của người nhận dẫn tới lời nhắn khác nhau ----
+  if (p.branch) {
+    for (const [suffix, letter, background] of [['a', 'A', p.bg], ['b', 'B', p.paper]]) {
+      const path = scene('scene-path-' + suffix, story('choice' + letter), background, 'T02');
+      motifArt(path, 'path-' + suffix + '-art', [140, 80, 110, 110]);
+      text(path, 'path-' + suffix + '-kicker', [30, 206, 330, 24], common('youChose') + ' ' + story('choice' + letter), { size: 14, font: 'heading', color: p.button });
+      text(path, 'path-' + suffix + '-title', [24, 236, 342, 80], story('path' + letter + 'Title'), { size: 28, font: titleFont, heading: true, step: 1 });
+      text(path, 'path-' + suffix + '-body', [36, 324, 318, 180], story('path' + letter + 'Body'), { size: 19, step: 2 });
+      go(path, 'path-' + suffix + '-next', common('toFinish'), 'scene-finish');
+    }
   }
-  go(main, 'to-discover', journey('discover'), 'scene-discover');
 
-  const discover = scene('scene-discover', journey('discover'), 'T03');
-  text(discover, 'discover-title', [36, 60, 318, 90], journey('discover'), 28, headlineFont);
-  const entries = [{ heading: journey('reveal'), body: journey('secret') }];
-  if (p.interaction === 'foldout-letter' || p.interaction === 'wish-pick') {
-    entries.splice(0, 1, ...[['wish', 'wishBody'], ['wish2', 'wishBody2'], ['wish3', 'wishBody3']]
-      .map(([heading, body]) => ({ heading: t(heading), body: t(body) })));
-  }
-  add(discover, 'interaction', 'surprise', [32, 172, 326, 230], {
-    kind: p.interaction,
-    color: paper,
-    entries,
-    ...(p.interaction === 'foldout-letter' ? { appearance: 'paper-fold-v2' } : {}),
-  });
-  add(discover, 'interaction', 'event-album', [32, 426, 326, 272], {
-    kind: 'swipe-album',
-    color: p.bg,
-    optional: true,
-    autoplay: false,
-    photos: Array.from({ length: 3 }, (_, i) => ({
-      id: 'photo-' + (i + 1), assetId: null, alt: '', caption: '', focalPoint: { x: .5, y: .5 },
-    })),
-  });
-  // Luôn có đường đi tiếp: người nhận không buộc phải cào, ghép hay bật âm thanh.
-  go(discover, 'to-finish', localize('moments.cards.reply'), 'scene-finish');
-
-  const finish = scene('scene-finish', t('finish'));
-  finish.effects.ambience = {
-    id: p.category === 'wedding' ? 'B02' : 'B01',
-    speed: 'normal',
-    density: 'sparse',
-    loop: false,
-  };
-  art(finish, 'finish-art', [155, 64, 80, 80], p.motif, p.button);
-  text(finish, 'finish-title', [36, 166, 318, 90], t('finish'), 28, headlineFont);
-  text(finish, 'finish-note', [40, 270, 310, 94], journey('secret'), 18);
-  add(finish, 'reply', 'reply-card', [28, 400, 334, 300], {
+  // ---- 4. Hồi đáp: khép lại câu chuyện bằng một lời đáp ----
+  const finish = scene('scene-finish', story('finishTitle'), p.bg, 'T01');
+  finish.effects.ambience = { id: p.ambience, speed: 'normal', density: 'sparse', loop: false };
+  motifArt(finish, 'finish-art', [155, 44, 80, 80]);
+  text(finish, 'finish-title', [24, 136, 342, 70], story('finishTitle'), { size: 28, font: titleFont, heading: true, step: 1 });
+  text(finish, 'finish-note', [36, 208, 318, 84], story('finishNote'), { size: 17, step: 2 });
+  add(finish, 'reply', 'reply-card', [28, 312, 334, 330], {
     title: localize('gift.reply.send'),
     submitLabel: localize('gift.reply.send'),
   });
-  add(finish, 'button', 'replay-gift', [60, 746, 270, 56], {
-    label: localize('templates.preset.replay'), color: p.button,
+  add(finish, 'button', 'replay-gift', [60, 760, 270, 56], {
+    label: localize('templates.preset.replay'),
+    color: p.button,
   }, { actions: [{ on: 'activate', type: 'replay' }] });
+
   return validateDocument(doc);
 }

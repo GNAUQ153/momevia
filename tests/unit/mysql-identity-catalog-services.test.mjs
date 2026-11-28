@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
+import { registrationEvidence } from '../../src/modules/identity/consent.mjs';
+import { registrationConsent } from '../../web/js/shared/registration-consent.js';
 import { IdentityService } from '../../src/modules/identity/identity.service.mjs';
 import { CatalogService } from '../../src/modules/catalog/catalog.service.mjs';
 
@@ -19,7 +21,7 @@ test('IdentityService works with async MySQL repositories, issues session and ch
     find:async token=>token.startsWith('token-')?{sub:token.slice(6)}:null,
   };
   const service=new IdentityService({users,sessions:session,config:{}});
-  const user=await service.findOrCreate('google','caseSensitive-G2',{name:'Tester',email:'tester@example.test'});
+  const user=await service.findOrCreate('google','caseSensitive-G2',{name:'Tester',email:'tester@example.test'}, {...registrationEvidence(registrationConsent(true, true), 'vi'), source:'google-registration'});
   const repeat=await service.findOrCreate('google','caseSensitive-G2',{name:'Updated'});
   assert.equal(user.id,repeat.id);
   assert.equal(rows.length,1);
@@ -30,7 +32,7 @@ test('IdentityService works with async MySQL repositories, issues session and ch
 });
 
 test('CatalogService handles async search, favorites and moderation without returning unresolved Promise',async()=>{
-  const rows=[{id:'seed',title:'Bình minh',subtitle:'Cỏ xanh',creator:'Momevia',creatorId:'system',
+  const rows=[{id:'seed',title:'Bình minh',subtitle:'Cỏ xanh',creator:'Momevia',creatorId:'creator-seed',
     style:'Thiên nhiên',theme:'sage',price:0,status:'published',createdAt:'2026-11-01T00:00:00.000Z'},
   {id:'draft',title:'Draft',subtitle:'Waiting',creator:'Maker',creatorId:id,
     style:'Độc quyền',theme:'sage',price:1000,status:'pending',createdAt:'2026-11-02T00:00:00.000Z'}];

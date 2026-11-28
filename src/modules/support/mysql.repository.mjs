@@ -15,6 +15,15 @@ export class MySqlSupportRepository {
     return rows.map(row => ({ ...row, createdAt: mysqlTimestampToIso(row.createdAt) }));
   }
 
+  async findPrivacyRequests(userId, topic, limit) {
+    const [rows] = await this.client.execute(`SELECT code, status, created_at AS createdAt,
+      COALESCE(user_id, legacy_user_id) AS userId, topic
+      FROM support_requests
+      WHERE (user_id = ? OR (user_id IS NULL AND legacy_user_id = ?)) AND topic = ?
+      ORDER BY created_at DESC, code DESC LIMIT ?`, [userId, userId, topic, limit]);
+    return rows.map(row => ({ ...row, createdAt: mysqlTimestampToIso(row.createdAt) }));
+  }
+
   async insert(ticket) {
     // Identity on MySQL: enforce the actual user FK. Legacy JSON: keep the ID
     // in the bridge column rather than inventing a user row.

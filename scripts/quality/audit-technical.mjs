@@ -11,6 +11,7 @@ const root = fileURLToPath(new URL('../../', import.meta.url));
 
 // Chỉ chấp nhận các cạnh đã xác minh ngoài graph JS. Không miễn trừ cả thư mục vendor.
 const sourceEdges = new Map([
+  ['src/modules/identity/policy-archive.mjs -> src/modules/identity/policy-archive/2026-11-28.1.json', 'src/modules/identity/policy-archive/2026-11-28.1.json'],
   ['src/shared/locale.mjs -> web/assets/locales/en.json', 'web/assets/locales/en.json'],
   ['web/js/shared/locale.js -> web/assets/locales/vi.json', 'web/assets/locales/vi.json'],
   ['web/js/features/canvas-editor/library.js -> web/assets/canvas/vector-insertions-v1.json', 'web/assets/canvas/vector-insertions-v1.json'],

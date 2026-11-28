@@ -11,10 +11,14 @@ export function normalizeEmail(value) {
 }
 
 export function validatePassword(value) {
-  if (typeof value !== 'string' || value.length < 8 || value.length > 128) {
+  if (typeof value !== 'string' || value.length < 8) {
     throw localizedError(400, 'errors.auth.passwordLength');
   }
-  if (!/[a-zA-Z]/.test(value) || !/[0-9]/.test(value)) {
+  // Giữ giới hạn kỹ thuật tương thích với verifyPassword và bảo vệ đầu vào.
+  if (value.length > 128) {
+    throw localizedError(400, 'errors.auth.passwordTooLong');
+  }
+  if (!/[A-Z]/.test(value) || !/[0-9]/.test(value)) {
     throw localizedError(400, 'errors.auth.passwordComposition');
   }
 }

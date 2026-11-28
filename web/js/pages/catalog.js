@@ -3,6 +3,8 @@ import { escapeHtml as e } from "../core/api.js";
 import { icon } from "../ui/icons.js";
 import { templateMetaKey } from "../shared/template-copy.js";
 import { personalizationText, templateCover, templateField, templateSearchFields, templateValue } from "../features/catalog/template-copy.js";
+import { seasonCatalogUrl } from '../features/marketing/season-theme.js';
+import { canonicalText } from '../shared/locale.js';
 import { featuredSeasons, seasonStatus, vietnamDay } from "../features/catalog/seasonal.js";
 import { templatePreviewDialog } from "../features/catalog/template-preview.js";
 import { templateCreateUrl } from "../features/catalog/template-create-url.js";
@@ -126,6 +128,8 @@ export function createCatalogViews({
         ${icon("chevron-down", 18)}
       </summary>
       <p class="seasonal-shelf__intro">${text('catalog.seasonal.intro')}</p>
+      ${state.templates.some(item => item.category === canonicalText('templates.meta.category.christmas'))
+        ? `<a class="festival-collection-link" data-link href="${seasonCatalogUrl('christmas')}">${icon('gift', 18)} ${text('festival.collection')}</a>` : ''}
       <button type="button" class="seasonal-shelf__hint" data-action="filter-seasonal">${text("catalog.seasonal.action")}</button>
       <div class="seasonal-shelf__grid">${seasonal.map(template => {
         const status = seasonStatus(template, day);

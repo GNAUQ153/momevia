@@ -1,3 +1,4 @@
+import { registrationConsent } from '../../web/js/shared/registration-consent.js';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath,pathToFileURL } from 'node:url';
@@ -60,7 +61,7 @@ export async function startSfxFixture({sql=false,externalSql=false,port=0,label=
    const res=await fetch(base+'/api'+route,{method:method||(body||bytes?'POST':'GET'),headers:{...(cookie?{cookie}:{}),...(body?{'content-type':'application/json'}:{}),...headers},body:bytes||(body?JSON.stringify(body):undefined)});
    const dataBytes=Buffer.from(await res.arrayBuffer());let data;try{data=JSON.parse(dataBytes);}catch{/* media */}return {status:res.status,data,bytes:dataBytes,headers:res.headers};
   }
-  async function register(name){const email=`${randomUUID()}@example.test`,password='SfxLocalFixture2026',r=await request('/auth/register',{body:{name,email,password,confirmPassword:password}});if(r.status!==201)throw new Error(JSON.stringify(r.data));return {user:r.data.user,cookie:r.headers.get('set-cookie').split(';')[0],email,password};}
+  async function register(name){const email=`${randomUUID()}@example.test`,password='SfxLocalFixture2026',r=await request('/auth/register',{body:{name,email,password,consent: registrationConsent(true, true), confirmPassword:password}});if(r.status!==201)throw new Error(JSON.stringify(r.data));return {user:r.data.user,cookie:r.headers.get('set-cookie').split(';')[0],email,password};}
   const dropExternal=async()=>{if(externalDatabase){if(!/^momevia_canvas_qa_music_[a-f0-9]{12}$/.test(externalDatabase))throw new Error('Unsafe QA database name.');await connection.query(`DROP DATABASE \`${externalDatabase}\``);}};
   return {app,base,directory,request,register,connection,container,async close(){await new Promise(resolve=>app.server.close(resolve));await app.close();await dropExternal();await connection?.end();if(container)docker(['stop',container]);process.chdir(previousCwd);for(const key of Object.keys(process.env))if(!(key in previousEnv))delete process.env[key];Object.assign(process.env,previousEnv);}};
  }catch(error){if(app){app.server.close();await app.close();}if(externalDatabase&&/^momevia_canvas_qa_music_[a-f0-9]{12}$/.test(externalDatabase)&&connection)await connection.query(`DROP DATABASE \`${externalDatabase}\``).catch(()=>{});await connection?.end();if(container)docker(['stop',container]);process.chdir(previousCwd);throw error;}

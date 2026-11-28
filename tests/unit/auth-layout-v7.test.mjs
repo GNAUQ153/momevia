@@ -10,16 +10,16 @@ const views = (providers = {}) => createAuthViews({
   buttonLink: (url, label) => `<a href="${url}">${label}</a>`,
 });
 
-test("Login/Registration chia sẻ đúng layout, heading duy nhất, mobile brand và tuyến URL", () => {
+test("Login và Register dùng card xác thực, tiêu đề riêng và điều hướng chung", () => {
   for (const route of ["login", "register"]) {
     const html = views().authPage(route);
     assert.match(html, new RegExp(`class="auth-page auth-page--${route}" aria-labelledby="auth-page-title"`));
     assert.match(html, /class="container auth-layout"/);
-    assert.match(html, /class="auth-showcase"/);
-    assert.match(html, /class="auth-panel__brand" aria-label="Momevia"/);
+    assert.ok(html.includes('class="auth-showcase"'));
+    assert.doesNotMatch(html, /class="auth-panel__brand"/);
     assert.equal((html.match(/<h1\b/g) || []).length, 1);
     assert.match(html, /<h1 id="auth-page-title">/);
-    assert.match(html, /href="\/" data-link class="auth-back"/);
+    assert.ok(html.includes('href="/" data-link class="auth-back"'));
   }
 });
 
@@ -38,7 +38,7 @@ test("Login đặt CTA Đăng ký ngay cạnh form; Register có liên kết qua
   assert.match(register, /autocomplete="new-password"/);
 });
 
-test("OAuth Google/Zalo chỉ xuất hiện ở Login, và chỉ có URL khi backend sẵn sàng", () => {
+test("OAuth Google/Zalo chỉ có URL khi backend sẵn sàng", () => {
   const disabled = views().authPage("login");
   assert.equal((disabled.match(/class="auth-social auth-social--disabled"/g) || []).length, 2);
   assert.match(disabled, /data-auth-provider="google" disabled/);
@@ -58,7 +58,7 @@ test("OAuth Google/Zalo chỉ xuất hiện ở Login, và chỉ có URL khi bac
   assert.doesNotMatch(two, /auth-provider-note" role="status"/);
 
   const register = views({ google: true, zalo: true }).authPage("register");
-  assert.doesNotMatch(register, /data-auth-provider="google"|data-auth-provider="zalo"/);
+  assert.equal((register.match(/data-auth-provider-url="\/api\/auth\/(google|zalo)" disabled/g) || []).length, 2);
 });
 
 test("Form đủ label, toggle password và báo lỗi truy cập được", () => {
@@ -69,7 +69,7 @@ test("Form đủ label, toggle password và báo lỗi truy cập được", () 
     assert.match(html, /data-action="toggle-password"/);
     assert.match(html, /aria-pressed="false"/);
     assert.match(html, /class="btn btn--dark btn--wide auth-submit" type="submit"/);
-    assert.match(html, /href="\/policies\/privacy" data-link/);
+    assert.match(html, /href="\/policies\/privacy"/);
   }
 });
 

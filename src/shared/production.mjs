@@ -1,6 +1,7 @@
 import path from 'node:path';
 import { validateSecrets } from './config.mjs';
 import { parseAllowedOrigins } from './request-origin.mjs';
+import { authProductionIssues } from './auth-production.mjs';
 
 const storageKeys = ['IDENTITY_STORAGE', 'CATALOG_STORAGE', 'CHECKOUT_STORAGE', 'GIFTS_STORAGE', 'DESIGNS_STORAGE', 'SUPPORT_STORAGE'];
 
@@ -27,7 +28,7 @@ export function productionIssues(env = process.env) {
     issues.push('MOMEVIA_DATA_DIR phải trỏ tới thư mục tuyệt đối trên ổ lưu trữ bền vững.');
   if (env.PAYMENT_ENABLED === 'true' && (env.PAYMENT_ENV !== 'production' || env.PAYMENT_LIVE_ENABLED !== 'true'))
     issues.push('Thanh toán đang bật nhưng chưa cấu hình chế độ production/live.');
-  return issues;
+  return [...issues, ...authProductionIssues(env).filter(issue => !issue.startsWith('PUBLIC_BASE_URL') || !issues.some(existing => existing.startsWith('PUBLIC_BASE_URL')))];
 }
 
 export function checkProductionStartup(env = process.env, warn = console.warn) {

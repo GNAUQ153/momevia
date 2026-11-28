@@ -44,6 +44,16 @@ export function editInvitation(doc, field, value, fallback) {
   else if (field === 'zone') event.timeZone = value;
   else throw new Error('INVITATION_FIELD');
   slots.date.props.text = event.eventAt ? invitationDateText(event.eventAt, event.timeZone) : '';
+  syncCountdown(doc, event);
+}
+
+// Đồng hồ đếm ngược của bộ Originals lấy cùng ngày giờ với thiệp mời:
+// Sender chỉ nhập một lần, người nhận không thấy hai mốc thời gian khác nhau.
+function syncCountdown(doc, event) {
+  const clock = doc.elements.find(e => e.id === 'event-countdown' && e.type === 'interaction' && e.props.kind === 'event-countdown');
+  if (!clock) return;
+  clock.props.eventAt = event.eventAt;
+  clock.props.timeZone = event.timeZone;
 }
 
 // Kiểm tra cấu trúc khi lưu nháp, chỉ bắt buộc đầy đủ nội dung khi xuất bản.

@@ -75,10 +75,13 @@ test('optional event extensions do not weaken older album/date requirements or a
 });
 
 test('old and new Catalog find all occasions in VI/EN; projection never mutates stored custom values', async () => {
-  for (const records of [before.templates, templates]) {
-    const service = new CatalogService({ all: async () => records }, {});
-    for (const [id, vi, en] of [['birthday-radiance', 'sinh nhật', 'birthday'], ['hai-phong-bi', 'đám cưới', 'wedding'], ['proud-of-you', 'tốt nghiệp', 'graduation']])
-      for (const [locale, q] of [['vi', vi], ['en', en]]) assert((await service.search({ q, locale })).some(t => t.id === id), `${id} ${locale}`);
+  // Thư viện chỉ quảng bá 16 mẫu Originals; mẫu hệ thống cũ vẫn mở được qua link trực tiếp.
+  const service = new CatalogService({ all: async () => templates, get: async key => templates.find(t => t.id === key) }, {});
+  for (const [id, vi, en] of [['candle-wish-box', 'sinh nhật', 'birthday'], ['sealed-garden', 'đám cưới', 'wedding'], ['tassel-lift', 'tốt nghiệp', 'graduation'], ['coffee-catchup', 'gặp gỡ', 'meetup']])
+    for (const [locale, q] of [['vi', vi], ['en', en]]) assert((await service.search({ q, locale })).some(t => t.id === id), `${id} ${locale}`);
+  for (const id of ['birthday-radiance', 'hai-phong-bi', 'proud-of-you']) {
+    assert(!(await service.publicList()).some(t => t.id === id), `${id} không còn trong danh sách`);
+    assert.equal((await service.publicOne(id)).id, id);
   }
   for (const old of before.templates.filter(t => ids.includes(t.id))) {
     const original = structuredClone(old);

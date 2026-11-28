@@ -1,4 +1,5 @@
 import { editInvitation } from '../../web/js/shared/canvas/invitation.js';
+import { registrationConsent } from '../../web/js/shared/registration-consent.js';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
@@ -11,6 +12,7 @@ import sharp from 'sharp';
 import { createDocument, publicDocument, canonicalStringify, BASIC_TEMPLATES, insertPhotoFrame } from '../../web/js/shared/canvas/index.js';
 import { materializeTemplateStart } from '../../web/js/features/canvas-editor/template-start.js';
 import { templates, addedSystemTemplates } from '../../src/modules/catalog/seed.mjs';
+import { ORIGINAL_IDS } from '../../web/js/shared/canvas/originals-data.js';
 import { builtinMedia } from '../../src/modules/designs/builtin-media.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
@@ -44,7 +46,7 @@ async function fixture(name, legacy = false, existingTemplates) {
   const config = { baseUrl: 'http://127.0.0.1', jwtSecret: randomBytes(32).toString('hex'), internalKey: randomBytes(32).toString('hex'), demoEnabled: false, adminCode: '', giftTtlDays: 365, googleId: '', googleSecret: '', zaloId: '', zaloSecret: '', testAccount: null };
   const app = await createHttpApp(config); apps.push(app);
   app.server.listen(0, '127.0.0.1'); await once(app.server, 'listening'); const base = `http://127.0.0.1:${app.server.address().port}`; config.baseUrl = base;
-  const response = await fetch(base + '/api/auth/register', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ name: 'Template QA', email: `${randomUUID()}@example.test`, password: 'BasicTemplatesQA123', confirmPassword: 'BasicTemplatesQA123' }) });
+  const response = await fetch(base + '/api/auth/register', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ name: 'Template QA', email: `${randomUUID()}@example.test`, password: 'BasicTemplatesQA123', consent: registrationConsent(true, true), confirmPassword: 'BasicTemplatesQA123' }) });
   assert.equal(response.status, 201); const cookie = response.headers.get('set-cookie').split(';')[0];
   async function request(route, body, status = 200, authenticated = true, locale) {
     const result = await fetch(base + '/api' + route, { method: body === undefined ? 'GET' : 'POST', headers: { ...(authenticated ? { cookie } : {}), ...(body ? { 'content-type': 'application/json' } : {}), ...(locale ? { 'x-momevia-locale': locale } : {}) }, body: body ? JSON.stringify(body) : undefined });
@@ -59,10 +61,14 @@ async function fixture(name, legacy = false, existingTemplates) {
 
 try {
   const current = await fixture('current');
-  const catalog = (await current.request('/catalog/templates', undefined, 200, false)).templates;
-  assert.equal(catalog.length, 45);
+  // The library lists 16 Originals; all 45 templates remain available through direct links.
+  const listed = (await current.request('/catalog/templates', undefined, 200, false)).templates;
+  assert.deepEqual(listed.map(t => t.id).sort(), [...ORIGINAL_IDS].sort());
+  const catalog = [];
+  for (const seed of templates) catalog.push((await current.request(`/catalog/templates/${seed.id}`, undefined, 200, false)).template);
+  assert.equal(catalog.length, 45); let published = 0;
   assert.deepEqual(catalog.map(t=>t.id).sort(),Object.keys(BASIC_TEMPLATES).sort());
-  assert(catalog.some(t=>t.id==='garden-tea')); let published = 0;
+  assert(catalog.some(t=>t.id==='garden-tea'));
   for (const template of catalog) {
     const mutationId = randomUUID(); const created = await current.request('/designs/designs', { source: { kind: 'template', templateId: template.id }, presetId: 'envelope-basic', mutationId }, 201);
     let d = created.design;
@@ -128,7 +134,7 @@ try {
   const originals = templates.filter(template => !addedIds.has(template.id));
   const existing = await fixture('existing', false, originals);
   const updated = (await existing.request('/catalog/templates', undefined, 200, false)).templates;
-  assert.deepEqual(updated, catalog);
+  assert.deepEqual(updated, listed);
   console.log(`PASS Existing JSON catalog: appended ${updated.length - originals.length} missing templates and preserved all ${originals.length} originals.`);
 
   const localizedStart = { source: { kind: 'template', templateId: 'sunny-wishes' }, mutationId: randomUUID() };
@@ -140,8 +146,8 @@ try {
   assert.notEqual(english.documentHash, vietnamese.documentHash);
   assert.equal(english.revision, 1);
   assert.deepEqual((await current.request('/designs/designs', localizedStart, 201, true, 'vi')).design, english);
-  const matching = await current.request('/catalog/templates?q=A%20Memory%20of%20Us&style=all', undefined, 200, false, 'en');
-  assert.deepEqual(matching.templates.map(item => item.id), ['mot-ky-niem']);
+  const matching = await current.request('/catalog/templates?q=Snowglobe%20Countdown&style=all', undefined, 200, false, 'en');
+  assert.deepEqual(matching.templates.map(item => item.id), ['snowglobe-countdown']);
   const cover = await fetch(current.base + '/assets/basic-templates/en/sunny-wishes.svg');
   assert.equal(cover.status, 200);
   assert.match(cover.headers.get('content-type'), /image\/svg\+xml/);

@@ -19,6 +19,7 @@ import { playCelebrations } from './celebrations.js';
 import { createSceneNavigation } from './scene-navigation.js';
 import { createSoundPlayer } from './audio.js';
 import { createSoundtrackPlayback } from './soundtrack.js';
+import { playGiftUnboxing } from '../gifts/christmas.js';
 import { signatureOpening, playSignatureOpening } from './signature-opening.js';
 import { stationeryFlow } from '../../shared/canvas/stationery-flow.js';
 export { renderElement, applyLayout, resolveText } from "./renderer.js";
@@ -33,6 +34,7 @@ export function mountPlayer(
     replyAdapter,
     onSceneChange = () => {},
     effectPreview,
+    christmasGift = false,
     runtimeVersion = runtimeVersionFor(input),
   } = {},
 ) {
@@ -315,7 +317,12 @@ export function mountPlayer(
           if (action?.type === "replay") requestScene(document.entrySceneId, model.sound ? undefined : react);
           else if (action?.targetSceneId) {
             const signature = opening?.controlId === model.id;
-            requestScene(action.targetSceneId, signature
+            const openChristmasBox = christmasGift && mode === "public" && motion.enabled() &&
+              scene.id === document.entrySceneId && action.targetSceneId !== scene.id &&
+              (model.id === "open-gift" || model.type === "gift-box" || model.type === "envelope");
+            requestScene(action.targetSceneId, openChristmasBox
+              ? intentSignal => playGiftUnboxing(node, AbortSignal.any([signal, intentSignal]))
+              : signature
               ? intentSignal => playSignatureOpening(opening, nodes, motion, AbortSignal.any([signal, intentSignal]))
               : model.sound ? undefined : react);
           }

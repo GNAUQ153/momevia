@@ -31,6 +31,19 @@ export const REFRESH_21 = Object.freeze({
 export const refreshedTemplateId = doc => Object.keys(REFRESH_21).find(id => doc.elements.some(e => e.id === `refresh-${id}`));
 
 export function coverVariant(document, variant = 'portrait', templateId) {
+  // Current Originals use layered opening rigs instead of the legacy originals-<id> marker.
+  if (ORIGINAL_IDS.includes(templateId) && document.elements.some(e => e.props.kind === 'signature-cover-decoration') && ['catalog', 'seasonal'].includes(variant)) {
+    const doc = structuredClone(document), height = variant === 'catalog' ? 330 : 466;
+    const scale = height / doc.artboard.baseSize.height;
+    const offset = (390 - doc.artboard.baseSize.width * scale) / 2;
+    for (const e of doc.elements) {
+      e.layout.x = offset + e.layout.x * scale; e.layout.y *= scale;
+      e.layout.width = Math.max(1, e.layout.width * scale); e.layout.height = Math.max(1, e.layout.height * scale);
+      if (e.type === 'text') e.props.fontSize = Math.max(10, e.props.fontSize * scale);
+    }
+    doc.artboard.baseSize = { width: 390, height };
+    return doc;
+  }
   const original = ORIGINAL_IDS.find(id => document.elements.some(element => element.id === 'originals-' + id));
   if (original && ['catalog', 'seasonal'].includes(variant)) {
     const doc = structuredClone(document);

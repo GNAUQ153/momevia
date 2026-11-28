@@ -1,5 +1,6 @@
 import { signatureTemplateDefinition } from '../../../web/js/shared/canvas/signature/templates.js';
-import { ORIGINAL_IDS, originalDefinition } from '../../../web/js/shared/canvas/originals-data.js';
+import { ORIGINAL_IDS, originalDefinition, originalSceneCount } from '../../../web/js/shared/canvas/originals-data.js';
+import { rigEffect } from '../../../web/js/shared/canvas/originals-rigs.js';
 import { librarySnapshot } from '../../../web/js/shared/canvas/library-state.js';
 import { randomUUID } from 'node:crypto';
 import { HttpError } from '../../shared/http.mjs';
@@ -29,6 +30,11 @@ export function publicTemplate(template) {
   if (template.creatorId === 'system' && template.creator === 'Momevia Originals' && !template.versionId && !template.creatorDesignId)
     view.systemOwned = true;
   view.cardType = view.systemOwned ? systemCardType(template.id) : 'unspecified';
+  // Bản ghi Catalog cũ trong MySQL giữ số cảnh/hiệu ứng lúc khởi tạo; 16 Originals lấy theo thiết kế hiện tại.
+  if (view.systemOwned && original) {
+    view.scenes = originalSceneCount(original);
+    view.effect = serverText('vi', `templates.meta.effect.${rigEffect(original.rig)}`);
+  }
   if (view.systemOwned && signatureTemplateDefinition(template.id)) {
     view.coverRevision = 'signature-qa-v1';
     // Không suy đoán bảng màu thực tế từ theme Classic.
@@ -64,10 +70,18 @@ export class CatalogService {
     if (['loi-moi-ben-hien','cuon-phim-ngay-ay','ban-do-ngay-ra-truong', ...ORIGINAL_IDS].includes(template?.id) && librarySnapshot() && !librarySnapshot().items.some(r=>r.kind==='template'&&r.id===template.id&&r.status==='active')) return false;
     return template?.status === 'published' && (!template.creatorDesignId || Boolean(template.versionId && await this.creatorTemplates.canCreate(template.creatorId)));
   }
-  async publicList() {
+  // Tất cả mẫu còn hiệu lực: dùng cho link trực tiếp, yêu thích, nháp và quà đã phát hành.
+  async publicItems() {
     const items = (await this.repo.all()).filter(item => item.status === 'published');
     const visible = await Promise.all(items.map(item => this.isPublic(item)));
-    return prioritizeTemplates(items.filter((_, index) => visible[index]).map(publicTemplate));
+    return items.filter((_, index) => visible[index]);
+  }
+  // Danh sách hiển thị trên Thư viện/Trang chủ: 16 mẫu Originals + mẫu do Creator đăng bán.
+  // Mẫu hệ thống thế hệ cũ vẫn mở được qua link /template/<id> nhưng không quảng bá nữa.
+  async publicList() {
+    const listed = (await this.publicItems()).filter(item => item.creatorId !== 'system' ||
+      ORIGINAL_IDS.includes(item.id) || signatureTemplateDefinition(item.id));
+    return prioritizeTemplates(listed.map(publicTemplate));
   }
   async search({ q = '', style = '', category = '', palette = '', cardType = 'all', locale = 'vi' }) {
     let items = await this.publicList();
@@ -87,7 +101,7 @@ export class CatalogService {
     if(palette && palette!=='all')items=items.filter(t=>t.palette===palette);
     return items;
   }
-  async publishedIds() { return new Set((await this.publicList()).map(template => template.id)); }
+  async publishedIds() { return new Set((await this.publicItems()).map(template => template.id)); }
   async favoriteIds(user) { return this.favorites.list(user.sub, await this.publishedIds()); }
   async saveFavorite(user, data) {
     return this.favorites.set(user.sub, sanitizeText(data.templateId, 90), data.saved, await this.publishedIds());

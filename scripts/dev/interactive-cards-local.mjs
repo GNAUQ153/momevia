@@ -1,3 +1,4 @@
+import { registrationConsent } from '../../web/js/shared/registration-consent.js';
 // Explicit local-only disposable fixture. Never reads application .env or data.
 import fs from 'node:fs';
 import path from 'node:path';
@@ -19,7 +20,7 @@ const config = { baseUrl:base,jwtSecret:randomBytes(32).toString('hex'),internal
 const app = await createHttpApp(config);
 await new Promise(resolve=>app.server.listen(Number(new URL(base).port),'127.0.0.1',resolve));
 const email=`cards-${randomUUID()}@example.test`, password='LocalCardsFixture2026';
-const response=await fetch(base+'/api/auth/register',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({name:'Momevia Cards QA',email,password,confirmPassword:password})});
+const response=await fetch(base+'/api/auth/register',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({name:'Momevia Cards QA',email,password,consent: registrationConsent(true, true), confirmPassword:password})});
 if(response.status!==201)throw new Error(await response.text());
 const cookie=response.headers.get('set-cookie').split(';')[0];
 const request=async(route,body)=>{const r=await fetch(base+'/api'+route,{method:body?'POST':'GET',headers:{cookie,'content-type':'application/json'},body:body?JSON.stringify(body):undefined});const v=await r.json();if(!r.ok)throw new Error(JSON.stringify(v));return v;};

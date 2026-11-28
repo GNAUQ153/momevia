@@ -232,6 +232,8 @@ export async function runCanvasBrowser(base, expiredSlug) {
     await page.locator('#register-form input[name="email"]').fill(`${randomUUID()}@example.test`);
     await page.locator('#register-form input[name="password"]').fill('CanvasBrowser123');
     await page.locator('#register-form input[name="confirmPassword"]').fill('CanvasBrowser123');
+    await page.locator('#auth-terms').check();
+    await page.locator('#auth-privacy').check();
     await page.locator('#register-form button[type="submit"]').click(); await page.waitForURL('**/studio');
     assert.equal((await api('/auth/me')).data.user.role, 'sender');
     await page.goto(base + '/design/new');

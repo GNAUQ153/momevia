@@ -1,6 +1,7 @@
 import { randomBytes, scrypt as scryptCallback, timingSafeEqual } from 'node:crypto';
 import { promisify } from 'node:util';
 import { HttpError, localizedError } from '../../shared/http.mjs';
+import { registrationEvidence } from './consent.mjs';
 import { normalizeEmail, validatePassword } from '../../shared/credential-policy.mjs';
 
 const scrypt = promisify(scryptCallback);
@@ -30,9 +31,9 @@ export class CredentialsService {
   }
 
   async verifyPassword(password, stored) {
-    if (!stored || typeof password !== 'string' || password.length > 128) return false;
+    if (typeof stored !== 'string' || stored.length !== 161 || typeof password !== 'string' || password.length > 128 ||
+      !/^[a-fA-F0-9]{32}:[a-fA-F0-9]{128}$/.test(stored)) return false;
     const [saltHex, hashHex] = stored.split(':');
-    if (!saltHex || !hashHex || saltHex.length !== 32 || hashHex.length !== 128) return false;
     try {
       const expected = Buffer.from(hashHex, 'hex');
       const actual = await this.derivePassword(password, Buffer.from(saltHex, 'hex'), expected.length);
@@ -43,7 +44,13 @@ export class CredentialsService {
     }
   }
 
-  async register({ name, email, password }) {
+  // Đăng ký công khai phải qua consent; provision tài khoản QA nội bộ không giả lập đồng ý.
+  async registerPublic(body, locale) {
+    const evidence = registrationEvidence(body.consent, locale);
+    return this.register(body, evidence);
+  }
+
+  async register({ name, email, password }, evidence) {
     if (typeof name !== 'string' || name.trim().length < 2 || name.trim().length > 50) {
       throw localizedError(400, 'errors.auth.nameLength');
     }
@@ -69,8 +76,35 @@ export class CredentialsService {
       passwordHash,
       avatar: null,
       role: 'sender',
+      ...(evidence ? { registrationConsent: evidence } : {}),
       createdAt: new Date().toISOString(),
     });
+  }
+
+  // Đổi mật khẩu chỉ cho credential local; giữ nguyên consent và vai trò.
+  async changePassword(session, { currentPassword, password, confirmPassword }, commitAuthenticated) {
+    if (!session?.sub) throw localizedError(401, 'errors.unauthorized');
+    const user = await this.repository.get(session.sub);
+    if (!user || (user.credentialVersion || 0) !== (session.cv || 0)) throw localizedError(401, 'errors.unauthorized');
+    if (user.provider !== 'email' || !user.passwordHash) throw localizedError(403, 'errors.auth.localPasswordOnly');
+    if (typeof currentPassword !== 'string' || !currentPassword || currentPassword.length > 128)
+      throw localizedError(400, 'errors.auth.currentPassword');
+    this.validatePassword(password);
+    if (password !== confirmPassword) throw localizedError(400, 'auth.password.mismatch');
+    if (!(await this.verifyPassword(currentPassword, user.passwordHash)))
+      throw localizedError(400, 'errors.auth.currentPassword');
+    if (password === currentPassword) throw localizedError(400, 'errors.auth.passwordUnchanged');
+    const passwordHash = await this.hashPassword(password);
+    // Không giữ khóa trong lúc scrypt. Kiểm tra phiên trong cùng thao tác ghi.
+    let changed = false;
+    const updated = await commitAuthenticated(current => {
+      if (current.provider !== 'email' || current.passwordHash !== user.passwordHash ||
+        (current.credentialVersion || 0) !== (session.cv || 0)) return null;
+      changed = true;
+      return { passwordHash, credentialVersion: (session.cv || 0) + 1, recoveryChallenge: null };
+    });
+    if (!changed || !updated) throw localizedError(409, 'errors.auth.credentialChanged');
+    return updated;
   }
 
   async login({ email, password }) {

@@ -1,3 +1,4 @@
+import { registrationPolicyVersion } from '../shared/registration-consent.js';
 import { attr, t, text } from '../core/i18n.js';
 
 // Draft policies. The section order is shared by both languages.
@@ -30,6 +31,7 @@ export function legalPage(key) {
     <nav class="legal-sidebar" ${attr('aria-label', 'policies.navigation')}><h2>${text('policies.list')}</h2>${menu}</nav>
     <article class="legal-document">
       <p class="legal-draft"><strong>${text('policies.note')}</strong> ${text('policies.draft')}</p>
+      ${key === 'general' || key === 'privacy' ? `<p class="legal-draft">${text('policies.registrationVersion', { version: registrationPolicyVersion })}</p>` : ''}
       ${renderedSections}
       <div class="legal-help"><h2>${text('policies.help')}</h2><p>${text('policies.helpDescription')}</p><button class="btn btn--outline" type="button" data-action="support">${text('common.actions.support')}</button></div>
     </article>

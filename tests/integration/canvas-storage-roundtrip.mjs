@@ -1,3 +1,4 @@
+import { registrationConsent } from '../../web/js/shared/registration-consent.js';
 import {usesMotions} from '../../web/js/shared/canvas/motion-stack.js';
 import { usesSound } from '../../web/js/shared/canvas/sound.js';
 // Explicit, isolated MySQL schema only. No writes to application databases.
@@ -97,7 +98,7 @@ async function check(doc) {
 try {
   await launch();
   const register = await request('/api/auth/register', { name: 'Kiểm tra lưu MySQL', email: `${randomUUID()}@example.test`,
-    password: 'SyntheticOnly123', confirmPassword: 'SyntheticOnly123' });
+    password: 'SyntheticOnly123', consent: registrationConsent(true, true), confirmPassword: 'SyntheticOnly123' });
   cookie = register.response.headers.get('set-cookie').split(';')[0];
   const { library } = (await request('/api/designs/library')).value;
   assert.equal(library.items.length, 417); configureLibrary(library);
@@ -193,7 +194,7 @@ try {
   if (process.env.CANVAS_LIBRARY_EXPANDED_BROWSER === 'true') {
     const otherCookie = cookie;
     const expandedUser = await request('/api/auth/register', { name: 'Hồi quy thư viện QA', email: `${randomUUID()}@example.test`,
-      password: 'SyntheticOnly123', confirmPassword: 'SyntheticOnly123' });
+      password: 'SyntheticOnly123', consent: registrationConsent(true, true), confirmPassword: 'SyntheticOnly123' });
     cookie = expandedUser.response.headers.get('set-cookie').split(';')[0];
     const expanded = await runExpandedApi(base, cookie, otherCookie, { browser: true, artifacts: process.env.BROWSER_ARTIFACT_DIR });
     const { runExpandedBrowser } = await import('../browser/canvas-expanded.mjs');
@@ -201,15 +202,15 @@ try {
     counts.expandedBrowser = true;
   }
   const libraryUser = await request('/api/auth/register', { name: 'Quản lý thư viện QA', email: `${randomUUID()}@example.test`,
-    password: 'SyntheticOnly123', confirmPassword: 'SyntheticOnly123' });
+    password: 'SyntheticOnly123', consent: registrationConsent(true, true), confirmPassword: 'SyntheticOnly123' });
   cookie = libraryUser.response.headers.get('set-cookie').split(';')[0];
   if (process.env.CANVAS_TEMPLATE_FIDELITY === 'true') counts.templateFidelity = await runTemplateFidelity({ base, cookie, browser, request, artifacts: process.env.BROWSER_ARTIFACT_DIR });
   counts.libraryManagement = await runLibraryManagement({ base, cookie, admin, userId: libraryUser.value.user.id, request, browser });
-  const uiUser = await request('/api/auth/register', { name: 'Admin UI QA', email: `${randomUUID()}@example.test`, password: 'SyntheticOnly123', confirmPassword: 'SyntheticOnly123' });
+  const uiUser = await request('/api/auth/register', { name: 'Admin UI QA', email: `${randomUUID()}@example.test`, password: 'SyntheticOnly123', consent: registrationConsent(true, true), confirmPassword: 'SyntheticOnly123' });
   cookie = uiUser.response.headers.get('set-cookie').split(';')[0];
   counts.adminLibraryUi = await runAdminLibraryUi({ base, browser, admin, userId: uiUser.value.user.id, cookie, request, artifacts: process.env.BROWSER_ARTIFACT_DIR });
   if (process.env.CANVAS_ADMIN_DEEP_AUDIT === 'true') {
-    const auditUser = await request('/api/auth/register', { name: 'Admin audit QA', email: `${randomUUID()}@example.test`, password: 'SyntheticOnly123', confirmPassword: 'SyntheticOnly123' });
+    const auditUser = await request('/api/auth/register', { name: 'Admin audit QA', email: `${randomUUID()}@example.test`, password: 'SyntheticOnly123', consent: registrationConsent(true, true), confirmPassword: 'SyntheticOnly123' });
     cookie = auditUser.response.headers.get('set-cookie').split(';')[0];
     counts.adminDeepAudit = await runAdminLibraryDeepAudit({ base, browser, admin, userId: auditUser.value.user.id, cookie, request, items: counts.adminLibraryUi, artifacts: process.env.BROWSER_ARTIFACT_DIR });
   }

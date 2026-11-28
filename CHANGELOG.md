@@ -1,3 +1,7 @@
+## Unreleased — PR #33 browser CI compatibility (2026-11-28)
+
+- Align the Auth browser regression with the shared 12px control radius while retaining responsive layout, validation, consent and OAuth checks.
+
 ## Unreleased — PR #33 merge compatibility (2026-11-28)
 
 - Preserve Garden Tea and responsive Canvas playback alongside the current Auth, festival UI and 16 Originals.

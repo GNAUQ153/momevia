@@ -37,9 +37,9 @@ export async function runAuthEntryBrowser(base) {
           assert.equal(nameBox.x, emailBox.x);
           assert(nameBox.y + nameBox.height < emailBox.y);
         }
-        // Both forms share the current rounded-rectangle input design.
+        // ui-system.css applies the shared 12px control radius to both forms.
         for (const field of await panel.locator('.auth-input input').all()) {
-          assert.equal(await field.evaluate(node => globalThis.getComputedStyle(node).borderRadius), '13px');
+          assert.equal(await field.evaluate(node => globalThis.getComputedStyle(node).borderRadius), '12px');
           assert.equal(await field.evaluate(node => globalThis.getComputedStyle(node).fontSize), '16px');
           assert((await field.boundingBox()).height >= 44);
         }

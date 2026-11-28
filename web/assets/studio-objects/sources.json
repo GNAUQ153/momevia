@@ -1,0 +1,41 @@
+{
+  "sources": [
+    {
+      "creator": "Google Noto Emoji",
+      "url": "https://github.com/googlefonts/noto-emoji",
+      "tree": "99701e07d3d1fe1bdbcdb14964547f0fd592966f",
+      "license": "Apache-2.0 (SVG resources, not font OFL)",
+      "paths": [
+        "2D/svg/emoji_u1f393.svg",
+        "2D/svg/emoji_u1f4dc.svg",
+        "2D/svg/emoji_u1f380.svg"
+      ],
+      "changes": "Namespaced SVG, themed colors, tassel layer and decorative ink removal; same source shapes."
+    },
+    {
+      "creator": "Silviya Atanasova",
+      "url": "https://lottiefiles.com/free-animation/envelope-2EWElUkPQN",
+      "archive": "https://assets-v2.lottiefiles.com/a/eb7d91e6-1168-11ee-9c24-1b0f592fd3dc/PgRAQNpYHc.lottie",
+      "license": "Lottie Simple License",
+      "changes": "Theme, 252 168 210 210 viewport, frame 0–40 opening; editable native letter/stamp copy."
+    }
+  ],
+  "files": [
+    {
+      "file": "web/assets/studio-objects/noto-cap.svg",
+      "sha256": "c745a778a961decac4b86dcc0a7a9f0df2e376380ecdaa7f528e5662ade6c147"
+    },
+    {
+      "file": "web/assets/studio-objects/noto-scroll.svg",
+      "sha256": "32bbc27ee83fa356ec61fcd1f265794fb45cf762c27bb4a5a09394c04920cffd"
+    },
+    {
+      "file": "web/assets/studio-objects/noto-ribbon.svg",
+      "sha256": "13ece6f82c06310b4d06cbc3187426a4a35a1a70a632a9c57f27478823205f6e"
+    },
+    {
+      "file": "web/assets/studio-objects/silviya-envelope.json",
+      "sha256": "db6300be69a24a10959d3bd99e7133c745391087908439269b0bc72cad00fa41"
+    }
+  ]
+}

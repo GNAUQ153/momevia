@@ -1,0 +1,14 @@
+import {NOTO_CAP,NOTO_SCROLL,NOTO_RIBBON} from './studio-art-data.js';
+import {shadeHex} from './gift-volume.js';
+const mix=(a,b,t)=>'#'+[1,3,5].map(i=>Math.round(parseInt(a.slice(i,i+2),16)*(1-t)+parseInt(b.slice(i,i+2),16)*t).toString(16).padStart(2,'0')).join('');
+const prefixId=id=>String(id).replace(/[^a-zA-Z0-9_-]/g,'-');
+function artwork(source,p,prefix,kind){
+ const ink=p.inkColor||'#27394B',detail=p.detailColor||'#D8AE63',accent=p.accentColor||'#B52E3D',paper=mix(p.color||'#FFF8E8',detail,.12),greys={'#424242':ink,'#212121':shadeHex(ink,-.3),'#9E9E9E':mix(ink,'#FFFFFF',.4),'#616161':mix(ink,'#FFFFFF',.2)},gold={'#FFCA28':mix(detail,'#FFFFFF',.2),'#FBC02D':detail,'#E2A610':shadeHex(detail,-.15),'#9E740B':shadeHex(detail,-.4)};
+ let body=source.replace(/#[\da-f]{6}/gi,color=>{const key=color.toUpperCase();if(kind==='cap')return greys[key]||gold[key]||color;if(kind==='scroll'){if(key==='#FFD8A1')return paper;if(key==='#F2BD72')return mix(detail,paper,.55);const light=[1,3,5].reduce((sum,i)=>sum+parseInt(key.slice(i,i+2),16),0)/765;return light>.62?mix(detail,paper,.28):shadeHex(detail,Math.max(-.58,(light-.58)*1.6));}const rgb=[1,3,5].map(i=>parseInt(key.slice(i,i+2),16));if(rgb[0]>rgb[1]*1.15&&rgb[2]>40){const light=(rgb[0]+rgb[1]+rgb[2])/765;return light>.65?mix(accent,'#FFFFFF',.28):light<.4?shadeHex(accent,-.3):accent;}return color;});
+ const id=prefixId(prefix);body=body.replace(/\bid="([^"]+)"/g,(_m,n)=>`id="${id}-${n}"`).replace(/url\(#([^)]+)\)/g,(_m,n)=>`url(#${id}-${n})`).replace(/(?:xlink:)?href="#([^"]+)"/g,(_m,n)=>`href="#${id}-${n}"`);
+ return `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 128 128" width="128" height="128" aria-hidden="true">${body}</svg>`;
+}
+export const studioCapSvg=(p,id)=>artwork(NOTO_CAP,p,id,'cap');
+export const studioScrollSvg=(p,id)=>artwork(NOTO_SCROLL,p,id,'scroll');
+export const studioRibbonSvg=(p,id)=>artwork(NOTO_RIBBON,p,id,'ribbon');
+export function studioDiplomaSvg(p,id){const safe=prefixId(id);return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 190" width="240" height="190" aria-hidden="true"><defs><clipPath id="${safe}-main"><rect x="15" y="64" width="210" height="53.2"/></clipPath><clipPath id="${safe}-foot"><rect x="15" y="75.4" width="210" height="49.4"/></clipPath></defs><g clip-path="url(#${safe}-main)"><svg x="15" y="64" width="210" height="190" viewBox="0 0 128 128">${artwork(NOTO_SCROLL,p,id+'-main','scroll').replace(/^<svg[^>]*>|<\/svg>$/g,'')}</svg></g><g clip-path="url(#${safe}-foot)"><svg x="15" y="-65.2" width="210" height="190" viewBox="0 0 128 128">${artwork(NOTO_SCROLL,p,id+'-foot','scroll').replace(/^<svg[^>]*>|<\/svg>$/g,'')}</svg></g><rect x="113" y="76" width="14" height="39" rx="3" fill="${p.accentColor||'#B52E3D'}"/><g transform="translate(83 58) scale(.58)">${studioRibbonSvg(p,id+'-ribbon')}</g></svg>`;}

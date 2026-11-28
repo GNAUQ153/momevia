@@ -1,3 +1,9 @@
+## Unreleased — Phong bì, bằng, mũ và ảnh in rõ hơn (2026-11-28)
+
+- Thêm kiểu Canvas có phiên bản cho phong bì mở bằng nguồn vector/timeline đồng bộ, giấy cuộn/tháo nơ và mũ có tua bay rồi hạ còn hiện. Chữ, màu, ảnh và nhịp sửa được; giữ reader của nháp/quà cũ.
+- Camera giữ thân/khe native, cho xem lớn ảnh đã in bằng chạm hoặc bàn phím; Escape trả focus, rời cảnh đóng ảnh. Tái sử dụng dialog album và kiểm hồi quy.
+- Rà 54 cảnh của sáu mẫu, làm rõ chấm chương trình trên nền tối và giảm độ đậm đường kẻ. Thêm kiểm vị trí nút, reset, off/reduced, cleanup và chữ dài; lưu nguồn/giấy phép và kiểm hash. Video/dữ liệu QA chỉ ở local, chưa merge/deploy.
+
 ## Unreleased — Hộp nguồn đồng bộ và vật thể chuyển động mềm hơn (2026-11-28)
 
 - Thay hộp mới bằng trọn bộ vector/timeline Gift Box Opening của Goodeisgn; bìa xuất từ cùng animation, màu chỉnh được, chiều sâu 2.5D nhẹ có thể chỉnh/tắt. Đóng gói player SVG light local theo giấy phép, chỉ tải khi tương tác; có fallback và hủy khi rời cảnh. Giữ reader hộp v4 cũ.

@@ -4309,5 +4309,8 @@
   "natural.ribbonColor": "Bow and ribbon color",
   "crafted.giftStyle": "Goodeisgn gift opening",
   "crafted.style": "Crafted objects and motion",
-  "crafted.depth": "Depth (0: off)"
+  "crafted.depth": "Depth (0: off)",
+  "studio.style": "Studio illustration and motion",
+  "studio.envelopeStyle": "Envelope and rising letter",
+  "studio.noCameraPhoto": "No photo has been added for this moment."
 }

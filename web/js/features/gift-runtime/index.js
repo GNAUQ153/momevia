@@ -1,4 +1,5 @@
 import { reflowSceneNodes,growReadingSurfaces } from './reflow.js';
+import {ENVELOPE_SOURCE_PRESET} from '../../shared/canvas/studio-constants.js';
 import { fittedPage,bodyFit,pageChunks } from './page-fit.js';
 import { scenePresentation } from '../../shared/canvas/scene-presentation.js';
 import { isSceneFooter, sceneFrameLayout } from '../../shared/canvas/scene-footer.js';
@@ -324,8 +325,10 @@ export function mountPlayer(
             }
             return;
           }
-          if (action?.type === "replay") requestScene(document.entrySceneId, model.sound ? undefined : react);
-          else if (action?.targetSceneId) requestScene(action.targetSceneId, model.sound ? undefined : react);
+          const sourceEnvelope=model.props.preset===ENVELOPE_SOURCE_PRESET;
+          if(action?.type==='replay'&&sourceEnvelope&&activeSceneId===document.entrySceneId){void react?.(signal);return;}
+          if (action?.type === "replay") requestScene(document.entrySceneId, model.sound&&!sourceEnvelope ? undefined : react);
+          else if (action?.targetSceneId) requestScene(action.targetSceneId, model.sound&&!sourceEnvelope ? undefined : react);
         },
       });
       node.style.zIndex = String(scene.elementIds.indexOf(model.id));

@@ -36,6 +36,8 @@ import { framePhoto, MEMORY_TEMPLATE_ID, memoryGreetingStarterKeys } from "../sh
 import { materializeTemplateStart } from '../features/canvas-editor/template-start.js';
 import { createEventFields, updateEventFields, createStoryTextFields, updateStoryTextFields, storyAlbum, storyClock } from '../features/canvas-editor/event-fields.js';
 import { createInvitationFields, updateInvitationFields } from '../features/canvas-editor/invitation-fields.js';
+import {studioObject} from '../shared/canvas/studio-objects.js';
+import {STUDIO_APPEARANCE,ENVELOPE_SOURCE_PRESET} from '../shared/canvas/studio-constants.js';
 import {craftObject,CRAFT_APPEARANCE} from '../shared/canvas/crafted-objects.js';
 import {naturalizeObject,addObjectAssets,NATURAL_OPENINGS,OBJECT_APPEARANCE} from '../shared/canvas/natural-objects.js';
 import { editInvitation } from '../shared/canvas/invitation.js';
@@ -1988,11 +1990,11 @@ export function mountDesigner(
     const key = control.dataset.editorField;
     if(key==='local-video-upload'){await uploadVideo(control.files?.[0],selection);return;}
     if(key==='local-video-select'){if(assetPending)return;commit(next=>{const e=next.document.elements.find(e=>e.id===selection&&e.props.kind==='local-video');if(e)e.props.videoAssetId=control.value||null;},t('video.replaced'));renderInspector();return;}
-    if((key==='props.preset'&&NATURAL_OPENINGS.includes(control.value))||(key==='props.appearance'&&[OBJECT_APPEARANCE,CRAFT_APPEARANCE].includes(control.value))){
+    if((key==='props.preset'&&NATURAL_OPENINGS.includes(control.value))||(key==='props.appearance'&&[OBJECT_APPEARANCE,CRAFT_APPEARANCE,STUDIO_APPEARANCE].includes(control.value))){
       if(assetPending)return;
       const before=selected();if(!before||control.disabled||!editableElement(before,design.policy))return;
       const baseline=JSON.stringify(before),model=structuredClone(before),designId=design.id,elementId=before.id;
-      model.props[key.split('.')[1]]=control.value;if(control.value===CRAFT_APPEARANCE)craftObject(model,t);else naturalizeObject(model,t,{previousPreset:before.props.preset});
+      model.props[key.split('.')[1]]=control.value;if([STUDIO_APPEARANCE,ENVELOPE_SOURCE_PRESET].includes(control.value))studioObject(model,t);else if(control.value===CRAFT_APPEARANCE)craftObject(model,t);else naturalizeObject(model,t,{previousPreset:before.props.preset});
       assetPending=true;renderAll();
       try{
         const prepared=await materializeInsertionMedia([model],{signal,namespace:designId,cache:libraryMediaCache,existingAssets:store.get().document.assets,upload:async(bytes,mutationId)=>(await request(`/designs/designs/${encodeURIComponent(designId)}/assets`,undefined,{method:'POST',headers:{'content-type':'image/webp','x-mutation-id':mutationId},body:bytes})).asset});
@@ -2223,7 +2225,7 @@ export function mountDesigner(
           applyGroupLayout(members, before, after);
         } else if (["props", "accessibility"].includes(group))
           item[group][fieldName] = value;
-        if(group==='props'&&((fieldName==='preset'&&NATURAL_OPENINGS.includes(value))||(fieldName==='appearance'&&[OBJECT_APPEARANCE,CRAFT_APPEARANCE].includes(value)))){if(value===CRAFT_APPEARANCE)craftObject(item,t);else naturalizeObject(item,t);addObjectAssets(next.document);}
+        if(group==='props'&&((fieldName==='preset'&&NATURAL_OPENINGS.includes(value))||(fieldName==='appearance'&&[OBJECT_APPEARANCE,CRAFT_APPEARANCE,STUDIO_APPEARANCE].includes(value)))){if([STUDIO_APPEARANCE,ENVELOPE_SOURCE_PRESET].includes(value))studioObject(item,t);else if(value===CRAFT_APPEARANCE)craftObject(item,t);else naturalizeObject(item,t);addObjectAssets(next.document);}
         if (group === 'props' && (['stickerId','mask','pattern'].includes(fieldName) || fieldName === 'kind' && item.type === 'shape')) refreshElementArtwork(item);
         if (
           ["label", "title"].includes(fieldName) &&

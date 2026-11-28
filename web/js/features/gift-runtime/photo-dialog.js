@@ -1,0 +1,6 @@
+const active=new WeakMap();
+export function openPhotoDialog({photo,renderPhoto,trigger,signal,closeLabel,activateClose,className=''}){
+ const existing=active.get(trigger);if(existing?.isConnected){existing.focus();return existing;}if(signal?.aborted)return null;
+ const dialog=document.createElement('dialog');dialog.className='gift-drive-photo-dialog '+className;dialog.setAttribute('aria-label',photo.alt||closeLabel);const close=document.createElement('button'),caption=document.createElement('p');close.type='button';close.className='gift-interaction-button';close.textContent=closeLabel;caption.textContent=photo.caption||'';dialog.append(renderPhoto(photo),caption,close);dialog.addEventListener('keydown',event=>{if(event.key==='Escape'){event.preventDefault();event.stopPropagation();dialog.close();}});
+ const abort=()=>{if(dialog.isConnected)dialog.close();},cleanup=()=>{active.delete(trigger);signal?.removeEventListener('abort',abort);dialog.remove();if(!signal?.aborted&&trigger?.isConnected)trigger.focus();};dialog.addEventListener('close',cleanup,{once:true});close.addEventListener('click',event=>activateClose?activateClose(close,event,()=>dialog.close()):dialog.close());signal?.addEventListener('abort',abort,{once:true});document.body.append(dialog);active.set(trigger,dialog);dialog.showModal();close.focus();return dialog;
+}

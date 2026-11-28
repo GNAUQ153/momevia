@@ -7,10 +7,10 @@ test('natural opening reuses declared reviewed artwork while legacy presets rema
  const doc=createDocument(),model=naturalizeObject(classic,canonicalText);doc.schemaVersion=doc.registryVersion=2;doc.elements=[model];doc.scenes[0].elementIds=[model.id];addObjectAssets(doc);assert.equal(model.props.assetId,undefined);assert.doesNotThrow(()=>validateDocument(doc));assert.deepEqual(assetIds(duplicateDocument(doc)),[]);assert.equal(model.props.preset,'lid-source-v6');
  model.props.assetId='undeclared-owned-image';assert.throws(()=>validateDocument(doc),/khai báo/);
 });
-test('all five reusable natural objects carry image references through save and public projection',()=>{
+test('current vector defaults need no image uploads while the source envelope retains its declared seal',()=>{
  for(const id of['santa-gift-box','soiree-envelope','camera-print','ribbon-diploma','cap-toss']){
   const model=driveElementCards().find(c=>c.id==='drive-'+id).create()[0],doc=createDocument();doc.schemaVersion=doc.registryVersion=2;doc.elements=[model];doc.scenes[0].elementIds=[model.id];addObjectAssets(doc);
-  const refs=assetIds(doc);if(['camera-print','santa-gift-box'].includes(id))assert.equal(refs.length,0);else assert(refs.length);assert(refs.every(id=>doc.assets.some(a=>a.assetId===id)));assert.deepEqual(assetIds(publicDocument(doc)),refs);assert.doesNotThrow(()=>duplicateDocument(doc));
+  const refs=assetIds(doc);assert.equal(refs.length,id==='soiree-envelope'?1:0);assert(refs.every(id=>doc.assets.some(a=>a.assetId===id)));assert.deepEqual(assetIds(publicDocument(doc)),refs);assert.doesNotThrow(()=>duplicateDocument(doc));
  }
 });
 test('image materialization writes both the object and wax seal back into the actual model',()=>{

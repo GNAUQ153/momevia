@@ -27,6 +27,8 @@ for (const file of walk(path.join(root, '.github/workflows')).filter(file => /\.
 const vendor = fs.readFileSync(path.join(root, 'web/js/vendor/qrcode.js'));
 const giftSource=JSON.parse(fs.readFileSync(path.join(root,'web/assets/animations/goodeisgn-gift-source.json'),'utf8'));
 for(const asset of giftSource.files)if(createHash('sha256').update(fs.readFileSync(path.join(root,asset.file))).digest('hex')!==asset.sha256)throw new Error('Reviewed gift source hash mismatch: '+asset.file);
+const studioSource=JSON.parse(fs.readFileSync(path.join(root,'web/assets/studio-objects/sources.json'),'utf8'));
+for(const asset of studioSource.files)if(createHash('sha256').update(fs.readFileSync(path.join(root,asset.file))).digest('hex')!==asset.sha256)throw new Error('Reviewed Studio object source hash mismatch: '+asset.file);
 if (!vendor.equals(fs.readFileSync(path.join(root, 'node_modules/qrcode-generator/dist/qrcode.mjs')))) {
   throw new Error('QR module is out of date. Run npm run build.');
 }

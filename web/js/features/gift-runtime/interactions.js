@@ -1,3 +1,4 @@
+import {openPhotoDialog} from './photo-dialog.js';
 import {applySoftAppearance} from './soft-appearance.js';
 import {renderLocalVideo} from './local-video.js';
 import { renderDriveInteraction } from './drive-interactions.js';
@@ -257,12 +258,7 @@ export function renderInteraction(model, { mode, signal, motion, bindings, rende
     if(model.props.zoom && live){
       const zoom=button(label('drive.zoomPhoto'),()=>{
         if(!available.length)return;
-        const dialog=node('dialog','gift-drive-photo-dialog');
-        const close=button(label('drive.closePhoto'),()=>dialog.close());
-        dialog.append(renderPhoto(available[index]),node('p','',available[index].caption),close);
-        globalThis.document.body.append(dialog);dialog.showModal();close.focus();
-        const cleanup=()=>{dialog.remove();if(!signal?.aborted)zoom.focus();};
-        dialog.addEventListener('close',cleanup,{once:true});signal?.addEventListener('abort',()=>dialog.close(),{once:true});
+        openPhotoDialog({photo:available[index],renderPhoto,trigger:zoom,signal,closeLabel:label('drive.closePhoto'),activateClose:activate});
       });zoom.hidden=!available.length;root.append(zoom);
     }
     if (play) { play.hidden = available.length < 2; root.append(play); }

@@ -2,6 +2,7 @@ import { decorateDriveOpening, playDriveOpening } from './drive-interactions.js'
 import {decorateNaturalOpening} from './natural-objects.js';
 import {NATURAL_OPENINGS,DRIVE_OPENING_PRESETS,naturalObjectFrame} from '../../shared/canvas/natural-objects.js';
 import {VOLUME_GIFT_PRESET,giftVolumeGeometry} from '../../shared/canvas/gift-volume.js';
+import {ENVELOPE_SOURCE_PRESET} from '../../shared/canvas/studio-constants.js';
 import { reflowSceneNodes } from './reflow.js';
 import { scenePresentation } from '../../shared/canvas/scene-presentation.js';
 import { isSceneFooter, sceneFooterLayout } from '../../shared/canvas/scene-footer.js';
@@ -227,7 +228,7 @@ export function renderElement(
     if (actions?.length) {
       onAction(actions, intentSignal => {
         if(['lid-card-v2','wax-letter-v2',...NATURAL_OPENINGS].includes(p.preset)){
-          if(!preset)return;
+          if(!preset){if(p.preset===ENVELOPE_SOURCE_PRESET)return playDriveOpening(control,{enabled:()=>false},signal?AbortSignal.any([intentSignal,signal]):intentSignal);return;}
           const combined=signal?AbortSignal.any([intentSignal,signal]):intentSignal;
           const base={fast:480,normal:800,slow:1200}[p.motionSpeed]||800,duration=Math.round(base*({fast:.7,normal:1,slow:1.3}[preset.speed||'normal']));
           control.style.setProperty('--drive-duration',duration+'ms');

@@ -1,7 +1,8 @@
 import {EVENT_MEDIA} from './event-media.js';
 import {VOLUME_GIFT_PRESET} from './gift-volume.js';
 import {SOURCE_GIFT_PRESET} from './source-gift.js';
-export const NATURAL_OPENINGS=[VOLUME_GIFT_PRESET,'wax-letter-natural-v3','lid-card-natural-v3',SOURCE_GIFT_PRESET];
+import {ENVELOPE_SOURCE_PRESET} from './studio-constants.js';
+export const NATURAL_OPENINGS=[VOLUME_GIFT_PRESET,'wax-letter-natural-v3','lid-card-natural-v3',SOURCE_GIFT_PRESET,ENVELOPE_SOURCE_PRESET];
 export const DRIVE_OPENING_PRESETS=['lid-card-v1','wax-letter-v1','lid-card-v2','wax-letter-v2',...NATURAL_OPENINGS];
 export const OBJECT_APPEARANCE='object-natural-v3';
 export const DIPLOMA_MASK=[[0,70],[27,73],[30,70],[34,69],[38,75],[43,79],[48,79],[54,74],[57,77],[61,81],[100,81],[100,100],[0,100]];
@@ -36,7 +37,7 @@ export function objectTint(color,kind){
  return{type:'matrix',values:channels.flatMap(c=>[.2126*.9*c,.7152*.9*c,.0722*.9*c,0,.4*c]).concat([0,0,0,1,0]).join(' ')};
 }
 export function naturalObjectFrame(p,width,height){
- const aspect=p.preset.startsWith('lid-')?1:700/490,w=Math.min(width,Math.max(1,height-44)*aspect),h=w/aspect;
+ const aspect=p.preset===ENVELOPE_SOURCE_PRESET||p.preset.startsWith('lid-')?1:700/490,w=Math.min(width,Math.max(1,height-44)*aspect),h=w/aspect;
  return{x:(width-w)/2,y:Math.max(0,(height-44-h)/2),width:w,height:h};
 }
 const blank={paths:[{d:'M0 0',fill:'none'}]};

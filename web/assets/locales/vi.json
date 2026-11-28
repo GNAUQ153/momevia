@@ -4296,5 +4296,8 @@
   "natural.ribbonColor": "Màu nơ và dải băng",
   "crafted.giftStyle": "Hộp mở Goodeisgn",
   "crafted.style": "Vật thể và chuyển động tự nhiên",
-  "crafted.depth": "Độ nổi khối (0: tắt)"
+  "crafted.depth": "Độ nổi khối (0: tắt)",
+  "studio.style": "Minh họa và chuyển động Studio",
+  "studio.envelopeStyle": "Phong bì mở cùng thư",
+  "studio.noCameraPhoto": "Chưa có ảnh cho khoảnh khắc này."
 }

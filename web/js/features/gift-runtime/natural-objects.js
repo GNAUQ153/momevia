@@ -5,6 +5,8 @@ import {renderGiftVolume} from './gift-volume.js';
 import {VOLUME_GIFT_PRESET,shadeHex} from '../../shared/canvas/gift-volume.js';
 import {SOURCE_GIFT_PRESET} from '../../shared/canvas/source-gift.js';
 import {decorateSourceGift} from './source-gift.js';
+import {ENVELOPE_SOURCE_PRESET} from '../../shared/canvas/studio-constants.js';
+import {decorateSourceEnvelope} from './source-envelope.js';
 const ns='http://www.w3.org/2000/svg';
 let sequence=0;
 function tint(svg,color,kind){
@@ -15,6 +17,7 @@ function tint(svg,color,kind){
 }
 const span=(className,text)=>{const el=document.createElement('span');el.className=className;el.setAttribute('aria-hidden','true');if(text)el.textContent=text;return el;};
 export function decorateNaturalOpening(node,p,{assetUrl,signal,mode}){
+ if(p.preset===ENVELOPE_SOURCE_PRESET){decorateSourceEnvelope(node,p,{assetUrl,signal,mode});return;}
  if(p.preset===SOURCE_GIFT_PRESET){decorateSourceGift(node,p,{signal,mode});return;}
  const box=p.preset.startsWith('lid-'),volume=p.preset===VOLUME_GIFT_PRESET,color=p.color||(box?'#183E35':'#773447');node.classList.add('gift-drive-opening','gift-object-opening',box?'gift-object-box':'gift-object-envelope');
  node.style.setProperty('--drive-radius',(p.cornerRadius??8)+'px');node.style.setProperty('--drive-paper-color',p.paperColor||'#FFF3DC');node.style.setProperty('--drive-object-ink',color);node.style.setProperty('--drive-object-label','#FFF3DC');

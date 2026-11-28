@@ -1,0 +1,8 @@
+import {studioCapSvg,studioScrollSvg,studioRibbonSvg} from '../../shared/canvas/studio-art.js';
+const svg=source=>{const parsed=new DOMParser().parseFromString(source,'image/svg+xml');if(parsed.querySelector('parsererror'))throw new Error('Studio artwork is not valid SVG');return globalThis.document.importNode(parsed.documentElement,true);};
+export function studioReveal(model,body){
+ const p=model.props,stage=globalThis.document.createElement('div');stage.className='gift-studio-stage';body.classList.add('gift-studio-reading');body.dataset.studioProse=p.kind==='ribbon-diploma'?'64':'100';body.setAttribute('aria-hidden','true');
+ if(p.kind==='cap-toss'){const cap=globalThis.document.createElement('span');cap.className='gift-drive-cap gift-studio-cap';cap.setAttribute('aria-hidden','true');cap.append(svg(studioCapSvg(p,model.id)));stage.append(cap,body);}
+ else{const assembly=globalThis.document.createElement('div');assembly.className='gift-studio-scroll-assembly';const main=svg(studioScrollSvg(p,model.id+'-main')),foot=svg(studioScrollSvg(p,model.id+'-foot'));main.classList.add('gift-studio-scroll-main');foot.classList.add('gift-studio-scroll-foot');assembly.append(main,foot,body);const ribbon=globalThis.document.createElement('span'),band=globalThis.document.createElement('span');ribbon.className='gift-studio-ribbon';band.className='gift-studio-ribbon-band';ribbon.setAttribute('aria-hidden','true');band.setAttribute('aria-hidden','true');band.style.backgroundColor=p.accentColor||'#B52E3D';ribbon.append(svg(studioRibbonSvg(p,model.id+'-bow')));stage.append(assembly,band,ribbon);}
+ return stage;
+}

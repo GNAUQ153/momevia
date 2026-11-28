@@ -1,5 +1,7 @@
 # Rà soát vật thể, chuyển động và điện thoại — 28/11/2026
 
+Đợt rà tiếp theo (phong bì source v4, camera/bằng/mũ Studio v5 và audit 54 cảnh) tại [STUDIO_OBJECTS_QA.md](STUDIO_OBJECTS_QA.md). Nội dung bên dưới giữ kết quả và quyết định của đợt `6281faa`, không mô tả mặc định mới nhất.
+
 ## Kết quả thiết kế
 
 | Mẫu | Vật thể / nhận xét | Thay đổi có thể chỉnh trong Canvas |

@@ -17,7 +17,7 @@ export function prosePages(text,limit=320){
 }
 export function pageChunks(nodes){
  const prose=nodes.flatMap(({model,node})=>model.type==='text'&&model.accessibility?.role!=='heading'?[node]
-  :model.type==='interaction'&&model.props.bodyBinding==='message'?[...node.querySelectorAll('.gift-drive-reveal-body')]:[]);
- const entries=prose.filter(node=>node.textContent.length>620).map(node=>({node,pages:prosePages(node.textContent)}));
+  :model.type==='interaction'&&(model.props.bodyBinding==='message'||model.props.appearance==='object-studio-v5')?[...node.querySelectorAll('.gift-drive-reveal-body')]:[]);
+ const entries=prose.filter(node=>node.textContent.length>Number(node.dataset?.studioProse||620)).map(node=>({node,pages:prosePages(node.textContent,Number(node.dataset?.studioProse||320))}));
  return {entries,count:Math.max(1,...entries.map(e=>e.pages.length))};
 }

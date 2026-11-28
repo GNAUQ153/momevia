@@ -2,6 +2,9 @@ import {applySoftAppearance} from './soft-appearance.js';
 import {softDuration} from '../../shared/canvas/drive-soft.js';
 import {DIPLOMA_MASK} from '../../shared/canvas/natural-objects.js';
 import {CRAFT_APPEARANCE,NATURAL_OBJECT_STYLES} from '../../shared/canvas/crafted-objects.js';
+import {STUDIO_APPEARANCE} from '../../shared/canvas/studio-constants.js';
+import {studioReveal} from './studio-objects.js';
+import {openPhotoDialog} from './photo-dialog.js';
 import {instantCameraSvg} from '../../shared/canvas/instant-camera.js';
 import { calendarMonth, graduationPassSvg } from '../../shared/canvas/drive-data.js';
 import { currentLocale, t } from '../../core/i18n.js';
@@ -11,8 +14,9 @@ export function renderDriveInteraction(model,{mode,signal,renderPhoto,document:d
   let first={...p.entries[0],...(p.bodyBinding==='message'?{body:doc?.bindings?.message?.value||p.entries[0].body}:{})};
   const node=(tag,css,text)=>{const el=globalThis.document.createElement(tag);if(css)el.className=css;if(text!==undefined)el.textContent=text;return el;};
   const root=node('section',`gift-drive-block gift-drive-${p.kind}`);root.style.backgroundColor=p.color;const soft=applySoftAppearance(root,p);
-  const crafted=p.appearance===CRAFT_APPEARANCE,natural=NATURAL_OBJECT_STYLES.includes(p.appearance)&&p.objectAssetId;
-  if(crafted)root.classList.add('gift-drive-crafted');
+  const studio=p.appearance===STUDIO_APPEARANCE,crafted=studio||p.appearance===CRAFT_APPEARANCE,natural=NATURAL_OBJECT_STYLES.includes(p.appearance)&&p.objectAssetId;
+  if(crafted&&(!studio||p.kind==='camera-print'))root.classList.add('gift-drive-crafted');if(studio)root.classList.add('gift-drive-studio');
+  const feedback=()=>studio&&p.kind==='camera-print'&&!p.photos[0].assetId?t('studio.noCameraPhoto'):first.body;
   if(natural)root.classList.add('gift-drive-natural');
   const objectArt=css=>{const wrapper=node('span',css),art=renderPhoto({id:model.id+'-object',assetId:p.objectAssetId,fit:'contain',decorative:true,focalPoint:{x:.5,y:.5}});
     if(css==='gift-natural-diploma-art'){
@@ -49,7 +53,8 @@ export function renderDriveInteraction(model,{mode,signal,renderPhoto,document:d
     const camera=node('div','gift-drive-camera'),lens=node('span','gift-drive-lens');camera.append(lens);
     if(crafted){const svg=new DOMParser().parseFromString(instantCameraSvg(p,'camera-'+model.id),'image/svg+xml').documentElement;camera.append(document.importNode(svg,true));}else if(natural)camera.append(objectArt('gift-natural-camera-art'));
     const print=node('figure','gift-drive-print');print.append(photo(),node('figcaption','',p.photos[0].caption));
-    const snap=button(t('drive.takePhoto'),()=>{if(complete(snap,first.body))root.classList.add('is-printed');});
+    const snap=button(t('drive.takePhoto'),()=>{if(complete(snap,feedback())){root.classList.add('is-printed');if(p.zoom&&p.photos[0].assetId){print.tabIndex=0;print.setAttribute('aria-disabled','false');print.removeAttribute('aria-hidden');}}});
+    if(p.zoom&&live){print.classList.add('gift-studio-print-zoom');print.setAttribute('role','button');print.setAttribute('aria-label',t('drive.zoomPhoto'));print.setAttribute('aria-disabled','true');print.setAttribute('aria-hidden','true');print.tabIndex=-1;const mark=node('span','gift-studio-zoom-mark','+');mark.setAttribute('aria-hidden','true');print.append(mark);const zoom=()=>{if(root.dataset.complete&&p.photos[0].assetId)openPhotoDialog({photo:p.photos[0],renderPhoto,trigger:print,signal,closeLabel:t('drive.closePhoto'),className:'gift-studio-photo-dialog'});};listen(print,'click',zoom);listen(print,'keydown',e=>{if(['Enter',' '].includes(e.key)){e.preventDefault();zoom();}});}
     if(live){camera.setAttribute('role','button');camera.tabIndex=0;camera.setAttribute('aria-label',t('drive.takePhoto'));listen(camera,'click',()=>snap.click());listen(camera,'keydown',e=>{if(['Enter',' '].includes(e.key)){e.preventDefault();snap.click();}});}
     if(crafted){const well=node('div','gift-crafted-print-well');well.append(print);root.append(camera,well,snap);}else root.append(camera,print,snap);
   }else if(p.kind==='focus-photo'){
@@ -77,6 +82,9 @@ export function renderDriveInteraction(model,{mode,signal,renderPhoto,document:d
       const url=URL.createObjectURL(new Blob([svg],{type:'image/svg+xml'})),a=node('a','');a.href=url;a.download='momevia-graduation-pass.svg';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
     });
     listen(name,'input',render);render();root.append(label,ticket,pull,tear,download);
+  }else if(studio&&['cap-toss','ribbon-diploma'].includes(p.kind)){
+    const body=node('p','gift-drive-reveal-body',first.body),art=studioReveal(model,body);let trigger;const open=button(t('drive.action.'+p.kind),()=>{if(complete(open,t('drive.opened'))){body.removeAttribute('aria-hidden');root.classList.add('is-revealed');if(p.kind==='ribbon-diploma'&&trigger){trigger.tabIndex=-1;trigger.setAttribute('aria-hidden','true');if(globalThis.document.activeElement===trigger)open.focus();}}});
+    if(live){trigger=art.querySelector(p.kind==='cap-toss'?'.gift-studio-cap':'.gift-studio-ribbon');trigger.dataset.studioTrigger=p.kind;trigger.removeAttribute('aria-hidden');trigger.setAttribute('role','button');trigger.setAttribute('aria-label',t('drive.action.'+p.kind));trigger.tabIndex=0;listen(trigger,'click',()=>open.click());listen(trigger,'keydown',e=>{if(['Enter',' '].includes(e.key)){e.preventDefault();open.click();}});}root.append(art,open);
   }else{
     const body=node('p','gift-drive-reveal-body',first.body),paper=node('div',`gift-drive-paper gift-drive-paper-${p.kind}`);
     if(p.kind==='cap-toss'){
@@ -96,12 +104,12 @@ export function renderDriveInteraction(model,{mode,signal,renderPhoto,document:d
   }
   // Each swipe/drag gesture has the same single-click/keyboard path above.
   let start;
-  listen(root,'pointerdown',e=>{if(p.kind==='calendar-peel'){if(!e.target.closest('.gift-drive-date-sticker'))return;}else if(e.target.closest('input,textarea,button'))return;start={x:e.clientX,y:e.clientY,id:e.pointerId};});
+  listen(root,'pointerdown',e=>{if(p.kind==='calendar-peel'){if(!e.target.closest('.gift-drive-date-sticker'))return;}else if(e.target.closest('input,textarea,button,.gift-studio-print-zoom'))return;start={x:e.clientX,y:e.clientY,id:e.pointerId};});
   listen(root,'pointerup',e=>{if(start?.id===e.pointerId&&Math.hypot(e.clientX-start.x,e.clientY-start.y)>45){const controls=root.querySelectorAll('button');controls[p.kind==='tear-ticket'&&root.classList.contains('is-pulled')?1:0]?.click();}start=null;});
   for(const event of ['pointercancel','lostpointercapture'])listen(root,event,()=>{start=null;});
   if(soft){const reset=button(t('soft.tryAgain'),()=>{
     delete root.dataset.complete;delete root.dataset.choice;root.classList.remove('is-printed','is-revealed','is-pulled');root.querySelector('.gift-drive-pass')?.classList.remove('is-torn');root.querySelector('.gift-drive-date-sticker')?.classList.remove('is-peeled');
-    const body=root.querySelector('.gift-drive-reveal-body');if(body)body.hidden=p.kind!=='grade-stamp';
+    const body=root.querySelector('.gift-drive-reveal-body');if(body){body.hidden=studio?false:p.kind!=='grade-stamp';if(studio)body.setAttribute('aria-hidden','true');}const print=root.querySelector('.gift-studio-print-zoom');if(print){print.tabIndex=-1;print.setAttribute('aria-disabled','true');print.setAttribute('aria-hidden','true');}const artTrigger=root.querySelector('[data-studio-trigger]');if(artTrigger){artTrigger.tabIndex=0;artTrigger.removeAttribute('aria-hidden');}
     const focus=root.querySelector('.gift-drive-focus-range');if(focus){focus.value='0';root.querySelector('.gift-drive-focus-lens > *').style.filter='blur(8.33333px)';}
     for(const choice of root.querySelectorAll('[aria-pressed]'))choice.setAttribute('aria-pressed','false');for(const control of root.querySelectorAll('[aria-expanded]'))control.setAttribute('aria-expanded','false');status.textContent=t('soft.ready');
   },'gift-drive-reset');root.append(reset);}
@@ -109,18 +117,20 @@ export function renderDriveInteraction(model,{mode,signal,renderPhoto,document:d
     Object.assign(p,structuredClone(next.props));first={...p.entries[0],...(p.bodyBinding==='message'?{body:nextDoc?.bindings?.message?.value||p.entries[0].body}:{})};
     title.textContent=p.kind==='four-choice-quiz'?(p.question||t('drive.quizQuestion')):first.heading;
     const body=root.querySelector('.gift-drive-reveal-body');if(body)body.textContent=first.body;
-    if(root.dataset.complete&&p.kind!=='tear-ticket')status.textContent=first.body;
+    if(root.dataset.complete&&p.kind!=='tear-ticket')status.textContent=studio&&['cap-toss','ribbon-diploma'].includes(p.kind)?t('drive.opened'):feedback();
+    const printed=root.querySelector('.gift-studio-print-zoom');if(printed)printed.setAttribute('aria-label',t('drive.zoomPhoto'));
+    const artTrigger=root.querySelector('[data-studio-trigger]');if(artTrigger)artTrigger.setAttribute('aria-label',t('drive.action.'+p.kind));
     if(p.kind==='four-choice-quiz'){for(const[i,control]of [...root.querySelectorAll('.gift-drive-quiz button')].entries())control.textContent=`${String.fromCharCode(65+i)}. ${p.entries[i].heading}`;if(root.dataset.choice!==undefined)status.textContent=p.entries[Number(root.dataset.choice)].body;}
     const month=root.querySelector('.gift-drive-month');if(month){const event=p.clockSource==='invitation'?nextDoc.invitation:p;month.textContent=calendarMonth(event?.eventAt,event?.timeZone,currentLocale())?.title||'';}
     const caption=root.querySelector('figcaption');if(caption)caption.textContent=p.photos?.[0]?.caption||'';
-    const reserved=root.querySelector('.gift-crafted-feedback-space');if(reserved)reserved.textContent=first.body;
+    const reserved=root.querySelector('.gift-crafted-feedback-space');if(reserved)reserved.textContent=feedback();
     const reset=root.querySelector('.gift-drive-reset');if(reset)reset.textContent=t('soft.tryAgain');
     for(const[i,day]of [...root.querySelectorAll('.gift-drive-weekday')].entries())day.textContent=t('drive.weekdays').split('|')[i];
     const camera=root.querySelector('.gift-drive-camera');if(camera)camera.setAttribute('aria-label',t('drive.takePhoto'));
     const labels={ 'calendar-peel':['drive.openNow'],'camera-print':['drive.takePhoto'],'focus-photo':['drive.autoFocus'],'tear-ticket':['drive.pullTicket','drive.tearTicket','drive.saveTicket'] }[p.kind]||(!['four-choice-quiz'].includes(p.kind)?['drive.action.'+p.kind]:[]);
     const controls=root.querySelectorAll('button:not(.gift-drive-date-sticker)');for(const[i,control]of [...controls].entries())if(labels[i])control.textContent=t(labels[i]);
   };
-  if(crafted&&p.kind==='camera-print'){const feedback=node('div','gift-crafted-feedback'),reserved=node('span','gift-crafted-feedback-space',first.body);reserved.setAttribute('aria-hidden','true');feedback.append(reserved,status);root.append(feedback);}else root.append(status);return root;
+  if(crafted&&p.kind==='camera-print'){const container=node('div','gift-crafted-feedback'),reserved=node('span','gift-crafted-feedback-space',feedback());reserved.setAttribute('aria-hidden','true');container.append(reserved,status);root.append(container);}else root.append(status);return root;
 }
 
 export function decorateDriveOpening(node,preset,label,color,sealColor,paperColor,mode,signal,settings={}){

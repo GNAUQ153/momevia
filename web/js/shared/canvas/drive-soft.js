@@ -1,5 +1,5 @@
 export const SOFT_INTERACTIONS=['calendar-peel','camera-print','focus-photo','grade-stamp','ribbon-diploma','four-choice-quiz','peel-letter','tear-ticket','cap-toss'];
-export const SOFT_APPEARANCES=['soft-v2','object-natural-v3','object-crafted-v4','album-soft-v2','paper-fold-soft-v3','scratch-progress-soft-v2'];
+export const SOFT_APPEARANCES=['soft-v2','object-natural-v3','object-crafted-v4','object-studio-v5','album-soft-v2','paper-fold-soft-v3','scratch-progress-soft-v2'];
 export const softDuration=speed=>({fast:480,normal:800,slow:1200}[speed]||800);
 export function softenElement(model,palette){
  const p=model.props;

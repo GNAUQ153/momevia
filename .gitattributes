@@ -17,3 +17,7 @@ web/assets/fonts/app/fraunces-OFL.txt -text whitespace=-blank-at-eol
 web/assets/animations/goodeisgn-gift-opening.json -text
 web/js/vendor/lottie-light.mjs -text
 web/js/vendor/LOTTIE_LICENSE.txt -text
+
+# Keep reviewed third-party object sources and notices byte-exact.
+web/assets/studio-objects/* -text
+web/assets/studio-objects/noto-ribbon.svg whitespace=-blank-at-eol

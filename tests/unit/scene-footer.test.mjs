@@ -20,7 +20,7 @@ test('all eight reading scenes share their frame, button geometry and primary co
   for(const scene of doc.scenes.slice(1)){
    const view=scenePresentation(doc,scene),nav=view.elements.filter(isSceneFooter);
    assert.equal(view.size.height,844);assert.equal(nav.length,2);
-   assert.equal(nav.find(e=>e.props.variant==='filled').props.color,'#934850');
+   assert.equal(nav.find(e=>e.props.variant==='filled').props.color,'#B72E60');
    const footer=sceneFooterLayout(view.elements,view.size,width/390);
    const boxes=[...footer.layouts.values()];
    assert.equal(boxes[0].y,boxes[1].y);assert.equal(boxes[0].height,boxes[1].height);

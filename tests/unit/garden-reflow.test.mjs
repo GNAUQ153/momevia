@@ -1,6 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { reflowSceneNodes } from '../../web/js/features/gift-runtime/reflow.js';
+import { reflowSceneNodes,growReadingSurfaces } from '../../web/js/features/gift-runtime/reflow.js';
+
+test('long prose keeps its authored reading surface behind the final line without changing stored layouts',()=>{
+ const paper={model:{type:'shape',props:{kind:'rectangle'},layout:{x:20,y:100,width:350,height:240}},node:{style:{top:'100px',height:'240px'}}};
+ const prose={model:{type:'text',accessibility:{},layout:{x:40,y:130,width:300,height:180}},node:{style:{top:'130px'},offsetHeight:350}};
+ const before=structuredClone(paper.model);growReadingSurfaces([paper,prose],1);assert.equal(paper.node.style.height,'396px');assert.deepEqual(paper.model,before);
+});
 
 const layer = (type, y, plannedHeight, actualHeight, props = {}) => ({
   model: { type, layout: { y, height: plannedHeight }, props, accessibility: {} },

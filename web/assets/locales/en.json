@@ -4297,5 +4297,8 @@
   "soft.tryAgain": "Try interaction again",
   "soft.ready": "Ready to try again.",
   "soft.gardenRsvp": "Soft · garden",
-  "soft.paperRsvp": "Soft · paper"
+  "soft.paperRsvp": "Soft · paper",
+  "gift.page.previous": "Previous part",
+  "gift.page.next": "Next part",
+  "gift.page.position": "Part {index}/{total}"
 }

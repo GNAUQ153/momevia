@@ -270,6 +270,8 @@ try {
     const { runCreatorJourney } = await import('../browser/creator-journey.mjs'); await runCreatorJourney(base);
     const { runNewTemplates } = await import('../browser/new-templates.mjs');
     await check('Mobile memory template, optional photo and two-envelope keyboard branching', () => runNewTemplates(base));
+    const {runCardPageFit}=await import('../browser/card-page-fit.mjs');
+    await check('Shared screen fit: every built-in scene and future portrait/landscape prose pages',()=>runCardPageFit(base));
   }
   console.log(JSON.stringify({ gate: 'JSON API', cases, fixture: 'synthetic isolated single process', result: 'PASS' }));
 } catch (error) { console.error(logs); throw error; }

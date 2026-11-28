@@ -65,7 +65,10 @@ test('body/button contrast stays readable on the scene background, including lon
     assert(contrast(p.ink, p.bg) >= 4.5, `${id} cover contrast`);
     assert(contrast('#FFFFFF', p.button) >= 4.5, `${id} button contrast`);
     const scene = d.scenes[1] || d.scenes[0], message = d.elements.find(e => e.id === 'text-message') || d.elements.find(e => scene.elementIds.includes(e.id) && e.type === 'text');
-    assert(contrast(message.props.color, scene.background.color) >= 4.5, `${id} message remains readable beyond decoration bounds`);
+    const messageScene=d.scenes.find(s=>s.elementIds.includes(message.id)),centre={x:message.layout.x+message.layout.width/2,y:message.layout.y+message.layout.height/2};
+    const surface=d.elements.find(e=>messageScene.elementIds.includes(e.id)&&e.type==='shape'&&e.props.kind==='rectangle'&&e.layout.width>100&&e.layout.height>100&&e.layout.x<=centre.x&&e.layout.y<=centre.y&&e.layout.x+e.layout.width>=centre.x&&e.layout.y+e.layout.height>=centre.y);
+    const drive=['garden-tea','secret-santa-invitation','midnight-soiree','graduation-countdown','graduation-mixtape','the-last-chapter-v2'].includes(id);
+    assert(contrast(message.props.color,drive?(surface?.props.color||messageScene.background.color):scene.background.color)>=4.5,`${id} message contrast on its reading surface`);
     for (const node of d.elements.filter(e => e.type !== 'shape' && e.type !== 'line' && e.type !== 'sticker' && !(e.type==='image'&&e.accessibility.decorative&&e.accessibility.label===NATURAL_ARTWORK_LABEL))) {
       assert(node.layout.x >= 0 && node.layout.y >= 0 && node.layout.x + node.layout.width <= 390 && node.layout.y + node.layout.height <= 844, `${id} interactive/content bounds ${node.id}`);
     }

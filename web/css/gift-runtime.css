@@ -20,6 +20,9 @@ body.is-playing-gift #main {
 .is-natural-stationery .gift-runtime-text[tabindex="-1"]:focus {
   outline: none;
 }
+.gift-runtime-text[tabindex="-1"]:focus {
+  outline: none;
+}
 .is-natural-stationery .gift-runtime-reply {
   background: transparent;
   color: #3e3429;
@@ -52,10 +55,8 @@ body.is-playing-gift #main {
   position: absolute;
   inset: 0 0 auto;
   z-index: 0;
-  overflow: hidden auto;
+  overflow: hidden;
   overscroll-behavior: contain;
-  scrollbar-width: thin;
-  scrollbar-color: #a6ad9a transparent;
 }
 .gift-scene-body-content {
   position: relative;

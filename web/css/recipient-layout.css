@@ -1,4 +1,56 @@
 /* Preview and shared links fit the same authored card to the available screen. */
+html:has(body.is-playing-gift) {
+  scrollbar-gutter: auto;
+}
+body.is-playing-gift {
+  margin: 0;
+}
+.gift-page-navigation {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 4px;
+  font-size: 13px;
+}
+.gift-page-navigation[hidden] {
+  display: none;
+}
+.gift-page-navigation button {
+  width: 44px;
+  height: 44px;
+  border: 1px solid currentColor;
+  border-radius: 12px;
+  background: transparent;
+  color: inherit;
+}
+.gift-page-navigation button:disabled {
+  opacity: .35;
+}
+.gift-runtime .recipient-dedication {
+  background: #fff4df;
+  color: #243942;
+  margin: 0;
+  padding: 6px;
+  font-size: clamp(16px, 3vw, 22px);
+  line-height: 1.2;
+}
+@media (max-height: 480px) {
+  .gift-runtime .recipient-dedication,
+  .gift-runtime-mode-label,
+  .gift-runtime-status {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .gift-runtime-progress {
+    margin-top: 4px;
+  }
+}
 body.is-playing-gift .recipient-section {
   display: grid;
   place-items: start center;
@@ -20,12 +72,17 @@ body.is-playing-gift .recipient-section > .recipient-shell {
   min-width: 0;
   min-height: 0;
   background: var(--recipient-scene-background, transparent);
+  border-radius: 24px;
+}
+.recipient-player-host .gift-runtime > :first-child {
+  border-top-left-radius: 24px;
+  border-top-right-radius: 24px;
 }
 .recipient-shell .gift-runtime-mode-public {
   max-width: none;
 }
 .recipient-shell .gift-runtime-stage {
-  border-radius: var(--layout-radius-card);
+  border-radius: 24px;
 }
 .recipient-shell [data-rsvp-host] {
   max-width: var(--recipient-card-width);
@@ -48,6 +105,6 @@ body.is-playing-gift .recipient-section > .recipient-shell {
     min-height: 0;
   }
   .recipient-shell .gift-runtime-stage {
-    border-radius: var(--layout-radius-card);
+    border-radius: 24px;
   }
 }

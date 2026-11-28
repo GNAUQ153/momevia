@@ -37,12 +37,12 @@ export function createDriveTemplate(id,localize){
  const back=(at,target)=>add(at,'button',`${at}-previous`,[24,764,46,56],{label:'‹',color:p.accent,variant:'text',placement:'footer'},{accessibility:{label:localize('catalog.pagination.prev')},actions:[{on:'activate',type:'goToScene',targetSceneId:target}]});
  const event=()=>{
   const at=page('details');title(at,'details',54,32);
-  shape(at,'event-paper',[22,172,346,290],'#FFF9EC','rectangle',{strokeColor:p.detail,strokeWidth:1});
-  copy(at,'event-date','',[35,196,320,78],19);copy(at,'event-location','',[35,299,320,110],21);
+  shape(at,'event-paper',[22,160,346,210],'#FFF9EC','rectangle',{strokeColor:p.detail,strokeWidth:1});
+  copy(at,'event-date','',[35,178,320,64],19);copy(at,'event-location','',[35,265,320,84],21);
   doc.invitation={dateElementId:'event-date',venueElementId:'event-location',eventAt:null,timeZone:'Asia/Ho_Chi_Minh'};
-  for(const [type,key,x]of [['openEventMap','map',28],['saveEventCalendar','calendar',201]])add(at,'button','event-'+key,[x,470,161,54],{label:c(key),color:p.accent},{actions:[{on:'activate',type}]});
-  add(at,'interaction','event-clock',[28,546,334,155],{kind:'event-countdown',clockSource:'invitation',eventAt:null,timeZone:'Asia/Ho_Chi_Minh',optional:true,color:'#FFF9EC',entries:[{heading:c('countdown'),body:c('arrived')}]});
-  add(at,'button','event-rsvp',[104,706,182,44],{label:c(id==='graduation-mixtape'?'leaveNote':'rsvp'),color:p.accent,variant:'text'},{actions:[{on:'activate',type:'goToScene',targetSceneId:'scene-reply'}]});
+  for(const [type,key,x]of [['openEventMap','map',28],['saveEventCalendar','calendar',201]])add(at,'button','event-'+key,[x,390,161,54],{label:c(key),color:p.accent},{actions:[{on:'activate',type}]});
+  add(at,'interaction','event-clock',[28,470,334,155],{kind:'event-countdown',clockSource:'invitation',eventAt:null,timeZone:'Asia/Ho_Chi_Minh',optional:true,color:'#FFF9EC',entries:[{heading:c('countdown'),body:c('arrived')}]});
+  add(at,'button','event-rsvp',[104,654,182,44],{label:c(id==='graduation-mixtape'?'leaveNote':'rsvp'),color:p.accent,variant:'text'},{actions:[{on:'activate',type:'goToScene',targetSceneId:'scene-reply'}]});
   return at;
  };
  const invite=()=>{const at=page('invitation');title(at,'headline',110,45);binding(at,'text-recipient','recipientName',[32,237,326,72],24,p.ink,'center');photo(at,'hero-photo',[107,352,176,215]);binding(at,'text-sender','senderName',[32,645,326,48],20,p.ink,'center');return at;};

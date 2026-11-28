@@ -1,5 +1,7 @@
 # Sáu mẫu Drive — local QA
 
+Player đã có [cơ chế vừa trang dùng chung](SHARED_CARD_PAGE_FIT.md), áp dụng cả các mẫu cũ và Canvas tự tạo. Sáu mẫu mới khởi tạo dùng phối đậm–sáng và sticker native sống động hơn; nháp/snapshot đã có giữ màu và dữ liệu người gửi.
+
 Phạm vi được triển khai trong bản làm việc độc lập. Garden Tea giữ ID cũ; năm ID còn lại độc lập với Cozy Christmas, Club 22 và các mẫu tốt nghiệp cũ. Giá 0 của năm mẫu mới là fixture QA, chưa phải quyết định giá phát hành.
 
 | Mẫu | ID | Cảnh | Hồi đáp |

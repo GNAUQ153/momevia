@@ -1,4 +1,5 @@
-import { reflowSceneNodes } from './reflow.js';
+import { reflowSceneNodes,growReadingSurfaces } from './reflow.js';
+import { fittedPage,bodyFit,pageChunks } from './page-fit.js';
 import { scenePresentation } from '../../shared/canvas/scene-presentation.js';
 import { isSceneFooter, sceneFrameLayout } from '../../shared/canvas/scene-footer.js';
 import { isPaperTransition, sceneDirection } from './scene-transition.js';
@@ -97,6 +98,13 @@ export function mountPlayer(
   progress.className = "gift-runtime-progress";
   setAttr(progress, "aria-label", message("gift.player.progressLabel"));
   const lifetime = new AbortController();
+  const pageNavigation=globalThis.document.createElement('nav');pageNavigation.className='gift-page-navigation';pageNavigation.hidden=true;
+  const pagePrevious=globalThis.document.createElement('button'),pageNext=globalThis.document.createElement('button'),pagePosition=globalThis.document.createElement('span');
+  pagePrevious.type=pageNext.type='button';pagePrevious.textContent='‹';pageNext.textContent='›';
+  setAttr(pagePrevious,'aria-label',message('gift.page.previous'));setAttr(pageNext,'aria-label',message('gift.page.next'));
+  pagePosition.setAttribute('role','status');pageNavigation.append(pagePrevious,pagePosition,pageNext);
+  let turnPage=()=>false,relayout=()=>{},refreshPageCopy=()=>{};
+  pagePrevious.addEventListener('click',()=>turnPage(-1),{signal:lifetime.signal});pageNext.addEventListener('click',()=>turnPage(1),{signal:lifetime.signal});
   const audio=createSoundPlayer({assetUrl,onError:error=>setText(status,message(error?.code==='AUDIO_UNSUPPORTED'?'sfx.unsupportedPlayback':'sfx.playError'))});
   const hasSound=document.elements.some(e=>e.sound);
   const soundControl=globalThis.document.createElement('button');
@@ -212,6 +220,7 @@ export function mountPlayer(
   globalThis.document.addEventListener('visibilitychange',syncVisibility,{signal:lifetime.signal});syncVisibility();
   if (mode === 'preview') shell.append(marker, stage, progress, navigation, status);
   else shell.append(stage, status);
+  stage.after(pageNavigation);
   if (hasSound) shell.insertBefore(soundControl,stage);
   if (document.soundtrack || (document.schemaVersion >= 2 && (document.scenes.some(scene => scene.effects) || document.elements.some(element => element.effects || element.motions))))
     shell.insertBefore(toolbar, stage);
@@ -233,6 +242,9 @@ export function mountPlayer(
   };
   const chromeObserver=globalThis.ResizeObserver?new ResizeObserver(syncPlayerChrome):null;
   for(const child of chromeNodes)chromeObserver?.observe(child);
+  globalThis.addEventListener('resize',()=>relayout(),{signal:lifetime.signal});
+  globalThis.visualViewport?.addEventListener('resize',()=>relayout(),{signal:lifetime.signal});
+  globalThis.visualViewport?.addEventListener('scroll',()=>relayout(),{signal:lifetime.signal});
   const size = document.artboard.baseSize;
   let sceneContent;
   function syncSceneCopy() {
@@ -267,6 +279,7 @@ export function mountPlayer(
     stage.replaceChildren(sceneContent);
     stage.style.height='';
     stage.style.backgroundColor = scene.background.color;
+    pageNavigation.hidden=true;
     applySurface(stage, scene.effects?.surface);
     const nodes = [];
     let firstContentPhoto = true;
@@ -294,6 +307,7 @@ export function mountPlayer(
         onSound:(sound,options)=>{void audio.play(sound,options);},
         onAction: (actions, react) => {
           const [action] = actions;
+          if(isSceneFooter(model)&&action?.targetSceneId&&turnPage(sceneDirection(document.scenes,activeSceneId,action.targetSceneId)))return;
           const event = invitation || publicInvitation(document);
           if (action?.type === 'openEventMap') {
             const url = eventMapUrl(event); if (url) globalThis.open(url, '_blank', 'noopener,noreferrer');
@@ -317,12 +331,22 @@ export function mountPlayer(
       nodes.push({ model, node });
       (isSceneFooter(model)?sceneContent:bodyCanvas).append(node);
     }
+    let prose=null,pageIndex=0,layingOut=false;
     const layout = () => {
+      if(layingOut)return;layingOut=true;
+      try{
       if (disposed || sceneContent.hasAttribute('data-garden-opening')) return;
       syncPlayerChrome();
-      const scale = Math.max(0.01, stage.clientWidth / size.width);
-      const frame=sceneFrameLayout(presentation.elements,size,scale);
+      const stageTop=stage.getBoundingClientRect().top;
+      const children=[...shell.children];
+      const after=children.slice(children.indexOf(stage)+1).reduce((sum,e)=>{const css=globalThis.getComputedStyle(e);return css.position==='absolute'?sum:sum+e.getBoundingClientRect().height+(parseFloat(css.marginTop)||0)+(parseFloat(css.marginBottom)||0);},0);
+      const fitted=fittedPage({width:stage.clientWidth,authoredWidth:size.width,authoredHeight:size.height,viewportHeight:globalThis.visualViewport?.height||globalThis.innerHeight,stageTop,chromeAfter:after});
+      const {scale}=fitted;
+      const authoredFrame=sceneFrameLayout(presentation.elements,size,scale);
+      const delta=authoredFrame.height-fitted.height;
+      const frame={...authoredFrame,height:fitted.height,bodyHeight:Math.max(32,authoredFrame.bodyHeight-delta),layouts:new Map([...authoredFrame.layouts].map(([id,l])=>[id,{...l,y:l.y-delta}]))};
       const bodyNodes=nodes.filter(({model})=>!isSceneFooter(model));
+      bodyCanvas.style.zoom='1';bodyCanvas.style.left='0px';
       stage.style.height=stage.style.minHeight=`${frame.height}px`;
       bodyViewport.style.height=`${frame.bodyHeight}px`;bodyCanvas.style.width=`${stage.clientWidth}px`;
       // Intentional overlaps form a cohort. Preserve every position inside it;
@@ -333,8 +357,9 @@ export function mountPlayer(
         if (model.type === "text") {
           node.style.fontSize = responsiveTextSize(model,scale);
           node.style.height = "auto";
+          node.style.minHeight='0px';
         }
-        if (model.type === 'reply' && model.props.replyMode === 'attendance') node.style.minHeight = '0px';
+        if (['reply','interaction'].includes(model.type)) node.style.minHeight = '0px';
         if (["reply", "interaction"].includes(model.type) || (model.type === "image" && model.props.caption))
           node.style.height = "auto";
         if(!isSceneFooter(model)&&['text','reply','interaction','button'].includes(model.type)&&!model.layout.rotation
@@ -346,9 +371,12 @@ export function mountPlayer(
         Object.assign(node.style,{left:`${box.x}px`,top:`${box.y}px`,width:`${box.width}px`,height:`${box.height}px`,minHeight:`${box.height}px`,fontSize:responsiveControlSize(scale),lineHeight:'1.3',padding:'4px 8px'});
       }
       const finishBody=(end,minimum=frame.bodyHeight)=>{
+        growReadingSurfaces(bodyNodes,scale);
         const height=Math.max(minimum,end+24);
         bodyCanvas.style.height=`${height}px`;
-        bodyViewport.tabIndex=height>frame.bodyHeight+1?0:-1;
+        const fit=bodyFit({width:stage.clientWidth,height:frame.bodyHeight,contentHeight:height});
+        bodyCanvas.style.zoom=String(fit.scale);bodyCanvas.style.left=`${fit.left/fit.scale}px`;
+        bodyViewport.tabIndex=-1;bodyViewport.scrollTop=0;
       };
       if (scene.flow) {
         const heights = new Map(bodyNodes.filter(({model})=>model.type==='text').map(({model,node})=>[model.id,node.scrollHeight/scale]));
@@ -365,7 +393,15 @@ export function mountPlayer(
       }
       const { actualEnd } = reflowSceneNodes(bodyNodes, scale, bodyCanvas.getBoundingClientRect().top);
       finishBody(actualEnd);
+      }finally{layingOut=false;}
     };
+    prose=pageChunks(nodes);
+    const showPart=()=>{typewriters.forEach(finish=>finish());for(const entry of prose.entries)entry.node.textContent=entry.pages[Math.min(pageIndex,entry.pages.length-1)];
+      pageNavigation.hidden=prose.count<2;pagePrevious.disabled=pageIndex===0;pageNext.disabled=pageIndex===prose.count-1;
+      setText(pagePosition,message('gift.page.position',{index:pageIndex+1,total:prose.count}));layout();};
+    turnPage=direction=>{if(prose.count<2||pageIndex+direction<0||pageIndex+direction>=prose.count)return false;pageIndex+=direction;showPart();return true;};
+    refreshPageCopy=()=>{prose=pageChunks(nodes);pageIndex=Math.min(pageIndex,prose.count-1);showPart();};
+    relayout=layout;showPart();
     layout();
     const transitionDone = sceneTransition(stage, sceneContent, previous, transition, motion, signal,{direction});
     if (transitionDone) stage.inert = true;
@@ -465,6 +501,7 @@ export function mountPlayer(
         if (model) updateElementCopy(node, model, localized);
       }
       syncSceneCopy();
+      refreshPageCopy();
     },
     get sceneId() {
       return activeSceneId;

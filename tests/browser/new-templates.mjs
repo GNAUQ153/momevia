@@ -77,7 +77,17 @@ export async function runNewTemplates(base) {
     const stage = page.locator('.gift-runtime-stage');
     await stage.getByText('Ảnh mừng sinh nhật', { exact: true }).waitFor();
     await stage.getByRole('button', { name: 'Lật góc khung ảnh' }).click();
-    await stage.getByText(long, { exact: true }).waitFor();
+    const readLongGreeting=async()=>{
+      const greeting=stage.locator('.gift-runtime-text').filter({hasText:'Mừng sinh nhật bạn.'}).first();await greeting.waitFor();
+      const previousPart=page.locator('.gift-page-navigation button').first(),nextPart=page.locator('.gift-page-navigation button').last();
+      for(let i=0;i<10&&!(await previousPart.isDisabled());i++)await previousPart.click();
+      const parts=[];for(let i=0;i<10;i++){
+        parts.push(await greeting.textContent());
+        assert(await stage.locator('.gift-scene-body').evaluate(node=>node.scrollHeight<=node.clientHeight+1),'Each greeting part fits without scrolling');
+        if(await nextPart.isDisabled())break;await nextPart.click();
+      }assert.equal(parts.join(''),long,'Every authored character remains available across fitted parts');
+    };
+    await readLongGreeting();
     await capture('memory-long-greeting.png');
     assert.equal(await page.locator('.recipient-preferences,.gift-runtime-navigation').count(), 0);
     // Preferences selected on another public tab still translate the player in
@@ -88,7 +98,7 @@ export async function runNewTemplates(base) {
     const playerLocale = preferences.locator('.nav-actions [data-locale-select]');
     await playerLocale.selectOption('en');
     await page.waitForFunction(() => globalThis.document.documentElement.lang === 'en');
-    await stage.getByText(long, { exact: true }).waitFor();
+    await readLongGreeting();
     await stage.getByRole('button', { name: 'Gửi một lời hồi đáp' }).click();
     await stage.getByLabel('Reply', { exact: true }).fill('Lời đáp đang nhập ở trang quà.');
     const replyInput = await stage.locator('textarea').elementHandle();

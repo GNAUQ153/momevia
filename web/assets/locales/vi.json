@@ -4284,5 +4284,8 @@
   "soft.tryAgain": "Thử lại tương tác",
   "soft.ready": "Sẵn sàng để thử lại.",
   "soft.gardenRsvp": "Mềm · vườn trà",
-  "soft.paperRsvp": "Mềm · giấy thư"
+  "soft.paperRsvp": "Mềm · giấy thư",
+  "gift.page.previous": "Phần trước",
+  "gift.page.next": "Phần tiếp theo",
+  "gift.page.position": "Phần {index}/{total}"
 }

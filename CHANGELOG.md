@@ -1,3 +1,10 @@
+## Unreleased — Trang thiệp vừa màn hình và màu rõ hơn (2026-11-28)
+
+- Sửa player Canvas dùng chung theo cả chiều rộng/cao và chiều cao thực của thanh điều khiển, áp dụng cho mẫu cũ, mới và tài liệu tạo sau này. Nội dung được đo/co thực, footer nằm trong viewport; bỏ thanh cuộn nội dung cảnh, không cắt phần tràn.
+- Thêm phần đọc tiếp cho lời nhắn dài, giữ đầy đủ chữ/khoảng trắng/dấu và trạng thái tương tác; không sửa scene/binding/snapshot đã lưu. Đổi ngôn ngữ và chuyển phần dừng typewriter cũ.
+- Sáu mẫu mới tạo có nền đậm xen vùng đọc sáng, màu nhấn rõ hơn, sticker Canvas có thể sửa/xóa và chuyển động giới hạn. Thu gọn khoảng trống ở thông tin sự kiện và tăng tương phản của nút chữ trên nền tối.
+- Thêm hồi quy trình duyệt cho mọi cảnh của thư viện và Canvas tùy biến dọc/ngang, kiểm cả tràn viewport và mất chữ. Video/dữ liệu QA tiếp tục chỉ lưu local.
+
 ## Unreleased — Video local và hoàn thiện tương tác Drive (2026-11-28)
 
 - Thêm khối video WebM chọn được trong Canvas khi bật QA local JSON: tải/thay/gỡ, nhân bản, lưu và mở lại; tệp bất biến có chủ sở hữu, snapshot pins, invite/revoke và đọc Range để tua. Không lưu video vào Git, public assets, MySQL hoặc profile production.

@@ -1,5 +1,18 @@
 import { NATURAL_ARTWORK_LABEL } from '../../shared/canvas/event-media.js';
 
+// A reading surface follows the text it originally contains, without rewriting
+// the sender's shape or moving deliberately overlapping authored layers.
+export function growReadingSurfaces(nodes,scale){
+ for(const {model,node}of nodes){
+  if(model.type!=='shape'||model.props.kind!=='rectangle'||model.layout.width<100||model.layout.height<100)continue;
+  const r=model.layout;
+  const text=nodes.filter(({model:e})=>e.type==='text'&&!e.accessibility?.decorative&&e.layout.x+e.layout.width/2>=r.x&&e.layout.x+e.layout.width/2<=r.x+r.width&&e.layout.y+e.layout.height/2>=r.y&&e.layout.y+e.layout.height/2<=r.y+r.height);
+  const end=Math.max(0,...text.map(({node:n})=>(parseFloat(n.style.top)||0)+n.offsetHeight));
+  const top=parseFloat(node.style.top)||0,height=parseFloat(node.style.height)||0;
+  if(end>top+height)node.style.height=`${end-top+16*scale}px`;
+ }
+}
+
 // One measurement contract for the live scene and the scene beneath opening doors.
 export function reflowSceneNodes(nodes, scale, stageTop) {
   const content = nodes.filter(({ model }) => !['shape', 'line', 'sticker'].includes(model.type)
